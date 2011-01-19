@@ -1,0 +1,1176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+
+  <title>Module: Z80::Program</title>
+
+  <link rel="stylesheet" href="../rdoc.css" type="text/css" media="screen" />
+
+  <script src="../js/jquery.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/thickbox-compressed.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/quicksearch.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/darkfish.js" type="text/javascript"
+    charset="utf-8"></script>
+
+</head>
+<body class="module">
+
+  <div id="metadata">
+    <div id="home-metadata">
+      <div id="home-section" class="section">
+        <h3 class="section-header">
+          <a href="../index.html">Home</a>
+          <a href="../index.html#classes">Classes</a>
+          <a href="../index.html#methods">Methods</a>
+        </h3>
+      </div>
+    </div>
+
+    <div id="file-metadata">
+      <div id="file-list-section" class="section">
+        <h3 class="section-header">In Files</h3>
+        <div class="section-body">
+          <ul>
+          
+            <li><a href="../z80_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80.rb">z80.rb</a></li>
+          
+            <li><a href="../z80/labels_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/labels.rb">z80/labels.rb</a></li>
+          
+            <li><a href="../z80/mnemonics_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/mnemonics.rb">z80/mnemonics.rb</a></li>
+          
+            <li><a href="../z80/registers_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/registers.rb">z80/registers.rb</a></li>
+          
+          </ul>
+        </div>
+      </div>
+
+      
+    </div>
+
+    <div id="class-metadata">
+
+      <!-- Parent Class -->
+      
+
+      <!-- Namespace Contents -->
+      
+      <div id="namespace-list-section" class="section">
+        <h3 class="section-header">Namespace</h3>
+        <ul class="link-list">
+          
+          <li><span class="type">MODULE</span> <a href="Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
+          
+          <li><span class="type">CLASS</span> <a href="Program/Condition.html">Z80::Program::Condition</a></li>
+          
+          <li><span class="type">CLASS</span> <a href="Program/Register.html">Z80::Program::Register</a></li>
+          
+        </ul>
+      </div>
+      
+
+      <!-- Method Quickref -->
+      
+      <div id="method-list-section" class="section">
+        <h3 class="section-header">Methods</h3>
+        <ul class="link-list">
+          
+          <li><a href="#method-i-5B-5D">#[]</a></li>
+          
+          <li><a href="#method-i-addr">#addr</a></li>
+          
+          <li><a href="#method-i-bytes">#bytes</a></li>
+          
+          <li><a href="#method-i-data">#data</a></li>
+          
+          <li><a href="#method-i-export">#export</a></li>
+          
+          <li><a href="#method-i-import">#import</a></li>
+          
+          <li><a href="#method-i-import_file">#import_file</a></li>
+          
+          <li><a href="#method-i-label">#label</a></li>
+          
+          <li><a href="#method-i-macro">#macro</a></li>
+          
+          <li><a href="#method-i-method_missing">#method_missing</a></li>
+          
+          <li><a href="#method-i-new">#new</a></li>
+          
+          <li><a href="#method-i-ns">#ns</a></li>
+          
+          <li><a href="#method-i-org">#org</a></li>
+          
+          <li><a href="#method-i-pc">#pc</a></li>
+          
+          <li><a href="#method-i-union">#union</a></li>
+          
+          <li><a href="#method-i-words">#words</a></li>
+          
+        </ul>
+      </div>
+      
+
+      <!-- Included Modules -->
+      
+      <div id="includes-section" class="section">
+        <h3 class="section-header">Included Modules</h3>
+        <ul class="link-list">
+        
+        
+          <li><a class="include" href="Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
+        
+        
+        </ul>
+      </div>
+      
+    </div>
+
+    <div id="project-metadata">
+      
+      
+      <div id="fileindex-section" class="section project-section">
+        <h3 class="section-header">Files</h3>
+        <ul>
+        
+          <li class="file"><a href="../README_txt.html">README.txt</a></li>
+        
+        </ul>
+      </div>
+      
+
+      <div id="classindex-section" class="section project-section">
+        <h3 class="section-header">Class Index
+          <span class="search-toggle"><img src="../images/find.png"
+            height="16" width="16" alt="[+]"
+            title="show/hide quicksearch" /></span></h3>
+        <form action="#" method="get" accept-charset="utf-8" class="initially-hidden">
+        <fieldset>
+          <legend>Quicksearch</legend>
+          <input type="text" name="quicksearch" value=""
+            class="quicksearch-field" />
+        </fieldset>
+        </form>
+
+        <ul class="link-list">
+        
+          <li><a href="../Z80.html">Z80</a></li>
+        
+          <li><a href="../Z80/Alloc.html">Z80::Alloc</a></li>
+        
+          <li><a href="../Z80/CompileError.html">Z80::CompileError</a></li>
+        
+          <li><a href="../Z80/Helpers.html">Z80::Helpers</a></li>
+        
+          <li><a href="../Z80/Label.html">Z80::Label</a></li>
+        
+          <li><a href="../Z80/Program.html">Z80::Program</a></li>
+        
+          <li><a href="../Z80/Program/Condition.html">Z80::Program::Condition</a></li>
+        
+          <li><a href="../Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
+        
+          <li><a href="../Z80/Program/Register.html">Z80::Program::Register</a></li>
+        
+          <li><a href="../Z80/Syntax.html">Z80::Syntax</a></li>
+        
+          <li><a href="../Z80/TAP.html">Z80::TAP</a></li>
+        
+          <li><a href="../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+        
+          <li><a href="../Symbol.html">Symbol</a></li>
+        
+        </ul>
+        <div id="no-class-search-results" style="display: none;">No matching classes.</div>
+      </div>
+
+      
+    </div>
+  </div>
+
+  <div id="documentation">
+    <h1 class="module">Z80::Program</h1>
+
+    <div id="description">
+      
+    </div>
+
+    <!-- Constants -->
+    
+
+    <!-- Attributes -->
+    
+    <div id="attribute-method-details" class="method-section section">
+      <h3 class="section-header">Attributes</h3>
+
+      
+      <div id="code-attribute-method" class="method-detail">
+        <a name="code"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">code</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>raw, not relocated code</p>
+        
+        </div>
+      </div>
+      
+      <div id="reloc-attribute-method" class="method-detail">
+        <a name="reloc"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">reloc</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>relocation table</p>
+        
+        </div>
+      </div>
+      
+      <div id="debug-attribute-method" class="method-detail">
+        <a name="debug"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">debug</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>raw, debug information</p>
+        
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- Methods -->
+    
+    <div id="public-instance-method-details" class="method-section section">
+      <h3 class="section-header">Public Instance Methods</h3>
+
+    
+      <div id="5B-5D-method" class="method-detail ">
+        <a name="method-i-5B-5D"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">[]</span><span
+            class="method-args">(label)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Method used internally by mnemonics to make pointer of a label.</p>
+
+<p>Example:</p>
+
+<pre>ld  hl, [label]</pre>
+          
+
+          
+          <div class="method-source-code"
+            id="5B-5D-source">
+<pre>
+<span class="ruby-comment"># File z80/labels.rb, line 37</span>
+def [](label)
+        label = label.first while label.is_a?(<span class="ruby-constant">Array</span>)
+        if label.respond_to?(:to_label) or label.is_a?(<span class="ruby-constant">Register</span>)
+                label[]
+        elsif label.is_a?(<span class="ruby-constant">Condition</span>)
+                raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid pointer argument.&quot;</span>
+        else
+                <span class="ruby-constant">Label</span>.new(label.to_i, 1)[]
+        end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="addr-method" class="method-detail ">
+        <a name="method-i-addr"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">addr</span><span
+            class="method-args">(address, type = 1)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Creates absolute label at <tt>address</tt> of (optional) <tt>type</tt></p>
+
+<p>Example:</p>
+
+<pre>foo addr 0xffff
+bar addr 0x4000, 2</pre>
+
+<p>Returns unnamed <tt>label</tt> that points to <tt>address</tt> and is of
+<tt>type</tt>.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="addr-source">
+<pre>
+<span class="ruby-comment"># File z80/labels.rb, line 66</span>
+def addr(address, type = 1)
+        <span class="ruby-constant">Label</span>.new address, type
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="bytes-method" class="method-detail ">
+        <a name="method-i-bytes"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-callseq">bytes(size = 1, data = nil)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Creates a label and allocate bytes with <a
+href="Program.html#method-i-data">Program.data</a>.</p>
+
+<p>Shortcut for:</p>
+
+<pre>data 1, ...</pre>
+          
+
+          
+          <div class="method-source-code"
+            id="bytes-source">
+<pre>
+<span class="ruby-comment"># File z80/labels.rb, line 146</span>
+def bytes(*args); data(1, *args); end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="data-method" class="method-detail ">
+        <a name="method-i-data"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-callseq">data(type = 1)
+data(type, size = 1)
+data(type, size, data)
+data(type, data)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Creates relocable label and adds data to <a
+href="Program.html#attribute-i-code">Program.code</a> at <a
+href="Program.html#method-i-pc">Program.pc</a>. The data size will be of
+<tt>type.to_i</tt> multiplied by <tt>size</tt>.</p>
+<ul><li>
+<p><tt>data</tt> may be a String or an Array (possible containing another
+Arrays if <tt>type</tt> is a struct).</p>
+</li><li>
+<p><tt>data</tt> is padded with zeroes.</p>
+</li></ul>
+
+<p>Example:</p>
+
+<pre># creates label foo of type 2 and fills 10 bytes of code (5 words) with data from array.
+foo   data 2, [0, 2, 4, label1, label2]
+# creates label bar and fills 10 bytes of code with 0s.
+bar   data 1, 10
+# creates label bar and fills 2 words of code with data from array and the rest (3 words) with 0s.
+baz   data 2, 10, [1, 2]
+# creates label mystr and fills 12 bytes of code with bytes from string.
+mystr data 1, &quot;Hello World!&quot;</pre>
+
+<p>See: <a href="Label.html">Label</a> for more examples.</p>
+
+<p>Returns unnamed <tt>label</tt> that points to <a
+href="Program.html#method-i-pc">Program.pc</a> and is of <tt>type</tt> and
+size <tt>type.to_i</tt> * <tt>size</tt>.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="data-source">
+<pre>
+<span class="ruby-comment"># File z80/labels.rb, line 103</span>
+def data(type = 1, size = nil, data = nil)
+        data, size = size, nil if size.respond_to? :to_a
+        data = if type.respond_to? :to_data
+                data||= []
+                type.to_data(*data)
+        elsif data.respond_to? :to_a
+                size||= data.size
+                data.to_a[0,size].each_with_index.map do |d,i|
+                        case type.to_i
+                        when 1
+                                if d.respond_to? :to_label
+                                        <span class="ruby-constant">Z80</span>::add_reloc(self, d, 1, i, :self)
+                                else
+                                        [d].pack(<span class="ruby-string">'c'</span>)
+                                end
+                        when 2
+                                if d.respond_to? :to_label
+                                        <span class="ruby-constant">Z80</span>::add_reloc(self, d, 2, i*2)
+                                else
+                                        [d].pack(<span class="ruby-string">'s'</span>)
+                                end
+                        else
+                                raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid data type&quot;</span>
+                        end
+                end.join
+        elsif data.respond_to? :to_s
+                size||= data.to_s.bytesize
+                type = 1
+                data.to_s
+        end
+        size||= 1
+        size*= type.to_i
+        data||= 0.chr * size
+        data = data.ljust(size, <span class="ruby-string">&quot;\x0&quot;&quot;</span>) if data.bytesize &lt; size
+        <span class="ruby-constant">Z80</span>::add_code(self, data[0,size], type)
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="export-method" class="method-detail ">
+        <a name="method-i-export"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">export</span><span
+            class="method-args">(label)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Exports <tt>label</tt>. This will allow other programs to <a
+href="Program.html#method-i-import">Program.import</a> it. All members of
+<tt>label</tt> will also be exported but within a namespace of exported
+label. Alternatively pass <tt>:auto</tt> to make all subsequent labels to
+be exported or <tt>:noauto</tt> to stop autoexporting.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="export-source">
+<pre>
+<span class="ruby-comment"># File z80/labels.rb, line 20</span>
+def export(label)
+        case label
+        when :auto
+                <span class="ruby-ivar">@autoexport</span> = true
+        when :noauto
+                <span class="ruby-ivar">@autoexport</span> = false
+        else
+                name = label.to_name
+                raise <span class="ruby-constant">Syntax</span>, &quot;No label name for export: #{label.inspect}.&quot; if name.nil? or name.empty?
+                <span class="ruby-ivar">@exports</span>[name.to_s] = label
+        end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="import-method" class="method-detail ">
+        <a name="method-i-import"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">import</span><span
+            class="method-args">(name, program = nil, flags = {})</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Import code, labels and macros from other <tt>program</tt>. Give (optional)
+<tt>name</tt> for namespace. Without <tt>name</tt> labels from
+<tt>program</tt> will be defined in current namespace. Pass
+<tt>program</tt> class (not an instance!). Give flags to choose what to
+import from <tt>program</tt>:</p>
+<ul><li>
+<p><tt>:labels</tt> =&gt; <tt>true/false</tt> (default: <tt>true</tt>)</p>
+</li><li>
+<p><tt>:code</tt>   =&gt; <tt>true/false</tt> (default: <tt>true</tt>)</p>
+</li><li>
+<p><tt>:macros</tt> =&gt; <tt>true/false</tt> (default: <tt>false</tt>)</p>
+</li></ul>
+
+<p>To be able to import <b>macros</b> create module `Macros’ inside
+<tt>program</tt> class and put methods there. They will be imported as
+macros. <b>In such a method always wrap your code inside <a
+href="Program.html#method-i-ns">ns</a>.</b></p>
+
+<p>Returns (optionally named) <tt>label</tt> that points to beginning of
+imported code.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="import-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 270</span>
+def import(name, program = nil, flags = {})
+        unless name.is_a?(<span class="ruby-constant">Symbol</span>)
+                flags, program, name = program, name, nil
+        end
+        addr = pc
+        p = program.new addr
+        options = {
+                :labels =&gt; true,
+                :code       =&gt; true,
+                :macros =&gt; false,
+        }.merge flags
+        if options[:macros]
+                self.extend program::<span class="ruby-constant">Macros</span> if defined?(program::<span class="ruby-constant">Macros</span>)
+        end
+        if options[:labels]
+                members = p.exports.dup
+        end
+        if name
+                l = <span class="ruby-constant">Label</span>.new(addr, 1, :code, members)
+                self.send name.to_sym, l
+        else
+                members.each {|n, m| self.send n.to_sym, m} if members
+                l = <span class="ruby-constant">Label</span>.new addr, 1, :code
+        end
+        if options[:code]
+                <span class="ruby-ivar">@debug</span> &lt;&lt; <span class="ruby-constant">DebugInfo</span>.new(addr, 0, nil, nil, <span class="ruby-ivar">@context_labels</span>.dup &lt;&lt; l)
+                <span class="ruby-ivar">@debug</span> &lt;&lt; [&quot; #{program} &quot;.center(38, ==)] + p.debug + [&quot; #{program} &quot;.center(38, ^^)]
+                <span class="ruby-ivar">@code</span> &lt;&lt; p.code
+        end
+        l
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="import_file-method" class="method-detail ">
+        <a name="method-i-import_file"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">import_file</span><span
+            class="method-args">(file, type = :any, size = nil, args = {})</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Import binary file.</p>
+<ul><li>
+<p><tt>file</tt> is a filename.</p>
+</li><li>
+<p><tt>type</tt> specifies format of binary file (as <a
+href="../Symbol.html">Symbol</a>), if <tt>:any</tt> -&gt; format will be
+determined by filename's extension.</p>
+</li></ul>
+
+<p><b>Currently only :tap format is supported and only, if you include <a
+href="TAP.html">Z80::TAP</a> in your program</b>.</p>
+
+<p>If format is not known, file is being imported as binary.</p>
+
+<p>Returns unnamed <tt>label</tt> that points to beginning of imported data.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="import_file-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 313</span>
+def import_file(file, type = :any, size = nil, args = {})
+        type = type.to_s.upcase.to_sym
+        if type == :ANY
+                type = <span class="ruby-constant">File</span>.extname(file).gsub(<span class="ruby-regexp">/^\./</span>,<span class="ruby-string">''</span>).upcase.to_sym
+        end
+        data = if <span class="ruby-constant">Z80</span>.constants.include?(type) and (handler = <span class="ruby-constant">Z80</span>.const_get(type)) and (handler.respond_to? :read_data)
+                $stderr.puts &quot;Importing #{type} file: `#{file}'.&quot;
+                handler.read_data(file, args)
+        else
+                $stderr.puts &quot;Importing binary file: `#{file}'.&quot;
+                <span class="ruby-constant">File</span>.open(file, <span class="ruby-string">'rb'</span>) {|f| f.read}
+        end
+        <span class="ruby-constant">Z80</span>::add_code self, if size
+                data[0, size].ljust(size, <span class="ruby-string">&quot;\x0&quot;&quot;</span>)
+        else
+                data
+        end, size || data.bytesize
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="label-method" class="method-detail ">
+        <a name="method-i-label"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">label</span><span
+            class="method-args">(type = 1)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Creates relocable label at <a
+href="Program.html#method-i-pc">Program.pc</a> of (optional) <tt>type</tt>.</p>
+
+<p>Example:</p>
+
+<pre>foo label
+bar label 2</pre>
+
+<p>Returns unnamed <tt>label</tt> that points to <a
+href="Program.html#method-i-pc">Program.pc</a> and is of <tt>type</tt>.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="label-source">
+<pre>
+<span class="ruby-comment"># File z80/labels.rb, line 55</span>
+def label(type = 1)
+        <span class="ruby-constant">Label</span>.new pc, type, :code
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="macro-method" class="method-detail ">
+        <a name="method-i-macro"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">macro</span><span
+            class="method-args">(name, *registers, &mblock)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Convenience method to create macros. Give a <tt>name</tt> (<a
+href="../Symbol.html">Symbol</a>) for macro, (optional) list of
+<tt>registers</tt> to push before and pop after code and a block of code.
+The block will receive <tt>eoc</tt> label (see <a
+href="Program.html#method-i-ns">Program.ns</a>) and any argument you pass
+when calling a macro.</p>
+
+<p>If you want your macros being exportable, instead of using this method
+create module `Macros’ inside your <b>program</b> class and define methods
+there.</p>
+
+<p><b>Unlike labels, macros must be defined before being referenced.</b></p>
+
+<p><b>Be carefull with <tt>ret</tt> instruction inside code if you used
+<tt>registers</tt>.</b></p>
+          
+
+          
+          <div class="method-source-code"
+            id="macro-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 184</span>
+def macro(name, *registers, &amp;mblock)
+        raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Macro may be defined only in main program context.&quot;</span> if <span class="ruby-ivar">@contexts</span>.size &gt; 1
+        raise <span class="ruby-constant">Syntax</span>, &quot;A label: #{name} is already allocated.&quot; if <span class="ruby-ivar">@labels</span>.has_key?(label.to_s)
+        m = lambda do |*args, &amp;block|
+                if args.first.is_a?(<span class="ruby-constant">Symbol</span>)
+                        n = args.shift
+                end
+                ns(n) do |eoc|
+                        registers.each {|rr| push rr}
+                        mblock.call eoc, *args, &amp;block
+                        registers.reverse.each {|rr| pop rr}
+                end
+        end
+        define_singleton_method(name.to_sym, &amp;m)
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method_missing-method" class="method-detail ">
+        <a name="method-i-method_missing"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">method_missing</span><span
+            class="method-args">(m, label = nil)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>If no method <tt>m</tt> is defined assume it is a label. <a
+href="Label.html">Label</a> with no arguments is a label being referenced.
+If label has argument and it is a label (or integer) allocate a name for
+it.</p>
+
+<p>Example:.</p>
+
+<pre>mylabel 0x0123</pre>
+
+<p>is the same as:</p>
+
+<pre>mylabel addr 0x0123</pre>
+
+<p>This creates a label at instruction and references it:</p>
+
+<pre>mylabel ld  a, [hl]
+        inc hl
+        djnz mylabel</pre>
+
+<p>Returns named <tt>label</tt> that points to <tt>label</tt> or is a dummy
+label (not yet defined).</p>
+          
+
+          
+          <div class="method-source-code"
+            id="method_missing-source">
+<pre>
+<span class="ruby-comment"># File z80/labels.rb, line 170</span>
+def method_missing(m, label = nil)
+        <span class="ruby-comment"># puts [m.inspect, label.inspect]*', '</span>
+        name = m.to_s
+        if ct = <span class="ruby-ivar">@contexts</span>.last
+                <span class="ruby-ivar">@labels</span>[name] = if label
+                        label = if label.respond_to? :to_label
+                                label.to_label self
+                        else
+                                <span class="ruby-constant">Label</span>.new label.to_i
+                        end
+                        <span class="ruby-ivar">@dummies</span>.delete_if do |n, lbl, *cts|
+                                if n == name and cts.include? ct.object_id
+                                        lbl.reinitialize label
+                                        true
+                                else
+                                        false
+                                end
+                        end
+                        if ct.has_key? name
+                                ct[name].reinitialize label
+                                label.name = name
+                        else
+                                label.name = name
+                                ct[name] = label
+                        end
+                        if <span class="ruby-ivar">@autoexport</span>
+                                export ct[name]
+                        else
+                                ct[name]
+                        end
+                else
+                        ct[name]||= <span class="ruby-constant">Label</span>.dummy(name)
+                end
+        end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="new-method" class="method-detail ">
+        <a name="method-i-new"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">new</span><span
+            class="method-args">(start = 0x0000, *args)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Compiles <b>program</b> at <tt>start</tt> address passing *args to
+initialize(). Returns compiled instance of a <b>program</b>.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="new-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 137</span>
+def new(start = 0x0000, *args)
+        unless <span class="ruby-ivar">@dummies</span>.empty? and !<span class="ruby-ivar">@contexts</span>.last.any? {|_,v| v.dummy?}
+                dummies = <span class="ruby-ivar">@dummies</span>.map {|d| d[0..1]} + <span class="ruby-ivar">@contexts</span>.last.select {|_,v| v.dummy?}.map {|d| d[0..1]}
+                raise <span class="ruby-constant">CompileError</span>, &quot;Variables not initialized:#{dummies.inspect}&quot;
+        end
+        p = super
+        c = <span class="ruby-ivar">@code</span>.dup
+        <span class="ruby-ivar">@reloc</span>.each do |r|
+                case r.size
+                when 1
+                        addr = r.from ? r.from : r.addr + 1 + start
+                        unless (128..127).include?(i = r.alloc.to_i(start, addr))
+                                raise <span class="ruby-constant">CompileError</span>, &quot;Relative relocation out of range at 0x#{'%04x' % r.addr} -&gt; #{i}&quot;
+                        end
+                        c[r.addr] = [i].pack(<span class="ruby-string">'c'</span>)
+                when 2
+                        c[r.addr, 2] = [r.alloc.to_i(start)].pack(<span class="ruby-string">'S'</span>)
+                end
+        end
+        [<span class="ruby-string">'@code'</span>, c,
+         <span class="ruby-string">'@org'</span>, start,
+         <span class="ruby-string">'@debug'</span>, nil,
+         <span class="ruby-string">'@exports'</span>, <span class="ruby-constant">Hash</span>[<span class="ruby-ivar">@exports</span>.map {|n, l| 
+                        [n, l.deep_clone_with_relocation(start)]
+                }]
+        ].each_slice(2) do |n,v|
+                p.instance_variable_set n,v
+        end
+        p
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="ns-method" class="method-detail ">
+        <a name="method-i-ns"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">ns</span><span
+            class="method-args">(name = nil)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Creates namespace for labels defined inside code. Give a block of code
+containing labels or other namespaces (namespaces can be nested). Give
+(optional) <tt>name</tt> as <a href="../Symbol.html">Symbol</a> for named
+(labeled) namespaces. The block receives one variable: <tt>eoc</tt> which
+is a label pointing to an end of namespace code.</p>
+
+<p>Example:</p>
+
+<pre>ns :foo do |eoc|
+  loop1 add a
+        jr C, eoc
+        inc b
+        jr NZ, loop1
+end</pre>
+
+<p>Returns (optionally named) <tt>label</tt> that points to beginning of code.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="ns-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 222</span>
+def ns(name = nil)
+        labels = <span class="ruby-ivar">@labels</span>
+        <span class="ruby-ivar">@labels</span> = <span class="ruby-ivar">@labels</span>.dup <span class="ruby-comment">#labels.merge @contexts.last</span>
+        <span class="ruby-ivar">@contexts</span> &lt;&lt; {}
+        raise <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;no block in ns&quot;</span> unless block_given?
+        addr = pc
+        eoc = <span class="ruby-constant">Label</span>.dummy
+        <span class="ruby-ivar">@context_labels</span> &lt;&lt; (top = <span class="ruby-constant">Label</span>.dummy)
+        <span class="ruby-ivar">@debug</span> &lt;&lt; <span class="ruby-constant">DebugInfo</span>.new(addr, 0, nil, nil, <span class="ruby-ivar">@context_labels</span>.dup)
+        yield eoc
+        eoc.reinitialize(pc, 1, :code)
+        members, dummies = <span class="ruby-ivar">@contexts</span>.pop.partition do |n, l|
+                if l.dummy?
+                        false
+                else
+                        true
+                end
+        end
+        contexts = <span class="ruby-ivar">@contexts</span>.map(&amp;:object_id)
+        <span class="ruby-ivar">@labels</span> = labels
+        <span class="ruby-ivar">@dummies</span>+= dummies.map do |n, l|
+                if <span class="ruby-ivar">@labels</span>.has_key?(n) and !<span class="ruby-ivar">@labels</span>[n].dummy?
+                        l.reinitialize <span class="ruby-ivar">@labels</span>[n]
+                        nil
+                else
+                        [n, l] + contexts
+                end
+        end.compact
+        <span class="ruby-ivar">@context_labels</span>.pop
+        top.reinitialize addr, pc - addr, :code, <span class="ruby-constant">Hash</span>[members]
+        top = self.send name.to_sym, top if name
+        top
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="org-method" class="method-detail ">
+        <a name="method-i-org"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">org</span><span
+            class="method-args">(address, pad = 0)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Creates offset from <a href="Program.html#method-i-pc">Program.pc</a> to
+<tt>address</tt> padding it with <tt>pad</tt>. Do not confuse it with
+assembler directive ORG which sets absolute address of program. In ruby-z80
+only an instances of a program have absolute addresses.</p>
+
+<p>Returns unnamed <tt>label</tt> that points to beginning of padded space.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="org-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 204</span>
+def org(address, pad = 0)
+        address = address.to_i &amp; 0xffff
+        raise <span class="ruby-constant">Syntax</span>, &quot;The current code pointer: #{pc.to_s 16} is exceeding: #{address.to_i.to_s 16} &quot; if pc &gt; address
+        <span class="ruby-constant">Z80</span>::add_code self, [pad].pack(<span class="ruby-string">'c'</span>)*(address - pc)
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="pc-method" class="method-detail ">
+        <a name="method-i-pc"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">pc</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Current program counter relative to 0.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="pc-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 169</span>
+def pc
+        <span class="ruby-ivar">@code</span>.bytesize
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="union-method" class="method-detail ">
+        <a name="method-i-union"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">union</span><span
+            class="method-args">(label, type)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Creates a label at <tt>label</tt> of different <tt>type</tt>.</p>
+
+<p>Example:</p>
+
+<pre>foo label
+bar union foo, 2</pre>
+
+<p>Returns unnamed <tt>label</tt> that points to <tt>label</tt> and is of
+different <tt>type</tt>.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="union-source">
+<pre>
+<span class="ruby-comment"># File z80/labels.rb, line 77</span>
+def union(label, type)
+        raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid union argument.&quot;</span> unless label.respond_to?(:to_label) and !label.dummy?
+        <span class="ruby-constant">Label</span>.new label.to_i, type, label.immediate? ? nil : :code
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="words-method" class="method-detail ">
+        <a name="method-i-words"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-callseq">words(size = 1, data = nil)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Creates a label and allocate words with <a
+href="Program.html#method-i-data">Program.data</a>.</p>
+
+<p>Shortcut for:</p>
+
+<pre>data 2, ...</pre>
+          
+
+          
+          <div class="method-source-code"
+            id="words-source">
+<pre>
+<span class="ruby-comment"># File z80/labels.rb, line 154</span>
+def words(*args); data(2, *args); end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </div>
+  
+
+  </div>
+
+  <div id="validator-badges">
+    <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+    <p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
+      Rdoc Generator</a> 2</small>.</p>
+  </div>
+
+</body>
+</html>
+

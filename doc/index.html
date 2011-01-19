@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+
+  <title>ruby-Z80</title>
+
+  <link type="text/css" media="screen" href="rdoc.css" rel="stylesheet" />
+
+  <script src="js/jquery.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/thickbox-compressed.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/quicksearch.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/darkfish.js" type="text/javascript" charset="utf-8"></script>
+
+</head>
+<body class="indexpage">
+
+  
+  <h1>ruby-Z80</h1>
+
+  
+  <div id="main">
+    
+
+<h2>A <a href="Z80.html">Z80</a> assembler powered by ruby.</h2>
+<table class="rdoc-list"><tr><td class="rdoc-term"><p>Author</p></td>
+<td>
+<p>Rafał Michalski  (<a
+href="mailto:royaltm75@gmail.com">royaltm75@gmail.com</a>)</p>
+</td></tr></table>
+
+<pre>class Math
+  module Macros
+    # here your macros will be populated
+  end
+  include Z80
+  macro :multi8c_m do |eoc, th, tl|  # multiply hl by a; stops on CARRY out
+          ld  tl, l
+          ld  th, h
+          ld  hl,0
+    loop1 srl a
+          jr  NC, noadd
+          add hl, th|tl
+          jr  C, eoc
+    noadd jr  Z, eoc
+          sla tl
+          rl  th
+          jp  NC, loop1
+  end
+          ret
+  ns :multi16 do       # multiply hl by bc and stores result in hl de
+          ld  a, c
+          ex af,af
+          xor a
+          push af
+          ld  e, a
+          ld  d, a
+          ld  a, c
+          ld  c, l
+          ld  b, h
+          ld  h, d
+          ld  l, e
+          scf
+          adc a
+    loop1 jr  NC, noadd1
+          ex  (sp), hl
+          add hl, de
+          ex  (sp), hl
+          adc hl, bc
+    nadd1 srl b
+          rr  c
+          rr  d
+          add a
+          jp  NZ, loop1
+          ex  af, af
+          add a
+    loop2 jr  NC, nadd2
+          ex  (sp), hl
+          add hl, de
+          ex  (sp), hl
+          adc hl, bc
+    nadd2 srl c
+          rr  d
+          rr  e
+          add a
+          jp  NZ, loop2
+          pop de
+          ret
+  end
+end</pre>
+
+  </div>
+  
+
+  
+  
+  <h2>Files</h2>
+  <ul>
+    
+      <li class="file"><a href="README_txt.html">README.txt</a></li>
+    
+  </ul>
+  
+
+  <h2 id="classes">Classes/Modules</h2>
+  <ul>
+    
+    <li class="module"><a href="Z80.html">Z80</a></li>
+    
+    <li class="class"><a href="Z80/Alloc.html">Z80::Alloc</a></li>
+    
+    <li class="class"><a href="Z80/CompileError.html">Z80::CompileError</a></li>
+    
+    <li class="module"><a href="Z80/Helpers.html">Z80::Helpers</a></li>
+    
+    <li class="class"><a href="Z80/Label.html">Z80::Label</a></li>
+    
+    <li class="module"><a href="Z80/Program.html">Z80::Program</a></li>
+    
+    <li class="class"><a href="Z80/Program/Condition.html">Z80::Program::Condition</a></li>
+    
+    <li class="module"><a href="Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
+    
+    <li class="class"><a href="Z80/Program/Register.html">Z80::Program::Register</a></li>
+    
+    <li class="class"><a href="Z80/Syntax.html">Z80::Syntax</a></li>
+    
+    <li class="module"><a href="Z80/TAP.html">Z80::TAP</a></li>
+    
+    <li class="class"><a href="Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+    
+    <li class="class"><a href="Symbol.html">Symbol</a></li>
+    
+  </ul>
+
+  <h2 id="methods">Methods</h2>
+  <ul>
+    
+      <li><a href="Z80/Program/Register.html#method-c-5B-5D">::[] &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Program/Condition.html#method-c-5B-5D">::[] &mdash; Z80::Program::Condition</a></li>
+    
+      <li><a href="Z80.html#method-c-add_code">::add_code &mdash; Z80</a></li>
+    
+      <li><a href="Z80.html#method-c-add_reloc">::add_reloc &mdash; Z80</a></li>
+    
+      <li><a href="Z80/Label.html#method-c-byte">::byte &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Label.html#method-c-dummy">::dummy &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Label.html#method-c-members_of_struct">::members_of_struct &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-c-names">::names &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Program/Condition.html#method-c-names">::names &mdash; Z80::Program::Condition</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-c-new">::new &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-c-new">::new &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-c-new">::new &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Program/Condition.html#method-c-new">::new &mdash; Z80::Program::Condition</a></li>
+    
+      <li><a href="Z80/TAP.html#method-c-read_data">::read_data &mdash; Z80::TAP</a></li>
+    
+      <li><a href="Z80/Label.html#method-c-to_data">::to_data &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Label.html#method-c-word">::word &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-2A">#* &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-2A">#* &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-2B">#+ &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-2B">#+ &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-i-2B">#+ &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-2B-40">#+@ &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-2B-40">#+@ &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-i-2D">#- &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-2D">#- &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-2D">#- &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-3E-3E">#>> &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-3E-3E">#>> &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-5B-5D">#[] &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-5B-5D">#[] &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-i-5B-5D">#[] &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-5B-5D">#[] &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-addr">#addr &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-i-bit8-3F">#bit8? &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-bytes">#bytes &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Helpers.html#method-i-cpl">#cpl &mdash; Z80::Helpers</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-data">#data &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80.html#method-i-debug">#debug &mdash; Z80</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-deep_clone_with_relocation">#deep_clone_with_relocation &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-deep_clone_with_relocation">#deep_clone_with_relocation &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-dummy-3F">#dummy? &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-dummy-3F">#dummy? &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-dup">#dup &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-export">#export &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Helpers.html#method-i-h">#h &mdash; Z80::Helpers</a></li>
+    
+      <li><a href="Z80/Helpers.html#method-i-hb">#hb &mdash; Z80::Helpers</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-immediate-3F">#immediate? &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-immediate-3F">#immediate? &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-import">#import &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-import_file">#import_file &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-initialize">#initialize &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-label">#label &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-macro">#macro &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-method_missing">#method_missing &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-method_missing">#method_missing &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-method_missing">#method_missing &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-name-3D">#name= &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-name-3D">#name= &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Helpers.html#method-i-neg">#neg &mdash; Z80::Helpers</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-new">#new &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-ns">#ns &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-i-one_of-3F">#one_of? &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-org">#org &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-pc">#pc &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-pointer-3F">#pointer? &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-i-pointer-3F">#pointer? &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-pointer-3F">#pointer? &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-reinitialize">#reinitialize &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-reinitialize">#reinitialize &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-relocations">#relocations &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/TAP.html#method-i-save_tap">#save_tap &mdash; Z80::TAP</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-i-size">#size &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-to_alloc">#to_alloc &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-to_alloc">#to_alloc &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-i-to_debug">#to_debug &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Program/Condition.html#method-i-to_i">#to_i &mdash; Z80::Program::Condition</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-i-to_i">#to_i &mdash; Z80::Program::Register</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-to_i">#to_i &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-to_i">#to_i &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-to_label">#to_label &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-to_label">#to_label &mdash; Z80::Label</a></li>
+    
+      <li><a href="Symbol.html#method-i-to_label">#to_label &mdash; Symbol</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-to_name">#to_name &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-to_name">#to_name &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-to_s">#to_s &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-to_s">#to_s &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-to_str">#to_str &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-to_str">#to_str &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/TAP.html#method-i-to_tap">#to_tap &mdash; Z80::TAP</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-union">#union &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-words">#words &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80/Program/Register.html#method-i-7C">#| &mdash; Z80::Program::Register</a></li>
+    
+  </ul>
+
+  <div id="validator-badges">
+    <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+    <p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
+      Rdoc Generator</a> 2</small>.</p>
+  </div>
+</body>
+</html>

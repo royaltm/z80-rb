@@ -1,0 +1,758 @@
+<?xml version="1.0" encoding="Windows-1250"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=Windows-1250" http-equiv="Content-Type" />
+
+  <title>Class: Z80::Register</title>
+
+  <link rel="stylesheet" href="../rdoc.css" type="text/css" media="screen" />
+
+  <script src="../js/jquery.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/thickbox-compressed.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/quicksearch.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/darkfish.js" type="text/javascript"
+    charset="utf-8"></script>
+
+</head>
+<body class="class">
+
+  <div id="metadata">
+    <div id="home-metadata">
+      <div id="home-section" class="section">
+        <h3 class="section-header">
+          <a href="../index.html">Home</a>
+          <a href="../index.html#classes">Classes</a>
+          <a href="../index.html#methods">Methods</a>
+        </h3>
+      </div>
+    </div>
+
+    <div id="file-metadata">
+      <div id="file-list-section" class="section">
+        <h3 class="section-header">In Files</h3>
+        <div class="section-body">
+          <ul>
+          
+            <li><a href="../z80/registers_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/registers.rb">z80/registers.rb</a></li>
+          
+          </ul>
+        </div>
+      </div>
+
+      
+    </div>
+
+    <div id="class-metadata">
+
+      <!-- Parent Class -->
+      
+      <div id="parent-class-section" class="section">
+        <h3 class="section-header">Parent</h3>
+        
+        <p class="link">Object</p>
+        
+      </div>
+      
+
+      <!-- Namespace Contents -->
+      
+
+      <!-- Method Quickref -->
+      
+      <div id="method-list-section" class="section">
+        <h3 class="section-header">Methods</h3>
+        <ul class="link-list">
+          
+          <li><a href="#method-c-5B-5D">::[]</a></li>
+          
+          <li><a href="#method-c-names">::names</a></li>
+          
+          <li><a href="#method-c-new">::new</a></li>
+          
+          <li><a href="#method-i-2B">#+</a></li>
+          
+          <li><a href="#method-i-2D">#-</a></li>
+          
+          <li><a href="#method-i-5B-5D">#[]</a></li>
+          
+          <li><a href="#method-i-bit8-3F">#bit8?</a></li>
+          
+          <li><a href="#method-i-one_of-3F">#one_of?</a></li>
+          
+          <li><a href="#method-i-pointer-3F">#pointer?</a></li>
+          
+          <li><a href="#method-i-size">#size</a></li>
+          
+          <li><a href="#method-i-to_debug">#to_debug</a></li>
+          
+          <li><a href="#method-i-to_i">#to_i</a></li>
+          
+          <li><a href="#method-i-7C">#|</a></li>
+          
+        </ul>
+      </div>
+      
+
+      <!-- Included Modules -->
+      
+    </div>
+
+    <div id="project-metadata">
+      
+      
+
+      <div id="classindex-section" class="section project-section">
+        <h3 class="section-header">Class Index
+          <span class="search-toggle"><img src="../images/find.png"
+            height="16" width="16" alt="[+]"
+            title="show/hide quicksearch" /></span></h3>
+        <form action="#" method="get" accept-charset="utf-8" class="initially-hidden">
+        <fieldset>
+          <legend>Quicksearch</legend>
+          <input type="text" name="quicksearch" value=""
+            class="quicksearch-field" />
+        </fieldset>
+        </form>
+
+        <ul class="link-list">
+        
+          <li><a href="../Z80.html">Z80</a></li>
+        
+          <li><a href="../Z80/Alloc.html">Z80::Alloc</a></li>
+        
+          <li><a href="../Z80/CompileError.html">Z80::CompileError</a></li>
+        
+          <li><a href="../Z80/Condition.html">Z80::Condition</a></li>
+        
+          <li><a href="../Z80/Helpers.html">Z80::Helpers</a></li>
+        
+          <li><a href="../Z80/Label.html">Z80::Label</a></li>
+        
+          <li><a href="../Z80/Program.html">Z80::Program</a></li>
+        
+          <li><a href="../Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
+        
+          <li><a href="../Z80/Register.html">Z80::Register</a></li>
+        
+          <li><a href="../Z80/Syntax.html">Z80::Syntax</a></li>
+        
+          <li><a href="../Z80/TAP.html">Z80::TAP</a></li>
+        
+          <li><a href="../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+        
+          <li><a href="../Symbol.html">Symbol</a></li>
+        
+        </ul>
+        <div id="no-class-search-results" style="display: none;">No matching classes.</div>
+      </div>
+
+      
+    </div>
+  </div>
+
+  <div id="documentation">
+    <h1 class="class">Z80::Register</h1>
+
+    <div id="description">
+      
+<p><a href="../Z80.html">Z80</a> registers are populated as singleton methods.
+You must not create instances of this class directly.</p>
+
+    </div>
+
+    <!-- Constants -->
+    
+
+    <!-- Attributes -->
+    
+    <div id="attribute-method-details" class="method-section section">
+      <h3 class="section-header">Attributes</h3>
+
+      
+      <div id="name-attribute-method" class="method-detail">
+        <a name="name"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">name</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="prefix-attribute-method" class="method-detail">
+        <a name="prefix"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">prefix</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="index-attribute-method" class="method-detail">
+        <a name="index"></a>
+        
+        <a name="index="></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">index</span><span
+            class="attribute-access-type">[RW]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="to_str-attribute-method" class="method-detail">
+        <a name="to_str"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">to_str</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="to_s-attribute-method" class="method-detail">
+        <a name="to_s"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">to_s</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- Methods -->
+    
+    <div id="public-class-method-details" class="method-section section">
+      <h3 class="section-header">Public Class Methods</h3>
+
+    
+      <div id="5B-5D-method" class="method-detail ">
+        <a name="method-c-5B-5D"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">[]</span><span
+            class="method-args">(index)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code"
+            id="5B-5D-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 18</span>
+def [](index)
+        @@registers[index]
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="names-method" class="method-detail ">
+        <a name="method-c-names"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">names</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code"
+            id="names-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 21</span>
+def names
+        @@names8 + @@namesi8 + @@names_index8 + @@names_bcdep8 + @@names16 + @@names_index16 + @@names_other
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="new-method" class="method-detail ">
+        <a name="method-c-new"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">new</span><span
+            class="method-args">(name, opc)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code"
+            id="new-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 26</span>
+def initialize(name, opc)
+        <span class="ruby-ivar">@name</span> = name
+        <span class="ruby-ivar">@index</span> = 0
+        <span class="ruby-ivar">@opc</span> = opc &amp; 0xff
+        <span class="ruby-ivar">@bit8</span> = name.size != 2 and opc &amp; 7 == opc
+        <span class="ruby-ivar">@prefix</span> = name.index(xx) ? <span class="ruby-string">&quot;\xDD&quot;</span> : name.index(yy) ? <span class="ruby-string">&quot;\xFD&quot;</span> : nil
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </div>
+  
+    <div id="public-instance-method-details" class="method-section section">
+      <h3 class="section-header">Public Instance Methods</h3>
+
+    
+      <div id="2B-method" class="method-detail ">
+        <a name="method-i-2B"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">+</span><span
+            class="method-args">(other)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>This method makes possible to write indexed expressions with <tt>ix/iy</tt>
+registers. Example:</p>
+
+<pre>ld a, [ix + 7]</pre>
+          
+
+          
+          <div class="method-source-code"
+            id="2B-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 75</span>
+def +(other)
+        self[other]
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="2D-method" class="method-detail ">
+        <a name="method-i-2D"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">-</span><span
+            class="method-args">(other)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>This method makes possible to write indexed expressions with <tt>ix/iy</tt>
+registers. Example:</p>
+
+<pre>ld a, [ix - 7]</pre>
+          
+
+          
+          <div class="method-source-code"
+            id="2D-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 81</span>
+def -(other)
+        self[-other.to_i]
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="5B-5D-method" class="method-detail ">
+        <a name="method-i-5B-5D"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">[]</span><span
+            class="method-args">(index = 0)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Method used internally by mnemonics to make pointer of a label or register.
+Example:</p>
+
+<pre>ld  b, [ix + 2]
+ld  [hl], b</pre>
+          
+
+          
+          <div class="method-source-code"
+            id="5B-5D-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 54</span>
+def [](index = 0)
+        if name.size == 2
+                if index != 0 and name[0] != ii
+                        raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only ix,iy registers may be indexed pointers.&quot;</span>
+                elsif !(128..127).include?(index) and !index.respond_to?(:to_alloc)
+                        raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Pointer index out of range.&quot;</span>
+                end
+                raise <span class="ruby-constant">Syntax</span>, &quot;Register #{name} can not be a pointer.&quot; unless r = @@regindex[name + <span class="ruby-string">'_'</span>]
+                r = r.dup
+                r.index = index
+                r
+        elsif pointer?
+                self
+        else
+                raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only 16-bits registers may be pointers.&quot;</span>
+        end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="bit8-3F-method" class="method-detail ">
+        <a name="method-i-bit8-3F"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">bit8?</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code"
+            id="bit8-3F-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 94</span>
+def bit8?; <span class="ruby-ivar">@bit8</span>; end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="one_of-3F-method" class="method-detail ">
+        <a name="method-i-one_of-3F"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">one_of?</span><span
+            class="method-args">(ary)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code"
+            id="one_of-3F-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 95</span>
+def one_of?(ary); ary.include?(name); end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="pointer-3F-method" class="method-detail ">
+        <a name="method-i-pointer-3F"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">pointer?</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code"
+            id="pointer-3F-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 36</span>
+def pointer?
+        name[1] == <span class="ruby-string">'_'</span>
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="size-method" class="method-detail ">
+        <a name="method-i-size"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">size</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code"
+            id="size-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 33</span>
+def size
+        name.size
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="to_debug-method" class="method-detail ">
+        <a name="method-i-to_debug"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">to_debug</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code"
+            id="to_debug-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 84</span>
+def to_debug
+        if pointer?
+                &quot;(#{name[0,2]}&quot; + if prefix
+                        <span class="ruby-string">'+%02xH'</span>
+                end.to_s + <span class="ruby-string">')'</span>
+        else
+                name
+        end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="to_i-method" class="method-detail ">
+        <a name="method-i-to_i"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">to_i</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code"
+            id="to_i-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 93</span>
+def to_i; <span class="ruby-ivar">@opc</span>; end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="7C-method" class="method-detail ">
+        <a name="method-i-7C"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">|</span><span
+            class="method-args">(other)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Adjoins two 8 bit registers to form one 16 bit register. Usefull when
+defining macros that may use registers passed by parameters.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="7C-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 42</span>
+def |(other)
+        if other.is_a?(<span class="ruby-constant">Register</span>) and ]bc de hl ixhixl iyhiyl].include?(name + other.name)
+                @@regindex[name + other.name] || @@regindex[name[0,2]]
+        else
+                raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only paired registers: bc, de, hl, ix, iy can be adjoined.&quot;</span>
+        end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </div>
+  
+
+  </div>
+
+  <div id="validator-badges">
+    <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+    <p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
+      Rdoc Generator</a> 2</small>.</p>
+  </div>
+
+</body>
+</html>
+

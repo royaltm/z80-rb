@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+
+  <title>Module: Z80</title>
+
+  <link rel="stylesheet" href="./rdoc.css" type="text/css" media="screen" />
+
+  <script src="./js/jquery.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="./js/thickbox-compressed.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="./js/quicksearch.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="./js/darkfish.js" type="text/javascript"
+    charset="utf-8"></script>
+
+</head>
+<body class="module">
+
+  <div id="metadata">
+    <div id="home-metadata">
+      <div id="home-section" class="section">
+        <h3 class="section-header">
+          <a href="./index.html">Home</a>
+          <a href="./index.html#classes">Classes</a>
+          <a href="./index.html#methods">Methods</a>
+        </h3>
+      </div>
+    </div>
+
+    <div id="file-metadata">
+      <div id="file-list-section" class="section">
+        <h3 class="section-header">In Files</h3>
+        <div class="section-body">
+          <ul>
+          
+            <li><a href="./z80_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80.rb">z80.rb</a></li>
+          
+            <li><a href="./z80/labels_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/labels.rb">z80/labels.rb</a></li>
+          
+            <li><a href="./z80/mnemonics_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/mnemonics.rb">z80/mnemonics.rb</a></li>
+          
+            <li><a href="./z80/registers_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/registers.rb">z80/registers.rb</a></li>
+          
+            <li><a href="./z80/tap_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/tap.rb">z80/tap.rb</a></li>
+          
+          </ul>
+        </div>
+      </div>
+
+      
+    </div>
+
+    <div id="class-metadata">
+
+      <!-- Parent Class -->
+      
+
+      <!-- Namespace Contents -->
+      
+      <div id="namespace-list-section" class="section">
+        <h3 class="section-header">Namespace</h3>
+        <ul class="link-list">
+          
+          <li><span class="type">MODULE</span> <a href="Z80/Helpers.html">Z80::Helpers</a></li>
+          
+          <li><span class="type">MODULE</span> <a href="Z80/Program.html">Z80::Program</a></li>
+          
+          <li><span class="type">MODULE</span> <a href="Z80/TAP.html">Z80::TAP</a></li>
+          
+          <li><span class="type">CLASS</span> <a href="Z80/Alloc.html">Z80::Alloc</a></li>
+          
+          <li><span class="type">CLASS</span> <a href="Z80/CompileError.html">Z80::CompileError</a></li>
+          
+          <li><span class="type">CLASS</span> <a href="Z80/Label.html">Z80::Label</a></li>
+          
+          <li><span class="type">CLASS</span> <a href="Z80/Syntax.html">Z80::Syntax</a></li>
+          
+        </ul>
+      </div>
+      
+
+      <!-- Method Quickref -->
+      
+      <div id="method-list-section" class="section">
+        <h3 class="section-header">Methods</h3>
+        <ul class="link-list">
+          
+          <li><a href="#method-c-add_code">::add_code</a></li>
+          
+          <li><a href="#method-c-add_reloc">::add_reloc</a></li>
+          
+          <li><a href="#method-i-debug">#debug</a></li>
+          
+        </ul>
+      </div>
+      
+
+      <!-- Included Modules -->
+      
+    </div>
+
+    <div id="project-metadata">
+      
+      
+      <div id="fileindex-section" class="section project-section">
+        <h3 class="section-header">Files</h3>
+        <ul>
+        
+          <li class="file"><a href="./README_txt.html">README.txt</a></li>
+        
+        </ul>
+      </div>
+      
+
+      <div id="classindex-section" class="section project-section">
+        <h3 class="section-header">Class Index
+          <span class="search-toggle"><img src="./images/find.png"
+            height="16" width="16" alt="[+]"
+            title="show/hide quicksearch" /></span></h3>
+        <form action="#" method="get" accept-charset="utf-8" class="initially-hidden">
+        <fieldset>
+          <legend>Quicksearch</legend>
+          <input type="text" name="quicksearch" value=""
+            class="quicksearch-field" />
+        </fieldset>
+        </form>
+
+        <ul class="link-list">
+        
+          <li><a href="./Z80.html">Z80</a></li>
+        
+          <li><a href="./Z80/Alloc.html">Z80::Alloc</a></li>
+        
+          <li><a href="./Z80/CompileError.html">Z80::CompileError</a></li>
+        
+          <li><a href="./Z80/Helpers.html">Z80::Helpers</a></li>
+        
+          <li><a href="./Z80/Label.html">Z80::Label</a></li>
+        
+          <li><a href="./Z80/Program.html">Z80::Program</a></li>
+        
+          <li><a href="./Z80/Program/Condition.html">Z80::Program::Condition</a></li>
+        
+          <li><a href="./Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
+        
+          <li><a href="./Z80/Program/Register.html">Z80::Program::Register</a></li>
+        
+          <li><a href="./Z80/Syntax.html">Z80::Syntax</a></li>
+        
+          <li><a href="./Z80/TAP.html">Z80::TAP</a></li>
+        
+          <li><a href="./Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+        
+          <li><a href="./Symbol.html">Symbol</a></li>
+        
+        </ul>
+        <div id="no-class-search-results" style="display: none;">No matching classes.</div>
+      </div>
+
+      
+    </div>
+  </div>
+
+  <div id="documentation">
+    <h1 class="module">Z80</h1>
+
+    <div id="description">
+      
+<h3>Include this module in your <b>program</b> class to turn it to a powerfull <a href="Z80.html">Z80</a> macro assembler.</h3>
+
+    </div>
+
+    <!-- Constants -->
+    
+    <div id="constants-list" class="section">
+      <h3 class="section-header">Constants</h3>
+      <dl>
+      
+        <dt><a name="Relocation">Relocation</a></dt>
+        
+        <dd class="description"></dd>
+        
+      
+        <dt><a name="DebugInfo">DebugInfo</a></dt>
+        
+        <dd class="description"></dd>
+        
+      
+      </dl>
+    </div>
+    
+
+    <!-- Attributes -->
+    
+    <div id="attribute-method-details" class="method-section section">
+      <h3 class="section-header">Attributes</h3>
+
+      
+      <div id="code-attribute-method" class="method-detail">
+        <a name="code"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">code</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>program’s compiled code</p>
+        
+        </div>
+      </div>
+      
+      <div id="org-attribute-method" class="method-detail">
+        <a name="org"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">org</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>starting address of compiled code</p>
+        
+        </div>
+      </div>
+      
+      <div id="exports-attribute-method" class="method-detail">
+        <a name="exports"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">exports</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>labels exported with <a
+href="Z80/Program.html#method-i-export">Program.export</a> instruction</p>
+        
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- Methods -->
+    
+    <div id="public-class-method-details" class="method-section section">
+      <h3 class="section-header">Public Class Methods</h3>
+
+    
+      <div id="add_code-method" class="method-detail ">
+        <a name="method-c-add_code"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">add_code</span><span
+            class="method-args">(prg, data, type = 1, mnemo = nil, *mpar)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Method used by <a href="Z80/Program.html">Program</a> instructions was
+placed here to not pollute <b>program</b> namespace</p>
+          
+
+          
+          <div class="method-source-code"
+            id="add_code-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 93</span>
+def add_code(prg, data, type = 1, mnemo = nil, *mpar)
+        raise <span class="ruby-constant">TypeError</span> unless data.is_a? <span class="ruby-constant">String</span>
+        l = <span class="ruby-constant">Label</span>.new(pc = prg.pc, type, :code)
+        prg.debug &lt;&lt; <span class="ruby-constant">DebugInfo</span>.new(pc, data.bytesize, mnemo, mpar, prg.instance_variable_get(<span class="ruby-string">'@context_labels'</span>).dup &lt;&lt; l)
+        prg.code &lt;&lt; data
+        l
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="add_reloc-method" class="method-detail ">
+        <a name="method-c-add_reloc"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">add_reloc</span><span
+            class="method-args">(prg, label, size, offset = 0, from = nil)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Method used by <a href="Z80/Program.html">Program</a> instructions was
+placed here to not pollute <b>program</b> namespace</p>
+          
+
+          
+          <div class="method-source-code"
+            id="add_reloc-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 102</span>
+def add_reloc(prg, label, size, offset = 0, from = nil)
+        if (label = label.to_label(prg).to_alloc).immediate? and (size == 2 or from)
+                [label.to_i(0, size == 1 ? :self : nil)].pack(size == 1 ? <span class="ruby-string">'c'</span> : <span class="ruby-string">'s'</span>)
+        else
+                prg.reloc &lt;&lt; (r = <span class="ruby-constant">Relocation</span>.new(prg.pc + offset, label, size, from))
+                <span class="ruby-string">&quot;\x0&quot;&quot;</span>*size
+        end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </div>
+  
+    <div id="public-instance-method-details" class="method-section section">
+      <h3 class="section-header">Public Instance Methods</h3>
+
+    
+      <div id="debug-method" class="method-detail ">
+        <a name="method-i-debug"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">debug</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Creates debugger view from instance of a program. Returns an Array of
+Strings.</p>
+
+<p>Example debugger output:</p>
+
+<pre>016F:                                  :gfx
+======          ZXGfx8 ===============
+016F:                                  :draw_sprite8_coords
+016F: 08          ex   af, af'
+0170: 7A          ld   a, d
+0171: B7          or   a
+0172: CA9001      jp   Z, 0190H        -&gt; vnext1
+0175: 3C          inc  a
+0176: C0          ret  NZ
+0177: 08          ex   af, af'
+0178: F5          push af
+0179: ED44        neg
+017B: 93          sub  e
+017C: DA8101      jp   C, 0181H        -&gt; vnext2
+017F: F1          pop  af
+0180: C9          ret</pre>
+          
+
+          
+          <div class="method-source-code"
+            id="debug-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 41</span>
+def debug
+        return <span class="ruby-ivar">@debug</span> if <span class="ruby-ivar">@debug</span>
+        reloc = self.class.reloc
+        <span class="ruby-ivar">@debug</span> = self.class.debug.map do |d|
+                case d
+                when <span class="ruby-constant">DebugInfo</span>
+                        data = code[d.addr, d.size]
+                        h = proc {|as, g| as.map {|c| <span class="ruby-string">'%02X'</span>%c.ord}.join g}
+                        <span class="ruby-comment"># puts d.labels.inspect</span>
+                        label = if d.labels.last.to_name
+                                <span class="ruby-string">&quot; :&quot;</span> + d.labels.map {|n| n.to_name || n.to_i(org).to_s(16) }.join(<span class="ruby-string">'.'</span>)
+                        end
+                        unless (relocs = reloc.select {|r| (d.addr...d.addr+d.size).member? r.addr }.map {|r| r.alloc.to_s}.join(<span class="ruby-string">', '</span>)).empty?
+                                label = label.to_s + &quot; -&gt; #{relocs}&quot;
+                        end
+                        if mnemo = d.text
+                                if prm = d.args
+                                        mnemo = mnemo % prm.each_slice(2).map do |o, t|
+                                                case t
+                                                when :word
+                                                        data[o, 2].unpack(<span class="ruby-string">'S'</span>)[0]
+                                                when :byte
+                                                        data[o, 1].unpack(<span class="ruby-string">'C'</span>)[0]
+                                                when :pcrel
+                                                        data[o, 1].unpack(<span class="ruby-string">'c'</span>)[0] + d.addr + d.size + org
+                                                end
+                                        end
+                                end
+                                &quot;#{'%04X'%(d.addr+org)}: #{h[data.split(''),''].ljust 12}#{mnemo.ljust 20}#{label}&quot;
+                        elsif data.empty? and label
+                                &quot;#{'%04X'%(d.addr+org)}: #{' '*32}#{label}&quot;
+                        else
+                                a = d.addr - 8 + org
+                                data.split(<span class="ruby-string">''</span>).each_slice(8).map do |ds|
+                                        a+= 8
+                                        &quot;#{'%04X'%a}: #{h[ds, ' '].ljust 24}#{ds.join.gsub(/[\x0-\x1f]/, '.').ljust 8}#{label}&quot;
+                                end
+                        end
+                else
+                        d
+                end
+        end.flatten
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </div>
+  
+
+  </div>
+
+  <div id="validator-badges">
+    <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+    <p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
+      Rdoc Generator</a> 2</small>.</p>
+  </div>
+
+</body>
+</html>
+

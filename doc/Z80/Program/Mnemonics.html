@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+
+  <title>Module: Z80::Program::Mnemonics</title>
+
+  <link rel="stylesheet" href="../../rdoc.css" type="text/css" media="screen" />
+
+  <script src="../../js/jquery.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../../js/thickbox-compressed.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../../js/quicksearch.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../../js/darkfish.js" type="text/javascript"
+    charset="utf-8"></script>
+
+</head>
+<body class="module">
+
+  <div id="metadata">
+    <div id="home-metadata">
+      <div id="home-section" class="section">
+        <h3 class="section-header">
+          <a href="../../index.html">Home</a>
+          <a href="../../index.html#classes">Classes</a>
+          <a href="../../index.html#methods">Methods</a>
+        </h3>
+      </div>
+    </div>
+
+    <div id="file-metadata">
+      <div id="file-list-section" class="section">
+        <h3 class="section-header">In Files</h3>
+        <div class="section-body">
+          <ul>
+          
+            <li><a href="../../z80/mnemonics_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/mnemonics.rb">z80/mnemonics.rb</a></li>
+          
+          </ul>
+        </div>
+      </div>
+
+      
+    </div>
+
+    <div id="class-metadata">
+
+      <!-- Parent Class -->
+      
+
+      <!-- Namespace Contents -->
+      
+
+      <!-- Method Quickref -->
+      
+
+      <!-- Included Modules -->
+      
+    </div>
+
+    <div id="project-metadata">
+      
+      
+      <div id="fileindex-section" class="section project-section">
+        <h3 class="section-header">Files</h3>
+        <ul>
+        
+          <li class="file"><a href="../../README_txt.html">README.txt</a></li>
+        
+        </ul>
+      </div>
+      
+
+      <div id="classindex-section" class="section project-section">
+        <h3 class="section-header">Class Index
+          <span class="search-toggle"><img src="../../images/find.png"
+            height="16" width="16" alt="[+]"
+            title="show/hide quicksearch" /></span></h3>
+        <form action="#" method="get" accept-charset="utf-8" class="initially-hidden">
+        <fieldset>
+          <legend>Quicksearch</legend>
+          <input type="text" name="quicksearch" value=""
+            class="quicksearch-field" />
+        </fieldset>
+        </form>
+
+        <ul class="link-list">
+        
+          <li><a href="../../Z80.html">Z80</a></li>
+        
+          <li><a href="../../Z80/Alloc.html">Z80::Alloc</a></li>
+        
+          <li><a href="../../Z80/CompileError.html">Z80::CompileError</a></li>
+        
+          <li><a href="../../Z80/Helpers.html">Z80::Helpers</a></li>
+        
+          <li><a href="../../Z80/Label.html">Z80::Label</a></li>
+        
+          <li><a href="../../Z80/Program.html">Z80::Program</a></li>
+        
+          <li><a href="../../Z80/Program/Condition.html">Z80::Program::Condition</a></li>
+        
+          <li><a href="../../Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
+        
+          <li><a href="../../Z80/Program/Register.html">Z80::Program::Register</a></li>
+        
+          <li><a href="../../Z80/Syntax.html">Z80::Syntax</a></li>
+        
+          <li><a href="../../Z80/TAP.html">Z80::TAP</a></li>
+        
+          <li><a href="../../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+        
+          <li><a href="../../Symbol.html">Symbol</a></li>
+        
+        </ul>
+        <div id="no-class-search-results" style="display: none;">No matching classes.</div>
+      </div>
+
+      
+    </div>
+  </div>
+
+  <div id="documentation">
+    <h1 class="module">Z80::Program::Mnemonics</h1>
+
+    <div id="description">
+      
+<h2><a href="../../Z80.html">Z80</a> <a href="Mnemonics.html">Mnemonics</a></h2>
+
+<p>All <a href="../../Z80.html">Z80</a> instructions are created as singleton
+methods. They produce machine code which is added to <b>program</b> class
+instance variable: <a
+href="../Program.html#attribute-i-code">Program.code</a>.</p>
+
+<p>These mnemonics mimic standard ones (used in assemblers) but with some
+exceptions (because of ruby parser spec.):</p>
+<ul><li>
+<p>all instruction and register names are lower case</p>
+</li><li>
+<p>all conditions are upper case e.g.:</p>
+
+<pre>jp NZ, somewhere</pre>
+
+<p>use [ ] instead of ( ) e.g.:</p>
+
+<pre>ld a, [de]
+ex [sp], hl
+ld [ix+index], c
+ld a, [label_name]</pre>
+</li><li>
+<p>use <tt>anda</tt> instead of <tt>and</tt></p>
+</li><li>
+<p>use <tt>ora</tt>  instead of <tt>or</tt></p>
+</li><li>
+<p>use <tt>inp</tt>  instead of <tt>in</tt></p>
+</li><li>
+<p>use <tt>ex af,af</tt> instead of <tt>ex af,af'</tt> (no apostrophe after
+<tt>af</tt>‘)</p>
+</li></ul>
+
+<p>The ones below are due to my lazyness:</p>
+<ul><li>
+<p>use <tt>im0</tt>, <tt>im01</tt>, <tt>im1</tt>, <tt>im2</tt>  instead of
+<tt>im</tt> <tt>n</tt>. It is so rarely used so i didn’t care creating a
+single method for it.</p>
+</li><li>
+<p>do not use [ ] around <tt>out</tt> and <tt>inp</tt> instructions’ arguments
+e.g.:</p>
+
+<pre>out c, a    # ok
+out (c), a  # () are ok, ruby doesn't care much about them</pre>
+
+<p><em>however ruby emits warning: (...) interpreted as grouped
+expression</em></p>
+
+<pre># only Integers are allowed here; no labels!
+inp a, (0xfe)</pre>
+</li><li>
+<p>do not use [ ] around JP (HL/IX/IY) e.g.:</p>
+
+<pre>jp  hl     # ok
+jp  (hl)   # () are ok, ruby doesn't care much about them</pre>
+
+<p><em>however ruby emits warning: (...) interpreted as grouped
+expression</em></p>
+</li></ul>
+
+<h3>Undocumented (by Zilog) <a href="../../Z80.html">Z80</a> instructions</h3>
+
+<p>See: <a
+href="http://www.z80.info/z80undoc.htm">www.z80.info/z80undoc.htm</a></p>
+<ul><li>
+<p><tt>sll</tt> (or <tt>sl1</tt>) which means shift left <tt>(a b c d e h l
+[hl] [ixn])</tt> by one and set it's bit 0 to 1</p>
+</li><li>
+<p>2 in 1 instructions like</p>
+
+<pre>set 4, [ix+n], b</pre>
+
+<p>which means:</p>
+
+<pre>set 4, [ix+n]; ld b, [ix+n]</pre>
+
+<p>but is a single instruction only. It applies to <tt>ix</tt>/<tt>iy</tt>
+indexing registers and following instructions (without <tt>bit</tt>):</p>
+
+<pre>rlc rrc rl rr sla sra sll srl set res</pre>
+</li><li>
+<p><tt>ixh/ixl/iyh/iyl</tt> 8-bit registers of 16bit <tt>ix/iy</tt> use them
+replacing <tt>l</tt> and <tt>h</tt> registers in:</p>
+
+<pre>ld inc dec add adc sbc sub anda xor ora cp</pre>
+
+<p>however you can’t mix (<tt>ixh</tt> <tt>ixl</tt>)/(<tt>iyh</tt>
+<tt>iyl</tt>)/<tt>h</tt>/<tt>l</tt> registers in one instruction like:</p>
+
+<pre>ld ixh, iyh # invalid
+ld h, iyh   # invalid</pre>
+</li><li>
+<p>and the less usefull but included for completeness:</p>
+
+<pre>out (c), 0
+inp (c)</pre>
+
+<p>the last one only adjust <a href="../../Z80.html">Z80</a> flags but the
+result goes to <tt>/dev/null</tt> (figuratively speaking).</p>
+</li></ul>
+<hr style="height: 10px">
+
+<p><b>To fully use ruby-z80 powers (unlike austin powers)</b></p>
+<ul><li>
+<p>use labels where applicable (see <a href="../Label.html">Z80::Label</a>)</p>
+</li><li>
+<p>use namespaces where appropriate (see <a
+href="../Program.html#method-i-ns">Program.ns</a>)</p>
+</li><li>
+<p>use macros whenever you can</p>
+</li><li>
+<p>modularize all just like in ruby :-)</p>
+</li></ul>
+<hr style="height: 10px">
+
+<h2>Mnemonic list</h2>
+
+<p><tt>adc add anda bit call ccf cp cpd cpdr cpi cpir cpl daa dec di djnz ei
+ex exx halt hlt im0 im01 im1 im2 inc ind indr ini inir inp jp jr ld ldd
+lddr ldi ldir neg nop ora otdr otir out outd outi pop push res ret reti
+retn rl rla rlc rlca rld rr rra rrc rrca rrd rst sbc scf set sl1 sla sll
+sra srl sub xor</tt></p>
+
+    </div>
+
+    <!-- Constants -->
+    
+
+    <!-- Attributes -->
+    
+
+    <!-- Methods -->
+    
+
+  </div>
+
+  <div id="validator-badges">
+    <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+    <p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
+      Rdoc Generator</a> 2</small>.</p>
+  </div>
+
+</body>
+</html>
+

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+
+  <title>File: README.txt [ruby-Z80]</title>
+
+  <link type="text/css" media="screen" href="./rdoc.css" rel="stylesheet" />
+
+  <script src="./js/jquery.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="./js/thickbox-compressed.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="./js/quicksearch.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="./js/darkfish.js" type="text/javascript"
+    charset="utf-8"></script>
+</head>
+
+<body class="file">
+  <div id="metadata">
+    <div id="home-metadata">
+      <div id="home-section" class="section">
+        <h3 class="section-header">
+          <a href="./index.html">Home</a>
+          <a href="./index.html#classes">Classes</a>
+          <a href="./index.html#methods">Methods</a>
+        </h3>
+      </div>
+    </div>
+
+    <div id="project-metadata">
+      
+      
+      <div id="fileindex-section" class="section project-section">
+        <h3 class="section-header">Files</h3>
+        <ul>
+        
+          <li class="file"><a href="./README_txt.html">README.txt</a></li>
+        
+        </ul>
+      </div>
+      
+
+      <div id="classindex-section" class="section project-section">
+        <h3 class="section-header">Class Index
+          <span class="search-toggle"><img src="./images/find.png"
+            height="16" width="16" alt="[+]"
+            title="show/hide quicksearch" /></span></h3>
+        <form action="#" method="get" accept-charset="utf-8" class="initially-hidden">
+        <fieldset>
+          <legend>Quicksearch</legend>
+          <input type="text" name="quicksearch" value=""
+            class="quicksearch-field" />
+        </fieldset>
+        </form>
+
+        <ul class="link-list">
+        
+          <li><a href="./Z80.html">Z80</a></li>
+        
+          <li><a href="./Z80/Alloc.html">Z80::Alloc</a></li>
+        
+          <li><a href="./Z80/CompileError.html">Z80::CompileError</a></li>
+        
+          <li><a href="./Z80/Helpers.html">Z80::Helpers</a></li>
+        
+          <li><a href="./Z80/Label.html">Z80::Label</a></li>
+        
+          <li><a href="./Z80/Program.html">Z80::Program</a></li>
+        
+          <li><a href="./Z80/Program/Condition.html">Z80::Program::Condition</a></li>
+        
+          <li><a href="./Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
+        
+          <li><a href="./Z80/Program/Register.html">Z80::Program::Register</a></li>
+        
+          <li><a href="./Z80/Syntax.html">Z80::Syntax</a></li>
+        
+          <li><a href="./Z80/TAP.html">Z80::TAP</a></li>
+        
+          <li><a href="./Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+        
+          <li><a href="./Symbol.html">Symbol</a></li>
+        
+        </ul>
+        <div id="no-class-search-results" style="display: none;">No matching classes.</div>
+      </div>
+
+      
+    </div>
+  </div>
+
+  <div id="documentation">
+    
+<h1>ruby-<a href="Z80.html">Z80</a></h1>
+
+<h2>A <a href="Z80.html">Z80</a> assembler powered by ruby.</h2>
+<table class="rdoc-list"><tr><td class="rdoc-term"><p>Author</p></td>
+<td>
+<p>Rafał Michalski  (<a
+href="mailto:royaltm75@gmail.com">royaltm75@gmail.com</a>)</p>
+</td></tr></table>
+
+<pre>class Math
+  module Macros
+    # here your macros will be populated
+  end
+  include Z80
+  macro :multi8c_m do |eoc, th, tl|  # multiply hl by a; stops on CARRY out
+          ld  tl, l
+          ld  th, h
+          ld  hl,0
+    loop1 srl a
+          jr  NC, noadd
+          add hl, th|tl
+          jr  C, eoc
+    noadd jr  Z, eoc
+          sla tl
+          rl  th
+          jp  NC, loop1
+  end
+          ret
+  ns :multi16 do       # multiply hl by bc and stores result in hl de
+          ld  a, c
+          ex af,af
+          xor a
+          push af
+          ld  e, a
+          ld  d, a
+          ld  a, c
+          ld  c, l
+          ld  b, h
+          ld  h, d
+          ld  l, e
+          scf
+          adc a
+    loop1 jr  NC, noadd1
+          ex  (sp), hl
+          add hl, de
+          ex  (sp), hl
+          adc hl, bc
+    nadd1 srl b
+          rr  c
+          rr  d
+          add a
+          jp  NZ, loop1
+          ex  af, af
+          add a
+    loop2 jr  NC, nadd2
+          ex  (sp), hl
+          add hl, de
+          ex  (sp), hl
+          adc hl, bc
+    nadd2 srl c
+          rr  d
+          rr  e
+          add a
+          jp  NZ, loop2
+          pop de
+          ret
+  end
+end</pre>
+
+  </div>
+
+  <div id="validator-badges">
+    <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+    <p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
+      Rdoc Generator</a> 2</small>.</p>
+  </div>
+</body>
+</html>
+

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+
+  <title>Module: Z80::TAP</title>
+
+  <link rel="stylesheet" href="../rdoc.css" type="text/css" media="screen" />
+
+  <script src="../js/jquery.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/thickbox-compressed.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/quicksearch.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/darkfish.js" type="text/javascript"
+    charset="utf-8"></script>
+
+</head>
+<body class="module">
+
+  <div id="metadata">
+    <div id="home-metadata">
+      <div id="home-section" class="section">
+        <h3 class="section-header">
+          <a href="../index.html">Home</a>
+          <a href="../index.html#classes">Classes</a>
+          <a href="../index.html#methods">Methods</a>
+        </h3>
+      </div>
+    </div>
+
+    <div id="file-metadata">
+      <div id="file-list-section" class="section">
+        <h3 class="section-header">In Files</h3>
+        <div class="section-body">
+          <ul>
+          
+            <li><a href="../z80/tap_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/tap.rb">z80/tap.rb</a></li>
+          
+          </ul>
+        </div>
+      </div>
+
+      
+    </div>
+
+    <div id="class-metadata">
+
+      <!-- Parent Class -->
+      
+
+      <!-- Namespace Contents -->
+      
+      <div id="namespace-list-section" class="section">
+        <h3 class="section-header">Namespace</h3>
+        <ul class="link-list">
+          
+          <li><span class="type">CLASS</span> <a href="TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+          
+        </ul>
+      </div>
+      
+
+      <!-- Method Quickref -->
+      
+      <div id="method-list-section" class="section">
+        <h3 class="section-header">Methods</h3>
+        <ul class="link-list">
+          
+          <li><a href="#method-c-read_data">::read_data</a></li>
+          
+          <li><a href="#method-i-save_tap">#save_tap</a></li>
+          
+          <li><a href="#method-i-to_tap">#to_tap</a></li>
+          
+        </ul>
+      </div>
+      
+
+      <!-- Included Modules -->
+      
+    </div>
+
+    <div id="project-metadata">
+      
+      
+      <div id="fileindex-section" class="section project-section">
+        <h3 class="section-header">Files</h3>
+        <ul>
+        
+          <li class="file"><a href="../README_txt.html">README.txt</a></li>
+        
+        </ul>
+      </div>
+      
+
+      <div id="classindex-section" class="section project-section">
+        <h3 class="section-header">Class Index
+          <span class="search-toggle"><img src="../images/find.png"
+            height="16" width="16" alt="[+]"
+            title="show/hide quicksearch" /></span></h3>
+        <form action="#" method="get" accept-charset="utf-8" class="initially-hidden">
+        <fieldset>
+          <legend>Quicksearch</legend>
+          <input type="text" name="quicksearch" value=""
+            class="quicksearch-field" />
+        </fieldset>
+        </form>
+
+        <ul class="link-list">
+        
+          <li><a href="../Z80.html">Z80</a></li>
+        
+          <li><a href="../Z80/Alloc.html">Z80::Alloc</a></li>
+        
+          <li><a href="../Z80/CompileError.html">Z80::CompileError</a></li>
+        
+          <li><a href="../Z80/Helpers.html">Z80::Helpers</a></li>
+        
+          <li><a href="../Z80/Label.html">Z80::Label</a></li>
+        
+          <li><a href="../Z80/Program.html">Z80::Program</a></li>
+        
+          <li><a href="../Z80/Program/Condition.html">Z80::Program::Condition</a></li>
+        
+          <li><a href="../Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
+        
+          <li><a href="../Z80/Program/Register.html">Z80::Program::Register</a></li>
+        
+          <li><a href="../Z80/Syntax.html">Z80::Syntax</a></li>
+        
+          <li><a href="../Z80/TAP.html">Z80::TAP</a></li>
+        
+          <li><a href="../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+        
+          <li><a href="../Symbol.html">Symbol</a></li>
+        
+        </ul>
+        <div id="no-class-search-results" style="display: none;">No matching classes.</div>
+      </div>
+
+      
+    </div>
+  </div>
+
+  <div id="documentation">
+    <h1 class="module">Z80::TAP</h1>
+
+    <div id="description">
+      
+<h2>Adds <a href="TAP.html">TAP</a> format support to <b>program</b>.</h2>
+
+<p>Inside your <b>program</b> add:</p>
+
+<pre>include Z80::TAP</pre>
+
+<p>and <a href="Program.html#method-i-import_file">Program.import_file</a>
+will make use of it.</p>
+
+<p>Pass additional <tt>:index</tt> =&gt; <tt>n</tt> argument to <a
+href="Program.html#method-i-import_file">Program.import_file</a> to choose
+n’th bytes block from tap file.</p>
+
+<p>Instances of your program will receive two additional methods:</p>
+<ul><li>
+<p><a href="TAP.html#method-i-save_tap">save_tap</a></p>
+</li><li>
+<p><a href="TAP.html#method-i-to_tap">to_tap</a></p>
+</li></ul>
+
+    </div>
+
+    <!-- Constants -->
+    
+
+    <!-- Attributes -->
+    
+
+    <!-- Methods -->
+    
+    <div id="public-class-method-details" class="method-section section">
+      <h3 class="section-header">Public Class Methods</h3>
+
+    
+      <div id="read_data-method" class="method-detail ">
+        <a name="method-c-read_data"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">read_data</span><span
+            class="method-args">(file, args = {})</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p><a href="Program.html#method-i-import_file">Program.import_file</a> uses
+this method to read from <a href="TAP.html">TAP</a> file.</p>
+          
+
+          
+          <div class="method-source-code"
+            id="read_data-source">
+<pre>
+<span class="ruby-comment"># File z80/tap.rb, line 52</span>
+def read_data(file, args = {})
+        tap = <span class="ruby-constant">File</span>.open(file, <span class="ruby-string">'rb'</span>) {|f| f.read}
+        index = args[:index].to_i
+        btype = length = name = nil
+        begin
+                size, tap = tap.unpack(<span class="ruby-string">'Sa*'</span>)
+                chunk, tap = tap.unpack(&quot;a#{size}a*&quot;)
+                raise <span class="ruby-constant">TapeError</span>, &quot;Invalid TAP file checksum: `#{file}'.&quot; unless cksum chunk
+                raise <span class="ruby-constant">TapeError</span>, &quot;Invalid TAP block too short: `#{file}'.&quot; unless chunk.bytesize == size
+                type, data, _ = chunk.unpack(&quot;Ca#{size-2}C&quot;)
+                case type
+                when 0x00
+                        raise <span class="ruby-constant">TapeError</span>, &quot;Invalid TAP header length: `#{file}'.&quot; unless data.bytesize == 17
+                        btype, name, length = data.unpack(<span class="ruby-string">'CA10S'</span>)
+                        next
+                when 0xff
+                        btype = length = name = nil unless index == 0
+                else
+                        raise <span class="ruby-constant">TapeError</span>, &quot;Invalid TAP file chunk: `#{file}'.&quot;
+                end
+                index-=1
+        end while index &gt;= 0
+        if length
+                raise <span class="ruby-constant">TapeError</span>, &quot;Invalid TAP bytes length: `#{file}'.&quot; unless data.bytesize == length
+                $stderr.puts &quot;Importing: `#{file}': (#{name})&quot;
+        else
+                $stderr.puts &quot;Importing: `#{file}': headerless chunk&quot;
+        end
+        data
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </div>
+  
+    <div id="public-instance-method-details" class="method-section section">
+      <h3 class="section-header">Public Instance Methods</h3>
+
+    
+      <div id="save_tap-method" class="method-detail ">
+        <a name="method-i-save_tap"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">save_tap</span><span
+            class="method-args">(file, name = nil)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Saves <a href="Program.html#attribute-i-code">Program#code</a> in <a
+href="TAP.html">TAP</a> file.</p>
+<ul><li>
+<p><tt>file</tt> specifies filename.</p>
+</li><li>
+<p><tt>name</tt> can contain max 10 ascii (7-bit) characters. If not given
+base name of <tt>file</tt> will be used instead.</p>
+</li></ul>
+          
+
+          
+          <div class="method-source-code"
+            id="save_tap-source">
+<pre>
+<span class="ruby-comment"># File z80/tap.rb, line 24</span>
+def save_tap(file, name = nil)
+        name||= <span class="ruby-constant">File</span>.basename(file, <span class="ruby-string">'.tap'</span>)
+        name+= <span class="ruby-string">'.tap'</span> unless <span class="ruby-constant">File</span>.extname(name).downcase == <span class="ruby-string">'.tap'</span>
+        <span class="ruby-constant">File</span>.open(name, <span class="ruby-string">'wb'</span>) {|f| f.write to_tap(<span class="ruby-constant">File</span>.basename name, <span class="ruby-string">'.tap'</span>) }
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="to_tap-method" class="method-detail ">
+        <a name="method-i-to_tap"></a>
+
+        <div class="method-heading">
+        
+          <span class="method-name">to_tap</span><span
+            class="method-args">(name)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        
+        </div>
+
+        <div class="method-description">
+          
+          <p>Wraps <a href="Program.html#attribute-i-code">Program#code</a> inside <a
+href="TAP.html">TAP</a> format.</p>
+<ul><li>
+<p><tt>name</tt> can contain max 10 ascii (7-bit) characters.</p>
+</li></ul>
+          
+
+          
+          <div class="method-source-code"
+            id="to_tap-source">
+<pre>
+<span class="ruby-comment"># File z80/tap.rb, line 34</span>
+def to_tap(name)
+        raise <span class="ruby-constant">TapeError</span>, <span class="ruby-string">&quot;Name should cointain ASCII 7-bit only!&quot;</span> unless name.ascii_only?
+        head = <span class="ruby-string">&quot;\x00\x03&quot;</span> + name.ljust(10)[0,10] + [code.bytesize, org, 0x8000].pack(<span class="ruby-string">'S3'</span>)
+        <span class="ruby-constant">TAP</span>.addsum head
+        data =  <span class="ruby-string">&quot;\xff&quot;</span> + code
+        <span class="ruby-constant">TAP</span>.addsum data
+        [head.bytesize].pack(<span class="ruby-string">'S'</span>) + head + [data.bytesize].pack(<span class="ruby-string">'S'</span>) + data
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </div>
+  
+
+  </div>
+
+  <div id="validator-badges">
+    <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+    <p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
+      Rdoc Generator</a> 2</small>.</p>
+  </div>
+
+</body>
+</html>
+
