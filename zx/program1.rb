@@ -1,6 +1,6 @@
 # -*- coding: BINARY -*-
 require 'z80'
-require 'gfx.rb'
+require 'zx/gfx.rb'
 
 class MemoryMap
 	include Z80
@@ -9,7 +9,7 @@ class MemoryMap
 
 	romtop	0x4000
 	intvec	0x38
-	scr_p	0x4000
+	scr_p	  0x4000
 	scrlen	6144
 	attr_p	scr_p + scrlen
 	attrlen	6912 - 6144
@@ -19,7 +19,7 @@ end
 
 class Z80Lib
 	module Macros
-    def memcpy(dest, source, size)
+    def memcpy(dest, source, size) # bc de hl
       ns do
 				ld	de, dest if dest
 				ld	hl, source if source
@@ -27,6 +27,37 @@ class Z80Lib
 				ldir
       end
 		end
+    def clrmem8(dest, size, value = 0) # a b hl
+      ns do
+            ld  b, size if size
+            ld  hl, dest if dest
+            if value == 0
+              xor a
+            elsif value
+              ld  a, value
+            end
+      loop1 ld  [hl], a
+            inc hl
+            djnz loop1
+      end
+    end
+    def clrmem(dest, size, value = 0) # a bc hl
+      ns do
+            ld  bc, size if size
+            ld  hl, dest if dest
+            if value == 0
+              xor a
+            elsif value
+              ld  a, value
+            end
+            inc b
+      loop1 ld  [hl], a
+            inc hl
+            dec c
+            jp  NZ, loop1
+            djnz loop1
+      end
+    end
   end
 	include Z80
 end
@@ -226,80 +257,122 @@ class MyROM
 			out	(0xfe),a
 		}
 
-		splnum	addr 0x8000
-			screens = %w[me.scr me1.scr]
-			memcpy scr_p, splashscreens, +splashscreens
-			xor	a
-			ld	[splnum], a
+    class Sprite < Label
+      x     word
+      dx    word
+      y     word
+      dy    word
+      w     byte
+      h     byte
+    end
 
-		ns do
-			ld	hl, 0x07a9
-			ld	bc, 0xffff
-			preserve :sprloop, bc, hl do
-				ora a
-				ld	a, 16
-				ld	de, ludek
-				ex	af, af
-				call gfx.draw_sprite8
-				# hlt
-			end
-			preserve bc, hl do
-				ld	a, 16
-				scf
-				ld	de, ludek
-				ex	af, af
-				call gfx.draw_sprite8
-			end
-			ld	a, c
-			ora	a
-			jr	Z, xmin
-			inc	l
-			jr NZ, yck
-			cpl
-			ld	c, a
-			call :swapscrn
-	xmin	dec l
-			jr NZ, yck
-			cpl
-			ld	c, a
-			call :swapscrn
-	yck		ld	a, b
-			ora	a
-			jr	Z, ymin
-			inc	h
-			ld	a, h
-			cp	192
-			jr NZ, sprloop
-			ld	a, b
-			cpl
-			ld	b, a
-			call :swapscrn
-	ymin	dec	h
-			jr	NZ, sprloop
-			cpl
-			ld	b, a
-			call :swapscrn
-			jp sprloop
-			preserve :swapscrn, bc, hl do
-				ld	hl, splashscreens
-				ld	de, +splashscreens
-				ld	a, [splnum]
-				ld	b, a
-				ora	a
-				jr	Z, mlpover
-		mlp		add	hl, de
+    class Vars < Label
+      splnum  byte
+      ludek_s Sprite
+      counter byte
+    end
+
+    screens = %w[zx/me1.scr]
+    memcpy scr_p, splashscreens, +splashscreens
+    xor	a
+    ld	[vars.splnum], a
+
+    ns do
+        clrmem8(vars.ludek_s, +vars.ludek_s - 1)
+        ld   hl, -80
+        ld   [vars.ludek_s.x], hl
+        ld   hl, -7
+        ld   [vars.ludek_s.y], hl
+        ld   a, 64
+        ld   [vars.ludek_s.h], a
+        ld   a, 8
+        ld   [vars.ludek_s.w], a
+        xor  a
+        ld   [vars.counter], a
+  ludlp ld   bc, [vars.ludek_s.x]
+        ld   de, [vars.ludek_s.y]
+        ld   hl, ufo
+        ld   a, [vars.ludek_s.w]
+        ex   af, af
+        cp   a
+        scf
+        ld   a, [vars.ludek_s.h]
+        call gfx.draw_sprite8_coords
+        hlt
+        ld   bc, [vars.ludek_s.x]
+        ld   de, [vars.ludek_s.y]
+        ld   hl, ufo8
+        ld   a, [vars.ludek_s.w]
+        ex   af, af
+        cp   a
+        ld   a, [vars.ludek_s.h]
+        #call gfx.draw_sprite8_coords
+        ld   hl, [vars.ludek_s.x]
+        ld   de, [vars.ludek_s.dx]
+        bit  7, d
+        jr   Z, xpos
+        dec  hl
+        dec  hl
+  xpos  inc  hl
+        ld   de, [vars.ludek_s.dx]
+        ld   [vars.ludek_s.x], hl
+        ld   bc, 256/2
+        ora  a
+        sbc  hl, bc
+        jp   PE, xless
+        jp   M,  xless
+        dec  de
+        dec  de
+  xless inc  de
+        ld   [vars.ludek_s.dx], de
+        ld   hl, [vars.ludek_s.y]
+        ld   de, [vars.ludek_s.dy]
+        bit  7, d
+        jr   Z, ypos
+        dec  hl
+        dec  hl
+  ypos  inc  hl
+        ld   de, [vars.ludek_s.dy]
+        ld   [vars.ludek_s.y], hl
+        ld   bc, 192/2
+        ora  a
+        sbc  hl, bc
+        jp   PE, yless
+        jp   M,  yless
+        dec  de
+        dec  de
+  yless inc  de
+        ld   [vars.ludek_s.dy], de
+        #call swapscrn
+        jp   ludlp
+      end
+			ns :swapscrn do
+        ld   a, [vars.counter]
+        dec  a
+        ld   [vars.counter], a
+        ret  NZ
+				ld	 hl, splashscreens
+				ld	 de, +splashscreens
+				ld	 a, [vars.splnum]
+				ld	 b, a
+				ora	 a
+				jr	 Z, mlpover
+		mlp add  hl, de
 				djnz mlp
-		mlpover	inc	a
-				cp	screens.size
-				jr	C, mok
-				xor	a
-		mok		ld	[splnum], a
+		mlpover	 inc	a
+				cp	 screens.size
+				jr	 C, mok
+				xor	 a
+		mok	ld   [vars.splnum], a
 				di
 				memcpy scr_p, nil, +splashscreens
 				ei
 			end
 			ret
-		end
+  
+		vars	addr 0x8000, Vars
+
+
 	forever	hlt
 			jr	:forever
 		
@@ -316,6 +389,9 @@ class MyROM
 	import	:liba, Liba
 
 	import	:gfx, ZXGfx8
+
+  ufo   import_file 'zx/ufo.bin'
+  ufo8  import_file 'zx/ufo8.bin'
 
 	ludek data 1, [
 		0x00,0x18,
@@ -334,6 +410,24 @@ class MyROM
 		0x42,0xE7,
 		0x42,0xE7,
 		0x00,0x42]
+
+	ludek8 data 1, [
+		0x00,
+		0x18,
+		0x3C,
+		0x66,
+		0x42,
+		0x24,
+		0x18,
+		0x3C,
+		0x5A,
+		0x5A,
+		0x18,
+		0x3C,
+		0x24,
+		0x42,
+		0x42,
+		0x00]
 
 	pointer data 1, [
 		0b00000000,
@@ -366,11 +460,11 @@ class MyROM
 
 			org romtop - 0x300, 0xff
 	# fontbin	import_file 'zxfont.bin', :bin, 0x300
-	fontbin	import_file 'andale.bin', :bin, 0x300
+	fontbin	import_file 'zx/andale.bin', :bin, 0x300
 end
 #puts MyROM.labels, nil,"D",MyROM.dummies.inspect, nil,"C",MyROM.contexts.inspect
 $p = MyROM.new 0
 #puts $p.debug[0..500]
-File.open('C:/Download/EmuZWin/roms/myrom.rom', 'wb') {|f| f.write $p.code }
-#File.open('D:/Installs/ZX Spectrum/EmuZWin/Roms/myrom.rom', 'wb') {|f| f.write $p.code }
+File.open('C:/Download/installs/zxspin/myrom.rom', 'wb') {|f| f.write $p.code }
+#File.open('D:/Installs/ZX Spectrum/zxspin0.666/myrom.rom', 'wb') {|f| f.write $p.code }
 #$p.save_tap 'test1'

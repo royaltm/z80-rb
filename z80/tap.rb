@@ -17,14 +17,19 @@ module Z80
 		##
 		#  Saves Program#code in TAP file.
 		#
-		#  * +file+ specifies filename.
-		#  * +name+ can contain max 10 ascii (7-bit) characters.
-		#    If not given base name of +file+ will be used instead.
-		#
-		def save_tap(file, name = nil)
-			name||= File.basename(file, '.tap')
+		#  * +file+    specifies filename.
+    #  * +options+
+		#    * +:name+ can contain max 10 ascii (7-bit) characters.
+		#      If not given base name of +file+ will be used instead.
+    #    * +:append+ if true code will be appended to tap.
+		def save_tap(file, options = {})
+      options = {
+        :name => nil,
+        :append => false
+      }.update options
+			name = options[:name] || File.basename(file, '.tap')
 			name+= '.tap' unless File.extname(name).downcase == '.tap'
-			File.open(name, 'wb') {|f| f.write to_tap(File.basename name, '.tap') }
+			File.open(name, options[:append] ? 'ab' : 'wb') {|f| f.write to_tap(File.basename name, '.tap') }
 		end
 		##
 		#  Wraps Program#code inside TAP format.

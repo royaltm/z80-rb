@@ -63,15 +63,6 @@ module Z80
 		#      inp (c)
 		#    the last one only adjust Z80 flags but the result goes to +/dev/null+ (figuratively speaking).
 		#  
-		#  -----------------------------------------------------------------
-		#
-		#  <b>To fully use ruby-z80 powers (unlike austin powers)</b>
-		#  * use labels where applicable (see Z80::Label)
-		#  * use namespaces where appropriate (see Program.ns)
-		#  * use macros whenever you can
-		#  * modularize all just like in ruby :-)
-		#  -----------------------------------------------------------------
-		#
 		#  ==Mnemonic list
 	    #  <code>adc add anda bit call ccf cp cpd cpdr cpi cpir cpl daa dec di djnz ei ex exx
 		#  halt hlt im0 im01 im1 im2 inc ind indr ini inir inp jp jr ld ldd lddr ldi ldir neg

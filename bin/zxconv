@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: BINARY -*-
-ZXCONV_VERSION = '0.2'
+ZXCONV_VERSION = '0.3'
 k,v = [
 	:dither1,    ?n,
 	:dither2,    ?n,
@@ -44,7 +44,7 @@ Usage:
   -g, --[no-]autogamma        apply auto gamma to source image
 
   destination format and content:
-  -f, --format t|b|r          zx spectrum data file format
+  -f, --format t|b|r|a        zx spectrum data file format
           t: save as TAP; one file is created
           b: save as binary data; separate files for scr and bitamp
           r: save as ruby source

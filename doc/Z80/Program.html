@@ -149,7 +149,7 @@
       
 
       <div id="classindex-section" class="section project-section">
-        <h3 class="section-header">Class Index
+        <h3 class="section-header">Class/Module Index
           <span class="search-toggle"><img src="../images/find.png"
             height="16" width="16" alt="[+]"
             title="show/hide quicksearch" /></span></h3>
@@ -206,6 +206,18 @@
 
     <!-- Constants -->
     
+    <div id="constants-list" class="section">
+      <h3 class="section-header">Constants</h3>
+      <dl>
+      
+        <dt><a name="VERSION">VERSION</a></dt>
+        
+        <dd class="description"></dd>
+        
+      
+      </dl>
+    </div>
+    
 
     <!-- Attributes -->
     
@@ -258,6 +270,21 @@
         </div>
       </div>
       
+      <div id="exports-attribute-method" class="method-detail">
+        <a name="exports"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">exports</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>original exported labels</p>
+        
+        </div>
+      </div>
+      
     </div>
     
 
@@ -270,13 +297,13 @@
       <div id="5B-5D-method" class="method-detail ">
         <a name="method-i-5B-5D"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">[]</span><span
             class="method-args">(label)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -291,7 +318,7 @@
           <div class="method-source-code"
             id="5B-5D-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 37</span>
+<span class="ruby-comment"># File z80/labels.rb, line 36</span>
 def [](label)
         label = label.first while label.is_a?(<span class="ruby-constant">Array</span>)
         if label.respond_to?(:to_label) or label.is_a?(<span class="ruby-constant">Register</span>)
@@ -315,13 +342,13 @@ end</pre>
       <div id="addr-method" class="method-detail ">
         <a name="method-i-addr"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">addr</span><span
             class="method-args">(address, type = 1)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -340,7 +367,7 @@ bar addr 0x4000, 2</pre>
           <div class="method-source-code"
             id="addr-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 66</span>
+<span class="ruby-comment"># File z80/labels.rb, line 65</span>
 def addr(address, type = 1)
         <span class="ruby-constant">Label</span>.new address, type
 end</pre>
@@ -357,12 +384,16 @@ end</pre>
       <div id="bytes-method" class="method-detail ">
         <a name="method-i-bytes"></a>
 
+        
+        
         <div class="method-heading">
-        
           <span class="method-callseq">bytes(size = 1, data = nil)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
-        
+          
         </div>
+        
+        
 
         <div class="method-description">
           
@@ -378,7 +409,7 @@ href="Program.html#method-i-data">Program.data</a>.</p>
           <div class="method-source-code"
             id="bytes-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 146</span>
+<span class="ruby-comment"># File z80/labels.rb, line 145</span>
 def bytes(*args); data(1, *args); end</pre>
           </div>
           
@@ -393,15 +424,31 @@ def bytes(*args); data(1, *args); end</pre>
       <div id="data-method" class="method-detail ">
         <a name="method-i-data"></a>
 
+        
+        
         <div class="method-heading">
-        
-          <span class="method-callseq">data(type = 1)
-data(type, size = 1)
-data(type, size, data)
-data(type, data)</span>
+          <span class="method-callseq">data(type = 1)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
-        
+          
         </div>
+        
+        <div class="method-heading">
+          <span class="method-callseq">data(type, size = 1)</span>
+          
+        </div>
+        
+        <div class="method-heading">
+          <span class="method-callseq">data(type, size, data)</span>
+          
+        </div>
+        
+        <div class="method-heading">
+          <span class="method-callseq">data(type, data)</span>
+          
+        </div>
+        
+        
 
         <div class="method-description">
           
@@ -438,14 +485,14 @@ size <tt>type.to_i</tt> * <tt>size</tt>.</p>
           <div class="method-source-code"
             id="data-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 103</span>
+<span class="ruby-comment"># File z80/labels.rb, line 102</span>
 def data(type = 1, size = nil, data = nil)
         data, size = size, nil if size.respond_to? :to_a
         data = if type.respond_to? :to_data
                 data||= []
                 type.to_data(*data)
         elsif data.respond_to? :to_a
-                size||= data.size
+                size||= data.to_a.size
                 data.to_a[0,size].each_with_index.map do |d,i|
                         case type.to_i
                         when 1
@@ -488,13 +535,13 @@ end</pre>
       <div id="export-method" class="method-detail ">
         <a name="method-i-export"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">export</span><span
             class="method-args">(label)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -509,7 +556,7 @@ be exported or <tt>:noauto</tt> to stop autoexporting.</p>
           <div class="method-source-code"
             id="export-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 20</span>
+<span class="ruby-comment"># File z80/labels.rb, line 19</span>
 def export(label)
         case label
         when :auto
@@ -535,13 +582,13 @@ end</pre>
       <div id="import-method" class="method-detail ">
         <a name="method-i-import"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">import</span><span
             class="method-args">(name, program = nil, flags = {})</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -556,6 +603,8 @@ import from <tt>program</tt>:</p>
 <p><tt>:code</tt>   =&gt; <tt>true/false</tt> (default: <tt>true</tt>)</p>
 </li><li>
 <p><tt>:macros</tt> =&gt; <tt>true/false</tt> (default: <tt>false</tt>)</p>
+</li><li>
+<p><tt>:args</tt>   =&gt; program initialize arguments</p>
 </li></ul>
 
 <p>To be able to import <b>macros</b> create module `Macros’ inside
@@ -571,37 +620,42 @@ imported code.</p>
           <div class="method-source-code"
             id="import-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 270</span>
+<span class="ruby-comment"># File z80.rb, line 287</span>
 def import(name, program = nil, flags = {})
-        unless name.is_a?(<span class="ruby-constant">Symbol</span>)
-                flags, program, name = program, name, nil
-        end
-        addr = pc
-        p = program.new addr
-        options = {
-                :labels =&gt; true,
-                :code       =&gt; true,
-                :macros =&gt; false,
-        }.merge flags
-        if options[:macros]
-                self.extend program::<span class="ruby-constant">Macros</span> if defined?(program::<span class="ruby-constant">Macros</span>)
-        end
-        if options[:labels]
-                members = p.exports.dup
-        end
-        if name
-                l = <span class="ruby-constant">Label</span>.new(addr, 1, :code, members)
-                self.send name.to_sym, l
-        else
-                members.each {|n, m| self.send n.to_sym, m} if members
-                l = <span class="ruby-constant">Label</span>.new addr, 1, :code
-        end
-        if options[:code]
-                <span class="ruby-ivar">@debug</span> &lt;&lt; <span class="ruby-constant">DebugInfo</span>.new(addr, 0, nil, nil, <span class="ruby-ivar">@context_labels</span>.dup &lt;&lt; l)
-                <span class="ruby-ivar">@debug</span> &lt;&lt; [&quot; #{program} &quot;.center(38, ==)] + p.debug + [&quot; #{program} &quot;.center(38, ^^)]
-                <span class="ruby-ivar">@code</span> &lt;&lt; p.code
-        end
-        l
+  unless name.is_a?(<span class="ruby-constant">Symbol</span>)
+    flags, program, name = program, name, nil
+  end
+  addr = pc
+  options = {
+    :labels =&gt; true,
+    :code   =&gt; true,
+    :macros =&gt; false,
+    :args =&gt; []
+  }.merge flags
+  if options[:macros]
+    self.extend program::<span class="ruby-constant">Macros</span> if defined?(program::<span class="ruby-constant">Macros</span>)
+  end
+  if options[:labels]
+    members = <span class="ruby-constant">Hash</span>[program.exports.map {|n, l|
+      [n, l.deep_clone_with_relocation(addr)]
+    }]
+  end
+  type = options[:code] ? program.code.bytesize : 1
+  if name
+    l = <span class="ruby-constant">Label</span>.new(addr, type, :code, members)
+    self.send name.to_sym, l
+  else
+    members.each {|n, m| self.send n.to_sym, m} if members
+    l = <span class="ruby-constant">Label</span>.new addr, type, :code
+  end
+  if options[:code]
+    <span class="ruby-ivar">@debug</span> &lt;&lt; <span class="ruby-constant">DebugInfo</span>.new(addr, 0, nil, nil, <span class="ruby-ivar">@context_labels</span>.dup &lt;&lt; l)
+    <span class="ruby-ivar">@debug</span> &lt;&lt; <span class="ruby-ivar">@imports</span>.size
+    <span class="ruby-ivar">@imports</span> &lt;&lt; [addr, type, program, options[:args]]
+    <span class="ruby-ivar">@code</span> &lt;&lt; program.code
+  end
+  program.freeze
+  l
 end</pre>
           </div>
           
@@ -616,13 +670,13 @@ end</pre>
       <div id="import_file-method" class="method-detail ">
         <a name="method-i-import_file"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">import_file</span><span
             class="method-args">(file, type = :any, size = nil, args = {})</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -647,24 +701,24 @@ href="TAP.html">Z80::TAP</a> in your program</b>.</p>
           <div class="method-source-code"
             id="import_file-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 313</span>
+<span class="ruby-comment"># File z80.rb, line 335</span>
 def import_file(file, type = :any, size = nil, args = {})
-        type = type.to_s.upcase.to_sym
-        if type == :ANY
-                type = <span class="ruby-constant">File</span>.extname(file).gsub(<span class="ruby-regexp">/^\./</span>,<span class="ruby-string">''</span>).upcase.to_sym
-        end
-        data = if <span class="ruby-constant">Z80</span>.constants.include?(type) and (handler = <span class="ruby-constant">Z80</span>.const_get(type)) and (handler.respond_to? :read_data)
-                $stderr.puts &quot;Importing #{type} file: `#{file}'.&quot;
-                handler.read_data(file, args)
-        else
-                $stderr.puts &quot;Importing binary file: `#{file}'.&quot;
-                <span class="ruby-constant">File</span>.open(file, <span class="ruby-string">'rb'</span>) {|f| f.read}
-        end
-        <span class="ruby-constant">Z80</span>::add_code self, if size
-                data[0, size].ljust(size, <span class="ruby-string">&quot;\x0&quot;&quot;</span>)
-        else
-                data
-        end, size || data.bytesize
+  type = type.to_s.upcase.to_sym
+  if type == :ANY
+    type = <span class="ruby-constant">File</span>.extname(file).gsub(<span class="ruby-regexp">/^\./</span>,<span class="ruby-string">''</span>).upcase.to_sym
+  end
+  data = if <span class="ruby-constant">Z80</span>.constants.include?(type) and (handler = <span class="ruby-constant">Z80</span>.const_get(type)) and (handler.respond_to? :read_data)
+    $stderr.puts &quot;Importing #{type} file: `#{file}'.&quot;
+    handler.read_data(file, args)
+  else
+    $stderr.puts &quot;Importing binary file: `#{file}'.&quot;
+    <span class="ruby-constant">File</span>.open(file, <span class="ruby-string">'rb'</span>) {|f| f.read}
+  end
+  <span class="ruby-constant">Z80</span>::add_code self, if size
+    data[0, size].ljust(size, <span class="ruby-string">&quot;\x0&quot;&quot;</span>)
+  else
+    data
+  end, size || data.bytesize
 end</pre>
           </div>
           
@@ -679,13 +733,13 @@ end</pre>
       <div id="label-method" class="method-detail ">
         <a name="method-i-label"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">label</span><span
             class="method-args">(type = 1)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -705,7 +759,7 @@ href="Program.html#method-i-pc">Program.pc</a> and is of <tt>type</tt>.</p>
           <div class="method-source-code"
             id="label-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 55</span>
+<span class="ruby-comment"># File z80/labels.rb, line 54</span>
 def label(type = 1)
         <span class="ruby-constant">Label</span>.new pc, type, :code
 end</pre>
@@ -722,13 +776,13 @@ end</pre>
       <div id="macro-method" class="method-detail ">
         <a name="method-i-macro"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">macro</span><span
             class="method-args">(name, *registers, &mblock)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -753,21 +807,21 @@ there.</p>
           <div class="method-source-code"
             id="macro-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 184</span>
+<span class="ruby-comment"># File z80.rb, line 200</span>
 def macro(name, *registers, &amp;mblock)
-        raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Macro may be defined only in main program context.&quot;</span> if <span class="ruby-ivar">@contexts</span>.size &gt; 1
-        raise <span class="ruby-constant">Syntax</span>, &quot;A label: #{name} is already allocated.&quot; if <span class="ruby-ivar">@labels</span>.has_key?(label.to_s)
-        m = lambda do |*args, &amp;block|
-                if args.first.is_a?(<span class="ruby-constant">Symbol</span>)
-                        n = args.shift
-                end
-                ns(n) do |eoc|
-                        registers.each {|rr| push rr}
-                        mblock.call eoc, *args, &amp;block
-                        registers.reverse.each {|rr| pop rr}
-                end
-        end
-        define_singleton_method(name.to_sym, &amp;m)
+  raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Macro may be defined only in main program context.&quot;</span> if <span class="ruby-ivar">@contexts</span>.size &gt; 1
+  raise <span class="ruby-constant">Syntax</span>, &quot;A label: #{name} is already allocated.&quot; if <span class="ruby-ivar">@labels</span>.has_key?(label.to_s)
+  m = lambda do |*args, &amp;block|
+    if args.first.is_a?(<span class="ruby-constant">Symbol</span>)
+      n = args.shift
+    end
+    ns(n) do |eoc|
+      registers.each {|rr| push rr}
+      mblock.call eoc, *args, &amp;block
+      registers.reverse.each {|rr| pop rr}
+    end
+  end
+  define_singleton_method(name.to_sym, &amp;m)
 end</pre>
           </div>
           
@@ -782,13 +836,13 @@ end</pre>
       <div id="method_missing-method" class="method-detail ">
         <a name="method-i-method_missing"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">method_missing</span><span
             class="method-args">(m, label = nil)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -819,7 +873,7 @@ label (not yet defined).</p>
           <div class="method-source-code"
             id="method_missing-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 170</span>
+<span class="ruby-comment"># File z80/labels.rb, line 169</span>
 def method_missing(m, label = nil)
         <span class="ruby-comment"># puts [m.inspect, label.inspect]*', '</span>
         name = m.to_s
@@ -868,13 +922,13 @@ end</pre>
       <div id="new-method" class="method-detail ">
         <a name="method-i-new"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">new</span><span
             class="method-args">(start = 0x0000, *args)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -886,36 +940,40 @@ initialize(). Returns compiled instance of a <b>program</b>.</p>
           <div class="method-source-code"
             id="new-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 137</span>
+<span class="ruby-comment"># File z80.rb, line 149</span>
 def new(start = 0x0000, *args)
-        unless <span class="ruby-ivar">@dummies</span>.empty? and !<span class="ruby-ivar">@contexts</span>.last.any? {|_,v| v.dummy?}
-                dummies = <span class="ruby-ivar">@dummies</span>.map {|d| d[0..1]} + <span class="ruby-ivar">@contexts</span>.last.select {|_,v| v.dummy?}.map {|d| d[0..1]}
-                raise <span class="ruby-constant">CompileError</span>, &quot;Variables not initialized:#{dummies.inspect}&quot;
-        end
-        p = super
-        c = <span class="ruby-ivar">@code</span>.dup
-        <span class="ruby-ivar">@reloc</span>.each do |r|
-                case r.size
-                when 1
-                        addr = r.from ? r.from : r.addr + 1 + start
-                        unless (128..127).include?(i = r.alloc.to_i(start, addr))
-                                raise <span class="ruby-constant">CompileError</span>, &quot;Relative relocation out of range at 0x#{'%04x' % r.addr} -&gt; #{i}&quot;
-                        end
-                        c[r.addr] = [i].pack(<span class="ruby-string">'c'</span>)
-                when 2
-                        c[r.addr, 2] = [r.alloc.to_i(start)].pack(<span class="ruby-string">'S'</span>)
-                end
-        end
-        [<span class="ruby-string">'@code'</span>, c,
-         <span class="ruby-string">'@org'</span>, start,
-         <span class="ruby-string">'@debug'</span>, nil,
-         <span class="ruby-string">'@exports'</span>, <span class="ruby-constant">Hash</span>[<span class="ruby-ivar">@exports</span>.map {|n, l| 
-                        [n, l.deep_clone_with_relocation(start)]
-                }]
-        ].each_slice(2) do |n,v|
-                p.instance_variable_set n,v
-        end
-        p
+  unless <span class="ruby-ivar">@dummies</span>.empty? and !<span class="ruby-ivar">@contexts</span>.last.any? {|_,v| v.dummy?}
+    dummies = <span class="ruby-ivar">@dummies</span>.map {|d| d[0..1]} + <span class="ruby-ivar">@contexts</span>.last.select {|_,v| v.dummy?}.map {|d| d[0..1]}
+    raise <span class="ruby-constant">CompileError</span>, &quot;Variables not initialized:#{dummies.inspect}&quot;
+  end
+  p = super
+  c = <span class="ruby-ivar">@code</span>.dup
+  imports = <span class="ruby-ivar">@imports</span>.map do |addr, size, program, arguments|
+    ip = program.new(addr + start, *arguments)
+    raise <span class="ruby-constant">CompileError</span>, &quot;Imported program #{program} has been modified.&quot; unless ip.code.bytesize == size
+    c[addr, size] = ip.code
+    ip
+  end
+  <span class="ruby-ivar">@reloc</span>.each do |r|
+    case r.size
+    when 1
+      addr = r.from ? r.from : r.addr + 1 + start
+      unless (-128..127).include?(i = r.alloc.to_i(start, addr))
+        raise <span class="ruby-constant">CompileError</span>, &quot;Relative relocation out of range at 0x#{'%04x' % r.addr} -&gt; #{i}&quot;
+      end
+      c[r.addr] = [i].pack(<span class="ruby-string">'c'</span>)
+    when 2
+      c[r.addr, 2] = [r.alloc.to_i(start)].pack(<span class="ruby-string">'S'</span>)
+    end
+  end
+  [<span class="ruby-string">'@code'</span>, c,
+   <span class="ruby-string">'@org'</span>, start,
+   <span class="ruby-string">'@debug'</span>, nil,
+   <span class="ruby-string">'@imports'</span>, imports
+  ].each_slice(2) do |n,v|
+    p.instance_variable_set n,v
+  end
+  p
 end</pre>
           </div>
           
@@ -930,13 +988,13 @@ end</pre>
       <div id="ns-method" class="method-detail ">
         <a name="method-i-ns"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">ns</span><span
             class="method-args">(name = nil)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -962,39 +1020,39 @@ end</pre>
           <div class="method-source-code"
             id="ns-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 222</span>
+<span class="ruby-comment"># File z80.rb, line 238</span>
 def ns(name = nil)
-        labels = <span class="ruby-ivar">@labels</span>
-        <span class="ruby-ivar">@labels</span> = <span class="ruby-ivar">@labels</span>.dup <span class="ruby-comment">#labels.merge @contexts.last</span>
-        <span class="ruby-ivar">@contexts</span> &lt;&lt; {}
-        raise <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;no block in ns&quot;</span> unless block_given?
-        addr = pc
-        eoc = <span class="ruby-constant">Label</span>.dummy
-        <span class="ruby-ivar">@context_labels</span> &lt;&lt; (top = <span class="ruby-constant">Label</span>.dummy)
-        <span class="ruby-ivar">@debug</span> &lt;&lt; <span class="ruby-constant">DebugInfo</span>.new(addr, 0, nil, nil, <span class="ruby-ivar">@context_labels</span>.dup)
-        yield eoc
-        eoc.reinitialize(pc, 1, :code)
-        members, dummies = <span class="ruby-ivar">@contexts</span>.pop.partition do |n, l|
-                if l.dummy?
-                        false
-                else
-                        true
-                end
-        end
-        contexts = <span class="ruby-ivar">@contexts</span>.map(&amp;:object_id)
-        <span class="ruby-ivar">@labels</span> = labels
-        <span class="ruby-ivar">@dummies</span>+= dummies.map do |n, l|
-                if <span class="ruby-ivar">@labels</span>.has_key?(n) and !<span class="ruby-ivar">@labels</span>[n].dummy?
-                        l.reinitialize <span class="ruby-ivar">@labels</span>[n]
-                        nil
-                else
-                        [n, l] + contexts
-                end
-        end.compact
-        <span class="ruby-ivar">@context_labels</span>.pop
-        top.reinitialize addr, pc - addr, :code, <span class="ruby-constant">Hash</span>[members]
-        top = self.send name.to_sym, top if name
-        top
+  labels = <span class="ruby-ivar">@labels</span>
+  <span class="ruby-ivar">@labels</span> = <span class="ruby-ivar">@labels</span>.dup <span class="ruby-comment">#labels.merge @contexts.last</span>
+  <span class="ruby-ivar">@contexts</span> &lt;&lt; {}
+  raise <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;no block in ns&quot;</span> unless block_given?
+  addr = pc
+  eoc = <span class="ruby-constant">Label</span>.dummy
+  <span class="ruby-ivar">@context_labels</span> &lt;&lt; (top = <span class="ruby-constant">Label</span>.dummy)
+  <span class="ruby-ivar">@debug</span> &lt;&lt; <span class="ruby-constant">DebugInfo</span>.new(addr, 0, nil, nil, <span class="ruby-ivar">@context_labels</span>.dup)
+  yield eoc
+  eoc.reinitialize(pc, 1, :code)
+  members, dummies = <span class="ruby-ivar">@contexts</span>.pop.partition do |n, l|
+    if l.dummy?
+      false
+    else
+      true
+    end
+  end
+  contexts = <span class="ruby-ivar">@contexts</span>.map(&amp;:object_id)
+  <span class="ruby-ivar">@labels</span> = labels
+  <span class="ruby-ivar">@dummies</span>+= dummies.map do |n, l|
+    if <span class="ruby-ivar">@labels</span>.has_key?(n) and !<span class="ruby-ivar">@labels</span>[n].dummy?
+      l.reinitialize <span class="ruby-ivar">@labels</span>[n]
+      nil
+    else
+      [n, l] + contexts
+    end
+  end.compact
+  <span class="ruby-ivar">@context_labels</span>.pop
+  top.reinitialize addr, pc - addr, :code, <span class="ruby-constant">Hash</span>[members]
+  top = self.send name.to_sym, top if name
+  top
 end</pre>
           </div>
           
@@ -1009,13 +1067,13 @@ end</pre>
       <div id="org-method" class="method-detail ">
         <a name="method-i-org"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">org</span><span
             class="method-args">(address, pad = 0)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -1031,11 +1089,11 @@ only an instances of a program have absolute addresses.</p>
           <div class="method-source-code"
             id="org-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 204</span>
+<span class="ruby-comment"># File z80.rb, line 220</span>
 def org(address, pad = 0)
-        address = address.to_i &amp; 0xffff
-        raise <span class="ruby-constant">Syntax</span>, &quot;The current code pointer: #{pc.to_s 16} is exceeding: #{address.to_i.to_s 16} &quot; if pc &gt; address
-        <span class="ruby-constant">Z80</span>::add_code self, [pad].pack(<span class="ruby-string">'c'</span>)*(address - pc)
+  address = address.to_i &amp; 0xffff
+  raise <span class="ruby-constant">Syntax</span>, &quot;The current code pointer: #{pc.to_s 16} is exceeding: #{address.to_i.to_s 16} &quot; if pc &gt; address
+  <span class="ruby-constant">Z80</span>::add_code self, [pad].pack(<span class="ruby-string">'c'</span>)*(address - pc)
 end</pre>
           </div>
           
@@ -1050,13 +1108,13 @@ end</pre>
       <div id="pc-method" class="method-detail ">
         <a name="method-i-pc"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">pc</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -1067,9 +1125,9 @@ end</pre>
           <div class="method-source-code"
             id="pc-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 169</span>
+<span class="ruby-comment"># File z80.rb, line 185</span>
 def pc
-        <span class="ruby-ivar">@code</span>.bytesize
+  <span class="ruby-ivar">@code</span>.bytesize
 end</pre>
           </div>
           
@@ -1084,13 +1142,13 @@ end</pre>
       <div id="union-method" class="method-detail ">
         <a name="method-i-union"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">union</span><span
             class="method-args">(label, type)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -1109,7 +1167,7 @@ different <tt>type</tt>.</p>
           <div class="method-source-code"
             id="union-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 77</span>
+<span class="ruby-comment"># File z80/labels.rb, line 76</span>
 def union(label, type)
         raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid union argument.&quot;</span> unless label.respond_to?(:to_label) and !label.dummy?
         <span class="ruby-constant">Label</span>.new label.to_i, type, label.immediate? ? nil : :code
@@ -1127,12 +1185,16 @@ end</pre>
       <div id="words-method" class="method-detail ">
         <a name="method-i-words"></a>
 
+        
+        
         <div class="method-heading">
-        
           <span class="method-callseq">words(size = 1, data = nil)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
-        
+          
         </div>
+        
+        
 
         <div class="method-description">
           
@@ -1148,7 +1210,7 @@ href="Program.html#method-i-data">Program.data</a>.</p>
           <div class="method-source-code"
             id="words-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 154</span>
+<span class="ruby-comment"># File z80/labels.rb, line 153</span>
 def words(*args); data(2, *args); end</pre>
           </div>
           

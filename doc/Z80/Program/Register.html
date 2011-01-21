@@ -117,7 +117,7 @@
       
 
       <div id="classindex-section" class="section project-section">
-        <h3 class="section-header">Class Index
+        <h3 class="section-header">Class/Module Index
           <span class="search-toggle"><img src="../../images/find.png"
             height="16" width="16" alt="[+]"
             title="show/hide quicksearch" /></span></h3>
@@ -273,13 +273,13 @@ methods. You must not create instances of this class directly.</p>
       <div id="5B-5D-method" class="method-detail ">
         <a name="method-c-5B-5D"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">[]</span><span
             class="method-args">(index)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -290,7 +290,7 @@ methods. You must not create instances of this class directly.</p>
           <div class="method-source-code"
             id="5B-5D-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 19</span>
+<span class="ruby-comment"># File z80/registers.rb, line 18</span>
 def [](index)
         @@registers[index]
 end</pre>
@@ -307,13 +307,13 @@ end</pre>
       <div id="names-method" class="method-detail ">
         <a name="method-c-names"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">names</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -324,7 +324,7 @@ end</pre>
           <div class="method-source-code"
             id="names-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 22</span>
+<span class="ruby-comment"># File z80/registers.rb, line 21</span>
 def names
         @@names8 + @@namesi8 + @@names_index8 + @@names_bcdep8 + @@names16 + @@names_index16 + @@names_other
 end</pre>
@@ -341,13 +341,13 @@ end</pre>
       <div id="new-method" class="method-detail ">
         <a name="method-c-new"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">new</span><span
             class="method-args">(name, opc)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -358,7 +358,7 @@ end</pre>
           <div class="method-source-code"
             id="new-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 27</span>
+<span class="ruby-comment"># File z80/registers.rb, line 26</span>
 def initialize(name, opc)
         <span class="ruby-ivar">@name</span> = name
         <span class="ruby-ivar">@index</span> = 0
@@ -385,13 +385,13 @@ end</pre>
       <div id="2B-method" class="method-detail ">
         <a name="method-i-2B"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">+</span><span
             class="method-args">(other)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -405,7 +405,7 @@ registers. Example:</p>
           <div class="method-source-code"
             id="2B-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 76</span>
+<span class="ruby-comment"># File z80/registers.rb, line 75</span>
 def +(other)
         self[other]
 end</pre>
@@ -422,13 +422,13 @@ end</pre>
       <div id="2D-method" class="method-detail ">
         <a name="method-i-2D"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">-</span><span
             class="method-args">(other)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -442,7 +442,7 @@ registers. Example:</p>
           <div class="method-source-code"
             id="2D-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 82</span>
+<span class="ruby-comment"># File z80/registers.rb, line 81</span>
 def -(other)
         self[-other.to_i]
 end</pre>
@@ -459,13 +459,13 @@ end</pre>
       <div id="5B-5D-method" class="method-detail ">
         <a name="method-i-5B-5D"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">[]</span><span
             class="method-args">(index = 0)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -480,12 +480,12 @@ ld  [hl], b</pre>
           <div class="method-source-code"
             id="5B-5D-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 55</span>
+<span class="ruby-comment"># File z80/registers.rb, line 54</span>
 def [](index = 0)
         if name.size == 2
                 if index != 0 and name[0] != ii
                         raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only ix,iy registers may be indexed pointers.&quot;</span>
-                elsif !(128..127).include?(index) and !index.respond_to?(:to_alloc)
+                elsif !(-128..127).include?(index) and !index.respond_to?(:to_alloc)
                         raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Pointer index out of range.&quot;</span>
                 end
                 raise <span class="ruby-constant">Syntax</span>, &quot;Register #{name} can not be a pointer.&quot; unless r = @@regindex[name + <span class="ruby-string">'_'</span>]
@@ -511,13 +511,13 @@ end</pre>
       <div id="bit8-3F-method" class="method-detail ">
         <a name="method-i-bit8-3F"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">bit8?</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -528,7 +528,7 @@ end</pre>
           <div class="method-source-code"
             id="bit8-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 95</span>
+<span class="ruby-comment"># File z80/registers.rb, line 94</span>
 def bit8?; <span class="ruby-ivar">@bit8</span>; end</pre>
           </div>
           
@@ -543,13 +543,13 @@ def bit8?; <span class="ruby-ivar">@bit8</span>; end</pre>
       <div id="one_of-3F-method" class="method-detail ">
         <a name="method-i-one_of-3F"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">one_of?</span><span
             class="method-args">(ary)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -560,7 +560,7 @@ def bit8?; <span class="ruby-ivar">@bit8</span>; end</pre>
           <div class="method-source-code"
             id="one_of-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 96</span>
+<span class="ruby-comment"># File z80/registers.rb, line 95</span>
 def one_of?(ary); ary.include?(name); end</pre>
           </div>
           
@@ -575,13 +575,13 @@ def one_of?(ary); ary.include?(name); end</pre>
       <div id="pointer-3F-method" class="method-detail ">
         <a name="method-i-pointer-3F"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">pointer?</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -592,9 +592,9 @@ def one_of?(ary); ary.include?(name); end</pre>
           <div class="method-source-code"
             id="pointer-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 37</span>
+<span class="ruby-comment"># File z80/registers.rb, line 36</span>
 def pointer?
-        name[1] == <span class="ruby-string">'_'</span>
+        name[-1] == <span class="ruby-string">'_'</span>
 end</pre>
           </div>
           
@@ -609,13 +609,13 @@ end</pre>
       <div id="size-method" class="method-detail ">
         <a name="method-i-size"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">size</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -626,7 +626,7 @@ end</pre>
           <div class="method-source-code"
             id="size-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 34</span>
+<span class="ruby-comment"># File z80/registers.rb, line 33</span>
 def size
         name.size
 end</pre>
@@ -643,13 +643,13 @@ end</pre>
       <div id="to_debug-method" class="method-detail ">
         <a name="method-i-to_debug"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">to_debug</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -660,7 +660,7 @@ end</pre>
           <div class="method-source-code"
             id="to_debug-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 85</span>
+<span class="ruby-comment"># File z80/registers.rb, line 84</span>
 def to_debug
         if pointer?
                 &quot;(#{name[0,2]}&quot; + if prefix
@@ -683,13 +683,13 @@ end</pre>
       <div id="to_i-method" class="method-detail ">
         <a name="method-i-to_i"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">to_i</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -700,7 +700,7 @@ end</pre>
           <div class="method-source-code"
             id="to_i-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 94</span>
+<span class="ruby-comment"># File z80/registers.rb, line 93</span>
 def to_i; <span class="ruby-ivar">@opc</span>; end</pre>
           </div>
           
@@ -715,13 +715,13 @@ def to_i; <span class="ruby-ivar">@opc</span>; end</pre>
       <div id="7C-method" class="method-detail ">
         <a name="method-i-7C"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">|</span><span
             class="method-args">(other)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -733,7 +733,7 @@ defining macros that may use registers passed by parameters.</p>
           <div class="method-source-code"
             id="7C-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 43</span>
+<span class="ruby-comment"># File z80/registers.rb, line 42</span>
 def |(other)
         if other.is_a?(<span class="ruby-constant">Register</span>) and ]bc de hl ixhixl iyhiyl].include?(name + other.name)
                 @@regindex[name + other.name] || @@regindex[name[0,2]]

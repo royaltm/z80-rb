@@ -123,7 +123,7 @@
       
 
       <div id="classindex-section" class="section project-section">
-        <h3 class="section-header">Class Index
+        <h3 class="section-header">Class/Module Index
           <span class="search-toggle"><img src="./images/find.png"
             height="16" width="16" alt="[+]"
             title="show/hide quicksearch" /></span></h3>
@@ -176,7 +176,21 @@
 
     <div id="description">
       
-<h3>Include this module in your <b>program</b> class to turn it to a powerfull <a href="Z80.html">Z80</a> macro assembler.</h3>
+<h2>Include this module in your <b>program</b> class to turn it to a powerfull <a href="Z80.html">Z80</a> macro assembler.</h2>
+<hr style="height: 1px">
+
+<p><b>To fully use ruby-z80 powers (unlike austin powers)</b></p>
+<ul><li>
+<p>use labels where applicable (see <a href="Z80/Label.html">Z80::Label</a>)</p>
+</li><li>
+<p>use namespaces where appropriate (see <a
+href="Z80/Program.html#method-i-ns">Program.ns</a>)</p>
+</li><li>
+<p>use macros whenever you can</p>
+</li><li>
+<p>modularize all just like in ruby :-)</p>
+</li></ul>
+<hr style="height: 1px">
 
     </div>
 
@@ -236,22 +250,6 @@
         </div>
       </div>
       
-      <div id="exports-attribute-method" class="method-detail">
-        <a name="exports"></a>
-        
-        <div class="method-heading attribute-method-heading">
-          <span class="method-name">exports</span><span
-            class="attribute-access-type">[R]</span>
-        </div>
-
-        <div class="method-description">
-        
-        <p>labels exported with <a
-href="Z80/Program.html#method-i-export">Program.export</a> instruction</p>
-        
-        </div>
-      </div>
-      
     </div>
     
 
@@ -264,13 +262,13 @@ href="Z80/Program.html#method-i-export">Program.export</a> instruction</p>
       <div id="add_code-method" class="method-detail ">
         <a name="method-c-add_code"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">add_code</span><span
             class="method-args">(prg, data, type = 1, mnemo = nil, *mpar)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -282,13 +280,13 @@ placed here to not pollute <b>program</b> namespace</p>
           <div class="method-source-code"
             id="add_code-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 93</span>
+<span class="ruby-comment"># File z80.rb, line 101</span>
 def add_code(prg, data, type = 1, mnemo = nil, *mpar)
-        raise <span class="ruby-constant">TypeError</span> unless data.is_a? <span class="ruby-constant">String</span>
-        l = <span class="ruby-constant">Label</span>.new(pc = prg.pc, type, :code)
-        prg.debug &lt;&lt; <span class="ruby-constant">DebugInfo</span>.new(pc, data.bytesize, mnemo, mpar, prg.instance_variable_get(<span class="ruby-string">'@context_labels'</span>).dup &lt;&lt; l)
-        prg.code &lt;&lt; data
-        l
+  raise <span class="ruby-constant">TypeError</span> unless data.is_a? <span class="ruby-constant">String</span>
+  l = <span class="ruby-constant">Label</span>.new(pc = prg.pc, type, :code)
+  prg.debug &lt;&lt; <span class="ruby-constant">DebugInfo</span>.new(pc, data.bytesize, mnemo, mpar, prg.instance_variable_get(<span class="ruby-string">'@context_labels'</span>).dup &lt;&lt; l)
+  prg.code &lt;&lt; data
+  l
 end</pre>
           </div>
           
@@ -303,13 +301,13 @@ end</pre>
       <div id="add_reloc-method" class="method-detail ">
         <a name="method-c-add_reloc"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">add_reloc</span><span
             class="method-args">(prg, label, size, offset = 0, from = nil)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -321,14 +319,14 @@ placed here to not pollute <b>program</b> namespace</p>
           <div class="method-source-code"
             id="add_reloc-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 102</span>
+<span class="ruby-comment"># File z80.rb, line 110</span>
 def add_reloc(prg, label, size, offset = 0, from = nil)
-        if (label = label.to_label(prg).to_alloc).immediate? and (size == 2 or from)
-                [label.to_i(0, size == 1 ? :self : nil)].pack(size == 1 ? <span class="ruby-string">'c'</span> : <span class="ruby-string">'s'</span>)
-        else
-                prg.reloc &lt;&lt; (r = <span class="ruby-constant">Relocation</span>.new(prg.pc + offset, label, size, from))
-                <span class="ruby-string">&quot;\x0&quot;&quot;</span>*size
-        end
+  if (label = label.to_label(prg).to_alloc).immediate? and (size == 2 or from)
+    [label.to_i(0, size == 1 ? :self : nil)].pack(size == 1 ? <span class="ruby-string">'c'</span> : <span class="ruby-string">'s'</span>)
+  else
+    prg.reloc &lt;&lt; (r = <span class="ruby-constant">Relocation</span>.new(prg.pc + offset, label, size, from))
+    <span class="ruby-string">&quot;\x0&quot;&quot;</span>*size
+  end
 end</pre>
           </div>
           
@@ -349,13 +347,13 @@ end</pre>
       <div id="debug-method" class="method-detail ">
         <a name="method-i-debug"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">debug</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -364,71 +362,73 @@ Strings.</p>
 
 <p>Example debugger output:</p>
 
-<pre>016F:                                  :gfx
-======          ZXGfx8 ===============
-016F:                                  :draw_sprite8_coords
-016F: 08          ex   af, af'
-0170: 7A          ld   a, d
-0171: B7          or   a
-0172: CA9001      jp   Z, 0190H        -&gt; vnext1
-0175: 3C          inc  a
-0176: C0          ret  NZ
-0177: 08          ex   af, af'
-0178: F5          push af
-0179: ED44        neg
-017B: 93          sub  e
-017C: DA8101      jp   C, 0181H        -&gt; vnext2
-017F: F1          pop  af
-0180: C9          ret</pre>
+<pre>======          ZXMath ===============
+8023:                                  :mul
+8023: 5D          ld   e, l
+8024: 54          ld   d, h
+8025: 218080      ld   hl, 0000H
+8028: CB3F        srl  a               :mul.loop1
+802A: 3803        jr   NC, 802fH       -&gt; noadd
+802C: 19          add  hl, de
+802D: 380B        jr   C, 803aH
+802F: 2807        jr   Z, 8038H        :mul.noadd -&gt; ok
+8031: CB23        sla  e
+8033: CB12        rl   d
+8035: D22880      jp   NC, 8028H       -&gt; loop1
+8038: 4D          ld   c, l
+8039: 44          ld   b, h
+803A: D0          ret  NC
+803B: CF          rst  08H
+803C: 0A                      .
+^^^^^^^^^^^^^^^ ZXMath ^^^^^^^^^^^^^^^</pre>
           
 
           
           <div class="method-source-code"
             id="debug-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 41</span>
+<span class="ruby-comment"># File z80.rb, line 50</span>
 def debug
-        return <span class="ruby-ivar">@debug</span> if <span class="ruby-ivar">@debug</span>
-        reloc = self.class.reloc
-        <span class="ruby-ivar">@debug</span> = self.class.debug.map do |d|
-                case d
-                when <span class="ruby-constant">DebugInfo</span>
-                        data = code[d.addr, d.size]
-                        h = proc {|as, g| as.map {|c| <span class="ruby-string">'%02X'</span>%c.ord}.join g}
-                        <span class="ruby-comment"># puts d.labels.inspect</span>
-                        label = if d.labels.last.to_name
-                                <span class="ruby-string">&quot; :&quot;</span> + d.labels.map {|n| n.to_name || n.to_i(org).to_s(16) }.join(<span class="ruby-string">'.'</span>)
-                        end
-                        unless (relocs = reloc.select {|r| (d.addr...d.addr+d.size).member? r.addr }.map {|r| r.alloc.to_s}.join(<span class="ruby-string">', '</span>)).empty?
-                                label = label.to_s + &quot; -&gt; #{relocs}&quot;
-                        end
-                        if mnemo = d.text
-                                if prm = d.args
-                                        mnemo = mnemo % prm.each_slice(2).map do |o, t|
-                                                case t
-                                                when :word
-                                                        data[o, 2].unpack(<span class="ruby-string">'S'</span>)[0]
-                                                when :byte
-                                                        data[o, 1].unpack(<span class="ruby-string">'C'</span>)[0]
-                                                when :pcrel
-                                                        data[o, 1].unpack(<span class="ruby-string">'c'</span>)[0] + d.addr + d.size + org
-                                                end
-                                        end
-                                end
-                                &quot;#{'%04X'%(d.addr+org)}: #{h[data.split(''),''].ljust 12}#{mnemo.ljust 20}#{label}&quot;
-                        elsif data.empty? and label
-                                &quot;#{'%04X'%(d.addr+org)}: #{' '*32}#{label}&quot;
-                        else
-                                a = d.addr - 8 + org
-                                data.split(<span class="ruby-string">''</span>).each_slice(8).map do |ds|
-                                        a+= 8
-                                        &quot;#{'%04X'%a}: #{h[ds, ' '].ljust 24}#{ds.join.gsub(/[\x0-\x1f]/, '.').ljust 8}#{label}&quot;
-                                end
-                        end
-                else
-                        d
-                end
-        end.flatten
+  return <span class="ruby-ivar">@debug</span> if <span class="ruby-ivar">@debug</span>
+  reloc = self.class.reloc
+  <span class="ruby-ivar">@debug</span> = self.class.debug.map do |d|
+    case d
+    when <span class="ruby-constant">DebugInfo</span>
+      data = code[d.addr, d.size]
+      h = proc {|as, g| as.map {|c| <span class="ruby-string">'%02X'</span>%c.ord}.join g}
+      label = if d.labels.last.to_name
+        <span class="ruby-string">&quot; :&quot;</span> + d.labels.map {|n| n.to_name || n.to_i(org).to_s(16) }.join(<span class="ruby-string">'.'</span>)
+      end
+      unless (relocs = reloc.select {|r| (d.addr...d.addr+d.size).member? r.addr }.map {|r| r.alloc.to_s}.join(<span class="ruby-string">', '</span>)).empty?
+        label = label.to_s + &quot; -&gt; #{relocs}&quot;
+      end
+      if mnemo = d.text
+        if prm = d.args
+          mnemo = mnemo % prm.each_slice(2).map do |o, t|
+            case t
+            when :word
+              data[o, 2].unpack(<span class="ruby-string">'S'</span>)[0]
+            when :byte
+              data[o, 1].unpack(<span class="ruby-string">'C'</span>)[0]
+            when :pcrel
+              data[o, 1].unpack(<span class="ruby-string">'c'</span>)[0] + d.addr + d.size + org
+            end
+          end
+        end
+        &quot;#{'%04X'%(d.addr+org)}: #{h[data.split(''),''].ljust 12}#{mnemo.ljust 20}#{label}&quot;
+      elsif data.empty? and label
+        &quot;#{'%04X'%(d.addr+org)}: #{' '*32}#{label}&quot;
+      else
+        a = d.addr - 8 + org
+        data.split(<span class="ruby-string">''</span>).each_slice(8).map do |ds|
+          a+= 8
+          &quot;#{'%04X'%a}: #{h[ds, ' '].ljust 24}#{ds.join.gsub(/[\x0-\x1f]/, '.').ljust 8}#{label}&quot;
+        end
+      end
+    else
+      [&quot; #{@imports[d].class} &quot;.center(38, ==)] + <span class="ruby-ivar">@imports</span>[d].debug + [&quot; #{@imports[d].class} &quot;.center(38, ^^)]
+    end
+  end.flatten
 end</pre>
           </div>
           

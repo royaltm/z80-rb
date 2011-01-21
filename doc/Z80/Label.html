@@ -143,7 +143,7 @@
       
 
       <div id="classindex-section" class="section project-section">
-        <h3 class="section-header">Class Index
+        <h3 class="section-header">Class/Module Index
           <span class="search-toggle"><img src="../images/find.png"
             height="16" width="16" alt="[+]"
             title="show/hide quicksearch" /></span></h3>
@@ -254,11 +254,10 @@ ld  h, [ix + sprite.sprites[2].data_ph]</pre>
 
 <h3><a href="Label.html">Label</a> names</h3>
 
-<p><a href="Label.html">Label</a> name may be any name that is a valid ruby
-method name and is not a singleton method name of your <b>program</b>. It
-excludes:</p>
+<p><a href="Label.html">Label</a> name may be any valid ruby method name and
+not a singleton method name of your <b>program</b>. It excludes:</p>
 <ul><li>
-<p>ruby statement</p>
+<p>ruby statements</p>
 </li><li>
 <p>ruby core Class.methods: <tt>! != !~ &lt; &lt;= &lt;=&gt; == === =~ &gt;
 &gt;= __id__ __send__ allocate ancestors autoload autoload? class
@@ -294,7 +293,7 @@ srl sub union words xor</tt></p>
 </li></ul>
 
 <p>Use namespaces (<a href="Program.html#method-i-ns">Program.ns</a>)
-extensively in your program. It is also wise to add numeric sufixes to
+extensively in your program. It is also wise to add numeric suffixes to
 label names:</p>
 
 <pre>loop1 label</pre>
@@ -366,13 +365,13 @@ label names:</p>
       <div id="byte-method" class="method-detail ">
         <a name="method-c-byte"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">byte</span><span
             class="method-args">(size = 1)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -383,7 +382,7 @@ label names:</p>
           <div class="method-source-code"
             id="byte-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 394</span>
+<span class="ruby-comment"># File z80/labels.rb, line 393</span>
 def byte(size = 1)
         1*size
 end</pre>
@@ -400,13 +399,13 @@ end</pre>
       <div id="dummy-method" class="method-detail ">
         <a name="method-c-dummy"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">dummy</span><span
             class="method-args">(name = nil)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -418,7 +417,7 @@ referenced label has not been yet defined.</p>
           <div class="method-source-code"
             id="dummy-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 298</span>
+<span class="ruby-comment"># File z80/labels.rb, line 297</span>
 def self.dummy(name = nil)
         n = new(0, nil)
         n.name = name if name
@@ -437,13 +436,13 @@ end</pre>
       <div id="members_of_struct-method" class="method-detail ">
         <a name="method-c-members_of_struct"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">members_of_struct</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -454,7 +453,7 @@ end</pre>
           <div class="method-source-code"
             id="members_of_struct-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 440</span>
+<span class="ruby-comment"># File z80/labels.rb, line 439</span>
 def members_of_struct; <span class="ruby-ivar">@members</span>; end</pre>
           </div>
           
@@ -469,13 +468,13 @@ def members_of_struct; <span class="ruby-ivar">@members</span>; end</pre>
       <div id="new-method" class="method-detail ">
         <a name="method-c-new"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">new</span><span
             class="method-args">(addr, type = 1, reloc = nil, members = nil)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -493,7 +492,7 @@ given symbolic name.</p>
           <div class="method-source-code"
             id="new-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 444</span>
+<span class="ruby-comment"># File z80/labels.rb, line 443</span>
 def new(addr, type = 1, reloc = nil, members = nil)
         if members.nil?
                 if defined?(<span class="ruby-ivar">@size</span>)
@@ -525,13 +524,13 @@ end</pre>
       <div id="to_data-method" class="method-detail ">
         <a name="method-c-to_data"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">to_data</span><span
             class="method-args">(*data)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -543,7 +542,7 @@ it directly.</p>
           <div class="method-source-code"
             id="to_data-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 421</span>
+<span class="ruby-comment"># File z80/labels.rb, line 420</span>
 def to_data(*data)
         <span class="ruby-ivar">@members</span>.reject {|_, m| m.alias}.each_with_index.map do |(n, m), i|
                 s = <span class="ruby-string">''</span>
@@ -574,13 +573,13 @@ end</pre>
       <div id="word-method" class="method-detail ">
         <a name="method-c-word"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">word</span><span
             class="method-args">(size = 1)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -591,7 +590,7 @@ end</pre>
           <div class="method-source-code"
             id="word-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 398</span>
+<span class="ruby-comment"># File z80/labels.rb, line 397</span>
 def word(size = 1)
         2*size
 end</pre>
@@ -614,13 +613,13 @@ end</pre>
       <div id="2A-method" class="method-detail ">
         <a name="method-i-2A"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">*</span><span
             class="method-args">(index)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -631,7 +630,7 @@ end</pre>
           <div class="method-source-code"
             id="2A-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 360</span>
+<span class="ruby-comment"># File z80/labels.rb, line 359</span>
 def *(index)
         <span class="ruby-constant">Alloc</span>.new(self) * index
 end</pre>
@@ -648,13 +647,13 @@ end</pre>
       <div id="2B-method" class="method-detail ">
         <a name="method-i-2B"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">+</span><span
             class="method-args">(offset)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -666,7 +665,7 @@ label.</p>
           <div class="method-source-code"
             id="2B-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 365</span>
+<span class="ruby-comment"># File z80/labels.rb, line 364</span>
 def +(offset)
         <span class="ruby-constant">Alloc</span>.new(self) + offset
 end</pre>
@@ -683,13 +682,13 @@ end</pre>
       <div id="2B-40-method" class="method-detail ">
         <a name="method-i-2B-40"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">+@</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -700,7 +699,7 @@ end</pre>
           <div class="method-source-code"
             id="2B-40-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 348</span>
+<span class="ruby-comment"># File z80/labels.rb, line 347</span>
 def +@
         if dummy?
                 <span class="ruby-ivar">@sizelabel</span>||= <span class="ruby-constant">Label</span>.dummy
@@ -721,13 +720,13 @@ end</pre>
       <div id="2D-method" class="method-detail ">
         <a name="method-i-2D"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">-</span><span
             class="method-args">(offset)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -739,7 +738,7 @@ another label.</p>
           <div class="method-source-code"
             id="2D-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 370</span>
+<span class="ruby-comment"># File z80/labels.rb, line 369</span>
 def -(offset)
         <span class="ruby-constant">Alloc</span>.new(self) - offset
 end</pre>
@@ -756,13 +755,13 @@ end</pre>
       <div id="3E-3E-method" class="method-detail ">
         <a name="method-i-3E-3E"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">&gt;&gt;</span><span
             class="method-args">(m)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -773,7 +772,7 @@ end</pre>
           <div class="method-source-code"
             id="3E-3E-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 323</span>
+<span class="ruby-comment"># File z80/labels.rb, line 322</span>
 def &gt;&gt;(m)
         <span class="ruby-ivar">@members</span>[m]
 end</pre>
@@ -790,13 +789,13 @@ end</pre>
       <div id="5B-5D-method" class="method-detail ">
         <a name="method-i-5B-5D"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">[]</span><span
             class="method-args">(index = 0)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -807,7 +806,7 @@ end</pre>
           <div class="method-source-code"
             id="5B-5D-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 356</span>
+<span class="ruby-comment"># File z80/labels.rb, line 355</span>
 def [](index = 0)
         <span class="ruby-constant">Alloc</span>.new(self)[index]
 end</pre>
@@ -824,13 +823,13 @@ end</pre>
       <div id="deep_clone_with_relocation-method" class="method-detail ">
         <a name="method-i-deep_clone_with_relocation"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">deep_clone_with_relocation</span><span
             class="method-args">(addr)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -841,7 +840,7 @@ end</pre>
           <div class="method-source-code"
             id="deep_clone_with_relocation-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 277</span>
+<span class="ruby-comment"># File z80/labels.rb, line 276</span>
 def deep_clone_with_relocation(addr)
         members = <span class="ruby-constant">Hash</span>[<span class="ruby-ivar">@members</span>.map {|n, m| [n, m.deep_clone_with_relocation(addr)] }]
         addr = reloc ? <span class="ruby-ivar">@address</span> + addr.to_i : <span class="ruby-ivar">@address</span>
@@ -862,17 +861,17 @@ end</pre>
       <div id="dummy-3F-method" class="method-detail ">
         <a name="method-i-dummy-3F"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">dummy?</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
-          <p>Checks if label is dummy. Do not use it directly. This methos is being used
+          <p>Checks if label is dummy. Do not use it directly. This method is being used
 during program compilation.</p>
           
 
@@ -880,7 +879,7 @@ during program compilation.</p>
           <div class="method-source-code"
             id="dummy-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 319</span>
+<span class="ruby-comment"># File z80/labels.rb, line 318</span>
 def dummy?
         <span class="ruby-ivar">@type</span>.nil?
 end</pre>
@@ -897,18 +896,18 @@ end</pre>
       <div id="immediate-3F-method" class="method-detail ">
         <a name="method-i-immediate-3F"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">immediate?</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
           <p>Checks if label is absolute (<tt>true</tt>) or relocable (<tt>false</tt>).
-Do not use it directly. This methos is being used during program
+Do not use it directly. This method is being used during program
 compilation.</p>
           
 
@@ -916,7 +915,7 @@ compilation.</p>
           <div class="method-source-code"
             id="immediate-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 314</span>
+<span class="ruby-comment"># File z80/labels.rb, line 313</span>
 def immediate?
         !dummy? and !<span class="ruby-ivar">@reloc</span>
 end</pre>
@@ -933,13 +932,13 @@ end</pre>
       <div id="method_missing-method" class="method-detail ">
         <a name="method-i-method_missing"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">method_missing</span><span
             class="method-args">(m)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -950,7 +949,7 @@ end</pre>
           <div class="method-source-code"
             id="method_missing-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 384</span>
+<span class="ruby-comment"># File z80/labels.rb, line 383</span>
 def method_missing(m)
         <span class="ruby-constant">Alloc</span>.new(self).send m
 end</pre>
@@ -967,13 +966,13 @@ end</pre>
       <div id="name-3D-method" class="method-detail ">
         <a name="method-i-name-3D"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">name=</span><span
             class="method-args">(value)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -984,7 +983,7 @@ end</pre>
           <div class="method-source-code"
             id="name-3D-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 375</span>
+<span class="ruby-comment"># File z80/labels.rb, line 374</span>
 def name=(value)
         raise <span class="ruby-constant">Syntax</span>, &quot;Invalid label name: #{value.inspect}&quot; if (value = value.to_s).empty?
         raise <span class="ruby-constant">Syntax</span>, &quot;Can't rename already named label: #{@name}!= #{value}&quot; if <span class="ruby-ivar">@name</span> and <span class="ruby-ivar">@name</span> != value
@@ -1003,17 +1002,17 @@ end</pre>
       <div id="pointer-3F-method" class="method-detail ">
         <a name="method-i-pointer-3F"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">pointer?</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
-          <p>Checks if label is a pointer. Do not use it directly. This methos is being
+          <p>Checks if label is a pointer. Do not use it directly. This method is being
 used during program compilation.</p>
           
 
@@ -1021,7 +1020,7 @@ used during program compilation.</p>
           <div class="method-source-code"
             id="pointer-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 295</span>
+<span class="ruby-comment"># File z80/labels.rb, line 294</span>
 def pointer?; false; end</pre>
           </div>
           
@@ -1036,17 +1035,17 @@ def pointer?; false; end</pre>
       <div id="reinitialize-method" class="method-detail ">
         <a name="method-i-reinitialize"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">reinitialize</span><span
             class="method-args">(address, type = 1, reloc = nil, members = nil)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
-          <p>Reinitializes dummy label. Do not use it directly. This methos is being
+          <p>Reinitializes dummy label. Do not use it directly. This method is being
 used during program compilation.</p>
           
 
@@ -1054,7 +1053,7 @@ used during program compilation.</p>
           <div class="method-source-code"
             id="reinitialize-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 328</span>
+<span class="ruby-comment"># File z80/labels.rb, line 327</span>
 def reinitialize(address, type = 1, reloc = nil, members = nil)
         raise <span class="ruby-constant">Syntax</span>, &quot;label #{self} already initialized.&quot; unless dummy?
         if address.is_a? self.class
@@ -1084,13 +1083,13 @@ end</pre>
       <div id="to_alloc-method" class="method-detail ">
         <a name="method-i-to_alloc"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">to_alloc</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -1101,7 +1100,7 @@ end</pre>
           <div class="method-source-code"
             id="to_alloc-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 344</span>
+<span class="ruby-comment"># File z80/labels.rb, line 343</span>
 def to_alloc
         <span class="ruby-constant">Alloc</span>.new(self)
 end</pre>
@@ -1118,17 +1117,17 @@ end</pre>
       <div id="to_i-method" class="method-detail ">
         <a name="method-i-to_i"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">to_i</span><span
             class="method-args">(start = 0, rel_to = nil)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
-          <p>Evaluates label. Do not use it directly. This methos is being used during
+          <p>Evaluates label. Do not use it directly. This method is being used during
 program compilation.</p>
           
 
@@ -1136,7 +1135,7 @@ program compilation.</p>
           <div class="method-source-code"
             id="to_i-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 286</span>
+<span class="ruby-comment"># File z80/labels.rb, line 285</span>
 def to_i(start = 0, rel_to = nil)
         if rel_to == :self
                 0
@@ -1157,13 +1156,13 @@ end</pre>
       <div id="to_label-method" class="method-detail ">
         <a name="method-i-to_label"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">to_label</span><span
             class="method-args">(_)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -1174,7 +1173,7 @@ end</pre>
           <div class="method-source-code"
             id="to_label-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 373</span>
+<span class="ruby-comment"># File z80/labels.rb, line 372</span>
 def to_label(_); self; end</pre>
           </div>
           
@@ -1189,13 +1188,13 @@ def to_label(_); self; end</pre>
       <div id="to_name-method" class="method-detail ">
         <a name="method-i-to_name"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">to_name</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -1206,7 +1205,7 @@ def to_label(_); self; end</pre>
           <div class="method-source-code"
             id="to_name-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 381</span>
+<span class="ruby-comment"># File z80/labels.rb, line 380</span>
 def to_name; <span class="ruby-ivar">@name</span>; end</pre>
           </div>
           
@@ -1221,13 +1220,13 @@ def to_name; <span class="ruby-ivar">@name</span>; end</pre>
       <div id="to_s-method" class="method-detail method-alias">
         <a name="method-i-to_s"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">to_s</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -1250,13 +1249,13 @@ def to_name; <span class="ruby-ivar">@name</span>; end</pre>
       <div id="to_str-method" class="method-detail ">
         <a name="method-i-to_str"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">to_str</span><span
             class="method-args">()</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -1267,7 +1266,7 @@ def to_name; <span class="ruby-ivar">@name</span>; end</pre>
           <div class="method-source-code"
             id="to_str-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 382</span>
+<span class="ruby-comment"># File z80/labels.rb, line 381</span>
 def to_str; &quot;`#{@name}':#{'%04X'%@address}:#{@size} #{@reloc}#{dummy? ? '?':''}&quot;; end</pre>
           </div>
           
@@ -1292,13 +1291,13 @@ def to_str; &quot;`#{@name}':#{'%04X'%@address}:#{@size} #{@reloc}#{dummy? ? '?'
       <div id="initialize-method" class="method-detail ">
         <a name="method-i-initialize"></a>
 
-        <div class="method-heading">
         
+        <div class="method-heading">
           <span class="method-name">initialize</span><span
             class="method-args">(address, type = 1, reloc = nil, members = nil)</span>
           <span class="method-click-advice">click to toggle source</span>
-        
         </div>
+        
 
         <div class="method-description">
           
@@ -1309,7 +1308,7 @@ def to_str; &quot;`#{@name}':#{'%04X'%@address}:#{@size} #{@reloc}#{dummy? ? '?'
           <div class="method-source-code"
             id="initialize-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 303</span>
+<span class="ruby-comment"># File z80/labels.rb, line 302</span>
 def initialize(address, type = 1, reloc = nil, members = nil) <span class="ruby-comment"># :notnew:</span>
         <span class="ruby-ivar">@address</span> = address.to_i &amp; 0xffff
         <span class="ruby-ivar">@size</span> = type.to_i
