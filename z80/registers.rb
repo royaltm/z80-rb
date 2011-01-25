@@ -37,11 +37,16 @@ module Z80
 			def pointer?
 				name[-1] == '_'
 			end
+      ##
+      #  Checks if +self+ can pair 16-bit register with +other+: +self+|+other+
+      def pairs_with?(other)
+				other.is_a?(Register) and %w[bc de hl ixhixl iyhiyl].include?(name + other.name)
+      end
 			##
 			#  Adjoins two 8 bit registers to form one 16 bit register.
 			#  Usefull when defining macros that may use registers passed by parameters.
 			def |(other)
-				if other.is_a?(Register) and %w[bc de hl ixhixl iyhiyl].include?(name + other.name)
+				if pairs_with? other
 					@@regindex[name + other.name] || @@regindex[name[0,2]]
 				else
 					raise Syntax, "Only paired registers: bc, de, hl, ix, iy can be adjoined."
@@ -53,18 +58,20 @@ module Z80
 			#    ld  b, [ix + 2]
 			#    ld  [hl], b
 			def [](index = 0)
-				if name.size == 2
+				if name.size == 2 or pointer?
 					if index != 0 and name[0] != ?i
 						raise Syntax, "Only ix,iy registers may be indexed pointers."
 					elsif !(-128..127).include?(index) and !index.respond_to?(:to_alloc)
 						raise Syntax, "Pointer index out of range."
 					end
-					raise Syntax, "Register #{name} can not be a pointer." unless r = @@regindex[name + '_']
+					raise Syntax, "Register #{name} can not be a pointer." unless r = @@regindex[name + '_'] or (pointer? and r = self)
 					r = r.dup
-					r.index = index
+          if index.respond_to?(:to_alloc) and !r.index.respond_to?(:to_alloc)
+            r.index = index + r.index
+          else
+            r.index = r.index + index
+          end
 					r
-				elsif pointer?
-					self
 				else
 					raise Syntax, "Only 16-bits registers may be pointers."
 				end

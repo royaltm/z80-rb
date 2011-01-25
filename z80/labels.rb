@@ -106,7 +106,7 @@ module Z80
       data, size = size, nil if size.respond_to? :to_a
       data = if type.respond_to? :to_data
         data||= []
-        type.to_data(self, *data)
+        type.to_data(self, 0, *data)
       elsif data.respond_to? :to_a
         size||= data.to_a.size
         data.to_a[0,size].each_with_index.map do |d,i|
@@ -418,15 +418,14 @@ module Z80
         end
       end
       # Used by Program.data. Do not use it directly.
-      def to_data(prog, *data)
-        offset = 0
+      def to_data(prog, offset, *data)
         @members.reject {|_, m| m.alias}.each_with_index.map do |(n, m), i|
           s = ''
           m.count.times do
             d = data.shift
             len = m.type.to_i
             s << if m.type.respond_to?(:to_data) and d.is_a?(Array)
-              m.type.to_data(*d)
+              m.type.to_data(prog, offset, *d)
             elsif d.is_a?(String)
               d[0, len]
             elsif d.respond_to? :to_label
@@ -488,10 +487,6 @@ module Z80
       @pointer = false
       @name    = nil
       @size    = false
-    end
-    
-    def relocations
-      @label.relocations
     end
 
     def [](index = 0)
@@ -562,7 +557,7 @@ module Z80
     def dummy?; @label.dummy?; end
 
     def to_str
-      (@size ? '+' : '') + @label.to_name.to_s + @index.map {|i|
+      (@size ? '+' : '') + to_name.to_s + @index.map {|i|
         if String === i
           '.' + i
         else
@@ -607,10 +602,10 @@ module Z80
     end
     def name=(value)
       raise Syntax, "Invalid label name: #{value.inspect}" if (value = value.to_s).empty?
-      raise Syntax, "Can't rename already named label: #{@name}!= #{value}" if @name and @name != value
+      raise Syntax, "Can't rename already named label: #{@name}!= #{value}" if @name and @name != value and @name != @label.to_name
       @name = value
     end
-    def to_name; @name; end
+    def to_name; @name || @label.to_name; end
 
     def method_missing(m)
       l = dup

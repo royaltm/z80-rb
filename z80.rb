@@ -24,6 +24,12 @@ module Z80
   attr_reader :code
   #  starting address of compiled code
   attr_reader :org
+  #  evaluated label values
+  attr_reader :labels
+  #  Returns relocated label value
+  def [](label)
+    @labels[label.to_s]
+  end
   ##
   #  Creates debugger view from instance of a program.
   #  Returns an Array of Strings.
@@ -42,7 +48,7 @@ module Z80
   #    8031: CB23        sla  e
   #    8033: CB12        rl   d
   #    8035: D22880      jp   NC, 8028H       -> loop1
-  #    8038: 4D          ld   c, l
+  #    8038: 4D          ld   c, l            :mul.ok
   #    8039: 44          ld   b, h
   #    803A: D0          ret  NC
   #    803B: CF          rst  08H
@@ -118,7 +124,7 @@ module Z80
     end
   end
   module Program
-    VERSION = "0.9"
+    VERSION = "0.9.1"
     # raw, not relocated code
     attr_reader :code
     # relocation table
@@ -160,12 +166,21 @@ module Z80
         c[addr, size] = ip.code
         ip
       end
+      eval_labels = proc {|members, prefix|
+        members.map {|n, v|
+          [n = prefix ? "#{prefix}.#{n}" : n, v.to_i(start)] +
+          (if (m = v.instance_variable_get '@members')
+            eval_labels[m, n].flatten
+          end || [])
+        }.flatten
+      }
+      labels = Hash[*eval_labels[@labels].flatten]
       @reloc.each do |r|
         case r.size
         when 1
           addr = r.from ? r.from : r.addr + 1 + start
           unless (-128..127).include?(i = r.alloc.to_i(start, addr))
-            raise CompileError, "Relative relocation out of range at 0x#{'%04x' % r.addr} -> #{i}"
+            raise CompileError, "Relative relocation out of range at 0x#{'%04x' % r.addr} -> #{i} #{r.inspect}"
           end
           c[r.addr] = [i].pack('c')
         when 2
@@ -177,6 +192,7 @@ module Z80
       ['@code', c,
        '@org', start,
        '@debug', nil,
+       '@labels', labels,
        '@imports', imports
       ].each_slice(2) do |n,v|
         p.instance_variable_set n,v

@@ -1,7 +1,9 @@
 # -*- coding: BINARY -*-
 require 'z80'
-require 'zx/gfx.rb'
-
+require 'zx/gfx_sprite.rb'
+require 'zx/gfx+.rb'
+require 'zx/sound.rb'
+require 'z80/stdlib.rb'
 class MemoryMap
 	include Z80
 
@@ -13,116 +15,10 @@ class MemoryMap
 	scrlen	6144
 	attr_p	scr_p + scrlen
 	attrlen	6912 - 6144
-	ram_p	scr_p + 6912
+	ram_p	  scr_p + 6912
 	ramtop	0xffff
 end
 
-class Z80Lib
-	module Macros
-    def memcpy(dest, source, size) # bc de hl
-      ns do
-				ld	de, dest if dest
-				ld	hl, source if source
-				ld	bc, size if size
-				ldir
-      end
-		end
-    def clrmem8(dest, size, value = 0) # a b hl
-      ns do
-            ld  b, size if size
-            ld  hl, dest if dest
-            if value == 0
-              xor a
-            elsif value
-              ld  a, value
-            end
-      loop1 ld  [hl], a
-            inc hl
-            djnz loop1
-      end
-    end
-    def clrmem(dest, size, value = 0) # a bc hl
-      ns do
-            ld  bc, size if size
-            ld  hl, dest if dest
-            if value == 0
-              xor a
-            elsif value
-              ld  a, value
-            end
-            inc b
-      loop1 ld  [hl], a
-            inc hl
-            dec c
-            jp  NZ, loop1
-            djnz loop1
-      end
-    end
-  end
-	include Z80
-end
-class ZXMath
-  module Macros
-    def multi8c_m(th, tl)  # multiply hl by a; stops on CARRY out
-      ns do |eoc|
-            ld  tl, l
-            ld  th, h
-            ld  hl,0
-      loop1 srl a
-            jr  NC, noadd
-            add hl, th|tl
-            jr  C, eoc
-      noadd jr  Z, eoc
-            sla tl
-            rl  th
-            jp  NC, loop1
-      end
-    end
-    def multi16(mh, ml, rr)       # multiply hl by mh|ml (b|c or d|e) and stores result in hl rr (bc | de)
-      ns do
-            th = mh == b ? d : b
-            tl = ml == c ? e : c
-            ld  a, ml
-            ex af,af
-            xor a
-            push af
-            ld  tl, a
-            ld  th, a
-            ld  a, mh
-            ld  ml, l
-            ld  mh, h
-            ld  h, th
-            ld  l, tl
-            scf
-            adc a
-      loop1 jr  NC, noadd1
-            ex  (sp), hl
-            add hl, th|tl
-            ex  (sp), hl
-            adc hl, mh|ml
-      nadd1 srl mh
-            rr  ml
-            rr  th
-            add a
-            jp  NZ, loop1
-            ex  af, af
-            add a
-      loop2 jr  NC, nadd2
-            ex  (sp), hl
-            add hl, th|tl
-            ex  (sp), hl
-            adc hl, mh|ml
-      nadd2 srl ml
-            rr  th
-            rr  tl
-            add a
-            jp  NZ, loop2
-            pop rr
-      end
-    end
-  end
-  include Z80
-end
 class Liba
 	include Z80
 
@@ -143,7 +39,7 @@ class Liba
 
 			ld	b, h			# set attribute
 			ld	a, h
-			3.times {rra}
+			3.times {rrca}
 			ora	0x58
 			ld	h, a
 			dec	h
@@ -198,15 +94,22 @@ class MyROM
 			jp		initrom
 
 			org intvec
-		preserve :inter, af, hl do
+		preserve :inter, af, hl, bc, de do
 			ld hl, [scr_p]
 			inc hl
 			ld [scr_p], hl
+      ex af, af
+      exx
+      preserve af, hl, bc, de do
+        call sound.iterate
+      end
+      exx
+      ex af, af
 		end
 			ei
 			ret
 
-	initrom	ld	b,a             # save the flag to control later branching.
+	initrom	ld	b,a         # save the flag to control later branching.
 			ld	a,7             # select a white border
 			out	(0xfe),a        # and set it now by writing to a port.
 			ld	a,0x3f          # load the accumulator with last page in rom.
@@ -219,9 +122,10 @@ class MyROM
 			fill attr_p, attrlen, 0b00000111
 			fill ram_p, ramtop + 1 - ram_p - 2, 0
 
+      call sound.setup
 			im1
 			ei
-
+      
 		ns(:fntdemo8) {
 			ld	ix, fontbin
 			ld	b, 0x300 / 8
@@ -258,64 +162,133 @@ class MyROM
 		}
 
     class Sprite < Label
-      x     word
-      dx    word
-      y     word
-      dy    word
-      w     byte
-      h     byte
+      x      word
+      dx     word
+      y      word
+      dy     word
+      w      byte
+      h      byte
+      buffer word
+      bitmap word
     end
 
     class Vars < Label
       splnum  byte
-      ludek_s Sprite
+      ufo1    Sprite
+      ufo2    Sprite
+      ufo3    Sprite
+      ufo4    Sprite
       counter byte
+      flag    byte
     end
+    
+    class Patterns < Label
+      ufo1    Sprite
+      ufo2    Sprite
+      ufo3    Sprite
+      ufo4    Sprite
+    end
+    
+    ufo_s addr 0, Sprite
 
-    screens = %w[zx/me1.scr]
+    storage_size = 7*40 + 4
+		vars	  addr 0x8000, Vars
+    storage addr vars + +vars, storage_size*4
+    splashscreens addr storage + +storage, 6912
+
+    screens = %w[zx/me1.scr zx/me.scr zx/horse.scr zx/horse.scr]
+    
     memcpy scr_p, splashscreens, +splashscreens
     xor	a
     ld	[vars.splnum], a
 
+    macro :restore_sprite do |eoc, address|
+        ld   hl, address
+        ld   a, [hl]
+        ora  a                    # check storage
+        jp   Z, eoc
+        call gfx.restore
+    end
     ns do
-        clrmem8(vars.ludek_s, +vars.ludek_s - 1)
-        ld   hl, -80
-        ld   [vars.ludek_s.x], hl
-        ld   hl, -7
-        ld   [vars.ludek_s.y], hl
-        ld   a, 64
-        ld   [vars.ludek_s.h], a
-        ld   a, 8
-        ld   [vars.ludek_s.w], a
+        clrmem(storage, +storage)
+        memcpy vars.ufo1, patterns.ufo1, +ufo_s
+        memcpy vars.ufo2, patterns.ufo2, +ufo_s
+        memcpy vars.ufo3, patterns.ufo3, +ufo_s
+        memcpy vars.ufo4, patterns.ufo4, +ufo_s
         xor  a
         ld   [vars.counter], a
-  ludlp ld   bc, [vars.ludek_s.x]
-        ld   de, [vars.ludek_s.y]
-        ld   hl, ufo
-        ld   a, [vars.ludek_s.w]
+  ludlp label
+        ld  ix, vars.ufo1
+        call draw_sprite
+        ld  ix, vars.ufo2
+        call draw_sprite
+        ld  ix, vars.ufo3
+        call draw_sprite
+        ld  ix, vars.ufo4
+        call draw_sprite
+        ld  ix, vars.ufo1
+        call movesprite
+        ld  ix, vars.ufo2
+        call movesprite
+        ld  ix, vars.ufo3
+        call movesprite
+        ld  ix, vars.ufo4
+        call movesprite
+        hlt
+        restore_sprite [vars.ufo4.buffer]
+        restore_sprite [vars.ufo3.buffer]
+        restore_sprite [vars.ufo2.buffer]
+        restore_sprite [vars.ufo1.buffer]
+        call swapscrn
+        jp   ludlp
+      end
+  ns :draw_sprite do # ix -> sprite
+        ld   e, [ix + ufo_s.buffer]
+        ld   d, [ix + ufo_s.buffer + 1]
+        xor  a
+        ld   [de], a              # clear storage
+        exx
+        ld   c,  [ix + ufo_s.x]
+        ld   b,  [ix + ufo_s.x + 1]
+        ld   e,  [ix + ufo_s.y]
+        ld   d,  [ix + ufo_s.y + 1]
+        ld   l,  [ix + ufo_s.bitmap]
+        ld   h,  [ix + ufo_s.bitmap + 1]
+        ld   a, [ix + ufo_s.w]
         ex   af, af
         cp   a
         scf
-        ld   a, [vars.ludek_s.h]
-        call gfx.draw_sprite8_coords
-        hlt
-        ld   bc, [vars.ludek_s.x]
-        ld   de, [vars.ludek_s.y]
-        ld   hl, ufo8
-        ld   a, [vars.ludek_s.w]
+        ld   a, [ix + ufo_s.h]
+        ld   ix, here1
+        jp   h1skp
+  here1 push bc
+        push de
+        push hl
         ex   af, af
-        cp   a
-        ld   a, [vars.ludek_s.h]
-        #call gfx.draw_sprite8_coords
-        ld   hl, [vars.ludek_s.x]
-        ld   de, [vars.ludek_s.dx]
-        bit  7, d
-        jr   Z, xpos
-        dec  hl
-        dec  hl
-  xpos  inc  hl
-        ld   de, [vars.ludek_s.dx]
-        ld   [vars.ludek_s.x], hl
+        push af
+        ex   af, af
+        call   gfx.scrcopy
+        pop  af
+        ex   af, af
+        pop  hl
+        pop  de
+        pop  bc
+        jp gfxs.draw_sprite8
+  h1skp jp gfxs.calculate_coords_jump8
+  end
+  ns :movesprite do # ix -> sprite
+        ld   l,  [ix + ufo_s.x]
+        ld   h,  [ix + ufo_s.x + 1]
+        ld   e,  [ix + ufo_s.dx]
+        ld   d,  [ix + ufo_s.dx + 1]
+        add  hl, de
+        # bit  7, d
+        # jr   Z, xpos
+        # dec  hl
+        # dec  hl
+  # xpos  inc  hl
+        ld   [ix + ufo_s.x], l
+        ld   [ix + ufo_s.x + 1], h
         ld   bc, 256/2
         ora  a
         sbc  hl, bc
@@ -324,16 +297,20 @@ class MyROM
         dec  de
         dec  de
   xless inc  de
-        ld   [vars.ludek_s.dx], de
-        ld   hl, [vars.ludek_s.y]
-        ld   de, [vars.ludek_s.dy]
-        bit  7, d
-        jr   Z, ypos
-        dec  hl
-        dec  hl
-  ypos  inc  hl
-        ld   de, [vars.ludek_s.dy]
-        ld   [vars.ludek_s.y], hl
+        ld   [ix + ufo_s.dx], e
+        ld   [ix + ufo_s.dx + 1], d
+        ld   l,  [ix + ufo_s.y]
+        ld   h,  [ix + ufo_s.y + 1]
+        ld   e,  [ix + ufo_s.dy]
+        ld   d,  [ix + ufo_s.dy + 1]
+        add  hl, de
+        # bit  7, d
+        # jr   Z, ypos
+        # dec  hl
+        # dec  hl
+  # ypos  inc  hl
+        ld   [ix + ufo_s.y], l
+        ld   [ix + ufo_s.y + 1], h
         ld   bc, 192/2
         ora  a
         sbc  hl, bc
@@ -342,11 +319,11 @@ class MyROM
         dec  de
         dec  de
   yless inc  de
-        ld   [vars.ludek_s.dy], de
-        #call swapscrn
-        jp   ludlp
-      end
-			ns :swapscrn do
+        ld   [ix + ufo_s.dy], e
+        ld   [ix + ufo_s.dy + 1], d
+        ret
+  end
+  ns :swapscrn do
         ld   a, [vars.counter]
         dec  a
         ld   [vars.counter], a
@@ -367,16 +344,13 @@ class MyROM
 				di
 				memcpy scr_p, nil, +splashscreens
 				ei
-			end
+  end
 			ret
-  
-		vars	addr 0x8000, Vars
-
 
 	forever	hlt
 			jr	:forever
 		
-		ns :fill_subr do
+	ns :fill_subr do
 	loop1	ld [hl], d
 			inc hl
 			dec bc
@@ -384,14 +358,22 @@ class MyROM
 			ora b
 			jr  NZ, :loop1
 			ret
-		end
+  end
 
 	import	:liba, Liba
 
-	import	:gfx, ZXGfx8
+	import	:gfxs, ZXGfxSprite8
+  import  :gfx, ZXGfxMore
+  import  :sound, AYSound
 
-  ufo   import_file 'zx/ufo.bin'
-  ufo8  import_file 'zx/ufo8.bin'
+  patterns data Patterns, [
+    [-17, 0, -9, 0, 6, 40, storage, ufo],
+    [-13, 0, 211, 0, 6, 40, storage + storage_size*1, ufo],
+    [293, 0, 211, 0, 6, 40, storage + storage_size*2, ufo],
+    [13, 0, 179, 0, 6, 40, storage + storage_size*3, ufo]
+  ]
+  ufo   import_file 'zx/ufo2.bin'
+  ufo8  import_file 'zx/ufo28.bin'
 
 	ludek data 1, [
 		0x00,0x18,
@@ -451,12 +433,12 @@ class MyROM
 		0b00000000,
 		0b00000110] #
 
-	splashscreens label 6912
-	ns do
-		screens.each {|file|
-			import_file file, :bin
-		}
-	end
+	# splashscreens label 6912
+	# ns do
+		# screens.each {|file|
+			# import_file file, :bin
+		# }
+	# end
 
 			org romtop - 0x300, 0xff
 	# fontbin	import_file 'zxfont.bin', :bin, 0x300
@@ -464,6 +446,8 @@ class MyROM
 end
 #puts MyROM.labels, nil,"D",MyROM.dummies.inspect, nil,"C",MyROM.contexts.inspect
 $p = MyROM.new 0
+puts "storage: #{$p[:storage]}"
+puts "splashscreens: #{$p[:splashscreens]}"
 #puts $p.debug[0..500]
 File.open('C:/Download/installs/zxspin/myrom.rom', 'wb') {|f| f.write $p.code }
 #File.open('D:/Installs/ZX Spectrum/zxspin0.666/myrom.rom', 'wb') {|f| f.write $p.code }
