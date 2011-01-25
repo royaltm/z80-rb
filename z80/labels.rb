@@ -45,6 +45,12 @@ module Z80
       end
     end
     ##
+    #  True if label +name+ is defined in current context
+    #
+    def label_defined?(name)
+        @labels.has_key? name.to_s
+    end
+    ##
     #  Creates relocable label at Program.pc of (optional) +type+.
     #
     #  Example:

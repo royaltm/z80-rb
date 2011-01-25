@@ -1,22 +1,27 @@
 require 'z80/math_i.rb'
 require 'zx/gfx'
 class ZXGfxMore
-      include Z80
-
-      import ZXGfx, :code => false, :labels => false, :macros => true
-      import Z80MathInt, :code => false, :labels => false, :macros => true
+  include Z80 unless defined?(Program)
+  import ZXGfx, :code => false, :labels => false, :macros => true
+  import Z80MathInt, :code => false, :labels => false, :macros => true
 
   #  calculates coordinates and prepares registers for draw_bitmap and other compatible gfx functions
-  #  uses: a b c d e h l ix (2 stack)
-  #  hl:  sprite address
-  #  a:   input: sprite height (1..192)
-  #  a`:  input: sprite width in bytes (1..32)
-  #  bc:  x - coordinate (-32768..32767)
-  #  de:  y - coordinate (-32768..32767)
-  #  CF: input: 0: xor mode, 1: and mode,  0: copy mode, 1: or mode
-  #  ZF: input: 1:                         0:
-  #  ix:  jumps to ix
-
+  #  uses: a af' b c d e h l ix (stack)
+  #  hl: input: sprite address
+  #  a:  input: sprite height (1..192)
+  #  a`: input: sprite width in bytes (1..32)
+  #  bc: input: x - coordinate (-32768..32767) [screen area: 0-255]
+  #  de: input: y - coordinate (-32768..32767) [screen area: 0-191]
+  #  f:  input: flags -> f'
+  #  ix: input: jump to ix
+  #  de: output: sprite address
+  #  h:  output: vertical coordinate   (0..191)
+  #  l:  output: horizontal coordinate (0..255)
+  #  except when h > 191 then l contains vertical coordinate and h | 0xf8 is a negative h-coordinate (from -1 to -7)
+  #  b:  output: sprite byte width
+  #  c:  output: skip first sprite bytes
+  #  a': output: sprite height (1..192)
+  #  f': output: preserved f
   export  calculate_coords_jump
   ns :calculate_coords_jump do
           push af           # sprite height + flags
@@ -33,7 +38,7 @@ class ZXGfxMore
           sub  e            # height - skip lines
           jr   C,quit1      # skip lines >  height
           jr   Z,quit1      # skip lines == height
-          ld   h, a
+          ld   h, a         # new height
           ex   [sp],hl      # sprite addr <-> new height
           ex   af, af       # height <-> width
           ld   d, a         # width
@@ -55,7 +60,7 @@ class ZXGfxMore
           inc  a
           jr   NZ, quit1    # bc < -256
 
-          xor  a
+          xor  a            # niepotrzebne skreœlic A ju¿ ma 0
           sub  c            # x = -x
           jr   Z, quit1     # x == -256
           anda 0xf8
@@ -83,14 +88,27 @@ class ZXGfxMore
           ld   b, a         # sprite byte width
           jp   (ix)
   end
-  #  de: sprite address
+  #  HOWTO:
+  #  cp a  -> z1 c0 (xor)
+  #  cp a
+  #  scf   -> z1 c1 (and)
+  #  xor a
+  #  inc a -> z0 c0 (or)
+  #  scf
+  #  sbc a -> z0 c1 (copy)
+  #
+  #  draws on screen using xor/or/and/copy bitmap with arbitrary height and width
+  #  the data for sprites is laid horizontaly: first row, second row, ...
+  #  optimised for width > height sprites and large square ones (size >= 24 pixels)
+  #  uses: all registers (stack)
+  #  de: input: sprite address
   #  h:  input: vertical coordinate   (0..191)
   #  l:  input: horizontal coordinate (0..255)
   #  except when h > 191 then l contains vertical coordinate and h | 0xf8 is a negative h-coordinate (from -1 to -7)
   #  b:  input: sprite byte width
   #  c:  input: skip first sprite bytes
   #  a': input: sprite height (1..192)
-  #  CF': input: 0: xor mode, 1: and mode,  0: copy mode, 1: or mode
+  #  CF': input: 0: xor mode, 1: and mode,  0: or mode, 1: copy mode
   #  ZF': input: 1:                         0:
   export draw_bitmap
   ns :draw_bitmap do
@@ -101,39 +119,45 @@ class ZXGfxMore
           anda 0x07
   skipad  ld   c, a           # negshift
           ytoscr l, h, l, b
+          ex   [sp], hl       # byte width | skip first (sp) <-> screen address hl
           ld   a, c           # shifts
           ora  a
           jr   Z, skippos
+          dec  h              # byte width - 1
           add  7              # adjust to shfts table
-          ld   c, a
           jp   skippos
           
   skipneg xytoscr h, l, h, l, c, b # hl -> yx, hl -> screen, c -> shift
-  
-  skippos ld   a, 0xe0        # check sprite byte width
-          ora  l              # screen addr lo
-          add  b              # add width
-          jp   NC, noadjw
-          neg
-          add  b
-          ld   b, a           # decrease width if out of screen
 
+          ld   a, l           # check sprite byte width
+          ex   [sp], hl       # byte width | skip first (sp) <-> screen address hl
+          ora  0xe0           # screen addr lo + high bits mask
+          add  h              # add width
+          jp   NC, noadjw     # no over screen?
+          ld   b, a           # skip over
+          neg
+          add  h              # decrease width if out of screen
+          ld   h, a           # new width if out of screen
+          ld   a, l
+          add  b              # skip first increase
+          ld   l, a           # new skip first
+          sub_from b, d, e    # sprite address - skip over
+          
   noadjw  ld   a, c           # shift
 
-          exx
+  skippos exx
           ld   c, a           # save shift
           ld   hl, maskshift
           adda_to h, l
           ld   a, [hl]        # get mask
           exx
 
-          ex   [sp], hl       # byte width | skip first (sp) <-> screen address hl
           ex   de, hl         # sprite address -> hl
           ld   b, d           # bytes width -> b
           ld   d, 0           # skip first bytes -> de
+
           ex   af, af         # mask <-> sprite height + flags
           ld   c, a           # sprite height -> c
-
           exx
 
           ld   a, c           # shift -> a
@@ -142,23 +166,23 @@ class ZXGfxMore
           ora  a
           jp   Z, bitmapxor0.start
           ld   hl, bitmapxor.start
-          ld   de, bitmapxor_table
+          ld   de, bitmapxor
           jp   shftixy
 andmode   ora  a
           jp   Z, bitmapand0.start
           ld   hl, bitmapand.start
-          ld   de, bitmapand_table
+          ld   de, bitmapand
           jp   shftixy
-copyor    jr   NC, copymode
+copyor    jr   C, copymode
           ora  a
           jp   Z, bitmapor0.start
           ld   hl, bitmapor.start
-          ld   de, bitmapor_table
+          ld   de, bitmapor
           jp   shftixy
 copymode  ora  a
           jp   Z, bitmapcopy0.start
           ld   hl, bitmapcopy.start
-          ld   de, bitmapcopy_table
+          ld   de, bitmapcopy
 shftixy   ex   [sp], hl # jump -> (sp), screen addr -> hl
           dec  a
           add  a
@@ -186,9 +210,11 @@ shftixy   ex   [sp], hl # jump -> (sp), screen addr -> hl
   # b':  bytes width  (can not exceed screen)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   # c':  lines height
   end
-  maskshift   bytes [0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE]
 
-  
+  unless label_defined? :maskshift
+    maskshift bytes [0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE]
+  end
+
   # hl:  screen
   #  m:  mask
   # ix:  rotate proc
@@ -278,7 +304,7 @@ shftixy   ex   [sp], hl # jump -> (sp), screen addr -> hl
   # b':  bytes width  (can not exceed screen)
   # c':  lines height
   # q, m, t, y
-  macro :bitmapxoror do |_, q, m, t, y, type|
+  macro :bitmapxoror do |_, q, m, t, y, type| # 100 (hloop each byte) + 135 (vloop each row)
     alter = proc do
       ns do
         case type
@@ -295,78 +321,97 @@ shftixy   ex   [sp], hl # jump -> (sp), screen addr -> hl
     end
     loopproc = proc do
       ns do
-            ld   t, a    # 4
-            anda m       # 4
-            ld   y, a    # 4 f0 bpln
-            xor  t       # 4 0f
-            ora  q       # 4 ff bpln + previous
-            ld   q, y    # 4 f0 bpln -> previous
-            alter[]      # 7/14/18
-            inc l        # 4
-            exx          # 4
-            djnz hloop   # 13/8
-            exx          # 4
-            ld   a, l    # 4
-            anda 0x1f    # 7
-            jr   Z, nslin1 # 7
-            ld   a, q    # 4
-    skipmid alter[]      # 7/14/18
-    nslin1  ld   a, l    # 4
-            exx          # 4
-            pop  bc      # 10
-            sub  b       # 4
-            dec  c       # 4
-            exx          # 4
-            ld   l, a    # 4
+              ld   t, a    # 4
+              anda m       # 4
+              ld   y, a    # 4 f0 bpln
+              xor  t       # 4 0f
+              ora  q       # 4 ff bpln + previous
+              ld   q, y    # 4 f0 bpln -> previous
+              alter[]      # 7/14/18
+              inc l        # 4
+              exx          # 4
+              djnz hloop   # 13/8
+              exx          # 4
+              ld   a, l    # 4
+              anda 0x1f    # 7
+              jr   Z, nslin1 # 7/12
+    skipmid   ld   a, q    # 4
+              alter[]      # 7/14/18
+    nslin1    ld   a, l    # 4
+              exx          # 4
+              pop  bc      # 10
+              sub  b       # 4
+              dec  c       # 4
+              exx          # 4
+              ld   l, a    # 4
       end
     end
-    shft4 rrca
-    shft3 rrca
-    shft2 rrca
-    shft1 rrca
-    lpprc loopproc[]
-          ret  Z       # 5/10
-    vloop nextline  h, l, true # 27 /49 /59
-    start ld   q, 0    # 7
-          exx          # 4
-          push bc      # 11
-          add  hl, de  # 11 skip left first
+    # jump offset table
+    # shft1, shft1, shft2, shft2.... shft7, shft7, shfts1, shft1, shfts2, shft2
+    bytes (1..28).map {|i|
+      case
+      when i <= 14 
+        offset.send("shft#{(i+1) / 2}") + 29 - i
+      when i.even?
+        offset.send("shft#{(i-13) / 2}") + 29 - i
+      else
+        offset.send("shfts#{(i-13) / 2}") + 29 - i
+      end
+    }
+    start     offset.start
+    ns :offset do
+      shft4   rrca
+      shft3   rrca
+      shft2   rrca
+      shft1   rrca
+      lpprc   loopproc[]
+              ret  Z       # 5/10
+      vloop   nextline  h, l, true # 27 /49 /59
+      start   ld   q, 0    # 7
+              exx          # 4
+              push bc      # 11
+              add  hl, de  # 11 skip left first
 
-          ld   a, [hl] # 7  bmap
-          inc  hl      # 6
-          exx          # 4
-          jp (iy)      # 8 iy == ix if no skip first part
-    shfts5 rrca        # loose first part (-1 to -7)
-    shfts6 rlca
-    shfts7 rlca
-          anda m       # 4
-          ld   q, a    # 4 f0 bpln -> previous
-          exx          # 4
-          djnz hloop   # 13
-          exx
-          jp   lpprc.skipmid
-    shfts4 rrca
-    shfts3 rrca
-    shfts2 rrca
-    shfts1 rrca
-          anda m       # 4
-          ld   q, a    # 4 f0 bpln -> previous
-          exx          # 4
-          djnz hloop   # 13
-          exx
-          jp   lpprc.skipmid
+              ld   a, [hl] # 7  bmap
+              inc  hl      # 6
+              exx          # 4
+              jp (iy)      # 8 iy == ix if no skip first part
+      shfts5  rlca        # loose first part (-1 to -7)
+      shfts6  rlca
+      shfts7  rlca
+              anda m       # 4
+              ld   q, a    # 4 f0 bpln -> previous
+              exx          # 4
+              ld   a, b
+              ora  a       # width == 0?
+              jp   NZ, hloop
+              exx
+              jp   lpprc.skipmid
+      shfts4  rrca
+      shfts3  rrca
+      shfts2  rrca
+      shfts1  rrca
+              anda m       # 4
+              ld   q, a    # 4 f0 bpln -> previous
+              exx          # 4
+              ld   a, b
+              ora  a       # width == 0?
+              jp   NZ, hloop
+              exx
+              jp   lpprc.skipmid
 
-    hloop ld   a, [hl] # 7  bmap
-          inc  hl      # 6
-          exx          # 4
-          jp  (ix)     # 8
-                       # 4*4
-    shft5 rlca
-    shft6 rlca
-    shft7 rlca
-          loopproc[]
-          jp   NZ, vloop # 10
-          ret            # 10
+      hloop   ld   a, [hl] # 7  bmap
+              inc  hl      # 6
+              exx          # 4
+              jp  (ix)     # 8
+                         # 4*4
+      shft5   rlca
+      shft6   rlca
+      shft7   rlca
+              loopproc[]
+              jp   NZ, vloop # 10
+              ret            # 10
+    end
   end
 
   # (sp):  screen
@@ -392,12 +437,12 @@ shftixy   ex   [sp], hl # jump -> (sp), screen addr -> hl
     start label
           #push hl     # 11 already on stack!
           exx          # 4
-          jp   skip2   # 10
+          jp   skip1   # 10
     vloop nextline  h, l, quit0 # 27 /49 /59
           ex   [sp],hl # 4  screen <-> skip first
           ex   de, hl  # 4  sprite <-> skip first
     skip1 add  hl, de  # 11 sprite+= skip left first
-    skip2 ex   de, hl  # 4  skip first <-> sprite
+          ex   de, hl  # 4  skip first <-> sprite
           ex   [sp],hl # 4  skip first <-> screen
           push bc      # 11
     if type == :copy
@@ -426,26 +471,9 @@ shftixy   ex   [sp], hl # jump -> (sp), screen addr -> hl
           ret          # 10
   end
 
-  # shft1, shft1, shft2, shft2.... shft7, shft7, shfts1, shft1, shfts2, shft2
-  bitmap_table = proc do |offset|
-    (1..28).map {|i|
-      case
-      when i <= 14 
-        offset.send("shft#{(i+1) / 2}") + 29 - i
-      when i.even?
-        offset.send("shft#{(i-13) / 2}") + 29 - i
-      else
-        offset.send("shfts#{(i-13) / 2}") + 29 - i
-      end
-    }
-  end
-  bitmapor_table bytes bitmap_table[bitmapor]
   bitmapxoror :bitmapor, d, e, b, c, :or
-  bitmapxor_table bytes bitmap_table[bitmapxor]
   bitmapxoror :bitmapxor, d, e, b, c, :xor
-  bitmapand_table bytes bitmap_table[bitmapand]
   bitmapxoror :bitmapand, d, e, b, c, :and
-  bitmapcopy_table bytes bitmap_table[bitmapcopy]
   bitmapxoror :bitmapcopy, d, e, b, c, :copy
   bitmapxoror0 :bitmapor0, :or
   bitmapxoror0 :bitmapxor0, :xor
@@ -490,25 +518,21 @@ shftixy   ex   [sp], hl # jump -> (sp), screen addr -> hl
           dec  a        # 4
           jp   NZ, loop1 # 10
   end
-  
-  # de': destination memory
-  # h:  input: vertical coordinate   (0..191)
-  # l:  input: horizontal coordinate (0..255)
-  # except when h > 191 then l contains vertical coordinate and h | 0xf8 is a negative h-coordinate (from -1 to -7)
-  # a':  input: sprite height (1..192)
-  # b:   input: sprite first skip lines
-  # c:   input: sprite byte width
+
   export scrcopy
   ns :scrcopy do
-  compat  exx
-          push de
-          exx
-          pop  de
-          ex   af, af
+  compat  ex   af, af   # compatibility hook for calculate_coords_jump
+          ld   c, b     # byte width -> c
+          jp   compskp
+  compat8 ex   af, af   # compatibility hook for calculate_coords_jump8
           sub  b        # height=- skip first
           ret  C
           ret  Z
-          ld   b, a
+  compskp ld   b, a
+          exx
+          push de       # destination memory
+          exx
+          pop  de       # get destination memory
           ld   a, h
           cp   192
           jp   C, start
@@ -518,9 +542,9 @@ shftixy   ex   [sp], hl # jump -> (sp), screen addr -> hl
           jp   skippos
   # h:  input: vertical coordinate   (0..191)
   # l:  input: horizontal coordinate (0..255)
-  # de: destination memory
-  # b:  input: sprite height (1..192)
-  # c:  input: sprite byte width
+  # de: input: destination memory
+  # b:  input: bitmap height (1..192)
+  # c:  input: bitmap byte width
   start   push bc
           xytoscr h, l, h, l, c, b # hl -> yx, hl -> screen, c -> shift
           ld   a, c
@@ -549,7 +573,7 @@ shftixy   ex   [sp], hl # jump -> (sp), screen addr -> hl
           ret
   end
   
-  # hl memory
+  # hl: input: source memory with restore info header and data
   export restore
   ns :restore do
           ld   c, [hl]

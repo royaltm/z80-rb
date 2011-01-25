@@ -17,6 +17,24 @@ class Z80MathInt
             ld   h, a
         end
     end
+    # subs r from h,l
+    # uses: a, h, l
+    #  r: register subtractor
+    #  h: register input accumulator hi
+    #  l: register input accumulator lo
+    def sub_from(r, h, l) # 24
+        if h == l or [r,h,l].include?(a)
+            raise ArgumentError, "adda_to invalid arguments!"
+        end
+        ns do
+          ld   a, l
+          sub  r
+          ld   l, a
+          sbc  a
+          add  h
+          ld   h, a
+        end
+    end
     #  performs multiplication 16bit mh, ml * 8bit m using (m, hl, th|tl) -> hl
     #  breaks on carry out with CF=1
     #  (optionally) adds result to hl

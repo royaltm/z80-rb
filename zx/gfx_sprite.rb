@@ -1,21 +1,29 @@
 require 'z80/math_i.rb'
 require 'zx/gfx.rb'
-class ZXGfxSprite8
-  include Z80
+class ZXGfxMore
+  include Z80 unless defined?(Program)
   import ZXGfx, :code => false, :labels => false, :macros => true
   import Z80MathInt, :code => false, :labels => false, :macros => true
 
   #  calculates coordinates and prepares registers for draw_sprite8 and other compatible gfx functions
-  #  uses: a b c d e h l ix (2 stack)
-  #  hl:  sprite address
-  #  a:   input: sprite height (1..192)
-  #  a`:  input: sprite width in bytes (1..32)
-  #  CF:  input: 0: xor mode, 1: and+or mode, 0: clear mode, 1: or mode
-  #  ZF:  input: 1:                         , 0:
-  #       when CF=ZF=1 sprite address skip bytes from left margin calculations takes mask into account
-  #  bc:  x - coordinate (-32768..32767)
-  #  de:  y - coordinate (-32768..32767)
-  #  ix:  jumps to ix
+  #  uses: a af' b c d e h l ix (stack)
+  #  hl: input: sprite address
+  #  a:  input: sprite height (1..192)
+  #  a`: input: sprite width in bytes (1..32)
+  #  CF: input: 0: xor mode, 1: and+or mode, 0: clear mode, 1: or mode
+  #  ZF: input: 1:                         , 0:
+  #      when CF=ZF=1 sprite address skip bytes from left margin calculations take mask into account
+  #  bc: input: x - coordinate (-32768..32767) [screen area: 0-255]
+  #  de: input: y - coordinate (-32768..32767) [screen area: 0-191]
+  #  ix: input: jump to ix
+  #  de: output: sprite address
+  #  h:  output: vertical coordinate   (0..191)
+  #  l:  output: horizontal coordinate (0..255)
+  #  except when h > 191 then l contains vertical coordinate and h | 0xf8 is a negative h-coordinate (from -1 to -7)
+  #  b:  output: skip first sprite lines
+  #  c:  output: sprite byte width
+  #  a': output: sprite height (1..192)
+  #  f': output: preserved f
   export    calculate_coords_jump8
   ns :calculate_coords_jump8 do
           ex   af, af       # store CF and sprite height
@@ -81,6 +89,119 @@ class ZXGfxSprite8
           ld   c, a         # sprite width
           jp   (ix)
   end
+  
+  #  HOWTO:
+  #  cp a  -> z1 c0 (xor)
+  #  cp a
+  #  scf   -> z1 c1 (and + or)
+  #  xor a
+  #  inc a -> z0 c0 (or)
+  #  scf
+  #  sbc a -> z0 c1 (clear + or)
+  #
+  #  draws on screen using xor/or/clear/and+or 8-bit wide*n sprite with arbitrary height and width
+  #  in and+or mode sprite bitamp bytes must be interwined with mask: b1 m1 b2 m2 b2 m2 .....
+  #  the data for sprites is laid verticaly: first column, second column, ...
+  #  optimised for height > width sprites and small square ones (size < 24 pixels)
+  #  uses: all registers (stack)
+  #  de:  input: sprite address
+  #  h:   input: vertical coordinate   (0..191)
+  #  l:   input: horizontal coordinate (0..255)
+  #  except when h > 191 then l contains vertical coordinate and h | 0xf8 is a negative h-coordinate (from -1 to -7)
+  #  b:   input: skip first sprite lines
+  #  c:   input: sprite byte width
+  #  a':  input: sprite height (1..192)
+  #  CF': input: 0: xor mode, 1: and+or mode, 0: or mode, 1: clear mode
+  #  ZF': input: 1:                         , 0:
+  export  draw_sprite8
+  ns :draw_sprite8 do
+          push bc
+          ld   a, h
+          cp   192
+          jp   C, skipneg
+          anda 0x07
+          jr   Z, skipad      # sanity check
+          add  7              # negative vect
+  skipad  ld   c, a           # negshift
+          ytoscr l, h, l, b
+          jp   skippos
+  skipneg xytoscr h, l, h, l, c, b # hl -> yx, hl -> screen, c -> shift
+  skippos push hl             # screen addr
+
+          ld   a, c           # shift
+          ld   hl, maskshift
+          adda_to h, l
+          ld   a, [hl]
+          exx
+          ld   e, a           # rotate mask
+          pop  hl             # screen addr
+          exx
+          ex   af, af         # height + CZ
+          ld   b, a           # height
+          ld   a, c           # shift
+          jr   C, aocskip
+          jr   NZ, orskip
+
+          add  a
+          jr   Z, fastxor
+          ld   hl, sprxor.start
+          push hl             # jump addr
+          ld   hl, jumpxor - 2
+          jp   skipall
+  fastxor ld   hl, sprxor.fstcopy
+          jp   skpfast
+
+  orskip  add  a
+          jr   Z, fastor
+          ld   hl, spror.start
+          push hl             # jump addr
+          ld   hl, jumpor - 2
+          jp   skipall
+  fastor  ld   hl, spror.fstcopy
+          jp   skpfast
+
+  aocskip jr   Z, andskip
+          add  a
+          jr   Z, fastclr
+          ld   hl, spclror.start
+          push hl             # jump addr
+          ld   hl, jumpclror - 2
+          jp   skipall
+  fastclr ld   hl, spclror.fstcopy
+          jp   skpfast
+
+  andskip ld   hl, spandor.start
+          add  a
+          jr   Z, fastaor
+          push hl             # jump addr
+          ld   hl, jumpandor - 4
+          add  a
+          adda_to h, l
+          ld   a, [hl]
+          ld   iyl, a
+          inc  hl
+          ld   a, [hl]
+          ld   iyh, a
+          inc  hl
+          jp   skipal2
+  fastaor ld   hl, spandor.fstcopy
+          jp   skpfast
+  skipall adda_to h, l
+  skipal2 ld   a, [hl]
+          ld   ixl, a
+          inc  hl
+          ld   a, [hl]
+          ld   ixh, a
+          pop  hl             # jump addr
+  skpfast ld   a, b           # height
+          pop  bc             # skip + width
+          sub  b              # height - skip first lines
+          ret  C              # return if skip first > height
+          ret  Z              # return if skip first == height
+          jp   (hl)
+  end
+  
+
   # hl' - screen
   #  e' - mask     (except fstcopy)
   # ix  - vectmask (except fstcopy)
@@ -368,7 +489,7 @@ class ZXGfxSprite8
   #  c  - width
   #  b  - skip
   # type = :xor, :or
-  macro :spritexoror8 do |_, type|
+  macro :spritexoror8 do |_, type| # 141:max (shftlp each byte) + 109/134:last (mainlp each column)
     fstcopy ld   h, 0     # 7
             ld   l, b     # 4 skip first
             ex   de, hl   # 4
@@ -795,129 +916,23 @@ class ZXGfxSprite8
       end
   end
 
-  #  HOWTO:
-  #  cp a  -> z1 c0 (xor)
-  #  cp a
-  #  scf   -> z1 c1 (and + or)
-  #  xor a
-  #  inc a -> z0 c0 (or)
-  #  scf
-  #  sbc a -> z0 c1 (clear + or)
-  #
-  #  callback draws on screen using xor 8-bit wide sprite with arbitrary height
-  #  uses: a b c d e h l ix iy a' b' c' d' e' h' l' (3 stack)
-  #  de: sprite address
-  #  h:  input: vertical coordinate   (0..191)
-  #  l:  input: horizontal coordinate (0..255)
-  #  except when h > 191 then l contains vertical coordinate and h | 0xf8 is a negative h-coordinate (from -1 to -7)
-  #  a':  input: sprite height (1..192)
-  #  b:   input: skip first sprite lines
-  #  c:   input: sprite byte width
-  #  CF': input: 0: xor mode, 1: and+or mode, 0: or mode, 1: clear mode
-  #  ZF': input: 1:                         , 0:
-  #  in and+or mode sprite bitamp bytes must be interwined with mask: b1 m1 b2 m2 b2 m2 .....
-  export  draw_sprite8
-  ns :draw_sprite8 do
-          push bc
-          ld   a, h
-          cp   192
-          jp   C, skipneg
-          anda 0x07
-          jr   Z, skipad      # sanity check
-          add  7              # negative vect
-  skipad  ld   c, a           # negshift
-          ytoscr l, h, l, b
-          jp   skippos
-  skipneg xytoscr h, l, h, l, c, b # hl -> yx, hl -> screen, c -> shift
-  skippos push hl             # screen addr
-
-          ld   a, c           # shift
-          ld   hl, maskshift
-          adda_to h, l
-          ld   a, [hl]
-          exx
-          ld   e, a           # rotate mask
-          pop  hl             # screen addr
-          exx
-          ex   af, af         # height + CZ
-          ld   b, a           # height
-          ld   a, c           # shift
-          jr   C, aocskip
-          jr   NZ, orskip
-
-          add  a
-          jr   Z, fastxor
-          ld   hl, sprxor.start
-          push hl             # jump addr
-          ld   hl, jumpxor - 2
-          jp   skipall
-  fastxor ld   hl, sprxor.fstcopy
-          jp   skpfast
-
-  orskip  add  a
-          jr   Z, fastor
-          ld   hl, spror.start
-          push hl             # jump addr
-          ld   hl, jumpor - 2
-          jp   skipall
-  fastor  ld   hl, spror.fstcopy
-          jp   skpfast
-
-  aocskip jr   Z, andskip
-          add  a
-          jr   Z, fastclr
-          ld   hl, spclror.start
-          push hl             # jump addr
-          ld   hl, jumpclror - 2
-          jp   skipall
-  fastclr ld   hl, spclror.fstcopy
-          jp   skpfast
-
-  andskip ld   hl, spandor.start
-          add  a
-          jr   Z, fastaor
-          push hl             # jump addr
-          ld   hl, jumpandor - 4
-          add  a
-          adda_to h, l
-          ld   a, [hl]
-          ld   iyl, a
-          inc  hl
-          ld   a, [hl]
-          ld   iyh, a
-          inc  hl
-          jp   skipal2
-  fastaor ld   hl, spandor.fstcopy
-          jp   skpfast
-  skipall adda_to h, l
-  skipal2 ld   a, [hl]
-          ld   ixl, a
-          inc  hl
-          ld   a, [hl]
-          ld   ixh, a
-          pop  hl             # jump addr
-  skpfast ld   a, b           # height
-          pop  bc             # skip + width
-          sub  b              # height - skip first lines
-          ret  C              # return if skip first > height
-          ret  Z              # return if skip first == height
-          jp   (hl)
-  end
-
           spriteandor8 :spandor
           spriteclror8 :spclror
           spritexoror8 :spror, :ora
           spritexoror8 :sprxor, :xor
 
-  maskshift   data 1, [0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE]
-  jumpandor   data 2, [spandor.shft1, spandor.shftm1,   spandor.shft2, spandor.shftm2,  spandor.shft3, spandor.shftm3,
+  unless label_defined? :maskshift
+    maskshift   bytes [0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE]
+  end
+
+  jumpandor   words [spandor.shft1, spandor.shftm1,   spandor.shft2, spandor.shftm2,  spandor.shft3, spandor.shftm3,
      spandor.shft4,   spandor.shftm4, spandor.shft5,  spandor.shftm5,  spandor.shft6,  spandor.shftm6,  spandor.shft7, spandor.shftm7]
-  jumpandor_1 data 2, [spandor.shft_1, spandor.shftm_1,  spandor.shft_2, spandor.shftm_2,  spandor.shft_3, spandor.shftm_3,  
+  jumpandor_1 words [spandor.shft_1, spandor.shftm_1,  spandor.shft_2, spandor.shftm_2,  spandor.shft_3, spandor.shftm_3,  
      spandor.shft_4,  spandor.shftm_4,  spandor.shft_5, spandor.shftm_5,  spandor.shft_6, spandor.shftm_6,  spandor.shft_7,  spandor.shftm_7]
-  jumpclror   data 2, [spclror.shft1,   spclror.shft2,   spclror.shft3,   spclror.shft4,   spclror.shft5,   spclror.shft6,  spclror.shft7]
-  jumpclror_1 data 2, [spclror.shft_1,  spclror.shft_2,  spclror.shft_3,  spclror.shft_4,  spclror.shft_5,  spclror.shft_6,  spclror.shft_7]
-  jumpor      data 2, [spror.shft1,   spror.shft2,   spror.shft3,   spror.shft4,   spror.shft5,   spror.shft6, spror.shft7]
-  jumpor_1    data 2, [spror.shft_1,  spror.shft_2,  spror.shft_3,  spror.shft_4,  spror.shft_5,  spror.shft_6,  spror.shft_7]
-  jumpxor     data 2, [sprxor.shft1,  sprxor.shft2,  sprxor.shft3,  sprxor.shft4,  sprxor.shft5,  sprxor.shft6, sprxor.shft7]
-  jumpxor_1   data 2, [sprxor.shft_1, sprxor.shft_2, sprxor.shft_3, sprxor.shft_4, sprxor.shft_5, sprxor.shft_6, sprxor.shft_7]
+  jumpclror   words [spclror.shft1,   spclror.shft2,   spclror.shft3,   spclror.shft4,   spclror.shft5,   spclror.shft6,  spclror.shft7]
+  jumpclror_1 words [spclror.shft_1,  spclror.shft_2,  spclror.shft_3,  spclror.shft_4,  spclror.shft_5,  spclror.shft_6,  spclror.shft_7]
+  jumpor      words [spror.shft1,   spror.shft2,   spror.shft3,   spror.shft4,   spror.shft5,   spror.shft6, spror.shft7]
+  jumpor_1    words [spror.shft_1,  spror.shft_2,  spror.shft_3,  spror.shft_4,  spror.shft_5,  spror.shft_6,  spror.shft_7]
+  jumpxor     words [sprxor.shft1,  sprxor.shft2,  sprxor.shft3,  sprxor.shft4,  sprxor.shft5,  sprxor.shft6, sprxor.shft7]
+  jumpxor_1   words [sprxor.shft_1, sprxor.shft_2, sprxor.shft_3, sprxor.shft_4, sprxor.shft_5, sprxor.shft_6, sprxor.shft_7]
 end
