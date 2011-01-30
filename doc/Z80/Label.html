@@ -181,6 +181,14 @@
         
           <li><a href="../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
         
+          <li><a href="../Z80Lib.html">Z80Lib</a></li>
+        
+          <li><a href="../Z80Lib/Macros.html">Z80Lib::Macros</a></li>
+        
+          <li><a href="../Z80MathInt.html">Z80MathInt</a></li>
+        
+          <li><a href="../Z80MathInt/Macros.html">Z80MathInt::Macros</a></li>
+        
           <li><a href="../Symbol.html">Symbol</a></li>
         
         </ul>
@@ -382,9 +390,9 @@ label names:</p>
           <div class="method-source-code"
             id="byte-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 393</span>
+<span class="ruby-comment"># File z80/labels.rb, line 399</span>
 def byte(size = 1)
-        1*size
+  1*size
 end</pre>
           </div>
           
@@ -417,11 +425,11 @@ referenced label has not been yet defined.</p>
           <div class="method-source-code"
             id="dummy-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 297</span>
+<span class="ruby-comment"># File z80/labels.rb, line 305</span>
 def self.dummy(name = nil)
-        n = new(0, nil)
-        n.name = name if name
-        n
+  n = new(0, nil)
+  n.name = name if name
+  n
 end</pre>
           </div>
           
@@ -453,7 +461,7 @@ end</pre>
           <div class="method-source-code"
             id="members_of_struct-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 439</span>
+<span class="ruby-comment"># File z80/labels.rb, line 448</span>
 def members_of_struct; <span class="ruby-ivar">@members</span>; end</pre>
           </div>
           
@@ -492,24 +500,24 @@ given symbolic name.</p>
           <div class="method-source-code"
             id="new-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 443</span>
+<span class="ruby-comment"># File z80/labels.rb, line 452</span>
 def new(addr, type = 1, reloc = nil, members = nil)
-        if members.nil?
-                if defined?(<span class="ruby-ivar">@size</span>)
-                        members = <span class="ruby-constant">Hash</span>[<span class="ruby-ivar">@members</span>.map do |n, m|
-                                l = if m.type.is_a?(<span class="ruby-constant">Class</span>) and m.type.respond_to?(:to_data)
-                                        m.type.new(addr + m.offset, 1, reloc)
-                                else
-                                        super(addr + m.offset, m.type, reloc)
-                                end
-                                l.name = m.name
-                                [m.name, l]
-                        end]
-                        super(addr, self, reloc, members)
-                elsif type.is_a?(<span class="ruby-constant">Class</span>) and type.ancestors.include?(self)
-                        type.new(addr, type.to_i, reloc)
-                end
-        end || (addr.is_a?(self) ? addr : super)
+  if members.nil?
+    if defined?(<span class="ruby-ivar">@size</span>)
+      members = <span class="ruby-constant">Hash</span>[<span class="ruby-ivar">@members</span>.map do |n, m|
+        l = if m.type.is_a?(<span class="ruby-constant">Class</span>) and m.type.respond_to?(:to_data)
+          m.type.new(addr + m.offset, 1, reloc)
+        else
+          super(addr + m.offset, m.type, reloc)
+        end
+        l.name = m.name
+        [m.name, l]
+      end]
+      super(addr, self, reloc, members)
+    elsif type.is_a?(<span class="ruby-constant">Class</span>) and type.ancestors.include?(self)
+      type.new(addr, type.to_i, reloc)
+    end
+  end || (addr.is_a?(self) ? addr : super)
 end</pre>
           </div>
           
@@ -527,7 +535,7 @@ end</pre>
         
         <div class="method-heading">
           <span class="method-name">to_data</span><span
-            class="method-args">(*data)</span>
+            class="method-args">(prog, offset, *data)</span>
           <span class="method-click-advice">click to toggle source</span>
         </div>
         
@@ -542,23 +550,26 @@ it directly.</p>
           <div class="method-source-code"
             id="to_data-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 420</span>
-def to_data(*data)
-        <span class="ruby-ivar">@members</span>.reject {|_, m| m.alias}.each_with_index.map do |(n, m), i|
-                s = <span class="ruby-string">''</span>
-                m.count.times do
-                        d = data.shift
-                        len = m.type.to_i
-                        s &lt;&lt; if m.type.respond_to?(:to_data) and d.is_a?(<span class="ruby-constant">Array</span>)
-                                m.type.to_data(*d)
-                        elsif d.is_a?(<span class="ruby-constant">String</span>)
-                                d[0, len]
-                        else
-                                [d.to_i].pack(<span class="ruby-string">'Q'</span>)[0, len]
-                        end.ljust(len, <span class="ruby-string">&quot;\x0&quot;&quot;</span>)
-                end
-                s
-        end.join
+<span class="ruby-comment"># File z80/labels.rb, line 426</span>
+def to_data(prog, offset, *data)
+  <span class="ruby-ivar">@members</span>.reject {|_, m| m.alias}.each_with_index.map do |(n, m), i|
+    s = <span class="ruby-string">''</span>
+    m.count.times do
+      d = data.shift
+      len = m.type.to_i
+      s &lt;&lt; if m.type.respond_to?(:to_data) and d.is_a?(<span class="ruby-constant">Array</span>)
+        m.type.to_data(prog, offset, *d)
+      elsif d.is_a?(<span class="ruby-constant">String</span>)
+        d[0, len]
+      elsif d.respond_to? :to_label
+        <span class="ruby-constant">Z80</span>::add_reloc(prog, d, len, offset + s.bytesize, len == 1 ? :self : nil)
+      else
+        [d.to_i].pack(<span class="ruby-string">'Q'</span>)[0, len]
+      end.ljust(len, <span class="ruby-string">&quot;\00&quot;&quot;</span>)
+    end
+    offset+= s.bytesize
+    s
+  end.join
 end</pre>
           </div>
           
@@ -590,9 +601,9 @@ end</pre>
           <div class="method-source-code"
             id="word-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 397</span>
+<span class="ruby-comment"># File z80/labels.rb, line 403</span>
 def word(size = 1)
-        2*size
+  2*size
 end</pre>
           </div>
           
@@ -630,9 +641,9 @@ end</pre>
           <div class="method-source-code"
             id="2A-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 359</span>
+<span class="ruby-comment"># File z80/labels.rb, line 365</span>
 def *(index)
-        <span class="ruby-constant">Alloc</span>.new(self) * index
+  <span class="ruby-constant">Alloc</span>.new(self) * index
 end</pre>
           </div>
           
@@ -665,9 +676,9 @@ label.</p>
           <div class="method-source-code"
             id="2B-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 364</span>
+<span class="ruby-comment"># File z80/labels.rb, line 370</span>
 def +(offset)
-        <span class="ruby-constant">Alloc</span>.new(self) + offset
+  <span class="ruby-constant">Alloc</span>.new(self) + offset
 end</pre>
           </div>
           
@@ -699,13 +710,13 @@ end</pre>
           <div class="method-source-code"
             id="2B-40-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 347</span>
+<span class="ruby-comment"># File z80/labels.rb, line 353</span>
 def +@
-        if dummy?
-                <span class="ruby-ivar">@sizelabel</span>||= <span class="ruby-constant">Label</span>.dummy
-        else
-                <span class="ruby-ivar">@size</span>
-        end
+  if dummy?
+    +<span class="ruby-constant">Alloc</span>.new(self)
+  else
+    <span class="ruby-ivar">@size</span>
+  end
 end</pre>
           </div>
           
@@ -738,9 +749,9 @@ another label.</p>
           <div class="method-source-code"
             id="2D-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 369</span>
+<span class="ruby-comment"># File z80/labels.rb, line 375</span>
 def -(offset)
-        <span class="ruby-constant">Alloc</span>.new(self) - offset
+  <span class="ruby-constant">Alloc</span>.new(self) - offset
 end</pre>
           </div>
           
@@ -772,9 +783,9 @@ end</pre>
           <div class="method-source-code"
             id="3E-3E-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 322</span>
+<span class="ruby-comment"># File z80/labels.rb, line 329</span>
 def &gt;&gt;(m)
-        <span class="ruby-ivar">@members</span>[m]
+  <span class="ruby-ivar">@members</span>[m]
 end</pre>
           </div>
           
@@ -806,9 +817,9 @@ end</pre>
           <div class="method-source-code"
             id="5B-5D-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 355</span>
+<span class="ruby-comment"># File z80/labels.rb, line 361</span>
 def [](index = 0)
-        <span class="ruby-constant">Alloc</span>.new(self)[index]
+  <span class="ruby-constant">Alloc</span>.new(self)[index]
 end</pre>
           </div>
           
@@ -840,13 +851,13 @@ end</pre>
           <div class="method-source-code"
             id="deep_clone_with_relocation-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 276</span>
+<span class="ruby-comment"># File z80/labels.rb, line 284</span>
 def deep_clone_with_relocation(addr)
-        members = <span class="ruby-constant">Hash</span>[<span class="ruby-ivar">@members</span>.map {|n, m| [n, m.deep_clone_with_relocation(addr)] }]
-        addr = reloc ? <span class="ruby-ivar">@address</span> + addr.to_i : <span class="ruby-ivar">@address</span>
-        l = <span class="ruby-constant">Label</span>.new(addr, <span class="ruby-ivar">@type</span>, <span class="ruby-ivar">@reloc</span>, members)
-        l.name = <span class="ruby-ivar">@name</span> if <span class="ruby-ivar">@name</span>
-        l
+  members = <span class="ruby-constant">Hash</span>[<span class="ruby-ivar">@members</span>.map {|n, m| [n, m.deep_clone_with_relocation(addr)] }]
+  addr = reloc ? <span class="ruby-ivar">@address</span> + addr.to_i : <span class="ruby-ivar">@address</span>
+  l = <span class="ruby-constant">Label</span>.new(addr, <span class="ruby-ivar">@type</span>, <span class="ruby-ivar">@reloc</span>, members)
+  l.name = <span class="ruby-ivar">@name</span> if <span class="ruby-ivar">@name</span>
+  l
 end</pre>
           </div>
           
@@ -879,9 +890,9 @@ during program compilation.</p>
           <div class="method-source-code"
             id="dummy-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 318</span>
+<span class="ruby-comment"># File z80/labels.rb, line 325</span>
 def dummy?
-        <span class="ruby-ivar">@type</span>.nil?
+  <span class="ruby-ivar">@type</span>.nil?
 end</pre>
           </div>
           
@@ -915,9 +926,9 @@ compilation.</p>
           <div class="method-source-code"
             id="immediate-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 313</span>
+<span class="ruby-comment"># File z80/labels.rb, line 320</span>
 def immediate?
-        !dummy? and !<span class="ruby-ivar">@reloc</span>
+  !dummy? and !<span class="ruby-ivar">@reloc</span>
 end</pre>
           </div>
           
@@ -949,9 +960,9 @@ end</pre>
           <div class="method-source-code"
             id="method_missing-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 383</span>
+<span class="ruby-comment"># File z80/labels.rb, line 389</span>
 def method_missing(m)
-        <span class="ruby-constant">Alloc</span>.new(self).send m
+  <span class="ruby-constant">Alloc</span>.new(self).send m
 end</pre>
           </div>
           
@@ -983,11 +994,11 @@ end</pre>
           <div class="method-source-code"
             id="name-3D-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 374</span>
+<span class="ruby-comment"># File z80/labels.rb, line 380</span>
 def name=(value)
-        raise <span class="ruby-constant">Syntax</span>, &quot;Invalid label name: #{value.inspect}&quot; if (value = value.to_s).empty?
-        raise <span class="ruby-constant">Syntax</span>, &quot;Can't rename already named label: #{@name}!= #{value}&quot; if <span class="ruby-ivar">@name</span> and <span class="ruby-ivar">@name</span> != value
-        <span class="ruby-ivar">@name</span> = value
+  raise <span class="ruby-constant">Syntax</span>, &quot;Invalid label name: #{value.inspect}&quot; if (value = value.to_s).empty?
+  raise <span class="ruby-constant">Syntax</span>, &quot;Can't rename already named label: #{@name}!= #{value}&quot; if <span class="ruby-ivar">@name</span> and <span class="ruby-ivar">@name</span> != value
+  <span class="ruby-ivar">@name</span> = value
 end</pre>
           </div>
           
@@ -1020,7 +1031,7 @@ used during program compilation.</p>
           <div class="method-source-code"
             id="pointer-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 294</span>
+<span class="ruby-comment"># File z80/labels.rb, line 302</span>
 def pointer?; false; end</pre>
           </div>
           
@@ -1053,22 +1064,21 @@ used during program compilation.</p>
           <div class="method-source-code"
             id="reinitialize-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 327</span>
+<span class="ruby-comment"># File z80/labels.rb, line 334</span>
 def reinitialize(address, type = 1, reloc = nil, members = nil)
-        raise <span class="ruby-constant">Syntax</span>, &quot;label #{self} already initialized.&quot; unless dummy?
-        if address.is_a? self.class
-                address, type, reloc, name, members = [
-                        <span class="ruby-string">'@address'</span>, <span class="ruby-string">'@type'</span>, <span class="ruby-string">'@reloc'</span>, <span class="ruby-string">'@name'</span>, <span class="ruby-string">'@members'</span>
-                ].map {|n| address.instance_variable_get(n) }
-                self.name = name if name
-        end
-        <span class="ruby-ivar">@address</span> = address &amp; 0xffff
-        <span class="ruby-ivar">@size</span> = type.to_i
-        <span class="ruby-ivar">@type</span> = type
-        <span class="ruby-ivar">@reloc</span> = reloc
-        <span class="ruby-ivar">@members</span> = members if members
-        <span class="ruby-ivar">@sizelabel</span>.reinitialize(<span class="ruby-ivar">@size</span>, 1) if <span class="ruby-ivar">@sizelabel</span>
-        self
+  raise <span class="ruby-constant">Syntax</span>, &quot;label #{self} already initialized.&quot; unless dummy?
+  if address.is_a? self.class
+    address, type, reloc, name, members = [
+      <span class="ruby-string">'@address'</span>, <span class="ruby-string">'@type'</span>, <span class="ruby-string">'@reloc'</span>, <span class="ruby-string">'@name'</span>, <span class="ruby-string">'@members'</span>
+    ].map {|n| address.instance_variable_get(n) }
+    self.name = name if name
+  end
+  <span class="ruby-ivar">@address</span> = address &amp; 0xffff
+  <span class="ruby-ivar">@size</span> = type.to_i
+  <span class="ruby-ivar">@type</span> = type
+  <span class="ruby-ivar">@reloc</span> = reloc
+  <span class="ruby-ivar">@members</span> = members if members
+  self
 end</pre>
           </div>
           
@@ -1100,9 +1110,9 @@ end</pre>
           <div class="method-source-code"
             id="to_alloc-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 343</span>
+<span class="ruby-comment"># File z80/labels.rb, line 349</span>
 def to_alloc
-        <span class="ruby-constant">Alloc</span>.new(self)
+  <span class="ruby-constant">Alloc</span>.new(self)
 end</pre>
           </div>
           
@@ -1135,13 +1145,13 @@ program compilation.</p>
           <div class="method-source-code"
             id="to_i-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 285</span>
+<span class="ruby-comment"># File z80/labels.rb, line 293</span>
 def to_i(start = 0, rel_to = nil)
-        if rel_to == :self
-                0
-        else
-                <span class="ruby-ivar">@address</span> - rel_to.to_i + (<span class="ruby-ivar">@reloc</span> ? start : 0)
-        end unless dummy?
+  if rel_to == :self
+    0
+  else
+    <span class="ruby-ivar">@address</span> - rel_to.to_i + (<span class="ruby-ivar">@reloc</span> ? start : 0)
+  end unless dummy?
 end</pre>
           </div>
           
@@ -1173,7 +1183,7 @@ end</pre>
           <div class="method-source-code"
             id="to_label-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 372</span>
+<span class="ruby-comment"># File z80/labels.rb, line 378</span>
 def to_label(_); self; end</pre>
           </div>
           
@@ -1205,7 +1215,7 @@ def to_label(_); self; end</pre>
           <div class="method-source-code"
             id="to_name-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 380</span>
+<span class="ruby-comment"># File z80/labels.rb, line 386</span>
 def to_name; <span class="ruby-ivar">@name</span>; end</pre>
           </div>
           
@@ -1266,7 +1276,7 @@ def to_name; <span class="ruby-ivar">@name</span>; end</pre>
           <div class="method-source-code"
             id="to_str-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 381</span>
+<span class="ruby-comment"># File z80/labels.rb, line 387</span>
 def to_str; &quot;`#{@name}':#{'%04X'%@address}:#{@size} #{@reloc}#{dummy? ? '?':''}&quot;; end</pre>
           </div>
           
@@ -1308,15 +1318,14 @@ def to_str; &quot;`#{@name}':#{'%04X'%@address}:#{@size} #{@reloc}#{dummy? ? '?'
           <div class="method-source-code"
             id="initialize-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 302</span>
+<span class="ruby-comment"># File z80/labels.rb, line 310</span>
 def initialize(address, type = 1, reloc = nil, members = nil) <span class="ruby-comment"># :notnew:</span>
-        <span class="ruby-ivar">@address</span> = address.to_i &amp; 0xffff
-        <span class="ruby-ivar">@size</span> = type.to_i
-        <span class="ruby-ivar">@type</span> = type
-        <span class="ruby-ivar">@reloc</span> = reloc
-        <span class="ruby-ivar">@members</span> = {}.update(members || {})
-        <span class="ruby-ivar">@sizelabel</span> = nil
-        <span class="ruby-ivar">@name</span> = nil
+  <span class="ruby-ivar">@address</span> = address.to_i &amp; 0xffff
+  <span class="ruby-ivar">@size</span> = type.to_i
+  <span class="ruby-ivar">@type</span> = type
+  <span class="ruby-ivar">@reloc</span> = reloc
+  <span class="ruby-ivar">@members</span> = {}.update(members || {})
+  <span class="ruby-ivar">@name</span> = nil
 end</pre>
           </div>
           

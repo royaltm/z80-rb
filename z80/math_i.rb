@@ -2,9 +2,9 @@ require 'z80'
 class Z80MathInt
   module Macros
     # adds a to h,l
-    # uses: a, h, l
-    #  h: register input accumulator hi
-    #  l: register input accumulator lo
+    # uses: +a+, +h+, +l+
+    # +h+:: register input accumulator hi
+    # +l+:: register input accumulator lo
     def adda_to(h, l) # 20
         if h == l or [h,l].include?(a)
             raise ArgumentError, "adda_to invalid arguments!"
@@ -18,10 +18,10 @@ class Z80MathInt
         end
     end
     # subs r from h,l
-    # uses: a, h, l
-    #  r: register subtractor
-    #  h: register input accumulator hi
-    #  l: register input accumulator lo
+    # uses: +a+, +r+, +h+, +l+
+    # +r+:: register subtractor must not be +a+
+    # +h+:: register input accumulator hi
+    # +l+:: register input accumulator lo
     def sub_from(r, h, l) # 24
         if h == l or [r,h,l].include?(a)
             raise ArgumentError, "adda_to invalid arguments!"
@@ -35,16 +35,16 @@ class Z80MathInt
           ld   h, a
         end
     end
-    #  performs multiplication 16bit mh, ml * 8bit m using (m, hl, th|tl) -> hl
-    #  breaks on carry out with CF=1
-    #  (optionally) adds result to hl
-    #  uses: hl, m, mh, ml, th, tl
-    #  mh=h:    register/value input multiplicant hi
-    #  ml=l:    register/value input multiplicant lo
-    #   m=a:    register input multiplicator
-    #  th=d:    register temporary (d or b)
-    #  tl=e:    register temporary (e or c)
-    #  clrhl=t: should hl be set (true) or accumulated (false)
+    # performs multiplication 16bit mh, ml * 8bit m using (m, hl, th|tl) -> hl
+    # breaks on carry out with CF=1
+    # (optionally) adds result to hl
+    # uses: +hl+, +m+, +mh+, +ml+, +th+, +tl+
+    # +mh+::    register/value input multiplicant hi
+    # +ml+::    register/value input multiplicant lo
+    # +m+::     register input multiplicator
+    # +th+::    register temporary (d or b)
+    # +tl+::    register temporary (e or c)
+    # +clrhl+:: should hl be set (true) or accumulated (false)
     def mul8_c(mh=h, ml=l, m=a, th=d, tl=e, clrhl = true)
       raise ArgumentError if th|tl == hl or [th,tl].include?(m) or tl == mh or th == ml
       ns do |eoc|
@@ -61,17 +61,17 @@ class Z80MathInt
               jp  NC, loop1
       end
     end
-    #  performs multiplication 16bit mh, ml * 8bit m using (m, hl, th|tl) -> hl
-    #  (optionally) adds result to hl
-    #  (optionally) multiplies multiplicator * 2
-    #  uses: hl, m, mh, ml, th, tl
-    #  mh=h:     register/value input multiplicant hi
-    #  ml=l:     register/value input multiplicant lo
-    #   m=a:     register input multiplicator
-    #  th=d:     register temporary (d or b)
-    #  tl=e:     register temporary (e or c)
-    #  clrhl=t:  should hl be set (true) or accumulated (false)
-    #  double=f: should th|tl * 2 (true) or not (false)
+    # performs multiplication 16bit mh, ml * 8bit m using (m, hl, th|tl) -> hl
+    # (optionally) adds result to hl
+    # (optionally) multiplies multiplicator * 2
+    # uses: +hl+, +m+, +mh+, +ml+, +th+, +tl+
+    # +mh+::     register/value input multiplicant hi
+    # +ml+::     register/value input multiplicant lo
+    # +m+::     register input multiplicator
+    # +th+::     register temporary (d or b)
+    # +tl+::     register temporary (e or c)
+    # +clrhl+::  should hl be set (true) or accumulated (false)
+    # +double+:: should th|tl * 2 (true) or not (false)
     def mul8(mh=h, ml=l, m=a, th=d, tl=e, clrhl = true, double = false)
       raise ArgumentError if th|tl == hl or [th,tl].include?(m) or tl == mh or th == ml
       ns do |eoc|
@@ -88,6 +88,7 @@ class Z80MathInt
       end
     end
     # multiply hl by mh|ml (b|c or d|e) and stores result in hl rr (bc | de)
+    # *UNTESTED*
     def multi16_32(mh, ml, rr)
       ns do
             th = mh == b ? d : b

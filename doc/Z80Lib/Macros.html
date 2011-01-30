@@ -5,7 +5,7 @@
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
 
-  <title>Module: Z80::Helpers</title>
+  <title>Module: Z80Lib::Macros</title>
 
   <link rel="stylesheet" href="../rdoc.css" type="text/css" media="screen" />
 
@@ -38,8 +38,8 @@
         <div class="section-body">
           <ul>
           
-            <li><a href="../z80_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
-              class="thickbox" title="z80.rb">z80.rb</a></li>
+            <li><a href="../z80/stdlib_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/stdlib.rb">z80/stdlib.rb</a></li>
           
           </ul>
         </div>
@@ -62,13 +62,11 @@
         <h3 class="section-header">Methods</h3>
         <ul class="link-list">
           
-          <li><a href="#method-i-cpl">#cpl</a></li>
+          <li><a href="#method-i-clrmem">#clrmem</a></li>
           
-          <li><a href="#method-i-h">#h</a></li>
+          <li><a href="#method-i-clrmem8">#clrmem8</a></li>
           
-          <li><a href="#method-i-hb">#hb</a></li>
-          
-          <li><a href="#method-i-neg">#neg</a></li>
+          <li><a href="#method-i-memcpy">#memcpy</a></li>
           
         </ul>
       </div>
@@ -149,13 +147,10 @@
   </div>
 
   <div id="documentation">
-    <h1 class="module">Z80::Helpers</h1>
+    <h1 class="module">Z80Lib::Macros</h1>
 
     <div id="description">
       
-<p>some useless stuff; needed for z80 opcode testing; but didn’t delete it
-(maybe will come in handy)</p>
-
     </div>
 
     <!-- Constants -->
@@ -170,28 +165,52 @@
       <h3 class="section-header">Public Instance Methods</h3>
 
     
-      <div id="cpl-method" class="method-detail ">
-        <a name="method-i-cpl"></a>
+      <div id="clrmem-method" class="method-detail ">
+        <a name="method-i-clrmem"></a>
 
         
         <div class="method-heading">
-          <span class="method-name">cpl</span><span
-            class="method-args">(a)</span>
+          <span class="method-name">clrmem</span><span
+            class="method-args">(dest, size, value = 0)</span>
           <span class="method-click-advice">click to toggle source</span>
         </div>
         
 
         <div class="method-description">
           
-          
+          <p>clears memory at dest  uses: <tt>bc</tt>, <tt>de</tt>, <tt>hl</tt></p>
+<table class="rdoc-list"><tr><td class="rdoc-term"><p><tt>dest</tt></p></td>
+<td>
+<p>register16/value/nil destination address</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>size</tt></p></td>
+<td>
+<p>register/value/nil size of area to clear</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>value</tt></p></td>
+<td>
+<p>register/value/nil pad byte (nil: a contains pad byte)</p>
+</td></tr></table>
           
 
           
           <div class="method-source-code"
-            id="cpl-source">
+            id="clrmem-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 375</span>
-def cpl(a); ~a &amp; 0xff; end</pre>
+<span class="ruby-comment"># File z80/stdlib.rb, line 28</span>
+def clrmem(dest, size, value = 0)
+  ns do
+        if size
+          ld  bc, size - 1
+        else
+          dec bc
+        end
+        ld  hl, dest if dest and dest != hl
+        ld  e, l
+        ld  d, h
+        inc de
+        ld  [hl], value
+        ldir
+  end
+end</pre>
           </div>
           
         </div>
@@ -202,28 +221,55 @@ def cpl(a); ~a &amp; 0xff; end</pre>
       </div>
 
     
-      <div id="h-method" class="method-detail ">
-        <a name="method-i-h"></a>
+      <div id="clrmem8-method" class="method-detail ">
+        <a name="method-i-clrmem8"></a>
 
         
         <div class="method-heading">
-          <span class="method-name">h</span><span
-            class="method-args">(a)</span>
+          <span class="method-name">clrmem8</span><span
+            class="method-args">(dest, size, value = 0, rr = hl)</span>
           <span class="method-click-advice">click to toggle source</span>
         </div>
         
 
         <div class="method-description">
           
-          
+          <p>clears max 256 bytes of memory at dest  uses: <tt>a</tt>, <tt>b</tt>,
+<tt>rr</tt></p>
+<table class="rdoc-list"><tr><td class="rdoc-term"><p><tt>dest</tt></p></td>
+<td>
+<p>register16/value/nil destination address</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>size</tt></p></td>
+<td>
+<p>register/value/nil size of area to clear</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>value</tt></p></td>
+<td>
+<p>register/value/nil pad byte (nil: a contains pad byte)</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>rr</tt></p></td>
+<td>
+<p>register16 hl/bc/de/ix/iy tempororary</p>
+</td></tr></table>
           
 
           
           <div class="method-source-code"
-            id="h-source">
+            id="clrmem8-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 377</span>
-def h(a); <span class="ruby-string">'%04x'</span>%(a &amp; 0xffff) ; end</pre>
+<span class="ruby-comment"># File z80/stdlib.rb, line 9</span>
+def clrmem8(dest, size, value = 0, rr = hl)
+  ns do
+        ld  b, size if size and size != b
+        ld  rr, dest if dest and dest != rr
+        if value == 0
+          xor a
+        elsif value != a
+          ld  a, value
+        end
+  loop1 ld  [rr], a
+        inc rr
+        djnz loop1
+  end
+end</pre>
           </div>
           
         </div>
@@ -234,60 +280,61 @@ def h(a); <span class="ruby-string">'%04x'</span>%(a &amp; 0xffff) ; end</pre>
       </div>
 
     
-      <div id="hb-method" class="method-detail ">
-        <a name="method-i-hb"></a>
+      <div id="memcpy-method" class="method-detail ">
+        <a name="method-i-memcpy"></a>
 
         
         <div class="method-heading">
-          <span class="method-name">hb</span><span
-            class="method-args">(a)</span>
+          <span class="method-name">memcpy</span><span
+            class="method-args">(dest=de, source=hl, size=bc, reverse = false)</span>
           <span class="method-click-advice">click to toggle source</span>
         </div>
         
 
         <div class="method-description">
           
-          
-          
-
-          
-          <div class="method-source-code"
-            id="hb-source">
-<pre>
-<span class="ruby-comment"># File z80.rb, line 376</span>
-def hb(a); <span class="ruby-string">'%02x'</span>%(a &amp; 0xff) ; end</pre>
-          </div>
-          
-        </div>
-
-        
-
-        
-      </div>
-
-    
-      <div id="neg-method" class="method-detail ">
-        <a name="method-i-neg"></a>
-
-        
-        <div class="method-heading">
-          <span class="method-name">neg</span><span
-            class="method-args">(a)</span>
-          <span class="method-click-advice">click to toggle source</span>
-        </div>
-        
-
-        <div class="method-description">
-          
-          
+          <p>copies memory from source to dest if source/dest and size are static
+detects memory overlaps uses: <tt>bc</tt>, <tt>de</tt>, <tt>hl</tt></p>
+<table class="rdoc-list"><tr><td class="rdoc-term"><p><tt>dest</tt></p></td>
+<td>
+<p>register16/value/nil destination address</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>dest</tt></p></td>
+<td>
+<p>register16/value/nil source address</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>size</tt></p></td>
+<td>
+<p>register16/value/nil size of area to clear</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>reverse</tt></p></td>
+<td>
+<p>flag (true) use lddr, (false) use ldir</p>
+</td></tr></table>
           
 
           
           <div class="method-source-code"
-            id="neg-source">
+            id="memcpy-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 374</span>
-def neg(a); -a &amp; 0xff; end</pre>
+<span class="ruby-comment"># File z80/stdlib.rb, line 50</span>
+def memcpy(dest=de, source=hl, size=bc, reverse = false)
+  ns do
+    unless dest.is_a?(<span class="ruby-constant">Register</span>) or source.is_a?(<span class="ruby-constant">Register</span>)
+        if dest.is_a?(<span class="ruby-constant">Integer</span>) and source.is_a?(<span class="ruby-constant">Integer</span>) and dest &gt; source and
+            size and !size.is_a?(<span class="ruby-constant">Register</span>) and source + size &gt; dest
+          dest+= size - 1
+          source+= size - 1
+          reverse = true
+        end
+    end
+                            ld  de, dest if dest and dest != de
+                            ld  hl, source if source and source != hl
+                            ld  bc, size if size and size != bc
+    if reverse
+      lddr
+    else
+      ldir
+    end
+  end
+            end</pre>
           </div>
           
         </div>

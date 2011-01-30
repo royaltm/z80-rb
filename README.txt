@@ -93,6 +93,7 @@ check this out:
   8031: CB23        sla  e
   8033: CB12        rl   d
   8035: D22880      jp   NC, 8028H       -> loop1
+  8038:                                  :mul.ok
   8038: 4D          ld   c, l
   8039: 44          ld   b, h
   803A: D0          ret  NC
@@ -149,11 +150,11 @@ link:../examples/calculator.png
     -c, --colors CCC....        list of allowed color indexes (0..7)
     -0..15, --bg N              background color (0..15)
     -r, --ratio N/N             bright/basic color level ratio
-    -l, --[no-]autolevel       apply auto level to source image
+    -l, --[no-]autolevel        apply auto level to source image
     -g, --[no-]autogamma        apply auto gamma to source image
 
     destination format and content:
-    -f, --format t|b|r          zx spectrum data file format
+    -f, --format t|b|r|a        zx spectrum data file format
             t: save as TAP; one file is created
             b: save as binary data; separate files for scr and bitamp
             r: save as ruby source
@@ -174,7 +175,7 @@ link:../examples/horse.png
 
 
 ==Download
-here[link:../ruby-z80_0.9+conv_0.2.zip]
+here[link:../ruby-z80_0.91+conv_0.3.zip]
 
 ==Requirements
 ====ruby 1.9

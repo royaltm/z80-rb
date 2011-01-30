@@ -10,12 +10,13 @@ class ZXGfxMore
   #  hl: input: sprite address
   #  a:  input: sprite height (1..192)
   #  a`: input: sprite width in bytes (1..32)
+  #  bc: input: x - coordinate (-32768..32767) [screen area: 0-255]
+  #  de: input: y - coordinate (-32768..32767) [screen area: 0-191]
+  #  f:  input: flags -> f'
+  #  ix: input: jump to ix
   #  CF: input: 0: xor mode, 1: and+or mode, 0: clear mode, 1: or mode
   #  ZF: input: 1:                         , 0:
   #      when CF=ZF=1 sprite address skip bytes from left margin calculations take mask into account
-  #  bc: input: x - coordinate (-32768..32767) [screen area: 0-255]
-  #  de: input: y - coordinate (-32768..32767) [screen area: 0-191]
-  #  ix: input: jump to ix
   #  de: output: sprite address
   #  h:  output: vertical coordinate   (0..191)
   #  l:  output: horizontal coordinate (0..255)

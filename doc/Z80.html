@@ -99,6 +99,8 @@
           
           <li><a href="#method-c-add_reloc">::add_reloc</a></li>
           
+          <li><a href="#method-i-5B-5D">#[]</a></li>
+          
           <li><a href="#method-i-debug">#debug</a></li>
           
         </ul>
@@ -160,6 +162,14 @@
           <li><a href="./Z80/TAP.html">Z80::TAP</a></li>
         
           <li><a href="./Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+        
+          <li><a href="./Z80Lib.html">Z80Lib</a></li>
+        
+          <li><a href="./Z80Lib/Macros.html">Z80Lib::Macros</a></li>
+        
+          <li><a href="./Z80MathInt.html">Z80MathInt</a></li>
+        
+          <li><a href="./Z80MathInt/Macros.html">Z80MathInt::Macros</a></li>
         
           <li><a href="./Symbol.html">Symbol</a></li>
         
@@ -250,6 +260,21 @@ href="Z80/Program.html#method-i-ns">Program.ns</a>)</p>
         </div>
       </div>
       
+      <div id="labels-attribute-method" class="method-detail">
+        <a name="labels"></a>
+        
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">labels</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>evaluated label values</p>
+        
+        </div>
+      </div>
+      
     </div>
     
 
@@ -280,7 +305,7 @@ placed here to not pollute <b>program</b> namespace</p>
           <div class="method-source-code"
             id="add_code-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 101</span>
+<span class="ruby-comment"># File z80.rb, line 107</span>
 def add_code(prg, data, type = 1, mnemo = nil, *mpar)
   raise <span class="ruby-constant">TypeError</span> unless data.is_a? <span class="ruby-constant">String</span>
   l = <span class="ruby-constant">Label</span>.new(pc = prg.pc, type, :code)
@@ -319,7 +344,7 @@ placed here to not pollute <b>program</b> namespace</p>
           <div class="method-source-code"
             id="add_reloc-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 110</span>
+<span class="ruby-comment"># File z80.rb, line 116</span>
 def add_reloc(prg, label, size, offset = 0, from = nil)
   if (label = label.to_label(prg).to_alloc).immediate? and (size == 2 or from)
     [label.to_i(0, size == 1 ? :self : nil)].pack(size == 1 ? <span class="ruby-string">'c'</span> : <span class="ruby-string">'s'</span>)
@@ -342,6 +367,40 @@ end</pre>
   
     <div id="public-instance-method-details" class="method-section section">
       <h3 class="section-header">Public Instance Methods</h3>
+
+    
+      <div id="5B-5D-method" class="method-detail ">
+        <a name="method-i-5B-5D"></a>
+
+        
+        <div class="method-heading">
+          <span class="method-name">[]</span><span
+            class="method-args">(label)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns relocated label value</p>
+          
+
+          
+          <div class="method-source-code"
+            id="5B-5D-source">
+<pre>
+<span class="ruby-comment"># File z80.rb, line 29</span>
+def [](label)
+  <span class="ruby-ivar">@labels</span>[label.to_s]
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
 
     
       <div id="debug-method" class="method-detail ">
@@ -375,7 +434,7 @@ Strings.</p>
 8031: CB23        sla  e
 8033: CB12        rl   d
 8035: D22880      jp   NC, 8028H       -&gt; loop1
-8038: 4D          ld   c, l
+8038: 4D          ld   c, l            :mul.ok
 8039: 44          ld   b, h
 803A: D0          ret  NC
 803B: CF          rst  08H
@@ -387,7 +446,7 @@ Strings.</p>
           <div class="method-source-code"
             id="debug-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 50</span>
+<span class="ruby-comment"># File z80.rb, line 56</span>
 def debug
   return <span class="ruby-ivar">@debug</span> if <span class="ruby-ivar">@debug</span>
   reloc = self.class.reloc

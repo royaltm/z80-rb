@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+
+  <title>Module: Z80MathInt::Macros</title>
+
+  <link rel="stylesheet" href="../rdoc.css" type="text/css" media="screen" />
+
+  <script src="../js/jquery.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/thickbox-compressed.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/quicksearch.js" type="text/javascript"
+    charset="utf-8"></script>
+  <script src="../js/darkfish.js" type="text/javascript"
+    charset="utf-8"></script>
+
+</head>
+<body class="module">
+
+  <div id="metadata">
+    <div id="home-metadata">
+      <div id="home-section" class="section">
+        <h3 class="section-header">
+          <a href="../index.html">Home</a>
+          <a href="../index.html#classes">Classes</a>
+          <a href="../index.html#methods">Methods</a>
+        </h3>
+      </div>
+    </div>
+
+    <div id="file-metadata">
+      <div id="file-list-section" class="section">
+        <h3 class="section-header">In Files</h3>
+        <div class="section-body">
+          <ul>
+          
+            <li><a href="../z80/math_i_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="z80/math_i.rb">z80/math_i.rb</a></li>
+          
+          </ul>
+        </div>
+      </div>
+
+      
+    </div>
+
+    <div id="class-metadata">
+
+      <!-- Parent Class -->
+      
+
+      <!-- Namespace Contents -->
+      
+
+      <!-- Method Quickref -->
+      
+      <div id="method-list-section" class="section">
+        <h3 class="section-header">Methods</h3>
+        <ul class="link-list">
+          
+          <li><a href="#method-i-adda_to">#adda_to</a></li>
+          
+          <li><a href="#method-i-mul8">#mul8</a></li>
+          
+          <li><a href="#method-i-mul8_c">#mul8_c</a></li>
+          
+          <li><a href="#method-i-multi16_32">#multi16_32</a></li>
+          
+          <li><a href="#method-i-sub_from">#sub_from</a></li>
+          
+        </ul>
+      </div>
+      
+
+      <!-- Included Modules -->
+      
+    </div>
+
+    <div id="project-metadata">
+      
+      
+      <div id="fileindex-section" class="section project-section">
+        <h3 class="section-header">Files</h3>
+        <ul>
+        
+          <li class="file"><a href="../README_txt.html">README.txt</a></li>
+        
+        </ul>
+      </div>
+      
+
+      <div id="classindex-section" class="section project-section">
+        <h3 class="section-header">Class/Module Index
+          <span class="search-toggle"><img src="../images/find.png"
+            height="16" width="16" alt="[+]"
+            title="show/hide quicksearch" /></span></h3>
+        <form action="#" method="get" accept-charset="utf-8" class="initially-hidden">
+        <fieldset>
+          <legend>Quicksearch</legend>
+          <input type="text" name="quicksearch" value=""
+            class="quicksearch-field" />
+        </fieldset>
+        </form>
+
+        <ul class="link-list">
+        
+          <li><a href="../Z80.html">Z80</a></li>
+        
+          <li><a href="../Z80/Alloc.html">Z80::Alloc</a></li>
+        
+          <li><a href="../Z80/CompileError.html">Z80::CompileError</a></li>
+        
+          <li><a href="../Z80/Helpers.html">Z80::Helpers</a></li>
+        
+          <li><a href="../Z80/Label.html">Z80::Label</a></li>
+        
+          <li><a href="../Z80/Program.html">Z80::Program</a></li>
+        
+          <li><a href="../Z80/Program/Condition.html">Z80::Program::Condition</a></li>
+        
+          <li><a href="../Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
+        
+          <li><a href="../Z80/Program/Register.html">Z80::Program::Register</a></li>
+        
+          <li><a href="../Z80/Syntax.html">Z80::Syntax</a></li>
+        
+          <li><a href="../Z80/TAP.html">Z80::TAP</a></li>
+        
+          <li><a href="../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+        
+          <li><a href="../Z80Lib.html">Z80Lib</a></li>
+        
+          <li><a href="../Z80Lib/Macros.html">Z80Lib::Macros</a></li>
+        
+          <li><a href="../Z80MathInt.html">Z80MathInt</a></li>
+        
+          <li><a href="../Z80MathInt/Macros.html">Z80MathInt::Macros</a></li>
+        
+          <li><a href="../Symbol.html">Symbol</a></li>
+        
+        </ul>
+        <div id="no-class-search-results" style="display: none;">No matching classes.</div>
+      </div>
+
+      
+    </div>
+  </div>
+
+  <div id="documentation">
+    <h1 class="module">Z80MathInt::Macros</h1>
+
+    <div id="description">
+      
+    </div>
+
+    <!-- Constants -->
+    
+
+    <!-- Attributes -->
+    
+
+    <!-- Methods -->
+    
+    <div id="public-instance-method-details" class="method-section section">
+      <h3 class="section-header">Public Instance Methods</h3>
+
+    
+      <div id="adda_to-method" class="method-detail ">
+        <a name="method-i-adda_to"></a>
+
+        
+        <div class="method-heading">
+          <span class="method-name">adda_to</span><span
+            class="method-args">(h, l)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>adds a to h,l uses: <tt>a</tt>, <tt>h</tt>, <tt>l</tt></p>
+<table class="rdoc-list"><tr><td class="rdoc-term"><p><tt>h</tt></p></td>
+<td>
+<p>register input accumulator hi</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>l</tt></p></td>
+<td>
+<p>register input accumulator lo</p>
+</td></tr></table>
+          
+
+          
+          <div class="method-source-code"
+            id="adda_to-source">
+<pre>
+<span class="ruby-comment"># File z80/math_i.rb, line 8</span>
+def adda_to(h, l) <span class="ruby-comment"># 20</span>
+    if h == l or [h,l].include?(a)
+        raise <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;adda_to invalid arguments!&quot;</span>
+    end
+    ns do
+        add  l
+        ld   l, a
+        adc  h
+        sub  l
+        ld   h, a
+    end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="mul8-method" class="method-detail ">
+        <a name="method-i-mul8"></a>
+
+        
+        <div class="method-heading">
+          <span class="method-name">mul8</span><span
+            class="method-args">(mh=h, ml=l, m=a, th=d, tl=e, clrhl = true, double = false)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>performs multiplication 16bit mh, ml * 8bit m using (m, hl, th|tl) -&gt; hl
+(optionally) adds result to hl (optionally) multiplies multiplicator * 2
+uses: <tt>hl</tt>, <tt>m</tt>, <tt>mh</tt>, <tt>ml</tt>, <tt>th</tt>,
+<tt>tl</tt></p>
+<table class="rdoc-list"><tr><td class="rdoc-term"><p><tt>mh</tt></p></td>
+<td>
+<p>register/value input multiplicant hi</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>ml</tt></p></td>
+<td>
+<p>register/value input multiplicant lo</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>m</tt></p></td>
+<td>
+<p>register input multiplicator</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>th</tt></p></td>
+<td>
+<p>register temporary (d or b)</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>tl</tt></p></td>
+<td>
+<p>register temporary (e or c)</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>clrhl</tt></p></td>
+<td>
+<p>should hl be set (true) or accumulated (false)</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>double</tt></p></td>
+<td>
+<p>should th|tl * 2 (true) or not (false)</p>
+</td></tr></table>
+          
+
+          
+          <div class="method-source-code"
+            id="mul8-source">
+<pre>
+<span class="ruby-comment"># File z80/math_i.rb, line 75</span>
+def mul8(mh=h, ml=l, m=a, th=d, tl=e, clrhl = true, double = false)
+  raise <span class="ruby-constant">ArgumentError</span> if th|tl == hl or [th,tl].include?(m) or tl == mh or th == ml
+  ns do |eoc|
+          ld  tl, ml unless ml == tl
+          ld  th, mh unless mh == th
+          ld  hl, 0 if clrhl
+          jp  muls1 unless double
+    loop1 sla  tl
+          rl   th
+    muls1 srl  m
+          jr  <span class="ruby-constant">NC</span>, noadd
+          add hl, de
+    noadd jr  <span class="ruby-constant">NZ</span>, loop1
+  end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="mul8_c-method" class="method-detail ">
+        <a name="method-i-mul8_c"></a>
+
+        
+        <div class="method-heading">
+          <span class="method-name">mul8_c</span><span
+            class="method-args">(mh=h, ml=l, m=a, th=d, tl=e, clrhl = true)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>performs multiplication 16bit mh, ml * 8bit m using (m, hl, th|tl) -&gt; hl
+breaks on carry out with CF=1 (optionally) adds result to hl uses:
+<tt>hl</tt>, <tt>m</tt>, <tt>mh</tt>, <tt>ml</tt>, <tt>th</tt>, <tt>tl</tt></p>
+<table class="rdoc-list"><tr><td class="rdoc-term"><p><tt>mh</tt></p></td>
+<td>
+<p>register/value input multiplicant hi</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>ml</tt></p></td>
+<td>
+<p>register/value input multiplicant lo</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>m</tt></p></td>
+<td>
+<p>register input multiplicator</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>th</tt></p></td>
+<td>
+<p>register temporary (d or b)</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>tl</tt></p></td>
+<td>
+<p>register temporary (e or c)</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>clrhl</tt></p></td>
+<td>
+<p>should hl be set (true) or accumulated (false)</p>
+</td></tr></table>
+          
+
+          
+          <div class="method-source-code"
+            id="mul8_c-source">
+<pre>
+<span class="ruby-comment"># File z80/math_i.rb, line 48</span>
+def mul8_c(mh=h, ml=l, m=a, th=d, tl=e, clrhl = true)
+  raise <span class="ruby-constant">ArgumentError</span> if th|tl == hl or [th,tl].include?(m) or tl == mh or th == ml
+  ns do |eoc|
+          ld  tl, ml unless ml == tl
+          ld  th, mh unless mh == th
+          ld  hl, 0 if clrhl
+    loop1 srl m
+          jr  <span class="ruby-constant">NC</span>, noadd
+          add hl, th|tl
+          jr  <span class="ruby-constant">C</span>, eoc
+    noadd jr  <span class="ruby-constant">Z</span>, eoc
+    skip1 sla tl
+          rl  th
+          jp  <span class="ruby-constant">NC</span>, loop1
+  end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="multi16_32-method" class="method-detail ">
+        <a name="method-i-multi16_32"></a>
+
+        
+        <div class="method-heading">
+          <span class="method-name">multi16_32</span><span
+            class="method-args">(mh, ml, rr)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>multiply hl by mh|ml (b|c or d|e) and stores result in hl rr (bc | de)
+<b>UNTESTED</b></p>
+          
+
+          
+          <div class="method-source-code"
+            id="multi16_32-source">
+<pre>
+<span class="ruby-comment"># File z80/math_i.rb, line 92</span>
+def multi16_32(mh, ml, rr)
+  ns do
+        th = mh == b ? d : b
+        tl = ml == c ? e : c
+        ld  a, ml
+        ex af,af
+        xor a
+        push af
+        ld  tl, a
+        ld  th, a
+        ld  a, mh
+        ld  ml, l
+        ld  mh, h
+        ld  h, th
+        ld  l, tl
+        scf
+        adc a
+  loop1 jr  <span class="ruby-constant">NC</span>, noadd1
+        ex  (sp), hl
+        add hl, th|tl
+        ex  (sp), hl
+        adc hl, mh|ml
+  nadd1 srl mh
+        rr  ml
+        rr  th
+        add a
+        jp  <span class="ruby-constant">NZ</span>, loop1
+        ex  af, af
+        add a
+  loop2 jr  <span class="ruby-constant">NC</span>, nadd2
+        ex  (sp), hl
+        add hl, th|tl
+        ex  (sp), hl
+        adc hl, mh|ml
+  nadd2 srl ml
+        rr  th
+        rr  tl
+        add a
+        jp  <span class="ruby-constant">NZ</span>, loop2
+        pop rr
+  end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="sub_from-method" class="method-detail ">
+        <a name="method-i-sub_from"></a>
+
+        
+        <div class="method-heading">
+          <span class="method-name">sub_from</span><span
+            class="method-args">(r, h, l)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>subs r from h,l uses: <tt>a</tt>, <tt>r</tt>, <tt>h</tt>, <tt>l</tt></p>
+<table class="rdoc-list"><tr><td class="rdoc-term"><p><tt>r</tt></p></td>
+<td>
+<p>register subtractor must not be <tt>a</tt></p>
+</td></tr><tr><td class="rdoc-term"><p><tt>h</tt></p></td>
+<td>
+<p>register input accumulator hi</p>
+</td></tr><tr><td class="rdoc-term"><p><tt>l</tt></p></td>
+<td>
+<p>register input accumulator lo</p>
+</td></tr></table>
+          
+
+          
+          <div class="method-source-code"
+            id="sub_from-source">
+<pre>
+<span class="ruby-comment"># File z80/math_i.rb, line 25</span>
+def sub_from(r, h, l) <span class="ruby-comment"># 24</span>
+    if h == l or [r,h,l].include?(a)
+        raise <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;adda_to invalid arguments!&quot;</span>
+    end
+    ns do
+      ld   a, l
+      sub  r
+      ld   l, a
+      sbc  a
+      add  h
+      ld   h, a
+    end
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </div>
+  
+
+  </div>
+
+  <div id="validator-badges">
+    <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+    <p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
+      Rdoc Generator</a> 2</small>.</p>
+  </div>
+
+</body>
+</html>
+

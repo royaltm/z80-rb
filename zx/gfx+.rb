@@ -587,4 +587,81 @@ shftixy   ex   [sp], hl # jump -> (sp), screen addr -> hl
   copy    memtosrc
           ret
   end
+  
+  # h: input: row
+  # l: input: column
+  # a: input: attr
+  # b: input: width
+  # c: input: height
+  export attr_set
+  ns :attr_set do
+          ex   af, af         # attr -> af'
+          ld   d, h
+          rctoattr(d, l, h, l)
+          ld   a, 0x20
+          sub  b              # skip line hl
+          ex   af, af         # hl +skip <-> attr
+          ld   e, b
+  hloop   ld   [hl], a        # 7
+          inc  hl             # 6
+          djnz hloop          # 13/8
+          ex   af, af         # 4
+          ld   b, a           # 4
+          adda_to h, l        # 20
+          ld   a, b           # 4
+          ex   af, af         # 4
+          ld   b, e           # 4
+          dec  c              # 4
+          jp   NZ, hloop      # 10
+          ret
+  end
+
+  # h:  input: row
+  # l:  input: column
+  # de: input: sprite addr
+  # b:  input: height
+  # c:  input: width
+  export attr_copy
+  ns :attr_copy do |eoc|
+          ld   a, b
+          ex   af, af
+          ld   b, h
+          rctoattr(b, l, h, l)
+          ld   b, 0
+          ex   de, hl
+          ld   a, 0x20
+          sub  c        # skip line hl
+          exx
+          ld   e, a
+          ld   d, 0
+          push de
+          exx
+          jr   skip1
+    loop1 ex   af, af   # 4
+    skip1 ld   a, c     # 4
+          ldir          # 21*(c-1)+16
+          ld   c, a     # 4
+          ex   [sp], hl # 4
+          ex   de, hl   # 4
+          add  hl, de   # 11
+          ex   de, hl   # 4
+          ex   [sp], hl # 4
+          ex   af, af   # 4
+          dec  a        # 4
+          jp   NZ, loop1 # 10
+          pop  bc
+          ret
+  end
+  # ns :attr_set do
+  # hloop   push bc             # 11
+          # ld   b, 0           # 7
+          # ldir                # 21*(w-1)+16
+          # ld   b, a           # 4
+          # adda_to h, l        # 20
+          # ld   a, b           # 4
+          # adda_to d, e        # 20
+          # pop  bc             # 10
+          # djnz hloop          # 13/8
+          
+  # end
 end

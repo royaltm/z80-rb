@@ -100,6 +100,8 @@
           
           <li><a href="#method-i-label">#label</a></li>
           
+          <li><a href="#method-i-label_defined-3F">#label_defined?</a></li>
+          
           <li><a href="#method-i-macro">#macro</a></li>
           
           <li><a href="#method-i-method_missing">#method_missing</a></li>
@@ -186,6 +188,14 @@
           <li><a href="../Z80/TAP.html">Z80::TAP</a></li>
         
           <li><a href="../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+        
+          <li><a href="../Z80Lib.html">Z80Lib</a></li>
+        
+          <li><a href="../Z80Lib/Macros.html">Z80Lib::Macros</a></li>
+        
+          <li><a href="../Z80MathInt.html">Z80MathInt</a></li>
+        
+          <li><a href="../Z80MathInt/Macros.html">Z80MathInt::Macros</a></li>
         
           <li><a href="../Symbol.html">Symbol</a></li>
         
@@ -320,14 +330,14 @@
 <pre>
 <span class="ruby-comment"># File z80/labels.rb, line 36</span>
 def [](label)
-        label = label.first while label.is_a?(<span class="ruby-constant">Array</span>)
-        if label.respond_to?(:to_label) or label.is_a?(<span class="ruby-constant">Register</span>)
-                label[]
-        elsif label.is_a?(<span class="ruby-constant">Condition</span>)
-                raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid pointer argument.&quot;</span>
-        else
-                <span class="ruby-constant">Label</span>.new(label.to_i, 1)[]
-        end
+  label = label.first while label.is_a?(<span class="ruby-constant">Array</span>)
+  if label.respond_to?(:to_label) or label.is_a?(<span class="ruby-constant">Register</span>)
+    label[]
+  elsif label.is_a?(<span class="ruby-constant">Condition</span>)
+    raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid pointer argument.&quot;</span>
+  else
+    <span class="ruby-constant">Label</span>.new(label.to_i, 1)[]
+  end
 end</pre>
           </div>
           
@@ -367,9 +377,9 @@ bar addr 0x4000, 2</pre>
           <div class="method-source-code"
             id="addr-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 65</span>
+<span class="ruby-comment"># File z80/labels.rb, line 73</span>
 def addr(address, type = 1)
-        <span class="ruby-constant">Label</span>.new address, type
+  <span class="ruby-constant">Label</span>.new address, type
 end</pre>
           </div>
           
@@ -409,7 +419,7 @@ href="Program.html#method-i-data">Program.data</a>.</p>
           <div class="method-source-code"
             id="bytes-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 145</span>
+<span class="ruby-comment"># File z80/labels.rb, line 153</span>
 def bytes(*args); data(1, *args); end</pre>
           </div>
           
@@ -485,42 +495,42 @@ size <tt>type.to_i</tt> * <tt>size</tt>.</p>
           <div class="method-source-code"
             id="data-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 102</span>
+<span class="ruby-comment"># File z80/labels.rb, line 110</span>
 def data(type = 1, size = nil, data = nil)
-        data, size = size, nil if size.respond_to? :to_a
-        data = if type.respond_to? :to_data
-                data||= []
-                type.to_data(*data)
-        elsif data.respond_to? :to_a
-                size||= data.to_a.size
-                data.to_a[0,size].each_with_index.map do |d,i|
-                        case type.to_i
-                        when 1
-                                if d.respond_to? :to_label
-                                        <span class="ruby-constant">Z80</span>::add_reloc(self, d, 1, i, :self)
-                                else
-                                        [d].pack(<span class="ruby-string">'c'</span>)
-                                end
-                        when 2
-                                if d.respond_to? :to_label
-                                        <span class="ruby-constant">Z80</span>::add_reloc(self, d, 2, i*2)
-                                else
-                                        [d].pack(<span class="ruby-string">'s'</span>)
-                                end
-                        else
-                                raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid data type&quot;</span>
-                        end
-                end.join
-        elsif data.respond_to? :to_s
-                size||= data.to_s.bytesize
-                type = 1
-                data.to_s
+  data, size = size, nil if size.respond_to? :to_a
+  data = if type.respond_to? :to_data
+    data||= []
+    type.to_data(self, 0, *data)
+  elsif data.respond_to? :to_a
+    size||= data.to_a.size
+    data.to_a[0,size].each_with_index.map do |d,i|
+      case type.to_i
+      when 1
+        if d.respond_to? :to_label
+          <span class="ruby-constant">Z80</span>::add_reloc(self, d, 1, i, :self)
+        else
+          [d].pack(<span class="ruby-string">'c'</span>)
         end
-        size||= 1
-        size*= type.to_i
-        data||= 0.chr * size
-        data = data.ljust(size, <span class="ruby-string">&quot;\x0&quot;&quot;</span>) if data.bytesize &lt; size
-        <span class="ruby-constant">Z80</span>::add_code(self, data[0,size], type)
+      when 2
+        if d.respond_to? :to_label
+          <span class="ruby-constant">Z80</span>::add_reloc(self, d, 2, i*2)
+        else
+          [d].pack(<span class="ruby-string">'s'</span>)
+        end
+      else
+        raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid data type&quot;</span>
+      end
+    end.join
+  elsif data.respond_to? :to_s
+    size||= data.to_s.bytesize
+    type = 1
+    data.to_s
+  end
+  size||= 1
+  size*= type.to_i
+  data||= 0.chr * size
+  data = data.ljust(size, <span class="ruby-string">&quot;\x0&quot;&quot;</span>) if data.bytesize &lt; size
+  <span class="ruby-constant">Z80</span>::add_code(self, data[0,size], type)
 end</pre>
           </div>
           
@@ -558,16 +568,16 @@ be exported or <tt>:noauto</tt> to stop autoexporting.</p>
 <pre>
 <span class="ruby-comment"># File z80/labels.rb, line 19</span>
 def export(label)
-        case label
-        when :auto
-                <span class="ruby-ivar">@autoexport</span> = true
-        when :noauto
-                <span class="ruby-ivar">@autoexport</span> = false
-        else
-                name = label.to_name
-                raise <span class="ruby-constant">Syntax</span>, &quot;No label name for export: #{label.inspect}.&quot; if name.nil? or name.empty?
-                <span class="ruby-ivar">@exports</span>[name.to_s] = label
-        end
+  case label
+  when :auto
+    <span class="ruby-ivar">@autoexport</span> = true
+  when :noauto
+    <span class="ruby-ivar">@autoexport</span> = false
+  else
+    name = label.to_name
+    raise <span class="ruby-constant">Syntax</span>, &quot;No label name for export: #{label.inspect}.&quot; if name.nil? or name.empty?
+    <span class="ruby-ivar">@exports</span>[name.to_s] = label
+  end
 end</pre>
           </div>
           
@@ -620,7 +630,7 @@ imported code.</p>
           <div class="method-source-code"
             id="import-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 287</span>
+<span class="ruby-comment"># File z80.rb, line 305</span>
 def import(name, program = nil, flags = {})
   unless name.is_a?(<span class="ruby-constant">Symbol</span>)
     flags, program, name = program, name, nil
@@ -701,7 +711,7 @@ href="TAP.html">Z80::TAP</a> in your program</b>.</p>
           <div class="method-source-code"
             id="import_file-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 335</span>
+<span class="ruby-comment"># File z80.rb, line 353</span>
 def import_file(file, type = :any, size = nil, args = {})
   type = type.to_s.upcase.to_sym
   if type == :ANY
@@ -759,9 +769,45 @@ href="Program.html#method-i-pc">Program.pc</a> and is of <tt>type</tt>.</p>
           <div class="method-source-code"
             id="label-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 54</span>
+<span class="ruby-comment"># File z80/labels.rb, line 60</span>
 def label(type = 1)
-        <span class="ruby-constant">Label</span>.new pc, type, :code
+  l = <span class="ruby-constant">Label</span>.new pc, type, :code
+  <span class="ruby-ivar">@debug</span> &lt;&lt; <span class="ruby-constant">DebugInfo</span>.new(pc, 0, nil, nil, <span class="ruby-ivar">@context_labels</span>.dup &lt;&lt; l)
+  l
+end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="label_defined-3F-method" class="method-detail ">
+        <a name="method-i-label_defined-3F"></a>
+
+        
+        <div class="method-heading">
+          <span class="method-name">label_defined?</span><span
+            class="method-args">(name)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>True if label <tt>name</tt> is defined in current context</p>
+          
+
+          
+          <div class="method-source-code"
+            id="label_defined-3F-source">
+<pre>
+<span class="ruby-comment"># File z80/labels.rb, line 49</span>
+def label_defined?(name)
+    <span class="ruby-ivar">@labels</span>.has_key? name.to_s
 end</pre>
           </div>
           
@@ -807,7 +853,7 @@ there.</p>
           <div class="method-source-code"
             id="macro-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 200</span>
+<span class="ruby-comment"># File z80.rb, line 218</span>
 def macro(name, *registers, &amp;mblock)
   raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Macro may be defined only in main program context.&quot;</span> if <span class="ruby-ivar">@contexts</span>.size &gt; 1
   raise <span class="ruby-constant">Syntax</span>, &quot;A label: #{name} is already allocated.&quot; if <span class="ruby-ivar">@labels</span>.has_key?(label.to_s)
@@ -873,41 +919,41 @@ label (not yet defined).</p>
           <div class="method-source-code"
             id="method_missing-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 169</span>
+<span class="ruby-comment"># File z80/labels.rb, line 177</span>
 def method_missing(m, label = nil)
-        <span class="ruby-comment"># puts [m.inspect, label.inspect]*', '</span>
-        name = m.to_s
-        if ct = <span class="ruby-ivar">@contexts</span>.last
-                <span class="ruby-ivar">@labels</span>[name] = if label
-                        label = if label.respond_to? :to_label
-                                label.to_label self
-                        else
-                                <span class="ruby-constant">Label</span>.new label.to_i
-                        end
-                        <span class="ruby-ivar">@dummies</span>.delete_if do |n, lbl, *cts|
-                                if n == name and cts.include? ct.object_id
-                                        lbl.reinitialize label
-                                        true
-                                else
-                                        false
-                                end
-                        end
-                        if ct.has_key? name
-                                ct[name].reinitialize label
-                                label.name = name
-                        else
-                                label.name = name
-                                ct[name] = label
-                        end
-                        if <span class="ruby-ivar">@autoexport</span>
-                                export ct[name]
-                        else
-                                ct[name]
-                        end
-                else
-                        ct[name]||= <span class="ruby-constant">Label</span>.dummy(name)
-                end
+  <span class="ruby-comment"># puts [m.inspect, label.inspect]*', '</span>
+  name = m.to_s
+  if ct = <span class="ruby-ivar">@contexts</span>.last
+    <span class="ruby-ivar">@labels</span>[name] = if label
+      label = if label.respond_to? :to_label
+        label.to_label self
+      else
+        <span class="ruby-constant">Label</span>.new label.to_i
+      end
+      <span class="ruby-ivar">@dummies</span>.delete_if do |n, lbl, *cts|
+        if n == name and cts.include? ct.object_id
+          lbl.reinitialize label
+          true
+        else
+          false
         end
+      end
+      if ct.has_key? name
+        ct[name].reinitialize label
+        label.name = name
+      else
+        label.name = name
+        ct[name] = label
+      end
+      if <span class="ruby-ivar">@autoexport</span>
+        export ct[name]
+      else
+        ct[name]
+      end
+    else
+      ct[name]||= <span class="ruby-constant">Label</span>.dummy(name)
+    end
+  end
 end</pre>
           </div>
           
@@ -940,7 +986,7 @@ initialize(). Returns compiled instance of a <b>program</b>.</p>
           <div class="method-source-code"
             id="new-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 149</span>
+<span class="ruby-comment"># File z80.rb, line 155</span>
 def new(start = 0x0000, *args)
   unless <span class="ruby-ivar">@dummies</span>.empty? and !<span class="ruby-ivar">@contexts</span>.last.any? {|_,v| v.dummy?}
     dummies = <span class="ruby-ivar">@dummies</span>.map {|d| d[0..1]} + <span class="ruby-ivar">@contexts</span>.last.select {|_,v| v.dummy?}.map {|d| d[0..1]}
@@ -954,21 +1000,33 @@ def new(start = 0x0000, *args)
     c[addr, size] = ip.code
     ip
   end
+  eval_labels = proc {|members, prefix|
+    members.map {|n, v|
+      [n = prefix ? &quot;#{prefix}.#{n}&quot; : n, v.to_i(start)] +
+      (if (m = v.instance_variable_get <span class="ruby-string">'@members'</span>)
+        eval_labels[m, n].flatten
+      end || [])
+    }.flatten
+  }
+  labels = <span class="ruby-constant">Hash</span>[*eval_labels[<span class="ruby-ivar">@labels</span>].flatten]
   <span class="ruby-ivar">@reloc</span>.each do |r|
     case r.size
     when 1
       addr = r.from ? r.from : r.addr + 1 + start
       unless (-128..127).include?(i = r.alloc.to_i(start, addr))
-        raise <span class="ruby-constant">CompileError</span>, &quot;Relative relocation out of range at 0x#{'%04x' % r.addr} -&gt; #{i}&quot;
+        raise <span class="ruby-constant">CompileError</span>, &quot;Relative relocation out of range at 0x#{'%04x' % r.addr} -&gt; #{i} #{r.inspect}&quot;
       end
       c[r.addr] = [i].pack(<span class="ruby-string">'c'</span>)
     when 2
       c[r.addr, 2] = [r.alloc.to_i(start)].pack(<span class="ruby-string">'S'</span>)
+    else
+      c[r.addr, r.size] = [r.alloc.to_i(start)].pack(<span class="ruby-string">'Q'</span>)[0, r.size].ljust(r.size, <span class="ruby-string">&quot;\00&quot;&quot;</span>)
     end
   end
   [<span class="ruby-string">'@code'</span>, c,
    <span class="ruby-string">'@org'</span>, start,
    <span class="ruby-string">'@debug'</span>, nil,
+   <span class="ruby-string">'@labels'</span>, labels,
    <span class="ruby-string">'@imports'</span>, imports
   ].each_slice(2) do |n,v|
     p.instance_variable_set n,v
@@ -1020,7 +1078,7 @@ end</pre>
           <div class="method-source-code"
             id="ns-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 238</span>
+<span class="ruby-comment"># File z80.rb, line 256</span>
 def ns(name = nil)
   labels = <span class="ruby-ivar">@labels</span>
   <span class="ruby-ivar">@labels</span> = <span class="ruby-ivar">@labels</span>.dup <span class="ruby-comment">#labels.merge @contexts.last</span>
@@ -1089,7 +1147,7 @@ only an instances of a program have absolute addresses.</p>
           <div class="method-source-code"
             id="org-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 220</span>
+<span class="ruby-comment"># File z80.rb, line 238</span>
 def org(address, pad = 0)
   address = address.to_i &amp; 0xffff
   raise <span class="ruby-constant">Syntax</span>, &quot;The current code pointer: #{pc.to_s 16} is exceeding: #{address.to_i.to_s 16} &quot; if pc &gt; address
@@ -1125,7 +1183,7 @@ end</pre>
           <div class="method-source-code"
             id="pc-source">
 <pre>
-<span class="ruby-comment"># File z80.rb, line 185</span>
+<span class="ruby-comment"># File z80.rb, line 203</span>
 def pc
   <span class="ruby-ivar">@code</span>.bytesize
 end</pre>
@@ -1167,10 +1225,10 @@ different <tt>type</tt>.</p>
           <div class="method-source-code"
             id="union-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 76</span>
+<span class="ruby-comment"># File z80/labels.rb, line 84</span>
 def union(label, type)
-        raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid union argument.&quot;</span> unless label.respond_to?(:to_label) and !label.dummy?
-        <span class="ruby-constant">Label</span>.new label.to_i, type, label.immediate? ? nil : :code
+  raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid union argument.&quot;</span> unless label.respond_to?(:to_label) and !label.dummy?
+  <span class="ruby-constant">Label</span>.new label.to_i, type, label.immediate? ? nil : :code
 end</pre>
           </div>
           
@@ -1210,7 +1268,7 @@ href="Program.html#method-i-data">Program.data</a>.</p>
           <div class="method-source-code"
             id="words-source">
 <pre>
-<span class="ruby-comment"># File z80/labels.rb, line 153</span>
+<span class="ruby-comment"># File z80/labels.rb, line 161</span>
 def words(*args); data(2, *args); end</pre>
           </div>
           

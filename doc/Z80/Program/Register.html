@@ -83,6 +83,8 @@
           
           <li><a href="#method-i-bit8-3F">#bit8?</a></li>
           
+          <li><a href="#method-i-match16-3F">#match16?</a></li>
+          
           <li><a href="#method-i-one_of-3F">#one_of?</a></li>
           
           <li><a href="#method-i-pointer-3F">#pointer?</a></li>
@@ -154,6 +156,14 @@
           <li><a href="../../Z80/TAP.html">Z80::TAP</a></li>
         
           <li><a href="../../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
+        
+          <li><a href="../../Z80Lib.html">Z80Lib</a></li>
+        
+          <li><a href="../../Z80Lib/Macros.html">Z80Lib::Macros</a></li>
+        
+          <li><a href="../../Z80MathInt.html">Z80MathInt</a></li>
+        
+          <li><a href="../../Z80MathInt/Macros.html">Z80MathInt::Macros</a></li>
         
           <li><a href="../../Symbol.html">Symbol</a></li>
         
@@ -405,7 +415,7 @@ registers. Example:</p>
           <div class="method-source-code"
             id="2B-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 75</span>
+<span class="ruby-comment"># File z80/registers.rb, line 82</span>
 def +(other)
         self[other]
 end</pre>
@@ -442,7 +452,7 @@ registers. Example:</p>
           <div class="method-source-code"
             id="2D-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 81</span>
+<span class="ruby-comment"># File z80/registers.rb, line 88</span>
 def -(other)
         self[-other.to_i]
 end</pre>
@@ -480,24 +490,26 @@ ld  [hl], b</pre>
           <div class="method-source-code"
             id="5B-5D-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 54</span>
-def [](index = 0)
-        if name.size == 2
-                if index != 0 and name[0] != ii
-                        raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only ix,iy registers may be indexed pointers.&quot;</span>
-                elsif !(-128..127).include?(index) and !index.respond_to?(:to_alloc)
-                        raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Pointer index out of range.&quot;</span>
-                end
-                raise <span class="ruby-constant">Syntax</span>, &quot;Register #{name} can not be a pointer.&quot; unless r = @@regindex[name + <span class="ruby-string">'_'</span>]
-                r = r.dup
-                r.index = index
-                r
-        elsif pointer?
-                self
-        else
-                raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only 16-bits registers may be pointers.&quot;</span>
-        end
-end</pre>
+<span class="ruby-comment"># File z80/registers.rb, line 59</span>
+              def [](index = 0)
+                      if name.size == 2 or pointer?
+                              if index != 0 and name[0] != ii
+                                      raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only ix,iy registers may be indexed pointers.&quot;</span>
+                              elsif !(-128..127).include?(index) and !index.respond_to?(:to_alloc)
+                                      raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Pointer index out of range.&quot;</span>
+                              end
+                              raise <span class="ruby-constant">Syntax</span>, &quot;Register #{name} can not be a pointer.&quot; unless r = @@regindex[name + <span class="ruby-string">'_'</span>] or (pointer? and r = self)
+                              r = r.dup
+if index.respond_to?(:to_alloc) and !r.index.respond_to?(:to_alloc)
+  r.index = index + r.index
+else
+  r.index = r.index + index
+end
+                              r
+                      else
+                              raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only 16-bits registers may be pointers.&quot;</span>
+                      end
+              end</pre>
           </div>
           
         </div>
@@ -528,8 +540,43 @@ end</pre>
           <div class="method-source-code"
             id="bit8-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 94</span>
+<span class="ruby-comment"># File z80/registers.rb, line 101</span>
 def bit8?; <span class="ruby-ivar">@bit8</span>; end</pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="match16-3F-method" class="method-detail ">
+        <a name="method-i-match16-3F"></a>
+
+        
+        <div class="method-heading">
+          <span class="method-name">match16?</span><span
+            class="method-args">(other)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Checks if <tt>self</tt> can adjoin with <tt>other</tt>:
+<tt>self</tt>|<tt>other</tt></p>
+          
+
+          
+          <div class="method-source-code"
+            id="match16-3F-source">
+<pre>
+<span class="ruby-comment"># File z80/registers.rb, line 41</span>
+def match16?(other)
+                          other.is_a?(<span class="ruby-constant">Register</span>) and ]bc de hl ixhixl iyhiyl].include?(name + other.name)
+end</pre>
           </div>
           
         </div>
@@ -560,7 +607,7 @@ def bit8?; <span class="ruby-ivar">@bit8</span>; end</pre>
           <div class="method-source-code"
             id="one_of-3F-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 95</span>
+<span class="ruby-comment"># File z80/registers.rb, line 102</span>
 def one_of?(ary); ary.include?(name); end</pre>
           </div>
           
@@ -660,7 +707,7 @@ end</pre>
           <div class="method-source-code"
             id="to_debug-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 84</span>
+<span class="ruby-comment"># File z80/registers.rb, line 91</span>
 def to_debug
         if pointer?
                 &quot;(#{name[0,2]}&quot; + if prefix
@@ -700,7 +747,7 @@ end</pre>
           <div class="method-source-code"
             id="to_i-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 93</span>
+<span class="ruby-comment"># File z80/registers.rb, line 100</span>
 def to_i; <span class="ruby-ivar">@opc</span>; end</pre>
           </div>
           
@@ -733,9 +780,9 @@ defining macros that may use registers passed by parameters.</p>
           <div class="method-source-code"
             id="7C-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 42</span>
+<span class="ruby-comment"># File z80/registers.rb, line 47</span>
 def |(other)
-        if other.is_a?(<span class="ruby-constant">Register</span>) and ]bc de hl ixhixl iyhiyl].include?(name + other.name)
+        if match16? other
                 @@regindex[name + other.name] || @@regindex[name[0,2]]
         else
                 raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only paired registers: bc, de, hl, ix, iy can be adjoined.&quot;</span>

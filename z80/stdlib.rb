@@ -1,18 +1,18 @@
 class Z80Lib
   module Macros
     # clears max 256 bytes of memory at dest 
-    # uses: a, b, rr
-    #  dest:    register16/value/nil destination address
-    #  size:    register/value/nil size of area to clear
-    #  value=0: register/value/nil pad byte (nil: a contains pad byte)
-    #    rr:    register16 hl/bc/de/ix/iy tempororary
+    # uses: +a+, +b+, +rr+
+    # +dest+::  register16/value/nil destination address
+    # +size+::  register/value/nil size of area to clear
+    # +value+:: register/value/nil pad byte (nil: a contains pad byte)
+    # +rr+::    register16 hl/bc/de/ix/iy tempororary
     def clrmem8(dest, size, value = 0, rr = hl)
       ns do
-            ld  b, size if size
-            ld  rr, dest if dest
+            ld  b, size if size and size != b
+            ld  rr, dest if dest and dest != rr
             if value == 0
               xor a
-            elsif value
+            elsif value != a
               ld  a, value
             end
       loop1 ld  [rr], a
@@ -21,10 +21,10 @@ class Z80Lib
       end
     end
     # clears memory at dest 
-    # uses: bc, de, hl
-    #  dest:    register16/value/nil destination address
-    #  size:    register/value/nil size of area to clear
-    #  value=0: register/value/nil pad byte (nil: a contains pad byte)
+    # uses: +bc+, +de+, +hl+
+    # +dest+::  register16/value/nil destination address
+    # +size+::  register/value/nil size of area to clear
+    # +value+:: register/value/nil pad byte (nil: a contains pad byte)
     def clrmem(dest, size, value = 0)
       ns do
             if size
@@ -32,7 +32,7 @@ class Z80Lib
             else
               dec bc
             end
-            ld  hl, dest if dest
+            ld  hl, dest if dest and dest != hl
             ld  e, l
             ld  d, h
             inc de
@@ -42,11 +42,11 @@ class Z80Lib
     end
     # copies memory from source to dest
     # if source/dest and size are static detects memory overlaps
-    # uses: bc, de, hl
-    #  dest:      register16/value/nil destination address
-    #  dest:      register16/value/nil source address
-    #  size:      register16/value/nil size of area to clear
-    #  reverse=t: flag (true) use lddr, (false) use ldir
+    # uses: +bc+, +de+, +hl+
+    # +dest+::      register16/value/nil destination address
+    # +dest+::      register16/value/nil source address
+    # +size+::      register16/value/nil size of area to clear
+    # +reverse+::   flag (true) use lddr, (false) use ldir
     def memcpy(dest=de, source=hl, size=bc, reverse = false)
       ns do
         unless dest.is_a?(Register) or source.is_a?(Register)

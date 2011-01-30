@@ -39,11 +39,15 @@ class AYSound
           ora  0b00111000
           ld   b, 0xbf
           out (c), a
+          ld   [is_setup], a
           ret  
   end
-  
+  is_setup addr 30000
   export iterate
   ns :iterate do
+          ld   a, [is_setup]
+          ora  a
+          ret  Z
           call keytonote
           jp setattdec
   end

@@ -137,6 +137,14 @@
         
           <li><a href="../../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
         
+          <li><a href="../../Z80Lib.html">Z80Lib</a></li>
+        
+          <li><a href="../../Z80Lib/Macros.html">Z80Lib::Macros</a></li>
+        
+          <li><a href="../../Z80MathInt.html">Z80MathInt</a></li>
+        
+          <li><a href="../../Z80MathInt/Macros.html">Z80MathInt::Macros</a></li>
+        
           <li><a href="../../Symbol.html">Symbol</a></li>
         
         </ul>
@@ -243,7 +251,7 @@
           <div class="method-source-code"
             id="5B-5D-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 116</span>
+<span class="ruby-comment"># File z80/registers.rb, line 123</span>
 def [](index)
         @@conditions[index]
 end</pre>
@@ -277,7 +285,7 @@ end</pre>
           <div class="method-source-code"
             id="names-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 119</span>
+<span class="ruby-comment"># File z80/registers.rb, line 126</span>
 def names
         @@names.dup
 end</pre>
@@ -311,7 +319,7 @@ end</pre>
           <div class="method-source-code"
             id="new-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 124</span>
+<span class="ruby-comment"># File z80/registers.rb, line 131</span>
 def initialize(name, opc)
         <span class="ruby-ivar">@name</span> = name
         <span class="ruby-ivar">@opc</span> = opc
@@ -352,7 +360,7 @@ end</pre>
           <div class="method-source-code"
             id="to_i-source">
 <pre>
-<span class="ruby-comment"># File z80/registers.rb, line 128</span>
+<span class="ruby-comment"># File z80/registers.rb, line 135</span>
 def to_i
         <span class="ruby-ivar">@opc</span>
 end</pre>

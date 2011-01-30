@@ -120,6 +120,7 @@ calc.save_tap('calculator', :append =&gt; true)</pre>
 8031: CB23        sla  e
 8033: CB12        rl   d
 8035: D22880      jp   NC, 8028H       -&gt; loop1
+8038:                                  :mul.ok
 8038: 4D          ld   c, l
 8039: 44          ld   b, h
 803A: D0          ret  NC
@@ -184,11 +185,11 @@ zxconv source destination [options]
   -c, --colors CCC....        list of allowed color indexes (0..7)
   -0..15, --bg N              background color (0..15)
   -r, --ratio N/N             bright/basic color level ratio
-  -l, --[no-]autolevel       apply auto level to source image
+  -l, --[no-]autolevel        apply auto level to source image
   -g, --[no-]autogamma        apply auto gamma to source image
 
   destination format and content:
-  -f, --format t|b|r          zx spectrum data file format
+  -f, --format t|b|r|a        zx spectrum data file format
           t: save as TAP; one file is created
           b: save as binary data; separate files for scr and bitamp
           r: save as ruby source
@@ -209,7 +210,7 @@ zxconv source destination [options]
 
 <h2>Download</h2>
 
-<p><a href="../ruby-z80_0.9+conv_0.2.zip">here</a></p>
+<p><a href="../ruby-z80_0.91+conv_0.3.zip">here</a></p>
 
 <h2>Requirements</h2>
 
@@ -255,6 +256,14 @@ zxconv source destination [options]
     
     <li class="class"><a href="Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
     
+    <li class="class"><a href="Z80Lib.html">Z80Lib</a></li>
+    
+    <li class="module"><a href="Z80Lib/Macros.html">Z80Lib::Macros</a></li>
+    
+    <li class="class"><a href="Z80MathInt.html">Z80MathInt</a></li>
+    
+    <li class="module"><a href="Z80MathInt/Macros.html">Z80MathInt::Macros</a></li>
+    
     <li class="class"><a href="Symbol.html">Symbol</a></li>
     
   </ul>
@@ -280,13 +289,13 @@ zxconv source destination [options]
     
       <li><a href="Z80/Program/Condition.html#method-c-names">::names &mdash; Z80::Program::Condition</a></li>
     
-      <li><a href="Z80/Program/Register.html#method-c-new">::new &mdash; Z80::Program::Register</a></li>
+      <li><a href="Z80/Program/Condition.html#method-c-new">::new &mdash; Z80::Program::Condition</a></li>
     
       <li><a href="Z80/Alloc.html#method-c-new">::new &mdash; Z80::Alloc</a></li>
     
-      <li><a href="Z80/Label.html#method-c-new">::new &mdash; Z80::Label</a></li>
+      <li><a href="Z80/Program/Register.html#method-c-new">::new &mdash; Z80::Program::Register</a></li>
     
-      <li><a href="Z80/Program/Condition.html#method-c-new">::new &mdash; Z80::Program::Condition</a></li>
+      <li><a href="Z80/Label.html#method-c-new">::new &mdash; Z80::Label</a></li>
     
       <li><a href="Z80/TAP.html#method-c-read_data">::read_data &mdash; Z80::TAP</a></li>
     
@@ -294,37 +303,41 @@ zxconv source destination [options]
     
       <li><a href="Z80/Label.html#method-c-word">::word &mdash; Z80::Label</a></li>
     
+      <li><a href="Z80/Label.html#method-i-2A">#* &mdash; Z80::Label</a></li>
+    
       <li><a href="Z80/Alloc.html#method-i-2A">#* &mdash; Z80::Alloc</a></li>
     
-      <li><a href="Z80/Label.html#method-i-2A">#* &mdash; Z80::Label</a></li>
+      <li><a href="Z80/Program/Register.html#method-i-2B">#+ &mdash; Z80::Program::Register</a></li>
     
       <li><a href="Z80/Label.html#method-i-2B">#+ &mdash; Z80::Label</a></li>
     
       <li><a href="Z80/Alloc.html#method-i-2B">#+ &mdash; Z80::Alloc</a></li>
     
-      <li><a href="Z80/Program/Register.html#method-i-2B">#+ &mdash; Z80::Program::Register</a></li>
+      <li><a href="Z80/Label.html#method-i-2B-40">#+@ &mdash; Z80::Label</a></li>
     
       <li><a href="Z80/Alloc.html#method-i-2B-40">#+@ &mdash; Z80::Alloc</a></li>
     
-      <li><a href="Z80/Label.html#method-i-2B-40">#+@ &mdash; Z80::Label</a></li>
+      <li><a href="Z80/Label.html#method-i-2D">#- &mdash; Z80::Label</a></li>
     
       <li><a href="Z80/Program/Register.html#method-i-2D">#- &mdash; Z80::Program::Register</a></li>
     
       <li><a href="Z80/Alloc.html#method-i-2D">#- &mdash; Z80::Alloc</a></li>
     
-      <li><a href="Z80/Label.html#method-i-2D">#- &mdash; Z80::Label</a></li>
+      <li><a href="Z80/Alloc.html#method-i-3E-3E">#>> &mdash; Z80::Alloc</a></li>
     
       <li><a href="Z80/Label.html#method-i-3E-3E">#>> &mdash; Z80::Label</a></li>
     
-      <li><a href="Z80/Alloc.html#method-i-3E-3E">#>> &mdash; Z80::Alloc</a></li>
+      <li><a href="Z80/Program.html#method-i-5B-5D">#[] &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80.html#method-i-5B-5D">#[] &mdash; Z80</a></li>
     
       <li><a href="Z80/Alloc.html#method-i-5B-5D">#[] &mdash; Z80::Alloc</a></li>
     
-      <li><a href="Z80/Label.html#method-i-5B-5D">#[] &mdash; Z80::Label</a></li>
-    
       <li><a href="Z80/Program/Register.html#method-i-5B-5D">#[] &mdash; Z80::Program::Register</a></li>
     
-      <li><a href="Z80/Program.html#method-i-5B-5D">#[] &mdash; Z80::Program</a></li>
+      <li><a href="Z80/Label.html#method-i-5B-5D">#[] &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80MathInt/Macros.html#method-i-adda_to">#adda_to &mdash; Z80MathInt::Macros</a></li>
     
       <li><a href="Z80/Program.html#method-i-addr">#addr &mdash; Z80::Program</a></li>
     
@@ -332,19 +345,23 @@ zxconv source destination [options]
     
       <li><a href="Z80/Program.html#method-i-bytes">#bytes &mdash; Z80::Program</a></li>
     
+      <li><a href="Z80Lib/Macros.html#method-i-clrmem">#clrmem &mdash; Z80Lib::Macros</a></li>
+    
+      <li><a href="Z80Lib/Macros.html#method-i-clrmem8">#clrmem8 &mdash; Z80Lib::Macros</a></li>
+    
       <li><a href="Z80/Helpers.html#method-i-cpl">#cpl &mdash; Z80::Helpers</a></li>
     
       <li><a href="Z80/Program.html#method-i-data">#data &mdash; Z80::Program</a></li>
     
       <li><a href="Z80.html#method-i-debug">#debug &mdash; Z80</a></li>
     
-      <li><a href="Z80/Alloc.html#method-i-deep_clone_with_relocation">#deep_clone_with_relocation &mdash; Z80::Alloc</a></li>
-    
       <li><a href="Z80/Label.html#method-i-deep_clone_with_relocation">#deep_clone_with_relocation &mdash; Z80::Label</a></li>
     
-      <li><a href="Z80/Alloc.html#method-i-dummy-3F">#dummy? &mdash; Z80::Alloc</a></li>
+      <li><a href="Z80/Alloc.html#method-i-deep_clone_with_relocation">#deep_clone_with_relocation &mdash; Z80::Alloc</a></li>
     
       <li><a href="Z80/Label.html#method-i-dummy-3F">#dummy? &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Alloc.html#method-i-dummy-3F">#dummy? &mdash; Z80::Alloc</a></li>
     
       <li><a href="Z80/Alloc.html#method-i-dup">#dup &mdash; Z80::Alloc</a></li>
     
@@ -366,17 +383,29 @@ zxconv source destination [options]
     
       <li><a href="Z80/Program.html#method-i-label">#label &mdash; Z80::Program</a></li>
     
+      <li><a href="Z80/Program.html#method-i-label_defined-3F">#label_defined? &mdash; Z80::Program</a></li>
+    
       <li><a href="Z80/Program.html#method-i-macro">#macro &mdash; Z80::Program</a></li>
     
-      <li><a href="Z80/Program.html#method-i-method_missing">#method_missing &mdash; Z80::Program</a></li>
+      <li><a href="Z80/Program/Register.html#method-i-match16-3F">#match16? &mdash; Z80::Program::Register</a></li>
     
-      <li><a href="Z80/Label.html#method-i-method_missing">#method_missing &mdash; Z80::Label</a></li>
+      <li><a href="Z80Lib/Macros.html#method-i-memcpy">#memcpy &mdash; Z80Lib::Macros</a></li>
     
       <li><a href="Z80/Alloc.html#method-i-method_missing">#method_missing &mdash; Z80::Alloc</a></li>
     
-      <li><a href="Z80/Label.html#method-i-name-3D">#name= &mdash; Z80::Label</a></li>
+      <li><a href="Z80/Label.html#method-i-method_missing">#method_missing &mdash; Z80::Label</a></li>
+    
+      <li><a href="Z80/Program.html#method-i-method_missing">#method_missing &mdash; Z80::Program</a></li>
+    
+      <li><a href="Z80MathInt/Macros.html#method-i-mul8">#mul8 &mdash; Z80MathInt::Macros</a></li>
+    
+      <li><a href="Z80MathInt/Macros.html#method-i-mul8_c">#mul8_c &mdash; Z80MathInt::Macros</a></li>
+    
+      <li><a href="Z80MathInt/Macros.html#method-i-multi16_32">#multi16_32 &mdash; Z80MathInt::Macros</a></li>
     
       <li><a href="Z80/Alloc.html#method-i-name-3D">#name= &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-name-3D">#name= &mdash; Z80::Label</a></li>
     
       <li><a href="Z80/Helpers.html#method-i-neg">#neg &mdash; Z80::Helpers</a></li>
     
@@ -396,47 +425,47 @@ zxconv source destination [options]
     
       <li><a href="Z80/Alloc.html#method-i-pointer-3F">#pointer? &mdash; Z80::Alloc</a></li>
     
-      <li><a href="Z80/Label.html#method-i-reinitialize">#reinitialize &mdash; Z80::Label</a></li>
-    
       <li><a href="Z80/Alloc.html#method-i-reinitialize">#reinitialize &mdash; Z80::Alloc</a></li>
     
-      <li><a href="Z80/Alloc.html#method-i-relocations">#relocations &mdash; Z80::Alloc</a></li>
+      <li><a href="Z80/Label.html#method-i-reinitialize">#reinitialize &mdash; Z80::Label</a></li>
     
       <li><a href="Z80/TAP.html#method-i-save_tap">#save_tap &mdash; Z80::TAP</a></li>
     
       <li><a href="Z80/Program/Register.html#method-i-size">#size &mdash; Z80::Program::Register</a></li>
     
-      <li><a href="Z80/Alloc.html#method-i-to_alloc">#to_alloc &mdash; Z80::Alloc</a></li>
+      <li><a href="Z80MathInt/Macros.html#method-i-sub_from">#sub_from &mdash; Z80MathInt::Macros</a></li>
     
       <li><a href="Z80/Label.html#method-i-to_alloc">#to_alloc &mdash; Z80::Label</a></li>
     
+      <li><a href="Z80/Alloc.html#method-i-to_alloc">#to_alloc &mdash; Z80::Alloc</a></li>
+    
       <li><a href="Z80/Program/Register.html#method-i-to_debug">#to_debug &mdash; Z80::Program::Register</a></li>
-    
-      <li><a href="Z80/Program/Condition.html#method-i-to_i">#to_i &mdash; Z80::Program::Condition</a></li>
-    
-      <li><a href="Z80/Program/Register.html#method-i-to_i">#to_i &mdash; Z80::Program::Register</a></li>
     
       <li><a href="Z80/Label.html#method-i-to_i">#to_i &mdash; Z80::Label</a></li>
     
+      <li><a href="Z80/Program/Register.html#method-i-to_i">#to_i &mdash; Z80::Program::Register</a></li>
+    
       <li><a href="Z80/Alloc.html#method-i-to_i">#to_i &mdash; Z80::Alloc</a></li>
     
-      <li><a href="Z80/Alloc.html#method-i-to_label">#to_label &mdash; Z80::Alloc</a></li>
+      <li><a href="Z80/Program/Condition.html#method-i-to_i">#to_i &mdash; Z80::Program::Condition</a></li>
     
       <li><a href="Z80/Label.html#method-i-to_label">#to_label &mdash; Z80::Label</a></li>
     
+      <li><a href="Z80/Alloc.html#method-i-to_label">#to_label &mdash; Z80::Alloc</a></li>
+    
       <li><a href="Symbol.html#method-i-to_label">#to_label &mdash; Symbol</a></li>
     
-      <li><a href="Z80/Label.html#method-i-to_name">#to_name &mdash; Z80::Label</a></li>
-    
       <li><a href="Z80/Alloc.html#method-i-to_name">#to_name &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-to_name">#to_name &mdash; Z80::Label</a></li>
     
       <li><a href="Z80/Alloc.html#method-i-to_s">#to_s &mdash; Z80::Alloc</a></li>
     
       <li><a href="Z80/Label.html#method-i-to_s">#to_s &mdash; Z80::Label</a></li>
     
-      <li><a href="Z80/Label.html#method-i-to_str">#to_str &mdash; Z80::Label</a></li>
-    
       <li><a href="Z80/Alloc.html#method-i-to_str">#to_str &mdash; Z80::Alloc</a></li>
+    
+      <li><a href="Z80/Label.html#method-i-to_str">#to_str &mdash; Z80::Label</a></li>
     
       <li><a href="Z80/TAP.html#method-i-to_tap">#to_tap &mdash; Z80::TAP</a></li>
     

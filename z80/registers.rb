@@ -38,15 +38,15 @@ module Z80
 				name[-1] == '_'
 			end
       ##
-      #  Checks if +self+ can pair 16-bit register with +other+: +self+|+other+
-      def pairs_with?(other)
+      #  Checks if +self+ can adjoin with +other+: +self+|+other+
+      def match16?(other)
 				other.is_a?(Register) and %w[bc de hl ixhixl iyhiyl].include?(name + other.name)
       end
 			##
 			#  Adjoins two 8 bit registers to form one 16 bit register.
 			#  Usefull when defining macros that may use registers passed by parameters.
 			def |(other)
-				if pairs_with? other
+				if match16? other
 					@@regindex[name + other.name] || @@regindex[name[0,2]]
 				else
 					raise Syntax, "Only paired registers: bc, de, hl, ix, iy can be adjoined."
