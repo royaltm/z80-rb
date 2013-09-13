@@ -158,7 +158,7 @@ module Z80
         dummies = @dummies.map {|d| d[0..1]} + @contexts.last.select {|_,v| v.dummy?}.map {|d| d[0..1]}
         raise CompileError, "Variables not initialized:#{dummies.inspect}"
       end
-      p = super
+      p = super(*args)
       c = @code.dup
       imports = @imports.map do |addr, size, program, arguments|
         ip = program.new(addr + start, *arguments)
