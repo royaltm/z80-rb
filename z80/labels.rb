@@ -89,13 +89,32 @@ module Z80
     ## call-seq:
     #       data(type = 1)
     #       data(type, size = 1)
-    #       data(type, size, data, *data)
-    #       data(type, data, *data)
+    #       data(type, size, *data)
+    #       data(type, *data)
     #
     #  Creates relocable label and adds data to Program.code at Program.pc.
     #  The data size will be of +type.to_i+ multiplied by +size+.
-    #  * +data+ may be a String or an Array (possible containing another Arrays if +type+ is a struct).
-    #  * +data+ is padded with zeroes.
+    #
+    #  The +type+ may be 1 to indicate integers as bytes or 2 to indicate them as words.
+    #
+    #  The +data+ types must be one of the following:
+    #
+    #  * a String - it will be added as an 8bit binary string
+    #  * a convertible Object (with method :to_z80bin which should return binary String)
+    #  * an Integer starting from third argument - it will be added as a byte or word
+    #          depending on the +type+
+    #  * a Label already representing a value or lazy evaluated
+    #  * an Array of integers, strings, convertible objects or labels
+    #           (possibly containing another Arrays - it will be flattened)
+    #
+    #  If the +size+ is specified as a second Integer argument, +data+ will be padded with zeroes
+    #  or cut according to +size+ * +type+.
+    #
+    #  Additionally a +type+ may be a user defined class inherited from the Label, which represents
+    #  a data structure with named fields.
+    #  In this case each +data+ argument must be an Array or a Hash containing data for the structure.
+    #  See Label for more information and examples.
+    #
     #  Example:
     #    # creates label foo of type 2 and fills 10 bytes of code (5 words) with data from array.
     #    foo   data 2, [0, 2, 4, label1, label2]
@@ -113,14 +132,19 @@ module Z80
     #
     #  Returns unnamed +label+ that points to Program.pc and is of +type+ and size +type.to_i+ * +size+.
     def data(type = 1, size = nil, *args)
+      res = ''
       if type.respond_to? :to_data
-        data = size || []
-        res = type.to_data(self, 0, data)
+        unless Integer === size
+          args.unshift size
+          size = args.length
+        end
+        size.times do
+          res << type.to_data(self, 0, args.shift)
+        end
         size = nil
       else
         bsize = type.to_i
         raise Syntax, "Invalid data type" unless bsize == 1 || bsize == 2
-        res = ''
         if Integer === size
           size *= bsize
         else
@@ -140,7 +164,7 @@ module Z80
           elsif Integer === data
             [data].pack(pack_string)
           else
-            data.to_s.force_encoding(Encoding::ASCII_8BIT)
+            data.to_s
           end
         end
       end
@@ -148,10 +172,11 @@ module Z80
         res = res.ljust(size, "\x0") if res.bytesize < size
         res.slice!(size..-1)
       end
-      Z80::add_code(self, res, type)
+      Z80::add_code(self, res.force_encoding(Encoding::ASCII_8BIT), type)
     end
     ## call-seq:
     #       bytes(size = 1, *data)
+    #       bytes(*data)
     #
     #  Creates a label and allocate bytes with Program.data.
     #
@@ -159,13 +184,30 @@ module Z80
     #    data 1, ...
     def bytes(*args); data(1, *args); end
     ## call-seq:
+    #       db(*byte_integers)
+    #
+    #  Creates a label and allocate bytes with Program.data.
+    #
+    #  Shortcut for:
+    #    data 1, [...]
+    def db(*args); data(1, args); end
+    ## call-seq:
     #       words(size = 1, *data)
+    #       words(*data)
     #
     #  Creates a label and allocate words with Program.data.
     #
     #  Shortcut for:
     #    data 2, ...
     def words(*args); data(2, *args); end
+    ## call-seq:
+    #       db(*word_integers)
+    #
+    #  Creates a label and allocate bytes with Program.data.
+    #
+    #  Shortcut for:
+    #    data 2, [...]
+    def dw(*args); data(2, args); end
     ##
     #  If no method +m+ is defined assume it is a label.
     #  Label with no arguments is a label being referenced.
@@ -182,7 +224,6 @@ module Z80
     #
     #  Returns named +label+ that points to +label+ or is a dummy label (not yet defined).
     def method_missing(m, label = nil)
-      # puts [m.inspect, label.inspect]*', '
       name = m.to_s
       if ct = @contexts.last
         @labels[name] = if label
@@ -240,7 +281,7 @@ module Z80
   #
   #  In the above example +data_p+ and +data_pl+ are aliases.
   #
-  #  Allocate label with data in *program*
+  #  Allocate label with data in a *program*
   #    sprite  data SpritePool, [2,
   #             {x:0, y:0, size:12, data_p:sprite1_data},
   #             {x:0, y:0, size:16, data_p:sprite2_data}]
@@ -441,6 +482,7 @@ module Z80
         end
       end
       # Used by Program.data. Do not use it directly.
+      # data must be a Hash, Array, String or convertible Object (with #to_z80bin)
       def to_data(prog, offset, data)
         if data.is_a?(Hash)
           res = "\x0"*@struct_size
@@ -455,11 +497,15 @@ module Z80
               end
             end
           end
+        elsif data.respond_to? :to_z80bin
+          res = data.to_z80bin[0,@struct_size].ljust(@struct_size, "\x0")
+        elsif data.is_a?(String)
+          res = data.dup.force_encoding(Encoding::ASCII_8BIT)[0,@struct_size].ljust(@struct_size, "\x0")
         else
+          data = Array(data)
           res = ''
           index = 0
           @members.reject {|_, m| m.alias}.each do |_, m|
-            puts m
             m.count.times do
               s = member_item_to_data(prog, m, offset, data[index])
               offset += s.bytesize
@@ -483,7 +529,7 @@ module Z80
           [data].pack('Q')
         else
           data.to_s.force_encoding(Encoding::ASCII_8BIT)
-        end[0,len].ljust(len, "\0")
+        end[0,len].ljust(len, "\x0")
       end
       public
       def to_i; @struct_size; end
@@ -495,7 +541,7 @@ module Z80
         if members.nil?
           if defined?(@struct_size)
             members = Hash[@members.map do |_, m|
-              l = if m.type.is_a?(Class) and m.type.respond_to?(:to_data)
+              l = if m.type.is_a?(Class) && m.type.respond_to?(:to_data)
                 m.type.new(addr + m.offset, 1, reloc)
               else
                 super(addr + m.offset, m.type, reloc)
@@ -504,7 +550,7 @@ module Z80
               [m.name, l]
             end]
             super(addr, self, reloc, members)
-          elsif type.is_a?(Class) and type.ancestors.include?(self)
+          elsif type.is_a?(Class) && type.ancestors.include?(self)
             type.new(addr, type.to_i, reloc)
           end
         end || (addr.is_a?(self) ? addr : super)
