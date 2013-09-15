@@ -25,7 +25,7 @@ module Z80
         @autoexport = false
       else
         name = label.to_name
-        raise Syntax, "No label name for export: #{label.inspect}." if name.nil? or name.empty?
+        raise Syntax, "No label name for export: #{label.inspect}." if name.nil? || name.empty?
         @exports[name.to_s] = label
       end
     end
@@ -36,7 +36,7 @@ module Z80
     #    ld  hl, [label]
     def [](label)
       label = label.first while label.is_a?(Array)
-      if label.respond_to?(:to_label) or label.is_a?(Register)
+      if label.respond_to?(:to_label) || label.is_a?(Register)
         label[]
       elsif label.is_a?(Condition)
         raise Syntax, "Invalid pointer argument."
@@ -240,18 +240,6 @@ module Z80
   #
   #  In the above example +data_p+ and +data_pl+ are aliases.
   #
-  #  To peek +data_p+ from second +Sprite+:
-  #    ld  hl, sprite.sprites[1].data_p
-  #  To set register pointing to data_p from second sprite:
-  #    ld  hl, (sprite.sprites*1).data_p
-  #    ld  e, [hl]
-  #    inc hl
-  #    ld  d, [hl]
-  #  or
-  #    ld  ix, sprite
-  #    ld  b, [ix + sprite.numspr]
-  #    ld  l, [ix + sprite.sprites[1].data_pl]
-  #    ld  h, [ix + sprite.sprites[1].data_ph]
   #  Allocate label with data in *program*
   #    sprite  data SpritePool, [2,
   #             {x:0, y:0, size:12, data_p:sprite1_data},
@@ -260,6 +248,24 @@ module Z80
   #    sprite  addr 0x8888, SpritePool
   #  or just a label at Program.pc
   #    someprc label
+  #
+  #  To peek +data_p+ from second +Sprite+:
+  #    ld  hl, [sprite.sprites[1].data_p]
+  #  or
+  #    ld  l, [sprite.sprites[1].data_pl]
+  #    ld  h, [sprite.sprites[1].data_ph]
+  #  To set register pointing to data_p from second sprite:
+  #    ld  hl, sprite.sprites[1].data_p
+  #    ld  e, [hl]
+  #    inc hl
+  #    ld  d, [hl]
+  #  or
+  #    ld  ix, sprite
+  #    ld  b, [ix + sprite.numspr]
+  #    ld  l, [ix + sprite.sprites[1].data_pl]
+  #    ld  h, [ix + sprite.sprites[1].data_ph]
+  #  You may even want to load the offset of a struct member
+  #    ld  a, sprite.sprites[1].data_ph   # -> ld a, 9
   #
   #  ===Label names
   #  Label name may be any valid ruby method name and not a singleton method name of your *program*.
@@ -364,14 +370,12 @@ module Z80
         @size
       end
     end
-    # Returns label indexed by +index+ as a pointer.
-    def [](index = 0)
+    # Returns label indexed by +index+. If +index+ is nil, returns pointer
+    def [](index = nil)
       to_alloc[index]
     end
+
     # Returns label indexed by +index+ but not as a pointer.
-    def *(index)
-      to_alloc * index
-    end
     # Returns label offset by +offset+.
     # It can be an integer or another label.
     def +(offset)
@@ -532,24 +536,23 @@ module Z80
       @size    = false
     end
 
-    def [](index = 0)
-      l = self.*(index)
-      l.instance_variable_set('@pointer', true)
+    def [](index = nil)
+      l = dup
+      if index.nil?
+        l.instance_variable_set('@pointer', true)
+      else
+        index = index.to_i
+        lindex = l.instance_variable_get('@index')
+        if lindex.last and lindex.last.is_a? Integer
+          lindex[-1]+= index
+        else
+          lindex << index unless index.zero?
+        end
+      end
       l
     end
     
     def pointer?; @pointer; end
-
-    def *(index)
-      l = dup
-      lindex = l.instance_variable_get('@index')
-      if lindex.last and lindex.last.is_a? Integer
-        lindex[-1]+= index.to_i
-      else
-        lindex << index.to_i unless index.to_i == 0
-      end
-      l
-    end
 
     def +(other)
       l = dup
