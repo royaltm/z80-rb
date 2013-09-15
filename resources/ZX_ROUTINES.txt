@@ -1,0 +1,334 @@
+0000 START 1
+0008 Error 1
+0010 Print a character 1
+0018 Collect character 1
+0020 Collect next character 1
+0028 Calculator 1
+0030 Make BC spaces 1
+0038 Maskable interrupt 1
+0053 ERROR-2 2
+0066 Non-maskable Interrupt 2
+0074 CH-ADD+1 2
+007D SKIP-OVER 2
+0095 Token tables 3
+0205 Key tables 4
+
+THE KEYBOARD ROUTINES
+028E Keyboard scanning 5
+02BF KEYBOARD 6
+0310 Repeating key 7
+031E K-TEST 7
+0333 Keyboard decoding 8
+
+THE LOUDSPEAKER ROUTINES
+03B5 BEEPER 11
+03F8 BEEP 12
+046E Semi-tone table 14
+
+THE CASSETTE HANDLING ROUTINES
+04C2 SA-BYTES 15
+053F SA/LD-RET 17
+0556 LD-BYTES 17
+05E3 LD-EDGE-2 20
+0605 SAVE-ETC 21
+07CB VERIFY control 26
+0802 Load a data block 26
+0808 LOAD control 27
+08B6 MERGE control 29
+0970 SAVE control 32
+09A1 Cassette messages 32
+
+THE SCREEN & PRINTER HANDLING ROUTINES
+09F4 PRINT-OUT 33
+0A11 Control character table 33
+0A23 Cursor left 33
+0A3D Cursor right 33
+0A4F Carriage return 34
+0A5F Print comma 34
+0A69 Print a question mark 34
+0A6D Control characters with operands 34
+0AD9 PO-ABLE 35
+0ADC Position store 36
+0B03 Position fetch 36
+0B24 Print any character 36
+0B7F Print all characters 37
+0BDB Set attribute byte 39
+0C0A Message printing 39
+0C3B PO-SAVE 40
+0C41 Table search 40
+0C55 Test for scroll 40
+0CF8 'scroll?' message 42
+0D4D Temporary colour items 43
+0D6B CLS command 43
+0DAF Clearing the whole display area 44
+0DD9 CL-SET 45
+0DFE Scrolling 45
+0E44 Clear lines 46
+0E88 CL-ATTR 48
+0E9B CL-ADDR 48
+0EAC COPY command 48
+0ECD COPY-BUFF 49
+0EF4 COPY-LINE 49
+0F2C EDITOR 50
+0F81 ADD-CHAR 51
+0FA0 Editing keys table 52
+0FA9 EDIT key 52
+0FF3 Cursor down editing 53
+1007 Cursor left editing 53
+100C Cursor right editing 53
+1015 DELETE editing 53
+101E ED-IGNORE 53
+1024 ENTER editing 53
+1031 ED-EDGE 53
+1059 Cursor up editing 54
+1076 ED-SYMBOL 54
+107F ED-ERROR 54
+1097 CLEAR-SP 55
+10A8 Keyboard input 55
+111D Lower screen copying 56
+1190 SET-HL 57
+11A7 REMOVE-FP 58
+
+THE EXECUTIVE ROUTINES
+11B7 NEW command 59
+11CB Main entry (Initialisation) 59
+11DA RAM-CHECK 59
+12A2 Main execution loop 61
+1391 Report messages 63
+155D MAIN-ADD 64
+15AF Initial channel information 65
+15C6 Initial stream data 65
+15D4 WAIT-KEY 65
+15E6 INPUT-AD 66
+15EF Main printing 66
+1601 CHAN-OPEN 66
+1615 CHAN-FLAG 67
+162D Channel code look -up table 67
+1634 Channel K flag 67
+1642 Channel S flag 67
+164D Channel P flag 67
+1652 ONE-SPACE 67
+1655 MAKE-ROOM 67
+1664 POINTERS 68
+168F Collect a line number 69
+169E RESERVE 69
+16B0 SET-MIN 69
+16D4 Reclaim the edit-line 70
+16DB INDEXER 70
+16E5 CLOSE # commend 70
+1716 CLOSE stream look-up table 71
+171E Stream data 71
+1736 OPEN # command 71
+177A OPEN stream look-up table 72
+1793 CAT, ERASE, FORMAT & MOVE commands 73
+1795 LIST & LLIST commands 73
+1795 AUTO-LIST 73
+17F5 LLIST 74
+17F9 LIST 74
+1855 Print a whole BASIC line 75
+18B6 NUMBER 76
+18C1 Print a flashing character 77
+18E1 Print the cursor 77
+190F LN-FETCH 77
+1925 Printing characters in a BASIC line 78
+196E LINE-ADDR 79
+1980 Compare line numbers 79
+1988 Find each statement 79
+19B8 NEXT-ONE 80
+19DD Difference 81
+19E5 Reclaiming 81
+19FB E-LINE-NO 82
+1A1B Report and line number printing 82
+
+BASIC LINE AND COMMAND INTERPRETATION
+1A48 Syntax tables 84
+1B17 Main parser (BASIC interpreter) 86
+1B28 Statement loop 87
+1B52 SCAN-LOOP 87
+1B6F SEPARATOR 88
+1B76 STMT-RET 88
+1B8A LINE-RUN 88
+1B9E LINE-NEW 88
+1BB2 REM command 89
+1BB3 LINE-END 89
+1BBF LINE-USE 89
+1BD1 NEXT-LINE 89
+1BEE CHECK-END 90
+1BF4 STMT-NEXT 90
+1C01 Command class table 90
+1C0D Command classes - 00, 03 & 05 90
+1C16 JUMP-C-R 91
+1C1F Command classes - 01, 02 & 04 91
+1C22 Variable In assignment 91
+1C56 Fetch a value 92
+1C79 Expect numeric/string expressions 93
+1C96 Set permanent colours (class 07) 93
+1CBE Command class - 09 94
+1CDB Command class - 0B 94
+1CDE Fetch a number 94
+1CEE STOP command 95
+1CF0 IF command 95
+1D03 FOR command 95
+1D86 LOOK-PROG 96
+1DAB NEXT command 97
+1DDA NEXT-LOOP 97
+1DEC READ command 99
+1E27 DATA command 100
+1E39 PASS-BY 100
+1E42 RESTORE command 100
+
+
+1E4F RANDOMIZE command 100
+1E5F CONTINUE command 101
+1E67 GO TO command 101
+1E7A OUT command 101
+1E80 POKE command 101
+1E85 TWO-PARAM 101
+1E94 Find integers 101
+1EA1 RUN command 102
+1EAC CLEAR command 102
+1EED GO SUB command 103
+1F05 TEST-ROOM 103
+1F1A Free memory 103
+1F23 RETURN command 104
+1F3A PAUSE command 104
+1F54 BREAK-KEY 104
+1F60 DEF FN command 105
+1FC3 UNSTACK-Z 106
+1FC9 LPRINT command 106
+1FCF PRINT command 106
+1FF5 Print a carriage return 107
+1FFC Print items 107
+2045 End of printing 108
+204E Print position 108
+2070 Alter stream 108
+2089 INPUT command 109
+21B9 IN-ASSIGN 111
+21D6 IN-CHAN-K 112
+21E1 Colour item routines 112
+226C CO-CHANGE 114
+2294 BORDER command 115
+22AA Pixel address 115
+22CB Point 116
+22DC PLOT command 116
+2307 STK-TO-BC 117
+2314 STK-TO-A 117
+2320 CIRCLE command 117
+2382 DRAW command 119
+247D Initial parameters 123
+24B7 Line drawing 124
+
+EXPRESSION EVALUATION
+24FB SCANNING 127
+2530 SYNTAX-Z 128
+2535 Scanning SCREEN$ 128
+2580 Scanning ATTR 129
+2596 Scanning function table 129
+25AF Scanning function routines 130
+26C9 Scanning variable routine 133
+2734 Scanning main loop 135
+2795 Table of operators 137
+27B0 Table of priorities 137
+27BD Scanning function (FN) 137
+28AB FN-SKPOVR 141
+28B2 LOOK-VARS 141
+2951 Stack function argument 144
+2996 STK-VAR 145
+2A52 SLICING 148
+2AB6 STK-STORE 150
+2ACC INT-EXP 150
+2AEE DE,(DE+1) 151
+2AF4 GET-HL*DE 151
+2AFF LET command 151
+2BF1 STK-FETCH 157
+2C02 DIM command 157
+2C88 ALPHANUM 159
+2C8D ALPHA 159
+2C9B Decimal to floating-point 160
+2D1B NUMERIC 161
+2D22 STK-DIGIT 162
+2D28 STACK-A 162
+2D2B STACK-BC 162
+2D3B Integer to floating-point 162
+
+THE ARITHMETIC ROUTINES
+2D4F E-format to floating-point 164
+2D7F INT-FETCH 165
+2D8E INT-STORE 165
+2DA2 Floating-point to BC 166
+2DC1 LOG (2^A) 166
+2DD5 Floating-point to A 167
+2DE3 Print a floating-point number 167
+2F8B CA=10*A+C 173
+2F9B Prepare to add 174
+2FBA Fetch two numbers 174
+2FDD Shift addend 175
+3004 ADD-BACK 176
+300F Subtraction (03) 176
+3014 Addition (0F) 176
+30A9 HL=HL*DE 179
+30C0 Prepare to multiply or divide 180
+30CA Multiplication (04) 180
+31AF Division (05) 184
+3214 Integer truncation towards zero (3A) 186
+3293 Re-stack two 188
+3297 RE-STACK (3D) 188
+
+THE FLOATING-POINT CALCULATOR
+32C5 Table of constants 190
+32D7 Table of addresses 190
+335B CALCULATE 192
+33A1 Delete (02) 194
+33A2 Single operation (3B) 194
+33A9 Test 5-spaces 194
+33B4 Stack number 194
+33C0 Move a floating-point number (31) 195
+33C6 Stack literals (34) 195
+33F7 Skip constants 196
+3406 Memory location 196
+340F Get from memory area (E0 etc.) 197
+341B Stack a constant (A0 etc.) 197
+342D Store in memory area (C0 etc.) 197
+343C EXCHANGE (01) 198
+3449 Series generator (86 etc.) 198
+346A Absolute magnitude (2A) 199
+346E Unary minus (1B) 199
+3492 Signum (29) 200
+34A5 IN (2C) 200
+34AC PEEK (2B) 201
+34B3 USR number (2D) 201
+34BC USR string (19) 201
+34E9 TEST-ZERO 202
+34F9 Greater than zero (37) 202
+3501 NOT (30) 202
+3506 Less than zero (36) 203
+350B Zero or one 203
+351B OR (07) 203
+3524 Number AND number (08) 203
+352D String AND number (10) 204
+353B Comparison (09-0E, 11-16) 204
+359C String concatenation (17) 205
+35BF STK-PNTRS 206
+35C9 CHR$ (2F) 206
+35DE VAL and VAL$ (1D,18) 207
+361F STR$ (2E) 208
+3645 Read-in (1A) 208
+3669 CODE (1C) 209
+3674 LEN (1E) 209
+367A Decrease the counter (35) 209
+3686 Jump (33) 209
+368F Jump on true (00) 210
+369B END-CALC (38) 210
+36A0 Modulus (32) 210
+36AF INT (27) 211
+36C4 Exponential (26) 211
+3713 Natural logarithm (25) 213
+3783 Reduce argument (39) 215
+37AA Cosine (20) 216
+37B5 SINE (1 F) 216
+37DA Tan (21) 217
+37E2 ARCTAN (24) 218
+3833 Arcsin (22) 219
+3843 Arccos (23) 220
+384A Square root (28) 220
+3851 Exponentiation (06) 220
