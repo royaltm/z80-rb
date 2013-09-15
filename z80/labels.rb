@@ -89,8 +89,8 @@ module Z80
     ## call-seq:
     #       data(type = 1)
     #       data(type, size = 1)
-    #       data(type, size, data)
-    #       data(type, data)
+    #       data(type, size, data, *data)
+    #       data(type, data, *data)
     #
     #  Creates relocable label and adds data to Program.code at Program.pc.
     #  The data size will be of +type.to_i+ multiplied by +size+.
@@ -103,49 +103,55 @@ module Z80
     #    bar   data 1, 10
     #    # creates label bar and fills 2 words of code with data from array and the rest (3 words) with 0s.
     #    baz   data 2, 10, [1, 2]
-    #    # creates label mystr and fills 12 bytes of code with bytes from string.
-    #    mystr data 1, "Hello World!"
+    #    baz   data 2, 10, 1, 2
+    #    # creates label mystr and fills 12 bytes of code with bytes from string, add byte 10 at the end.
+    #    mystr data 1, "Hello World!", 10
+    #    # creates label mystr and fills 12 bytes of code with bytes from string, add word 4242 at the end
+    #    # and fills additional 14 bytes of code with 0s.
+    #    mystr data 2, 20, "Hello World!", 4242
     #  See: Label for more examples.
     #
     #  Returns unnamed +label+ that points to Program.pc and is of +type+ and size +type.to_i+ * +size+.
-    def data(type = 1, size = nil, data = nil)
-      data, size = size, nil if size.respond_to? :to_a
-      data = if type.respond_to? :to_data
-        data||= []
-        type.to_data(self, 0, *data)
-      elsif data.respond_to? :to_a
-        size||= data.to_a.size
-        data.to_a[0,size].each_with_index.map do |d,i|
-          case type.to_i
-          when 1
-            if d.respond_to? :to_label
-              Z80::add_reloc(self, d, 1, i, :self)
-            else
-              [d].pack('c')
+    def data(type = 1, size = nil, *args)
+      if type.respond_to? :to_data
+        data = size || []
+        res = type.to_data(self, 0, data)
+        size = nil
+      else
+        bsize = type.to_i
+        raise Syntax, "Invalid data type" unless bsize == 1 || bsize == 2
+        res = ''
+        if Integer === size
+          size *= bsize
+        else
+          args.unshift size
+          size = nil
+        end
+        pack_string = bsize == 1 ? 'c' : 's'
+        args.flatten.each_with_index do |data, index|
+          res << 
+          if data.respond_to? :to_label
+            case bsize
+            when 1 then Z80::add_reloc(self, data, 1, index, :self)
+            when 2 then Z80::add_reloc(self, data, 2, index*2)
             end
-          when 2
-            if d.respond_to? :to_label
-              Z80::add_reloc(self, d, 2, i*2)
-            else
-              [d].pack('s')
-            end
+          elsif data.respond_to? :to_z80bin
+            data.to_z80bin
+          elsif Integer === data
+            [data].pack(pack_string)
           else
-            raise Syntax, "Invalid data type"
+            data.to_s.force_encoding(Encoding::ASCII_8BIT)
           end
-        end.join
-      elsif data.respond_to? :to_s
-        size||= data.to_s.bytesize
-        type = 1
-        data.to_s
+        end
       end
-      size||= 1
-      size*= type.to_i
-      data||= 0.chr * size
-      data = data.ljust(size, "\x0") if data.bytesize < size
-      Z80::add_code(self, data[0,size], type)
+      if size
+        res = res.ljust(size, "\x0") if res.bytesize < size
+        res.slice!(size..-1)
+      end
+      Z80::add_code(self, res, type)
     end
     ## call-seq:
-    #       bytes(size = 1, data = nil)
+    #       bytes(size = 1, *data)
     #
     #  Creates a label and allocate bytes with Program.data.
     #
@@ -153,7 +159,7 @@ module Z80
     #    data 1, ...
     def bytes(*args); data(1, *args); end
     ## call-seq:
-    #       words(size = 1, data = nil)
+    #       words(size = 1, *data)
     #
     #  Creates a label and allocate words with Program.data.
     #
@@ -225,33 +231,33 @@ module Z80
   #        data_ph byte
   #        data_p  data_pl word
   #        size    byte
-    #      end
+  #      end
   #
   #      class SpritePool < Label
   #        numspr  byte
   #        sprites Sprite, 2
   #      end
   #
-  #  In the above example +data_p+ and +data_pl+ are unions.
+  #  In the above example +data_p+ and +data_pl+ are aliases.
   #
   #  To peek +data_p+ from second +Sprite+:
-  #    ld  hl, sprite.sprites[2].data_p
+  #    ld  hl, sprite.sprites[1].data_p
   #  To set register pointing to data_p from second sprite:
-  #    ld  hl, (sprite.sprites*2).data_p
+  #    ld  hl, (sprite.sprites*1).data_p
   #    ld  e, [hl]
   #    inc hl
   #    ld  d, [hl]
   #  or
   #    ld  ix, sprite
   #    ld  b, [ix + sprite.numspr]
-  #    ld  l, [ix + sprite.sprites[2].data_pl]
-  #    ld  h, [ix + sprite.sprites[2].data_ph]
+  #    ld  l, [ix + sprite.sprites[1].data_pl]
+  #    ld  h, [ix + sprite.sprites[1].data_ph]
   #  Allocate label with data in *program*
-  #    sprites data SpritePool, [2,
-  #            [0, 0, 12, sprite1],
-  #            [0, 0, 16, sprite2]]
-  #  or with absolute address
-  #    sprites addr 0x8888, SpritePool
+  #    sprite  data SpritePool, [2,
+  #             {x:0, y:0, size:12, data_p:sprite1_data},
+  #             {x:0, y:0, size:16, data_p:sprite2_data}]
+  #  or with an absolute address
+  #    sprite  addr 0x8888, SpritePool
   #  or just a label at Program.pc
   #    someprc label
   #
@@ -360,21 +366,21 @@ module Z80
     end
     # Returns label indexed by +index+ as a pointer.
     def [](index = 0)
-      Alloc.new(self)[index]
+      to_alloc[index]
     end
     # Returns label indexed by +index+ but not as a pointer.
     def *(index)
-      Alloc.new(self) * index
+      to_alloc * index
     end
     # Returns label offset by +offset+.
     # It can be an integer or another label.
     def +(offset)
-      Alloc.new(self) + offset
+      to_alloc + offset
     end
     # Returns label offset by negative +offset+.
     # It can be an integer or another label.
     def -(offset)
-      Alloc.new(self) - offset
+      to_alloc - offset
     end
     def to_label(_); self; end
     # Gives name to no-name label. Do not use it directly.
@@ -385,15 +391,22 @@ module Z80
     end
     # Returns label name or +nil+.
     def to_name; @name; end
-    def to_str; "`#{@name}':#{'%04X'%@address}:#{@size} #{@reloc}#{dummy? ? '?':''}"; end
+    def to_str; "`#{@name}':#{'%04X' % @address}:#{@size} #{@reloc}#{dummy? ? '?':''}"; end
     alias_method :to_s, :to_str
+    def respond_to_missing?(m, include_private=false)
+      m != :to_ary && m != :to_a
+    end
     def method_missing(m)
-      Alloc.new(self).send m
+      if m == :to_ary || m == :to_a
+        super
+      else
+        to_alloc.send m
+      end
     end
     Member = ::Struct.new :name, :offset, :type, :count, :alias
     class << self
       def inherited(klass) # :nodoc:
-        klass.instance_variable_set '@size', 0
+        klass.instance_variable_set '@struct_size', 0
         klass.instance_variable_set '@members', []
       end
       # Struct definition type.
@@ -415,45 +428,69 @@ module Z80
           tsize = struct.is_a?(Integer) ? struct : struct.to_i
           _, mem = @members.assoc(n)
           if mem
-            Member.new(n, mem.offset, struct, count, true)
+            Member.new(nil, mem.offset, struct, count, true)
           else
-            @members << [n, Member.new(n, @size, struct, count, false)]
-            @size+= tsize*count
+            @members << [n, Member.new(n, @struct_size, struct, count, false)]
+            @struct_size+= tsize*count
             nil
           end
         end
       end
       # Used by Program.data. Do not use it directly.
-      def to_data(prog, offset, *data)
-        @members.reject {|_, m| m.alias}.each_with_index.map do |(n, m), i|
-          s = ''
-          m.count.times do
-            d = data.shift
-            len = m.type.to_i
-            s << if m.type.respond_to?(:to_data) and d.is_a?(Array)
-              m.type.to_data(prog, offset, *d)
-            elsif d.is_a?(String)
-              d[0, len]
-            elsif d.respond_to? :to_label
-              Z80::add_reloc(prog, d, len, offset + s.bytesize, len == 1 ? :self : nil)
-            else
-              [d.to_i].pack('Q')[0, len]
-            end.ljust(len, "\0")
+      def to_data(prog, offset, data)
+        if data.is_a?(Hash)
+          res = "\x0"*@struct_size
+          @members.each do |n, m|
+            if data.key?(n.to_sym)
+              items = Array(data[n.to_sym])
+              item_offset = m.offset
+              m.count.times do |index|
+                s = member_item_to_data(prog, m, offset + item_offset, items[index])
+                res[item_offset, size=s.bytesize] = s
+                item_offset += size
+              end
+            end
           end
-          offset+= s.bytesize
-          s
-        end.join
+        else
+          res = ''
+          index = 0
+          @members.reject {|_, m| m.alias}.each do |_, m|
+            puts m
+            m.count.times do
+              s = member_item_to_data(prog, m, offset, data[index])
+              offset += s.bytesize
+              index += 1
+              res << s
+            end
+          end
+        end
+        res
       end
-      attr_reader :size
-      alias :to_i :size
+      private
+      def member_item_to_data(prog, m, offset, data)
+        len = m.type.to_i
+        if m.type.respond_to?(:to_data) && (data.respond_to?(:to_ary) || data.is_a?(Hash))
+          m.type.to_data(prog, offset, data)
+        elsif data.respond_to? :to_label
+          Z80::add_reloc(prog, data, len, offset, len == 1 ? :self : nil)
+        elsif data.respond_to? :to_z80bin
+          data.to_z80bin
+        elsif Integer === data
+          [data].pack('Q')
+        else
+          data.to_s.force_encoding(Encoding::ASCII_8BIT)
+        end[0,len].ljust(len, "\0")
+      end
+      public
+      def to_i; @struct_size; end
       def members_of_struct; @members; end
       # Creates an instance of a label. Do not use it directly.
       # Use Program.data, Program.label, Program.addr, Program.union or prepend any instruction with a name instead.
       # Some instructions like Program.ns can create named labels if given symbolic name.
       def new(addr, type = 1, reloc = nil, members = nil)
         if members.nil?
-          if defined?(@size)
-            members = Hash[@members.map do |n, m|
+          if defined?(@struct_size)
+            members = Hash[@members.map do |_, m|
               l = if m.type.is_a?(Class) and m.type.respond_to?(:to_data)
                 m.type.new(addr + m.offset, 1, reloc)
               else
@@ -567,7 +604,7 @@ module Z80
         if String === i
           '.' + i
         else
-          "*#{i}"
+          "[#{i}]"
         end
       }.join + (if @offset > 0
         "+#@offset"
