@@ -124,7 +124,7 @@ module Z80
     end
   end
   module Program
-    VERSION = "0.9.1"
+    VERSION = "0.9.2"
     # raw, not relocated code
     attr_reader :code
     # relocation table
