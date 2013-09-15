@@ -1,234 +1,191 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+
+<html>
 <head>
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 
-  <title>Class: Z80::Program::Register</title>
+<title>class Z80::Program::Register - ruby-Z80</title>
 
-  <link rel="stylesheet" href="../../rdoc.css" type="text/css" media="screen" />
+<link type="text/css" media="screen" href="../../rdoc.css" rel="stylesheet">
 
-  <script src="../../js/jquery.js" type="text/javascript"
-    charset="utf-8"></script>
-  <script src="../../js/thickbox-compressed.js" type="text/javascript"
-    charset="utf-8"></script>
-  <script src="../../js/quicksearch.js" type="text/javascript"
-    charset="utf-8"></script>
-  <script src="../../js/darkfish.js" type="text/javascript"
-    charset="utf-8"></script>
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../";
+</script>
 
-</head>
-<body class="class">
+<script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/navigation.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/search_index.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/search.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/searcher.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/darkfish.js"></script>
 
-  <div id="metadata">
-    <div id="home-metadata">
-      <div id="home-section" class="section">
-        <h3 class="section-header">
-          <a href="../../index.html">Home</a>
-          <a href="../../index.html#classes">Classes</a>
-          <a href="../../index.html#methods">Methods</a>
-        </h3>
-      </div>
-    </div>
 
-    <div id="file-metadata">
-      <div id="file-list-section" class="section">
-        <h3 class="section-header">In Files</h3>
-        <div class="section-body">
-          <ul>
-          
-            <li><a href="../../z80/registers_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
-              class="thickbox" title="z80/registers.rb">z80/registers.rb</a></li>
-          
-          </ul>
-        </div>
-      </div>
+<body id="top" class="class">
+<nav id="metadata">
+  <nav id="home-section" class="section">
+  <h3 class="section-header">
+    <a href="../../index.html">Home</a>
+    <a href="../../table_of_contents.html#classes">Classes</a>
+    <a href="../../table_of_contents.html#methods">Methods</a>
+  </h3>
+</nav>
 
-      
-    </div>
 
-    <div id="class-metadata">
+  <nav id="search-section" class="section project-section" class="initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <h3 class="section-header">
+      <input type="text" name="search" placeholder="Search" id="search-field"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </h3>
+  </form>
 
-      <!-- Parent Class -->
-      
-      <div id="parent-class-section" class="section">
-        <h3 class="section-header">Parent</h3>
-        
-        <p class="link">Object</p>
-        
-      </div>
-      
+  <ul id="search-results" class="initially-hidden"></ul>
+</nav>
 
-      <!-- Namespace Contents -->
-      
 
-      <!-- Method Quickref -->
-      
-      <div id="method-list-section" class="section">
-        <h3 class="section-header">Methods</h3>
-        <ul class="link-list">
-          
-          <li><a href="#method-c-5B-5D">::[]</a></li>
-          
-          <li><a href="#method-c-names">::names</a></li>
-          
-          <li><a href="#method-c-new">::new</a></li>
-          
-          <li><a href="#method-i-2B">#+</a></li>
-          
-          <li><a href="#method-i-2D">#-</a></li>
-          
-          <li><a href="#method-i-5B-5D">#[]</a></li>
-          
-          <li><a href="#method-i-bit8-3F">#bit8?</a></li>
-          
-          <li><a href="#method-i-match16-3F">#match16?</a></li>
-          
-          <li><a href="#method-i-one_of-3F">#one_of?</a></li>
-          
-          <li><a href="#method-i-pointer-3F">#pointer?</a></li>
-          
-          <li><a href="#method-i-size">#size</a></li>
-          
-          <li><a href="#method-i-to_debug">#to_debug</a></li>
-          
-          <li><a href="#method-i-to_i">#to_i</a></li>
-          
-          <li><a href="#method-i-7C">#|</a></li>
-          
-        </ul>
-      </div>
-      
+  <div id="file-metadata">
+    <nav id="file-list-section" class="section">
+  <h3 class="section-header">Defined In</h3>
+  <ul>
+    <li>z80/registers.rb
+  </ul>
+</nav>
 
-      <!-- Included Modules -->
-      
-    </div>
-
-    <div id="project-metadata">
-      
-      
-      <div id="fileindex-section" class="section project-section">
-        <h3 class="section-header">Files</h3>
-        <ul>
-        
-          <li class="file"><a href="../../README_txt.html">README.txt</a></li>
-        
-        </ul>
-      </div>
-      
-
-      <div id="classindex-section" class="section project-section">
-        <h3 class="section-header">Class/Module Index
-          <span class="search-toggle"><img src="../../images/find.png"
-            height="16" width="16" alt="[+]"
-            title="show/hide quicksearch" /></span></h3>
-        <form action="#" method="get" accept-charset="utf-8" class="initially-hidden">
-        <fieldset>
-          <legend>Quicksearch</legend>
-          <input type="text" name="quicksearch" value=""
-            class="quicksearch-field" />
-        </fieldset>
-        </form>
-
-        <ul class="link-list">
-        
-          <li><a href="../../Z80.html">Z80</a></li>
-        
-          <li><a href="../../Z80/Alloc.html">Z80::Alloc</a></li>
-        
-          <li><a href="../../Z80/CompileError.html">Z80::CompileError</a></li>
-        
-          <li><a href="../../Z80/Helpers.html">Z80::Helpers</a></li>
-        
-          <li><a href="../../Z80/Label.html">Z80::Label</a></li>
-        
-          <li><a href="../../Z80/Program.html">Z80::Program</a></li>
-        
-          <li><a href="../../Z80/Program/Condition.html">Z80::Program::Condition</a></li>
-        
-          <li><a href="../../Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
-        
-          <li><a href="../../Z80/Program/Register.html">Z80::Program::Register</a></li>
-        
-          <li><a href="../../Z80/Syntax.html">Z80::Syntax</a></li>
-        
-          <li><a href="../../Z80/TAP.html">Z80::TAP</a></li>
-        
-          <li><a href="../../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
-        
-          <li><a href="../../Z80Lib.html">Z80Lib</a></li>
-        
-          <li><a href="../../Z80Lib/Macros.html">Z80Lib::Macros</a></li>
-        
-          <li><a href="../../Z80MathInt.html">Z80MathInt</a></li>
-        
-          <li><a href="../../Z80MathInt/Macros.html">Z80MathInt::Macros</a></li>
-        
-          <li><a href="../../Symbol.html">Symbol</a></li>
-        
-        </ul>
-        <div id="no-class-search-results" style="display: none;">No matching classes.</div>
-      </div>
-
-      
-    </div>
+    
   </div>
 
-  <div id="documentation">
-    <h1 class="class">Z80::Program::Register</h1>
+  <div id="class-metadata">
+    
+    <nav id="parent-class-section" class="section">
+  <h3 class="section-header">Parent</h3>
+  
+  <p class="link">Object
+  
+</nav>
 
-    <div id="description">
-      
+    
+    <!-- Method Quickref -->
+<nav id="method-list-section" class="section">
+  <h3 class="section-header">Methods</h3>
+
+  <ul class="link-list">
+    
+    <li><a href="#method-c-5B-5D">::[]</a>
+    
+    <li><a href="#method-c-names">::names</a>
+    
+    <li><a href="#method-c-new">::new</a>
+    
+    <li><a href="#method-i-2B">#+</a>
+    
+    <li><a href="#method-i-2D">#-</a>
+    
+    <li><a href="#method-i-5B-5D">#[]</a>
+    
+    <li><a href="#method-i-bit8-3F">#bit8?</a>
+    
+    <li><a href="#method-i-match16-3F">#match16?</a>
+    
+    <li><a href="#method-i-one_of-3F">#one_of?</a>
+    
+    <li><a href="#method-i-pointer-3F">#pointer?</a>
+    
+    <li><a href="#method-i-size">#size</a>
+    
+    <li><a href="#method-i-to_debug">#to_debug</a>
+    
+    <li><a href="#method-i-to_i">#to_i</a>
+    
+    <li><a href="#method-i-7C">#|</a>
+    
+  </ul>
+</nav>
+
+  </div>
+
+  <div id="project-metadata">
+    <nav id="fileindex-section" class="section project-section">
+  <h3 class="section-header">Pages</h3>
+
+  <ul>
+  
+    <li class="file"><a href="../../README_txt.html">README</a>
+  
+  </ul>
+</nav>
+
+    <nav id="classindex-section" class="section project-section">
+  <h3 class="section-header">Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="../../Z80.html">Z80</a>
+  
+    <li><a href="../../Z80/Alloc.html">Z80::Alloc</a>
+  
+    <li><a href="../../Z80/CompileError.html">Z80::CompileError</a>
+  
+    <li><a href="../../Z80/Helpers.html">Z80::Helpers</a>
+  
+    <li><a href="../../Z80/Label.html">Z80::Label</a>
+  
+    <li><a href="../../Z80/Program.html">Z80::Program</a>
+  
+    <li><a href="../../Z80/Program/Condition.html">Z80::Program::Condition</a>
+  
+    <li><a href="../../Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a>
+  
+    <li><a href="../../Z80/Program/Register.html">Z80::Program::Register</a>
+  
+    <li><a href="../../Z80/Syntax.html">Z80::Syntax</a>
+  
+    <li><a href="../../Z80/TAP.html">Z80::TAP</a>
+  
+    <li><a href="../../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a>
+  
+    <li><a href="../../Z80Lib.html">Z80Lib</a>
+  
+    <li><a href="../../Z80Lib/Macros.html">Z80Lib::Macros</a>
+  
+    <li><a href="../../Z80MathInt.html">Z80MathInt</a>
+  
+    <li><a href="../../Z80MathInt/Macros.html">Z80MathInt::Macros</a>
+  
+    <li><a href="../../Symbol.html">Symbol</a>
+  
+  </ul>
+</nav>
+
+  </div>
+</nav>
+
+<div id="documentation">
+  <h1 class="class">class Z80::Program::Register</h1>
+
+  <div id="description" class="description">
+    
 <p><a href="../../Z80.html">Z80</a> registers are populated as singleton
 methods. You must not create instances of this class directly.</p>
 
-    </div>
+  </div><!-- description -->
 
-    <!-- Constants -->
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
     
 
+    
+
+    
+
+    
     <!-- Attributes -->
-    
-    <div id="attribute-method-details" class="method-section section">
+    <section id="attribute-method-details" class="method-section section">
       <h3 class="section-header">Attributes</h3>
 
       
-      <div id="name-attribute-method" class="method-detail">
-        <a name="name"></a>
-        
-        <div class="method-heading attribute-method-heading">
-          <span class="method-name">name</span><span
-            class="attribute-access-type">[R]</span>
-        </div>
-
-        <div class="method-description">
-        
-        
-        
-        </div>
-      </div>
-      
-      <div id="prefix-attribute-method" class="method-detail">
-        <a name="prefix"></a>
-        
-        <div class="method-heading attribute-method-heading">
-          <span class="method-name">prefix</span><span
-            class="attribute-access-type">[R]</span>
-        </div>
-
-        <div class="method-description">
-        
-        
-        
-        </div>
-      </div>
-      
-      <div id="index-attribute-method" class="method-detail">
-        <a name="index"></a>
-        
-        <a name="index="></a>
-        
+      <div id="attribute-i-index" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">index</span><span
             class="attribute-access-type">[RW]</span>
@@ -241,11 +198,9 @@ methods. You must not create instances of this class directly.</p>
         </div>
       </div>
       
-      <div id="to_str-attribute-method" class="method-detail">
-        <a name="to_str"></a>
-        
+      <div id="attribute-i-name" class="method-detail">
         <div class="method-heading attribute-method-heading">
-          <span class="method-name">to_str</span><span
+          <span class="method-name">name</span><span
             class="attribute-access-type">[R]</span>
         </div>
 
@@ -256,9 +211,20 @@ methods. You must not create instances of this class directly.</p>
         </div>
       </div>
       
-      <div id="to_s-attribute-method" class="method-detail">
-        <a name="to_s"></a>
+      <div id="attribute-i-prefix" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">prefix</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
         
+        
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-to_s" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">to_s</span><span
             class="attribute-access-type">[R]</span>
@@ -271,18 +237,29 @@ methods. You must not create instances of this class directly.</p>
         </div>
       </div>
       
-    </div>
+      <div id="attribute-i-to_str" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">to_str</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+    </section><!-- attribute-method-details -->
     
 
     <!-- Methods -->
     
-    <div id="public-class-method-details" class="method-section section">
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section section">
       <h3 class="section-header">Public Class Methods</h3>
 
     
-      <div id="5B-5D-method" class="method-detail ">
-        <a name="method-c-5B-5D"></a>
-
+      <div id="method-c-5B-5D" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">[]</span><span
@@ -297,26 +274,22 @@ methods. You must not create instances of this class directly.</p>
           
 
           
-          <div class="method-source-code"
-            id="5B-5D-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 18</span>
-def [](index)
-        @@registers[index]
-end</pre>
-          </div>
+          <div class="method-source-code" id="5B-5D-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 18</span>
+<span class="ruby-keyword">def</span> <span class="ruby-operator">[]</span>(<span class="ruby-identifier">index</span>)
+        <span class="ruby-identifier">@@registers</span>[<span class="ruby-identifier">index</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- 5B-5D-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- 5B-5D-method -->
 
     
-      <div id="names-method" class="method-detail ">
-        <a name="method-c-names"></a>
-
+      <div id="method-c-names" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">names</span><span
@@ -331,26 +304,22 @@ end</pre>
           
 
           
-          <div class="method-source-code"
-            id="names-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 21</span>
-def names
-        @@names8 + @@namesi8 + @@names_index8 + @@names_bcdep8 + @@names16 + @@names_index16 + @@names_other
-end</pre>
-          </div>
+          <div class="method-source-code" id="names-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 21</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">names</span>
+        <span class="ruby-identifier">@@names8</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@namesi8</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@names_index8</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@names_bcdep8</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@names16</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@names_index16</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@names_other</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- names-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- names-method -->
 
     
-      <div id="new-method" class="method-detail ">
-        <a name="method-c-new"></a>
-
+      <div id="method-c-new" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">new</span><span
@@ -365,36 +334,32 @@ end</pre>
           
 
           
-          <div class="method-source-code"
-            id="new-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 26</span>
-def initialize(name, opc)
-        <span class="ruby-ivar">@name</span> = name
-        <span class="ruby-ivar">@index</span> = 0
-        <span class="ruby-ivar">@opc</span> = opc &amp; 0xff
-        <span class="ruby-ivar">@bit8</span> = name.size != 2 and opc &amp; 7 == opc
-        <span class="ruby-ivar">@prefix</span> = name.index(xx) ? <span class="ruby-string">&quot;\xDD&quot;</span> : name.index(yy) ? <span class="ruby-string">&quot;\xFD&quot;</span> : nil
-end</pre>
-          </div>
+          <div class="method-source-code" id="new-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 26</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">opc</span>)
+        <span class="ruby-ivar">@name</span> = <span class="ruby-identifier">name</span>
+        <span class="ruby-ivar">@index</span> = <span class="ruby-value">0</span>
+        <span class="ruby-ivar">@opc</span> = <span class="ruby-identifier">opc</span> &amp; <span class="ruby-value">0xff</span>
+        <span class="ruby-ivar">@bit8</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">2</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">opc</span> &amp; <span class="ruby-value">7</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">opc</span>
+        <span class="ruby-ivar">@prefix</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">index</span>(<span class="ruby-value">xx</span>) <span class="ruby-operator">?</span> <span class="ruby-string">&quot;\xDD&quot;</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">index</span>(<span class="ruby-value">yy</span>) <span class="ruby-operator">?</span> <span class="ruby-string">&quot;\xFD&quot;</span> <span class="ruby-operator">:</span> <span class="ruby-keyword">nil</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- new-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- new-method -->
 
     
-    </div>
+    </section><!-- public-class-method-details -->
   
-    <div id="public-instance-method-details" class="method-section section">
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section section">
       <h3 class="section-header">Public Instance Methods</h3>
 
     
-      <div id="2B-method" class="method-detail ">
-        <a name="method-i-2B"></a>
-
+      <div id="method-i-2B" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">+</span><span
@@ -405,33 +370,29 @@ end</pre>
 
         <div class="method-description">
           
-          <p>This method makes possible to write indexed expressions with <tt>ix/iy</tt>
-registers. Example:</p>
+          <p>This method makes possible to write indexed expressions with
+<code>ix/iy</code> registers. Example:</p>
 
 <pre>ld a, [ix + 7]</pre>
           
 
           
-          <div class="method-source-code"
-            id="2B-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 82</span>
-def +(other)
-        self[other]
-end</pre>
-          </div>
+          <div class="method-source-code" id="2B-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 82</span>
+<span class="ruby-keyword">def</span> <span class="ruby-operator">+</span>(<span class="ruby-identifier">other</span>)
+        <span class="ruby-keyword">self</span>[<span class="ruby-identifier">other</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- 2B-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- 2B-method -->
 
     
-      <div id="2D-method" class="method-detail ">
-        <a name="method-i-2D"></a>
-
+      <div id="method-i-2D" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">-</span><span
@@ -442,33 +403,29 @@ end</pre>
 
         <div class="method-description">
           
-          <p>This method makes possible to write indexed expressions with <tt>ix/iy</tt>
-registers. Example:</p>
+          <p>This method makes possible to write indexed expressions with
+<code>ix/iy</code> registers. Example:</p>
 
 <pre>ld a, [ix - 7]</pre>
           
 
           
-          <div class="method-source-code"
-            id="2D-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 88</span>
-def -(other)
-        self[-other.to_i]
-end</pre>
-          </div>
+          <div class="method-source-code" id="2D-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 88</span>
+<span class="ruby-keyword">def</span> <span class="ruby-operator">-</span>(<span class="ruby-identifier">other</span>)
+        <span class="ruby-keyword">self</span>[<span class="ruby-operator">-</span><span class="ruby-identifier">other</span>.<span class="ruby-identifier">to_i</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- 2D-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- 2D-method -->
 
     
-      <div id="5B-5D-method" class="method-detail ">
-        <a name="method-i-5B-5D"></a>
-
+      <div id="method-i-5B-5D" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">[]</span><span
@@ -487,42 +444,38 @@ ld  [hl], b</pre>
           
 
           
-          <div class="method-source-code"
-            id="5B-5D-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 59</span>
-              def [](index = 0)
-                      if name.size == 2 or pointer?
-                              if index != 0 and name[0] != ii
-                                      raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only ix,iy registers may be indexed pointers.&quot;</span>
-                              elsif !(-128..127).include?(index) and !index.respond_to?(:to_alloc)
-                                      raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Pointer index out of range.&quot;</span>
-                              end
-                              raise <span class="ruby-constant">Syntax</span>, &quot;Register #{name} can not be a pointer.&quot; unless r = @@regindex[name + <span class="ruby-string">'_'</span>] or (pointer? and r = self)
-                              r = r.dup
-if index.respond_to?(:to_alloc) and !r.index.respond_to?(:to_alloc)
-  r.index = index + r.index
-else
-  r.index = r.index + index
-end
-                              r
-                      else
-                              raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only 16-bits registers may be pointers.&quot;</span>
-                      end
-              end</pre>
-          </div>
+          <div class="method-source-code" id="5B-5D-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 59</span>
+              <span class="ruby-keyword">def</span> <span class="ruby-operator">[]</span>(<span class="ruby-identifier">index</span> = <span class="ruby-value">0</span>)
+                      <span class="ruby-keyword">if</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">2</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">pointer?</span>
+                              <span class="ruby-keyword">if</span> <span class="ruby-identifier">index</span> <span class="ruby-operator">!=</span> <span class="ruby-value">0</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">name</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">!=</span> <span class="ruby-value">ii</span>
+                                      <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only ix,iy registers may be indexed pointers.&quot;</span>
+                              <span class="ruby-keyword">elsif</span> <span class="ruby-operator">!</span>(<span class="ruby-value">-128</span><span class="ruby-operator">..</span><span class="ruby-value">127</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">index</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">index</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_alloc</span>)
+                                      <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Pointer index out of range.&quot;</span>
+                              <span class="ruby-keyword">end</span>
+                              <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-node">&quot;Register #{name} can not be a pointer.&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">r</span> = <span class="ruby-identifier">@@regindex</span>[<span class="ruby-identifier">name</span> <span class="ruby-operator">+</span> <span class="ruby-string">'_'</span>] <span class="ruby-keyword">or</span> (<span class="ruby-identifier">pointer?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">r</span> = <span class="ruby-keyword">self</span>)
+                              <span class="ruby-identifier">r</span> = <span class="ruby-identifier">r</span>.<span class="ruby-identifier">dup</span>
+<span class="ruby-keyword">if</span> <span class="ruby-identifier">index</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_alloc</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_alloc</span>)
+  <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span> = <span class="ruby-identifier">index</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span>
+<span class="ruby-keyword">else</span>
+  <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span> = <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">index</span>
+<span class="ruby-keyword">end</span>
+                              <span class="ruby-identifier">r</span>
+                      <span class="ruby-keyword">else</span>
+                              <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only 16-bits registers may be pointers.&quot;</span>
+                      <span class="ruby-keyword">end</span>
+              <span class="ruby-keyword">end</span></pre>
+          </div><!-- 5B-5D-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- 5B-5D-method -->
 
     
-      <div id="bit8-3F-method" class="method-detail ">
-        <a name="method-i-bit8-3F"></a>
-
+      <div id="method-i-bit8-3F" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">bit8?</span><span
@@ -537,24 +490,20 @@ end
           
 
           
-          <div class="method-source-code"
-            id="bit8-3F-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 101</span>
-def bit8?; <span class="ruby-ivar">@bit8</span>; end</pre>
-          </div>
+          <div class="method-source-code" id="bit8-3F-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 101</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">bit8?</span>; <span class="ruby-ivar">@bit8</span>; <span class="ruby-keyword">end</span></pre>
+          </div><!-- bit8-3F-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- bit8-3F-method -->
 
     
-      <div id="match16-3F-method" class="method-detail ">
-        <a name="method-i-match16-3F"></a>
-
+      <div id="method-i-match16-3F" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">match16?</span><span
@@ -565,31 +514,27 @@ def bit8?; <span class="ruby-ivar">@bit8</span>; end</pre>
 
         <div class="method-description">
           
-          <p>Checks if <tt>self</tt> can adjoin with <tt>other</tt>:
-<tt>self</tt>|<tt>other</tt></p>
+          <p>Checks if <code>self</code> can adjoin with <code>other</code>:
+<code>self</code>|<code>other</code></p>
           
 
           
-          <div class="method-source-code"
-            id="match16-3F-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 41</span>
-def match16?(other)
-                          other.is_a?(<span class="ruby-constant">Register</span>) and ]bc de hl ixhixl iyhiyl].include?(name + other.name)
-end</pre>
-          </div>
+          <div class="method-source-code" id="match16-3F-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 41</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">match16?</span>(<span class="ruby-identifier">other</span>)
+                          <span class="ruby-identifier">other</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>) <span class="ruby-keyword">and</span> <span class="ruby-node">%w[bc de hl ixhixl iyhiyl]</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">name</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">other</span>.<span class="ruby-identifier">name</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- match16-3F-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- match16-3F-method -->
 
     
-      <div id="one_of-3F-method" class="method-detail ">
-        <a name="method-i-one_of-3F"></a>
-
+      <div id="method-i-one_of-3F" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">one_of?</span><span
@@ -604,24 +549,20 @@ end</pre>
           
 
           
-          <div class="method-source-code"
-            id="one_of-3F-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 102</span>
-def one_of?(ary); ary.include?(name); end</pre>
-          </div>
+          <div class="method-source-code" id="one_of-3F-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 102</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">one_of?</span>(<span class="ruby-identifier">ary</span>); <span class="ruby-identifier">ary</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">name</span>); <span class="ruby-keyword">end</span></pre>
+          </div><!-- one_of-3F-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- one_of-3F-method -->
 
     
-      <div id="pointer-3F-method" class="method-detail ">
-        <a name="method-i-pointer-3F"></a>
-
+      <div id="method-i-pointer-3F" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">pointer?</span><span
@@ -636,26 +577,22 @@ def one_of?(ary); ary.include?(name); end</pre>
           
 
           
-          <div class="method-source-code"
-            id="pointer-3F-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 36</span>
-def pointer?
-        name[-1] == <span class="ruby-string">'_'</span>
-end</pre>
-          </div>
+          <div class="method-source-code" id="pointer-3F-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 36</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">pointer?</span>
+        <span class="ruby-identifier">name</span>[<span class="ruby-value">-1</span>] <span class="ruby-operator">==</span> <span class="ruby-string">'_'</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- pointer-3F-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- pointer-3F-method -->
 
     
-      <div id="size-method" class="method-detail ">
-        <a name="method-i-size"></a>
-
+      <div id="method-i-size" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">size</span><span
@@ -670,26 +607,22 @@ end</pre>
           
 
           
-          <div class="method-source-code"
-            id="size-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 33</span>
-def size
-        name.size
-end</pre>
-          </div>
+          <div class="method-source-code" id="size-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 33</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">size</span>
+        <span class="ruby-identifier">name</span>.<span class="ruby-identifier">size</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- size-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- size-method -->
 
     
-      <div id="to_debug-method" class="method-detail ">
-        <a name="method-i-to_debug"></a>
-
+      <div id="method-i-to_debug" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">to_debug</span><span
@@ -704,32 +637,28 @@ end</pre>
           
 
           
-          <div class="method-source-code"
-            id="to_debug-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 91</span>
-def to_debug
-        if pointer?
-                &quot;(#{name[0,2]}&quot; + if prefix
+          <div class="method-source-code" id="to_debug-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 91</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_debug</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">pointer?</span>
+                <span class="ruby-node">&quot;(#{name[0,2]}&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">prefix</span>
                         <span class="ruby-string">'+%02xH'</span>
-                end.to_s + <span class="ruby-string">')'</span>
-        else
-                name
-        end
-end</pre>
-          </div>
+                <span class="ruby-keyword">end</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-string">')'</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">name</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- to_debug-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- to_debug-method -->
 
     
-      <div id="to_i-method" class="method-detail ">
-        <a name="method-i-to_i"></a>
-
+      <div id="method-i-to_i" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">to_i</span><span
@@ -744,24 +673,20 @@ end</pre>
           
 
           
-          <div class="method-source-code"
-            id="to_i-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 100</span>
-def to_i; <span class="ruby-ivar">@opc</span>; end</pre>
-          </div>
+          <div class="method-source-code" id="to_i-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 100</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_i</span>; <span class="ruby-ivar">@opc</span>; <span class="ruby-keyword">end</span></pre>
+          </div><!-- to_i-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- to_i-method -->
 
     
-      <div id="7C-method" class="method-detail ">
-        <a name="method-i-7C"></a>
-
+      <div id="method-i-7C" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">|</span><span
@@ -777,38 +702,35 @@ defining macros that may use registers passed by parameters.</p>
           
 
           
-          <div class="method-source-code"
-            id="7C-source">
-<pre>
-<span class="ruby-comment"># File z80/registers.rb, line 47</span>
-def |(other)
-        if match16? other
-                @@regindex[name + other.name] || @@regindex[name[0,2]]
-        else
-                raise <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only paired registers: bc, de, hl, ix, iy can be adjoined.&quot;</span>
-        end
-end</pre>
-          </div>
+          <div class="method-source-code" id="7C-source">
+            <pre><span class="ruby-comment"># File z80/registers.rb, line 47</span>
+<span class="ruby-keyword">def</span> <span class="ruby-operator">|</span>(<span class="ruby-identifier">other</span>)
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">match16?</span> <span class="ruby-identifier">other</span>
+                <span class="ruby-identifier">@@regindex</span>[<span class="ruby-identifier">name</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">other</span>.<span class="ruby-identifier">name</span>] <span class="ruby-operator">||</span> <span class="ruby-identifier">@@regindex</span>[<span class="ruby-identifier">name</span>[<span class="ruby-value">0</span>,<span class="ruby-value">2</span>]]
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only paired registers: bc, de, hl, ix, iy can be adjoined.&quot;</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- 7C-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- 7C-method -->
 
     
-    </div>
+    </section><!-- public-instance-method-details -->
   
+  </section><!-- 5Buntitled-5D -->
 
-  </div>
+</div><!-- documentation -->
 
-  <div id="validator-badges">
-    <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
-    <p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
-      Rdoc Generator</a> 2</small>.</p>
-  </div>
 
-</body>
-</html>
+<footer id="validator-badges">
+  <p><a href="http://validator.w3.org/check/referer">[Validate]</a>
+  <p>Generated by <a href="https://github.com/rdoc/rdoc">RDoc</a> 3.12.
+  <p>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish Rdoc Generator</a> 3.
+</footer>
 

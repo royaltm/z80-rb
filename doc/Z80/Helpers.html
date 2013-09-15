@@ -1,178 +1,167 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+
+<html>
 <head>
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 
-  <title>Module: Z80::Helpers</title>
+<title>module Z80::Helpers - ruby-Z80</title>
 
-  <link rel="stylesheet" href="../rdoc.css" type="text/css" media="screen" />
+<link type="text/css" media="screen" href="../rdoc.css" rel="stylesheet">
 
-  <script src="../js/jquery.js" type="text/javascript"
-    charset="utf-8"></script>
-  <script src="../js/thickbox-compressed.js" type="text/javascript"
-    charset="utf-8"></script>
-  <script src="../js/quicksearch.js" type="text/javascript"
-    charset="utf-8"></script>
-  <script src="../js/darkfish.js" type="text/javascript"
-    charset="utf-8"></script>
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+</script>
 
-</head>
-<body class="module">
+<script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/navigation.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/search_index.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/search.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/searcher.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/darkfish.js"></script>
 
-  <div id="metadata">
-    <div id="home-metadata">
-      <div id="home-section" class="section">
-        <h3 class="section-header">
-          <a href="../index.html">Home</a>
-          <a href="../index.html#classes">Classes</a>
-          <a href="../index.html#methods">Methods</a>
-        </h3>
-      </div>
-    </div>
 
-    <div id="file-metadata">
-      <div id="file-list-section" class="section">
-        <h3 class="section-header">In Files</h3>
-        <div class="section-body">
-          <ul>
-          
-            <li><a href="../z80_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
-              class="thickbox" title="z80.rb">z80.rb</a></li>
-          
-          </ul>
-        </div>
-      </div>
+<body id="top" class="module">
+<nav id="metadata">
+  <nav id="home-section" class="section">
+  <h3 class="section-header">
+    <a href="../index.html">Home</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </h3>
+</nav>
 
-      
-    </div>
 
-    <div id="class-metadata">
+  <nav id="search-section" class="section project-section" class="initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <h3 class="section-header">
+      <input type="text" name="search" placeholder="Search" id="search-field"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </h3>
+  </form>
 
-      <!-- Parent Class -->
-      
+  <ul id="search-results" class="initially-hidden"></ul>
+</nav>
 
-      <!-- Namespace Contents -->
-      
 
-      <!-- Method Quickref -->
-      
-      <div id="method-list-section" class="section">
-        <h3 class="section-header">Methods</h3>
-        <ul class="link-list">
-          
-          <li><a href="#method-i-cpl">#cpl</a></li>
-          
-          <li><a href="#method-i-h">#h</a></li>
-          
-          <li><a href="#method-i-hb">#hb</a></li>
-          
-          <li><a href="#method-i-neg">#neg</a></li>
-          
-        </ul>
-      </div>
-      
+  <div id="file-metadata">
+    <nav id="file-list-section" class="section">
+  <h3 class="section-header">Defined In</h3>
+  <ul>
+    <li>z80.rb
+  </ul>
+</nav>
 
-      <!-- Included Modules -->
-      
-    </div>
-
-    <div id="project-metadata">
-      
-      
-      <div id="fileindex-section" class="section project-section">
-        <h3 class="section-header">Files</h3>
-        <ul>
-        
-          <li class="file"><a href="../README_txt.html">README.txt</a></li>
-        
-        </ul>
-      </div>
-      
-
-      <div id="classindex-section" class="section project-section">
-        <h3 class="section-header">Class/Module Index
-          <span class="search-toggle"><img src="../images/find.png"
-            height="16" width="16" alt="[+]"
-            title="show/hide quicksearch" /></span></h3>
-        <form action="#" method="get" accept-charset="utf-8" class="initially-hidden">
-        <fieldset>
-          <legend>Quicksearch</legend>
-          <input type="text" name="quicksearch" value=""
-            class="quicksearch-field" />
-        </fieldset>
-        </form>
-
-        <ul class="link-list">
-        
-          <li><a href="../Z80.html">Z80</a></li>
-        
-          <li><a href="../Z80/Alloc.html">Z80::Alloc</a></li>
-        
-          <li><a href="../Z80/CompileError.html">Z80::CompileError</a></li>
-        
-          <li><a href="../Z80/Helpers.html">Z80::Helpers</a></li>
-        
-          <li><a href="../Z80/Label.html">Z80::Label</a></li>
-        
-          <li><a href="../Z80/Program.html">Z80::Program</a></li>
-        
-          <li><a href="../Z80/Program/Condition.html">Z80::Program::Condition</a></li>
-        
-          <li><a href="../Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a></li>
-        
-          <li><a href="../Z80/Program/Register.html">Z80::Program::Register</a></li>
-        
-          <li><a href="../Z80/Syntax.html">Z80::Syntax</a></li>
-        
-          <li><a href="../Z80/TAP.html">Z80::TAP</a></li>
-        
-          <li><a href="../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a></li>
-        
-          <li><a href="../Z80Lib.html">Z80Lib</a></li>
-        
-          <li><a href="../Z80Lib/Macros.html">Z80Lib::Macros</a></li>
-        
-          <li><a href="../Z80MathInt.html">Z80MathInt</a></li>
-        
-          <li><a href="../Z80MathInt/Macros.html">Z80MathInt::Macros</a></li>
-        
-          <li><a href="../Symbol.html">Symbol</a></li>
-        
-        </ul>
-        <div id="no-class-search-results" style="display: none;">No matching classes.</div>
-      </div>
-
-      
-    </div>
+    
   </div>
 
-  <div id="documentation">
-    <h1 class="module">Z80::Helpers</h1>
+  <div id="class-metadata">
+    
+    
+    
+    <!-- Method Quickref -->
+<nav id="method-list-section" class="section">
+  <h3 class="section-header">Methods</h3>
 
-    <div id="description">
-      
+  <ul class="link-list">
+    
+    <li><a href="#method-i-cpl">#cpl</a>
+    
+    <li><a href="#method-i-h">#h</a>
+    
+    <li><a href="#method-i-hb">#hb</a>
+    
+    <li><a href="#method-i-neg">#neg</a>
+    
+  </ul>
+</nav>
+
+  </div>
+
+  <div id="project-metadata">
+    <nav id="fileindex-section" class="section project-section">
+  <h3 class="section-header">Pages</h3>
+
+  <ul>
+  
+    <li class="file"><a href="../README_txt.html">README</a>
+  
+  </ul>
+</nav>
+
+    <nav id="classindex-section" class="section project-section">
+  <h3 class="section-header">Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="../Z80.html">Z80</a>
+  
+    <li><a href="../Z80/Alloc.html">Z80::Alloc</a>
+  
+    <li><a href="../Z80/CompileError.html">Z80::CompileError</a>
+  
+    <li><a href="../Z80/Helpers.html">Z80::Helpers</a>
+  
+    <li><a href="../Z80/Label.html">Z80::Label</a>
+  
+    <li><a href="../Z80/Program.html">Z80::Program</a>
+  
+    <li><a href="../Z80/Program/Condition.html">Z80::Program::Condition</a>
+  
+    <li><a href="../Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a>
+  
+    <li><a href="../Z80/Program/Register.html">Z80::Program::Register</a>
+  
+    <li><a href="../Z80/Syntax.html">Z80::Syntax</a>
+  
+    <li><a href="../Z80/TAP.html">Z80::TAP</a>
+  
+    <li><a href="../Z80/TAP/TapeError.html">Z80::TAP::TapeError</a>
+  
+    <li><a href="../Z80Lib.html">Z80Lib</a>
+  
+    <li><a href="../Z80Lib/Macros.html">Z80Lib::Macros</a>
+  
+    <li><a href="../Z80MathInt.html">Z80MathInt</a>
+  
+    <li><a href="../Z80MathInt/Macros.html">Z80MathInt::Macros</a>
+  
+    <li><a href="../Symbol.html">Symbol</a>
+  
+  </ul>
+</nav>
+
+  </div>
+</nav>
+
+<div id="documentation">
+  <h1 class="module">module Z80::Helpers</h1>
+
+  <div id="description" class="description">
+    
 <p>some useless stuff; needed for z80 opcode testing; but didn’t delete it
 (maybe will come in handy)</p>
 
-    </div>
+  </div><!-- description -->
 
-    <!-- Constants -->
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
     
 
-    <!-- Attributes -->
+    
+
+    
+
     
 
     <!-- Methods -->
     
-    <div id="public-instance-method-details" class="method-section section">
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section section">
       <h3 class="section-header">Public Instance Methods</h3>
 
     
-      <div id="cpl-method" class="method-detail ">
-        <a name="method-i-cpl"></a>
-
+      <div id="method-i-cpl" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">cpl</span><span
@@ -187,24 +176,20 @@
           
 
           
-          <div class="method-source-code"
-            id="cpl-source">
-<pre>
-<span class="ruby-comment"># File z80.rb, line 375</span>
-def cpl(a); ~a &amp; 0xff; end</pre>
-          </div>
+          <div class="method-source-code" id="cpl-source">
+            <pre><span class="ruby-comment"># File z80.rb, line 375</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">cpl</span>(<span class="ruby-identifier">a</span>); <span class="ruby-operator">~</span><span class="ruby-identifier">a</span> &amp; <span class="ruby-value">0xff</span>; <span class="ruby-keyword">end</span></pre>
+          </div><!-- cpl-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- cpl-method -->
 
     
-      <div id="h-method" class="method-detail ">
-        <a name="method-i-h"></a>
-
+      <div id="method-i-h" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">h</span><span
@@ -219,24 +204,20 @@ def cpl(a); ~a &amp; 0xff; end</pre>
           
 
           
-          <div class="method-source-code"
-            id="h-source">
-<pre>
-<span class="ruby-comment"># File z80.rb, line 377</span>
-def h(a); <span class="ruby-string">'%04x'</span>%(a &amp; 0xffff) ; end</pre>
-          </div>
+          <div class="method-source-code" id="h-source">
+            <pre><span class="ruby-comment"># File z80.rb, line 377</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">h</span>(<span class="ruby-identifier">a</span>); <span class="ruby-string">'%04x'</span><span class="ruby-operator">%</span>(<span class="ruby-identifier">a</span> &amp; <span class="ruby-value">0xffff</span>) ; <span class="ruby-keyword">end</span></pre>
+          </div><!-- h-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- h-method -->
 
     
-      <div id="hb-method" class="method-detail ">
-        <a name="method-i-hb"></a>
-
+      <div id="method-i-hb" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">hb</span><span
@@ -251,24 +232,20 @@ def h(a); <span class="ruby-string">'%04x'</span>%(a &amp; 0xffff) ; end</pre>
           
 
           
-          <div class="method-source-code"
-            id="hb-source">
-<pre>
-<span class="ruby-comment"># File z80.rb, line 376</span>
-def hb(a); <span class="ruby-string">'%02x'</span>%(a &amp; 0xff) ; end</pre>
-          </div>
+          <div class="method-source-code" id="hb-source">
+            <pre><span class="ruby-comment"># File z80.rb, line 376</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">hb</span>(<span class="ruby-identifier">a</span>); <span class="ruby-string">'%02x'</span><span class="ruby-operator">%</span>(<span class="ruby-identifier">a</span> &amp; <span class="ruby-value">0xff</span>) ; <span class="ruby-keyword">end</span></pre>
+          </div><!-- hb-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- hb-method -->
 
     
-      <div id="neg-method" class="method-detail ">
-        <a name="method-i-neg"></a>
-
+      <div id="method-i-neg" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">neg</span><span
@@ -283,32 +260,29 @@ def hb(a); <span class="ruby-string">'%02x'</span>%(a &amp; 0xff) ; end</pre>
           
 
           
-          <div class="method-source-code"
-            id="neg-source">
-<pre>
-<span class="ruby-comment"># File z80.rb, line 374</span>
-def neg(a); -a &amp; 0xff; end</pre>
-          </div>
+          <div class="method-source-code" id="neg-source">
+            <pre><span class="ruby-comment"># File z80.rb, line 374</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">neg</span>(<span class="ruby-identifier">a</span>); <span class="ruby-operator">-</span><span class="ruby-identifier">a</span> &amp; <span class="ruby-value">0xff</span>; <span class="ruby-keyword">end</span></pre>
+          </div><!-- neg-source -->
           
         </div>
 
         
 
         
-      </div>
+      </div><!-- neg-method -->
 
     
-    </div>
+    </section><!-- public-instance-method-details -->
   
+  </section><!-- 5Buntitled-5D -->
 
-  </div>
+</div><!-- documentation -->
 
-  <div id="validator-badges">
-    <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
-    <p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
-      Rdoc Generator</a> 2</small>.</p>
-  </div>
 
-</body>
-</html>
+<footer id="validator-badges">
+  <p><a href="http://validator.w3.org/check/referer">[Validate]</a>
+  <p>Generated by <a href="https://github.com/rdoc/rdoc">RDoc</a> 3.12.
+  <p>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish Rdoc Generator</a> 3.
+</footer>
 
