@@ -1,8 +1,8 @@
 # -*- coding: BINARY -*-
-require 'z80/registers'
-require 'z80/labels'
-require 'z80/mnemonics'
-require 'z80/tap'
+require './z80/registers'
+require './z80/labels'
+require './z80/mnemonics'
+require './z80/tap'
 # ==Include this module in your *program* class to turn it to a powerfull Z80 macro assembler.
 #
 # ---
