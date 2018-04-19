@@ -151,7 +151,7 @@ module Z80
           args.unshift size
           size = nil
         end
-        pack_string = bsize == 1 ? 'c' : 's'
+        pack_string = bsize == 1 ? 'c' : 's<'
         args.flatten.each_with_index do |data, index|
           res << 
           if data.respond_to? :to_label
@@ -526,7 +526,7 @@ module Z80
         elsif data.respond_to? :to_z80bin
           data.to_z80bin
         elsif Integer === data
-          [data].pack('Q')
+          [data].pack('Q<')
         else
           data.to_s.force_encoding(Encoding::ASCII_8BIT)
         end[0,len].ljust(len, "\x0")

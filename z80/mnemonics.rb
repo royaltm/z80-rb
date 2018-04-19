@@ -135,7 +135,7 @@ module Z80
 				op+= if nn.respond_to? :to_label
 					Z80::add_reloc self, nn, 2, 1
 				else
-					[nn.to_i].pack('S')
+					[nn.to_i].pack('S<')
 				end
 				Z80::add_code self, op, 1, "jp   #{tt}%04xH", 1, :word
 			end
@@ -155,7 +155,7 @@ module Z80
 				op+= if nn.respond_to? :to_label
 					Z80::add_reloc self, nn, 2, 1
 				else
-					[nn.to_i].pack('S')
+					[nn.to_i].pack('S<')
 				end
 				Z80::add_code self, op, 1, "call #{tt}%04xH", 1, :word
 			end
@@ -454,7 +454,7 @@ module Z80
 								Z80::add_reloc self, bb, 2, 1 + (aa.prefix ? 1 : 0)
 							else
 								tt+= "#{'%04xH' % bb.to_i}"
-								[bb.to_i].pack('s')
+								[bb.to_i].pack('s<')
 							end
 							aa.prefix.to_s + (0x01 + aa.to_i).chr + nn
 						end

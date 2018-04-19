@@ -38,11 +38,11 @@ module Z80
 		#
 		def to_tap(name)
 			raise TapeError, "Name should cointain ASCII 7-bit only!" unless name.ascii_only?
-			head = "\x00\x03" + name.ljust(10)[0,10] + [code.bytesize, org, 0x8000].pack('S3')
+			head = "\x00\x03" + name.ljust(10)[0,10] + [code.bytesize, org, 0x8000].pack('v3')
 			TAP.addsum head
 			data =  "\xff" + code
 			TAP.addsum data
-			[head.bytesize].pack('S') + head + [data.bytesize].pack('S') + data
+			[head.bytesize].pack('v') + head + [data.bytesize].pack('v') + data
 		end
 		class << self
 			def addsum(s) # :nodoc:
@@ -59,7 +59,7 @@ module Z80
 				index = args[:index].to_i
 				btype = length = name = nil
 				begin
-					size, tap = tap.unpack('Sa*')
+					size, tap = tap.unpack('va*')
 					chunk, tap = tap.unpack("a#{size}a*")
 					raise TapeError, "Invalid TAP file checksum: `#{file}'." unless cksum chunk
 					raise TapeError, "Invalid TAP block too short: `#{file}'." unless chunk.bytesize == size
@@ -67,7 +67,7 @@ module Z80
 					case type
 					when 0x00
 						raise TapeError, "Invalid TAP header length: `#{file}'." unless data.bytesize == 17
-						btype, name, length = data.unpack('CA10S')
+						btype, name, length = data.unpack('CA10v')
 						next
 					when 0xff
 						btype = length = name = nil unless index == 0
