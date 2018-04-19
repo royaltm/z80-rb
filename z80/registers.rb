@@ -37,11 +37,11 @@ module Z80
 			def pointer?
 				name[-1] == '_'
 			end
-      ##
-      #  Checks if +self+ can adjoin with +other+: +self+|+other+
-      def match16?(other)
+			##
+			#  Checks if +self+ can adjoin with +other+: +self+|+other+
+			def match16?(other)
 				other.is_a?(Register) and %w[bc de hl ixhixl iyhiyl].include?(name + other.name)
-      end
+			end
 			##
 			#  Adjoins two 8 bit registers to form one 16 bit register.
 			#  Usefull when defining macros that may use registers passed by parameters.
@@ -61,16 +61,16 @@ module Z80
 				if name.size == 2 or pointer?
 					if index != 0 and name[0] != ?i
 						raise Syntax, "Only ix,iy registers may be indexed pointers."
-					elsif !(-128..127).include?(index) and !index.respond_to?(:to_alloc)
+					elsif !index.respond_to?(:to_alloc) and !(-128..127).include?(index)
 						raise Syntax, "Pointer index out of range."
 					end
 					raise Syntax, "Register #{name} can not be a pointer." unless r = @@regindex[name + '_'] or (pointer? and r = self)
 					r = r.dup
-          if index.respond_to?(:to_alloc) and !r.index.respond_to?(:to_alloc)
-            r.index = index + r.index
-          else
-            r.index = r.index + index
-          end
+					if index.respond_to?(:to_alloc) and !r.index.respond_to?(:to_alloc)
+						r.index = index + r.index
+					else
+						r.index = r.index + index
+					end
 					r
 				else
 					raise Syntax, "Only 16-bits registers may be pointers."
