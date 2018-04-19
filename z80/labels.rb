@@ -597,7 +597,7 @@ module Z80
       end
       l
     end
-    
+
     def pointer?; @pointer; end
 
     def +(other)
@@ -698,11 +698,17 @@ module Z80
       @name = value
     end
     def to_name; @name || @label.to_name; end
-
+    def respond_to_missing?(m, include_private=false)
+      m != :to_ary && m != :to_a
+    end
     def method_missing(m)
-      l = dup
-      l.instance_variable_get('@index') << m.to_s
-      l
+      if m == :to_ary || m == :to_a
+        super
+      else
+        l = dup
+        l.instance_variable_get('@index') << m.to_s
+        l
+      end
     end
   end
 end
