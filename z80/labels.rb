@@ -201,7 +201,7 @@ module Z80
     #    data 2, ...
     def words(*args); data(2, *args); end
     ## call-seq:
-    #       db(*word_integers)
+    #       dw(*word_integers)
     #
     #  Creates a label and allocate bytes with Program.data.
     #
