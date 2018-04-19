@@ -1,4 +1,3 @@
-require 'z80'
 class Z80MathInt
   module Macros
     # adds a to h,l
@@ -67,7 +66,7 @@ class Z80MathInt
     # uses: +hl+, +m+, +mh+, +ml+, +th+, +tl+
     # +mh+::     register/value input multiplicant hi
     # +ml+::     register/value input multiplicant lo
-    # +m+::     register input multiplicator
+    # +m+::      register input multiplicator
     # +th+::     register temporary (d or b)
     # +tl+::     register temporary (e or c)
     # +clrhl+::  should hl be set (true) or accumulated (false)
