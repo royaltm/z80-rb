@@ -82,7 +82,7 @@ class Z80MathInt
               rl   th
         muls1 srl  m
               jr  NC, noadd
-              add hl, de
+              add hl, th|tl
         noadd jr  NZ, loop1
       end
     end
