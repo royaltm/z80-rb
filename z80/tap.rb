@@ -57,6 +57,13 @@ module Z80
 		#
 		#  HeaderBody#to_tap converts struct instance to TAP blob.
 		HeaderBody = ::Struct.new :header, :body do
+			def to_s
+				if header.nil?
+					"Bytes: ?????????? (#{body.data.bytesize})"
+				else
+					header.to_s
+				end
+			end
 			def to_tap
 				res = ""
 				res << header.to_tap unless header.nil?
@@ -82,6 +89,20 @@ module Z80
 		#  * +p1+ as Integer
 		#  * +p2+ as Integer
 		Header = ::Struct.new :type, :name, :length, :p1, :p2 do
+			def to_s
+				case type
+				when TYPE_PROGRAM
+					"Program: #{name.inspect} LINE #{p1} (#{p2}/#{length})"
+				when TYPE_CODE
+					"Bytes: #{name.inspect} CODE #{p1},#{length}"
+				when TYPE_CHAR_ARRAY
+					"Character array: #{name.inspect}"
+				when TYPE_NUMBER_ARRAY
+					"Number array: #{name.inspect}"
+				else
+					"Unknown: #{name.inspect}"
+				end
+			end
 			def is_program?
 				type == TYPE_PROGRAM
 			end
@@ -145,9 +166,8 @@ module Z80
 			#  Pass a block to visit a chunk.
 			#
 			def read_chunk(file, args = {})
-				tap = File.open(file, 'rb') {|f| f.read}
 				index = args[:index].to_i
-				TAP.parse_tap(tap, file).each_with_index do |chunk, i|
+				parse_file(file).each_with_index do |chunk, i|
 					if i == index
 						if block_given?
 							yield chunk
@@ -159,12 +179,21 @@ module Z80
 			end
 
 			##
-			#  Returns an Enumerator of HeaderBody structs which describes blocks found in tap blob.
+			#  Returns an Enumerator of HeaderBody structs which describes blocks found in a TAP +file+.
 			#  Optionally unwraps TZX headers.
 			#
-			#  Pass a block to visit each chunk.
-			#  Optionally pass file name for error messages.
+			#  Pass a +block+ to visit each +chunk+.
+			def parse_file(file, &block)
+				tap = File.open(file, 'rb') {|f| f.read }
+				TAP.parse_tap(tap, file, &block)
+			end
+
+			##
+			#  Returns an Enumerator of HeaderBody structs which describes blocks found in a TAP blob.
+			#  Optionally unwraps TZX headers.
 			#
+			#  Pass a +block+ to visit each +chunk+.
+			#  Optionally pass a +file+ name for error messages.
 			def parse_tap(tap, file='-', &block)
 				tap, is_tzx = TAP.unpack_from_tzx_header tap, file
 				enu = ::Enumerator.new do |y|
