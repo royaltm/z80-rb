@@ -434,7 +434,7 @@ module Z80
 								tta+= [op.bytesize, :byte]
 								Z80::add_reloc self, bb, 1, op.bytesize, :self
 							else
-								tt+= "#{'%02xH' % bb.to_i}"
+								tt+= "#{'%02xH' % (bb.to_i & 0xff)}"
 								[bb].pack('c')
 							end
 						end
@@ -454,7 +454,7 @@ module Z80
 								tta = [1 + (aa.prefix ? 1 : 0), :word]
 								Z80::add_reloc self, bb, 2, 1 + (aa.prefix ? 1 : 0)
 							else
-								tt+= "#{'%04xH' % bb.to_i}"
+								tt+= "#{'%04xH' % (bb.to_i & 0xffff)}"
 								[bb.to_i].pack('s<')
 							end
 							aa.prefix.to_s + (0x01 + aa.to_i).chr + nn
