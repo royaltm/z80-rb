@@ -416,6 +416,7 @@ module Z80
 							tta = [1, :word]
 							"\x3A" + Z80::add_reloc(self, bb, 2, 1)
 						else
+							raise Syntax, "Invalid first argument for ld." if aa.one_of? %w[i r]
 							op = if aa.prefix and aa.pointer?
 								i = if (i = aa.index).respond_to?(:to_label)
 									Z80::add_reloc self, i, 1, 2, :self
