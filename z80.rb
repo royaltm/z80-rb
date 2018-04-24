@@ -288,6 +288,16 @@ module Z80
       top
     end
     ##
+    #  Import macros from other +program+.
+    #
+    #  A sugar for:
+    #
+    #     import program, :code => false, :macros => true, :labels => false
+    #
+    def macro_import(program)
+      import program, :code => false, :macros => true, :labels => false
+    end
+    ##
     #  Import code, labels and macros from other +program+.
     #  Give (optional) +name+ for namespace.
     #  Without +name+ labels from +program+ will be defined in current namespace.
