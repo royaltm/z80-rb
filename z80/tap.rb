@@ -147,7 +147,7 @@ module Z80
 			#  Program.import_file uses this method to read from TAP file.
 			#
 			def read_data(file, args = {})
-				Tap.read_header_body(file, args) do |chunk|
+				TAP.read_chunk(file, args) do |chunk|
 					if chunk.header
 						$stderr.puts "Importing: `#{file}': (#{chunk.header.name})"
 					else
