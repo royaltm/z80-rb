@@ -43,7 +43,22 @@ module Z80
 				other.is_a?(Register) and %w[bc de hl ixhixl iyhiyl].include?(name + other.name)
 			end
 			##
+			#  Disjoins one of 16 bit registers: +bc+ +de+ +hl+ +ix+ or +iy+ to array of 8bit registers: [+hi+, +lo+].
+			#
+			#  Usefull when defining macros that may use registers passed by parameters.
+			def split
+				case name
+				when 'bc', 'de', 'hl'
+					[@@regindex[name[0]], @@regindex[name[1]]]
+				when 'ix', 'iy'
+					[@@regindex[name + 'h'], @@regindex[name + 'l']]
+				else
+					raise Syntax, "Only paired registers: bc, de, hl, ix, iy can be disjoined."
+				end
+			end
+			##
 			#  Adjoins two 8 bit registers to form one 16 bit register.
+			#
 			#  Usefull when defining macros that may use registers passed by parameters.
 			def |(other)
 				if match16? other
