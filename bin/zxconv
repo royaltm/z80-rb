@@ -193,7 +193,7 @@ else
 	$pixels = pixels
 end
 
-puts $pixels.each_with_index.map {|p, i| "color #{'%2d'%i}: " + p.to_color(AllCompliance, false, QuantumDepth, true) }
+puts $pixels.each_with_index.map {|p, i| "color #{'%2d'%i}: " + p.to_color(AllCompliance, false, MAGICKCORE_QUANTUM_DEPTH, true) }
 
 ref = Image.new($pixels.size,1) { self.background_color = '#000000' }
 ref.store_pixels 0, 0, $pixels.size, 1, $pixels
