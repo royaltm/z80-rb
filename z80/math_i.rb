@@ -1,5 +1,39 @@
+# -*- coding: BINARY -*-
 class Z80MathInt
+  module Integers
+    # Other integers are created ad-hoc
+    class Int32 < Z80::Label # :nodoc:
+      value  byte 4
+      bytes  value byte, 4
+    end
+  end
   module Macros
+    ##
+    # Packs an integer of arbitrary byte size, creates a label and adds it to Program.code at Program.pc.
+    #
+    # Provided +bitsize+ must be a multiple of 8.
+    # Integer data is packed in LSB order.
+    def int(bitsize, value)
+      raise ArgumentError, "int bitsize must be > 0" unless bitsize.is_a?(Integer) and bitsize > 0
+      raise ArgumentError, "int bitsize must be multiple of 8" unless (bitsize & 7).zero?
+      bytesize = bitsize >> 3
+      klass_name = "Int#{bitsize}"
+      int_klass = if Z80MathInt::Integers.const_defined?(klass_name)
+        Z80MathInt::Integers.const_get(klass_name)
+      else
+        klass = Class.new(Z80::Label) do
+          value  byte bytesize
+          bytes  value byte, bytesize
+        end
+        Z80MathInt::Integers.const_set klass_name, klass
+      end
+      blob = ''
+      bytesize.times do
+          blob << [value].pack('c')
+          value >>= 8
+      end
+          data int_klass, blob
+    end
     ##
     # Adds +a+ to +h+|+l+.
     #
@@ -521,7 +555,7 @@ class Z80MathInt
             djnz nextadd
             jp  NC, nbufext  # no carry
             inc t            # extend buffer on carry
-            inc b
+            inc b            # b = 1
             ld  [hl], b      # put 1 in new place
     nbufext sla r
             jp  NZ, buffmul
@@ -530,7 +564,7 @@ class Z80MathInt
     ##
     # Converts arbitrary size unsigned integer (LSB) to bcd
     #
-    # Uses: +a+, +bc+, +hl+, +b'+, +r+, +rr'+
+    # Uses: +a+, +b+, +rr+, +bc'+, +hl'+, +r'+
     #
     # After conversion +c+ contains number of bytes used to store bcd number.
     # Subtract it from +bufend+ to get the first byte.
@@ -551,20 +585,22 @@ class Z80MathInt
       ns do
             xor a
             ld  [bufend - 1], a
-            ld  a, size
-            ld  c, 1
-            exx
-            ld  b, a
             if !input.is_a?(Register) and !size.is_a?(Register)
+              ld  b, size
               ld  rr, input + size
             else
+              ld  a, size
+              ld  b, a
               ld  rr, input unless input == rr
               adda_to *rr.split
             end
+            exx
+            ld  c, 1
+            exx
       loopi dec  rr
             ld  a, [rr]
             exx
-            utobcd_step(outbufend, r, c, c, true)
+            utobcd_step(bufend, r, c, c, true)
             exx
             djnz loopi
             exx

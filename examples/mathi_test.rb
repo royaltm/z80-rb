@@ -1,3 +1,4 @@
+# -*- coding: BINARY -*-
 here = File.expand_path('..', __dir__)
 $:.unshift(here) unless $:.include?(here)
 
@@ -21,12 +22,9 @@ class Program
   end
   macro :print_text do |eoc, text|
     raise ArgumentError unless text.is_a?(String)
-                ld   hl, eoc
-                push hl
-                ld   de, text_p
-                ld   bc, text.bytesize
-                jp   pr_string
+                call  print_cstr
     text_p      bytes text
+                db    0
   end
 
   macro :load_i32_hl_bc do |_, n|
@@ -34,14 +32,11 @@ class Program
                 ld  bc, n & 0x0ffff
   end
 
-  macro :store_int do |_, target, bitsize, n|
-    raise ArgumentError unless [32,64,128].include?(bitsize)
+  macro :store_int do |_, target, bitsize, value|
     bytesize = bitsize >> 3
-                ld  ix, target
-    (0..bytesize).each do |i|
-                ld  [ix + i], n & 0x0ff
-                n >>= 8
-    end
+                memcpy target, source, bytesize
+                jp  (hl)
+    source      int bitsize, value
   end
 
   class << self
@@ -58,7 +53,83 @@ class Program
     end
   end
 
-  start         ld  a, 2
+  macro :assert_equals do |eoc, left, right, bytesize|
+    raise ArgumentError unless left.is_a?(Integer) and (1..255).include?(bytesize)
+        ld    hl, right
+        call  assert_cmp
+        db  bytesize
+        int bytesize*8, left
+  end
+
+  macro :multiply32_test do |_, x, y|
+    raise ArgumentError unless x.is_a?(Integer) and (0..65535).include?(x) and
+                               y.is_a?(Integer) and (0..65535).include?(y)
+        print_text "#{x} * #{y} = "
+        ld  hl, x
+        ld  bc, y
+        call multiply32
+        assert_equals x*y, somebigint, 4
+        call print_num32
+  end
+
+  macro :div_euc8_test do |_, x, y|
+    raise ArgumentError unless x.is_a?(Integer) and (0..65535).include?(x) and
+                               y.is_a?(Integer) and (0..255).include?(y)
+        print_text "#{x} / #{y} = "
+        ld  hl, x
+        ld  c, y
+        call div_euc8
+    if y.zero?
+        jp   NC, error
+        print_text "division by 0!\r  "
+    else
+        jp   C, error
+        assert_equals x/y, somebigint, 2
+        assert_equals x%y, sombigint1, 1
+    end
+        call print_16_8
+  end
+
+  macro :div_euc16_test do |_, x, y|
+    raise ArgumentError unless x.is_a?(Integer) and (0..65535).include?(x) and
+                               y.is_a?(Integer) and (0..65535).include?(y)
+        print_text "#{x} / #{y} = "
+        ld  hl, x
+        ld  de, y
+        call div_euc16
+    if y.zero?
+        jp   NC, error
+        print_text "division by 0!\r  "
+    else
+        jp   C, error
+        assert_equals x/y, somebigint, 2
+        assert_equals x%y, sombigint1, 2
+    end
+        call print_16_16
+  end
+
+  macro :div_euc32_test do |_, x, y|
+    raise ArgumentError unless x.is_a?(Integer) and (0..0xffffffff).include?(x) and
+                               y.is_a?(Integer) and (0..65535).include?(y)
+        print_text "#{x} / #{y} = "
+        load_i32_hl_bc x
+        ld  de, y
+        call div_euc32
+    if y.zero?
+        jp   NC, error
+        print_text "division by 0!\r  "
+    else
+        jp   C, error
+        assert_equals x/y, somebigint, 4
+        assert_equals x%y, sombigint1, 2
+    end
+        call print_32_16
+  end
+
+
+  start         exx
+                push hl
+                ld  a, 2
                 call chanopen
                 print_text "PRINT 0 (32, 64, 128): "
                 clrmem8 somebigint, 16, 0
@@ -111,199 +182,56 @@ class Program
                 ld  c, 16
                 call print_num
 
-                print_text "\rmultiply 16bit*16bit -> 32bit\r455 * 36873 = "
-                ld  hl, 455
-                ld  bc, 36873
-                call multiply32
-                call print_num32
-                print_text "36873 * 455 = "
-                ld  hl, 36873
-                ld  bc, 455
-                call multiply32
-                call print_num32
-                print_text "75 * 65521 = "
-                ld  hl, 75
-                ld  bc, 65521
-                call multiply32
-                call print_num32
-                print_text "65521 * 75 = "
-                ld  hl, 65521
-                ld  bc, 75
-                call multiply32
-                call print_num32
-                print_text "1 * 65535 = "
-                ld  hl, 1
-                ld  bc, 65535
-                call multiply32
-                call print_num32
-                print_text "65535 * 1 = "
-                ld  hl, 65535
-                ld  bc, 1
-                call multiply32
-                call print_num32
-                print_text "2 * 32768 = "
-                ld  hl, 2
-                ld  bc, 32768
-                call multiply32
-                call print_num32
-                print_text "32768 * 2 = "
-                ld  hl, 32768
-                ld  bc, 2
-                call multiply32
-                call print_num32
-                print_text "0 * 65535 = "
-                ld  hl, 0
-                ld  bc, 65535
-                call multiply32
-                call print_num32
-                print_text "65535 * 0 = "
-                ld  hl, 65535
-                ld  bc, 0
-                call multiply32
-                call print_num32
-                print_text "65535 * 65535 = "
-                ld  hl, 65535
-                ld  bc, 65535
-                call multiply32
-                call print_num32
+                print_text "\rmultiply 16bit*16bit -> 32bit\r"
+                multiply32_test 455, 36873
+                multiply32_test 36873, 455
+                multiply32_test 75, 65521
+                multiply32_test 65521, 75
+                multiply32_test 1, 65535
+                multiply32_test 65535, 1
+                multiply32_test 2, 32768
+                multiply32_test 32768, 2
+                multiply32_test 0, 65535
+                multiply32_test 65535, 0
+                multiply32_test 65535, 65535
 
-                print_text "\r8bit divisor\r65535 / 255 = "
-                ld  hl, 65535
-                ld  c, 255
-                call div_euc8
-                jp   C, error
-                call print_16_8
-                print_text "0 / 255 = "
-                ld  hl, 0
-                ld  c, 255
-                call div_euc8
-                jp   C, error
-                call print_16_8
-                print_text "65521 / 121 = "
-                ld  hl, 65521
-                ld  c, 121
-                call div_euc8
-                jp   C, error
-                call print_16_8
-                print_text "65521 / 1 = "
-                ld  hl, 65521
-                ld  c, 1
-                call div_euc8
-                jp   C, error
-                call print_16_8
-                print_text "254 / 255 = "
-                ld  hl, 254
-                ld  c, 255
-                call div_euc8
-                jp   C, error
-                call print_16_8
-                print_text "65535 / 0 = "
-                ld  hl, 65535
-                ld  c, 0
-                call div_euc8
-                jp   NC, error
-                print_text "division by 0!\r  "
-                call print_16_8
+                print_text "\r8bit divisor:\r"
+                div_euc8_test 65535, 255
+                div_euc8_test 0, 255
+                div_euc8_test 65521, 121
+                div_euc8_test 65521, 1
+                div_euc8_test 254, 255
+                div_euc8_test 65535, 0
 
+                print_text "\r16bit divisor:\r"
+                div_euc16_test 65535, 255
+                div_euc16_test 65535, 65535
+                div_euc16_test 0, 255
+                div_euc16_test 0, 65535
+                div_euc16_test 65521, 121
+                div_euc16_test 65521, 16807
+                div_euc16_test 65534, 65535
+                div_euc16_test 65521, 1
+                div_euc16_test 65535, 0
 
-                print_text "\r16bit divisor:\r65535 / 255 = "
-                ld  hl, 65535
-                ld  de, 255
-                call div_euc16
-                jp   C, error
-                call print_16_16
-                print_text "65535 / 65535 = "
-                ld  hl, 65535
-                ld  de, 65535
-                call div_euc16
-                jp   C, error
-                call print_16_16
-                print_text "0 / 255 = "
-                ld  hl, 0
-                ld  de, 255
-                call div_euc16
-                jp   C, error
-                call print_16_16
-                print_text "0 / 65535 = "
-                ld  hl, 0
-                ld  de, 65535
-                call div_euc16
-                jp   C, error
-                call print_16_16
-                print_text "65521 / 121 = "
-                ld  hl, 65521
-                ld  de, 121
-                call div_euc16
-                jp   C, error
-                call print_16_16
-                print_text "65521 / 16807 = "
-                ld  hl, 65521
-                ld  de, 16807
-                call div_euc16
-                jp   C, error
-                call print_16_16
-                print_text "65534 / 65535 = "
-                ld  hl, 65534
-                ld  de, 65535
-                call div_euc16
-                jp   C, error
-                call print_16_16
-                print_text "65521 / 1 = "
-                ld  hl, 65521
-                ld  de, 1
-                call div_euc16
-                jp   C, error
-                call print_16_16
-                print_text "65535 / 0 = "
-                ld  hl, 65535
-                ld  de, 0
-                call div_euc16
-                jp   NC, error
-                print_text "division by 0!\r  "
-                call print_16_16
+                print_text "\r32bit dividend:\r"
+                div_euc32_test 4294967295, 65535
+                div_euc32_test 0, 65535
+                div_euc32_test 2147483647, 16807
+                div_euc32_test 2147483647, 255
+                div_euc32_test 2147483647, 1
+                div_euc32_test 4294967295, 0
 
-                print_text "\r32bit dividend:\r4294967295 / 65535 = "
-                load_i32_hl_bc 0xffffffff
-                ld  de, 0xffff
-                call div_euc32
-                jp   C, error
-                call print_32_16
-                print_text "0 / 65535 = "
-                load_i32_hl_bc 0
-                ld  de, 0xffff
-                call div_euc32
-                jp   C, error
-                call print_32_16
-                print_text "2147483647 / 16807 = "
-                load_i32_hl_bc 2147483647
-                ld  de, 16807
-                call div_euc32
-                jp   C, error
-                call print_32_16
-                print_text "2147483647 / 255 = "
-                load_i32_hl_bc 2147483647
-                ld  de, 255
-                call div_euc32
-                jp   C, error
-                call print_32_16
-                print_text "2147483647 / 1 = "
-                load_i32_hl_bc 2147483647
-                ld  de, 1
-                call div_euc32
-                jp   C, error
-                call print_32_16
-                print_text "4294967295 / 0 = "
-                load_i32_hl_bc 0xffffffff
-                ld  de, 0
-                call div_euc32
-                jp   NC, error
-                print_text "division by 0!\r  "
-                call print_32_16
-
+                pop  hl
+                exx
                 ret
 
+  #
+  # Subroutines
+  #
+
   error         rst 0x08
-                db  25          # Error Report: Q Parameter error
+                db  20          # Error Report: L BREAK into program
 
   print_16_8    ld  c, 2
                 ld  a, ' '.ord
@@ -333,8 +261,9 @@ class Program
   print_num     ld  a, 13 # terminator character
   prnum_term    ld  [terminator], a
   prnum_last_term   label
-                utobcd outbufend, somebigint, c
-                ld  hl, outbufend
+                ld de, somebigint
+  prnum         utobcd bcdbufend, de, c
+                ld  hl, bcdbufend
                 sub_from c, h, l
                 bcdtoa hl, c do |eoc|
                   jr  NC, pr1  # skip check if not first
@@ -347,14 +276,10 @@ class Program
                 ret
   terminator    db  13
 
-  multiply32    exx
-                push hl
-                exx
-                mul16_32
+  multiply32    mul16_32
                 ld  [somebigint[1]], hl
                 exx
                 ld  [somebigint], hl
-                pop hl
                 exx
                 ret
 
@@ -381,12 +306,56 @@ class Program
                 exx
                 ret
 
+  ns :print_cstr do
+                pop  hl
+                jr   skip1
+    loop_pr     rst  0x10
+    skip1       ld   a, [hl]
+                inc  hl
+                ora  a
+                jr   NZ, loop_pr
+                jp   (hl)
+  end
+
+  ns :assert_cmp do
+                pop  de
+                ld   a, [de]
+                inc  de
+                ld   b, a
+                ld   c, a
+                push hl
+                push de
+    aloop       ld   a, [de]
+                cp   [hl]
+                jr   NZ, assert_fail
+                inc  de
+                inc  hl
+                djnz aloop
+                ex   de, hl
+                pop  de
+                pop  de
+                jp   (hl)
+    assert_fail print_text "\rERROR: "
+                ld    a,  32
+                ld    [terminator], a
+                pop   de
+                push  bc
+                call  prnum
+                print_text "!= "
+                pop   bc
+                pop   de
+                call  prnum
+                jp    error
+  end
+
+
   somebigint    words 2
   sombigint1    words 2
   sombigint2    words 4
   somebigbytes  union somebigint, 1
-                bytes 10
-  outbufend     label
+
+                bytes 20
+  bcdbufend     label
 end
 
 math = Program.new 0x8000
