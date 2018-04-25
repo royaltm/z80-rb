@@ -5,7 +5,7 @@ require('z80')
 #
 #  Example:
 #
-#    require('basic')
+#    require('zxlib/basic')
 #    chunk = Z80::TAP.read_chunk('examples/calculator.tap')
 #    puts Basic.parse_program(chunk.body.data).to_s
 #

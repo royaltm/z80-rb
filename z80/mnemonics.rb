@@ -3,7 +3,7 @@ module Z80
 	module Program
 		#  ==Z80 Mnemonics
 		#  All Z80 instructions are created as singleton methods.
-		#  They produce machine code which is added to *program* class instance variable: Program.code.
+		#  They produce machine code which is added to the *Program* class instance variable: Program.code.
 		#
 		#  These mnemonics mimic standard ones (used in assemblers) but with some exceptions (because of ruby parser spec.):
 		#

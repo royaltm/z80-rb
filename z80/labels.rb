@@ -260,7 +260,7 @@ module Z80
   end
   ##
   #  Label class is the CORE of relocation mechanizm:
-  #    mylabel ld  a, [hl]
+  #    mylabel inc [hl]
   #            inc hl
   #            djnz mylabel
   #

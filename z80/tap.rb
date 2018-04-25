@@ -2,7 +2,8 @@
 module Z80
 	##
 	#  ==Adds TAP format support to *program*.
-	#  Inside your *program* add:
+	#
+	#  Inside your *Program* add:
 	#    include Z80::TAP
 	#  and Program.import_file will make use of it.
 	#
