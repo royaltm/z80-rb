@@ -87,7 +87,8 @@ module Z80
 				op = "\x10" + if dd.respond_to? :to_label
 					Z80::add_reloc self, dd, 1, 1
 				else
-					dd.to_i.chr
+					raise Syntax, "Immediate jump is out of an 8bit range" unless (-128..127).include?(dd.to_i)
+					[dd.to_i].pack('c')
 				end
 				Z80::add_code self, op, 1, "djnz %04xH", 1, :pcrel
 			end
@@ -109,6 +110,7 @@ module Z80
 				op+= if dd.respond_to? :to_label
 					Z80::add_reloc self, dd, 1, 1
 				else
+					raise Syntax, "Immediate jump is out of an 8bit range" unless (-128..127).include?(dd.to_i)
 					[dd.to_i].pack('c')
 				end
 				Z80::add_code self, op, 1, "jr   #{tt}%04xH", 1, :pcrel
