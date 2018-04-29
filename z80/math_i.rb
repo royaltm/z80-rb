@@ -89,7 +89,7 @@ class Z80MathInt
     def mul8_c(mh=h, ml=l, m=a, tt=de, clrhl = true)
       th, tl = tt.split
       raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !m.is_a?(Register)
-      ns do |eoc|
+      isolate do |eoc|
               ld  tl, ml unless ml == tl
               ld  th, mh unless mh == th
               ld  hl, 0 if clrhl
@@ -119,7 +119,7 @@ class Z80MathInt
     def mul8(mh=h, ml=l, m=a, tt=de, clrhl = true, double = false)
       th, tl = tt.split
       raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !m.is_a?(Register)
-      ns do |eoc|
+      isolate do |eoc|
               ld  tl, ml unless ml == tl
               ld  th, mh unless mh == th
               ld  hl, 0 if clrhl
@@ -148,7 +148,7 @@ class Z80MathInt
       th, tl = tt.split
       raise ArgumentError if tt == hl or [a,th,tl,t].include?(m) or [a,th,tl,m].include?(t) or
                              tl == mh or th == ml or !m.is_a?(Register) or !t.is_a?(Register)
-      ns do |eoc|
+      isolate do |eoc|
               ld  tl, ml unless ml == tl
               ld  th, mh unless mh == th
         if clrahl
@@ -193,7 +193,7 @@ class Z80MathInt
       throw ArgumentError unless m.is_a?(Integer) and (0..255).include?(m) and [bc, de].include?(tt) and
                                  ![h, l, th, hl, a].include?(t) and
                                  tl != mh and th != ml
-      ns do |eoc|
+      isolate do |eoc|
               ld  tl, ml unless ml == tl
               ld  th, mh unless mh == th
         if clrahl
@@ -237,7 +237,7 @@ class Z80MathInt
       raise ArgumentError unless [bc, de].include?(mm) and [bc, de].include?(tt)
       mh, ml = mm.split
       th, tl = tt.split
-      ns do |eoc|
+      isolate do |eoc|
                 ld  a, ml
                 ora a            # a' ?= 0
                 ex  af, af       # a' = ml, ZF' = a' == 0
@@ -343,7 +343,7 @@ class Z80MathInt
         :check1 => true,
         :modulo => false
       }.merge opts
-      ns do |eoc|
+      isolate do |eoc|
         if flags[:check0] or flags[:check1]
                 ld  a, m
                 cp  1
@@ -397,7 +397,7 @@ class Z80MathInt
         :modulo => false,
         :quick8 => true
       }.merge opts
-      ns do |eoc|
+      isolate do |eoc|
         if flags[:check0] or flags[:check1] or flags[:quick8]
                   xor a
                   ora d
@@ -469,7 +469,7 @@ class Z80MathInt
         :check1 => true,
         :modulo => false
       }.merge opts
-      ns do |eoc|
+      isolate do |eoc|
         if flags[:check0] or flags[:check1]
                   ld  a, m
                   cp  1
@@ -538,7 +538,7 @@ class Z80MathInt
         :modulo => false,
         :quick8 => true
       }.merge opts
-      ns do |eoc|
+      isolate do |eoc|
         if flags[:check0] or flags[:check1] or flags[:quick8]
                   xor a
                   ora d
@@ -637,7 +637,7 @@ class Z80MathInt
     #
     # Expects seed in +hl+ and produces next seed iteration in +hl+.
     def rnd
-      ns do |eoc|
+      isolate do |eoc|
                 inc hl          # seed + 1
                 ld  a, l
                 ora h
@@ -689,7 +689,7 @@ class Z80MathInt
     def utobcd_step(bufend, r, buflen=1, t=c, r_in_a=false)
       raise ArgumentError unless [c, d, e].include?(r) and [c, d, e].include?(t) and r != t and
               (!buflen.is_a?(Register) || buflen == t)
-      ns do
+      isolate do
                 ld  a, r unless r_in_a
                 ld  t, buflen unless buflen == t
                 scf
@@ -732,7 +732,7 @@ class Z80MathInt
       raise ArgumentError unless (!input.is_a?(Register) or input == rr) and
                           (size.is_a?(Integer) or (size.is_a?(Register) and size.bit8?)) and
               [de, hl].include?(rr) and [d, e].include?(r)
-      ns do
+      isolate do
             if !input.is_a?(Register) and !size.is_a?(Register)
               ld  b, size unless size == b
               ld  rr, input + size
@@ -765,7 +765,7 @@ class Z80MathInt
     # Block must not alter +hl+ or +b+.
     def bcdtoa(buffer, size, &block)
       raise ArgumentError unless (!buffer.is_a?(Register) or buffer == hl)
-      ns do
+      isolate do
             ld  b, size unless size == b
             ld  hl, buffer unless buffer == hl
             xor a

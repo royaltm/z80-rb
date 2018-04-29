@@ -51,6 +51,24 @@ module Z80
         @labels.has_key? name.to_s
     end
     ##
+    #  Convenience method to check if argument is label-like
+    #
+    def label?(arg)
+      arg.respond_to?(:to_label)
+    end
+    ##
+    #  Convenience method to check if argument is an immediate label
+    #
+    def label_immediate?(arg)
+      label?(arg) and arg.to_label(self).immediate?
+    end
+    ##
+    #  Convenience method to check if argument is an immediate label or a integer
+    #
+    def immediate?(arg)
+      label_immediate?(arg) or arg.is_a?(Integer)
+    end
+    ##
     #  Creates relocable label at Program.pc of (optional) +type+.
     #
     #  Example:
@@ -83,7 +101,7 @@ module Z80
     #
     #  Returns unnamed +label+ that points to +label+ and is of different +type+.
     def union(label, type)
-      raise Syntax, "Invalid union argument." unless label.respond_to?(:to_label) and !label.dummy?
+      raise Syntax, "Invalid union argument." unless label.respond_to?(:to_label) and !label.dummy? and !type.nil?
       Label.new label.to_i, type, label.immediate? ? nil : :code
     end
     ## call-seq:
@@ -217,20 +235,20 @@ module Z80
     #    mylabel 0x0123
     #  is the same as:
     #    mylabel addr 0x0123
-    #  This creates a label at instruction and references it:
+    #  This creates a label at a instruction and references it:
     #    mylabel ld  a, [hl]
     #            inc hl
     #            djnz mylabel
     #
     #  Returns named +label+ that points to +label+ or is a dummy label (not yet defined).
     def method_missing(m, label = nil)
-      name = m.to_s
       if ct = @contexts.last
+        name = m.to_s
         @labels[name] = if label
           label = if label.respond_to? :to_label
             label.to_label self
           else
-            Label.new label.to_i
+            Label.new label.to_i, 1
           end
           @dummies.delete_if do |n, lbl, *cts|
             if n == name and cts.include? ct.object_id
@@ -345,11 +363,12 @@ module Z80
     # Evaluates label. Do not use it directly.
     # This method is being used during program compilation.
     def to_i(start = 0, rel_to = nil)
+      raise Syntax, "a label `#{@name}' can't be coerced to a Integer before it's defined" if dummy?
       if rel_to == :self
         0
       else
         @address - rel_to.to_i + (@reloc ? start : 0)
-      end unless dummy?
+      end
     end
     # Checks if label is a pointer. Do not use it directly.
     # This method is being used during program compilation.
@@ -364,6 +383,7 @@ module Z80
     def initialize(address, type = 1, reloc = nil, members = nil) # :notnew:
       @address = address.to_i & 0xffff
       @size = type.to_i
+      # a dummy label has @type == nil
       @type = type
       @reloc = reloc
       @members = {}.update(members || {})
@@ -596,6 +616,14 @@ module Z80
         end
       end
       l
+    end
+
+    def ==(other)
+      if other.is_a?(Alloc)
+        @label == other.instance_variable_get("@label")
+      else
+        @label == other
+      end
     end
 
     def pointer?; @pointer; end

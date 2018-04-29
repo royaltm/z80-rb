@@ -74,7 +74,7 @@ module Z80
             mnemo = mnemo % prm.each_slice(2).map do |o, t|
               case t
               when :word
-                data[o, 2].unpack('S')[0]
+                data[o, 2].unpack('S<')[0]
               when :byte
                 data[o, 1].unpack('C')[0]
               when :pcrel
@@ -116,10 +116,11 @@ module Z80
     ##
     #  Method used by Program instructions was placed here to not pollute *program* namespace
     def add_reloc(prg, label, size, offset = 0, from = nil)
-      if (label = label.to_label(prg).to_alloc).immediate? and (size == 2 or from)
-        [label.to_i(0, size == 1 ? :self : nil)].pack(size == 1 ? 'c' : 's')
+      if (alloc = label.to_label(prg).to_alloc).immediate? and (size == 2 or from)
+        prg.reloc << Relocation.new(prg.pc + offset, alloc, 0, from) unless alloc.to_name.nil?
+        [alloc.to_i(0, size == 1 ? :self : nil)].pack(size == 1 ? 'c' : 's<')
       else
-        prg.reloc << (r = Relocation.new(prg.pc + offset, label, size, from))
+        prg.reloc << Relocation.new(prg.pc + offset, alloc, size, from)
         "\x0"*size
       end
     end
@@ -157,7 +158,7 @@ module Z80
     def new(start = 0x0000, *args)
       unless @dummies.empty? and !@contexts.last.any? {|_,v| v.dummy?}
         dummies = @dummies.map {|d| d[0..1]} + @contexts.last.select {|_,v| v.dummy?}.map {|d| d[0..1]}
-        raise CompileError, "Variables not initialized:#{dummies.inspect}"
+        raise CompileError, "Labels referenced but not defined: #{dummies.inspect}"
       end
       p = super(*args)
       c = @code.dup
@@ -178,16 +179,19 @@ module Z80
       labels = Hash[*eval_labels[@labels].flatten]
       @reloc.each do |r|
         case r.size
+        when 0
+          # ignore, this is an absolute address but we need relocation info for debug
         when 1
           addr = r.from ? r.from : r.addr + 1 + start
-          unless (-128..127).include?(i = r.alloc.to_i(start, addr))
+          i = r.alloc.to_i(start, addr)
+          unless (-128..127).include?(i)
             raise CompileError, "Relative relocation out of range at 0x#{'%04x' % r.addr} -> #{i} #{r.inspect}"
           end
           c[r.addr] = [i].pack('c')
         when 2
-          c[r.addr, 2] = [r.alloc.to_i(start)].pack('S')
+          c[r.addr, 2] = [r.alloc.to_i(start)].pack('S<')
         else
-          c[r.addr, r.size] = [r.alloc.to_i(start)].pack('Q')[0, r.size].ljust(r.size, "\0")
+          c[r.addr, r.size] = [r.alloc.to_i(start)].pack('Q<')[0, r.size].ljust(r.size, "\0")
         end
       end
       ['@code', c,
@@ -206,7 +210,8 @@ module Z80
       @code.bytesize
     end
     ##
-    #  Convenience method to create macros.
+    #  Convenience method to create local macros.
+    #
     #  Give a +name+ (Symbol) for macro, (optional) list of +registers+ to push before and pop after code
     #  and a block of code.
     #  The block will receive +eoc+ label (see Program.ns) and any argument you pass when calling a macro.
@@ -216,8 +221,9 @@ module Z80
     #
     #  <b>Unlike labels, macros must be defined before being referenced.</b>
     #
-    #  <b>Be carefull with +ret+ instruction inside code if you used +registers+.</b>
+    #  <b>Be carefull with +ret+ instruction if you used +registers+.</b>
     def macro(name, *registers, &mblock)
+      raise Syntax, "Macro must have name" unless name.is_a?(Symbol)
       raise Syntax, "Macro may be defined only in main program context." if @contexts.size > 1
       raise Syntax, "A label: #{name} is already allocated." if @labels.has_key?(label.to_s)
       m = lambda do |*args, &block|
@@ -232,8 +238,10 @@ module Z80
       end
       define_singleton_method(name.to_sym, &m)
     end
+    ##
     #  Creates offset from Program.pc to +address+ padding it with +pad+.
-    #  Do not confuse it with assembler directive ORG which sets absolute address of program.
+    #
+    #  Do not confuse it with assembler directive ORG which sets absolute address of a program.
     #  In ruby-z80 only an instances of a program have absolute addresses.
     #
     #  Returns unnamed +label+ that points to beginning of padded space.
@@ -242,10 +250,38 @@ module Z80
       raise Syntax, "The current code pointer: #{pc.to_s 16} is exceeding: #{address.to_i.to_s 16} " if pc > address
       Z80::add_code self, [pad].pack('c')*(address - pc)
     end
-    #  Creates namespace for labels defined inside code.
-    #  Give a block of code containing labels or other namespaces (namespaces can be nested).
-    #  Give (optional) +name+ as Symbol for named (labeled) namespaces.
-    #  The block receives one variable: +eoc+ which is a label pointing to an end of namespace code.
+    ##
+    #  Creates a isolated namespace for relocable labels defined inside your code.
+    #
+    #  Isolated namespace can't reference labels defined outside of it.
+    #
+    #  :see: Program#ns
+    def isolate(name = nil, opts = {}, &block)
+      opts, name = name, nil if name.is_a?(Hash)
+      ns(name, {:isolate => true}.merge(opts), &block)
+    end
+    ##
+    #  Creates namespace for relocable labels defined inside your code.
+    #
+    #  Give a block which generates z80 code containing labels or possibly other
+    #  namespaces (namespaces can be nested).
+    #
+    #  Give optional +name+ as a Symbol for named (labeled) namespaces.
+    #
+    #  Options:
+    #
+    #  * +:inherit+:: if +true+ or a name (String or Symbol) or a Array of names,
+    #                 namespace inherits absolute labels from parent namespaces;
+    #                 +false+ by default.
+    #  * +:inherit_absolute+:: alias of +:inherit+
+    #  * +:inherit_labels+:: alias of +:inherit+
+    #  * +:isolate+:: creates isolated namespace :see: Program#isolate
+    #
+    #  The block receives one variable: +eoc+ which is a label pointing immediately __after__
+    #  the namespaced code.
+    #
+    #  If +:inherit+ option is +false+ but +:isolate+ is also +false+ it's still possible to
+    #  reference absolute labels but it would be impossible to coerce such label to a Integer.
     #
     #  Example:
     #    ns :foo do |eoc|
@@ -254,17 +290,46 @@ module Z80
     #            inc b
     #            jr NZ, loop1
     #    end
-    #  Returns (optionally named) +label+ that points to beginning of code.
-    def ns(name = nil)
+    #
+    #  Returns (optionally named) +label+ that points to the beginning of a namespaced code.
+    def ns(name = nil, opts = {})
+      raise ArgumentError, "no block given to ns" unless block_given?
+      opts, name = name, nil if name.is_a?(Hash)
+      inherit = opts[:inherit] || opts[:inherit_absolute] || opts[:inherit_labels]
       labels = @labels
-      @labels = @labels.dup #labels.merge @contexts.last
-      @contexts << {}
-      raise ArgumentError, "no block in ns" unless block_given?
+      @labels = labels.dup
+      inherit = [inherit] if inherit.is_a?(Symbol) || inherit.is_a?(String) || label?(inherit)
+      @contexts << if inherit.is_a?(Array)
+        inherit.map do |name|
+          name = if name.respond_to?(:to_name)
+            name.to_name
+          else
+            name.to_s
+          end
+          labl = labels[name]
+          raise CompileError, "Absolute label: `#{name}' not found" if labl.nil?
+          raise CompileError, "Label from parents: `#{name}' is not absolute" unless labl.immediate?
+          [name, labl]
+        end.to_h
+      elsif inherit == true
+        labels.select{|_,v| v.immediate?}
+      elsif !inherit
+        {}
+      else
+        raise ArgumentError, "ns :inherit option must be a boolean, name or array of names"
+      end
       addr = pc
-      eoc = Label.dummy
+      eoc = Label.dummy 'EOC'
       @context_labels << (top = Label.dummy)
-      @debug << DebugInfo.new(addr, 0, nil, nil, @context_labels.dup)
+      beg_debug_index = @debug.length
+      beg_reloc_index = @reloc.length
+      @debug << DebugInfo.new(addr, 0, '--- begin ---', nil, @context_labels.dup)
       yield eoc
+      if name.nil? and @reloc[beg_reloc_index...@reloc.length].all? {|r| r.alloc != eoc}
+        @debug.delete_at beg_debug_index
+      else
+        @debug << DebugInfo.new(pc, 0, '---  end  ---', nil, @context_labels.dup << eoc)
+      end
       eoc.reinitialize(pc, 1, :code)
       members, dummies = @contexts.pop.partition do |n, l|
         if l.dummy?
@@ -275,14 +340,21 @@ module Z80
       end
       contexts = @contexts.map(&:object_id)
       @labels = labels
-      @dummies+= dummies.map do |n, l|
-        if @labels.has_key?(n) and !@labels[n].dummy?
-          l.reinitialize @labels[n]
-          nil
-        else
-          [n, l] + contexts
+      if opts[:isolate]
+        unless dummies.empty?
+          dummies = dummies.map {|d| d[0..1]}
+          raise CompileError, "Undefined labels referenced in isolated namespace: #{dummies.inspect}"
         end
-      end.compact
+      else
+        @dummies+= dummies.map do |n, l|
+          if @labels.has_key?(n) and !@labels[n].dummy?
+            l.reinitialize @labels[n]
+            nil
+          else
+            [n, l] + contexts
+          end
+        end.compact
+      end
       @context_labels.pop
       top.reinitialize addr, pc - addr, :code, Hash[members]
       top = self.send name.to_sym, top if name
