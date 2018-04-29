@@ -10,7 +10,7 @@ module Z80
 			#
 			# A sugar for two 8bit ld instructions.
 			#
-			# --Example:
+			# Example:
 			#   ld16  bc, hl
 			def ld16(aa, bb)
 				unless [bc, de, hl].include?(aa) and [bc, de, hl].include?(bb)
