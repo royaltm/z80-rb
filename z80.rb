@@ -210,35 +210,6 @@ module Z80
 			@code.bytesize
 		end
 		##
-		#  Convenience method to create local macros.
-		#
-		#  Give a +name+ (Symbol) for macro, (optional) list of +registers+ to push before and pop after code
-		#  and a block of code.
-		#  The block will receive +eoc+ label (see Program.ns) and any argument you pass when calling a macro.
-		#
-		#  If you want your macros being exportable, instead of using this method
-		#  create module `Macros' inside your *program* class and define methods there.
-		#
-		#  <b>Unlike labels, macros must be defined before being referenced.</b>
-		#
-		#  <b>Be carefull with +ret+ instruction if you used +registers+.</b>
-		def macro(name, *registers, &mblock)
-			raise Syntax, "Macro must have name" unless name.is_a?(Symbol)
-			raise Syntax, "Macro may be defined only in main program context." if @contexts.size > 1
-			raise Syntax, "A label: #{name} is already allocated." if @labels.has_key?(label.to_s)
-			m = lambda do |*args, &block|
-				if args.first.is_a?(Symbol)
-					n = args.shift
-				end
-				ns(n) do |eoc|
-					registers.each {|rr| push rr}
-					mblock.call eoc, *args, &block
-					registers.reverse.each {|rr| pop rr}
-				end
-			end
-			define_singleton_method(name.to_sym, &m)
-		end
-		##
 		#  Creates offset from Program.pc to +address+ padding it with +pad+.
 		#
 		#  Do not confuse it with assembler directive ORG which sets absolute address of a program.
@@ -251,22 +222,21 @@ module Z80
 			Z80::add_code self, [pad].pack('c')*(address - pc)
 		end
 		##
-		#  Creates a isolated namespace for relocable labels defined inside your code.
+		#  Creates a isolated namespace for relocatable labels defined inside your code.
 		#
 		#  Isolated namespace can't reference labels defined outside of it.
 		#
 		#  :see: Program#ns
-		def isolate(name = nil, opts = {}, &block)
-			opts, name = name, nil if name.is_a?(Hash)
-			ns(name, {:isolate => true}.merge(opts), &block)
+		def isolate(name = nil, **opts, &block)
+			ns(name, **opts, isolate: true, &block)
 		end
 		##
-		#  Creates namespace for relocable labels defined inside your code.
+		#  Creates a namespace for relocatable labels defined inside your code.
 		#
 		#  Give a block which generates z80 code containing labels or possibly other
 		#  namespaces (namespaces can be nested).
 		#
-		#  Give optional +name+ as a Symbol for named (labeled) namespaces.
+		#  Give optional +name+ as a String or a Symbol for named (labeled) namespaces.
 		#
 		#  Options:
 		#
@@ -275,9 +245,12 @@ module Z80
 		#                 +false+ by default.
 		#  * +:inherit_absolute+:: alias of +:inherit+
 		#  * +:inherit_labels+:: alias of +:inherit+
-		#  * +:isolate+:: creates isolated namespace :see: Program#isolate
+		#  * +:use+:: alias of +:inherit+
+		#  * +:isolate+:: +true+ creates isolated namespace :see: Program#isolate
+		#  * +:merge+:: +true+ merges labels from within a namespace with the current context;
+		#               usefull if you only want to pass a +eoc+ label to some block of code
 		#
-		#  The block receives one variable: +eoc+ which is a label pointing immediately __after__
+		#  The block receives one variable: +eoc+ which is a label pointing immediately +after+
 		#  the namespaced code.
 		#
 		#  If +:inherit+ option is +false+ but +:isolate+ is also +false+ it's still possible to
@@ -292,10 +265,9 @@ module Z80
 		#    end
 		#
 		#  Returns (optionally named) +label+ that points to the beginning of a namespaced code.
-		def ns(name = nil, opts = {})
+		def ns(name = nil, **opts)
 			raise ArgumentError, "no block given to ns" unless block_given?
-			opts, name = name, nil if name.is_a?(Hash)
-			inherit = opts[:inherit] || opts[:inherit_absolute] || opts[:inherit_labels]
+			inherit = opts[:inherit] || opts[:inherit_absolute] || opts[:inherit_labels] || opts[:use]
 			labels = @labels
 			@labels = labels.dup
 			inherit = [inherit] if inherit.is_a?(Symbol) || inherit.is_a?(String) || label?(inherit)
@@ -319,11 +291,12 @@ module Z80
 				raise ArgumentError, "ns :inherit option must be a boolean, name or array of names"
 			end
 			addr = pc
+			top = Label.dummy
 			eoc = Label.dummy 'EOC'
-			@context_labels << (top = Label.dummy)
 			beg_debug_index = @debug.length
 			beg_reloc_index = @reloc.length
-			@debug << DebugInfo.new(addr, 0, '--- begin ---', nil, @context_labels.dup)
+			@debug << DebugInfo.new(addr, 0, '--- begin ---', nil, @context_labels.dup << top)
+			@context_labels << top unless opts[:merge]
 			yield eoc
 			if name.nil? and @reloc[beg_reloc_index...@reloc.length].all? {|r| r.alloc != eoc}
 				@debug.delete_at beg_debug_index
@@ -356,7 +329,12 @@ module Z80
 				end.compact
 			end
 			@context_labels.pop
-			top.reinitialize addr, pc - addr, :code, Hash[members]
+			if opts[:merge]
+				members.each {|n, l| self.send(n, l) }
+				top.reinitialize addr, pc - addr, :code
+			else
+				top.reinitialize addr, pc - addr, :code, Hash[members]
+			end
 			top = self.send name.to_sym, top if name
 			top
 		end

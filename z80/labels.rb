@@ -17,7 +17,10 @@ module Z80
 		#  All members of +label+ will also be exported but within a namespace of exported label.
 		#  Alternatively pass +:auto+ to make all subsequent labels to be exported
 		#  or +:noauto+ to stop autoexporting.
+		#
+		#  Only top level labels may be exported from a program.
 		def export(label)
+			raise Syntax, "Only labels on the top level may be exported" if @contexts.length != 1
 			case label
 			when :auto
 				@autoexport = true
@@ -30,10 +33,26 @@ module Z80
 			end
 		end
 		##
-		#  Method used internally by mnemonics to make pointer of a label.
+		#  Method used internally by mnemonics to make a pointer of a label or a Register.
 		#
 		#  Example:
-		#    ld  hl, [label]
+		#    ld  hl, [foo]
+		#    # is equivalent to
+		#    ld  hl, foo[]
+		#    # is equivalent to
+		#    ld  hl, self.[](foo)
+		#    # or
+		#    ld  hl, [foo[5]]
+		#    # is equivalent to
+		#    ld  hl, foo[5][]
+		#    # is equivalent to
+		#    ld  hl, self.[](foo[5])
+		#    # or
+		#    ld  hl, [foo - 8]
+		#    # is equivalent to
+		#    ld  hl, (foo - 8)[]
+		#    # is equivalent to
+		#    ld  hl, self.[](foo - 8)
 		def [](label)
 			label = label.first while label.is_a?(Array)
 			if label.respond_to?(:to_label) || label.is_a?(Register)
@@ -45,56 +64,120 @@ module Z80
 			end
 		end
 		##
-		#  True if label +name+ is defined in current context
+		#  Return normalized pointer-like label, Register or a integer.
+		#  Otherwise pass-through.
+		#
+		#  Convenient method for checking arguments in macros.
+		#
+		#  The following examples will be unwrapped as pointer-like labels:
+		#    [0x1234], [foo], [:bar]
+		#  The following examples will be unwrapped as pointer-like registers:
+		#    [hl], [de], [ix]
+		#  The following examples will pass unmodified:
+		#    a, bc, :foo, bar
+		def unwrap_pointer(arg)
+			if arg.is_a?(Array)
+				self.[](arg)
+			else
+				arg
+			end
+		end
+		##
+		#  True if a label with a +name+ is defined in the current context.
 		#
 		def label_defined?(name)
 				@labels.has_key? name.to_s
 		end
 		##
-		#  Convenience method to check if argument is label-like
+		#  Convenient method for macros to check if argument is a Register.
 		#
+		#  Returns +true+ for:
+		#    hl, a, [hl], [iy + 6]
 		def register?(arg)
+			arg = arg.first while arg.is_a?(Array)
 			arg.is_a?(Register)
 		end
 		##
-		#  Convenience method to check if argument is label-like
+		#  Convenient method for macros to check if argument is label-like.
 		#
+		#  Returns +true+ for:
+		#    foo, :foo, [foo], [foo + 10], [:foo]
 		def label?(arg)
+			arg = arg.first while arg.is_a?(Array)
 			arg.respond_to?(:to_label)
 		end
 		##
-		#  Convenience method to check if argument is an immediate label
+		#  Convenient method for macros to check if argument is pointer-like.
 		#
-		def label_immediate?(arg)
-			label?(arg) and arg.to_label(self).immediate?
+		#  Returns +true+ for:
+		#    [foo], [:foo], [foo + 10], [foo[10]], foo[], foo[10][], [0x1234], [hl], [ix + 6], ix[7]
+		def pointer?(arg)
+			if arg.is_a?(Array)
+				true
+			elsif arg.respond_to?(:pointer?)
+				arg.pointer?
+			elsif label?(arg)
+				arg.to_label(self).pointer?
+			else
+				false
+			end
 		end
 		##
-		#  Convenience method to check if argument is an immediate label or a integer
+		#  Convenient method for macros to check if argument is non-register value or a pointer.
 		#
+		#  Returns +true+ for:
+		#    0x1234, foo, :foo, [0x1234], [foo], foo[10], [:foo], [foo + 10]
+		def address?(arg)
+			arg = arg.first while arg.is_a?(Array)
+			arg.is_a?(Integer) or arg.respond_to?(:to_label)
+		end
+		##
+		#  Convenient method for macros to check if argument is an immediate label.
+		#
+		#  Returns +true+ for:
+		#    foo addr 0x1234
+		#    foo, :foo, [foo], foo[10], [:foo], [foo + 10]
+		def label_immediate?(arg)
+			arg = arg.first while arg.is_a?(Array)
+			if arg.respond_to?(:immediate?)
+				arg.immediate?
+			else
+				label?(arg) and arg.to_label(self).immediate?
+			end
+		end
+		##
+		#  Convenient method for macros to check if argument is an immediate label or a integer
+		#
+		#  Returns +true+ for:
+		#    foo addr 0x1234
+		#    0x1234, foo, :foo, [0x1234], [foo], foo[10], [:foo], [foo + 10]
 		def immediate?(arg)
+			arg = arg.first while arg.is_a?(Array)
 			label_immediate?(arg) or arg.is_a?(Integer)
 		end
 		##
-		#  Creates relocable label at Program.pc of (optional) +type+.
+		#  Creates relocatable label at Program.pc of (optional) +type+.
 		#
 		#  Example:
 		#    foo label
 		#    bar label 2
 		#
 		#  Returns unnamed +label+ that points to Program.pc and is of +type+.
+		#  The +type+ can be a integer or a struct derived from a Label.
 		def label(type = 1)
 			l = Label.new pc, type, :code
 			@debug << DebugInfo.new(pc, 0, nil, nil, @context_labels.dup << l)
 			l
 		end
 		##
-		#  Creates absolute label at +address+ of (optional) +type+
+		#  Creates an immediate label at an absolute +address+ of (optional) +type+
 		#
 		#  Example:
 		#    foo addr 0xffff
 		#    bar addr 0x4000, 2
 		#
 		#  Returns unnamed +label+ that points to +address+ and is of +type+.
+		#  The +type+ can be a integer or a struct derived from a Label.
 		def addr(address, type = 1)
 			Label.new address, type
 		end
@@ -106,6 +189,7 @@ module Z80
 		#    bar union foo, 2
 		#
 		#  Returns unnamed +label+ that points to +label+ and is of different +type+.
+		#  The +type+ can be a integer or a struct derived from a Label.
 		def union(label, type)
 			raise Syntax, "Invalid union argument." unless label.respond_to?(:to_label) and !label.dummy? and !type.nil?
 			Label.new label.to_i, type, label.immediate? ? nil : :code
@@ -116,20 +200,26 @@ module Z80
 		#       data(type, size, *data)
 		#       data(type, *data)
 		#
-		#  Creates relocable label and adds data to Program.code at Program.pc.
+		#  Creates relocatable label and adds data to Program.code at Program.pc.
 		#  The data size will be of +type.to_i+ multiplied by +size+.
 		#
-		#  The +type+ may be 1 to indicate integers as bytes or 2 to indicate them as words.
+		#  The +type+ argument may be a +1+ to indicate integers as bytes or a +2+ to indicate them as words.
 		#
-		#  The +data+ types must be one of the following:
+		#  +type+ may also be a String. In this instance a label is created of the +type+
+		#  being equal to the String bytesize. It allows you to easily access string byte size
+		#  pointed by a label with a unary + method. The string is also being added as a data
+		#  to Program.code at Program.pc and may be limited (or extended) with a +size+ argument.
+		#  Any +data+ arguments are ignored in this form.
+		#
+		#  The +data+ argument must be one of the following:
 		#
 		#  * a String - it will be added as an 8bit binary string
 		#  * a convertible Object (with method :to_z80bin which should return binary String)
 		#  * an Integer starting from third argument - it will be added as a byte or word
-		#          depending on the +type+
+		#    depending on the +type+
 		#  * a Label already representing a value or lazy evaluated
 		#  * an Array of integers, strings, convertible objects or labels
-		#           (possibly containing another Arrays - it will be flattened)
+		#    (possibly containing another Arrays - it will be flattened)
 		#
 		#  If the +size+ is specified as a second Integer argument, +data+ will be padded with zeroes
 		#  or cut according to +size+ * +type+.
@@ -152,9 +242,10 @@ module Z80
 		#    # creates label mystr and fills 12 bytes of code with bytes from string, add word 4242 at the end
 		#    # and fills additional 14 bytes of code with 0s.
 		#    mystr data 2, 20, "Hello World!", 4242
+		#    # creates label hello which addresses the following string and +hello resolves to its length
+		#    # which is 12 in this instance
+		#    hello data "Hello World!"
 		#  See: Label for more examples.
-		#
-		#  Returns unnamed +label+ that points to Program.pc and is of +type+ and size +type.to_i+ * +size+.
 		def data(type = 1, size = nil, *args)
 			res = ''
 			if type.respond_to? :to_data
@@ -166,6 +257,9 @@ module Z80
 					res << type.to_data(self, 0, args.shift)
 				end
 				size = nil
+			elsif type.is_a?(String)
+				res << type
+				type = Integer === size ? size : res.bytesize
 			else
 				bsize = type.to_i
 				raise Syntax, "Invalid data type" unless bsize == 1 || bsize == 2
@@ -204,7 +298,7 @@ module Z80
 		#
 		#  Creates a label and allocate bytes with Program.data.
 		#
-		#  Shortcut for:
+		#  Sugar for:
 		#    data 1, ...
 		def bytes(*args); data(1, *args); end
 		## call-seq:
@@ -212,7 +306,7 @@ module Z80
 		#
 		#  Creates a label and allocate bytes with Program.data.
 		#
-		#  Shortcut for:
+		#  Sugar for:
 		#    data 1, [...]
 		def db(*args); data(1, args); end
 		## call-seq:
@@ -221,7 +315,7 @@ module Z80
 		#
 		#  Creates a label and allocate words with Program.data.
 		#
-		#  Shortcut for:
+		#  Sugar for:
 		#    data 2, ...
 		def words(*args); data(2, *args); end
 		## call-seq:
@@ -229,7 +323,7 @@ module Z80
 		#
 		#  Creates a label and allocate bytes with Program.data.
 		#
-		#  Shortcut for:
+		#  Sugar for:
 		#    data 2, [...]
 		def dw(*args); data(2, args); end
 		##
@@ -271,7 +365,7 @@ module Z80
 						label.name = name
 						ct[name] = label
 					end
-					if @autoexport
+					if @autoexport and @contexts.length == 1
 						export ct[name]
 					else
 						ct[name]
@@ -359,9 +453,10 @@ module Z80
 	#  +loop+ is a ruby statement.
 	#
 	class Label
-		def deep_clone_with_relocation(addr)
+		# This method is being used when importing labels from other programs.
+		def deep_clone_with_relocation(addr) # :nodoc:
 			members = Hash[@members.map {|n, m| [n, m.deep_clone_with_relocation(addr)] }]
-			addr = reloc ? @address + addr.to_i : @address
+			addr = @reloc ? @address + addr.to_i : @address
 			l = Label.new(addr, @type, @reloc, members)
 			l.name = @name if @name
 			l
@@ -376,7 +471,7 @@ module Z80
 				@address - rel_to.to_i + (@reloc ? start : 0)
 			end
 		end
-		# Checks if label is a pointer. Do not use it directly.
+		# Checks if label is a pointer. Prefer using Program.pointer? instead.
 		# This method is being used during program compilation.
 		def pointer?; false; end
 		# Creates a dummy label. Do not use it directly.
@@ -395,7 +490,7 @@ module Z80
 			@members = {}.update(members || {})
 			@name = nil
 		end
-		# Checks if label is absolute (+true+) or relocable (+false+). Do not use it directly.
+		# Checks if label is absolute (+true+) or relocatable (+false+). Prefer using Program.immediate? instead.
 		# This method is being used during program compilation.
 		def immediate?
 			!dummy? and !@reloc
@@ -412,6 +507,7 @@ module Z80
 		# Reinitializes dummy label. Do not use it directly.
 		# This method is being used during program compilation.
 		def reinitialize(address, type = 1, reloc = nil, members = nil)
+			return self if address == self
 			raise Syntax, "label #{self} already initialized." unless dummy?
 			if address.is_a? self.class
 				address, type, reloc, name, members = [
@@ -437,7 +533,19 @@ module Z80
 				@size
 			end
 		end
-		# Returns label indexed by +index+. If +index+ is nil, returns pointer
+		# Returns a label offset by +index+ multiplied by label type size.
+		# If +index+ is nil, returns a pointer instead.
+		#
+		# e.g.:
+		#    foo addr 0x1234, 2
+		#    ld  hl, foo[7]   # loads 0x1234+14 into hl
+		#    ld  hl, foo[-42] # loads 0x1234-84 into hl
+		#                     # pointer conversion (2nd form)
+		#    ld  hl, foo[]    # loads a byte from memory pointed at 0x1234 into l
+		#                     # and a byte pointed at 0x1235 into h
+		# =====If possible don't use directly the 2nd, pointer form in your programs.
+		# For clarity use one-element array wrapped around a label, integer or a Register:
+		#    ld  hl, [foo]
 		def [](index = nil)
 			to_alloc[index]
 		end
@@ -465,10 +573,10 @@ module Z80
 		def to_str; "`#{@name}':#{'%04X' % @address}:#{@size} #{@reloc}#{dummy? ? '?':''}"; end
 		alias_method :to_s, :to_str
 		def respond_to_missing?(m, include_private=false)
-			m != :to_ary && m != :to_a
+			m != :to_ary && m != :to_a && m != :to_hash && m != :to_h
 		end
 		def method_missing(m)
-			if m == :to_ary || m == :to_a
+			if m == :to_ary || m == :to_a || m == :to_hash || m == :to_h
 				super
 			else
 				to_alloc.send m
@@ -588,6 +696,7 @@ module Z80
 	#  See Label instead.
 	#
 	class Alloc
+		# This method is being used when importing labels from other programs.
 		def deep_clone_with_relocation(addr)
 			l = dup
 			l.instance_variable_set('@label', @label.deep_clone_with_relocation(addr))
@@ -733,10 +842,10 @@ module Z80
 		end
 		def to_name; @name || @label.to_name; end
 		def respond_to_missing?(m, include_private=false)
-			m != :to_ary && m != :to_a
+			m != :to_ary && m != :to_a && m != :to_hash && m != :to_h
 		end
 		def method_missing(m)
-			if m == :to_ary || m == :to_a
+			if m == :to_ary || m == :to_a || m == :to_hash || m == :to_h
 				super
 			else
 				l = dup

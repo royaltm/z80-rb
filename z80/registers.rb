@@ -4,6 +4,31 @@ module Z80
 		##
 		#  Z80 registers are populated as singleton methods.
 		#  You must not create instances of this class directly.
+		#
+		#  Available registers for use within your programs:
+		#
+		#    a, b, c, d, e, h, l, ixh, ixl, iyh, iyl, af, bc, de, hl, ix, iy, sp, i, r
+		#
+		#  There are also special registers internally used by the compiler which indicate indirect memory access:
+		#
+		#    bc_, de_, hl_, iy_, ix_, sp_ # do not use them in your programs
+    #
+		#  Instead for addressing values with registers in memory use one-element array wrapped
+		#  around a 16bit register:
+		#
+		#    [bc], [de], [hl], [iy - 2], [ix + 1], [sp]
+		#
+		#  Sometimes it's desired to use arguments in macros as 8bit registers and a pair of them as 16bit register.
+		#  It's possible thanks to Register#split and Register#| methods:
+		#
+		#    macro :foo do |_, rh, rl, tt|
+		#      th, tl = tt.split
+		#            		ld  rh|rl, tl
+		#            		inc rh|rl
+		#            		ld  rh|rl, th
+		#    end
+		#
+		#    foo h, l, bc
 		class Register
 			@@names8 = %w[b c d e h l hl_ a]
 			@@namesi8= %w[ixh ixl iyh iyl]

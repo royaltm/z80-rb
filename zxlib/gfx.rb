@@ -44,24 +44,26 @@ class ZXGfx
 	# * +al+:: input/output register: address low byte
 	# * +bcheck+:: boundary check flag:
 	#              +false+ = disable checking,
-	#              +true+  = return if out of screen (default),
+	#              +true+  = issue +ret+ if out of screen (default)
 	#              +label+ = jump to label if out of screen,
 	#              +hl+|+ix+|+iy+ = jump to address in a register if out of screen
+	#
+	# if block is given and +bcheck+ == +true+ evaluates namespaced block instead of +ret+.
 	#
 	# T-states: 
 	#
 	# * when +bcheck+ is +false+:: 27:87.5% / 49:1.56% / 59:10.94%
 	# * when +bcheck+ is +true+ or +label+::  27:87.5% / (70:2 / 75:1):1.56% / 62:10.94% 
-	def nextline(ah, al, bcheck = true)
+	def nextline(ah, al, bcheck = true, **nsopts, &block)
 		if ah == al or [ah, al].include?(a) or
 				(register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
-				(bcheck == hl_ and ([h, l].include?(ah) or [h, l].include?(al))) or
-				(bcheck == ix_ and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
-				(bcheck == iy_ and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
+				(bcheck == hl and ([h, l].include?(ah) or [h, l].include?(al))) or
+				(bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
+				(bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
 				![ah, al].all?{|r| register?(r) }
 			raise ArgumentError, "nextline invalid arguments!"
 		end
-		isolate do |eoc|
+		ns do |eoc|
 				inc  ah
 				ld   a, ah
 				anda 0x07
@@ -74,8 +76,13 @@ class ZXGfx
 				ld   a, ah
 				cp   0x58
 				jr   C, eoc
-				if bcheck == true
-					ret
+				case bcheck
+				when true
+					if block_given?
+						ns(**nsopts, &block)
+					else
+						ret
+					end
 				else
 					jp  bcheck
 				end
@@ -145,44 +152,49 @@ class ZXGfx
 	#
 	# Modifies: +af+, +y+, +h+, +l+, +t+
 	#
-	# * +y+:: input register: vertical-coordinate (may be same as: +h+, +t+ or +l+ or +a+)
+	# * +y+:: input register: vertical-coordinate (may be same as: +h+, +l+ or +a+)
 	# * +h+:: output register: address high
 	# * +l+:: output register: address low
 	# * +t+:: temporary register
+	# * +col+:: optional column (0-31) as a register (must not be same as other arguments)
 	#
 	# T-states: 73
 	#
 	# y < a1 a2 h3 h2 h1 l3 l2 l1,
 	# h > 0  1  0  a1 a2 l3 l2 l1,  l > h3 h2 h1 0  0  0  0  0
-	def ytoscr(y, h, l, t)
-	  if [h,l,t].include?(a) or [h,l,t].uniq.size != 3 or
-				![y, h, l, t].all?{|r| r.is_a?(Register)}
-		raise ArgumentError, "ytoscr invalid arguments!"
-	  end
-	  isolate do
+	def ytoscr(y, h, l, t, col=nil)
+		if [h,l,t].include?(a) or [h,l,t].uniq.size != 3 or t == y or
+				![y, h, l, t].all?{|r| r.is_a?(Register) } or
+				(col.is_a?(Register) and [y, h, l, t, a].include?(col)) or
+				(!col.nil? and !col.is_a?(Register))
+			raise ArgumentError, "ytoscr invalid arguments!"
+		end
+		isolate do
 			if y == a
 			  ld   l, a
 			else
 			  ld   a, y
-			end           # a= a a h h h l l l
+			end             # a= a a h h h l l l
 			anda 0b00000111
-			ld   t, a     # h= 0 0 0 0 0 l l l
+			ld   t, a       # h= 0 0 0 0 0 l l l
 			if y == a
-			  xor  l
+				xor  l
 			else
-			  xor  y      # a= a a h h h 0 0 0
+				xor  y      # a= a a h h h 0 0 0
 			end
-			rlca          # a= a h h h 0 0 0 a
-			rlca          # a= h h h 0 0 0 a a
-			ld   h, a     # b= h h h 0 0 0 a a
+			rlca            # a= a h h h 0 0 0 a
+			rlca            # a= h h h 0 0 0 a a
+			ld   h, a       # b= h h h 0 0 0 a a
 			anda 0b11100000
-			ld   l, a     # l= h h h 0 0 0 0 0
-			xor  h        # a= 0 0 0 0 0 0 a a
+			add  col if col
+			ld   l, a       # l= h h h c c c c c
+			sub  col if col # l= h h h 0 0 0 0 0
+			xor  h          # a= 0 0 0 0 0 0 a a
 			3.times { rlca }
-			ora  t        # a= 0 0 0 a a l l l
-			ora  0x40     # a= 0 1 0 a a l l l
-			ld   h, a     # h= 0 1 0 a a l l l
-	  end
+			ora  t          # a= 0 0 0 a a l l l
+			ora  0x40       # a= 0 1 0 a a l l l
+			ld   h, a       # h= 0 1 0 a a l l l
+		end
 	end
 	##
 	# Converts row,col text coordinates to screen byte address
