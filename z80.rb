@@ -162,8 +162,9 @@ module Z80
 			end
 			p = super(*args)
 			c = @code.dup
-			imports = @imports.map do |addr, size, program, arguments|
-				ip = program.new(addr + start, *arguments)
+			imports = @imports.map do |addr, size, program, code_addr, arguments|
+				code_addr = addr + start if code_addr.nil?
+				ip = program.new(code_addr, *arguments)
 				raise CompileError, "Imported program #{program} has been modified." unless ip.code.bytesize == size
 				c[addr, size] = ip.code
 				ip
@@ -240,15 +241,15 @@ module Z80
 		#
 		#  Options:
 		#
-		#  * +:inherit+:: if +true+ or a name (String or Symbol) or a Array of names,
-		#                 namespace inherits absolute labels from parent namespaces;
-		#                 +false+ by default.
-		#  * +:inherit_absolute+:: alias of +:inherit+
-		#  * +:inherit_labels+:: alias of +:inherit+
-		#  * +:use+:: alias of +:inherit+
-		#  * +:isolate+:: +true+ creates isolated namespace :see: Program#isolate
+		#  * +:inherit+:: if +true+ namespace inherits absolute labels from parent namespaces
+		#                 if a name, label or an Array of names only specified labels are inherited;
+		#                 +false+ by default,
+		#  * +:inherit_absolute+:: alias of +:inherit+,
+		#  * +:inherit_labels+:: alias of +:inherit+,
+		#  * +:use+:: alias of +:inherit+,
+		#  * +:isolate+:: +true+ creates isolated namespace :see: Program#isolate,
 		#  * +:merge+:: +true+ merges labels from within a namespace with the current context;
-		#               usefull if you only want to pass a +eoc+ label to some block of code
+		#               usefull if you only want to pass a +eoc+ label to some block of code.
 		#
 		#  The block receives one variable: +eoc+ which is a label pointing immediately +after+
 		#  the namespaced code.
@@ -270,7 +271,8 @@ module Z80
 			inherit = opts[:inherit] || opts[:inherit_absolute] || opts[:inherit_labels] || opts[:use]
 			labels = @labels
 			@labels = labels.dup
-			inherit = [inherit] if inherit.is_a?(Symbol) || inherit.is_a?(String) || label?(inherit)
+			inherit = [inherit] if !inherit.is_a?(Array) &&
+									(inherit.is_a?(Symbol) || inherit.is_a?(String) || label?(inherit))
 			@contexts << if inherit.is_a?(Array)
 				inherit.map do |name|
 					name = if name.respond_to?(:to_name)
@@ -279,8 +281,14 @@ module Z80
 						name.to_s
 					end
 					labl = labels[name]
-					raise CompileError, "Absolute label: `#{name}' not found" if labl.nil?
-					raise CompileError, "Label from parents: `#{name}' is not absolute" unless labl.immediate?
+					if labl and labl.dummy?
+						ct = @contexts.reverse_each.find do |ct|
+							l = ct[name]
+							l and !l.dummy?
+						end
+						labl = ct and ct[name]
+					end
+					raise CompileError, "Label: `#{name}' not found" if labl.nil?
 					[name, labl]
 				end.to_h
 			elsif inherit == true
@@ -354,19 +362,19 @@ module Z80
 		#  Without +name+ labels from +program+ will be defined in current namespace.
 		#  Pass +program+ class (not an instance!).
 		#  Give flags to choose what to import from +program+:
-		#  * +:labels+ => +true/false+ (default: +true+)
-		#  * +:code+   => +true/false+ (default: +true+)
-		#  * +:macros+ => +true/false+ (default: +false+)
-		#  * +:args+   => program initialize arguments
+		#  * +:labels+:: +true/false+ (default: +true+)
+		#  * +:code+::   +true/false+ or an absolute address (default: +true+)
+		#  * +:macros+:: +true/false+ (default: +false+)
+		#  * +:args+::   program initialize arguments
 		#  
 		#  To be able to import *macros* create module `Macros'
 		#  inside +program+ class and put methods there. They will be imported as macros.
 		#  <b>In such a method always wrap your code inside #ns.</b>
 		#
 		#  Returns (optionally named) +label+ that points to beginning of imported code.
-		def import(name, program = nil, flags = {})
+		def import(name, program = nil, **flags)
 			unless name.is_a?(Symbol)
-				flags, program, name = program, name, nil
+				program, name = name, nil
 			end
 			addr = pc
 			options = {
@@ -375,6 +383,9 @@ module Z80
 				:macros => false,
 				:args => []
 			}.merge flags
+			code_addr = if options[:code].respond_to?(:to_i)
+				options[:code].to_i
+			end
 			if options[:macros]
 				self.extend program::Macros if defined?(program::Macros)
 			end
@@ -391,10 +402,10 @@ module Z80
 				members.each {|n, m| self.send n.to_sym, m} if members
 				l = Label.new addr, type, :code
 			end
-			if options[:code]
+			if options[:code] and !program.code.bytesize.zero?
 				@debug << DebugInfo.new(addr, 0, nil, nil, @context_labels.dup << l)
 				@debug << @imports.size
-				@imports << [addr, type, program, options[:args]]
+				@imports << [addr, type, program, code_addr, options[:args]]
 				@code << program.code
 			end
 			program.freeze

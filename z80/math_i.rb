@@ -40,6 +40,12 @@ class Z80MathInt
 		#
 		# Uses: +af+, +h+, +l+.
 		#
+		# ====Note:
+		# Although this method is often better (faster and does not use other registers) way
+		# to add 8bit unsigned register +a+ value to 16bit register it does not set flags properly.
+		#
+		# T-states: 20
+		#
 		# * +h+:: register input accumulator hi.
 		# * +l+:: register input accumulator lo.
 		def adda_to(h, l) # 20
@@ -58,6 +64,12 @@ class Z80MathInt
 		# Subtracts +r+ from +h+, +l+.
 		#
 		# Uses: +af+, +r+, +h+, +l+, preserves +r+.
+		#
+		# ====Note:
+		# Although this method is often better (faster and does not use other registers) way
+		# to subtract 8bit unsigned register value from 16bit register it does not set flags properly.
+		#
+		# T-states: 24
 		#
 		# * +r+:: register subtractor must not be +a+.
 		# * +h+:: register input accumulator hi.
