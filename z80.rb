@@ -301,13 +301,13 @@ module Z80
 			addr = pc
 			top = Label.dummy
 			eoc = Label.dummy 'EOC'
-			beg_debug_index = @debug.length
-			beg_reloc_index = @reloc.length
-			@debug << DebugInfo.new(addr, 0, '--- begin ---', nil, @context_labels.dup << top)
+			begin_reloc_index = @reloc.length
+			begin_debug = DebugInfo.new(addr, 0, '--- begin ---', nil, @context_labels.dup << top)
+			@debug << begin_debug
 			@context_labels << top unless opts[:merge]
 			yield eoc
-			if name.nil? and @reloc[beg_reloc_index...@reloc.length].all? {|r| r.alloc != eoc}
-				@debug.delete_at beg_debug_index
+			if @reloc[begin_reloc_index...@reloc.length].all? {|r| r.alloc != eoc}
+				begin_debug.text = nil
 			else
 				@debug << DebugInfo.new(pc, 0, '---  end  ---', nil, @context_labels.dup << eoc)
 			end
