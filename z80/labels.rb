@@ -377,7 +377,9 @@ module Z80
 		end
 	end
 	##
-	#  Label class is the CORE of relocation mechanizm:
+	#  =Z80 Label
+	#
+	#  A Label class is the CORE of relocation mechanizm:
 	#    mylabel inc [hl]
 	#            inc hl
 	#            djnz mylabel
@@ -495,7 +497,8 @@ module Z80
 		def immediate?
 			!dummy? and !@reloc
 		end
-		# Checks if label is dummy. Do not use it directly.
+		# Checks if a label is already defined or is in-the-future a.k.a. a +dummy+ label.
+		# Do not use it directly.
 		# This method is being used during program compilation.
 		def dummy?
 			@type.nil?

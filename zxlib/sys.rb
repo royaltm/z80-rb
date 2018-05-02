@@ -1,5 +1,5 @@
 ##
-#  ==A module with Z80 macros for common ZX Spectrum system tasks
+#  ==A module with Z80 macros for common ZX Spectrum system tasks.
 #
 #  Example:
 #
