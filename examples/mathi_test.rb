@@ -497,7 +497,7 @@ class Program
                 ld de, somebigint
   # print number pointed at by de register with the number of bytes in c register
   # after the number a +terminator+ character is being printed out
-  prnum         utobcd bcdbufend, de, c
+  prnum         utobcd bcdbufend, de, size: c
                 exx
                 ld  hl, bcdbufend
                 sub_from c, h, l

@@ -1,4 +1,47 @@
 # -*- coding: BINARY -*-
+##
+# =Z80MathInt - integer math common routines.
+#
+# in Z80MathInt::Macros
+#
+# Example:
+#   require 'z80'
+#   require 'z80/math_i'
+#
+#   class Program
+#     include Z80
+#
+#     macro_import  Z80MathInt
+#
+#                   ld  hl, [dividend.words[0]]
+#                   exx
+#                   ld  hl, [dividend.words[1]]
+#                   ld  de, [divisor]
+#                   divmod32_16
+#                   ld  [result.words[1]], hl
+#                   exx
+#                   ld  [result.words[0]], hl
+#                   ld  [remainder], de
+#                   # convert integer to bcd
+#                   utobcd bcdbufend, result, size: 4
+#                   exx
+#                   ld  hl, bcdbufend
+#                   sub_from c, h, l
+#                   # print integer
+#                   bcdtoa hl, c do |eoc|
+#                     jr  NC, pr1  # skip check if not first
+#                     jr  Z, eoc   # skip if 0
+#               pr1   add '0'.ord
+#                     rst 0x10
+#                   end
+#
+#     dividend      int 32, 0xdeadbaca
+#     divisor       int 16, 0xbaba
+#     result        int 32, 0
+#     remainder     int 16, 0
+#                   bytes 5
+#     bcdbufend     label
+#   end
 class Z80MathInt
 	# :nodoc:
 	module Integers # :nodoc: all
@@ -6,8 +49,11 @@ class Z80MathInt
 		class Int32 < Z80::Label
 			value  byte 4
 			bytes  value byte, 4
+			words  value word, 2
 		end
 	end
+	##
+	# =Z80MathInt Macros
 	module Macros
 		##
 		# Packs an integer of arbitrary byte size, creates a label and adds it to Program.code at Program.pc.
@@ -25,6 +71,7 @@ class Z80MathInt
 				klass = Class.new(Z80::Label) do
 					value  byte bytesize
 					bytes  value byte, bytesize
+					words  value word, bytesize >> 1 if (bytesize & 1).zero?
 				end
 				Z80MathInt::Integers.const_set klass_name, klass
 			end
@@ -99,7 +146,7 @@ class Z80MathInt
 		# * +m+::     a multiplicator register, must not be +tthi+, +ttlo+.
 		# * +tt+::    16 bit temporary register (de or bc).
 		# * +clrhl+:: if +hl+ should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
-		def mul8_c(mh=h, ml=l, m=a, tt=de, clrhl = true)
+		def mul8_c(mh=h, ml=l, m=a, tt:de, clrhl:true)
 			th, tl = tt.split
 			raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !m.is_a?(Register)
 			isolate do |eoc|
@@ -129,7 +176,7 @@ class Z80MathInt
 		# * +tt+::    16 bit temporary register (de or bc).
 		# * +clrhl+:: if +hl+ should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
 		# * +double+:: +true+ if should double the result (mh|ml * 2).
-		def mul8(mh=h, ml=l, m=a, tt=de, clrhl = true, double = false)
+		def mul8(mh=h, ml=l, m=a, tt:de, clrhl:true, double:false)
 			th, tl = tt.split
 			raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !m.is_a?(Register)
 			isolate do |eoc|
@@ -157,7 +204,7 @@ class Z80MathInt
 		# * +t+::      8 bit temporary register, must not be +a+, +tthi+, +ttlo+ or +m+.
 		# * +tt+::     16 bit temporary register (+de+ or +bc+).
 		# * +clrahl+:: if +a+|+hl+  should be set or accumulated, if +false+ acts like: +a+|+hl+ += +mh+|+ml+ * +m+.
-		def mul8_24(mh=h, ml=l, m=b, t=c, tt=de, clrahl = true)
+		def mul8_24(mh=h, ml=l, m=b, t:c, tt:de, clrahl:true)
 			th, tl = tt.split
 			raise ArgumentError if tt == hl or [a,th,tl,t].include?(m) or [a,th,tl,m].include?(t) or
 														 tl == mh or th == ml or !m.is_a?(Register) or !t.is_a?(Register)
@@ -201,7 +248,7 @@ class Z80MathInt
 		# * +t+::      8 bit temporary register, must not be +a+, +tthi+ or +ttlo+.
 		# * +tt+::     16 bit temporary register (+de+ or +bc+).
 		# * +clrahl+:: if +a+|+hl+  should be set or accumulated, if +false+ acts like: +a+|+hl+ += +mh+|+ml+ * +m+.
-		def mul_const8_24(mh=h, ml=l, m=0, t=c, tt=de, clrahl = true)
+		def mul_const8_24(mh=h, ml=l, m=0, t:c, tt:de, clrahl:true)
 			th, tl = tt.split
 			throw ArgumentError unless m.is_a?(Integer) and (0..255).include?(m) and [bc, de].include?(tt) and
 																 ![h, l, th, hl, a].include?(t) and
@@ -246,7 +293,7 @@ class Z80MathInt
 		#
 		# * +mm+:: 16bit multiplicator (+bc+ or +de+)
 		# * +tt'+:: 16bit tempoarary register (+bc+ or +de+)
-		def mul16_32(mm=bc, tt=bc)
+		def mul16_32(mm=bc, tt:bc)
 			raise ArgumentError unless [bc, de].include?(mm) and [bc, de].include?(tt)
 			mh, ml = mm.split
 			th, tl = tt.split
@@ -349,19 +396,14 @@ class Z80MathInt
 		#   - :check1:: (default +true+) checks if divisor is 1, a hot path optimization
 		#   - :modulo:: (default +false+) calculates remainder only, in this instance +hl+ will be 0
 		#               when division is finished.
-		def divmod8(m=c, opts = {})
+		def divmod8(m=c, check0:true, check1:true, modulo:false)
 			raise ArgumentError unless [c, d, e].include?(m)
-			flags = {
-				:check0 => true,
-				:check1 => true,
-				:modulo => false
-			}.merge opts
 			isolate do |eoc|
-				if flags[:check0] or flags[:check1]
+				if check0 or check1
 								ld  a, m
 								cp  1
-								jr  C, eoc if flags[:check0] # division by 0
-					if flags[:check1]
+								jr  C, eoc if check0 # division by 0
+					if check1
 								jp  NZ, divstrt # division by m > 1
 								xor a            # clear rest
 								jp  eoc          # division by 1
@@ -378,10 +420,10 @@ class Z80MathInt
 								cp  m            # a - m
 								jr  NC, fits     # a >= m
 								djnz loopfit     # loop
-								ccf if flags[:check0]    # clear carry only when check0
+								ccf if check0    # clear carry only when check0
 								jp  eoc
 				fits    sub m            # a = a - m (rest)
-				unless flags[:modulo]
+				unless modulo
 									inc l          # hl <- 1 (quotient)
 				end
 								djnz loopfit     # loop
@@ -402,29 +444,23 @@ class Z80MathInt
 		#               when division is finished.
 		#   - :quick8:: (default +true+) checks if divisor fits in 8 bits and in this instance
 		#               uses different, optimized code.
-		def divmod16(x=ixl, opts = {})
+		def divmod16(x=ixl, check0:true, check1:true, modulo:false, quick8:true)
 			raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
-			flags = {
-				:check0 => true,
-				:check1 => true,
-				:modulo => false,
-				:quick8 => true
-			}.merge opts
 			isolate do |eoc|
-				if flags[:check0] or flags[:check1] or flags[:quick8]
+				if check0 or check1 or quick8
 									xor a
 									ora d
 									jp  NZ, div16strt
-					if flags[:quick8]
-									divmod8 e, opts
+					if quick8
+									divmod8 e, check0:check0, check1:check1, modulo:modulo
 									ld  b, 0
 									ld  c, a
 									jp  eoc
-					elsif flags[:check0] or flags[:check1]
+					elsif check0 or check1
 									ld  a, e
 									cp  1
-									jr  C, eoc if flags[:check0] # division by 0
-						if flags[:check1]
+									jr  C, eoc if check0 # division by 0
+						if check1
 									jp  NZ, div16strt # division by m > 1
 									ld  bc, 0         # clear rest
 									jp  eoc           # division by 1
@@ -440,7 +476,7 @@ class Z80MathInt
 									cp  d            # a - d
 									jr  NC, fitshi   # a >= d
 									djnz loopfit     # loop
-									ccf if flags[:check0]
+									ccf if check0
 									jp  over
 				fitshi    ld  x, a
 									ld  a, c
@@ -449,13 +485,13 @@ class Z80MathInt
 									jr  NC, fitslo   # a >= e
 									ld  a, x 
 									djnz loopfit     # loop
-									ccf if flags[:check0]
+									ccf if check0
 									jp  over
 				fitslo    sub e            # a = c - e
 									ld  c, a         # c = c - e
 									ld  a, x
 									sbc d            # a -= d
-				unless flags[:modulo]
+				unless modulo
 									inc l            # hl <- 1 (quotient)
 				end
 									djnz loopfit     # loop
@@ -475,19 +511,14 @@ class Z80MathInt
 		#   - :check1:: (default +true+) checks if divisor is 1, a hot path optimization
 		#   - :modulo:: (default +false+) calculates remainder only, in this instance +hl+|+hl'+ will be 0
 		#               when division is finished.
-		def divmod32_8(m=c, opts={})
+		def divmod32_8(m=c, check0:true, check1:true, modulo:false)
 			raise ArgumentError unless [c, d, e].include?(m)
-			flags = {
-				:check0 => true,
-				:check1 => true,
-				:modulo => false
-			}.merge opts
 			isolate do |eoc|
-				if flags[:check0] or flags[:check1]
+				if check0 or check1
 									ld  a, m
 									cp  1
-									jr  C, eoc if flags[:check0] # division by 0
-					if flags[:check1]
+									jr  C, eoc if check0 # division by 0
+					if check1
 									jp  NZ, divstrt  # division by m > 1
 									xor a            # clear rest
 									jp  eoc          # division by 1
@@ -502,8 +533,8 @@ class Z80MathInt
 									djnz loopfit1    # loop
 									jp  divlo16
 				fits1     sub m            # a = a - m (rest)
-				unless flags[:modulo]
-									inc l          # hl <- 1 (quotient)
+				unless modulo
+									inc l            # hl <- 1 (quotient)
 				end
 									djnz loopfit1    # loop
 
@@ -518,10 +549,10 @@ class Z80MathInt
 									cp  m            # a - m
 									jr  NC, fits2    # a >= m
 									djnz loopfit2    # loop
-									ccf if flags[:check0] # clear carry only when check0
+									ccf if check0    # clear carry only when check0
 									jp  over
 				fits2     sub m            # a = a - m (rest)
-				unless flags[:modulo]
+				unless modulo
 									inc l            # hl <- 1 (quotient)
 				end
 									djnz loopfit2    # loop
@@ -543,29 +574,23 @@ class Z80MathInt
 		#               when division is finished.
 		#   - :quick8:: (default +true+) checks if divisor fits in 8 bits and in this instance
 		#               uses different, optimized code.
-		def divmod32_16(x=ixl, opts={})
+		def divmod32_16(x:ixl, check0:true, check1:true, modulo:false, quick8:true)
 			raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
-			flags = {
-				:check0 => true,
-				:check1 => true,
-				:modulo => false,
-				:quick8 => true
-			}.merge opts
 			isolate do |eoc|
-				if flags[:check0] or flags[:check1] or flags[:quick8]
+				if check0 or check1 or quick8
 									xor a
 									ora d
 									jp  NZ, div32strt
-					if flags[:quick8]
-									divmod32_8 e, opts
+					if quick8
+									divmod32_8 e, check0:check0, check1:check1, modulo:modulo
 									ld  b, 0
 									ld  c, a
 									jp  eoc
-					elsif flags[:check0] or flags[:check1]
+					elsif check0 or check1
 									ld  a, e
 									cp  1
-									jr  C, eoc if flags[:check0] # division by 0
-						if flags[:check1]
+									jr  C, eoc if check0 # division by 0
+						if check1
 									jp  NZ, div32strt # division by m > 1
 									ld  bc, 0
 									jp  eoc           # division by 1
@@ -594,7 +619,7 @@ class Z80MathInt
 									ld  c, a         # c = c - e
 									ld  a, x
 									sbc d            # a -= d
-				unless flags[:modulo]
+				unless modulo
 									inc l            # hl <- 1 (quotient)
 				end
 									djnz loopfit1    # loop
@@ -612,7 +637,7 @@ class Z80MathInt
 									cp  d            # a - d'
 									jr  NC, fitshi2  # a >= d'
 									djnz loopfit2    # loop
-									ccf if flags[:check0]
+									ccf if check0
 									jp  over
 				fitshi2   ld  x, a
 									ld  a, c
@@ -621,13 +646,13 @@ class Z80MathInt
 									jr  NC, fitslo2  # a >= e
 									ld  a, x
 									djnz loopfit2    # loop
-									ccf if flags[:check0]
+									ccf if check0
 									jp  over
 				fitslo2   sub e            # a = c' - e'
 									ld  c, a         # c' = c' - e'
 									ld  a, x
 									sbc d            # a -= d'
-				unless flags[:modulo]
+				unless modulo
 									inc l            # hl' <- 1 (quotient)
 				end
 									djnz loopfit2    # loop
@@ -666,7 +691,7 @@ class Z80MathInt
 								jr  eoc         # remainder = (borrow|hl = 0x1_0000) (seed - 1) == 65535
 
 																# a|hl = (seed + 1) * 75
-				multi75 mul_const8_24(h, l, 75, c, de, true)
+				multi75	mul_const8_24(h, l, 75, t:c, tt:de, clrahl:true)
 								jr  Z, fits     # a|hl < 0x1_0000: n mod 65537 == n
 																# a|hl never == 0x1_0000 after multiplication by 75
 																# so we can ignore some checks later
@@ -741,7 +766,7 @@ class Z80MathInt
 		# * +size+:: may be an integer or one of 8-bit registers.
 		# * +r+:: temporary register (d or e)
 		# * +rr'+:: temporary register (de or hl)
-		def utobcd(bufend, input, size=4, r=d, rr=de)
+		def utobcd(bufend, input, size: 4, r: d, rr: de)
 			raise ArgumentError unless (!input.is_a?(Register) or input == rr) and
 													(size.is_a?(Integer) or (size.is_a?(Register) and size.bit8?)) and
 							[de, hl].include?(rr) and [d, e].include?(r)
