@@ -76,7 +76,16 @@ class Program
                   ld   a, h
                   cp   192
                   jr   NC, mloop
-                  xytoscr h, l, h, l, c, b
+
+                  anda 0b00000111
+                  ld   c, a       # 00000uuu
+                  xor  h          # YYyyy000
+                  rrca            # 0YYyyy00
+                  scf
+                  rra             # 10YYyyy0
+                  rrca            # 010YYyyy
+                  ld   h, a
+
                   ld   a, c
                   ld   [fetch_mask + 2], a
     fetch_mask    ld   a, [ix + 0]
