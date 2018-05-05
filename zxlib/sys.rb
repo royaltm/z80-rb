@@ -43,7 +43,9 @@ class ZXSys
         font_p  addr 0x3D00
         romtop  addr 0X3FFF
         screen  addr 0x4000
+        scrlen  32*192
         attrs   addr 0x5800
+        attrlen 32*24
         pr_buf  addr 0x5B00
         vars    addr 0x5C00
         mmaps   addr 0x5CB6
