@@ -139,6 +139,9 @@ class Z80MathInt
         # Optionally accumulates result in +hl+.
         # Breaks on overflow with CF=1.
         # 
+        # As a side-effect +m+ is cleared to 0 when CF=0 and +ml+ and +mh+ are left unmodified
+        # if they are not one of: +th+ nor +tl+.
+        #
         # Uses: +hl+, +m+, +mh+, +ml+, +tt+
         #
         # * +mh+::    hi multiplicant immediate value or any 8bit register.
@@ -167,6 +170,9 @@ class Z80MathInt
         # Performs multiplication of unsigned 16bit +mh+|+ml+ * 8bit +m+ and returns result in +hl+.
         # Optionally accumulates result in +hl+.
         # Optionally multiplies result * 2.
+        #
+        # As a side-effect +m+ is always cleared to 0 and +ml+ and +mh+ are left unmodified
+        # if they are not one of: +th+ nor +tl+.
         #
         # Uses: +hl+, +m+, +mh+, +ml+, +tt+
         #
