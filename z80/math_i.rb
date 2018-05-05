@@ -150,17 +150,17 @@ class Z80MathInt
             th, tl = tt.split
             raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !m.is_a?(Register)
             isolate do |eoc|
-                            ld  tl, ml unless ml == tl
-                            ld  th, mh unless mh == th
-                            ld  hl, 0 if clrhl
-                loop1 srl m
-                            jr  NC, noadd
-                            add hl, tt
-                            jr  C, eoc
-                noadd jr  Z, eoc
-                skip1 sla tl
-                            rl  th
-                            jp  NC, loop1
+                        ld  tl, ml unless ml == tl
+                        ld  th, mh unless mh == th
+                        ld  hl, 0 if clrhl
+                loop1   srl m
+                        jr  NC, noadd
+                        add hl, tt
+                        jr  C, eoc
+                noadd   jr  Z, eoc
+                skip1   sla tl
+                        rl  th
+                        jp  NC, loop1
             end
         end
         ##
@@ -180,16 +180,16 @@ class Z80MathInt
             th, tl = tt.split
             raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !m.is_a?(Register)
             isolate do |eoc|
-                            ld  tl, ml unless ml == tl
-                            ld  th, mh unless mh == th
-                            ld  hl, 0 if clrhl
-                            jp  muls1 unless double
-                loop1 sla  tl
-                            rl   th
-                muls1 srl  m
-                            jr  NC, noadd
-                            add hl, tt
-                noadd jr  NZ, loop1
+                        ld  tl, ml unless ml == tl
+                        ld  th, mh unless mh == th
+                        ld  hl, 0 if clrhl
+                        jp  muls1 unless double
+                loop1   sla  tl
+                        rl   th
+                muls1   srl  m
+                        jr  NC, noadd
+                        add hl, tt
+                noadd   jr  NZ, loop1
             end
         end
         ##
@@ -222,15 +222,15 @@ class Z80MathInt
                             jp  NZ, loop1   # m != 0 ? start regular loop
                             jr  C, skadd    # m == 1 ? add and quit
                             jp  eoc         # m == 0 ? just quit
-                loop1 jr  NC, noadd   # carry == 0 ? don't add
+                loop1       jr  NC, noadd   # carry == 0 ? don't add
                             add hl, tt      # add multiplicant to result lo16
                             adc a, t        # add multiplicant to result hi8
-                noadd sla tl          # multiplicant *= 2
+                noadd       sla tl          # multiplicant *= 2
                             rl  th
                             rl  t
                             srl m           # 0 -> multiplicator -> carry
                             jp  NZ, loop1   # m != 0 ? loop
-                skadd add hl, tt      # last add b.c. carry == 1
+                skadd       add hl, tt      # last add b.c. carry == 1
                             adc a, t
             end
         end
