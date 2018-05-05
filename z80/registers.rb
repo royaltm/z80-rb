@@ -53,7 +53,7 @@ module Z80
 				@name = name
 				@index = 0
 				@opc = opc & 0xff
-				@bit8 = name.size != 2 and opc & 7 == opc
+				@bit8 = name.size != 2 && opc & 7 == opc
 				@prefix = name.index(?x) ? "\xDD" : name.index(?y) ? "\xFD" : nil
 			end
 			def size
