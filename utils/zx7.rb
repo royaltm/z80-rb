@@ -1,4 +1,5 @@
 # -*- coding: BINARY -*-
+require 'tempfile'
 ##
 # =ZX7 decoding routines.
 #
@@ -24,6 +25,24 @@
 #
 # Get compressor from:: World Of Spectrum: {ZX7}[http://www.worldofspectrum.org/infoseekid.cgi?id=0027996]
 class ZX7
+    COMMAND = File.expand_path(File.join('..', 'bin', 'zx7.exe'), __dir__)
+    ##
+    # ZX7.compress(data) -> data (zx7 compressed)
+    def self.compress(data)
+        begin
+            file = Tempfile.new 'zx7-pack-', encoding: 'ascii-8bit'
+            file.write data
+            file.close
+            unless File.executable?(ZX7::COMMAND)
+                raise "Download: http://www.worldofspectrum.org/pub/sinclair/games-extras/ZX7_(WindowsExecutable).zip and unpack zx7.exe to bin directory."
+            end
+            system ZX7::COMMAND, file.path
+            IO.read(file.path + '.zx7', mode: 'rb')
+        ensure
+            File.unlink(file.path + '.zx7') rescue false
+            file.unlink
+        end
+    end
     module Macros
         # -----------------------------------------------------------------------------
         # ZX7 decoder by Einar Saukas, Antonio Villena & Metalbrain
