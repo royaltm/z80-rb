@@ -83,6 +83,28 @@ class Z80MathInt
                     data int_klass, blob
         end
         ##
+        # Negates +h+, +l+.
+        #
+        # Uses: +af+, +h+, +l+.
+        #
+        # T-states: 24
+        #
+        # * +h+:: negated 16bit register hi.
+        # * +l+:: negated 16bit register lo.
+        # * +th+:: target register hi.
+        # * +tl+:: target register lo.
+        def neg16(h, l, th:h, tl:l) # 24
+            raise ArgumentError, "neg16 invalid arguments!" if [h, l, tl].include?(a) or h == l or th == tl
+            ns do
+                    xor  a
+                    sub  l
+                    ld   tl, a
+                    sbc  a, a
+                    sub  h
+                    ld   th, a unless th == a
+            end
+        end
+        ##
         # Adds +a+ to +h+|+l+.
         #
         # Uses: +af+, +h+, +l+.
