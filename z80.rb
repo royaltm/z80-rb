@@ -438,6 +438,7 @@ module Z80
 			if type == :ANY
 				type = File.extname(file).gsub(/^\./,'').upcase.to_sym
 			end
+			type = :TAP if type == :TZX
 			data = if Z80.constants.include?(type) and (handler = Z80.const_get(type)) and (handler.respond_to? :read_data)
 				$stderr.puts "Importing #{type} file: `#{file}'."
 				handler.read_data(file, args)
