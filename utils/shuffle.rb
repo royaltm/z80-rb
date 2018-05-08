@@ -14,12 +14,16 @@ class Z80Shuffle
         #           target[i] ← target[j]
         #       target[j] ← source[i]
         #
+        # After shuffle is performed +hl+ points to +target[length]+.
+        #
+        # Modifies: +af+, +bc+, +de+, +hl+
+        #
         # +next_rng+:: Address of random number generator routine;
         #              it should return a 8bit next random number in a +l+ register.
         # +target+:: An address or a pointer to a target array; may be +hl+.
         # +length+:: A 8bit length of an array in the range of 1..256 (0 is 256); may be a register.
         # +source+:: If +nil+ then <tt>source(i) = i</tt> is assumed, otherwise an address of a source routine
-        #            which should expect +i+ in register +d+ and <b>MUST PRESERVE</b> +bc+ and +de+ registers;
+        #            which should expect +i+ in register +c+ and <b>MUST PRESERVE</b> +hl+ and +de+ registers;
         #            source routine should return value in register +a+.
         def shuffle_bytes_source_max256(next_rng, target:hl, length:a, source:nil)
             unless source.nil? or (address?(source) and !pointer?(source))
@@ -28,44 +32,47 @@ class Z80Shuffle
             unless address?(next_rng) and !pointer?(next_rng)
                 raise ArgumentError, "next_rng should be an address"
             end
-            j = c
             i = d
             mask = e
+            j = b
+            t = c
             isolate do
                             ld   hl, target unless hl == target
                             ld   a, length unless a == length
                             ld   i|mask, 0
-                loop0       push af
-                            ld   a, i
-                            ora  mask
+                loop0       push af             # save length
+                            ld   a, mask
+                            ora  i              # make mask from i
                             ld   mask, a
-                repeat_rand push i|mask
                             push hl
+                repeat_rand push i|mask
                             call next_rng
-                            ld   a, l     # j = random
-                            pop  hl       # target
-                            pop  i|mask   # i|mask
+                            ld   a, l           # j = random
+                            pop  i|mask         # i|mask
                             anda mask
                             ld   j, a
                             ld   a, i
-                            cp   j        # i - j
+                            sub  j              # i - j
                             jr   C, repeat_rand # j > i
-                            push hl
-                            ld   a, j
-                            ld16 b|j, hl
-                            adda_to b, j  # target[j]
-                            ld   a, i
-                            adda_to h, l  # target[i]
-                            ld   a, [b|j]
-                            ld   [hl], a  # target[i] = target[j]
+                            pop  hl             # restore target
+                            push i|mask         # save i|mask
+                            ld   t, i
+                            ld16 de, hl
+                            jr   Z, skip_mov    # j == i
+                            ld   j, a           # if j ≠ i
+                            sub_from j, d, e
+                            ld   a, [de]        # target[j]
+                            ld   [hl], a        # target[i] = target[j]
+                skip_mov    label
                 if source.nil?
-                            ld   [b|j], i # target[j] = source[i]
+                            ld   [de], t        # target[j] = source[i]
                 else
                             call source
-                            ld   [b|j], a
+                            ld   [de], a
                 end
-                            pop  hl
-                            pop  af       # n
+                            pop  i|mask         # restore i|mask
+                            pop  af             # length
+                            inc  hl             # target++
                             inc  i
                             cp   i
                             jr   NZ, loop0
@@ -90,13 +97,14 @@ if __FILE__ == $0
                     ld   ix, identity
                     call shuffle_it
                     ld   hl, mem.attrs
-                    ld   ix, to_attr
                     ld   a, 15
+                    ld   ix, to_attr
                     call shuffle_it
+                    ld16 bc, hl
                     ret
 
         ns :to_attr do
-                    ld   a, d
+                    ld   a, c
                     cp   8
                     jr   C, skip # i < 8 ? i
                     sub  7       # i - 7
@@ -106,7 +114,7 @@ if __FILE__ == $0
                     ret
         end
 
-        identity    ld   a, d   # i = i
+        identity    ld   a, c   # i = i
                     ret
 
         next_rng    ld   hl, [vars.seed]
