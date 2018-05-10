@@ -178,8 +178,17 @@ module Z80
 		#
 		#  Returns unnamed +label+ that points to +address+ and is of +type+.
 		#  The +type+ can be a integer or a struct derived from a Label.
+		#  The +address+ may be a number or another (possibly with offset) label.
+		#  It may also be a +:next+ symbol. In this instance the label address
+		#  will be the previously added label address + its size.
 		def addr(address, type = 1)
-			Label.new address, type
+			if address == :next
+				last_label = @labels.values.last
+				raise Syntax, "There is no label added to the program yet." if last_label.nil?
+				addr last_label[1], type
+			else
+				Label.new address, type
+			end
 		end
 		##
 		#  Creates a label at +label+ of different +type+.
