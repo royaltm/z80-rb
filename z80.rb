@@ -118,7 +118,7 @@ module Z80
 		def add_reloc(prg, label, size, offset = 0, from = nil)
 			if (alloc = label.to_label(prg).to_alloc).immediate? and (size == 2 or from)
 				prg.reloc << Relocation.new(prg.pc + offset, alloc, 0, from) unless alloc.to_name.nil?
-				[alloc.to_i(0, size == 1 ? :self : nil)].pack(size == 1 ? 'c' : 's<')
+				[alloc.to_i(0, from)].pack(size == 1 ? 'c' : 's<')
 			else
 				prg.reloc << Relocation.new(prg.pc + offset, alloc, size, from)
 				"\x0"*size
@@ -185,7 +185,7 @@ module Z80
 				when 1
 					addr = r.from ? r.from : r.addr + 1 + start
 					i = r.alloc.to_i(start, addr)
-					unless (-128..127).include?(i)
+					unless Integer === r.from or (-128..127).include?(i)
 						raise CompileError, "Relative relocation out of range at 0x#{'%04x' % r.addr} -> #{i} #{r.inspect}"
 					end
 					c[r.addr] = [i].pack('c')

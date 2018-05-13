@@ -207,7 +207,7 @@ module Z80
 					else
 						(v + 0x46).chr + if rr.respond_to?(:to_label)
 							tt, *tta = "%02xH", 1, :byte
-							Z80::add_reloc self, rr, 1, 1, :self
+							Z80::add_reloc self, rr, 1, 1, 0
 						else
 							tt = "#{'%02xH' % rr.to_i}"
 							[rr].pack('c')
@@ -251,7 +251,7 @@ module Z80
 						else
 							(v + 0x46).chr + if bb.respond_to?(:to_label)
 								tt, *tta = "%02xH", 1, :byte
-								Z80::add_reloc self, bb, 1, 1, :self
+								Z80::add_reloc self, bb, 1, 1, 0
 							else
 								tt = "#{'%02xH' % bb.to_i}"
 								[bb].pack('c')
@@ -434,7 +434,7 @@ module Z80
 							op + if bb.respond_to?(:to_label)
 								tt+= "%02xH"
 								tta+= [op.bytesize, :byte]
-								Z80::add_reloc self, bb, 1, op.bytesize, :self
+								Z80::add_reloc self, bb, 1, op.bytesize, 0
 							else
 								tt+= "#{'%02xH' % (bb.to_i & 0xff)}"
 								[bb].pack('c')

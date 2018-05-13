@@ -513,8 +513,16 @@ module Z80
 			@type.nil?
 		end
 		# Returns a member +m+ as a separate label.
-		def >>(m)
+		def **(m)
 			@members[m]
+		end
+		# Shifts right label binary value when resolved.
+		def >>(m)
+			to_alloc >> m
+		end
+		# Shifts left label binary value when resolved.
+		def <<(m)
+			to_alloc << m
 		end
 		# Reinitializes dummy label. Do not use it directly.
 		# This method is being used during program compilation.
@@ -727,6 +735,7 @@ module Z80
 			@pointer = false
 			@name    = nil
 			@size    = false
+			@shift   = 0
 		end
 
 		def [](index = nil)
@@ -767,8 +776,20 @@ module Z80
 			l
 		end
 
+		def **(m)
+			@label ** m
+		end
+
 		def >>(m)
-			@label >> m
+			l = dup
+			l.instance_variable_set('@shift', @shift - m.to_i)
+			l
+		end
+
+		def <<(m)
+			l = dup
+			l.instance_variable_set('@shift', @shift + m.to_i)
+			l
 		end
 
 		def +@
@@ -792,7 +813,7 @@ module Z80
 				label = @label
 				@index.all? {|i|
 					if String === i
-						(l = label >> i) and l.immediate?
+						(l = label ** i) and l.immediate?
 					else
 						true
 					end
@@ -804,7 +825,7 @@ module Z80
 		def dummy?; @label.dummy?; end
 
 		def to_str
-			(@size ? '+' : '') + to_name.to_s + @index.map {|i|
+			str = (@size ? '+' : '') + to_name.to_s + @index.map {|i|
 				if String === i
 					'.' + i
 				else
@@ -815,14 +836,21 @@ module Z80
 			elsif @offset < 0
 				"#@offset"
 			end.to_s)
+			str = "(#{str})" unless @shift.zero? or @offset.zero?
+			if @shift > 0
+			  str += " << #@shift"
+			elsif @shift < 0
+				str += " >> #{-@shift}"
+			end
+			str
 		end
 		alias_method :to_s, :to_str
 
 		def to_i(start = 0, rel_to = nil)
 			addr = (label = @label).to_i
-			@index.each {|i|
+			@index.each do |i|
 				if String === i
-					raise CompileError, "Unknown member: #{i} of label #{label}." unless l = label >> i
+					raise CompileError, "Unknown member: #{i} of label #{label}." unless l = label ** i
 					if l.immediate?
 						if label.immediate?
 							addr+= l.to_i - label.to_i
@@ -839,13 +867,13 @@ module Z80
 				else
 					addr+= i*(+label)
 				end
-			}
-			if @size
+			end
+			(if @size
 				+label + @offset
 			else
 				rel_to = @label.to_i(start) if rel_to == :self
 				addr + @offset + (label.immediate? ? 0 : start) - rel_to.to_i
-			end
+			end) << @shift
 		end
 		def name=(value)
 			raise Syntax, "Invalid label name: #{value.inspect}" if (value = value.to_s).empty?
