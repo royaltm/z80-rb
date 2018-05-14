@@ -30,7 +30,7 @@ class ZX7
     # ZX7.compress(data) -> data (zx7 compressed)
     def self.compress(data)
         begin
-            file = Tempfile.new 'zx7-pack-', encoding: 'ascii-8bit'
+            file = Tempfile.new 'zx7-pack-', encoding: 'ascii-8bit', binmode: true
             file.write data
             file.close
             unless File.executable?(ZX7::COMMAND)
