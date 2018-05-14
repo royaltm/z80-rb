@@ -112,7 +112,9 @@ class ZXSys
         error_5       addr 0x0C86 # Out of screen
         cl_all        addr 0x0DAF # CL-ALL
         error_j       addr 0x15C4 # Invalid I/O device
+        chan_open     addr 0x1601 # THE 'OPEN CHANNEL' ROUTINE
         make_room     addr 0x1655 # ROM MAKE-ROOM routine
+        pr_string     addr 0x203C # PR-STRING: start in DE, length in BC
     end
 
     isolate :mem do
