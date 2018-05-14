@@ -363,8 +363,8 @@ module Z80
 		#
 		#     import program, :code => false, :macros => false, :labels => true
 		#
-		def label_import(program)
-			import program, :code => false, :macros => false, :labels => true
+		def label_import(program, name = nil)
+			import name, program, :code => false, :macros => false, :labels => true
 		end
 		##
 		#  Import code, labels and macros from another +program+.
@@ -383,7 +383,7 @@ module Z80
 		#
 		#  Returns (optionally named) +label+ that points to beginning of imported code.
 		def import(name, program = nil, **flags)
-			unless name.is_a?(Symbol)
+			unless name.is_a?(Symbol) or name.nil?
 				program, name = name, nil
 			end
 			addr = pc
