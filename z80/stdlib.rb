@@ -33,7 +33,7 @@ class Z80Lib
         # +size+:: 16bit size of area to clear as immediate value or +bc+
         # +value+:: 8bit immediate value or one of the registers: +a+, +b+, +c+, +d+, +e+
         def clrmem(dest, size, value = 0)
-            raise ArgumentError if (dest.is_a?(Register) and dest != de) or
+            raise ArgumentError if (dest.is_a?(Register) and dest != hl) or
                                                          (size.is_a?(Register) and size != bc)
             isolate do
                         ld  hl, dest if dest and dest != hl
@@ -81,8 +81,9 @@ class Z80Lib
         # +size+::    size of area to copy or +bc+
         # +reverse+:: flag (true) use lddr, (false) use ldir
         def memcpy(dest=de, source=hl, size=bc, reverse = false)
-            raise ArgumentError if (dest.is_a?(Register) and dest != de) or (source.is_a?(Register) and dest != hl) or
-                                                         (size.is_a?(Register) and size != bc)
+            raise ArgumentError if (dest.is_a?(Register) and dest != de) or
+                                    (source.is_a?(Register) and source != hl) or
+                                    (size.is_a?(Register) and size != bc)
             isolate do
                 if immediate?(dest) and immediate?(source) and immediate?(size) and
                         dest.to_i > source.to_i and source.to_i + size.to_i > dest.to_i
