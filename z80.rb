@@ -426,19 +426,27 @@ module Z80
 		#  * +file+ is a filename.
 		#  * +type+ specifies format of binary file (as Symbol),
 		#    if +:any+ -> format will be determined by filename's extension.
+		#  * +size+ specifies a binary size (cropped or extended to),
 		#
-		#  <b>Currently only :tap format is supported and only,
+		#  Options:
+		#  * +pipe+ should be a +proc+ to postprocess binary data with (e.g. compress it)
+		#  * +check_size+ may be given to check the size of the imported data
+		#    (before pipe) otherwise the CompileError is being raised.
+		#  * +data_type+ argument may be given to specify label type.
+		#
+		#  Other options are passed to +read_data+ method of the format handler.
+		#
+		#  <b>Currently only :tap or :tzx format is supported and only,
 		#  if you include Z80::TAP in your program</b>.
 		#
-		#  If format is not known, file is being imported as binary.
+		#  If format is not known, file is being imported as a binary.
 		#
 		#  Returns unnamed +label+ that points to beginning of imported data.
-		def import_file(file, type = :any, size = nil, args = {})
+		def import_file(file, type = :any, size = nil, pipe:nil, check_size:nil, data_type:nil, **args)
 			type = type.to_s.upcase.to_sym
 			if type == :ANY
 				type = File.extname(file).gsub(/^\./,'').upcase.to_sym
 			end
-			type = :TAP if type == :TZX
 			data = if Z80.constants.include?(type) and (handler = Z80.const_get(type)) and (handler.respond_to? :read_data)
 				$stderr.puts "Importing #{type} file: `#{file}'."
 				handler.read_data(file, args)
@@ -446,11 +454,21 @@ module Z80
 				$stderr.puts "Importing binary file: `#{file}'."
 				File.open(file, 'rb') {|f| f.read}
 			end
+			if Integer === check_size
+				raise CompileError, "size does not match the imported file size: #{check_size} != #{data.bytesize}" if check_size != data.bytesize
+			end
+			unless pipe.nil?
+				raise ArgumentError, "pipe should be a proc" unless pipe.respond_to? :call
+				data = pipe.call data
+			end
+			if data_type.nil?
+				data_type = size || data.bytesize
+			end
 			Z80::add_code self, if size
 				data[0, size].ljust(size, "\x0")
 			else
 				data
-			end, size || data.bytesize
+			end, data_type
 		end
 	end
 	#  some useless stuff; needed for z80 opcode testing; but didn't delete it (maybe will come in handy)

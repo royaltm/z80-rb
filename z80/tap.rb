@@ -263,4 +263,7 @@ module Z80
 			end
 		end
 	end
+	unless const_defined?(:TZX)
+		TZX = TAP
+	end
 end
