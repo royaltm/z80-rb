@@ -1,3 +1,7 @@
+# -*- coding: BINARY -*-
+here = File.expand_path('..', __dir__)
+$:.unshift(here) unless $:.include?(here)
+
 require 'z80'
 class ZXMath
   module Macros
@@ -52,7 +56,7 @@ end
 
 calc = Program.new 0x8000
 
-calc.save_tap('calculator', :append => true)
-
 puts calc.debug
 
+Z80::TAP.read_chunk('examples/calculator.tap').save_tap 'calculator'
+calc.save_tap('calculator', append: true)

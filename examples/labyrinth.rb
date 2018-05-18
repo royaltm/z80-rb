@@ -371,16 +371,16 @@ class Program
 end
 
 labyrinth = Program.new 0x8000
+
 puts labyrinth.debug
-['labyrinth.height', 'labyrinth.width', 'labyrinth.room_data'].each do |label|
+
+%w[
+  labyrinth.height
+  labyrinth.width
+  labyrinth.room_data
+].each do |label|
   puts "#{label.ljust(20)}: 0x#{labyrinth[label].to_s 16} - #{labyrinth[label]}"
 end
 
-# labyrinth.save_tap('labyrinth')
-
-Z80::TAP.read_chunk('examples/loader.tzx') do |hb|
-    File.open('examples/labyrinth.tap', 'wb') do |f|
-        f.write hb.to_tap
-        f.write labyrinth.to_tap('labyrinth')
-    end
-end
+Z80::TAP.read_chunk('examples/labyrinth.tap').save_tap 'labyrinth'
+labyrinth.save_tap('labyrinth', append: true)

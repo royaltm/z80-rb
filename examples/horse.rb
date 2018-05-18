@@ -243,11 +243,5 @@ puts horse.debug
 puts "size: #{horse.code.bytesize}"
 puts "ends: #{(horse.org + horse.code.bytesize).to_s 16}"
 
-# horse.save_tap('horse')
-
-Z80::TAP.read_chunk('examples/loader.tzx') do |hb|
-    File.open('examples/horse.tap', 'wb') do |f|
-        f.write hb.to_tap
-        f.write horse.to_tap('horse')
-    end
-end
+Z80::TAP.read_chunk('examples/loader.tzx').save_tap 'horse'
+horse.save_tap('horse', append: true)

@@ -691,11 +691,5 @@ puts math.debug
 puts "\nExports: "
 Program.exports.each_key {|k| puts " #{k.to_s.ljust(15)}:  0x#{math[k].to_s 16} (#{math[k]})" }
 
-math.save_tap('math')
-
-Z80::TAP.read_chunk('examples/mathi_test.tap') do |hb|
-    File.open('examples/mathi_test.tap', 'wb') do |f|
-        f.write hb.to_tap
-        f.write math.to_tap('math')
-    end
-end
+Z80::TAP.read_chunk('examples/mathi_test.tap').save_tap 'mathi_test'
+math.save_tap('mathi_test', name: 'math', append: true)
