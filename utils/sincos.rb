@@ -5,21 +5,72 @@ require 'z80'
 #
 # in Z80SinCos::Macros
 #
+# ==Structs
+#
+# * Z80SinCos::SinCos
+# * Z80SinCos::SinCosTable
+#
+# ==Example
+#
+#    require 'z80'
+#    require 'utils/sincos'
+#    class Program
+#        include Z80
+#
+#        SinCosTable = Z80SinCos::SinCosTable
+#        SinCos      = Z80SinCos::SinCos
+#
+#        macro_import Z80SinCos
+#
+#        sincos      addr 0xF000, SinCos
+#
+#        start       exx
+#                    push  hl
+#                    call  make_sincos
+#                    pop   hl
+#                    exx
+#                    ld    a, 31    # angle = PI*31/128
+#                    sincos_from_angle sincos, h, l
+#                    ld    c, [hl]  # sinus to bc
+#                    inc   hl
+#                    ld    b, [hl]
+#                    ret
+#
+#        make_sincos create_sincos_from_sintable sincos, sintable:sintable
+#        sintable    bytes   neg_sintable256_pi_half_no_zero_lo
+#    end
+#
 class Z80SinCos
+    ##
+    # A Z80SinCos table entry struct.
+    #
+    # Consists of two +words+:
+    # * +sin+
+    # * +cos+
+    # where each of them is a signed 16bit +word+ (LSB 1st) fixed point number with
+    # the integral part in its high 8 bits and the fractional part in its low 8 bits.
+    # Each of them contain a corresponding trigonometric function value: [-1.0, 1.0].
     class SinCos < Z80::Label
         sin  word
         cos  word
     end
     ##
-    # The full table has 256 entries which translates to (1024 bytes).
+    # Z80SinCos table struct.
     #
-    # 000: sin256(0)   100: sin256(1)   200: sin256(2)   300: sin256(3)
-    # 002: cos256(0)   102: cos256(1)   202: cos256(2)   302: cos256(3)
-    # 004: sin256(4)   104: sin256(5)   204: sin256(6)   304: sin256(7)
-    # 008: cos256(4)   108: cos256(5)   208: cos256(6)   308: cos256(7)
-    # ...
-    # 0FC: sin256(252) 1FC: sin256(253) 2FC: sin256(254) 3FC: sin256(255)
-    # 0FE: cos256(252) 1FE: cos256(253) 2FE: cos256(254) 3FE: cos256(255)
+    # The angle [0,256) being used in this table translates to radians in the following way:
+    #   PI * angle / 128
+    #
+    # The full table consist of 256 SinCos entries which occupy 1024 bytes.
+    #
+    #   offset fn(angle)
+    #
+    #   0x000: sin(0)   0x100: sin(1)   0x200: sin(2)   0x300: sin(3)
+    #   0x002: cos(0)   0x102: cos(1)   0x202: cos(2)   0x302: cos(3)
+    #   0x004: sin(4)   0x104: sin(5)   0x204: sin(6)   0x304: sin(7)
+    #   0x008: cos(4)   0x108: cos(5)   0x208: cos(6)   0x308: cos(7)
+    #   ...
+    #   0x0fc: sin(252) 0x1fc: sin(253) 0x2fc: sin(254) 0x3fc: sin(255)
+    #   0x0fe: cos(252) 0x1fe: cos(253) 0x2fe: cos(254) 0x3fe: cos(255)
     class SinCosTable < Z80::Label
       entries SinCos, 256
     end
@@ -27,32 +78,36 @@ class Z80SinCos
     # =Z80SinCos Macros
     module Macros
         ##
-        # Returns array of first quarter negative sinus table, 256-based angle, scaled *256, lower bytes only.
+        # Returns an array of 63 bytes containing the first quarter sinus table, 256-based angle, negated, fractional parts only.
         #
-        # a=1..63: (-256 * sin(2pi * a / 256)) & 0x00FF
+        #   for a in 1..63 -> (-256 * sin(PI * a / 128)) & 0x00FF
         #
-        # Suitable for a create_sincos_from_sintable macro.
+        # Suitable for #create_sincos_from_sintable macro.
         def neg_sintable256_pi_half_no_zero_lo
-            (1..63).map{|a| (-Math.sin(Math::PI*2.0*a.to_f/256.0)*256.0).truncate & 0xff }
+            (1..63).map{|a| (-Math.sin(Math::PI*a.to_f/128.0)*256.0).truncate & 0xff }
         end
         ##
-        # Returns a sincos table descriptors.
+        # Returns a SinCosTable descriptors.
+        #
+        # Example:
+        #   sincos data SinCosTable, sincos_table_descriptors
         def sincos_table_descriptors
             (0..255).map do |a|
                 a = ((a & 0x3F) << 2) | ((a & 0xC0) >> 6)
-                sin = (Math.sin(Math::PI*2.0*a.to_f/256.0)*256.0).truncate
-                cos = (Math.cos(Math::PI*2.0*a.to_f/256.0)*256.0).truncate
+                sin = (Math.sin(Math::PI*a.to_f/128.0)*256.0).truncate
+                cos = (Math.cos(Math::PI*a.to_f/128.0)*256.0).truncate
                 {sin: sin, cos: cos}
             end
         end
         ##
-        # Code that returns an address of sincos entry for a given 256-based angle in +a+ register.
+        # Code that returns an address of SinCos entry for a given 256-based angle in register +a+.
         #
-        # For each angle: a <= llllllhh, th => sincos MSB + 000000hh, tl => llllll00
+        # Mofifies: +af+, +th+, +tl+
         #
+        # For each angle: a <= llllllhh; th =>  MSB SinCos address + 000000hh, tl => llllll00
         # 
         # +sincos+:: Immediate address of SinCos table, must be on a 256 byte boundary
-        #            (LSB of +sincos+ address must be 0).
+        #            (LSB of +sincos+ address must be +0+).
         def sincos_from_angle(sincos, th=h, tl=l)
             sincos = sincos.to_i
             raise ArgumentError unless (sincos & 0x00FF).zero?
@@ -66,11 +121,13 @@ class Z80SinCos
             end
         end
         ##
-        # Code that creates a full sincos table from a minimal #neg_sintable256_pi_half_no_zero_lo sinus table
+        # Code that creates a full SinCosTable from a quarter sinus table generated by #neg_sintable256_pi_half_no_zero_lo
+        #
+        # Mofifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+
         #
         # +sincos+:: Immediate address of SinCos table as a +label+, must be on a 256 byte boundary
-        #            (lower byte of +sincos+ address must be 0); reserve 1024 bytes.
-        # +sintable+:: Address of a #neg_sintable256_pi_half_no_zero_lo sinus table
+        #            (lower byte of +sincos+ address must be +0+); reserve 1024 bytes.
+        # +sintable+:: Address of a #neg_sintable256_pi_half_no_zero_lo sinus table.
         #              Can be a +label+, +hl+ register or a +label+ pointer.
         def create_sincos_from_sintable(sincos, sintable:hl)
             isolate do

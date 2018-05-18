@@ -1,6 +1,13 @@
 ##
 #  ==A module with Z80 macros for common ZX Spectrum system tasks.
 #
+#  Contains:
+#
+#  * labels for some of ZX Spectrum 16/48K ROM routine addresses in a +rom+ namespace.
+#  * labels for ZX Spectrum 16/48K memory layout in a +mem+ namespace.
+#  * some labels for ZX Spectrum 16/48K basic and system variables in a +vars+ namespace.
+#  * Macros for creating and opening custom ZX Spectrum channels.
+#
 #  Example:
 #
 #    require 'zxlib/sys'
@@ -16,21 +23,29 @@
 class ZXSys
     include Z80
 
+    ##
+    # A struct for ZX Spectrum +coords+ variable.
     class Coords < Label
         x byte
         y byte
     end
 
+    ##
+    # A struct for various ZX Spectrum variables.
     class Cursor < Label
         column byte
         line   byte
     end
 
+    ##
+    # A struct for ZX Spectrum +strms+ variable.
     class Strms < Label
         sys  word,  3
         user word, 16
     end
 
+    ##
+    # ZX Spectrum Basic and System variables.
     class Vars < Label
         kstate byte, 8 # 23552 Used in reading the keyboard.
         last_k byte    # 23560 Stores newly pressed key.
