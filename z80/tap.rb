@@ -27,25 +27,27 @@ module Z80
 		#    * +:name+ can contain max 10 ascii (7-bit) characters.
 		#      If not given base name of +file+ will be used instead.
 		#    * +:append+ if true code will be appended to tap.
-		def save_tap(file, options = {})
-			options = {
-				:name => nil,
-				:append => false
-			}.update options
-			name = options[:name] || File.basename(file, '.tap')
-			name+= '.tap' unless File.extname(name).downcase == '.tap'
-			File.open(name, options[:append] ? 'ab' : 'wb') {|f| f.write to_tap(File.basename name, '.tap') }
+		def save_tap(file, append:false, name:nil)
+			name = File.basename(file, '.tap') unless name
+			to_tap_chunk(name).save_tap file, append:append
 		end
 		##
 		#  Wraps Program#code inside TAP format.
 		#
-		#  * +name+ can contain max 10 ascii (7-bit) characters.
+		#  * +name+ should contain max 10 ascii (7-bit) characters.
 		#
 		def to_tap(name)
+			to_tap_chunk(name).to_tap
+		end
+		##
+		#  Creates HeaderBody from Program#code.
+		#
+		#  * +name+ should contain max 10 ascii (7-bit) characters.
+		def to_tap_chunk(name)
 			HeaderBody.new(
 				Header.new(TYPE_CODE, name, code.bytesize, org, 0x8000),
 				Body.new(code)
-			).to_tap
+			)
 		end
 
 		##
@@ -64,6 +66,10 @@ module Z80
 				else
 					header.to_s
 				end
+			end
+			def save_tap(file, append:false)
+				file+= '.tap' unless File.extname(file).downcase == '.tap'
+				File.open(file, append ? 'ab' : 'wb') {|f| f.write to_tap }
 			end
 			def to_tap
 				res = ""
