@@ -364,12 +364,12 @@ module Z80
 		#     import program, :code => false, :macros => false, :labels => true
 		#
 		def label_import(program, name = nil)
-			import name, program, :code => false, :macros => false, :labels => true
+			import program, name, :code => false, :macros => false, :labels => true
 		end
 		##
 		#  Import code, labels and macros from another +program+.
 		#  Give (optional) +name+ for namespace.
-		#  Without +name+ labels from +program+ will be defined in current namespace.
+		#  Without +name+ labels from +program+ will be defined in a current namespace.
 		#  Pass +program+ class (not an instance!).
 		#  Give flags to choose what to import from +program+:
 		#  * +:labels+:: +true/false+ (default: +true+)
@@ -382,9 +382,9 @@ module Z80
 		#  <b>In such a method always wrap your code inside #ns.</b>
 		#
 		#  Returns (optionally named) +label+ that points to beginning of imported code.
-		def import(name, program = nil, **flags)
-			unless name.is_a?(Symbol) or name.nil?
-				program, name = name, nil
+		def import(program, name=nil, **flags)
+			if program.is_a?(Symbol)
+				program, name = name, program
 			end
 			addr = pc
 			options = {
