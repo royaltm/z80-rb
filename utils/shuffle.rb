@@ -14,7 +14,8 @@ class Z80Shuffle
         #           target[i] ← target[j]
         #       target[j] ← source[i]
         #
-        # After shuffle is performed +hl+ points to +target[length]+.
+        # After the shuffle is performed +hl+ points to the memory address immediately
+        # following the shuffled table.
         #
         # Modifies: +af+, +bc+, +de+, +hl+
         #
