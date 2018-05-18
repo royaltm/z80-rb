@@ -83,8 +83,7 @@ class ZXSys
         seed   word    # 23670 The seed for RND. This is the variable that is set by RANDOMIZE.
         frames byte, 3 # 23672 3 byte (least significant first), frame counter. Incremented every 20ms. See Chapter 18.
         udg    word    # 23675 Address of 1st user defined graphic You can change this for instance to save space by having fewer user defined graphics.
-                                                       # coordinate of last point plotted.
-        coords Coords  # 23677
+        coords Coords  # 23677 Coordinate of last point plotted.
         p_posn byte    # 23679 33 column number of printer position
         pr_cc  word    # 23680 Full address of next position for LPRINT to print at (in ZX printer buffer). Legal values 5B00 - 5B1F. [Not used in 128K mode or when certain peripherals are attached]
         echo_e word    # 23682 33 column number and 24 line number (in lower half) of end of input buffer.
@@ -98,7 +97,7 @@ class ZXSys
         attr_t byte    # 23695 Temporary current colours, etc (as set up by colour items).
         mask_t byte    # 23696 Like MASK P, but temporary.
         p_flag byte    # 23697 More flags.
-        membot byte,30 # 23698  # Calculator's memory area; used to store numbers that cannot conveniently be put on the calculator stack.
+        membot byte,30 # 23698 Calculator's memory area; used to store numbers that cannot conveniently be put on the calculator stack.
         nmiadd word    # 23728 This is the address of a user supplied NMI address which is read by the standard ROM when a peripheral activates the NMI. Probably intentionally disabled so that the effect is to perform a reset if both locations hold zero, but do nothing if the locations hold a non-zero value. Interface 1's with serial number greater than 87315 will initialize these locations to 0 and 80 to allow the RS232 "T" channel to use a variable line width. 23728 is the current print position and 23729 the width - default 80.
         ramtop word    # 23730 Address of last byte of BASIC system area.
         p_ramt word    # 23732 Address of last byte of physical RAM.
