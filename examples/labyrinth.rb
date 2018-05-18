@@ -25,7 +25,7 @@ class Program
   macro_import  Z80Lib
   macro_import  Z80MathInt
   macro_import  ZXGfx
-  import        ZXSys, code: false
+  label_import  ZXSys
 
   ########
   # MAIN #
@@ -60,8 +60,10 @@ class Program
                   exx
                   push hl # save seed
 
-                  ld   a, 0b00111000
+                  ld   a, [vars.attr_p]
                   call clear_screen
+                  ld   a, [vars.bordcr]
+                  call set_border
 
                   call color_labyrinth
                   call draw_labyrinth
@@ -80,7 +82,10 @@ class Program
   # clears screen area with border and attributes are set according to register A
   clear_screen  clrmem  mem.screen, mem.scrlen, 0
                 clrmem  mem.attrs, mem.attrlen, a
-  set_border_cr anda 0b00111000
+                ret
+
+  # set border taken from an attribute in register A
+  set_border    anda 0b00111000
                 3.times { rrca }
                 out  (254), a
                 ret
