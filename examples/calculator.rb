@@ -46,13 +46,13 @@ class Program
   multiplicand  words 1
   multiplicator bytes 1
 
-  import :math, ZXMath
+  import ZXMath, :math
 
 end
 
 calc = Program.new 0x8000
 
-# calc.save_tap('calculator', :append => true)"
+calc.save_tap('calculator', :append => true)
 
 puts calc.debug
 
