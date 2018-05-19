@@ -266,6 +266,59 @@ class ZXGfx
       end
     end
     ##
+    # Advances to the next text line coordinate (down 8 lines) using ah|al registers.
+    # (optionally) returns from subroutine if address goes out of screen area.
+    #
+    # Modifies: +af+, +ah+, +al+
+    #
+    # * +ah+:: input/output register: address high byte
+    # * +al+:: input/output register: address low byte
+    # * +bcheck+:: boundary check flag:
+    #              +false+ = disable checking,
+    #              +true+  = issue +ret+ if out of screen (default)
+    #              +label+ = jump to label if out of screen,
+    #              +hl+|+ix+|+iy+ = jump to address in a register if out of screen
+    #
+    # if block is given and +bcheck+ == +true+ evaluates namespaced block instead of +ret+.
+    #
+    # T-states: 
+    #
+    # * when +bcheck+ is +false+:: 27:87.5% / 37:12.50%
+    # * when +bcheck+ is +true+ or +label+::  27:87.5% / (49:2 / 55:1):12.50% / 54:12.50%
+    def nextrow(ah, al, bcheck = true, **nsopts, &block)
+        if ah == al or [ah, al].include?(a) or
+                (register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
+                (bcheck == hl and ([h, l].include?(ah) or [h, l].include?(al))) or
+                (bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
+                (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
+                ![ah, al].all?{|r| register?(r) }
+            raise ArgumentError, "nextline invalid arguments!"
+        end
+        ns do |eoc|
+                ld   a, al
+                add  0x20
+                ld   al, a
+                jr   NC, eoc
+        upperdn ld   a, ah
+                add  0x08
+                ld   ah, a
+            if bcheck
+                cp   0x58
+                case bcheck
+                when true
+                    if block_given?
+                        jr   C, eoc
+                        ns(**nsopts, &block)
+                    else
+                        ret  NC
+                    end
+                else
+                    jp  NC, bcheck
+                end
+            end
+        end
+    end
+    ##
     # Converts hi byte screen address to attribute address
     #
     # Modifies: +af+, +o+
