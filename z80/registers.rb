@@ -176,6 +176,10 @@ module Z80
 			def to_i
 				@opc
 			end
+			def one_of?(ary); ary.include?(name); end
+			def jr_ok?
+				one_of?(@@names[0..3])
+			end
 			alias_method :to_str, :name
 			alias_method :to_s, :name
 			@@conditions = @@names.each_with_index.map {|r, i| new r, i << 3 }

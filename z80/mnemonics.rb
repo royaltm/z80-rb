@@ -97,7 +97,7 @@ module Z80
 				dd = self[dd] if dd.is_a?(Array)
 				op = case cc
 				when Condition
-					if %w[NZ Z NC C].include?(cc.name)
+					if cc.jr_ok?
 						tt = "#{cc}, "
 						0x20 + cc.to_i
 					else
