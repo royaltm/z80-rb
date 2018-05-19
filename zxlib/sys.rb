@@ -145,6 +145,34 @@ class ZXSys
 
     module Macros
         ##
+        # Returns to ZX Basic with the error report if condition is NOT met.
+        #
+        # * condition:: NZ, Z, NC, C, PO, PE, P, M
+        # * error:: Error report signature as a number +0..9+ or a letter +A..R+
+        def report_error_unless(condition, error)
+            raise ArgumentError unless Condition === condition
+            isolate do |eoc|
+                if condition.jr_ok?
+                        jr   condition, eoc
+                else
+                        jp   condition, eoc
+                end
+                        report_error error
+            end
+        end
+        ##
+        # Returns to ZX Basic with the error report.
+        #
+        # * error:: Error report signature as a number +0..9+ or a letter +A..R+
+        def report_error(error)
+            errno = [*'0'..'9', *'A'..'R'].index(error.to_s.upcase[0])
+            raise ArgumentError unless errno
+            isolate do
+                        rst  0x08
+                        db   errno - 1
+            end
+        end
+        ##
         # Creates ZX Spectrum CHAN entry and opens it as stream #N.
         #
         # * output:: output routine address or a 16bit register holding that address except +hl+
