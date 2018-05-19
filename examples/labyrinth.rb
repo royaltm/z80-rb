@@ -25,7 +25,33 @@ class Program
   macro_import  Z80Lib
   macro_import  Z80MathInt
   macro_import  ZXGfx
-  label_import  ZXSys
+  import        ZXSys, macros:true, code:false
+
+  ##########
+  # Macros #
+  ##########
+
+  # ZF=0 if any key is being pressed
+  macro :key_pressed? do |_, line_mask=0, key_mask=0x1f|
+    if line_mask.zero?
+                xor  a
+    else
+                ld   a, line_mask
+    end
+                inp  a, (254)
+                cpl
+                anda key_mask
+  end
+
+  # ZF=0 if any cursor key is being pressed
+  macro :cursor_key_pressed? do |_|
+                key_pressed? 0xf7, 0x10 # key [5]
+                ld  b, a
+                key_pressed? 0xef, 0x1c # keys [6] [7] [8] . .
+                rrca
+                ora b                   # keys [5] [6] [7] [8] .
+                rrca                    # keys [←] [↓] [↑] [→]
+  end
 
   ########
   # MAIN #
@@ -43,19 +69,27 @@ class Program
     bsize       word  # inner size with boundaries: (width + 1) * height
   end
 
+  class Viewport < Label
+      y       byte
+      x       byte
+  end
+
   start           jr   example
 
   labyrinth       data Labyrinth, { width: 31, height: 21, room_data: room_data }
+  viewport        data Viewport, {y: 0, x: 0}
 
   ns :example do
+                  call init_labyrinth
+                  report_error_unless NC, '4 Out of memory'
+                  report_error_unless NZ, 'B Integer out of range'
+                  ld   hl, 0
+                  ld   [viewport], hl
+
                   exx
                   push hl # save hl'
 
-                  call init_labyrinth
-                  jr   NZ, continue
-                  rst  0x08
-                  db   0xA # ERROR: B Integer Out Of Range
-    continue      call clear_labyrinth
+                  call clear_labyrinth
                   call carve_labyrinth
                   exx
                   push hl # save seed
@@ -65,11 +99,18 @@ class Program
                   ld   a, [vars.bordcr]
                   call set_border
 
-                  call color_labyrinth
+    key_loop      call color_labyrinth
                   call draw_labyrinth
+                  call wait_key
+                  cursor_key_pressed?
+                  jr   Z, no_cursor_key
+                  call update_viewport
+                  jr   key_loop
 
+    no_cursor_key call release_key
                   pop bc  # return seed
                   exx
+
                   pop hl  # original hl'
                   exx
                   ret
@@ -90,6 +131,18 @@ class Program
                 out  (254), a
                 ret
 
+  # waits until no key is being pressed
+  release_key   halt
+                key_pressed?
+                jr   NZ, release_key
+                ret
+
+  # waits until a key is being pressed
+  wait_key      halt
+                key_pressed?
+                jr   Z, wait_key
+                ret
+
   # randomize from seed in hl -> hl
   next_rnd_hl   rnd
                 ret
@@ -103,23 +156,32 @@ class Program
   end
 
   macro :mark_room do |_, room=hl|
-          set  6, [hl]
+          set  6, [room]
   end
 
   macro :is_marked do |_, room=hl|
-          bit  6, [hl]
+          bit  6, [room]
+  end
+
+  macro :is_up_opened do |_, room=hl|
+          bit  0, [room]
+  end
+
+  macro :is_left_opened do |_, room=hl|
+          bit  1, [room]
   end
 
   macro :is_boundary do |_, room=hl|
-          bit  7, [hl]
+          bit  7, [room]
   end
 
-  macro :move_room do |eoc, rwidth:e, mov:d|
+  macro :move_room do |eoc, width:e, mov:d|
           ld   a, mov
           anda 0b11
           jr   NZ, ck_rt
           # 0=up
-          sub_from rwidth, h, l
+          sub_from width, h, l
+          dec  hl
           jr   eoc
     ck_rt dec  a
           jr   NZ, ck_dn
@@ -129,8 +191,9 @@ class Program
     ck_dn dec  a
           jr   NZ, is_lt
           # 2=down
-          ld   a, rwidth
+          ld   a, width
           adda_to h, l
+          inc  hl
           jr   eoc
           # 3=left
     is_lt dec  hl
@@ -139,24 +202,119 @@ class Program
   # initializes labyrinth variables: room_00, nrooms and bsize
   # call after changing width, height or room_data
   # validates labyrinth dimensions
+  # CF=1 if data doesn't fit in memory
   # ZF=1 if invalid dimensions (width==0 or height==0)
   ns :init_labyrinth do
-                ld   hl, [labyrinth.room_data]
                 ld   bc, [labyrinth.dimensions] # c = height, b = width
                 ld   a, c
                 ora  a
-                ret  Z
+                ret  Z                          # height == 0
                 ld   a, b
                 ora  a
-                ret  Z
-                inc  a
-                adda_to h, l
-                ld   [labyrinth.room_00], hl # room_00 = room_data + width + 1
-                mul8 0, c, b, tt:de, clrhl:true, double:false
-                ld   [labyrinth.nrooms], hl
-                add  hl, bc   # bsize = nrooms + height
+                ret  Z                          # width == 0
+                ld   hl, [labyrinth.room_data]
+                mul8_c 0, c, b, tt:de, clrhl:false # room_data += height * width
+                ret  C                          # overflow
+                add  hl, bc                     # room_data += height
+                ret  C                          # overflow
+
+                push bc
+                push hl
+                ld   a, [labyrinth.width]
+                ld   c, a
+                add  a
+                rl   b                          # width += width
+                inc  bc                         # width += 1
+                add  hl, bc                     # room_data += 2*width + 1 (up and bottom boundary)
+                pop  hl
+                pop  bc
+                ret  C                          # overflow
+
+                ld   de, [labyrinth.room_data]
+                sbc  hl, de                     # bsize = room_data + height * width + height - room_data
                 ld   [labyrinth.bsize], hl
-                ora  a        # ZF = 0
+                sbc  hl, bc                     # nrooms = bsize - height
+                ld   [labyrinth.nrooms], hl
+                ld   a, [labyrinth.width]
+                adda_to d, e
+                inc  de
+                ld   [labyrinth.room_00], de    # room_00 = room_data + width + 1
+                ora  a                          # ZF = 0, CF = 0
+                ret
+  end
+
+  # a = cursor bits b3 [←] [↓] [↑] [→] b0
+  ns :update_viewport do
+                ld   de, [viewport]              # e = y, d = x
+                ld   bc, [labyrinth.dimensions]  # c = height, b = width
+                rrca
+    with_saved  af, bc, de do
+                call C, right
+    end
+                rrca
+    with_saved  af, bc, de do
+                call C, up
+    end
+                rrca
+    with_saved  af, bc, de do
+                call C, down
+    end
+                rrca
+                ret  NC                          # nothing pressed
+
+    left        ld   a, d                        # x
+                sub  1                           # x - 1
+                jr   NC, assign_x                # x - 1 >= 0
+                xor  a                           # x = 0
+                jr   assign_x
+
+    right       ld   a, b                        # width
+                sub  32
+                ret  C                           # width <  32
+                ret  Z                           # width == 32
+                ld   b, a                        # width -= 32
+                ld   a, d                        # x
+                add  1                           # x + 1
+                ret  C                           # x + 1 > 255
+                cp   b
+                jr   C, assign_x                 # x + 1 < width - 32
+                ld   a, b                        # x = width - 32
+    assign_x    ld   [viewport.x], a
+                ret
+
+    up          ld   a, e                        # y
+                sub  1                           # y - 1
+                jr   NC, assign_y                # y - 1 >= 0
+                xor  a
+                jr   assign_y
+
+    down        ld   a, c                        # height
+                sub  24
+                ret  C                           # height <  24
+                ret  Z                           # height == 24
+                ld   c, a                        # height -= 24
+                ld   a, e                        # y
+                add  1                           # y + 1
+                ret  C                           # y + 1 > 255
+                cp   c
+                jr   C, assign_y                 # y + 1 < height - 24
+                ld   a, c                        # y = height - 24
+    assign_y    ld   [viewport.y], a
+                ret
+  end
+
+  # returns room address from viewport
+  # WARNING: no boundary check
+  ns :viewport_to_room do
+                ld   de, [viewport]              # e = y, d = x
+                ld   hl, [labyrinth.room_00]     # start 0,0
+                ld   a, d
+                adda_to h, l                     # start += x
+                ld   a, [labyrinth.width]
+                ld   c, a
+                ld   b, 0
+                inc  bc                          # width + 1
+                mul8 b, c, e, tt:bc, clrhl:false # start += (width + 1) * y
                 ret
   end
 
@@ -190,8 +348,7 @@ class Program
                 exx
                 ld   d, a            # mov
                 ld   a, [labyrinth.width]
-                ld   e, a
-                inc  e               # width + 1 (rowskip width)
+                ld   e, a            # width
                 ld   bc, [labyrinth.nrooms]
 
     main_loop   dec  bc              # rooms to go
@@ -212,7 +369,7 @@ class Program
 
     hunt_next   ld   b, 4
     another_dir push hl              # save room address
-                move_room rwidth:e, mov:d
+                move_room width:e, mov:d
                 is_marked
                 jr   Z, open_room
                 pop  hl
@@ -270,16 +427,20 @@ class Program
   end
 
   # brightens screen attributes for marked rooms
-  # WARNING: labyrinth must have 0 < width <= 31
+  # WARNING: labyrinth must have 0 < width < 256
   ns :color_labyrinth do
-                ld   hl, [labyrinth.room_00]
-                ld   de, mem.attrs
+                call viewport_to_room
                 ld   bc, [labyrinth.dimensions]
+                ld   de, mem.attrs
                 ld   a, 24
                 cp   c
                 jr   NC, loop1
                 ld   c, a
     loop1       push bc
+                ld   a, 32
+                cp   b
+                jr   NC, loop0
+                ld   b, a
     loop0       is_marked
                 inc  hl
                 jr   Z, skip_mark
@@ -288,73 +449,93 @@ class Program
                 ld   [de], a
     skip_mark   inc  de
                 djnz loop0
-                inc  hl
-                ld   a, 32
+                inc  hl           # skip boundary
                 pop  bc
+                ld   a, 32
                 sub  b
-                adda_to d, e
-                dec  c
+                jr   NC, fits_line
+                neg
+                adda_to h, l      # skip remaining rooms
+                jr   next_iter
+    fits_line   adda_to d, e
+    next_iter   dec  c
                 jr   NZ, loop1
                 ret
   end
 
   # draws labyrinth on the screen
-  # WARNING: labyrinth must have 0 < width <= 31
+  # WARNING: labyrinth must have 0 < width < 256
   ns :draw_labyrinth do
-                ld   hl, [labyrinth.room_00]
-                ld   de, mem.screen
+                call viewport_to_room
                 ld   bc, [labyrinth.dimensions]
+                ld   de, mem.screen
+
                 inc  c   # height with boundary
+
+                ld   a, 32 # check screen width
+                cp   b
+                jr   NC, main_loop
+                ld   b, a
 
     main_loop   push de
                 push hl
     hloop       ld   a, 0x80
-                bit  0, [hl]
+                is_up_opened
                 inc  hl
                 jr   NZ, is_openup
                 ld   a, 0xFF
     is_openup   ld   [de], a
-                inc  de
+                inc  e
                 djnz hloop
-                ex   de, hl
-                ld   [hl], 0x80
 
-                pop  hl
-                pop  de   # screen
-                nextline d, e, true
-
-                dec  c
-                ret  Z
                 ld   a, [labyrinth.width]
                 ld   b, a
+                cp   32
+                jr   NC, no_line_tr
+                ex   de, hl
+                ld   [hl], 0x80
+    no_line_tr  pop  hl
+                pop  de    # screen
+                dec  c
+                ret  Z
+
                 push bc
 
                 ld   c, b
-                inc  c    # row width with boundary
-    vloop       push de
+                ld   a, 31 # check screen width
+                cp   c
+                jr   NC, no_crop_w
+                ld   c, a
+    no_crop_w   inc  c     # row width + boundary
+    vloop       push de    # screen
                 xor  a
-                bit  1, [hl]
+                is_left_opened
                 inc  hl
                 jr   NZ, is_openleft
                 ld   a, 0x80
     is_openleft ld   b, 7
-    vdraw_loop  ld   [de], a
-                ex   af, af
-                nextline d, e, vdraw_over
-                ex   af, af
+    vdraw_loop  inc  d
+                ld   [de], a
                 djnz vdraw_loop
-    vdraw_over  dec  c
-                jr   Z, quit_vert
                 pop  de
-                inc  de
-                jr   vloop
+                inc  e
+                dec  c
+                jr   NZ, vloop
 
-    quit_vert   pop  af   # drop saved screen
-                ld   a, b
-                anda a    # is b == 0?
                 pop  bc
-                ret  NZ   # nope? return now
-                sub_from b, d, e
+
+                dec  e
+                nextrow d, e, true
+                ld   a, e
+                anda 0b11100000
+                ld   e, a
+
+                ld   a, b
+                sub  32
+                jr   C, main_loop # width < 32
+                inc  a
+                adda_to h, l      # skip remaining rooms + boundary
+                ld   b, 32
                 jp   main_loop
   end
 
@@ -378,9 +559,13 @@ puts labyrinth.debug
   labyrinth.height
   labyrinth.width
   labyrinth.room_data
+  room_data
 ].each do |label|
   puts "#{label.ljust(20)}: 0x#{labyrinth[label].to_s 16} - #{labyrinth[label]}"
 end
 
 Z80::TAP.read_chunk('examples/labyrinth.tap').save_tap 'labyrinth'
 labyrinth.save_tap('labyrinth', append: true)
+Z80::TAP.parse_file('labyrinth.tap') do |hb|
+    puts hb.to_s
+end
