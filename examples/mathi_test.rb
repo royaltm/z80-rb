@@ -273,6 +273,10 @@ class Program
                 multiply32_test 65535, 65535
 
                 print_text "\r8bit divisor:\r"
+                div_euc8_test 32768, 255
+                div_euc8_test 32769, 255
+                div_euc8_test 32896, 255
+                div_euc8_test 32897, 255
                 div_euc8_test 65535, 255
                 div_euc8_test 0, 255
                 div_euc8_test 65521, 121
@@ -281,7 +285,16 @@ class Program
                 div_euc8_test 65535, 0
 
                 print_text "\r16bit divisor:\r"
+                div_euc16_test 32768, 255
+                div_euc16_test 32769, 255
+                div_euc16_test 32896, 255
+                div_euc16_test 32897, 255
                 div_euc16_test 65535, 255
+                div_euc16_test 32768, 511
+                div_euc16_test 32769, 511
+                div_euc16_test 32896, 511
+                div_euc16_test 32897, 511
+                div_euc16_test 65535, 511
                 div_euc16_test 65535, 65535
                 div_euc16_test 0, 255
                 div_euc16_test 0, 65535
@@ -292,6 +305,23 @@ class Program
                 div_euc16_test 65535, 0
 
                 print_text "\r32bit dividend:\r"
+                div_euc32_test 32768, 255
+                div_euc32_test 32769, 255
+                div_euc32_test 65536, 255
+                div_euc32_test 65537, 255
+                div_euc32_test 32768, 511
+                div_euc32_test 32769, 511
+                div_euc32_test 65536, 511
+                div_euc32_test 65537, 511
+                div_euc32_test 65536, 65535
+                div_euc32_test 65537, 65535
+                div_euc32_test 2147483648, 255
+                div_euc32_test 2147483649, 255
+                div_euc32_test 2147483648, 511
+                div_euc32_test 2147483649, 511
+                div_euc32_test 2147483648, 65535
+                div_euc32_test 2147483649, 65535
+                div_euc32_test 4294967295, 65535
                 div_euc32_test 4294967295, 65535
                 div_euc32_test 0, 65535
                 div_euc32_test 2147483647, 16807
@@ -526,7 +556,7 @@ class Program
                 ret
 
   # Subroutine used by div_euc16_test macro
-  div_euc16     divmod16
+  div_euc16     divmod16 quick8:false
                 ld  [somebigint], hl
                 ld  [sombigint1], bc
                 ret
@@ -536,7 +566,7 @@ class Program
                 exx
                 ex  [sp], hl  # save hl', load lo16
                 exx
-                divmod32_16
+                divmod32_16 quick8:true
                 ld  [sombigint1], bc
                 ld  [somebigint[1]], hl
                 exx

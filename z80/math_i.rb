@@ -432,7 +432,7 @@ class Z80MathInt
                                 cp  1
                                 jr  C, eoc if check0 # division by 0
                     if check1
-                                jp  NZ, divstrt # division by m > 1
+                                jp  NZ, divstrt  # division by m > 1
                                 xor a            # clear rest
                                 jp  eoc          # division by 1
                     end
@@ -445,6 +445,7 @@ class Z80MathInt
                                 jp  eoc          # hl == 0
                 loopfit         add hl, hl       # carry <- hl <- 0
                 found           adc a            # carry <- a <- carry
+                                jr  C, fits      # a >= 256
                                 cp  m            # a - m
                                 jr  NC, fits     # a >= m
                                 djnz loopfit     # loop
@@ -455,6 +456,7 @@ class Z80MathInt
                                 inc l            # hl <- 1 (quotient)
                 end
                                 djnz loopfit     # loop
+                                ora  a if check0 # clear carry only when check0
             end
         end
         ##
@@ -556,6 +558,7 @@ class Z80MathInt
                                     ld  b, 16
                 loopfit1            add hl, hl       # carry <- hl <- 0
                                     adc a            # carry <- a <- carry
+                                    jr  C, fits1     # a > m
                                     cp  m            # a - m
                                     jr  NC, fits1    # a >= m
                                     djnz loopfit1    # loop
@@ -574,6 +577,7 @@ class Z80MathInt
                                     ld  b, 16
                 loopfit2            add hl, hl       # carry <- hl <- 0
                                     adc a            # carry <- a <- carry
+                                    jr  C, fits2     # a > m
                                     cp  m            # a - m
                                     jr  NC, fits2    # a >= m
                                     djnz loopfit2    # loop
@@ -584,6 +588,7 @@ class Z80MathInt
                                     inc l            # hl <- 1 (quotient)
                 end
                                     djnz loopfit2    # loop
+                                    ora  a if check0 # clear carry only when check0
                 over                exx
             end
         end
@@ -662,6 +667,7 @@ class Z80MathInt
                 loopfit2            add hl, hl       # carry <- hl' <- 0
                                     rl  c            # carry <- c' <- carry
                                     adc a            # carry <- a <- carry
+                                    jr  C, fitshi2c  # a > d
                                     cp  d            # a - d'
                                     jr  NC, fitshi2  # a >= d'
                                     djnz loopfit2    # loop
@@ -676,6 +682,8 @@ class Z80MathInt
                                     djnz loopfit2    # loop
                                     ccf if check0
                                     jp  over
+                fitshi2c            ld  x, a
+                                    ld  a, c
                 fitslo2             sub e            # a = c' - e'
                                     ld  c, a         # c' = c' - e'
                                     ld  a, x
@@ -684,6 +692,7 @@ class Z80MathInt
                                     inc l            # hl' <- 1 (quotient)
                 end
                                     djnz loopfit2    # loop
+                                    ora  a if check0 # clear carry only when check0
                 over                ld  x, c
                                     exx
                                     ld  b, a         # bc = remainder
