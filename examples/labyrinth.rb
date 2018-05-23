@@ -250,7 +250,7 @@ class Program
   get_arg_int   read_positive_int_value d, e
                 inc  hl           # point to a next argument possibly
                 ret  Z
-                report_error 'Q Parameter error'
+                report_error 'A Invalid argument'
   # try to get positive integer from FP-value addressed by HL
   # +a+ holds a value on success
   get_arg_int8  call get_arg_int
@@ -771,9 +771,9 @@ class Program
                 jp   main_loop
   end
 
-  ns :solve_labyrinth do
+  ns :solve_labyrinth, use: vars do
                 di
-                ld   [save_sp + 1], sp
+                ld   [restore_sp + 1], sp
                 ld   hl, [vars.frames]
                 exx
     seek_marked call random_start    # hl room address
@@ -822,19 +822,26 @@ class Program
                 ora  b
                 ret  Z
                 dec  bc
-                pop  hl
 
                 push de
                 ld   de, 0xfb01     # [Q]
                 call key_down?
                 jr   Z, check_spc
-    save_sp     ld   sp, 0          # restore SP
+    restore_sp  ld   sp, 0          # restore SP
                 ld   bc, 0          # clear rooms to go
                 ret
     check_spc   ld   de, 0x7f01     # [SPC]
                 call key_down?
                 jr   NZ, paused
-    next_visit  pop  de
+    next_visit  di
+                ld   hl, [vars.stkend]
+                ld   de, 40         # check stack space
+                add  hl, de
+                sbc  hl, sp
+                pop  de
+                pop  hl             # next room
+                ei
+                jr   NC, restore_sp
                 halt
                 jr   visit_loop
     paused      push bc
