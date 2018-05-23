@@ -1,3 +1,6 @@
+# -*- coding: BINARY -*-
+require 'z80'
+require 'z80/math_i'
 ##
 #  ==A module with Z80 macros for common ZX Spectrum system tasks.
 #
@@ -8,12 +11,17 @@
 #  * some labels for ZX Spectrum 16/48K basic and system variables in a +vars+ namespace.
 #  * Macros for creating and opening custom ZX Spectrum channels.
 #
+#  Requires:
+#    macro_import Z80MathInt
+#
 #  Example:
 #
 #    require 'zxlib/sys'
 #
 #    class Program
 #      include Z80
+#
+#      macro_import Z80MathInt
 #      import ZXSys, macros: true
 #
 #      start       create_chan_and_open output: output_p, chan_name: 'X'
@@ -123,12 +131,17 @@ class ZXSys
     vars    addr 23552, Vars
 
     isolate :rom do
-        error_5       addr 0x0C86 # Out of screen
-        cl_all        addr 0x0DAF # CL-ALL
-        error_j       addr 0x15C4 # Invalid I/O device
-        chan_open     addr 0x1601 # THE 'OPEN CHANNEL' ROUTINE
-        make_room     addr 0x1655 # ROM MAKE-ROOM routine
-        pr_string     addr 0x203C # PR-STRING: start in DE, length in BC
+        error_5     addr 0x0C86 # Out of screen
+        cl_all      addr 0x0DAF # CL-ALL
+        error_j     addr 0x15C4 # Invalid I/O device
+        chan_open   addr 0x1601 # THE 'OPEN CHANNEL' ROUTINE
+        make_room   addr 0x1655 # ROM MAKE-ROOM routine
+        free_mem    addr 0x1F1A # free memory in result BC
+        break_key   addr 0x1F54 # returns CF=0 if shift+space (break) is being pressed
+        pr_string   addr 0x203C # PR-STRING: start in DE, length in BC
+        stk_store   addr 0x2AB6 # Pushes five registers on the calculator stack: A, E, D, C, B if there is enough room
+        stk_fetch   addr 0x2BF1 # Pops five registers from the calculator stack: A, E, D, C, B
+        int_fetch   addr 0x2D7F # HL: point to FP-value, restores the twos complement number to normal in DE and a sign in C.
     end
 
     isolate :mem do
@@ -157,7 +170,7 @@ class ZXSys
                 else
                         jp   condition, eoc
                 end
-                        report_error error
+                err     report_error error
             end
         end
         ##
@@ -343,6 +356,143 @@ class ZXSys
                             exx
                             jr    C,  seekloop1  # l < l'
                             ora   1              # ZF = 0
+            end
+        end
+        ##
+        # Read a signed integer from a ZX Basic FP-value.
+        #
+        # +hl+:: must point to the 1st byte of the FP-value.
+        # +th+:: most significant byte output
+        # +tl+:: least significant byte output
+        # +sgn+:: sign byte register
+        #
+        # The twos complement is not being converted for a negative number.
+        #
+        # Result is being loaded into +th+|+tl+ and +sgn+.
+        # ZF=0 signals the FP-value is not an integer.
+        # +hl+ will always point to the last byte of the FP-value.
+        #
+        # Modifies: +af+, +hl+, +th+, +tl+ and +sgn+
+        def read_integer_value(th=d, tl=e, sgn=c)
+            raise ArgumentError if [h, l, a].include?(tl) or a == th or a == sgn
+            isolate do
+                            ld    a, [hl]
+                            inc   hl
+                            ld    sgn, [hl]
+                            inc   hl
+                            ld    tl, [hl]
+                            inc   hl
+                            ld    th, [hl]
+                            inc   hl
+                            ora   [hl]
+            end
+        end
+        ##
+        # Read a positive integer from a ZX Basic FP-value.
+        #
+        # +hl+:: must point to the 1st byte of the FP-value.
+        # +th+:: most significant byte output
+        # +tl+:: least significant byte output
+        #
+        # Result is being loaded into +th+|+tl+.
+        # ZF=0 signals the FP-value is not a positive integer.
+        # +hl+ will always point to the last byte of the FP-value.
+        #
+        # Modifies: +af+, +hl+, +th+ and +tl+
+        def read_positive_int_value(th=d, tl=e)
+            raise ArgumentError if [h, l, a].include?(tl) or a == th
+            isolate do
+                            ld    a, [hl]
+                            inc   hl
+                            ora   [hl]
+                            inc   hl
+                            ld    tl, [hl]
+                            inc   hl
+                            ld    th, [hl]
+                            inc   hl
+                            ora   [hl]
+            end
+        end
+        ##
+        # Read a string address and its length from a ZX Basic's stringish FP-value.
+        #
+        # +hl+:: must point to the 1st byte of the FP-value.
+        # +adh+:: most significant byte address output
+        # +adl+:: least significant byte address output
+        # +lenh+:: most significant byte length output
+        # +lenl+:: least significant byte length output
+        #
+        # +hl+ will point to the last byte of the FP-value.
+        #
+        # Modifies: +hl+, +adh+, +adl+, +lenl+, +lenh+
+        def read_arg_string(adh=d, adl=e, lenh=b, lenl=c)
+            raise ArgumentError if [adh, adl, lenl].any? {|r| [h, l].include?(r) }
+            isolate do
+                            inc   hl
+                            ld    adl, [hl]
+                            inc   hl
+                            ld    adh, [hl]
+                            inc   hl
+                            ld    lenl, [hl]
+                            inc   hl
+                            ld    lenh, [hl]
+            end
+        end
+        ##
+        # Get a DEF FN argument value address.
+        #
+        # * +argnum+:: 1-based argument index (0 is 256), may be a register or a number
+        # * +subroutine+:: if +true+ will use +ret+ instruction
+        # * +not_found+:: if +subroutine+ is +false+ and +not_found+ is defined, the routine
+        #                 will jump to this address when argument was not found,
+        #                 otherwise success is signalled with ZF=1
+        #
+        # When +subroutine+ is +true+ or +not_found+ is +nil+, the success is signalled with +ZF+:
+        #
+        # * ZF=1 if found,
+        # * ZF=0 if not found.
+        #
+        # +hl+ points to the argument value when found.
+        #
+        # Modifies: +af+, +hl+ and +b+ unless +argnum+ == 1
+        def find_def_fn_args(argnum=b, subroutine:true, not_found:nil)
+            isolate use: :vars do |eoc|
+                            ld    b, argnum unless argnum == b or argnum == 1
+                            ld    hl, [vars.defadd]
+                            ld    a, h
+                            ora   l
+                            jr    exit_on_zf
+                if argnum != 1
+                loop0       ld    a, 5              # skip argument value
+                            adda_to  h, l
+                end
+                seek_next   ld    a, [hl]
+                            inc   hl
+                            cp    0x0E              # variable argument marker
+                if argnum == 1
+                    if subroutine
+                            ret   Z
+                    else
+                            jr    Z, eoc
+                    end
+                else
+                            jr    Z, found_arg
+                end
+                            cp    ?).ord            # arguments terminator
+                exit_on_zf  jr    NZ, seek_next
+                if subroutine
+                            inc   a                 # ZF=0, not found
+                            ret
+                elsif not_found
+                            jp    not_found
+                else
+                            inc   a                 # ZF=0, not found
+                            jr    eoc if argnum != 1
+                end
+                if argnum != 1
+                found_arg   djnz  loop0
+                            ret if subroutine
+                end
             end
         end
     end
