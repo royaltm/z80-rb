@@ -151,6 +151,7 @@ class ZXSys
         scrlen  32*192
         attrs   addr 0x5800
         attrlen 32*24
+        rambot  addr 0x5B00
         pr_buf  addr 0x5B00
         vars    addr 0x5C00
         mmaps   addr 0x5CB6
