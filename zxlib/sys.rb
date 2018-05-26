@@ -8,8 +8,8 @@ require 'z80/math_i'
 #
 #  * labels for some of ZX Spectrum 16/48K ROM routine addresses in a +rom+ namespace.
 #  * labels for ZX Spectrum 16/48K memory layout in a +mem+ namespace.
-#  * some labels for ZX Spectrum 16/48K basic and system variables in a +vars+ namespace.
-#  * Macros for creating and opening custom ZX Spectrum channels.
+#  * labels for ZX Spectrum 16/48K basic and system variables in a +vars+ namespace.
+#  * Macros for various tasks tied to the ZX Spectrum hardware or ZX Basic.
 #
 #  Requires:
 #    macro_import Z80MathInt
@@ -24,9 +24,20 @@ require 'z80/math_i'
 #      macro_import Z80MathInt
 #      import ZXSys, macros: true
 #
-#      start       create_chan_and_open output: output_p, chan_name: 'X'
+#      open_chan   create_chan_and_open output: output_p, chan_name: 'X'
 #                  ret
-#      output_p    # ... do something with a
+#      output_p    # ... do something with register A
+#
+#      # use memory hardware layout labels
+#                  ld   de, mem.attrs
+#                  ld   bc, mem.attrlen
+#      # use IY register to address VARS table
+#                  ld   a, [iy + vars.bordcr - vars_iy]
+#      # use VARS table directly
+#                  ld   hl, [vars.seed]
+#      # call ROM routines
+#                  call rom.break_key
+#                  report_error_unless C, 'D BREAK - CONT repeats'
 #    end
 class ZXSys
     include Z80
@@ -185,6 +196,102 @@ class ZXSys
             isolate do
                         rst  0x08
                         db   errno - 1
+            end
+        end
+        ##
+        # Setup custom interrupt handler using ZX Spectrum ROM's unused space as a IM2 mode jump table.
+        #
+        # * handler:: One of the 16bit register pair or an address or a pointer to the address
+        #             of the handler routine.
+        # * enable_interrupts:: If +true+ invoke +ei+ instruction at the end.
+        #
+        # Modifies: +a+, +i+, +hl+ if +handler+ is not a register pair.
+        def setup_custom_interrupt_handler(handler, enable_interrupts:true)
+            isolate do
+                            ld  a, 0x18          # 18H is jr
+                            ld  [0xFFFF], a
+                            ld  a, 0xC3          # C3H is jp
+                            ld  [0xFFF4], a
+                set_handler label                # set handler part (may be used to only change the routine address)
+                if [bc, de, hl, sp, ix, iy].include?(handler)
+                            ld  [0xFFF5], handler
+                else
+                            ld  hl, handler
+                            ld  [0xFFF5], hl
+                end
+                            ld  a, 0x39
+                            ld  i, a             # load the accumulator with FF filled page in rom.
+                            im2
+                            ei if enable_interrupts
+            end
+        end
+        ##
+        # Restore interrupt handler ZX Spectrum ROM's standard IM1 mode.
+        #
+        # * enable_interrupts:: If +true+ invoke +ei+ instruction at the end.
+        #
+        # Modifies: +a+, +i+.
+        def restore_rom_interrupt_handler(enable_interrupts:true)
+            isolate do
+                    im1
+                    ld  a, 0x3F
+                    ld  i, a
+                    ei if enable_interrupts
+            end
+        end
+        ##
+        # Test for a key or keys being pressed.
+        #
+        # * line_mask:: Keyboard half-line mask, may be an 8 bit register.
+        #               The default is 0 which means all available lines.
+        # * key_mask:: Key mask (b0..b4), may be an 8 bit register.
+        #              The default is 0b11111 which means all keys in a half-line.
+        #
+        #           key bits                           key bits
+        #     line  b4,  b3,  b2,  b1,      b0   line  b4,  b3,  b2,   b1,      b0
+        #     0xf7 [5], [4], [3], [2],     [1]   0xef [6], [7], [8],  [9],     [0]
+        #     0xfb [T], [R], [E], [W],     [Q]   0xdf [Y], [U], [I],  [O],     [P]
+        #     0xfd [G], [F], [D], [S],     [A]   0xbf [H], [J], [K],  [L], [ENTER]
+        #     0xfe [V], [C], [X], [Z], [SHIFT]   0x7f [B], [N], [M], [SS], [SPACE]
+        #
+        # Modifies: +af+.
+        #
+        # Output:
+        # * +ZF+=0:: if any of the specified keys is being pressed.
+        # * +a+:: bits b0..b4=1 if a key is being pressed at any of the specified half-line.
+        def key_pressed?(line_mask=0, key_mask=0x1f)
+            isolate do
+              if line_mask == 0
+                    xor  a
+              else
+                    ld   a, line_mask unless line_mask == a
+              end
+                    inp  a, (254)
+                    cpl
+                    anda key_mask
+            end
+        end
+        ##
+        # Test for cursor keys being pressed.
+        #
+        # +t+:: a temporary register.
+        #
+        # Modifies: +af+, +t+.
+        #
+        # Output:
+        # * +ZF+=0:: if any of the cursor keys is being pressed.
+        # * +a+:: bits b0..b3=1 if a cursor key is being pressed.
+        #
+        #      b3  b2  b1  b0
+        #     [←] [↓] [↑] [→]
+        def cursor_key_pressed?(t:b)
+            isolate do
+                    key_pressed? 0xf7, 0x10 # key [5]
+                    ld   t, a
+                    key_pressed? 0xef, 0x1c # keys [6] [7] [8] . .
+                    rrca
+                    ora  t                  # keys [5] [6] [7] [8] .
+                    rrca                    # keys [←] [↓] [↑] [→]
             end
         end
         ##
@@ -361,12 +468,12 @@ class ZXSys
             end
         end
         ##
-        # Read a signed integer from a ZX Basic FP-value.
+        # Read a signed integer from a ZX Basic's FP-value.
         #
         # +hl+:: must point to the 1st byte of the FP-value.
-        # +th+:: most significant byte output
-        # +tl+:: least significant byte output
-        # +sgn+:: sign byte register
+        # +th+:: most significant byte output register.
+        # +tl+:: least significant byte output register.
+        # +sgn+:: sign byte register.
         #
         # The twos complement is not being converted for a negative number.
         #
@@ -390,11 +497,11 @@ class ZXSys
             end
         end
         ##
-        # Read a positive integer from a ZX Basic FP-value.
+        # Read a positive integer from a ZX Basic's FP-value.
         #
         # +hl+:: must point to the 1st byte of the FP-value.
-        # +th+:: most significant byte output
-        # +tl+:: least significant byte output
+        # +th+:: most significant byte output register.
+        # +tl+:: least significant byte output register.
         #
         # Result is being loaded into +th+|+tl+.
         # ZF=0 signals the FP-value is not a positive integer.
@@ -419,10 +526,10 @@ class ZXSys
         # Read a string address and its length from a ZX Basic's stringish FP-value.
         #
         # +hl+:: must point to the 1st byte of the FP-value.
-        # +adh+:: most significant byte address output
-        # +adl+:: least significant byte address output
-        # +lenh+:: most significant byte length output
-        # +lenl+:: least significant byte length output
+        # +adh+:: most significant byte address output register.
+        # +adl+:: least significant byte address output register.
+        # +lenh+:: most significant byte length output register.
+        # +lenl+:: least significant byte length output register.
         #
         # +hl+ will point to the last byte of the FP-value.
         #
