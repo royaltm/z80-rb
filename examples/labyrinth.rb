@@ -17,6 +17,8 @@ class Program
   ###########
 
   export start
+  export labyrinth
+  export viewport
 
   ###########
   # Imports #
@@ -44,6 +46,7 @@ class Program
   end
 
   # ZF=0 if any cursor key is being pressed
+  # A=bits 3-0: [←] [↓] [↑] [→] if 1 key is being pressed
   macro :cursor_key_pressed? do |_, t:b|
                 key_pressed? 0xf7, 0x10 # key [5]
                 ld  t, a
@@ -58,7 +61,7 @@ class Program
       ld  [0xFFFF], a
       ld  a, 0xC3          # C3H is jp
       ld  [0xFFF4], a
-      ld  hl, handleint
+      ld  hl, handleint unless handleint == hl
       ld  [0xFFF5], hl
       ld  a, 0x39
       ld  i, a             # load the accumulator with FF filled page in rom.
@@ -74,42 +77,6 @@ class Program
       ei
   end
 
-  macro :color_labyrinth do |_, &block|
-                ex   af, af
-                call viewport_to_room
-                ld   bc, [labyrinth.dimensions]
-                ld   de, mem.attrs
-                ld   a, 24
-                cp   c
-                jr   NC, loop1
-                ld   c, a
-    loop1       push bc
-                ld   a, 32
-                cp   b
-                jr   NC, skip0
-                ld   b, a
-    skip0       ex   af, af
-    loop0       block.call
-                inc  hl
-                jr   Z, skip_mark
-                ld   [de], a
-    skip_mark   inc  de
-                djnz loop0
-                ex   af, af
-                inc  hl           # skip boundary
-                pop  bc
-                ld   a, 32
-                sub  b
-                jr   NC, fits_line
-                neg
-                adda_to h, l      # skip remaining rooms
-                jr   next_iter
-    fits_line   adda_to d, e
-    next_iter   dec  c
-                jr   NZ, loop1
-                ret
-  end
-
   ########
   # MAIN #
   ########
@@ -121,7 +88,7 @@ class Program
     room_data   word  # pointer to labyrinth data
                       # required size: (width + 1) * (height + 2) - 1 bytes
     skip_rooms  word  # how many rooms skip while carving
-    # calculated by init_labyrinth:
+                      # Calculated by init_labyrinth:
     nrooms      word  # number of rooms: width * height
     room_00     word  # pointer to inner rooms array (past the top boundary)
     bsize       word  # inner size with boundaries: (width + 1) * height
@@ -132,72 +99,90 @@ class Program
       x       byte
   end
 
-  start           jr   example
+  int_counter     addr 0xFFFE
+
+  ##
+  # Labyrinth DEMO
+  #
+  # POKE 32770, height: POKE 32771, width: RANDOMIZE USR 32768
+  # or
+  # 1 DEF FN l(h,w,s) = USR 32768
+  # RANDOMIZE FN l(height, width, skip)
+  start           jr   demo
 
   labyrinth       data Labyrinth, { width: 31, height: 21, room_data: room_data }
   viewport        data Viewport, {y: 0, x: 0}
 
-  ns :example do
-                  call fn_argn
+  ns :demo do
+                  call fn_argn                # is this an FN call with arguments?
                   jr   NZ, skip_fn_args
-                  call get_arg_int8
+                  call get_arg_int8           # get 1st argument as 8bit unsigned height
                   ld   [labyrinth.height], a
-                  call fn_argn.seek_next
+                  call fn_argn.seek_next      # check if exists next argument
                   jr   NZ, skip_fn_args
-                  call get_arg_int8
+                  call get_arg_int8           # get 2nd argument as 8bit unsigned width
                   ld   [labyrinth.width], a
-                  call fn_argn.seek_next
+                  call fn_argn.seek_next      # check if exists next argument
                   jr   NZ, skip_fn_args
-                  call get_arg_int
+                  call get_arg_int            # get 3rd argument as 16bit unsigned skip rooms
                   ld   [labyrinth.skip_rooms], de
-    skip_fn_args  call init_labyrinth
+
+    skip_fn_args  call init_labyrinth         # initialize labyrinth variables
                   report_error_unless NC, '4 Out of memory'
                   report_error_unless NZ, 'B Integer out of range'
-                  ld   hl, 0
+
+                  ld   hl, 0                  # initialize viewport
                   ld   [viewport], hl
+                  ld   hl, int_counter        # initialize int1 refresh draw counter
+                  ld   [hl], 2
 
                   exx
-                  push hl # save hl'
+                  push hl                     # save H'L'
 
-                  call clear_labyrinth
-                  call carve_labyrinth
-                  exx
-                  push hl # save seed
-                  jr   C, quit
-
-                  ld   a, [vars.attr_p]
+                  ld   a, [vars.attr_p]       # prepare screen
                   call clear_screen
-                  ld   a, [vars.bordcr]
-                  call set_border
+                  call set_inv_brdcr          # inverse border
 
-                  call draw_labyrinth
+                  call clear_labyrinth        # clear labyrinth rooms
 
-                  ld   bc, 0              # no solving
-                  init_interrupts refresh_on_int
+                  ld   hl, refresh_on_int1    # setup 1st interrupt routine
+                  call init_maskint
 
-                  ld   de, 0x7f01         # [SPC]
+                  call carve_labyrinth        # carve a labyrinth
+                  exx
+                  push hl                     # save last rng seed
+                  jr   C, quit                # skip_rooms >= nrooms
+
+                  call restr_maskint          # restore system interrupt routine
+
+                  call set_brd_brdcr          # normal border
+
+                  call draw_labyrinth         # draw labyrinth
+
+                  ld   bc, 0                  # prevent viewport tracking
+                  ld   hl, refresh_on_int2    # setup 2nd interrupt routine
+                  call init_maskint
+
+                  call release_key            # wait until no key is being pressed
+                  ld   de, 0x7f01             # wait until [SPC] is pressed and released
                   call wait_key
 
-                  ld   a, [vars.bordcr]
-                  cpl
-                  call set_border
-                  call solve_labyrinth
-                  ld   a, [vars.bordcr]
-                  call set_border
+                  call set_inv_brdcr          # inverse border
+                  call solve_labyrinth        # solve labyrinth
+                  call set_brd_brdcr          # normal border
 
-                  ld   de, 0x7b01         # [SPC] or [Q]
+                  ld   de, 0x7f01             # wait until [SPC] is pressed and released
                   call wait_key
 
-                  restore_interrupts
+    quit          call restr_maskint          # restore system interrupt routine
 
-                  call release_key
-                  ld   a, [vars.bordcr]
-                  call set_border
+                  sub  a
+                  call set_mix_brdcr          # normal border
 
-    quit          pop bc  # return seed
+                  pop  bc                     # restore last rng seed as return value
                   exx
 
-                  pop hl  # original hl'
+                  pop  hl                     # restore original hl'
                   exx
                   ret
   end
@@ -206,53 +191,73 @@ class Program
   # Subroutines #
   ###############
 
-  # clears screen area with border and attributes are set according to register A
+  # Clears screen area with border and attributes are set according to register A.
   clear_screen  clrmem  mem.screen, mem.scrlen, 0
                 clrmem  mem.attrs, mem.attrlen, a
                 ret
 
-  # set border taken from an attribute in register A
+  # Set inversed border.
+  set_inv_brdcr scf
+  # Set border according to CF=1 inversed, CF=0 normal.
+  set_brd_brdcr sbc  a
+  # Mix register A with BORDCR from ZX Spectrum VARS.
+  set_mix_brdcr xor  [iy + vars.bordcr - vars_iy]
+  # Set border taken from an attribute in register A.
   set_border    anda 0b00111000
                 3.times { rrca }
                 out  (254), a
                 ret
 
-  # check if specified keys are down
+  # Check if specified keys are down.
   # d: key_line_mask, e: key_mask
   # return if none otherwise wait until key is released
   key_down?     key_pressed? d, e
                 ret
 
-  # waits until specified keys are being pressed
+  # Waits until specified keys are being pressed.
   # d: key_line_mask, e: key_mask
   wait_key      halt
                 call key_down?
                 jr   Z, wait_key
-  # waits until no key is being pressed
+  # Waits until no key is being pressed.
   release_key   halt
                 key_pressed?
                 jr   NZ, release_key
                 ret
 
-  # waits until any key is being pressed
+  # Waits until any key is being pressed.
   wait_any_key  ld   de, 0x001f
                 jr   wait_key
 
-  # randomize from seed in hl -> hl
+  # Check for cursor key is being pressed.
+  # ZF=0 if any cursor key is being pressed
+  # A=bits 3-0: [←] [↓] [↑] [→] if 1 key is being pressed
+  cursor_key?   cursor_key_pressed?
+                ret
+
+  # Setup maskable interrupts handler given in HL.
+  init_maskint  init_interrupts hl
+                ret
+
+  # Restore maskable interrupts to ROM handler.
+  restr_maskint restore_interrupts
+                ret
+
+  # Return random number in HL from a given seed in HL.
   next_rnd_hl   rnd
                 ret
 
-  # find DEF FN argument value
-  # ZF=1 if found and +hl+ points to the FP-value
+  # Find DEF FN argument value.
+  # ZF=1 if found and then HL points to the FP-value
   fn_argn       find_def_fn_args 1
-  # try to get positive integer from FP-value addressed by HL
-  # +de+ holds a value on success
+  # Try to get positive integer from FP-value addressed by HL.
+  # DE holds a value on success.
   get_arg_int   read_positive_int_value d, e
                 inc  hl           # point to a next argument possibly
                 ret  Z
                 report_error 'A Invalid argument'
-  # try to get positive integer from FP-value addressed by HL
-  # +a+ holds a value on success
+  # Try to get positive integer from FP-value addressed by HL.
+  # A holds a value on success.
   get_arg_int8  call get_arg_int
                 ld   a, d
                 ora  a
@@ -260,11 +265,15 @@ class Program
                 ld   a, e
                 ret
 
-  macro :turn_lt do |_, mov:d|
+  #############
+  # Labyrinth #
+  #############
+
+  macro :turn_ccw do |_, mov:d|
           dec  mov
   end
 
-  macro :turn_rt do |_, mov:d|
+  macro :turn_cw do |_, mov:d|
           inc  mov
   end
 
@@ -320,13 +329,13 @@ class Program
     is_lt dec  hl
   end
 
-  # initializes labyrinth variables: room_00, nrooms and bsize
-  # call after changing width, height or room_data
-  # validates labyrinth dimensions
-  # CF=1 if data doesn't fit in memory
-  # ZF=1 if invalid dimensions (width==0 or height==0)
+  # Initializes labyrinth variables: room_00, nrooms and bsize.
+  # Call it after changing width, height or room_data.
+  # Validates labyrinth dimensions:
+  # * CF=1 if data doesn't fit in memory,
+  # * ZF=1 if invalid dimensions (width==0 or height==0).
   ns :init_labyrinth do
-                ld   bc, [labyrinth.dimensions] # c = height, b = width
+                ld   bc, [labyrinth.dimensions] # C: height, B: width
                 ld   a, c
                 ora  a
                 ret  Z                          # height == 0
@@ -344,8 +353,8 @@ class Program
                 ld   a, [labyrinth.width]
                 add  a
                 ld   c, a
-                rl   b                          # bc: 2*width
-                inc  bc                         # bc: 2*width + 1
+                rl   b                          # BC: 2*width
+                inc  bc                         # BC: 2*width + 1
                 add  hl, bc                     # room_data += 2*width + 1 (up and bottom boundary)
                 jr   C, no_test12
                 ld   bc, 12
@@ -367,7 +376,60 @@ class Program
                 ret
   end
 
-  ns :refresh_on_int do
+  # Clears labyrinth and prepares it for carving.
+  # WARNING: labyrinth must have 0 < width < 256 and 0 < height < 256.
+  ns :clear_labyrinth do
+                ld   hl, [labyrinth.room_data]
+                ld   de, [labyrinth.dimensions]
+                ld   b, d                       # width
+                inc  b                          # width + 1
+                clrmem8 hl, b, 0xC0             # mark upper boundary row
+    clr_loop    clrmem8 hl, d, 0                # clear row
+                ld   [hl], 0xC0                 # mark right boundary room
+                inc  hl
+                dec  e                          # decrease height
+                jr   NZ, clr_loop
+                clrmem8 hl, d, 0xC0             # mark bottom boundary
+                ret
+  end
+
+  # Restore system maskable interrupts and report BREAK
+  break_abort   call restr_maskint
+                report_error 'D BREAK - CONT repeats'
+
+  # A maskable interrupt handler 1.
+  # Redraws view, moves around viewport on cursor keys, suppress redrawing on space key.
+  # Aborts on break.
+  ns :refresh_on_int1 do
+    with_saved :no_ixy, :ex_af, af, merge: true do |eoc|
+                    ld   hl, int_counter
+                    call cursor_key?
+                    jr   Z, no_cursor_key
+                    push hl
+                    call move_viewport
+                    pop  hl
+                    jr   redraw0
+      no_cursor_key dec  [hl]
+                    jr   Z, redraw0
+                    ld   de, 0x7f01     # [SPC]
+                    call key_down?
+                    jr   Z, redraw1     # skip drawing if pressed
+                    ld   [hl], 5
+                    jr   eoc
+      redraw0       ld   [hl], 2
+      redraw1       call draw_labyrinth
+                    call rom.break_key
+                    jr   NC, break_abort
+    end
+                    ei
+                    ret
+  end
+
+  # A maskable interrupt handler 2.
+  # Redraws view, follows solving room in viewport, moves around viewport on cursor keys.
+  # Refreshes attributes only if there are no viewport changes.
+  # Aborts on break.
+  ns :refresh_on_int2 do
     with_saved :no_ixy, :ex_af, af, merge: true do |eoc|
                     ld   a, c                      # check counter (in bc)
                     ora  b
@@ -377,24 +439,28 @@ class Program
                     jr   NC, in_viewport
                     call center_viewport_xy        # update viewport
                     jr   redraw_all
-      in_viewport   cursor_key_pressed?
+
+      in_viewport   call cursor_key?
                     jr   Z, no_cursor_key
-                    call update_viewport
+                    call move_viewport
       redraw_all    call draw_labyrinth
                     jr   eoc
       no_cursor_key ld   a, [vars.attr_p]
                     ora 0b01000000
                     xor 0b00111111
                     call color_labyrinth_visited
+                    call rom.break_key
+                    jr   NC, break_abort
     end
                     ei
                     ret
   end
 
-  # a = cursor bits b3 [←] [↓] [↑] [→] b0
-  ns :update_viewport do
-                ld   de, [viewport]              # e = y, d = x
-                ld   bc, [labyrinth.dimensions]  # c = height, b = width
+  # Move viewport according to register A and labyrinth dimensions.
+  # Cursor bits in A: b3 [←] [↓] [↑] [→] b0
+  ns :move_viewport do
+                ld   de, [viewport]              # E: y, D: x
+                ld   bc, [labyrinth.dimensions]  # C: height, B: width
                 rrca
     with_saved  af, bc, de do
                 call C, right
@@ -451,8 +517,10 @@ class Program
                 ret
   end
 
-  # input room address in hl, output h: x, l: y
-  # WARNING: no boundary check
+  # Convert room address in HL, to coordinates H: x, L: y
+  # Prior to calling this function labyrinth variables must be successfully
+  # initialized by calling +init_labyrinth+.
+  # WARNING: no boundary check.
   ns :room_to_xy do
                 ld   de, [labyrinth.room_00]     # start 0,0
                 ora  a                           # CF=0
@@ -469,11 +537,12 @@ class Program
                 jr   assign_x
   end
 
-  # input h: x, l: y
-  # output CF=1 not in viewport !(x >= vx && y>= vy && x < vx + 32 && y < vx + 24)
-  # WARNING: no boundary check and no viewport validation
+  # Check if coordinates are visible.
+  # Input in H: x, L: y
+  # Output CF=1 not in viewport !(x >= vx && y>= vy && x < vx + 32 && y < vx + 24)
+  # WARNING: no boundary check and no viewport validation.
   ns :xy_in_viewport? do
-                ld   bc, [viewport]              # b: vx, c: vy
+                ld   bc, [viewport]              # B: vx, C: vy
                 ld   a, l                        # y
                 cp   c                           # y - vy
                 ret  C                           # CF=1 if y < vy
@@ -481,9 +550,9 @@ class Program
                 cp   b                           # x - vx
                 ret  C                           # CF=1 if x < vx
                 ex   de, hl
-                ld   hl, (32<<8) | 24            # h: 32, l: 24
+                ld   hl, (32<<8) | 24            # H: 32, L: 24
                 add  hl, bc                      # we know that vx + 32 < 256 and vy + 24 < 256
-                ex   de, hl                      # h: x, l: y, d: vx + 32, e: vy + 24
+                ex   de, hl                      # H: x, L: y, D: vx + 32, E: vy + 24
                 ld   a, h                        # x
                 cp   d                           # x - (vx + 32)
                 ccf
@@ -494,7 +563,8 @@ class Program
                 ret                              # CF=1 if y >= (vy + 24)
   end
 
-  # input h: x, l: y
+  # Center viewport on coordinates.
+  # Input H: x, L: y
   # viewport.x: min(max(0, x - 16), max(0, width - 32))
   # viewport.y: min(max(0, y - 12), max(0, height - 24))
   ns :center_viewport_xy do
@@ -508,7 +578,7 @@ class Program
                 jr   NC, skip_resety
                 xor  a                           # vy = 0
     skip_resety ld   l, a                        # vy = max(0, y - 12)
-                ld   de, [labyrinth.dimensions]  # d: width, e: height
+                ld   de, [labyrinth.dimensions]  # D: width, E: height
                 ld   a, d                        # width
                 sub  32                          # max_x = width - 32
                 jr   NC, skip_max_x0             # width >= 32
@@ -527,10 +597,12 @@ class Program
                 ret
   end
 
-  # returns room address from viewport
+  # Returns room address in HL from viewport.
+  # Prior to calling this function labyrinth variables must be successfully
+  # initialized by calling +init_labyrinth+.
   # WARNING: no boundary check
   ns :viewport_to_room do
-                ld   de, [viewport]              # d: x, e: y
+                ld   de, [viewport]              # D: x, E: y
                 ld   hl, [labyrinth.room_00]     # start 0,0
                 ld   a, d
                 adda_to h, l                     # start += x
@@ -542,321 +614,353 @@ class Program
                 ret
   end
 
-  # returns random room address that is not a boundary room
-  # hl': seed
+  # Returns randomized room address that is not a boundary room.
+  # Prior to calling this function labyrinth variables must be successfully
+  # initialized by calling +init_labyrinth+.
+  # Input: H'L': rng seed.
+  # Output: HL: room address, H'L': updated rng seed
   ns :random_start do
     try_again   exx
-                call next_rnd_hl          # hl = rnd*65536
+                call next_rnd_hl              # HL: RND * 65536
                 push hl
                 exx
                 pop  hl
-                ld   de, [labyrinth.bsize] # hl % de
+                ld   de, [labyrinth.bsize]    # HL % DE
                 divmod16  check0:false, check1:false, modulo:true, quick8:true
-                # bc = rnd*65536 % size
-                ld   hl, [labyrinth.room_00]
-                add  hl, bc
+                ld   hl, [labyrinth.room_00]  # BC: RND * 65536 % bsize
+                add  hl, bc                   # random room address
                 is_boundary
-                ret  Z
+                ret  Z                        # return when not a boundary room
                 jp   try_again
   end
 
-  # creates random labyrinth
-  # WARNING: labyrinth must have 0 < width < 256 and 0 < height < 256
+  # Creates randomized labyrinth using non-recursive Hunt'n'Seek algorythm.
+  # Prior to calling this function labyrinth variables must be successfully
+  # initialized by calling +init_labyrinth+ and room data must be prepared by
+  # calling +clear_labyrinth+.
+  # WARNING: A labyrinth must have 0 < width < 256 and 0 < height < 256.
   ns :carve_labyrinth do
                 ld   hl, [vars.seed]
                 exx
                 ld   hl, [labyrinth.nrooms]
-                dec  hl              # nrooms - 1
+                dec  hl                   # nrooms - 1
                 ld   bc, [labyrinth.skip_rooms]
-                ora  a               # CF = 0
-                sbc  hl, bc
-                ld16 bc, hl
-                ret  C               # return if skip_rooms > nrooms - 1
-                push bc              # save nrooms - skip_rooms
+                ora  a                    # CF = 0
+                sbc  hl, bc               # nrooms - 1 - skip_rooms
+                ret  C                    # return if skip_rooms > nrooms - 1
+                push hl                   # save nrooms - 1 - skip_rooms
 
-                call random_start    # hl room address
-                mark_room
+                call random_start         # HL: random room address
+                mark_room                 # mark first room
                 exx
-                call next_rnd_hl     # first random turn
+                call next_rnd_hl          # first random direction
                 ld   a, h
                 exx
-                ld   d, a            # mov
+                ld   d, a                 # mov (2 lowest bits)
                 ld   a, [labyrinth.width]
-                ld   e, a            # width
+                ld   e, a                 # width
 
-                pop  bc              # restore rooms to go
+                pop  bc                   # restore rooms to go
     main_loop   ld   a, c
                 ora  b
-                ret  Z
-                push bc
+                ret  Z                    # return if no more rooms to carve
+                push bc                   # save rooms to go
 
                 exx
-    turn_again  call next_rnd_hl     # random turn
+    turn_again  call next_rnd_hl          # random turn
                 ld   a, h
-                anda 0b11            # turn 0 - 3
-                jr   Z, turn_again   # turn == 0? -> rnd again
-                sub  2               # turn (-1, 0, +1)
+                anda 0b11                 # turn: 0..3
+                jr   Z, turn_again        # turn == 0 -> repeat
                 exx
-                add  d               # mov turn (-1, 0, +1)
-                ld   d, a            # mov
+                sub  2                    # turn (-1, 0, +1)
+                add  d                    # mov turn (-1: left, 0: ahead, +1: right)
+                ld   d, a                 # mov (2 lowest bits)
 
-    hunt_next   ld   b, 4
-    another_dir push hl              # save room address
-                move_room width:e, mov:d
-                is_marked
-                jr   Z, open_room
-                pop  hl
-                turn_rt mov:d        # try another direction
-                djnz another_dir
+    hunt_next   ld   b, 4                 # hunt unmarked adjacent room
+    another_dir push hl                   # save room address
+                move_room width:e, mov:d  # move to adjacent room by D & 0b11: 0 - up, 1 - right, 2 - down, 3 - left
+                is_marked                 # adjacent room already marked?
+                jr   Z, open_room         # no, then open a wall to the adjacent room
+                pop  hl                   # restore room address
+                turn_cw mov:d             # try another direction (turn direction clockwise)
+                djnz another_dir          # repeat for all directions
 
-                push de              # save mov and width
-    seek_marked call random_start    # hl room address
+                push de                   # save mov and width
+    seek_marked call random_start         # seek random marked room
                 is_marked
-                jr   Z, seek_marked  # randomize room until marked found
-                pop  de              # restore mov and width
-                jr   hunt_next
+                jr   Z, seek_marked       # randomize room until marked found
+                pop  de                   # restore mov and width
+                jr   hunt_next            # hunt
 
     ns :open_room do |eoc|
                 ld   a, d
-                anda 0b11            # mov
-                jr   NZ, ck_open_1   # mov!=0
-                ex   [sp], hl        # previous room
-                set  0, [hl]         # open up
-                pop  hl              # pop new room
+                anda 0b11                 # mov
+                jr   NZ, ck_open_1        # mov <> 0
+                ex   [sp], hl             # exchange new with the previous room
+                set  0, [hl]              # open upper wall from previous room
+                pop  hl                   # pop new room
                 jr   eoc
       ck_open_1 xor  0b11
-                jr   NZ, ck_open_2   # mov!=3
-                ex   [sp], hl        # previous room
-                set  1, [hl]         # open left
-                pop  hl              # pop new room
+                jr   NZ, ck_open_2        # mov <> 3
+                ex   [sp], hl             # exchange new with the previous room
+                set  1, [hl]              # open left wall from previous room
+                pop  hl                   # pop new room
                 jr   eoc
-      ck_open_2 pop  bc              # discard previous room
+      ck_open_2 pop  bc                   # discard previous room
                 dec  a
-                jr   NZ, ck_open_3   # mov!=2
-                set  0, [hl]         # open up (down from previous room)
+                jr   NZ, ck_open_3        # mov <> 2
+                set  0, [hl]              # open up (down from previous room)
                 jr   eoc
-      ck_open_3 set  1, [hl]         # open left (right from previous room)
+      ck_open_3 set  1, [hl]              # open left (right from previous room)
     end
-                mark_room
-                pop  bc
-                dec  bc              # rooms to go
+                mark_room                 # mark new room
+                pop  bc                   # restore rooms to go
+                dec  bc                   # rooms to go - 1
                 jp   main_loop
   end
 
-  # clears labyrinth
-  # WARNING: labyrinth must have 0 < width < 256 and 0 < height < 256
-  ns :clear_labyrinth do
-                ld   hl, [labyrinth.room_data]
-                ld   de, [labyrinth.dimensions]
-                ld   b, d # width
-                inc  b    # width + 1
-                clrmem8 hl, b, 0xC0
-    clr_loop    clrmem8 hl, d, 0
-                ld   [hl], 0xC0
+  # Updates screen attributes for visited rooms using viewport.
+  # Input: A: screen attribute value for a visited room.
+  # Prior to calling this function labyrinth variables must be successfully
+  # initialized by calling +init_labyrinth+.
+  # WARNING: labyrinth must have 0 < width < 256
+  ns :color_labyrinth_visited do
+                ex   af, af           # save attribute
+                call viewport_to_room
+                ld   bc, [labyrinth.dimensions]
+                ld   de, mem.attrs
+                ld   a, 24            # limit height to the number of screen rows
+                cp   c                # 24 - height
+                jr   NC, loop1
+                ld   c, a
+    loop1       push bc               # save dimensions
+                ld   a, 32            # limit width to the number of screen columns
+                cp   b                # 32 - width
+                jr   NC, skip0
+                ld   b, a
+    skip0       ex   af, af           # restore attribute
+    loop0       is_visited
                 inc  hl
-                dec  e
-                jr   NZ, clr_loop
-                clrmem8 hl, d, 0xC0
+                jr   Z, skip_color
+                ld   [de], a          # color visited
+    skip_color  inc  de               # next attribute address
+                djnz loop0            # repeat min(width, 32) times
+                ex   af, af           # save attribute
+                inc  hl               # skip boundary room
+                pop  bc               # restore dimensions
+                ld   a, 32
+                sub  b                # 32 - width
+                jr   NC, fits_line    # width <= 32
+                neg                   # width > 32
+                adda_to h, l          # so skip remaining rooms -(32 - width)
+                jr   next_iter
+    fits_line   adda_to d, e          # otherwise skip to the next attribute row
+    next_iter   dec  c
+                jr   NZ, loop1        # repeat min(height, 24) times
                 ret
   end
 
-  # sets attributes for visited rooms
-  # WARNING: labyrinth must have 0 < width < 256
-  color_labyrinth :color_labyrinth_visited do
-    is_visited
-  end
-
-  # draws labyrinth on the screen
+  # Draws labyrinth on the screen using viewport.
+  # Prior to calling this function labyrinth variables must be successfully
+  # initialized by calling +init_labyrinth+.
   # WARNING: labyrinth must have 0 < width < 256
   ns :draw_labyrinth do
                 call viewport_to_room
                 ld   bc, [labyrinth.dimensions]
                 ld   de, mem.screen
                 ld   a, [vars.attr_p]
-                anda 0b00111111
-                ora  0b01000000
-                ex   af, af
+                anda 0b00111111       # clear bright and flash bits
+                ora  0b01000000       # apply bright bit
+                ex   af, af           # save attribute
 
-                inc  c   # height with boundary
+                inc  c                # C: height with boundary
 
-                ld   a, 32 # check screen width
+                ld   a, 32            # B: min(width, 32)
                 cp   b
                 jr   NC, main_loop
                 ld   b, a
 
-    main_loop   push hl
-                push de
-                push bc
-    hloop       ld   a, 0x80
+    main_loop   push hl               # save room address
+                push de               # save screen address
+                push bc               # save min(width, 32), (height + 1)
+    hloop       ld   a, 0x80          # draw upper walls
                 is_up_opened
                 jr   NZ, is_openup
-                ld   a, 0xFF
+                ld   a, 0xFF          # closed wall
     is_openup   ld   [de], a
-                inc  e
-                inc  hl
-                djnz hloop
+                inc  e                # next screen column
+                inc  hl               # next room
+                djnz hloop            # repeat min(width, 32) times
 
-                pop  bc     # b: visible width, c: height
+                pop  bc               # restore min(width, 32), (height + 1)
 
                 ld   a, [labyrinth.width]
-                cp   32
-                jr   NC, no_line_tr
-                ex   de, hl # hl: screen
-                ld   [hl], 0x80
-    no_line_tr  pop  de     # screen
-                dec  c
-                jr   NZ, skip_ret
-                pop  hl
+                cp   32               # width - 32
+                jr   NC, no_line_tr   # width >= 32
+                ex   de, hl           # HL: screen address
+                ld   [hl], 0x80       # right boundary pixel
+    no_line_tr  pop  de               # restore screen address
+                dec  c                # height -= 1
+                jr   NZ, skip_ret     # height > 0
+                pop  hl               # otherwise return
                 ret
-    skip_ret    ld   l, c     # height - 1
-                ld   h, a     # width
-                ex   [sp], hl # hl: room, (sp): width|height
+    skip_ret    ld   l, c             # height
+                ld   h, a             # width
+                ex   [sp], hl         # HL: restored room address, (SP): width << 8 | height
 
-                push hl
-                push de
-                scrtoattr d
-                ex   af, af
-                ld   c, a     # attr_p | bright
-                ex   af, af
-    attrloop    ld   a, c
+                push hl               # save room address
+                push de               # save screen address
+                scrtoattr d           # convert D to screen attribute address MSB
+                ex   af, af           # restore attribute value
+                ld   c, a             # attr_p | bright
+                ex   af, af           # save attribute
+    attrloop    ld   a, c             # update row of screen attributes
                 is_visited
                 jr   Z, not_visited
-                xor  0b00111111
+                xor  0b00111111       # inverse attribute for visited room
                 jr   skip_markck
     not_visited is_marked
                 jr   NZ, skip_markck
-                anda 0b00111111
+                anda 0b00111111       # clear bright bit for unmarked room
     skip_markck ld   [de], a
                 inc  e
-                inc  hl
-                djnz attrloop
-                pop  de    # screen
-                pop  hl
+                inc  hl               # next room
+                djnz attrloop         # repeat min(width, 32) times
+                pop  de               # restore screen address
+                pop  hl               # restore room address
 
                 ld   a, [labyrinth.width]
-                cp   32 # width - 32
-                jr   C, no_crop_w # width < 32
-                ld   a, 31 # vcounter = 31 if width >= 32
-    no_crop_w   ld   c, a  # vcounter
-                inc  c     # row width + boundary
-    vloop       push de    # screen
+                cp   32               # width - 32
+                jr   C, no_crop_w     # width < 32
+                ld   a, 31
+    no_crop_w   ld   c, a             # C: min(width, 31)
+                inc  c                # C: min(width, 31) + 1
+    vloop       push de               # save screen address
                 xor  a
                 is_left_opened
-                inc  hl
+                inc  hl               # next room
                 jr   NZ, is_openleft
-                ld   a, 0x80
+                ld   a, 0x80          # pixel for closed left wall
     is_openleft ld   b, 7
-    vdraw_loop  inc  d
-                ld   [de], a
-                djnz vdraw_loop
-                pop  de
-                inc  e
+    vdraw_loop  inc  d                # screen line down
+                ld   [de], a          # paint remaining 7 lines of the room with a left wall
+                djnz vdraw_loop       # repeat 7 times
+                pop  de               # restore screen address
+                inc  e                # next screen column
                 dec  c
-                jr   NZ, vloop
+                jr   NZ, vloop        # repeat min(width, 31) + 1 times
 
-                pop  bc
+                pop  bc               # B: width, C: height
 
-                dec  e
-                nextrow d, e, true
+                dec  e                # go back to the last drawn screen column
+                nextrow d, e, true    # advance to the next screen line, return when out of screen
                 ld   a, e
                 anda 0b11100000
-                ld   e, a
+                ld   e, a             # set screen column to 0
 
-                ld   a, b
-                sub  32
-                jr   C, main_loop # width < 32
+                ld   a, b             # width
+                sub  32               # width - 32
+                jr   C, main_loop     # width < 32
                 inc  a
-                adda_to h, l      # skip remaining rooms + boundary
-                ld   b, 32
+                adda_to h, l          # skip remaining rooms + boundary
+                ld   b, 32            # B: min(width, 32)
                 jp   main_loop
   end
 
+  # Solve labyrinth by visiting recursively each exit starting at a random room.
+  # Prior to calling this function labyrinth must be successfully carved by
+  # calling +carve_labyrinth+.
+  # WARNING: may exit by RST 8 when out of stack space.
+  # The HL register contains the currently visited room address and BC
+  # contains the number of rooms to be visited that has been pushed on the stack.
+  # The interrupt routine can utilize this to refresh the screen.
   ns :solve_labyrinth, use: vars do
-                di
-                ld   [restore_sp + 1], sp
+                di                    # disable interrupts
                 ld   hl, [vars.frames]
                 exx
-    seek_marked call random_start    # hl room address
+    seek_marked call random_start     # HL: room address
                 is_marked
-                jr   Z, seek_marked  # randomize room until marked found
-                ld   bc, 0
-                ei
+                jr   Z, seek_marked   # randomize until marked room found
+                ld   bc, 0            # reset "rooms left to visit" counter
+                ei                    # enable interrupts
                 ld   a, [labyrinth.width]
                 ld   e, a
-                ld   d, 0
-    visit_loop  visit_room
+                ld   d, 0             # DE: labyrinth.width
+    visit_loop  visit_room            # mark room as visited
                 is_up_opened
                 jr   Z, skip_up1
-                push hl
+                push hl               # save current room
                 scf
-                sbc  hl, de
-                is_visited
-                jr   NZ, skip_up0
-                ex   [sp], hl
-                inc  bc
+                sbc  hl, de           # go up
+                is_visited            # check if already visited
+                jr   NZ, skip_up0     # yes
+                ex   [sp], hl         # no, so exchange up room with the current room on the stack
+                inc  bc               # increase "rooms left" counter
                 jr   skip_up1
-    skip_up0    pop  hl
+    skip_up0    pop  hl               # restore current room if not visiting up room
     skip_up1    is_left_opened
                 jr   Z, skip_left1
-                dec  hl
-                is_visited
-                jr   NZ, skip_left0
-                push hl
-                inc  bc
-    skip_left0  inc  hl
-    skip_left1  inc  hl
-                ld   a, [hl]
-                anda 0b00100010     # visited | left 
-                xor  0b00000010     # left
-                jr   NZ, skip_right
-                push hl
-                inc  bc
-    skip_right  add  hl, de
-                ld   a, [hl]
-                anda 0b00100001     # visited | up
-                xor  0b00000001     # up
-                jr   NZ, skip_down
-                push hl
-                inc  bc
-    skip_down   ld   a, c
+                dec  hl               # go left
+                is_visited            # check if already visited
+                jr   NZ, skip_left0   # yes
+                push hl               # no, so push left room on the stack
+                inc  bc               # increase "rooms left" counter
+    skip_left0  inc  hl               # go back
+    skip_left1  inc  hl               # go right
+                ld   a, [hl]          # get room data  
+                anda 0b00100010       # visited | left 
+                xor  0b00000010       # left
+                jr   NZ, skip_right   # left is closed or already visited
+                push hl               # otherwise push right room on the stack
+                inc  bc               # increase "rooms left" counter
+    skip_right  add  hl, de           # go down
+                ld   a, [hl]          # get room data
+                anda 0b00100001       # visited | up
+                xor  0b00000001       # up
+                jr   NZ, skip_down    # up is closed or already visited
+                push hl               # otherwise push down room on the stack
+                inc  bc               # increase "rooms left" counter
+    skip_down   ld   a, c             # check if there are rooms left to visit
                 ora  b
-                ret  Z
-                dec  bc
+                ret  Z                # no, then finish
 
-                push de
-                ld   de, 0xfb01     # [Q]
+                push de               # save width
+
+                ld   de, 0x7f01       # check [SPACE] key
                 call key_down?
-                jr   Z, check_spc
-    restore_sp  ld   sp, 0          # restore SP
-                ld   bc, 0          # clear rooms to go
-                ret
-    check_spc   ld   de, 0x7f01     # [SPC]
-                call key_down?
-                jr   NZ, paused
-    next_visit  di
-                ld   hl, [vars.stkend]
-                ld   de, 40         # check stack space
-                add  hl, de
-                sbc  hl, sp
-                pop  de
-                pop  hl             # next room
-                ei
-                jr   NC, restore_sp
-                halt
-                jr   visit_loop
-    paused      push bc
+                jr   Z, next_visit
+
+    paused      push bc               # pause solving until [SPACE] is pressed again
                 ld   bc, 0
                 call release_key
                 call wait_key
                 pop  bc
-                jr   next_visit
+
+    next_visit  di                    # disable interrupts so we can use HL
+                ld   hl, [vars.stkend]
+                ld   de, 40           # check space between STKEND and SP
+                add  hl, de
+                jr   C, oom_abort
+                sbc  hl, sp
+                jr   NC, oom_abort    # less than 40 bytes, so report OOM
+
+                pop  de               # restore width
+
+                pop  hl               # next room to visit
+                ei                    # enable interrupts
+                halt                  # wait 'til the next frame
+                dec  bc               # decrease "rooms left" counter
+                jr   visit_loop       # repeat
+
+    oom_abort   call restr_maskint
+                report_error '4 Out of memory'
   end
 
   ########
   # Data #
   ########
 
-  # rooms:
+  # Rooms:
   #   bit 7 - boundary (1=boundary)
   #   bit 6 - mark (1=marked)
   #   bit 5 - visit (1=visited)
