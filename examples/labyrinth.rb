@@ -29,54 +29,6 @@ class Program
   macro_import  ZXGfx
   import        ZXSys, macros:true, code:false
 
-  ##########
-  # Macros #
-  ##########
-
-  # ZF=0 if any key is being pressed
-  macro :key_pressed? do |_, line_mask=0, key_mask=0x1f|
-    if line_mask == 0
-                xor  a
-    else
-                ld   a, line_mask unless line_mask == a
-    end
-                inp  a, (254)
-                cpl
-                anda key_mask
-  end
-
-  # ZF=0 if any cursor key is being pressed
-  # A=bits 3-0: [←] [↓] [↑] [→] if 1 key is being pressed
-  macro :cursor_key_pressed? do |_, t:b|
-                key_pressed? 0xf7, 0x10 # key [5]
-                ld  t, a
-                key_pressed? 0xef, 0x1c # keys [6] [7] [8] . .
-                rrca
-                ora t                   # keys [5] [6] [7] [8] .
-                rrca                    # keys [←] [↓] [↑] [→]
-  end
-
-  macro :init_interrupts do |_, handleint|
-      ld  a, 0x18          # 18H is jr
-      ld  [0xFFFF], a
-      ld  a, 0xC3          # C3H is jp
-      ld  [0xFFF4], a
-      ld  hl, handleint unless handleint == hl
-      ld  [0xFFF5], hl
-      ld  a, 0x39
-      ld  i, a             # load the accumulator with FF filled page in rom.
-      im2
-      ei
-  end
-
-  macro :restore_interrupts do
-      di
-      ld  a, 0x3F
-      ld  i, a
-      im1
-      ei
-  end
-
   ########
   # MAIN #
   ########
@@ -161,17 +113,17 @@ class Program
 
                   ld   bc, 0                  # prevent viewport tracking
                   ld   hl, refresh_on_int2    # setup 2nd interrupt routine
-                  call init_maskint
+                  call init_maskint.set_handler
 
                   call release_key            # wait until no key is being pressed
-                  ld   de, 0x7f01             # wait until [SPC] is pressed and released
+                  ld   de, 0x7f01             # wait until [SPACE] is pressed and released
                   call wait_key
 
                   call set_inv_brdcr          # inverse border
                   call solve_labyrinth        # solve labyrinth
                   call set_brd_brdcr          # normal border
 
-                  ld   de, 0x7f01             # wait until [SPC] is pressed and released
+                  ld   de, 0x7f01             # wait until [SPACE] is pressed and released
                   call wait_key
 
     quit          call restr_maskint          # restore system interrupt routine
@@ -236,11 +188,11 @@ class Program
                 ret
 
   # Setup maskable interrupts handler given in HL.
-  init_maskint  init_interrupts hl
+  init_maskint  setup_custom_interrupt_handler hl
                 ret
 
   # Restore maskable interrupts to ROM handler.
-  restr_maskint restore_interrupts
+  restr_maskint restore_rom_interrupt_handler
                 ret
 
   # Return random number in HL from a given seed in HL.
@@ -411,7 +363,7 @@ class Program
                     jr   redraw0
       no_cursor_key dec  [hl]
                     jr   Z, redraw0
-                    ld   de, 0x7f01     # [SPC]
+                    ld   de, 0x7f01     # [SPACE]
                     call key_down?
                     jr   Z, redraw1     # skip drawing if pressed
                     ld   [hl], 5
@@ -434,7 +386,7 @@ class Program
                     ld   a, c                      # check counter (in bc)
                     ora  b
                     jr   Z, in_viewport
-                    call room_to_xy                # hl: current room address -> h: x, l: y
+                    call room_to_xy                # current room address -> H: x, L: y
                     call xy_in_viewport?           # check if current room in viewport
                     jr   NC, in_viewport
                     call center_viewport_xy        # update viewport
@@ -522,18 +474,18 @@ class Program
   # initialized by calling +init_labyrinth+.
   # WARNING: no boundary check.
   ns :room_to_xy do
-                ld   de, [labyrinth.room_00]     # start 0,0
-                ora  a                           # CF=0
-                sbc  hl, de                      # relative room address (index)
+                ld   de, [labyrinth.room_00]          # start 0,0
+                ora  a                                # CF=0
+                sbc  hl, de                           # relative room address (index)
                 ld   a, [labyrinth.width]
-                inc  a                           # width + 1 (boundary)
-                jr   Z, div_by_256               # width + 1 == 256
+                inc  a                                # width + 1 (boundary)
+                jr   Z, div_by_256                    # width + 1 == 256
                 ld   c, a
                 divmod8 c, check0:false, check1:false # index / (width + 1) == y
-    assign_x    ld   h, a                        # x
+    assign_x    ld   h, a                             # x
                 ret
-    div_by_256  ld   a, l                        # x
-                ld   l, h                        # y
+    div_by_256  ld   a, l                             # x
+                ld   l, h                             # y
                 jr   assign_x
   end
 
