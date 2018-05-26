@@ -129,6 +129,7 @@ class ZXSys
     export :auto
 
     vars    addr 23552, Vars
+    vars_iy addr vars.err_nr - vars
 
     isolate :rom do
         error_5     addr 0x0C86 # Out of screen
