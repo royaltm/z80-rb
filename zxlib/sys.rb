@@ -73,8 +73,7 @@ class ZXSys
         defadd word    # 23563 Address of arguments of user defined function if one is being evaluated; otherwise 0.
         k_data byte    # 23565 Stores 2nd byte of colour controls entered from keyboard .
         tvdata word    # 23566 Stores bytes of coiour, AT and TAB controls going to television.
-                                                       # Addresses of channels attached to streams.
-        strms  Strms   # 23568
+        strms  Strms   # 23568 Addresses of channels attached to streams.
         chars  word    # 23606 256 less than address of character set (which starts with space and carries on to the copyright symbol). Normally in ROM, but you can set up your own in RAM and make CHARS point to it.
         rasp   byte    # 23608 Length of warning buzz.
         pip    byte    # 23609 Length of keyboard click.
@@ -143,6 +142,9 @@ class ZXSys
     vars_iy addr vars.err_nr - vars
 
     isolate :rom do
+        mask_int    addr 0x0038 # IM1 maskable interrupt routine
+        key_int     addr 0x0048 # KEY-INT part of the interrupt routine
+        keyboard    addr 0x02BF # read KEYBOARD routine called from the system interrupt routine
         error_5     addr 0x0C86 # Out of screen
         cl_all      addr 0x0DAF # CL-ALL
         error_j     addr 0x15C4 # Invalid I/O device
