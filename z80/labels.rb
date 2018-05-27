@@ -548,10 +548,14 @@ module Z80
 		# Returns size (type size) of a label.
 		def +@
 			if dummy?
-				+Alloc.new(self)
+				+to_alloc
 			else
 				@size
 			end
+		end
+		# Returns negated label.
+		def -@
+			-to_alloc
 		end
 		# Returns a label offset by +index+ multiplied by label type size.
 		# If +index+ is nil, returns a pointer instead.
@@ -736,6 +740,7 @@ module Z80
 			@name    = nil
 			@size    = false
 			@shift   = 0
+			@neg     = false
 		end
 
 		def [](index = nil)
@@ -798,6 +803,12 @@ module Z80
 			l
 		end
 
+		def -@
+			l = dup
+			l.instance_variable_set('@neg', !@neg)
+			l
+		end
+
 		def reinitialize(*args)
 			@label.reinitialize(*args)
 		end
@@ -842,6 +853,7 @@ module Z80
 			elsif @shift < 0
 				str += " >> #{-@shift}"
 			end
+			str = "-(#{str})" if @neg
 			str
 		end
 		alias_method :to_s, :to_str
@@ -868,12 +880,14 @@ module Z80
 					addr+= i*(+label)
 				end
 			end
-			(if @size
+			val = (if @size
 				+label + @offset
 			else
 				rel_to = @label.to_i(start) if rel_to == :self
 				addr + @offset + (label.immediate? ? 0 : start) - rel_to.to_i
 			end) << @shift
+			val = -val if @neg
+			val
 		end
 		def name=(value)
 			raise Syntax, "Invalid label name: #{value.inspect}" if (value = value.to_s).empty?
