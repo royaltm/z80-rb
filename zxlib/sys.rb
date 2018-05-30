@@ -552,11 +552,12 @@ class ZXSys
         ##
         # Get a DEF FN argument value address.
         #
-        # * +argnum+:: 1-based argument index (0 is 256), may be a register or a number
-        # * +subroutine+:: if +true+ will use +ret+ instruction
+        # * +argnum+:: 1-based argument index (0 is 256), may be a register or a number.
+        # * +subroutine+:: if +true+ will use +ret+ instruction.
         # * +not_found+:: if +subroutine+ is +false+ and +not_found+ is defined, the routine
         #                 will jump to this address when argument was not found,
-        #                 otherwise success is signalled with ZF=1
+        #                 otherwise success is signalled with ZF=1.
+        # * +cf_on_direct+:: if +true+ and DEFADD is not defined CF will be set.
         #
         # When +subroutine+ is +true+ or +not_found+ is +nil+, the success is signalled with +ZF+:
         #
@@ -566,12 +567,13 @@ class ZXSys
         # +hl+ points to the argument value when found.
         #
         # Modifies: +af+, +hl+ and +b+ unless +argnum+ == 1
-        def find_def_fn_args(argnum=b, subroutine:true, not_found:nil)
+        def find_def_fn_args(argnum=b, subroutine:true, not_found:nil, cf_on_direct:false)
             isolate use: :vars do |eoc|
                             ld    b, argnum unless argnum == b or argnum == 1
                             ld    hl, [vars.defadd]
                             ld    a, h
                             ora   l
+                            scf if cf_on_direct
                             jr    exit_on_zf
                 if argnum != 1
                 loop0       ld    a, 5              # skip argument value
