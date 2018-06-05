@@ -320,6 +320,22 @@ class Multitasking
     no_more_room      ld   sp, [mtvars.system_sp]     # restore system SP in case an interrupt would occur
     ei_report_oom     ei                              # enable switching
     report_oom        report_error '4 Out of memory'
+
+    # Continue from main, terminate a task.
+    task_kill         di                              # DE: tid
+                      push iy
+                      exx
+                      push hl                         # save calculator's H'L'
+                      exx
+                      ld16 bc, de                     # BC: tid
+                      call terminate.search_terminate
+                      call stack_space_free
+                      exx
+                      pop  hl
+                      exx
+                      pop  iy
+    ei_return         ei
+                      ret
     # Let's create a new task info entry.
                                                       # SP: -> task.stack_save, IX: stack size, DE: stack_end, BC: next_tid
     slot_found        ex   de, hl                     # HL: stack_end
@@ -348,6 +364,11 @@ class Multitasking
                       exx                             # DE: task code address
                       push iy                         # IY -> [SP--]
                       ld   [mtvars.system_sp], sp     # save system stack for future switching
+    # Set task's IY to stack_bot + 128
+                      ld   sp, [mtvars.current_task]  # SP: -> task.stack_bot
+                      pop  iy                         # IY: task.stack_bot
+                      ld   sp, 128
+                      add  iy, sp                     # IY: task.stack_bot + 128
     # Setup SP for the task, push terminate as its return point and jump to the tasks' code.
     load_task_stack   ld   sp, 0                      # SP: stack_end
                       ld   hl, terminate
@@ -355,19 +376,6 @@ class Multitasking
                       ex   de, hl                     # HL: task code address
                       ei
                       jp   (hl)                       # go to task's code
-    # Continue from main, terminate a task.
-    task_kill         di                              # DE: tid
-                      exx
-                      push hl                         # save calculator's H'L'
-                      exx
-                      ld16 bc, de                     # BC: tid
-                      call terminate.search_terminate
-                      call stack_space_free
-                      exx
-                      pop  hl
-                      exx
-    ei_return         ei
-                      ret
   end
 
   # Task API
@@ -415,9 +423,15 @@ class Multitasking
     # Increment all the following task's pointers by the terminated task's stack size and get the last task's stack_bot.
     ns :update_pointers do
                       pop  hl                       # task.stack_save
+                      ld   [restore_sp + 1], sp     # save SP
+                      ld   sp, hl                   # SP: task's SP
+                      pop  iy                       # IY: task's IY
+                      add  iy, bc                   # add reclaimed delta to IY
+                      push iy
+      restore_sp      ld   sp, 0                    # SP: restore
                       add  hl, bc                   # add reclaimed delta to stack_save
                       push hl
-                      pop  hl
+                      pop  hl                       # task.stack_save
                       pop  hl                       # task.stack_bot
                       add  hl, bc                   # add reclaimed delta to stack_bot
                       push hl
