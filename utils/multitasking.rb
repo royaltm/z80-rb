@@ -6,7 +6,50 @@ require 'zxlib/sys'
 ##
 # =Multitasking
 #
+# Run machine code programs (a.k.a. "tasks") in parallel with ZX Basic.
+#
 # This class contains Macros and kernel labels, for tasks and the kernel code.
+#
+# ===Task guide
+#
+# ====Machine code for tasks should respect the following restrictions:
+#
+# - Task's code shouldn't change interrupt handler (no tampering with register +I+ and no +IM+ instructions).
+# - Stacks may be moved up when other tasks terminate - tasks shouldn't store pointers to stack.
+# - When using +SP+ for other purposes always disable interrupts and restore +SP+ before enabling them.
+# - Before task starts, +IY+ is initialized to its <tt>stack_bot + 128</tt> and may be used
+#   as a stack pointer frame for tasks' variables as contents of IY register is moved along with the stack.
+#
+# ====Task code recommendations:
+#
+# - Avoid modifying ZX Basic variables or using ROM routines that modifies them.
+# - To yield execution instead of using +halt+ use <tt>call task_yield</tt>.
+# - To terminate itself the task should either jump to +terminate+ or just +ret+.
+# - Tasks may store local variables using indexing register +IY+ - see below.
+#
+# ====Task initialization:
+#
+# Each task when initialized has some stack space allocated for it. When tasks are being switched, their +SP+
+# is checked against their stacks' bottoms and if +SP+ goes below it the whole multitasking is being terminated
+# (panic) and the control is returned to the system.
+#
+# Tasks may also use bottom of the stack space for task-local variables storing them via +IY+ register
+# which points to the 128 byte above the stack's bottom. So to be on the safe side tasks should start 
+# allocating variables from <tt>[IY-128]</tt> up.
+#
+# =====Task registers:
+#
+# Registers may be used freely with some limitations (+SP+, +IY+) mentioned above.
+# When starting task registers contain:
+#
+# - +SP+:: The task's end of stack - 2. +SP+ points to the address of +terminate+ routine,
+#          so invoking +ret+ will terminate the task.
+# - +IY+:: The task's bottom of stack + 128.
+# - +IX+:: The task's stack size.
+# - +HL+:: The task's start +PC+.
+# - +BC+:: The task's id.
+# - +DE+:: The +terminate+ routine address.
+#
 #
 # ===Memory map:
 #
@@ -20,8 +63,6 @@ require 'zxlib/sys'
 #                           mtvars                                             stack_bot      stack_end
 #
 # ===ZX Basic API
-#
-#   LET api = PEEK 23296 + 256*PEEK 23297
 #
 #   REM Setup:
 #   REM Initializes or resets multitasking.
@@ -37,7 +78,7 @@ require 'zxlib/sys'
 #   REM Returns number of stack space bytes available after the task is terminated.
 #   PRINT FN t(tid)
 #
-#   REM Returns stack space bytes available:
+#   REM Returns total bytes available for stacks:
 #   3 DEF FN f() = USR api
 #   PRINT FN f()
 #
@@ -629,7 +670,7 @@ if __FILE__ == $0
   puts "       LET tid = FN m(address,stacksize)"
   puts "Kill:  DEF FN t(t) = USR #{mtkernel[:api]}"
   puts "       PRINT FN t(tid)"
-  puts "Free:  DEF FN f() = #{mtkernel[:api]}"
+  puts "Free:  DEF FN f() = USR #{mtkernel[:api]}"
   puts "       PRINT FN f()"
   puts "\n Task API:"
   puts "Yield: call #{mtkernel[:task_yield]}"
