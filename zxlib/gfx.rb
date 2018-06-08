@@ -53,7 +53,7 @@ class ZXGfx
     # T-states: 
     #
     # * when +bcheck+ is +false+:: 27:87.5% / 49:1.56% / 59:10.94%
-    # * when +bcheck+ is +true+ or +label+::  27:87.5% / (70:2 / 75:1):1.56% / 62:10.94% 
+    # * when +bcheck+ is +true+ or +label+::  27:87.5% / (70:2 / 75:1):1.56% / 62:10.94%
     def nextline(ah, al, bcheck = true, **nsopts, &block)
         if ah == al or [ah, al].include?(a) or
                 (register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
@@ -67,7 +67,7 @@ class ZXGfx
                 inc  ah
                 ld   a, ah
                 anda 0x07
-                jr   NZ,eoc
+                jr   NZ, eoc
                 ld   a, al
                 add  0x20
                 ld   al, a
@@ -91,6 +91,67 @@ class ZXGfx
             end
         restrh  ld   a, ah
                 sub  0x08
+                ld   ah, a
+        end
+    end
+    ##
+    # Moves up to the previous screen line byte address using ah|al registers.
+    # (optionally) returns from subroutine if address goes out of screen area.
+    #
+    # Modifies: +af+, +ah+, +al+
+    #
+    # * +ah+:: input/output register: address high byte
+    # * +al+:: input/output register: address low byte
+    # * +bcheck+:: boundary check flag:
+    #              +false+ = disable checking,
+    #              +true+  = issue +ret+ if out of screen (default)
+    #              +label+ = jump to label if out of screen,
+    #              +hl+|+ix+|+iy+ = jump to address in a register if out of screen
+    #
+    # if block is given and +bcheck+ == +true+ evaluates namespaced block instead of +ret+.
+    #
+    # T-states: 
+    #
+    # * when +bcheck+ is +false+:: 31:87.5% / 53:1.56% / 63:10.94%
+    # * when +bcheck+ is +true+ or +label+::  31:87.5% / (74:2 / 79:1):1.56% / 66:10.94%
+    def prevline(ah, al, bcheck = true, **nsopts, &block)
+        if ah == al or [ah, al].include?(a) or
+                (register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
+                (bcheck == hl and ([h, l].include?(ah) or [h, l].include?(al))) or
+                (bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
+                (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
+                ![ah, al].all?{|r| register?(r) }
+            raise ArgumentError, "prevline invalid arguments!"
+        end
+        ns do |eoc|
+                dec  ah
+                ld   a, ah
+                ora  0x07
+                xor  ah
+                jr   NZ, eoc
+                ld   a, al
+                sub  0x20
+                ld   al, a
+            if bcheck
+                jp   NC, restrh
+                ld   a, ah
+                cp   0x40
+                jr   NC, eoc
+                case bcheck
+                when true
+                    if block_given?
+                        ns(**nsopts, &block)
+                    else
+                        ret
+                    end
+                else
+                    jp  bcheck
+                end
+            else
+                jr   C, eoc
+            end
+        restrh  ld   a, ah
+                add  0x08
                 ld   ah, a
         end
     end
