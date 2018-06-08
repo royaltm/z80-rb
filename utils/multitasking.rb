@@ -128,7 +128,7 @@ class Multitasking
   # Should not be enlarged if MT_VARS are placed inside ZX Printer Buffer.
   TASK_QUEUE_MAX = 40
   # Can be moved up/down to adjust stack space.
-  MT_STACK_BOT = 0xE000
+  MT_STACK_BOT = 0x9000
   # Can be moved elsewhere if ZX Printer is needed.
   MT_VARS = mem.pr_buf
 
@@ -676,10 +676,10 @@ if __FILE__ == $0
   puts "Yield: call #{mtkernel[:task_yield]}"
   puts "Kill:  jp   #{mtkernel['terminate']}"
 
-  Z80::TAP.read_chunk('examples/multitask.tap').save_tap 'mtkernel'
-  Z80::TAP.read_chunk('dots.tap', index: 1).save_tap 'mtkernel', append: true
-  mtkernel.save_tap('mtkernel', append: true)
-  Z80::TAP.parse_file('mtkernel.tap') do |hb|
+  Z80::TAP.read_chunk('examples/multifill.tap').save_tap 'multifill'
+  Z80::TAP.read_chunk('fill.tap', index: 0).save_tap 'multifill', append: true
+  mtkernel.save_tap('multifill', append: true)
+  Z80::TAP.parse_file('multifill.tap') do |hb|
       puts hb.to_s
   end
 end
