@@ -121,16 +121,20 @@ class Multitasking
   export task_yield
   export terminate
 
+  def self.new_kernel
+    new 0x10000 - code.bytesize
+  end
+
   ###########
   # Structs #
   ###########
 
   # Should not be enlarged if MT_VARS are placed inside ZX Printer Buffer.
-  TASK_QUEUE_MAX = 40
+  TASK_QUEUE_MAX = 40 unless const_defined?(:TASK_QUEUE_MAX)
   # Can be moved up/down to adjust stack space.
-  MT_STACK_BOT = 0x9000
+  MT_STACK_BOT = 0xE000 unless const_defined?(:MT_STACK_BOT)
   # Can be moved elsewhere if ZX Printer is needed.
-  MT_VARS = mem.pr_buf
+  MT_VARS = mem.pr_buf unless const_defined?(:MT_VARS)
 
   # Task info struct. Each running task has one.
   class TaskInfo < Label
@@ -254,8 +258,9 @@ class Multitasking
   # KERNEL #
   ##########
 
-  initial_stack_end   label
   mtvars              addr MT_VARS, TaskVars
+  initial_stack_bot   addr MT_STACK_BOT
+  initial_stack_end   label
 
   # Get and check current task info pointer.
   # CF: 0
@@ -298,7 +303,7 @@ class Multitasking
                       clrmem mtvars, +mtvars          # remove all tasks
                       ld   hl, initial_stack_end
                       ld   [mtvars.stack_end], hl     # initialize stack_end
-                      ld   hl, MT_STACK_BOT
+    init_stack_bottom ld   hl, initial_stack_bot
                       ld   [mtvars.stack_bot], hl     # initialize stack_bot
                       call stack_space_free
                       ld   a, 0x39
@@ -648,12 +653,13 @@ end
 
 if __FILE__ == $0
   # :stopdoc:
-  mtkernel = Multitasking.new 0x10000 - Multitasking.code.bytesize
+  mtkernel = Multitasking.new_kernel
 
   puts mtkernel.debug
 
   %w[
     mtvars
+    initial_stack_bot
     initial_stack_end
     api
     task_yield
@@ -663,7 +669,7 @@ if __FILE__ == $0
     puts "#{label.ljust(20)}: 0x#{mtkernel[label].to_s 16} - #{mtkernel[label]}, size: #{mtkernel.code.bytesize}"
   end
 
-  puts "Total stack space for tasks: #{mtkernel[:initial_stack_end] - 0xE000}"
+  puts "Total stack space for tasks: #{mtkernel[:initial_stack_end] - mtkernel[:initial_stack_bot]}"
   puts "\n ZX Basic API:"
   puts "Setup: PRINT USR #{mtkernel[:api]}"
   puts "Spawn: DEF FN m(a,s) = USR #{mtkernel[:api]}"
@@ -676,10 +682,8 @@ if __FILE__ == $0
   puts "Yield: call #{mtkernel[:task_yield]}"
   puts "Kill:  jp   #{mtkernel['terminate']}"
 
-  Z80::TAP.read_chunk('examples/multifill.tap').save_tap 'multifill'
-  Z80::TAP.read_chunk('fill.tap', index: 0).save_tap 'multifill', append: true
-  mtkernel.save_tap('multifill', append: true)
-  Z80::TAP.parse_file('multifill.tap') do |hb|
+  mtkernel.save_tap 'mtkernel'
+  Z80::TAP.parse_file('mtkernel.tap') do |hb|
       puts hb.to_s
   end
 end
