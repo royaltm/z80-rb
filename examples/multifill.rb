@@ -8,9 +8,25 @@ require 'z80/stdlib'
 require 'zxlib/sys'
 require 'zxlib/gfx'
 
+class Multitasking
+  MT_STACK_BOT = 0x9000
+end
+
+require 'utils/multitasking'
+
 class Program
   include Z80
   include Z80::TAP
+
+  MTKernel = Multitasking.new_kernel
+  MTYield = MTKernel['task_yield']
+  def self.mtyield(condition=nil)
+    if condition
+            call  condition, MTYield
+    else
+            call  MTYield
+    end
+  end
 
   ###########
   # Exports #
@@ -28,7 +44,6 @@ class Program
   macro_import  Z80MathInt
   macro_import  ZXGfx
   import        ZXSys, macros: true
-
 
   ##########
   # Macros #
@@ -116,6 +131,7 @@ class Program
                     jr   skipcoords
 
   fill              ld   hl, [coords]               # H: y, L: x
+                    mtyield
   skipcoords        ld   a, h
                     cp   192
                     report_error_unless C, '5 Out of screen'
@@ -131,9 +147,16 @@ class Program
                     djnz loopmask
                     ld   b, a
                     ld   ix, 0
-                    jr   check0.skipdupmask
+                    ex   af, af
+                    xor  a
+                    ex   af, af
+                    jp   check0.skipdupmask
 
   loop0             pop  hl                         # plotted pixel address
+                    ex   af, af
+                    sub  8
+                    mtyield C
+                    ex   af, af
   # Go right
                     ld   e, l                       # E: saved L
                     ld   d, a                       # D: saved mask
@@ -181,14 +204,43 @@ class Program
                     ret
 end
 
-# fill = Program.new 0xFE00
-fill = Program.new 0x8000
+fill = Program.new 0x8E00
 puts fill.debug
+
+mtkernel = Program::MTKernel
+puts mtkernel.debug
+
+%w[
+  mtvars
+  initial_stack_bot
+  initial_stack_end
+  api
+  task_yield
+  terminate
+  fff4
+].each do |label|
+  puts "#{label.ljust(20)}: 0x#{mtkernel[label].to_s 16} - #{mtkernel[label]}, size: #{mtkernel.code.bytesize}"
+end
+
+puts "Total stack space for tasks: #{mtkernel[:initial_stack_end] - 0xE000}"
+puts "\n ZX Basic API:"
+puts "Setup: PRINT USR #{mtkernel[:api]}"
+puts "Spawn: DEF FN m(a,s) = USR #{mtkernel[:api]}"
+puts "       LET tid = FN m(address,stacksize)"
+puts "Kill:  DEF FN t(t) = USR #{mtkernel[:api]}"
+puts "       PRINT FN t(tid)"
+puts "Free:  DEF FN f() = USR #{mtkernel[:api]}"
+puts "       PRINT FN f()"
+puts "\n Task API:"
+puts "Yield: call #{mtkernel[:task_yield]}"
+puts "Kill:  jp   #{mtkernel['terminate']}"
 
 %w[start fill coords.x coords.y].each {|n| puts "#{n.ljust(15)} #{fill[n]}"}
 
-fill.save_tap('fill')
+Z80::TAP.read_chunk('examples/multifill.tap').save_tap 'multifill'
+fill.save_tap 'multifill', append: true
+mtkernel.save_tap 'multifill', append: true
 
-Z80::TAP.parse_file('fill.tap') do |hb|
+Z80::TAP.parse_file('multifill.tap') do |hb|
     puts hb.to_s
 end
