@@ -238,8 +238,8 @@ puts "Kill:  jp   #{mtkernel['terminate']}"
 %w[start fill coords.x coords.y].each {|n| puts "#{n.ljust(15)} #{fill[n]}"}
 
 Z80::TAP.read_chunk('examples/multifill.tap').save_tap 'multifill'
-fill.save_tap 'multifill', append: true
-mtkernel.save_tap 'multifill', append: true
+fill.save_tap 'multifill', append: true, name: 'fill'
+mtkernel.save_tap 'multifill', append: true, name: 'mtkernel'
 
 Z80::TAP.parse_file('multifill.tap') do |hb|
     puts hb.to_s
