@@ -98,14 +98,14 @@ require 'zxlib/sys'
 #
 # ===Task API
 #
-#   import Multitasking, :mt, macros: true, code: false
+#   MTKernel = Multitasking.new_kernel
 #
 #                   # ...
 #                   # instead of invoking halt, call mt.task_yield
-#                   call mt.task_yield
+#                   call MTKernel[:task_yield]
 #                   # ...
 #                   # to terminate:
-#                   jp   mt.terminate
+#                   jp   MTKernel[:terminate]
 #                   # or when stack is depleted just:
 #                   ret
 class Multitasking
@@ -121,6 +121,8 @@ class Multitasking
   export task_yield
   export terminate
 
+  ##
+  # Instantiate Multitasking kernel with the highest possible starting address
   def self.new_kernel
     new 0x10000 - code.bytesize
   end
