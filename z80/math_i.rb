@@ -157,6 +157,35 @@ class Z80MathInt
             end
         end
         ##
+        # Adds 16bit +tt+ to 24bit +th8+|+tl16+, result in +a+|+tl16+.
+        #
+        # Modifies: +af+, +tl16+.
+        #
+        # T-states: 27 signed / 19 unsigned
+        #
+        # * +th8+:: 8 bit register containing the highest 8bit of the value to be added to, must not be +a+.
+        # * +tl16+:: 16 bit register containing low 16bit of the value to be added to: +hl+, +ix+, +iy+.
+        # * +tt+:: 16 bit register containing value to add: +bc+, +de+ or +sp+.
+        # * +signed+:: should the 16 bit added value be treated as a signed integer.
+        def add24_16(th8=c, tl16=hl, tt=de, signed:true)
+            th, tl = tt.split
+            tlh, tll = tl16.split
+            if ![bc, de, sp].include?(tt) or ![hl, ix, iy].include?(tl16) or [tlh, tll, th, tl, a].include?(th8)
+                raise ArgumentError, "add24_16 invalid arguments!"
+            end
+            ns do
+                if signed
+                    ld   a, th
+                    add  a
+                    sbc  a
+                else
+                    sub  a
+                end
+                    add  tl16, tt
+                    adc  th8
+            end
+        end
+        ##
         # Performs multiplication of unsigned 16bit +mh+|+ml+ * 8bit +m+ and returns result in +hl+.
         # Optionally accumulates result in +hl+.
         # Breaks on overflow with CF=1.
