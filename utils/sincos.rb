@@ -106,11 +106,14 @@ class Z80SinCos
         #
         # For each angle: a <= llllllhh; th =>  MSB SinCos address + 000000hh, tl => llllll00
         # 
-        # +sincos+:: Immediate address of SinCos table, must be on a 256 byte boundary
+        # +sincos+:: Address of SinCos table, must be on a 256 byte boundary.
         #            (LSB of +sincos+ address must be +0+).
         def sincos_from_angle(sincos, th=h, tl=l)
-            sincos = sincos.to_i
-            raise ArgumentError unless (sincos & 0x00FF).zero?
+            raise ArgumentError, "sincos must be a direct address" if pointer?(sincos)
+            if immediate?(sincos)
+                sincos = sincos.to_i
+                raise ArgumentError, "sincos must be on a 256 byte boundary" unless (sincos & 0x00FF).zero?
+            end
             isolate do
                     ld   th, a
                     anda 0b11111100
