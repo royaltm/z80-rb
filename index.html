@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+  var index_rel_prefix = "./";
+</script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/darkfish.js"></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="file">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  <div id="project-metadata">
+    <div id="fileindex-section" class="nav-section">
+  <h3>Pages</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="./README_rdoc.html">README</a>
+  
+  </ul>
+</div>
+
+    <div id="classindex-section" class="nav-section">
+  <h3>Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="./Basic.html">Basic</a>
+  
+    <li><a href="./Basic/Line.html">Basic::Line</a>
+  
+    <li><a href="./Basic/Program.html">Basic::Program</a>
+  
+    <li><a href="./Basic/Tokenizer.html">Basic::Tokenizer</a>
+  
+    <li><a href="./Basic/Tokenizer/Patterns.html">Basic::Tokenizer::Patterns</a>
+  
+    <li><a href="./Basic/Variable.html">Basic::Variable</a>
+  
+    <li><a href="./Basic/VariableParseError.html">Basic::VariableParseError</a>
+  
+    <li><a href="./Basic/VariableTypes.html">Basic::VariableTypes</a>
+  
+    <li><a href="./Basic/Vars.html">Basic::Vars</a>
+  
+    <li><a href="./Float.html">Float</a>
+  
+    <li><a href="./Multitasking.html">Multitasking</a>
+  
+    <li><a href="./Multitasking/Macros.html">Multitasking::Macros</a>
+  
+    <li><a href="./Multitasking/TaskInfo.html">Multitasking::TaskInfo</a>
+  
+    <li><a href="./Multitasking/TaskVars.html">Multitasking::TaskVars</a>
+  
+    <li><a href="./Object.html">Object</a>
+  
+    <li><a href="./Symbol.html">Symbol</a>
+  
+    <li><a href="./Z80.html">Z80</a>
+  
+    <li><a href="./Z80/Alloc.html">Z80::Alloc</a>
+  
+    <li><a href="./Z80/CompileError.html">Z80::CompileError</a>
+  
+    <li><a href="./Z80/Helpers.html">Z80::Helpers</a>
+  
+    <li><a href="./Z80/Label.html">Z80::Label</a>
+  
+    <li><a href="./Z80/Program.html">Z80::Program</a>
+  
+    <li><a href="./Z80/Program/Condition.html">Z80::Program::Condition</a>
+  
+    <li><a href="./Z80/Program/Macros.html">Z80::Program::Macros</a>
+  
+    <li><a href="./Z80/Program/Mnemonics.html">Z80::Program::Mnemonics</a>
+  
+    <li><a href="./Z80/Program/Register.html">Z80::Program::Register</a>
+  
+    <li><a href="./Z80/Syntax.html">Z80::Syntax</a>
+  
+    <li><a href="./Z80/TAP.html">Z80::TAP</a>
+  
+    <li><a href="./Z80/TAP/HeaderBody.html">Z80::TAP::HeaderBody</a>
+  
+    <li><a href="./Z80/TAP/TapeError.html">Z80::TAP::TapeError</a>
+  
+    <li><a href="./Z80/TZX.html">Z80::TZX</a>
+  
+    <li><a href="./Z80Lib.html">Z80Lib</a>
+  
+    <li><a href="./Z80Lib/Macros.html">Z80Lib::Macros</a>
+  
+    <li><a href="./Z80MathInt.html">Z80MathInt</a>
+  
+    <li><a href="./Z80MathInt/Integers.html">Z80MathInt::Integers</a>
+  
+    <li><a href="./Z80MathInt/Macros.html">Z80MathInt::Macros</a>
+  
+    <li><a href="./Z80Shuffle.html">Z80Shuffle</a>
+  
+    <li><a href="./Z80Shuffle/Macros.html">Z80Shuffle::Macros</a>
+  
+    <li><a href="./Z80SinCos.html">Z80SinCos</a>
+  
+    <li><a href="./Z80SinCos/Macros.html">Z80SinCos::Macros</a>
+  
+    <li><a href="./Z80SinCos/SinCos.html">Z80SinCos::SinCos</a>
+  
+    <li><a href="./Z80SinCos/SinCos.html">Z80SinCos::SinCos</a>
+  
+    <li><a href="./Z80SinCos/SinCosTable.html">Z80SinCos::SinCosTable</a>
+  
+    <li><a href="./Z80SinCos/SinCosTable.html">Z80SinCos::SinCosTable</a>
+  
+    <li><a href="./ZX7.html">ZX7</a>
+  
+    <li><a href="./ZX7/Macros.html">ZX7::Macros</a>
+  
+    <li><a href="./ZXGfx.html">ZXGfx</a>
+  
+    <li><a href="./ZXGfx/Macros.html">ZXGfx::Macros</a>
+  
+    <li><a href="./ZXGfxSprite8.html">ZXGfxSprite8</a>
+  
+    <li><a href="./ZXGfxSprite8/Macros.html">ZXGfxSprite8::Macros</a>
+  
+    <li><a href="./ZXMath.html">ZXMath</a>
+  
+    <li><a href="./ZXMath/ZXReal.html">ZXMath::ZXReal</a>
+  
+    <li><a href="./ZXSys.html">ZXSys</a>
+  
+    <li><a href="./ZXSys/Coords.html">ZXSys::Coords</a>
+  
+    <li><a href="./ZXSys/Cursor.html">ZXSys::Cursor</a>
+  
+    <li><a href="./ZXSys/Macros.html">ZXSys::Macros</a>
+  
+    <li><a href="./ZXSys/Strms.html">ZXSys::Strms</a>
+  
+    <li><a href="./ZXSys/Vars.html">ZXSys::Vars</a>
+  
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main">
+
+
+<h1 id="label-ruby-Z80">ruby-Z80<span><a href="#label-ruby-Z80">&para;</a> <a href="#top">&uarr;</a></span></h1>
+
+<h2 id="label-A+Z80+assembler+powered+by+ruby.">A <a href="Z80.html"><code>Z80</code></a> assembler powered by ruby.<span><a href="#label-A+Z80+assembler+powered+by+ruby.">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<dl class="rdoc-list note-list"><dt>Author
+<dd>
+<p>Rafał Michalski  (<a href="mailto:royaltm75@gmail.com">royaltm75@gmail.com</a>)</p>
+</dd></dl>
+
+<h3 id="label-Now-2C+see+this-3A">Now, see this:<span><a href="#label-Now-2C+see+this-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;z80&#39;</span>
+<span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxlib/basic&#39;</span>
+
+<span class="ruby-keyword">class</span> <span class="ruby-constant">MyZXMath</span>
+  <span class="ruby-keyword">module</span> <span class="ruby-constant">Macros</span>
+    <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8</span>(<span class="ruby-identifier">eh</span>, <span class="ruby-identifier">el</span>, <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>)  <span class="ruby-comment"># performs hl * a using (a, th, tl)</span>
+                              <span class="ruby-comment"># stops on CARRY out</span>
+                              <span class="ruby-comment"># result to (eh|el)</span>
+      <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">th</span><span class="ruby-operator">|</span><span class="ruby-identifier">tl</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">hl</span>
+      <span class="ruby-identifier">ns</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">l</span>
+                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">th</span>, <span class="ruby-identifier">h</span>
+                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">hl</span>,<span class="ruby-value">0</span>
+        <span class="ruby-identifier">loop1</span>   <span class="ruby-identifier">srl</span> <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">jr</span>  <span class="ruby-constant">NC</span>, <span class="ruby-identifier">noadd</span>
+                <span class="ruby-identifier">add</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">th</span><span class="ruby-operator">|</span><span class="ruby-identifier">tl</span>
+                <span class="ruby-identifier">jr</span>  <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
+        <span class="ruby-identifier">noadd</span>   <span class="ruby-identifier">jr</span>  <span class="ruby-constant">Z</span>, <span class="ruby-identifier">ok</span>
+                <span class="ruby-identifier">sla</span> <span class="ruby-identifier">tl</span>
+                <span class="ruby-identifier">rl</span>  <span class="ruby-identifier">th</span>
+                <span class="ruby-identifier">jp</span>  <span class="ruby-constant">NC</span>, <span class="ruby-identifier">loop1</span>
+        <span class="ruby-identifier">ok</span>      <span class="ruby-identifier">label</span>
+                <span class="ruby-keyword">unless</span>  <span class="ruby-identifier">eh</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">h</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">el</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">l</span>
+                  <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">el</span>, <span class="ruby-identifier">l</span>
+                  <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">eh</span>, <span class="ruby-identifier">h</span>
+                <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span>
+
+  <span class="ruby-identifier">export</span> <span class="ruby-identifier">mul</span>
+  <span class="ruby-identifier">mul</span>   <span class="ruby-identifier">mul8</span>(<span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>)
+        <span class="ruby-identifier">ret</span> <span class="ruby-constant">NC</span>
+        <span class="ruby-identifier">rst</span> <span class="ruby-value">0x08</span>             <span class="ruby-comment"># ERROR-1</span>
+        <span class="ruby-identifier">data</span>  <span class="ruby-value">1</span>, [<span class="ruby-value">0x0A</span>]      <span class="ruby-comment"># Error Report: Integer out of range</span>
+<span class="ruby-keyword">end</span>
+
+<span class="ruby-keyword">class</span> <span class="ruby-constant">Program</span>
+  <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span>
+  <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>
+
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">multiplicand</span>]
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>,  [<span class="ruby-identifier">multiplicator</span>]
+                <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">math</span>.<span class="ruby-identifier">mul</span>
+
+                <span class="ruby-identifier">org</span> <span class="ruby-value">0x0020</span>
+  <span class="ruby-identifier">multiplicand</span>  <span class="ruby-identifier">words</span> <span class="ruby-value">1</span>
+  <span class="ruby-identifier">multiplicator</span> <span class="ruby-identifier">bytes</span> <span class="ruby-value">1</span>
+
+  <span class="ruby-identifier">import</span> <span class="ruby-constant">MyZXMath</span>, <span class="ruby-value">:math</span>
+
+<span class="ruby-keyword">end</span>
+
+<span class="ruby-identifier">calc</span> = <span class="ruby-constant">Program</span>.<span class="ruby-identifier">new</span> <span class="ruby-value">0x8000</span>
+
+<span class="ruby-identifier">puts</span> <span class="ruby-identifier">calc</span>.<span class="ruby-identifier">debug</span>
+</pre>
+
+<p>check this out:</p>
+
+<pre>8000: 2A2080      ld   hl, (8020H)     -&gt; multiplicand
+8003: 3A2280      ld   a, (8022H)      -&gt; multiplicator
+8006: C32380      jp   8023H           -&gt; math.mul
+8009: 00 00 00 00 00 00 00 00 ........
+8011: 00 00 00 00 00 00 00 00 ........
+8019: 00 00 00 00 00 00 00    .......
+8020: 00 00                   ..       :multiplicand
+8022: 00                      .        :multiplicator
+8023:                                  :math
+============== MyZXMath ==============
+8023:             --- begin ---        :mul
+8023: 5D          ld   e, l
+8024: 54          ld   d, h
+8025: 210000      ld   hl, 0000H
+8028: CB3F        srl  a               :mul.loop1
+802A: 3003        jr   NC, 802fH       -&gt; noadd
+802C: 19          add  hl, de
+802D: 380B        jr   C, 803aH        -&gt; EOC
+802F: 2807        jr   Z, 8038H        :mul.noadd -&gt; ok
+8031: CB23        sla  e
+8033: CB12        rl   d
+8035: D22880      jp   NC, 8028H       -&gt; loop1
+8038:                                  :mul.ok
+8038: 4D          ld   c, l
+8039: 44          ld   b, h
+803A:             ---  end  ---        :mul.EOC
+803A: D0          ret  NC
+803B: CF          rst  08H
+803C: 0A                      .
+^^^^^^^^^^^^^^ MyZXMath ^^^^^^^^^^^^^^</pre>
+
+<p>there&#39;s more…</p>
+
+<pre class="ruby"><span class="ruby-identifier">prog</span> = <span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-END</span>
+<span class="ruby-value">   10 CLEAR 32767
+   20 LOAD &quot;multiply&quot;CODE
+   30 INPUT &quot;Multiplicand: &quot;, x
+   40 INPUT &quot;Multiplicator: &quot;, y
+   50 POKE 32800, x-INT(x/256)*256
+   60 POKE 32801, INT(x/256)
+   70 POKE 32802, y
+   80 PRINT &quot;x: &quot;, x, &quot;y: &quot;, y
+   90 PRINT USR 32768
+  100 GO TO 30
+</span><span class="ruby-identifier"> END</span>
+
+ <span class="ruby-identifier">puts</span> <span class="ruby-identifier">prog</span>
+</pre>
+
+<p>See the listing…</p>
+
+<p>Let&#39;s make a <code>.tap</code> file now:</p>
+
+<pre class="ruby"><span class="ruby-identifier">prog</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&#39;calculator&#39;</span>, <span class="ruby-value">line:</span> <span class="ruby-value">10</span>
+<span class="ruby-identifier">calc</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&#39;calculator&#39;</span>, <span class="ruby-value">append:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">name:</span> <span class="ruby-string">&#39;multiply&#39;</span>
+</pre>
+
+<p>go to ZX Spectrum:</p>
+
+<pre class="ruby"><span class="ruby-constant">LOAD</span> <span class="ruby-string">&quot;calculator&quot;</span>
+</pre>
+
+<p>and load the <code>calculator.tap</code> file.</p>
+
+<p>Enjoy!</p>
+
+<p><img src="examples/calculator.png" /></p>
+
+<h3 id="label-More+study+at-3A">More study at:<span><a href="#label-More+study+at-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
+<ul><li>
+<p><a href="Z80.html"><code>Z80</code></a></p>
+</li><li>
+<p><a href="Z80/Program.html"><code>Z80::Program</code></a></p>
+</li><li>
+<p><a href="Z80/Program/Mnemonics.html"><code>Z80::Program::Mnemonics</code></a></p>
+</li><li>
+<p><a href="Z80/Label.html"><code>Z80::Label</code></a></p>
+</li><li>
+<p><a href="Z80/TAP.html"><code>Z80::TAP</code></a></p>
+</li><li>
+<p><a href="Z80Lib/Macros.html"><code>Z80Lib::Macros</code></a></p>
+</li><li>
+<p><a href="Z80MathInt.html"><code>Z80MathInt</code></a></p>
+</li><li>
+<p><a href="ZXSys.html"><code>ZXSys</code></a></p>
+</li><li>
+<p><a href="ZXGfx.html"><code>ZXGfx</code></a></p>
+</li><li>
+<p><a href="ZXGfxSprite8.html"><code>ZXGfxSprite8</code></a></p>
+</li><li>
+<p><a href="ZXMath.html"><code>ZXMath</code></a></p>
+</li><li>
+<p><a href="Basic.html"><code>Basic</code></a></p>
+</li></ul>
+
+<h4 id="label-See+examples+in+examples+dir.">See examples in <code>examples</code> dir.<span><a href="#label-See+examples+in+examples+dir.">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<ul><li><dl class="rdoc-list note-list"><dt><code>calculator</code>
+<dd>
+<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/calculator.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/calculator.tap</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>dots</code>
+<dd>
+<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/dots.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/dots.tap</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>horse</code>
+<dd>
+<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/horse.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/horse.tap</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>labyrinth</code>
+<dd>
+<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/labyrinth.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/labyrinth.tap</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>mathi_test</code>
+<dd>
+<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>multifill</code>
+<dd>
+<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap</a></p>
+</dd></dl>
+</li></ul>
+
+<h3 id="label-Also+features-3A">Also features:<span><a href="#label-Also+features-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p><code>bin/zxconv</code></p>
+
+<p>(requires RMagick <a href="http://rmagick.rubyforge.org">rmagick.rubyforge.org</a>/)</p>
+
+<pre>ZXCONV 0.2: Importing images to ZX Spectrum is fun!
+Usage:
+zxconv source destination [options]
+  rendering options:
+  -m, --mode 0|1|2|3|4        color mode
+          0: 15 colors
+          1: 8  basic colors
+          2: 8  bright colors
+          3: 15 colors, bright colors have priority
+          4: 15 colors, basic colors only on black backgrounds
+  -d, --dither n|r|f[n|r|f]     dithering mode phase1,phase2
+          n: none
+          r: riemersma
+          f: floyd-steinberg
+  -c, --colors CCC....        list of allowed color indexes (0..7)
+  -0..15, --bg N              background color (0..15)
+  -r, --ratio N/N             bright/basic color level ratio
+  -l, --[no-]autolevel        apply auto level to source image
+  -g, --[no-]autogamma        apply auto gamma to source image
+
+  destination format and content:
+  -f, --format t|b|r|a        zx spectrum data file format
+          t: save as TAP; one file is created
+          b: save as binary data; separate files for scr and bitamp
+          r: save as ruby source
+          a: save as assembler source
+  -s, --[no-]savescr          save data as zx screen (6912 bytes)
+  -b, --[no-]savebin          save b/w bitmap raw data
+  -a, --[no-]saveattr         save attributes raw data
+  -i, --[no-]saveimg          save as normal image
+                                 (format determined by destination ext.)
+  default options are:
+  -m0 -dn -r4/3 -0 -ft -s -i</pre>
+
+<p><img src="examples/horse.jpg" /></p>
+
+<pre>zxconv -m4 -l --no-savescr horse.jpg horse.png</pre>
+
+<p><img src="examples/horse.png" /></p>
+
+<h2 id="label-Download">Download<span><a href="#label-Download">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p><a href="https://github.com/royaltm/z80-rb/archive/master.zip">here</a></p>
+
+<h2 id="label-Requirements">Requirements<span><a href="#label-Requirements">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<h4 id="label-ruby+2.0.0+or+later">ruby 2.0.0 or later<span><a href="#label-ruby+2.0.0+or+later">&para;</a> <a href="#top">&uarr;</a></span></h4>
+
+
+</main>
+
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

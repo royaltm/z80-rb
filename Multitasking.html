@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class Multitasking - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+  var index_rel_prefix = "./";
+</script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/darkfish.js"></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+<div class="nav-section">
+  <h3>Table of Contents</h3>
+
+  <ul class="link-list" role="directory">
+    <li><a href="#class-Multitasking-label-Multitasking">Multitasking</a>
+    <li><a href="#class-Multitasking-label-Task+guide">Task guide</a>
+    <li><a href="#class-Multitasking-label-Machine+code+for+tasks+should+respect+the+following+restrictions-3A">Machine code for tasks should respect the following restrictions:</a>
+    <li><a href="#class-Multitasking-label-Task+code+recommendations-3A">Task code recommendations:</a>
+    <li><a href="#class-Multitasking-label-Task+initialization-3A">Task initialization:</a>
+    <li><a href="#class-Multitasking-label-Task+registers-3A">Task registers:</a>
+    <li><a href="#class-Multitasking-label-Memory+map-3A">Memory map:</a>
+    <li><a href="#class-Multitasking-label-ZX+Basic+API">ZX Basic API</a>
+    <li><a href="#class-Multitasking-label-Task+API">Task API</a>
+  </ul>
+</div>
+
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="Object.html">Object</a>
+  
+</div>
+
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="Z80.html">Z80</a>
+  
+  
+  
+    <li><a class="include" href="Z80/TAP.html">Z80::TAP</a>
+  
+  
+  </ul>
+</div>
+
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-new_kernel">::new_kernel</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-Multitasking">
+  <h1 id="class-Multitasking" class="class">
+    class Multitasking
+  </h1>
+
+  <section class="description">
+    
+<h1 id="class-Multitasking-label-Multitasking"><a href="Multitasking.html"><code>Multitasking</code></a><span><a href="#class-Multitasking-label-Multitasking">&para;</a> <a href="#top">&uarr;</a></span></h1>
+
+<p>Run machine code programs (a.k.a. “tasks”) in parallel with ZX <a href="Basic.html"><code>Basic</code></a>.</p>
+
+<p>This class contains <a href="Multitasking/Macros.html"><code>Macros</code></a> and kernel labels, for tasks and the kernel code.</p>
+
+<h3 id="class-Multitasking-label-Task+guide">Task guide<span><a href="#class-Multitasking-label-Task+guide">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<h4 id="class-Multitasking-label-Machine+code+for+tasks+should+respect+the+following+restrictions-3A">Machine code for tasks should respect the following restrictions:<span><a href="#class-Multitasking-label-Machine+code+for+tasks+should+respect+the+following+restrictions-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<ul><li>
+<p>Task&#39;s code shouldn&#39;t change interrupt handler (no tampering with register <code>I</code> and no <code>IM</code> instructions).</p>
+</li><li>
+<p>Stacks may be moved up when other tasks terminate - tasks shouldn&#39;t store pointers to stack.</p>
+</li><li>
+<p>When using <code>SP</code> for other purposes always disable interrupts and restore <code>SP</code> before enabling them.</p>
+</li><li>
+<p>Before task starts, <code>IY</code> is initialized to its <code>stack_bot + 128</code> and may be used as a stack pointer frame for tasks&#39; variables as contents of IY register is moved along with the stack.</p>
+</li></ul>
+
+<h4 id="class-Multitasking-label-Task+code+recommendations-3A">Task code recommendations:<span><a href="#class-Multitasking-label-Task+code+recommendations-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<ul><li>
+<p>Avoid modifying ZX <a href="Basic.html"><code>Basic</code></a> variables or using ROM routines that modifies them.</p>
+</li><li>
+<p>To yield execution instead of using <code>halt</code> use <code>call task_yield</code>.</p>
+</li><li>
+<p>To terminate itself the task should either jump to <code>terminate</code> or just <code>ret</code>.</p>
+</li><li>
+<p>Tasks may store local variables using indexing register <code>IY</code> - see below.</p>
+</li></ul>
+
+<h4 id="class-Multitasking-label-Task+initialization-3A">Task initialization:<span><a href="#class-Multitasking-label-Task+initialization-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
+
+<p>Each task when initialized has some stack space allocated for it. When tasks are being switched, their <code>SP</code> is checked against their stacks&#39; bottoms and if <code>SP</code> goes below it the whole multitasking is being terminated (panic) and the control is returned to the system.</p>
+
+<p>Tasks may also use bottom of the stack space for task-local variables storing them via <code>IY</code> register which points to the 128 byte above the stack&#39;s bottom. So to be on the safe side tasks should start  allocating variables from <code>[IY-128]</code> up.</p>
+
+<h5 id="class-Multitasking-label-Task+registers-3A">Task registers:<span><a href="#class-Multitasking-label-Task+registers-3A">&para;</a> <a href="#top">&uarr;</a></span></h5>
+
+<p>Registers may be used freely with some limitations (<code>SP</code>, <code>IY</code>) mentioned above. When starting task registers contain:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>SP</code>
+<dd>
+<p>The task&#39;s end of stack - 2. <code>SP</code> points to the address of <code>terminate</code> routine, so invoking <code>ret</code> will terminate the task.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>IY</code>
+<dd>
+<p>The task&#39;s bottom of stack + 128.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>IX</code>
+<dd>
+<p>The task&#39;s stack size.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>HL</code>
+<dd>
+<p>The task&#39;s start <code>PC</code>.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>BC</code>
+<dd>
+<p>The task&#39;s id.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>DE</code>
+<dd>
+<p>The <code>terminate</code> routine address.</p>
+</dd></dl>
+</li></ul>
+
+<h3 id="class-Multitasking-label-Memory+map-3A">Memory map:<span><a href="#class-Multitasking-label-Memory+map-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<pre>                          TaskVars
++---------+-------------+------------+-----------+-----------+-------------+--------------+--------------+
+| BASIC   | Display and | ZX Printer | System    | ZX Basic  | Tasks&#39; Code | Multitasking | Multitasking |
+|  ROM    |  Attributes |     Buffer | Variables | Workspace |    and Data |  Stack Space |       Kernel |
++---------+-------------+------------+-----------+-----------+-------------+--------------+--------------+
+^         ^             ^            ^           ^           ^             ^              ^              ^
+$0000     $4000         $5B00        $5C00       $5CB6       RAMTOP                                 P_RAMT
+                        mtvars                                             stack_bot      stack_end</pre>
+
+<h3 id="class-Multitasking-label-ZX+Basic+API">ZX <a href="Basic.html"><code>Basic</code></a> API<span><a href="#class-Multitasking-label-ZX+Basic+API">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<pre>REM Setup:
+REM Initializes or resets multitasking.
+REM Returns number of stack space bytes available.
+PRINT USR api
+
+REM Spawns a task:
+1 DEF FN m(a,s) = USR api
+LET tid = FN m(address,stacksize)
+
+REM Terminates a task:
+2 DEF FN t(t) = USR api
+REM Returns number of stack space bytes available after the task is terminated.
+PRINT FN t(tid)
+
+REM Returns total bytes available for stacks:
+3 DEF FN f() = USR api
+PRINT FN f()</pre>
+<dl class="rdoc-list note-list"><dt><code>address</code>
+<dd>
+<p>Must be a task&#39;s machine code entry point address.</p>
+</dd><dt><code>stacksize</code>
+<dd>
+<p>Must be an even number of bytes, at least 42.</p>
+</dd><dt><code>tid</code>
+<dd>
+<p>Must be a number returned from <code>FN m(a,s)</code>.</p>
+</dd></dl>
+
+<p><code>Setup</code> must be invoked at least once before any other function is used. It can also be called to terminate all tasks.</p>
+
+<p><code>Spawn</code> will result in “4 Out of memory” error if there is not enough room for a task info entry or stack space.</p>
+
+<p><code>Kill</code> will result in “N Statement lost” when trying to terminate non-existing task.</p>
+
+<p>“A Invalid argument” error may also be triggered when arguments are incorrect.</p>
+
+<h3 id="class-Multitasking-label-Task+API">Task API<span><a href="#class-Multitasking-label-Task+API">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<pre class="ruby"><span class="ruby-constant">MTKernel</span> = <span class="ruby-constant">Multitasking</span>.<span class="ruby-identifier">new_kernel</span>
+
+                <span class="ruby-comment"># ...</span>
+                <span class="ruby-comment"># instead of invoking halt, call mt.task_yield</span>
+                <span class="ruby-identifier">call</span> <span class="ruby-constant">MTKernel</span>[<span class="ruby-value">:task_yield</span>]
+                <span class="ruby-comment"># ...</span>
+                <span class="ruby-comment"># to terminate:</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-constant">MTKernel</span>[<span class="ruby-value">:terminate</span>]
+                <span class="ruby-comment"># or when stack is depleted just:</span>
+                <span class="ruby-identifier">ret</span>
+</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <section class="constants-list">
+      <header>
+        <h3>Constants</h3>
+      </header>
+      <dl>
+      
+        <dt id="MT_STACK_BOT">MT_STACK_BOT
+        
+        <dd><p>Can be moved up/down to adjust stack space.</p>
+        
+      
+        <dt id="MT_VARS">MT_VARS
+        
+        <dd><p>Can be moved elsewhere if ZX Printer is needed.</p>
+        
+      
+        <dt id="TASK_QUEUE_MAX">TASK_QUEUE_MAX
+        
+        <dd><p>Should not be enlarged if <a href="Multitasking.html#MT_VARS"><code>MT_VARS</code></a> are placed inside ZX Printer Buffer.</p>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-new_kernel" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new_kernel</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Instantiate <a href="Multitasking.html"><code>Multitasking</code></a> kernel with the highest possible starting address</p>
+          
+          
+
+          
+          <div class="method-source-code" id="new_kernel-source">
+            <pre><span class="ruby-comment"># File utils/multitasking.rb, line 125</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">new_kernel</span>
+  <span class="ruby-identifier">new</span> <span class="ruby-value">0x10000</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

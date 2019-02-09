@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class ZXGfxSprite8 - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+  var index_rel_prefix = "./";
+</script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/darkfish.js"></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="Object.html">Object</a>
+  
+</div>
+
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-draw_sprite8">#draw_sprite8</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-ZXGfxSprite8">
+  <h1 id="class-ZXGfxSprite8" class="class">
+    class ZXGfxSprite8
+  </h1>
+
+  <section class="description">
+    
+<p>Sprite drawing routines.</p>
+
+<p>See also <a href="ZXGfxSprite8/Macros.html"><code>ZXGfxSprite8::Macros</code></a>.</p>
+
+<p>By default all drawing method routines are produced. To select only required routines define a <a href="ZXGfxSprite8.html#DRAW_METHODS"><code>ZXGfxSprite8::DRAW_METHODS</code></a> constant before importing this file.</p>
+
+<pre class="ruby"><span class="ruby-keyword">class</span> <span class="ruby-constant">ZXGfxSprite8</span>
+  <span class="ruby-constant">DRAW_METHODS</span> = [<span class="ruby-value">:xor</span>]
+<span class="ruby-keyword">end</span>
+<span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxlib/gfx_sprite8&#39;</span>
+</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <section class="constants-list">
+      <header>
+        <h3>Constants</h3>
+      </header>
+      <dl>
+      
+        <dt id="DRAW_METHODS">DRAW_METHODS
+        
+        <dd><p>Array of supported drawing methods: <code>:xor</code>, <code>:or</code>, <code>:set</code>, <code>:mask_or</code></p>
+        
+      
+        <dt id="DRAW_METHOD_MASK_OR">DRAW_METHOD_MASK_OR
+        
+        <dd>
+        
+      
+        <dt id="DRAW_METHOD_OR">DRAW_METHOD_OR
+        
+        <dd>
+        
+      
+        <dt id="DRAW_METHOD_SET">DRAW_METHOD_SET
+        
+        <dd>
+        
+      
+        <dt id="DRAW_METHOD_XOR">DRAW_METHOD_XOR
+        
+        <dd>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-draw_sprite8" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">draw_sprite8</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Draws a sprite using xor/or/clear/and+or with arbitrary height and width.</p>
+
+<p>In <code>and+or</code> mode sprite bitmap bytes must be interwined with mask: b1 m1 b2 m2 b2 m2 …</p>
+
+<p>The data for sprites is laid verticaly: first 8-pixel column bytes, second 8-pixel column bytes, …</p>
+
+<p>This routine is optimised for vertical sprites with height &gt; width and small square ones (width &lt; 24 pixels).</p>
+<dl class="rdoc-list note-list"><dt>Uses
+<dd>
+<p><code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>bc&#39;</code>, <code>de&#39;</code>, <code>hl&#39;</code>, <code>ix</code>, <code>sp</code> (stack depth: max 6 bytes), in and+or mode also <code>iy</code>.</p>
+</dd></dl>
+
+<p>Input:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>de</code>
+<dd>
+<p>sprite address</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>h</code>
+<dd>
+<p>vertical coordinate   (0..191)</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>l</code>
+<dd>
+<p>horizontal coordinate (0..255) except when h &gt; 191 then l contains vertical coordinate and h | 0xf8 is a negative h-coordinate (from -1 to -7)</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>b</code>
+<dd>
+<p>skip first sprite lines (for negative vertical coordinate y &lt; 0, <code>h</code> should be 0 and <code>b</code> should be -y)</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>c</code>
+<dd>
+<p>sprite byte width (1..32) (pixel width / 8)</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>a&#39;</code>
+<dd>
+<p>sprite height (1..192)</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>f&#39;</code>
+<dd>
+<p>flags for mode</p>
+</dd></dl>
+</li></ul>
+
+<p>Flags howto:</p>
+
+<pre>   CF:     0      1       0              1
+   ZF:     0      0       1              1
+ mode:    OR    SET     XOR  AND+OR (mask)
+howto: ora 1  scf      cp a          cp  a
+              sbc a                  scf</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="draw_sprite8-source">
+            <pre><span class="ruby-comment"># File zxlib/gfx_sprite8.rb, line 180</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:draw_sprite8</span> <span class="ruby-keyword">do</span>
+          <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>             <span class="ruby-comment"># save width and skip</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>
+          <span class="ruby-identifier">cp</span>   <span class="ruby-value">192</span>
+          <span class="ruby-identifier">jp</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">skipneg</span>
+          <span class="ruby-identifier">anda</span> <span class="ruby-value">0x07</span>
+          <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">skipad</span>      <span class="ruby-comment"># sanity check</span>
+          <span class="ruby-identifier">add</span>  <span class="ruby-value">7</span>              <span class="ruby-comment"># negative vect</span>
+  <span class="ruby-identifier">skipad</span>  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>           <span class="ruby-comment"># C: negshift (0, 8..14)</span>
+          <span class="ruby-identifier">ytoscr</span> <span class="ruby-identifier">l</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">b</span>
+          <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skippos</span>
+  <span class="ruby-identifier">skipneg</span> <span class="ruby-identifier">xytoscr</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">b</span> <span class="ruby-comment"># HL: yx, HL: screen, C: shift (0..7), B: temp</span>
+  <span class="ruby-identifier">skippos</span> <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># screen addr</span>
+
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">maskshift</span>
+          <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>         <span class="ruby-comment"># HL: -&gt; (maskshift + shift)</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]        <span class="ruby-comment"># A: rotate mask</span>
+
+          <span class="ruby-identifier">exx</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>           <span class="ruby-comment"># E: rotate mask</span>
+          <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># HL: screen addr</span>
+          <span class="ruby-identifier">exx</span>                 <span class="ruby-comment"># E&#39;: rotate mask, H&#39;L&#39;: screen addr</span>
+
+          <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>         <span class="ruby-comment"># A: height + CZ</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>           <span class="ruby-comment"># B: height</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>           <span class="ruby-comment"># A: shift 0..14</span>
+
+  <span class="ruby-keyword">unless</span> <span class="ruby-constant">DRAW_METHOD_XOR</span> <span class="ruby-keyword">or</span> <span class="ruby-constant">DRAW_METHOD_OR</span> <span class="ruby-keyword">or</span> <span class="ruby-constant">DRAW_METHOD_SET</span> <span class="ruby-keyword">or</span> <span class="ruby-constant">DRAW_METHOD_MASK_OR</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;there must be at least one draw method selected&quot;</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">DRAW_METHOD_XOR</span> <span class="ruby-keyword">or</span> <span class="ruby-constant">DRAW_METHOD_OR</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-constant">DRAW_METHOD_SET</span> <span class="ruby-keyword">or</span> <span class="ruby-constant">DRAW_METHOD_MASK_OR</span>
+            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">aocskip</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-constant">DRAW_METHOD_XOR</span> <span class="ruby-keyword">and</span> <span class="ruby-constant">DRAW_METHOD_OR</span>
+            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">orskip</span>
+    <span class="ruby-keyword">end</span>
+
+    <span class="ruby-keyword">if</span> <span class="ruby-constant">DRAW_METHOD_XOR</span>
+            <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>
+            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">fastxor</span>
+            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">sprxor</span>.<span class="ruby-identifier">start</span>
+            <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># jump addr</span>
+            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">jumpxor</span> <span class="ruby-operator">-</span> <span class="ruby-value">2</span>
+            <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skipall</span>
+    <span class="ruby-identifier">fastxor</span> <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">sprxor</span>.<span class="ruby-identifier">fstcopy</span>
+            <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skpfast</span>
+    <span class="ruby-keyword">end</span>
+
+    <span class="ruby-keyword">if</span> <span class="ruby-constant">DRAW_METHOD_OR</span>
+    <span class="ruby-identifier">orskip</span>  <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>
+            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">fastor</span>
+            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">spror</span>.<span class="ruby-identifier">start</span>
+            <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># jump addr</span>
+            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">jumpor</span> <span class="ruby-operator">-</span> <span class="ruby-value">2</span>
+            <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skipall</span>
+    <span class="ruby-identifier">fastor</span>  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">spror</span>.<span class="ruby-identifier">fstcopy</span>
+            <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skpfast</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">DRAW_METHOD_SET</span> <span class="ruby-keyword">and</span> <span class="ruby-constant">DRAW_METHOD_MASK_OR</span>
+    <span class="ruby-identifier">aocskip</span> <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">andskip</span>
+  <span class="ruby-keyword">elsif</span> <span class="ruby-constant">DRAW_METHOD_SET</span> <span class="ruby-keyword">or</span> <span class="ruby-constant">DRAW_METHOD_MASK_OR</span>
+    <span class="ruby-identifier">aocskip</span> <span class="ruby-identifier">label</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">DRAW_METHOD_SET</span>
+          <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>
+          <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">fastclr</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">spclror</span>.<span class="ruby-identifier">start</span>
+          <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># jump addr</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">jumpclror</span> <span class="ruby-operator">-</span> <span class="ruby-value">2</span>
+          <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skipall</span>
+  <span class="ruby-identifier">fastclr</span> <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">spclror</span>.<span class="ruby-identifier">fstcopy</span>
+          <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skpfast</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">DRAW_METHOD_MASK_OR</span>
+  <span class="ruby-identifier">andskip</span> <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">spandor</span>.<span class="ruby-identifier">start</span>
+          <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>
+          <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">fastaor</span>
+          <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># jump addr</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">jumpandor</span> <span class="ruby-operator">-</span> <span class="ruby-value">4</span>
+          <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>
+          <span class="ruby-identifier">adda_to</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">iyl</span>, <span class="ruby-identifier">a</span>
+          <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">a</span>
+          <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+          <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skipal2</span>
+  <span class="ruby-identifier">fastaor</span> <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">spandor</span>.<span class="ruby-identifier">fstcopy</span>
+          <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skpfast</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">DRAW_METHOD_XOR</span> <span class="ruby-keyword">or</span> <span class="ruby-constant">DRAW_METHOD_OR</span> <span class="ruby-keyword">or</span> <span class="ruby-constant">DRAW_METHOD_SET</span>
+    <span class="ruby-identifier">skipall</span> <span class="ruby-identifier">adda_to</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-identifier">skipal2</span> <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">a</span>
+          <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">a</span>
+          <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># jump addr</span>
+  <span class="ruby-identifier">skpfast</span> <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>           <span class="ruby-comment"># height</span>
+          <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>             <span class="ruby-comment"># skip + width</span>
+          <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">b</span>              <span class="ruby-comment"># height - skip first lines</span>
+          <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>              <span class="ruby-comment"># return if skip first &gt; height</span>
+          <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>              <span class="ruby-comment"># return if skip first == height</span>
+          <span class="ruby-identifier">jp</span>   (<span class="ruby-identifier">hl</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

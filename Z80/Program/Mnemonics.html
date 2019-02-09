@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module Z80::Program::Mnemonics - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../";
+  var index_rel_prefix = "../../";
+</script>
+
+<script src="../../js/jquery.js"></script>
+<script src="../../js/darkfish.js"></script>
+
+<link href="../../css/fonts.css" rel="stylesheet">
+<link href="../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../table_of_contents.html#pages">Pages</a>
+    <a href="../../table_of_contents.html#classes">Classes</a>
+    <a href="../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+<div class="nav-section">
+  <h3>Table of Contents</h3>
+
+  <ul class="link-list" role="directory">
+    <li><a href="#module-Z80::Program::Mnemonics-label-Z80+Mnemonics">Z80 Mnemonics</a>
+    <li><a href="#module-Z80::Program::Mnemonics-label-Undocumented+-28by+Zilog-29+Z80+instructions">Undocumented (by Zilog) Z80 instructions</a>
+    <li><a href="#module-Z80::Program::Mnemonics-label-Mnemonic+list">Mnemonic list</a>
+  </ul>
+</div>
+
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-Z80::Program::Mnemonics">
+  <h1 id="module-Z80::Program::Mnemonics" class="module">
+    module Z80::Program::Mnemonics
+  </h1>
+
+  <section class="description">
+    
+<h2 id="module-Z80::Program::Mnemonics-label-Z80+Mnemonics"><a href="../../Z80.html"><code>Z80</code></a> <a href="Mnemonics.html"><code>Mnemonics</code></a><span><a href="#module-Z80::Program::Mnemonics-label-Z80+Mnemonics">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p>All <a href="../../Z80.html"><code>Z80</code></a> instructions are created as singleton methods. They produce machine code which is added to the <strong>Program</strong> class instance variable: <a href="../Program.html#attribute-i-code"><code>Program.code</code></a>.</p>
+
+<p>These mnemonics mimic standard ones (used in assemblers) but with some exceptions (because of ruby parser spec.):</p>
+<ul><li>
+<p>all instruction and register names are lower case</p>
+</li><li>
+<p>all conditions are upper case e.g.:</p>
+
+<pre class="ruby"><span class="ruby-identifier">jp</span> <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">somewhere</span>
+</pre>
+
+<p>use [ ] instead of ( ) e.g.: </p>
+
+<pre class="ruby"><span class="ruby-identifier">ld</span> <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]
+<span class="ruby-identifier">ex</span> [<span class="ruby-identifier">sp</span>], <span class="ruby-identifier">hl</span>
+<span class="ruby-identifier">ld</span> [<span class="ruby-identifier">ix</span><span class="ruby-operator">+</span><span class="ruby-identifier">index</span>], <span class="ruby-identifier">c</span>
+<span class="ruby-identifier">ld</span> <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">label_name</span>]
+</pre>
+</li><li>
+<p>use <code>anda</code> instead of <code>and</code></p>
+</li><li>
+<p>use <code>ora</code>  instead of <code>or</code></p>
+</li><li>
+<p>use <code>inp</code>  instead of <code>in</code></p>
+</li><li>
+<p>use <code>ex af,af</code> instead of <code>ex af,af&#39;</code> (no apostrophe after <code>af</code>&#39;)</p>
+</li></ul>
+
+<p>The ones below are due to my lazyness:</p>
+<ul><li>
+<p>use <code>im0</code>, <code>im01</code>, <code>im1</code>, <code>im2</code>  instead of <code>im</code> <code>n</code>. It is so rarely used so i didn&#39;t care creating a single method for it.</p>
+</li><li>
+<p>do not use [ ] around <code>out</code> and <code>inp</code> instructions&#39; arguments e.g.:</p>
+
+<pre class="ruby"><span class="ruby-identifier">out</span> <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>    <span class="ruby-comment"># ok</span>
+<span class="ruby-identifier">out</span> (<span class="ruby-identifier">c</span>), <span class="ruby-identifier">a</span>  <span class="ruby-comment"># () are ok, ruby doesn&#39;t care much about them</span>
+</pre>
+
+<p><em>however ruby emits warning: (…) interpreted as grouped expression</em></p>
+
+<pre class="ruby"><span class="ruby-comment"># only Integers are allowed here; no labels!</span>
+<span class="ruby-identifier">inp</span> <span class="ruby-identifier">a</span>, (<span class="ruby-value">0xfe</span>)
+</pre>
+</li><li>
+<p>do not use [ ] around JP (HL/IX/IY) e.g.:</p>
+
+<pre class="ruby"><span class="ruby-identifier">jp</span>  <span class="ruby-identifier">hl</span>     <span class="ruby-comment"># ok</span>
+<span class="ruby-identifier">jp</span>  (<span class="ruby-identifier">hl</span>)   <span class="ruby-comment"># () are ok, ruby doesn&#39;t care much about them</span>
+</pre>
+
+<p><em>however ruby emits warning: (…) interpreted as grouped expression</em></p>
+</li></ul>
+
+<h3 id="module-Z80::Program::Mnemonics-label-Undocumented+-28by+Zilog-29+Z80+instructions">Undocumented (by Zilog) <a href="../../Z80.html"><code>Z80</code></a> instructions<span><a href="#module-Z80::Program::Mnemonics-label-Undocumented+-28by+Zilog-29+Z80+instructions">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p>See: <a href="http://www.z80.info/z80undoc.htm">www.z80.info/z80undoc.htm</a></p>
+<ul><li>
+<p><code>sll</code> (or <code>sl1</code>) which means shift left <code>(a b c d e h l [hl] [ixn])</code> by one and set it&#39;s bit 0 to 1</p>
+</li><li>
+<p>2 in 1 instructions like</p>
+
+<pre class="ruby"><span class="ruby-identifier">set</span> <span class="ruby-value">4</span>, [<span class="ruby-identifier">ix</span><span class="ruby-operator">+</span><span class="ruby-identifier">n</span>], <span class="ruby-identifier">b</span>
+</pre>
+
+<p>which means:</p>
+
+<pre class="ruby"><span class="ruby-identifier">set</span> <span class="ruby-value">4</span>, [<span class="ruby-identifier">ix</span><span class="ruby-operator">+</span><span class="ruby-identifier">n</span>]; <span class="ruby-identifier">ld</span> <span class="ruby-identifier">b</span>, [<span class="ruby-identifier">ix</span><span class="ruby-operator">+</span><span class="ruby-identifier">n</span>]
+</pre>
+
+<p>but is a single instruction only. It applies to <code>ix</code>/<code>iy</code> indexing registers and following instructions (without <code>bit</code>):</p>
+
+<pre class="ruby"><span class="ruby-identifier">rlc</span> <span class="ruby-identifier">rrc</span> <span class="ruby-identifier">rl</span> <span class="ruby-identifier">rr</span> <span class="ruby-identifier">sla</span> <span class="ruby-identifier">sra</span> <span class="ruby-identifier">sll</span> <span class="ruby-identifier">srl</span> <span class="ruby-identifier">set</span> <span class="ruby-identifier">res</span>
+</pre>
+</li><li>
+<p><code>ixh/ixl/iyh/iyl</code> 8-bit registers of 16bit <code>ix/iy</code> use them replacing <code>l</code> and <code>h</code> registers in:</p>
+
+<pre class="ruby"><span class="ruby-identifier">ld</span> <span class="ruby-identifier">inc</span> <span class="ruby-identifier">dec</span> <span class="ruby-identifier">add</span> <span class="ruby-identifier">adc</span> <span class="ruby-identifier">sbc</span> <span class="ruby-identifier">sub</span> <span class="ruby-identifier">anda</span> <span class="ruby-identifier">xor</span> <span class="ruby-identifier">ora</span> <span class="ruby-identifier">cp</span>
+</pre>
+
+<p>however you can&#39;t mix (<code>ixh</code> <code>ixl</code>)/(<code>iyh</code> <code>iyl</code>)/<code>h</code>/<code>l</code> registers in one instruction like:</p>
+
+<pre class="ruby"><span class="ruby-identifier">ld</span> <span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">iyh</span> <span class="ruby-comment"># invalid</span>
+<span class="ruby-identifier">ld</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">iyh</span>   <span class="ruby-comment"># invalid</span>
+</pre>
+</li><li>
+<p>and the less usefull but included for completeness:</p>
+
+<pre class="ruby"><span class="ruby-identifier">out</span> (<span class="ruby-identifier">c</span>), <span class="ruby-value">0</span>
+<span class="ruby-identifier">inp</span> (<span class="ruby-identifier">c</span>)
+</pre>
+
+<p>the last one only adjust <a href="../../Z80.html"><code>Z80</code></a> flags but the result goes to <code>/dev/null</code> (figuratively speaking).</p>
+</li></ul>
+
+<h2 id="module-Z80::Program::Mnemonics-label-Mnemonic+list">Mnemonic list<span><a href="#module-Z80::Program::Mnemonics-label-Mnemonic+list">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p><code>adc add anda bit call ccf cp cpd cpdr cpi cpir cpl daa dec di djnz ei ex exx halt hlt im0 im01 im1 im2 inc ind indr ini inir inp jp jr ld ldd lddr ldi ldir neg nop ora otdr otir out outd outi pop push res ret reti retn rl rla rlc rlca rld rr rra rrc rrca rrd rst sbc scf set sl1 sla sll sra srl sub xor</code></p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

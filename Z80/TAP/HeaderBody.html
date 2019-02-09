@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class Z80::TAP::HeaderBody - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../";
+  var index_rel_prefix = "../../";
+</script>
+
+<script src="../../js/jquery.js"></script>
+<script src="../../js/darkfish.js"></script>
+
+<link href="../../css/fonts.css" rel="stylesheet">
+<link href="../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../table_of_contents.html#pages">Pages</a>
+    <a href="../../table_of_contents.html#classes">Classes</a>
+    <a href="../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="../../Object.html">Object</a>
+  
+</div>
+
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-new">::new</a>
+    
+    <li ><a href="#method-c-new_code">::new_code</a>
+    
+    <li ><a href="#method-c-new_program">::new_program</a>
+    
+    <li ><a href="#method-c-new_var_array">::new_var_array</a>
+    
+    <li ><a href="#method-i-array-3F">#array?</a>
+    
+    <li ><a href="#method-i-code-3F">#code?</a>
+    
+    <li ><a href="#method-i-program-3F">#program?</a>
+    
+    <li ><a href="#method-i-save_tap">#save_tap</a>
+    
+    <li ><a href="#method-i-screen-3F">#screen?</a>
+    
+    <li ><a href="#method-i-to_s">#to_s</a>
+    
+    <li ><a href="#method-i-to_tap">#to_tap</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-Z80::TAP::HeaderBody">
+  <h1 id="class-Z80::TAP::HeaderBody" class="class">
+    class Z80::TAP::HeaderBody
+  </h1>
+
+  <section class="description">
+    
+<p>A class that represents the optional header and the single body chunk of a <a href="../TAP.html"><code>TAP</code></a> file.</p>
+
+<p>Instances of this class are produced by methods such as: <a href="../TAP.html#method-i-to_tap_chunk"><code>TAP#to_tap_chunk</code></a> or <a href="../TAP.html#method-c-parse_file"><code>TAP.parse_file</code></a>.</p>
+
+<p>Properties:</p>
+<ul><li>
+<p><code>header</code> as a Z80::TAP::Header instance or <code>nil</code></p>
+</li><li>
+<p><code>body</code> as a ::Z80::TAP::Body instance</p>
+</li></ul>
+
+<p><a href="HeaderBody.html#method-i-to_tap"><code>HeaderBody#to_tap</code></a> produces a <a href="../TAP.html"><code>TAP</code></a> blob as a binary string.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+    <section class="attribute-method-details" class="method-section">
+      <header>
+        <h3>Attributes</h3>
+      </header>
+
+      
+      <div id="attribute-i-body" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">body</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-header" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">header</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+    </section>
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-new" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new</span><span
+            class="method-args">(header, body)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="new-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 114</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">header</span>, <span class="ruby-identifier">body</span>)
+        <span class="ruby-ivar">@header</span> = <span class="ruby-identifier">header</span>
+        <span class="ruby-ivar">@body</span> = <span class="ruby-identifier">body</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-new_code" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new_code</span><span
+            class="method-args">(name, code, org)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a <a href="HeaderBody.html"><code>HeaderBody</code></a> of the type <code>TYPE_CODE</code>.</p>
+<ul><li>
+<p><code>name</code> should contain max 10 ascii characters.</p>
+</li><li>
+<p><code>code</code> should be a binary string.</p>
+</li><li>
+<p><code>org</code> should be an integer indicating the starting address of the code.</p>
+</li></ul>
+          
+          
+
+          
+          <div class="method-source-code" id="new_code-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 173</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_code</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">org</span>)
+        <span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new</span>(
+                <span class="ruby-constant">Header</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">TYPE_CODE</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-identifier">org</span>, <span class="ruby-value">0x8000</span>),
+                <span class="ruby-constant">Body</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">code</span>)
+        )
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-new_program" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new_program</span><span
+            class="method-args">(name, code, line:nil, prog_length:nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a <a href="HeaderBody.html"><code>HeaderBody</code></a> of the type <code>TYPE_PROGRAM</code>.</p>
+<ul><li>
+<p><code>name</code> should contain max 10 ascii characters.</p>
+</li><li>
+<p><code>code</code> should be a binary string representing ZX Spectrum&#39;s program and variables.</p>
+</li><li>
+<p>optional <code>line</code> should be an integer indicating the starting line of the program.</p>
+</li><li>
+<p>optional <code>prog_length</code> should be an integer indicating the length (in bytes) of the program.</p>
+</li></ul>
+          
+          
+
+          
+          <div class="method-source-code" id="new_program-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 186</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_program</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-value">line:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">prog_length:</span><span class="ruby-keyword">nil</span>)
+        <span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new</span>(
+                <span class="ruby-constant">Header</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">TYPE_PROGRAM</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-identifier">line</span> <span class="ruby-operator">||</span> <span class="ruby-value">32768</span>, <span class="ruby-identifier">prog_length</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>),
+                <span class="ruby-constant">Body</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">code</span>)
+        )
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-new_var_array" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new_var_array</span><span
+            class="method-args">(name, code, head)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a <a href="HeaderBody.html"><code>HeaderBody</code></a> of the type <code>TYPE_NUMBER_ARRAY</code> or <code>TYPE_CHAR_ARRAY</code>.</p>
+<ul><li>
+<p><code>name</code> should contain max 10 ascii characters.</p>
+</li><li>
+<p><code>code</code> should be a binary string representing ZX Spectrum&#39;s array variable body.</p>
+</li><li>
+<p><code>head</code> should be the header octet of the variable data. Based on this number the appropriate type of the tap file is being chosen.</p>
+</li></ul>
+          
+          
+
+          
+          <div class="method-source-code" id="new_var_array-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 199</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_var_array</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">head</span>)
+        <span class="ruby-identifier">type</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">head</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b11100000</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-value">0b10000000</span>
+                <span class="ruby-constant">TYPE_NUMBER_ARRAY</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-value">0b11000000</span>
+                <span class="ruby-constant">TYPE_CHAR_ARRAY</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">TapeError</span>, <span class="ruby-string">&quot;can&#39;t guess TAP type from a variable head&quot;</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">p1</span> = (<span class="ruby-identifier">head</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xff</span>) <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">8</span>
+        <span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new</span>(
+                <span class="ruby-constant">Header</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">type</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-identifier">p1</span>, <span class="ruby-value">0x8000</span>),
+                <span class="ruby-constant">Body</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">code</span>)
+        )
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-array-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">array?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p><code>true</code> if this chunk represents a number or character array</p>
+          
+          
+
+          
+          <div class="method-source-code" id="array-3F-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 148</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">array?</span>
+        <span class="ruby-identifier">header</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">array?</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-code-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">code?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p><code>true</code> if this chunk represents a code</p>
+          
+          
+
+          
+          <div class="method-source-code" id="code-3F-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 158</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">code?</span>
+        <span class="ruby-identifier">header</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">code?</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-program-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">program?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p><code>true</code> if this chunk represents a basic program</p>
+          
+          
+
+          
+          <div class="method-source-code" id="program-3F-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 153</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">program?</span>
+        <span class="ruby-identifier">header</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">program?</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-save_tap" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">save_tap</span><span
+            class="method-args">(filename, append:false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Saves this chunk as a <a href="../TAP.html"><code>TAP</code></a> file.</p>
+
+<p><code>filename</code> specifies the file name to save to. The “.tap” extension may be omitted.</p>
+
+<p>If <code>:append</code> is <code>true</code> the data will be appended to the file. Otherwise the file is being truncated.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="save_tap-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 134</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">save_tap</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">append:</span><span class="ruby-keyword">false</span>)
+        <span class="ruby-identifier">filename</span><span class="ruby-operator">+=</span> <span class="ruby-string">&#39;.tap&#39;</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">extname</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">downcase</span> <span class="ruby-operator">==</span> <span class="ruby-string">&#39;.tap&#39;</span>
+        <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">append</span> <span class="ruby-operator">?</span> <span class="ruby-string">&#39;ab&#39;</span> <span class="ruby-operator">:</span> <span class="ruby-string">&#39;wb&#39;</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">write</span> <span class="ruby-identifier">to_tap</span> }
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-screen-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">screen?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p><code>true</code> if this chunk represents a screen data</p>
+          
+          
+
+          
+          <div class="method-source-code" id="screen-3F-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 163</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">screen?</span>
+        <span class="ruby-identifier">header</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">screen?</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_s" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_s</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>For humans.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_s-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 120</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_s</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">nil?</span>
+                <span class="ruby-node">&quot;Bytes: ?????????? (#{body.data.bytesize})&quot;</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">header</span>.<span class="ruby-identifier">to_s</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_tap" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_tap</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Produces a <a href="../TAP.html"><code>TAP</code></a> blob as a binary string from this chunk.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_tap-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 140</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap</span>
+        <span class="ruby-identifier">res</span> = <span class="ruby-string">&#39;&#39;</span>
+        <span class="ruby-identifier">res</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">to_tap</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">nil?</span>
+        <span class="ruby-identifier">res</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">body</span>.<span class="ruby-identifier">to_tap</span>(<span class="ruby-identifier">header</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">length</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">body</span>.<span class="ruby-identifier">nil?</span> 
+        <span class="ruby-identifier">res</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

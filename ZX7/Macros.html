@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module ZX7::Macros - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-dzx7_agilercs">#dzx7_agilercs</a>
+    
+    <li ><a href="#method-i-dzx7_mega">#dzx7_mega</a>
+    
+    <li ><a href="#method-i-dzx7_smartrcs">#dzx7_smartrcs</a>
+    
+    <li ><a href="#method-i-dzx7_standard">#dzx7_standard</a>
+    
+    <li ><a href="#method-i-dzx7_turbo">#dzx7_turbo</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-ZX7::Macros">
+  <h1 id="module-ZX7::Macros" class="module">
+    module ZX7::Macros
+  </h1>
+
+  <section class="description">
+    
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-dzx7_agilercs" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">dzx7_agilercs</span><span
+            class="method-args">(name=nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <hr>
+
+<p>“Agile” integrated RCS+ZX7 decoder by Einar Saukas (150 bytes)</p>
+<hr>
+
+<p>Parameters:</p>
+
+<pre>HL: source address (compressed data)
+DE: destination address (decompressing)</pre>
+<hr>
+          
+          
+
+          
+          <div class="method-source-code" id="dzx7_agilercs-source">
+            <pre><span class="ruby-comment"># File utils/zx7.rb, line 478</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dzx7_agilercs</span>(<span class="ruby-identifier">name</span>=<span class="ruby-keyword">nil</span>)
+    <span class="ruby-identifier">isolate</span>(<span class="ruby-identifier">name</span>) <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, <span class="ruby-value">0x80</span>
+    <span class="ruby-identifier">copy_byte_loop1</span>     <span class="ruby-identifier">ex</span>      <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-identifier">copy_byte</span>         <span class="ruby-comment"># copy literal byte</span>
+    <span class="ruby-identifier">main_loop1</span>          <span class="ruby-identifier">ex</span>      <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>      <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">copy_byte_loop1</span> <span class="ruby-comment"># next bit indicates either literal or sequence</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-identifier">len_size_start</span>
+
+    <span class="ruby-identifier">copy_byte_loop</span>      <span class="ruby-identifier">ldi</span>                             <span class="ruby-comment"># copy literal byte</span>
+    <span class="ruby-identifier">main_loop</span>           <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>      <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">copy_byte_loop</span> <span class="ruby-comment"># next bit indicates either literal or sequence</span>
+
+    <span class="ruby-identifier">len_size_start</span>      <span class="ruby-identifier">label</span>
+    <span class="ruby-comment"># determine number of bits used for length (Elias gamma coding)</span>
+                        <span class="ruby-identifier">push</span>    <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">bc</span>, <span class="ruby-value">1</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">d</span>, <span class="ruby-identifier">b</span>
+    <span class="ruby-identifier">len_size_loop</span>       <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>      <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">len_size_loop</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">len_value_start</span>
+
+    <span class="ruby-comment"># determine length</span>
+    <span class="ruby-identifier">len_value_loop</span>      <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>      <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">c</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">b</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">exit0</span>           <span class="ruby-comment"># check end marker</span>
+    <span class="ruby-identifier">len_value_start</span>     <span class="ruby-identifier">dec</span>     <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">len_value_loop</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">bc</span>                      <span class="ruby-comment"># adjust length</span>
+
+    <span class="ruby-comment"># determine offset</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># load offset flag (1 bit) + offset value (7 bits)</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">sll</span>     <span class="ruby-identifier">e</span>                <span class="ruby-comment"># opcode for undocumented instruction &quot;SLL E&quot; aka &quot;SLS E&quot;</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">offset_end</span>    <span class="ruby-comment"># if offset flag is set, load 4 extra bits</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>      <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># insert first bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>      <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># insert second bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>      <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># insert third bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>      <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">ccf</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">offset_end</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># equivalent to adding 128 to DE</span>
+    <span class="ruby-identifier">offset_end</span>          <span class="ruby-identifier">rr</span>      <span class="ruby-identifier">e</span>                       <span class="ruby-comment"># insert inverted fourth bit into E</span>
+
+    <span class="ruby-comment"># copy previous sequence</span>
+                        <span class="ruby-identifier">ex</span>      [<span class="ruby-identifier">sp</span>], <span class="ruby-identifier">hl</span>                <span class="ruby-comment"># store source, restore destination</span>
+                        <span class="ruby-identifier">push</span>    <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># store destination</span>
+                        <span class="ruby-identifier">sbc</span>     <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>                  <span class="ruby-comment"># HL = destination - offset - 1</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>                      <span class="ruby-comment"># DE = destination</span>
+                        <span class="ruby-identifier">ex</span>      <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>                    <span class="ruby-comment"># A = 010RRccc</span>
+                        <span class="ruby-identifier">cp</span>      <span class="ruby-value">0x58</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">copy_bytes</span>
+                        <span class="ruby-identifier">ldir</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># restore source address (compressed data)</span>
+                        <span class="ruby-identifier">ex</span>      <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">main_loop</span>
+
+    <span class="ruby-identifier">copy_bytes</span>          <span class="ruby-identifier">push</span>    <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">ex</span>      <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-identifier">convert</span>
+                        <span class="ruby-identifier">ex</span>      <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-identifier">copy_byte</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-constant">PE</span>, <span class="ruby-identifier">copy_bytes</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># restore source address (compressed data)</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-identifier">main_loop1</span>
+
+    <span class="ruby-identifier">load_bits</span>           <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">ret</span>
+
+    <span class="ruby-identifier">copy_byte</span>           <span class="ruby-identifier">push</span>    <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-identifier">convert</span>
+                        <span class="ruby-identifier">ldi</span>
+    <span class="ruby-identifier">exit0</span>               <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">ret</span>
+
+    <span class="ruby-comment"># Convert an RCS address 010RRccc ccrrrppp to screen address 010RRppp rrrccccc</span>
+    <span class="ruby-comment"># (Note: replace both EX AF,AF&#39; with PUSH AF/POP AF if you want to preserve AF&#39;)</span>
+    <span class="ruby-identifier">convert</span>             <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>                    <span class="ruby-comment"># A = 010RRccc</span>
+                        <span class="ruby-identifier">cp</span>      <span class="ruby-value">0x58</span>
+                        <span class="ruby-identifier">ret</span>     <span class="ruby-constant">NC</span>
+                        <span class="ruby-identifier">xor</span>     <span class="ruby-identifier">e</span>
+                        <span class="ruby-identifier">anda</span>    <span class="ruby-value">0xf8</span>
+                        <span class="ruby-identifier">xor</span>     <span class="ruby-identifier">e</span>                       <span class="ruby-comment"># A = 010RRppp</span>
+                        <span class="ruby-identifier">push</span>    <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">xor</span>     <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">xor</span>     <span class="ruby-identifier">e</span>                       <span class="ruby-comment"># A = ccrrrccc</span>
+                        <span class="ruby-identifier">rlca</span>
+                        <span class="ruby-identifier">rlca</span>                            <span class="ruby-comment"># A = rrrccccc</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>                      <span class="ruby-comment"># D = 010RRppp</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># E = rrrccccc</span>
+                        <span class="ruby-identifier">ret</span>
+    <span class="ruby-comment"># -----------------------------------------------------------------------------</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-dzx7_mega" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">dzx7_mega</span><span
+            class="method-args">(name=nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <hr>
+
+<p><a href="../ZX7.html"><code>ZX7</code></a> decoder by Einar Saukas “Mega” version (244 bytes, 30% faster)</p>
+<hr>
+
+<p>Parameters:</p>
+
+<pre>HL: source address (compressed data)
+DE: destination address (decompressing)</pre>
+<hr>
+          
+          
+
+          
+          <div class="method-source-code" id="dzx7_mega-source">
+            <pre><span class="ruby-comment"># File utils/zx7.rb, line 189</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dzx7_mega</span>(<span class="ruby-identifier">name</span>=<span class="ruby-keyword">nil</span>)
+    <span class="ruby-identifier">isolate</span>(<span class="ruby-identifier">name</span>) <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, <span class="ruby-value">0x80</span>
+    <span class="ruby-identifier">copy_byte_loop_ev</span>   <span class="ruby-identifier">ldi</span>                            <span class="ruby-comment"># copy literal byte</span>
+    <span class="ruby-identifier">main_loop_ev</span>        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits1</span>          <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">len_size_start_od</span>   <span class="ruby-comment"># next bit indicates either literal or sequence</span>
+
+    <span class="ruby-identifier">copy_byte_loop_od</span>   <span class="ruby-identifier">ldi</span>                            <span class="ruby-comment"># copy literal byte</span>
+    <span class="ruby-identifier">main_loop_od</span>        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">copy_byte_loop_ev</span>  <span class="ruby-comment"># next bit indicates either literal or sequence</span>
+
+    <span class="ruby-identifier">len_size_start_ev</span>   <span class="ruby-identifier">label</span>
+    <span class="ruby-comment"># determine number of bits used for length (Elias gamma coding)</span>
+                        <span class="ruby-identifier">push</span>    <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">bc</span>, <span class="ruby-value">1</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">d</span>, <span class="ruby-identifier">b</span>
+    <span class="ruby-identifier">len_size_loop_ev</span>    <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits2_ev</span>       <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">len_size_loop_ev</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">len_value_start_ev</span>
+
+    <span class="ruby-identifier">len_size_start_od</span>   <span class="ruby-identifier">label</span>
+    <span class="ruby-comment"># determine number of bits used for length (Elias gamma coding)</span>
+                        <span class="ruby-identifier">push</span>    <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">bc</span>, <span class="ruby-value">1</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">d</span>, <span class="ruby-identifier">b</span>
+    <span class="ruby-identifier">len_size_loop_od</span>    <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits2_od</span>       <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">len_size_loop_od</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">len_value_start_od</span>
+
+    <span class="ruby-comment"># determine length</span>
+    <span class="ruby-identifier">len_value_loop_ev</span>   <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits3_ev</span>       <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">c</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">b</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">exit_ev</span>             <span class="ruby-comment"># check end marker</span>
+    <span class="ruby-identifier">len_value_start_ev</span>  <span class="ruby-identifier">dec</span>     <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">len_value_loop_ev</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">bc</span>                     <span class="ruby-comment"># adjust length</span>
+    <span class="ruby-identifier">offset_start_od</span>     <span class="ruby-identifier">label</span>
+    <span class="ruby-comment"># determine offset</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load offset flag (1 bit) + offset value (7 bits)</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">sll</span>     <span class="ruby-identifier">e</span>                      <span class="ruby-comment"># opcode for undocumented instruction &quot;SLL E&quot; aka &quot;SLS E&quot;</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">offset_end_od</span>      <span class="ruby-comment"># if offset flag is set, load 4 extra bits</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert first bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits4</span>          <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert second bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert third bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits5</span>          <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">ccf</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">offset_end_od</span>
+    <span class="ruby-identifier">offset_inc_od</span>       <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># equivalent to adding 128 to DE</span>
+    <span class="ruby-identifier">offset_end_od</span>       <span class="ruby-identifier">rr</span>      <span class="ruby-identifier">e</span>                      <span class="ruby-comment"># insert inverted fourth bit into E</span>
+    <span class="ruby-comment"># copy previous sequence</span>
+                        <span class="ruby-identifier">ex</span>      [<span class="ruby-identifier">sp</span>], <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># store source, restore destination</span>
+                        <span class="ruby-identifier">push</span>    <span class="ruby-identifier">hl</span>                     <span class="ruby-comment"># store destination</span>
+                        <span class="ruby-identifier">sbc</span>     <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>                 <span class="ruby-comment"># HL = destination - offset - 1</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>                     <span class="ruby-comment"># DE = destination</span>
+                        <span class="ruby-identifier">ldir</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">hl</span>                     <span class="ruby-comment"># restore source address (compressed data)</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">main_loop_od</span>
+
+    <span class="ruby-identifier">load_bits1</span>          <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">len_size_start_od</span>   <span class="ruby-comment"># next bit indicates either literal or sequence</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">copy_byte_loop_od</span>
+
+    <span class="ruby-identifier">load_bits2_ev</span>       <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">len_size_loop_ev</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">len_value_start_ev</span>
+
+    <span class="ruby-identifier">load_bits2_od</span>       <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">len_size_loop_od</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">len_value_start_od</span>
+
+    <span class="ruby-identifier">load_bits3_ev</span>       <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">c</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">b</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">len_value_start_ev</span> <span class="ruby-comment"># check end marker</span>
+    <span class="ruby-identifier">exit_ev</span>             <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">ret</span>
+
+    <span class="ruby-identifier">load_bits4</span>          <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert second bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert third bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">ccf</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">offset_end_od</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">offset_inc_od</span>
+
+    <span class="ruby-identifier">load_bits5</span>          <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">ccf</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">offset_end_od</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">offset_inc_od</span>
+
+    <span class="ruby-comment"># determine length</span>
+    <span class="ruby-identifier">len_value_loop_od</span>   <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits3_od</span>       <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">c</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">b</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">exit_od</span>             <span class="ruby-comment"># check end marker</span>
+    <span class="ruby-identifier">len_value_start_od</span>  <span class="ruby-identifier">dec</span>     <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">len_value_loop_od</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">bc</span>                     <span class="ruby-comment"># adjust length</span>
+    <span class="ruby-identifier">offset_start_ev</span>     <span class="ruby-identifier">label</span>
+    <span class="ruby-comment"># determine offset</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load offset flag (1 bit) + offset value (7 bits)</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">sll</span>     <span class="ruby-identifier">e</span>                      <span class="ruby-comment"># opcode for undocumented instruction &quot;SLL E&quot; aka &quot;SLS E&quot;</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">offset_end_ev</span>      <span class="ruby-comment"># if offset flag is set, load 4 extra bits</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits6</span>          <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert first bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert second bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits7</span>          <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert third bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">ccf</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">offset_end_ev</span>
+    <span class="ruby-identifier">offset_inc_ev</span>       <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># equivalent to adding 128 to DE</span>
+    <span class="ruby-identifier">offset_end_ev</span>       <span class="ruby-identifier">rr</span>      <span class="ruby-identifier">e</span>                      <span class="ruby-comment"># insert inverted fourth bit into E</span>
+    <span class="ruby-comment"># copy previous sequence</span>
+                        <span class="ruby-identifier">ex</span>      [<span class="ruby-identifier">sp</span>], <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># store source, restore destination</span>
+                        <span class="ruby-identifier">push</span>    <span class="ruby-identifier">hl</span>                     <span class="ruby-comment"># store destination</span>
+                        <span class="ruby-identifier">sbc</span>     <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>                 <span class="ruby-comment"># HL = destination - offset - 1</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>                     <span class="ruby-comment"># DE = destination</span>
+                        <span class="ruby-identifier">ldir</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">hl</span>                     <span class="ruby-comment"># restore source address (compressed data)</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">main_loop_ev</span>
+
+    <span class="ruby-identifier">load_bits3_od</span>       <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">c</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">b</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">len_value_start_od</span> <span class="ruby-comment"># check end marker</span>
+    <span class="ruby-identifier">exit_od</span>             <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">ret</span>
+
+    <span class="ruby-identifier">load_bits6</span>          <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert first bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert second bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert third bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">ccf</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">offset_end_ev</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">offset_inc_ev</span>
+
+    <span class="ruby-identifier">load_bits7</span>          <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># insert third bit into D</span>
+                        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">ccf</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">offset_end_ev</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">offset_inc_ev</span>
+
+    <span class="ruby-comment"># -----------------------------------------------------------------------------</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-dzx7_smartrcs" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">dzx7_smartrcs</span><span
+            class="method-args">(name=nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <hr>
+
+<p>“Smart” integrated RCS+ZX7 decoder by Einar Saukas (110 bytes)</p>
+<hr>
+
+<p>Parameters:</p>
+
+<pre>HL: source address (compressed data)
+DE: destination address (decompressing)</pre>
+<hr>
+          
+          
+
+          
+          <div class="method-source-code" id="dzx7_smartrcs-source">
+            <pre><span class="ruby-comment"># File utils/zx7.rb, line 383</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dzx7_smartrcs</span>(<span class="ruby-identifier">name</span>=<span class="ruby-keyword">nil</span>)
+    <span class="ruby-identifier">isolate</span>(<span class="ruby-identifier">name</span>) <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, <span class="ruby-value">0x80</span>
+    <span class="ruby-identifier">copy_byte_loop</span>      <span class="ruby-identifier">call</span>    <span class="ruby-identifier">copy_byte</span>          <span class="ruby-comment"># copy literal byte</span>
+    <span class="ruby-identifier">main_loop</span>           <span class="ruby-identifier">call</span>    <span class="ruby-identifier">next_bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">copy_byte_loop</span> <span class="ruby-comment"># next bit indicates either literal or sequence</span>
+
+    <span class="ruby-comment"># determine number of bits used for length (Elias gamma coding)</span>
+                        <span class="ruby-identifier">push</span>    <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">bc</span>, <span class="ruby-value">0</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">d</span>, <span class="ruby-identifier">b</span>
+    <span class="ruby-identifier">len_size_loop</span>           <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-identifier">next_bit</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">len_size_loop</span>
+
+    <span class="ruby-comment"># determine length</span>
+    <span class="ruby-identifier">len_value_loop</span>      <span class="ruby-identifier">call</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">next_bit</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">c</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">b</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">exit0</span>           <span class="ruby-comment"># check end marker</span>
+                        <span class="ruby-identifier">dec</span>     <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">len_value_loop</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">bc</span>                 <span class="ruby-comment"># adjust length</span>
+
+    <span class="ruby-comment"># determine offset</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]            <span class="ruby-comment"># load offset flag (1 bit) + offset value (7 bits)</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">sll</span>     <span class="ruby-identifier">e</span>                  <span class="ruby-comment"># opcode for undocumented instruction &quot;SLL E&quot; aka &quot;SLS E&quot;</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">offset_end</span>     <span class="ruby-comment"># if offset flag is set, load 4 extra bits</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">d</span>, <span class="ruby-value">0x10</span>            <span class="ruby-comment"># bit marker to load 4 bits</span>
+    <span class="ruby-identifier">rld_next_bit</span>        <span class="ruby-identifier">call</span>    <span class="ruby-identifier">next_bit</span>
+                        <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                  <span class="ruby-comment"># insert next bit into D</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">rld_next_bit</span>   <span class="ruby-comment"># repeat 4 times, until bit marker is out</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>                  <span class="ruby-comment"># add 128 to DE</span>
+                        <span class="ruby-identifier">srl</span> <span class="ruby-identifier">d</span>                      <span class="ruby-comment"># retrieve fourth bit from D</span>
+    <span class="ruby-identifier">offset_end</span>          <span class="ruby-identifier">rr</span>      <span class="ruby-identifier">e</span>                  <span class="ruby-comment"># insert fourth bit into E</span>
+
+    <span class="ruby-comment"># copy previous sequence</span>
+                        <span class="ruby-identifier">ex</span>      [<span class="ruby-identifier">sp</span>], <span class="ruby-identifier">hl</span>           <span class="ruby-comment"># store source, restore destination</span>
+                        <span class="ruby-identifier">push</span>    <span class="ruby-identifier">hl</span>                 <span class="ruby-comment"># store destination</span>
+                        <span class="ruby-identifier">sbc</span>     <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>             <span class="ruby-comment"># HL = destination - offset - 1</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>                 <span class="ruby-comment"># DE = destination</span>
+    <span class="ruby-identifier">copy_bytes</span>          <span class="ruby-identifier">push</span>    <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">ex</span>      <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-identifier">convert</span>
+                        <span class="ruby-identifier">ex</span>      <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-identifier">copy_byte</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">jp</span>      <span class="ruby-constant">PE</span>, <span class="ruby-identifier">copy_bytes</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">hl</span>                 <span class="ruby-comment"># restore source address (compressed data)</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-identifier">main_loop</span>
+
+    <span class="ruby-identifier">next_bit</span>            <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>               <span class="ruby-comment"># check next bit</span>
+                        <span class="ruby-identifier">ret</span>     <span class="ruby-constant">NZ</span>                 <span class="ruby-comment"># no more bits left?</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]            <span class="ruby-comment"># load another group of 8 bits</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">rla</span>
+                        <span class="ruby-identifier">ret</span>
+
+    <span class="ruby-identifier">copy_byte</span>           <span class="ruby-identifier">push</span>    <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">call</span>    <span class="ruby-identifier">convert</span>
+                        <span class="ruby-identifier">ldi</span>
+    <span class="ruby-identifier">exit0</span>               <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">de</span>
+                        <span class="ruby-identifier">ret</span>
+
+    <span class="ruby-comment"># Convert an RCS address 010RRccc ccrrrppp to screen address 010RRppp rrrccccc</span>
+    <span class="ruby-comment"># (note: replace both EX AF,AF&#39; with PUSH AF/POP AF if you want to preserve AF&#39;)</span>
+    <span class="ruby-identifier">convert</span>             <span class="ruby-identifier">ex</span>      <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>               <span class="ruby-comment"># A = 010RRccc</span>
+                        <span class="ruby-identifier">cp</span>      <span class="ruby-value">0x58</span>
+                        <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">skip</span>
+                        <span class="ruby-identifier">xor</span>     <span class="ruby-identifier">e</span>
+                        <span class="ruby-identifier">anda</span>    <span class="ruby-value">0xf8</span>
+                        <span class="ruby-identifier">xor</span>     <span class="ruby-identifier">e</span>                  <span class="ruby-comment"># A = 010RRppp</span>
+                        <span class="ruby-identifier">push</span>    <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">xor</span>     <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">xor</span>     <span class="ruby-identifier">e</span>                  <span class="ruby-comment"># A = ccrrrccc</span>
+                        <span class="ruby-identifier">rlca</span>
+                        <span class="ruby-identifier">rlca</span>                       <span class="ruby-comment"># A = rrrccccc</span>
+                        <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>                 <span class="ruby-comment"># D = 010RRppp</span>
+                        <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>               <span class="ruby-comment"># E = rrrccccc</span>
+    <span class="ruby-identifier">skip</span>                <span class="ruby-identifier">ex</span>      <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">ret</span>
+    <span class="ruby-comment"># -----------------------------------------------------------------------------</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-dzx7_standard" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">dzx7_standard</span><span
+            class="method-args">(name = nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <hr>
+
+<p><a href="../ZX7.html"><code>ZX7</code></a> decoder by Einar Saukas, Antonio Villena &amp; Metalbrain “Standard” version (69 bytes only)</p>
+<hr>
+
+<p>Parameters:</p>
+
+<pre>HL: source address (compressed data)
+DE: destination address (decompressing)</pre>
+<hr>
+          
+          
+
+          
+          <div class="method-source-code" id="dzx7_standard-source">
+            <pre><span class="ruby-comment"># File utils/zx7.rb, line 54</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dzx7_standard</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>)
+    <span class="ruby-identifier">isolate</span>(<span class="ruby-identifier">name</span>) <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, <span class="ruby-value">0x80</span>
+    <span class="ruby-identifier">copy_byte_loop</span>  <span class="ruby-identifier">ldi</span>                             <span class="ruby-comment"># copy literal byte</span>
+    <span class="ruby-identifier">main_loop</span>       <span class="ruby-identifier">call</span>    <span class="ruby-identifier">next_bit</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">copy_byte_loop</span>      <span class="ruby-comment"># next bit indicates either literal or sequence</span>
+
+    <span class="ruby-comment"># determine number of bits used for length (Elias gamma coding)</span>
+                    <span class="ruby-identifier">push</span>    <span class="ruby-identifier">de</span>
+                    <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">bc</span>, <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">d</span>, <span class="ruby-identifier">b</span>
+    <span class="ruby-identifier">len_size_loop</span>   <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">call</span>    <span class="ruby-identifier">next_bit</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">len_size_loop</span>
+
+    <span class="ruby-comment"># determine length</span>
+    <span class="ruby-identifier">len_value_loop</span>  <span class="ruby-identifier">call</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">next_bit</span>
+                    <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">exit0</span>                <span class="ruby-comment"># check end marker</span>
+                    <span class="ruby-identifier">dec</span>     <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">len_value_loop</span>
+                    <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">bc</span>                      <span class="ruby-comment"># adjust length</span>
+
+    <span class="ruby-comment"># determine offset</span>
+                    <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># load offset flag (1 bit) + offset value (7 bits)</span>
+                    <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">sll</span>     <span class="ruby-identifier">e</span>                       <span class="ruby-comment"># opcode for undocumented instruction &quot;SLL E&quot; aka &quot;SLS E&quot;</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">offset_end</span>          <span class="ruby-comment"># if offset flag is set, load 4 extra bits</span>
+                    <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">d</span>, <span class="ruby-value">0x10</span>                 <span class="ruby-comment"># bit marker to load 4 bits</span>
+    <span class="ruby-identifier">rld_next_bit</span>    <span class="ruby-identifier">call</span>    <span class="ruby-identifier">next_bit</span>
+                    <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># insert next bit into D</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">rld_next_bit</span>        <span class="ruby-comment"># repeat 4 times, until bit marker is out</span>
+                    <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># add 128 to DE</span>
+                    <span class="ruby-identifier">srl</span> <span class="ruby-identifier">d</span>                           <span class="ruby-comment"># retrieve fourth bit from D</span>
+    <span class="ruby-identifier">offset_end</span>      <span class="ruby-identifier">rr</span>      <span class="ruby-identifier">e</span>                       <span class="ruby-comment"># insert fourth bit into E</span>
+
+    <span class="ruby-comment"># copy previous sequence</span>
+                    <span class="ruby-identifier">ex</span>      [<span class="ruby-identifier">sp</span>], <span class="ruby-identifier">hl</span>                <span class="ruby-comment"># store source, restore destination</span>
+                    <span class="ruby-identifier">push</span>    <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># store destination</span>
+                    <span class="ruby-identifier">sbc</span>     <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>                  <span class="ruby-comment"># HL = destination - offset - 1</span>
+                    <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>                      <span class="ruby-comment"># DE = destination</span>
+                    <span class="ruby-identifier">ldir</span>
+    <span class="ruby-identifier">exit0</span>           <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># restore source address (compressed data)</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">main_loop</span>
+    <span class="ruby-identifier">next_bit</span>        <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                    <span class="ruby-identifier">ret</span>     <span class="ruby-constant">NZ</span>                      <span class="ruby-comment"># no more bits left?</span>
+                    <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># load another group of 8 bits</span>
+                    <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">rla</span>
+                    <span class="ruby-identifier">ret</span>
+    <span class="ruby-comment"># -----------------------------------------------------------------------------</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-dzx7_turbo" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">dzx7_turbo</span><span
+            class="method-args">(name = nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <hr>
+
+<p><a href="../ZX7.html"><code>ZX7</code></a> decoder by Einar Saukas &amp; Urusergi “Turbo” version (88 bytes, 25% faster)</p>
+<hr>
+
+<p>Parameters:</p>
+
+<pre>HL: source address (compressed data)
+DE: destination address (decompressing)</pre>
+<hr>
+          
+          
+
+          
+          <div class="method-source-code" id="dzx7_turbo-source">
+            <pre><span class="ruby-comment"># File utils/zx7.rb, line 116</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dzx7_turbo</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>)
+    <span class="ruby-identifier">isolate</span>(<span class="ruby-identifier">name</span>) <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, <span class="ruby-value">0x80</span>
+    <span class="ruby-identifier">copy_byte_loop</span>  <span class="ruby-identifier">ldi</span>                             <span class="ruby-comment"># copy literal byte</span>
+    <span class="ruby-identifier">main_loop</span>       <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                    <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>            <span class="ruby-comment"># no more bits left?</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">copy_byte_loop</span>      <span class="ruby-comment"># next bit indicates either literal or sequence</span>
+
+    <span class="ruby-comment"># determine number of bits used for length (Elias gamma coding)</span>
+                    <span class="ruby-identifier">push</span>    <span class="ruby-identifier">de</span>
+                    <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">bc</span>, <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">d</span>, <span class="ruby-identifier">b</span>
+    <span class="ruby-identifier">len_size_loop</span>   <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                    <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>            <span class="ruby-comment"># no more bits left?</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">len_size_loop</span>
+                    <span class="ruby-identifier">jp</span>      <span class="ruby-identifier">len_value_start</span>
+
+    <span class="ruby-comment"># determine length</span>
+    <span class="ruby-identifier">len_value_loop</span>  <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                    <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>            <span class="ruby-comment"># no more bits left?</span>
+                    <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">exit0</span>                <span class="ruby-comment"># check end marker</span>
+    <span class="ruby-identifier">len_value_start</span> <span class="ruby-identifier">dec</span>     <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">len_value_loop</span>
+                    <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">bc</span>                      <span class="ruby-comment"># adjust length</span>
+
+    <span class="ruby-comment"># determine offset</span>
+                    <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># load offset flag (1 bit) + offset value (7 bits)</span>
+                    <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">sll</span>     <span class="ruby-identifier">e</span>                       <span class="ruby-comment"># opcode for undocumented instruction &quot;SLL E&quot; aka &quot;SLS E&quot;</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">offset_end</span>          <span class="ruby-comment"># if offset flag is set, load 4 extra bits</span>
+                    <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                    <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>            <span class="ruby-comment"># no more bits left?</span>
+                    <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># insert first bit into D</span>
+                    <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                    <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>            <span class="ruby-comment"># no more bits left?</span>
+                    <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># insert second bit into D</span>
+                    <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                    <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>            <span class="ruby-comment"># no more bits left?</span>
+                    <span class="ruby-identifier">rl</span>      <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># insert third bit into D</span>
+                    <span class="ruby-identifier">add</span>     <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># check next bit</span>
+                    <span class="ruby-identifier">call</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">load_bits</span>            <span class="ruby-comment"># no more bits left?</span>
+                    <span class="ruby-identifier">ccf</span>
+                    <span class="ruby-identifier">jr</span>      <span class="ruby-constant">C</span>, <span class="ruby-identifier">offset_end</span>
+                    <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># equivalent to adding 128 to DE</span>
+    <span class="ruby-identifier">offset_end</span>      <span class="ruby-identifier">rr</span>      <span class="ruby-identifier">e</span>                       <span class="ruby-comment"># insert inverted fourth bit into E</span>
+
+    <span class="ruby-comment"># copy previous sequence</span>
+                    <span class="ruby-identifier">ex</span>      [<span class="ruby-identifier">sp</span>], <span class="ruby-identifier">hl</span>                <span class="ruby-comment"># store source, restore destination</span>
+                    <span class="ruby-identifier">push</span>    <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># store destination</span>
+                    <span class="ruby-identifier">sbc</span>     <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>                  <span class="ruby-comment"># HL = destination - offset - 1</span>
+                    <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">de</span>                      <span class="ruby-comment"># DE = destination</span>
+                    <span class="ruby-identifier">ldir</span>
+    <span class="ruby-identifier">exit0</span>           <span class="ruby-identifier">pop</span>     <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># restore source address (compressed data)</span>
+                    <span class="ruby-identifier">jp</span>      <span class="ruby-constant">NC</span>, <span class="ruby-identifier">main_loop</span>
+
+    <span class="ruby-identifier">load_bits</span>       <span class="ruby-identifier">ld</span>      <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># load another group of 8 bits</span>
+                    <span class="ruby-identifier">inc</span>     <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">rla</span>
+                    <span class="ruby-identifier">ret</span>
+    <span class="ruby-comment"># -----------------------------------------------------------------------------</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

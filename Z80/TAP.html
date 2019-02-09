@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module Z80::TAP - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-parse_file">::parse_file</a>
+    
+    <li ><a href="#method-c-parse_tap">::parse_tap</a>
+    
+    <li ><a href="#method-c-read_chunk">::read_chunk</a>
+    
+    <li ><a href="#method-c-read_data">::read_data</a>
+    
+    <li ><a href="#method-i-save_tap">#save_tap</a>
+    
+    <li ><a href="#method-i-to_tap">#to_tap</a>
+    
+    <li ><a href="#method-i-to_tap_chunk">#to_tap_chunk</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-Z80::TAP">
+  <h1 id="module-Z80::TAP" class="module">
+    module Z80::TAP
+  </h1>
+
+  <section class="description">
+    
+<p>Adds the <a href="TAP.html"><code>TAP</code></a> format support to your <strong>program</strong>.</p>
+
+<p>Example:</p>
+
+<pre>puts Z80::TAP.parse_file(&quot;examples/calculator.tap&quot;).to_a
+
+Program: &quot;calculator&quot; LINE 10 (226/226)
+Bytes: &quot;calculator&quot; CODE 32768,61</pre>
+
+<p><a href="Program.html#method-i-import_file"><code>Program.import_file</code></a> will make use of <a href="TAP.html#method-c-read_data"><code>Z80::TAP.read_data</code></a>. Pass additional <code>:index</code> =&gt; <code>n</code> argument to <a href="Program.html#method-i-import_file"><code>Program.import_file</code></a> to choose n&#39;th chunk from a tap file.</p>
+
+<pre class="ruby"><span class="ruby-identifier">import_file</span> <span class="ruby-string">&#39;somefile.tap&#39;</span>, <span class="ruby-value">:index</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-value">2</span>
+</pre>
+
+<p>You may</p>
+
+<pre class="ruby"><span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>
+</pre>
+
+<p>in your <a href="../Z80.html"><code>Z80</code></a> <strong>Program</strong> class and instances of it will be enriched by the three additional methods:</p>
+<ul><li>
+<p><a href="TAP.html#method-i-save_tap"><code>save_tap</code></a></p>
+</li><li>
+<p><a href="TAP.html#method-i-to_tap"><code>to_tap</code></a></p>
+</li><li>
+<p><a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a></p>
+</li></ul>
+
+<p>In fact this mixin may be used on any class as long as either:</p>
+<ul><li>
+<p>Your class have <code>code</code> and <code>org</code> attributes producing a binary string and a starting address of a program.</p>
+</li><li>
+<p>Your class provides your own implementation of <a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a>.</p>
+</li></ul>
+
+<p>The method <a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a> may be overridden to create other <a href="TAP.html"><code>TAP</code></a> file types. The default implementation creates a <a href="TAP.html#TYPE_CODE"><code>TYPE_CODE</code></a> file based on <code>code</code> and <code>org</code> properties of the base class. The custom implementation may use one of the: <a href="TAP/HeaderBody.html#method-c-new_code"><code>TAP::HeaderBody.new_code</code></a>, <a href="TAP/HeaderBody.html#method-c-new_program"><code>TAP::HeaderBody.new_program</code></a>, <a href="TAP/HeaderBody.html#method-c-new_var_array"><code>TAP::HeaderBody.new_var_array</code></a> helper methods to construct a proper <a href="TAP/HeaderBody.html"><code>TAP::HeaderBody</code></a> instance.</p>
+
+<h5 id="module-Z80::TAP-label-See-3A">See:<span><a href="#module-Z80::TAP-label-See-3A">&para;</a> <a href="#top">&uarr;</a></span></h5>
+
+<p><a href="https://faqwiki.zxnet.co.uk/wiki/TAP_format">faqwiki.zxnet.co.uk/wiki/TAP_format</a></p>
+
+<pre>      |------ Spectrum-generated data -------|       |---------|
+13 00 00 03 52 4f 4d 7x20 02 00 00 00 00 80 f1 04 00 ff f3 af a3
+^^^^^...... first block is 19 bytes (17 bytes+flag+checksum)
+      ^^... flag byte (A reg, 00 for headers, ff for data blocks)
+         ^^ first byte of header, indicating a code block
+file name ..^^^^^^^^^^^^^
+header info ..............^^^^^^^^^^^^^^^^^
+checksum of header .........................^^
+length of second block ........................^^^^^
+flag byte ...........................................^^
+first two bytes of rom .................................^^^^^
+checksum (checkbittoggle would be a better name!).............^^</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <section class="constants-list">
+      <header>
+        <h3>Constants</h3>
+      </header>
+      <dl>
+      
+        <dt id="Body">Body
+        
+        <dd><p>A struct which represents the body chunk of a <a href="TAP.html"><code>TAP</code></a> file. Property <code>data</code> is a binary string containing the body data.</p>
+        
+      
+        <dt id="Header">Header
+        
+        <dd><p>A struct which represents the header chunk of a <a href="TAP.html"><code>TAP</code></a> file.</p>
+
+<p><a href="TAP.html#Header"><code>Header</code></a> struct properties:</p>
+<ul><li>
+<p><code>type</code> - 0 - program, 1 - number array, 2 - character array, 3 - code.</p>
+</li><li>
+<p><code>name</code> as a string.</p>
+</li><li>
+<p><code>length</code> the expected bytesize of the following body chunk as an integer.</p>
+</li><li>
+<p><code>p1</code> as an integer.</p>
+</li><li>
+<p><code>p2</code> as an integer.</p>
+</li></ul>
+
+<p>For a program:</p>
+<ul><li>
+<p><code>line</code> returns the starting line of a program.</p>
+</li><li>
+<p><code>prog_length</code> returns the length in bytes of the program itself.</p>
+</li><li>
+<p><code>vars_length</code> returns the length in bytes of the variables data.</p>
+</li></ul>
+
+<p>For a number or character array:</p>
+<ul><li>
+<p><code>array_name</code> returns the original variable name.</p>
+</li><li>
+<p><code>array_head</code> returns the header octet of the original variable.</p>
+</li></ul>
+
+<p>For a code:</p>
+<ul><li>
+<p><code>address</code>, <code>addr</code>, <code>org</code> return the original code address.</p>
+</li></ul>
+        
+      
+        <dt id="TYPE_CHAR_ARRAY">TYPE_CHAR_ARRAY
+        
+        <dd>
+        
+      
+        <dt id="TYPE_CODE">TYPE_CODE
+        
+        <dd>
+        
+      
+        <dt id="TYPE_NUMBER_ARRAY">TYPE_NUMBER_ARRAY
+        
+        <dd>
+        
+      
+        <dt id="TYPE_PROGRAM">TYPE_PROGRAM
+        
+        <dd>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-parse_file" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">parse_file</span><span
+            class="method-args">(filename, &amp;block)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns an Enumerator of <a href="TAP/HeaderBody.html"><code>TAP::HeaderBody</code></a> chunks representing segments of a <a href="TAP.html"><code>TAP</code></a> <code>file</code>. Optionally unwraps <a href="TZX.html"><code>TZX</code></a> headers.</p>
+
+<p>Pass a <code>block</code> to visit each <code>chunk</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="parse_file-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 377</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_file</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-identifier">tap</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-string">&#39;rb&#39;</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">read</span> }
+        <span class="ruby-constant">TAP</span>.<span class="ruby-identifier">parse_tap</span>(<span class="ruby-identifier">tap</span>, <span class="ruby-identifier">filename</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-parse_tap" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">parse_tap</span><span
+            class="method-args">(tap, file=&#39;-&#39;, &amp;block)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns an Enumerator of <a href="TAP/HeaderBody.html"><code>TAP::HeaderBody</code></a> chunks representing segments of a <a href="TAP.html"><code>TAP</code></a> blob. Optionally unwraps <a href="TZX.html"><code>TZX</code></a> headers.</p>
+
+<p>The <code>tap</code> argument must be a binary string. Pass a <code>block</code> to visit each <code>chunk</code>. Optionally pass a <code>file</code> name for error messages.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="parse_tap-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 389</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_tap</span>(<span class="ruby-identifier">tap</span>, <span class="ruby-identifier">file</span>=<span class="ruby-string">&#39;-&#39;</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-identifier">tap</span>, <span class="ruby-identifier">is_tzx</span> = <span class="ruby-constant">TAP</span>.<span class="ruby-identifier">unpack_from_tzx_header</span> <span class="ruby-identifier">tap</span>, <span class="ruby-identifier">file</span>
+        <span class="ruby-identifier">enu</span> = <span class="ruby-operator">::</span><span class="ruby-constant">Enumerator</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">y</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">header</span> = <span class="ruby-keyword">nil</span>
+                <span class="ruby-identifier">loop</span> <span class="ruby-keyword">do</span>
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">is_tzx</span>
+                                <span class="ruby-identifier">tap</span> = <span class="ruby-constant">TAP</span>.<span class="ruby-identifier">unpack_from_tzx_chunk</span> <span class="ruby-identifier">tap</span>, <span class="ruby-identifier">file</span>
+                        <span class="ruby-keyword">end</span>
+                        <span class="ruby-identifier">size</span>, <span class="ruby-identifier">tap</span> = <span class="ruby-identifier">tap</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;va*&#39;</span>)
+                        <span class="ruby-keyword">break</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">size</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">tap</span>.<span class="ruby-identifier">empty?</span>
+                        <span class="ruby-identifier">chunk</span>, <span class="ruby-identifier">tap</span> = <span class="ruby-identifier">tap</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-node">&quot;a#{size}a*&quot;</span>)
+                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">TapeError</span>, <span class="ruby-node">&quot;Invalid TAP file checksum: `#{file}&#39;.&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">cksum</span>(<span class="ruby-identifier">chunk</span>)
+                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">TapeError</span>, <span class="ruby-node">&quot;TAP block too short: `#{file}&#39;.&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">size</span>
+                        <span class="ruby-identifier">type</span>, <span class="ruby-identifier">data</span>, <span class="ruby-identifier">_cksum</span> = <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-node">&quot;Ca#{size-2}C&quot;</span>)
+                        <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
+                        <span class="ruby-keyword">when</span> <span class="ruby-value">0x00</span>
+                                <span class="ruby-identifier">raise</span> <span class="ruby-constant">TapeError</span>, <span class="ruby-node">&quot;Invalid TAP header length: `#{file}&#39;.&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">==</span> <span class="ruby-value">17</span>
+                                <span class="ruby-identifier">header</span> = <span class="ruby-constant">Header</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">data</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;CA10v3&#39;</span>))
+                        <span class="ruby-keyword">when</span> <span class="ruby-value">0xff</span>
+                                <span class="ruby-keyword">unless</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">nil?</span>
+                                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">TapeError</span>, <span class="ruby-node">&quot;TAP bytes length doesn&#39;t match length in header: `#{file}&#39;.&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">length</span>
+                                <span class="ruby-keyword">end</span>
+                                <span class="ruby-identifier">chunk</span> = <span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">header</span>, <span class="ruby-constant">Body</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">data</span>)
+                                <span class="ruby-identifier">header</span> = <span class="ruby-keyword">nil</span>
+                                <span class="ruby-identifier">y</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">chunk</span>
+                        <span class="ruby-keyword">else</span>
+                                <span class="ruby-identifier">raise</span> <span class="ruby-constant">TapeError</span>, <span class="ruby-node">&quot;Invalid TAP file chunk: `#{file}&#39;.&quot;</span>
+                        <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">block_given?</span>
+                <span class="ruby-identifier">enu</span>.<span class="ruby-identifier">each</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">enu</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-read_chunk" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">read_chunk</span><span
+            class="method-args">(filename, name:nil, index:nil) { |chunk| ... }</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Reads a <a href="TAP/HeaderBody.html"><code>TAP::HeaderBody</code></a> chunk from a <a href="TAP.html"><code>TAP</code></a> file.</p>
+
+<p>Pass additional <code>:name</code> argument to search for the header name or a <code>:index</code> =&gt; <code>n</code> argument to choose the n&#39;th chunk (1-based) from a file.</p>
+
+<p>Pass a block to visit a chunk.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="read_chunk-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 356</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_chunk</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">name:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">index:</span><span class="ruby-keyword">nil</span>)
+        <span class="ruby-identifier">parser</span> = <span class="ruby-identifier">parse_file</span>(<span class="ruby-identifier">filename</span>)
+        <span class="ruby-identifier">chunk</span>, = <span class="ruby-keyword">if</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">nil?</span>
+                <span class="ruby-identifier">index</span> = <span class="ruby-value">1</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">index</span>.<span class="ruby-identifier">nil?</span>
+                <span class="ruby-identifier">parser</span>.<span class="ruby-identifier">each</span>.<span class="ruby-identifier">with_index</span>(<span class="ruby-value">1</span>).<span class="ruby-identifier">find</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">chunk</span>, <span class="ruby-identifier">i</span><span class="ruby-operator">|</span> <span class="ruby-identifier">i</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">index</span> }
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">parser</span>.<span class="ruby-identifier">find</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">chunk</span><span class="ruby-operator">|</span> <span class="ruby-identifier">name</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">header</span>.<span class="ruby-identifier">name</span> }
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">return</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">chunk</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">block_given?</span>
+                <span class="ruby-keyword">yield</span> <span class="ruby-identifier">chunk</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">chunk</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-read_data" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">read_data</span><span
+            class="method-args">(filename, **opts)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Reads a data chunk from a <a href="TAP.html"><code>TAP</code></a> file. Returns a binary string.</p>
+
+<p><a href="Program.html#method-i-import_file"><code>Program.import_file</code></a> uses this method to read from a <a href="TAP.html"><code>TAP</code></a> file.</p>
+
+<p>See <a href="TAP.html#method-c-read_chunk"><code>read_chunk</code></a> for <code>opts</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="read_data-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 336</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_data</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
+        <span class="ruby-constant">TAP</span>.<span class="ruby-identifier">read_chunk</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">chunk</span><span class="ruby-operator">|</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">header</span>
+                        <span class="ruby-identifier">$stderr</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;Importing: `#{filename}&#39;: (#{chunk.header.name})&quot;</span>
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">$stderr</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;Importing: `#{filename}&#39;: headerless chunk&quot;</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">return</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">body</span>.<span class="ruby-identifier">data</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-node">&quot;Chunk: #{index} not found in a TAP file: `#{filename}`&quot;</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-save_tap" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">save_tap</span><span
+            class="method-args">(filename, append:false, name:nil, **opts)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Saves self in a <a href="TAP.html"><code>TAP</code></a> file.</p>
+
+<p>The tap data is being generated by <a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a>.</p>
+
+<p><code>filename</code> specifies the file name to save to. The “.tap” extension may be omitted.</p>
+
+<h5 id="method-i-save_tap-label-Options-3A">Options:<span><a href="#method-i-save_tap-label-Options-3A">&para;</a> <a href="#top">&uarr;</a></span></h5>
+<ul><li>
+<p><code>:name</code> should contain max 10 ascii characters. If not given, the base name of a <code>filename</code> will be used instead.</p>
+</li><li>
+<p><code>:append</code> if <code>true</code> the data will be appended to the file. Otherwise the file is being truncated.</p>
+</li></ul>
+
+<p>Any additional option will be passed to the <a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a> method.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="save_tap-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 74</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">save_tap</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">append:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">name:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
+        <span class="ruby-identifier">name</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-string">&#39;.tap&#39;</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">name</span>
+        <span class="ruby-identifier">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>).<span class="ruby-identifier">save_tap</span> <span class="ruby-identifier">filename</span>, <span class="ruby-value">append:</span><span class="ruby-identifier">append</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_tap" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_tap</span><span
+            class="method-args">(name, **opts)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Produces a <a href="TAP.html"><code>TAP</code></a> blob as a binary string from self.</p>
+
+<p>A sugar for calling <a href="TAP/HeaderBody.html#method-i-to_tap"><code>TAP::HeaderBody#to_tap</code></a> method on the result produced by <a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a>.</p>
+
+<p><code>name</code> should contain max 10 ascii characters. Any options given will be passed to the <a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a> method.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_tap-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 85</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
+        <span class="ruby-identifier">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>).<span class="ruby-identifier">to_tap</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_tap_chunk" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_tap_chunk</span><span
+            class="method-args">(name, org:nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a <a href="TAP/HeaderBody.html"><code>TAP::HeaderBody</code></a> chunk from self.</p>
+
+<p>By default it uses <a href="../Z80.html#attribute-i-code"><code>Z80#code</code></a> and the <a href="../Z80.html#attribute-i-org"><code>Z80#org</code></a> to produce the tap data.</p>
+
+<p>This method is used by <a href="TAP.html#method-i-to_tap"><code>to_tap</code></a> and <a href="TAP.html#method-i-save_tap"><code>save_tap</code></a>.</p>
+
+<p><code>name</code> should contain max 10 ascii characters. Optionally <code>org</code> may be given to override the starting code address.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_tap_chunk-source">
+            <pre><span class="ruby-comment"># File z80/tap.rb, line 97</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-value">org:</span><span class="ruby-keyword">nil</span>)
+        <span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new_code</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">org</span><span class="ruby-operator">||</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">org</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

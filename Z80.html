@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module Z80 - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+  var index_rel_prefix = "./";
+</script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/darkfish.js"></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    
+    <div id="extends-section" class="nav-section">
+  <h3>Extended With Modules</h3>
+
+  <ul class="link-list">
+    
+  
+    <li><a class="extend" href="Z80/Program.html">Z80::Program</a>
+  
+  
+  </ul>
+</div>
+
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-add_code">::add_code</a>
+    
+    <li ><a href="#method-c-add_reloc">::add_reloc</a>
+    
+    <li ><a href="#method-i-5B-5D">#[]</a>
+    
+    <li ><a href="#method-i-debug">#debug</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-Z80">
+  <h1 id="module-Z80" class="module">
+    module Z80
+  </h1>
+
+  <section class="description">
+    
+<h2 id="module-Z80-label-Include+this+module+in+your+program+class+to+turn+it+to+a+powerfull+Z80+macro+assembler.">Include this module in your <strong>program</strong> class to turn it to a powerfull <a href="Z80.html"><code>Z80</code></a> macro assembler.<span><a href="#module-Z80-label-Include+this+module+in+your+program+class+to+turn+it+to+a+powerfull+Z80+macro+assembler.">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<hr>
+
+<p><strong>To fully use ruby-z80 powers (unlike austin powers)</strong></p>
+<ul><li>
+<p>use labels where applicable (see <a href="Z80/Label.html"><code>Z80::Label</code></a>)</p>
+</li><li>
+<p>use namespaces where appropriate (see <a href="Z80/Program.html#method-i-ns"><code>Program.ns</code></a>)</p>
+</li><li>
+<p>use macros whenever you can</p>
+</li><li>
+<p>modularize all just like in ruby :-)</p>
+</li></ul>
+<hr>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <section class="constants-list">
+      <header>
+        <h3>Constants</h3>
+      </header>
+      <dl>
+      
+        <dt id="DebugInfo">DebugInfo
+        
+        <dd>
+        
+      
+        <dt id="Relocation">Relocation
+        
+        <dd>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+    <section class="attribute-method-details" class="method-section">
+      <header>
+        <h3>Attributes</h3>
+      </header>
+
+      
+      <div id="attribute-i-code" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">code</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>The program&#39;s compiled code.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-labels" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">labels</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>Evaluated label values of the compiled program.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-org" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">org</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>The starting address of the compiled code.</p>
+        
+        </div>
+      </div>
+      
+    </section>
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-add_code" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">add_code</span><span
+            class="method-args">(prg, data, type = 1, mnemo = nil, *mpar)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Method used by <a href="Z80/Program.html"><code>Program</code></a> instructions was placed here to not pollute <strong>program</strong> namespace</p>
+          
+          
+
+          
+          <div class="method-source-code" id="add_code-source">
+            <pre><span class="ruby-comment"># File z80.rb, line 108</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">add_code</span>(<span class="ruby-identifier">prg</span>, <span class="ruby-identifier">data</span>, <span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-identifier">mnemo</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">mpar</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">TypeError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">is_a?</span> <span class="ruby-constant">String</span>
+        <span class="ruby-identifier">l</span> = <span class="ruby-constant">Label</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">pc</span> = <span class="ruby-identifier">prg</span>.<span class="ruby-identifier">pc</span>, <span class="ruby-identifier">type</span>, <span class="ruby-value">:code</span>)
+        <span class="ruby-identifier">prg</span>.<span class="ruby-identifier">debug</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">DebugInfo</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">pc</span>, <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-identifier">mnemo</span>, <span class="ruby-identifier">mpar</span>, <span class="ruby-identifier">prg</span>.<span class="ruby-identifier">instance_variable_get</span>(<span class="ruby-string">&#39;@context_labels&#39;</span>).<span class="ruby-identifier">dup</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">l</span>)
+        <span class="ruby-identifier">prg</span>.<span class="ruby-identifier">code</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">data</span>
+        <span class="ruby-identifier">l</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-add_reloc" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">add_reloc</span><span
+            class="method-args">(prg, label, size, offset = 0, from = nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Method used by <a href="Z80/Program.html"><code>Program</code></a> instructions was placed here to not pollute <strong>program</strong> namespace</p>
+          
+          
+
+          
+          <div class="method-source-code" id="add_reloc-source">
+            <pre><span class="ruby-comment"># File z80.rb, line 117</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">add_reloc</span>(<span class="ruby-identifier">prg</span>, <span class="ruby-identifier">label</span>, <span class="ruby-identifier">size</span>, <span class="ruby-identifier">offset</span> = <span class="ruby-value">0</span>, <span class="ruby-identifier">from</span> = <span class="ruby-keyword">nil</span>)
+        <span class="ruby-keyword">if</span> (<span class="ruby-identifier">alloc</span> = <span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_label</span>(<span class="ruby-identifier">prg</span>).<span class="ruby-identifier">to_alloc</span>).<span class="ruby-identifier">immediate?</span> <span class="ruby-keyword">and</span> (<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">2</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">from</span>)
+                <span class="ruby-identifier">prg</span>.<span class="ruby-identifier">reloc</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Relocation</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">prg</span>.<span class="ruby-identifier">pc</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">offset</span>, <span class="ruby-identifier">alloc</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">from</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">alloc</span>.<span class="ruby-identifier">to_name</span>.<span class="ruby-identifier">nil?</span>
+                [<span class="ruby-identifier">alloc</span>.<span class="ruby-identifier">to_i</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">from</span>)].<span class="ruby-identifier">pack</span>(<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span> <span class="ruby-operator">?</span> <span class="ruby-string">&#39;c&#39;</span> <span class="ruby-operator">:</span> <span class="ruby-string">&#39;s&lt;&#39;</span>)
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">prg</span>.<span class="ruby-identifier">reloc</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Relocation</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">prg</span>.<span class="ruby-identifier">pc</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">offset</span>, <span class="ruby-identifier">alloc</span>, <span class="ruby-identifier">size</span>, <span class="ruby-identifier">from</span>)
+                <span class="ruby-string">&quot;\x0&quot;</span><span class="ruby-operator">*</span><span class="ruby-identifier">size</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-5B-5D" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">[]</span><span
+            class="method-args">(label)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the relocated label value.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="5B-5D-source">
+            <pre><span class="ruby-comment"># File z80.rb, line 30</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">label</span>)
+        <span class="ruby-ivar">@labels</span>[<span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_s</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-debug" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">debug</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates debugger view from instance of a program. Returns an Array of Strings.</p>
+
+<p>Example debugger output:</p>
+
+<pre>=============== ZXMath ===============
+8023:                                  :mul
+8023: 5D          ld   e, l
+8024: 54          ld   d, h
+8025: 218080      ld   hl, 0000H
+8028: CB3F        srl  a               :mul.loop1
+802A: 3803        jr   NC, 802fH       -&gt; noadd
+802C: 19          add  hl, de
+802D: 380B        jr   C, 803aH
+802F: 2807        jr   Z, 8038H        :mul.noadd -&gt; ok
+8031: CB23        sla  e
+8033: CB12        rl   d
+8035: D22880      jp   NC, 8028H       -&gt; loop1
+8038: 4D          ld   c, l            :mul.ok
+8039: 44          ld   b, h
+803A: D0          ret  NC
+803B: CF          rst  08H
+803C: 0A                      .
+^^^^^^^^^^^^^^^ ZXMath ^^^^^^^^^^^^^^^</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="debug-source">
+            <pre><span class="ruby-comment"># File z80.rb, line 57</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">debug</span>
+        <span class="ruby-keyword">return</span> <span class="ruby-ivar">@debug</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@debug</span>
+        <span class="ruby-identifier">reloc</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">reloc</span>
+        <span class="ruby-ivar">@debug</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">debug</span>.<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">d</span><span class="ruby-operator">|</span>
+                <span class="ruby-keyword">case</span> <span class="ruby-identifier">d</span>
+                <span class="ruby-keyword">when</span> <span class="ruby-constant">DebugInfo</span>
+                        <span class="ruby-identifier">data</span> = <span class="ruby-identifier">code</span>[<span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span>, <span class="ruby-identifier">d</span>.<span class="ruby-identifier">size</span>]
+                        <span class="ruby-identifier">h</span> = <span class="ruby-identifier">proc</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">as</span>, <span class="ruby-identifier">g</span><span class="ruby-operator">|</span> <span class="ruby-identifier">as</span>.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">c</span><span class="ruby-operator">|</span> <span class="ruby-string">&#39;%02X&#39;</span><span class="ruby-operator">%</span><span class="ruby-identifier">c</span>.<span class="ruby-identifier">ord</span>}.<span class="ruby-identifier">join</span> <span class="ruby-identifier">g</span>}
+                        <span class="ruby-identifier">label</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">d</span>.<span class="ruby-identifier">labels</span>.<span class="ruby-identifier">last</span>.<span class="ruby-identifier">to_name</span>
+                                <span class="ruby-string">&quot; :&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">d</span>.<span class="ruby-identifier">labels</span>.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">n</span><span class="ruby-operator">|</span> <span class="ruby-identifier">n</span>.<span class="ruby-identifier">to_name</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">n</span>.<span class="ruby-identifier">to_i</span>(<span class="ruby-identifier">org</span>).<span class="ruby-identifier">to_s</span>(<span class="ruby-value">16</span>) }.<span class="ruby-identifier">join</span>(<span class="ruby-string">&#39;.&#39;</span>)
+                        <span class="ruby-keyword">end</span>
+                        <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">relocs</span> = <span class="ruby-identifier">reloc</span>.<span class="ruby-identifier">select</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> (<span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span><span class="ruby-operator">...</span><span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span><span class="ruby-operator">+</span><span class="ruby-identifier">d</span>.<span class="ruby-identifier">size</span>).<span class="ruby-identifier">member?</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">addr</span> }.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">alloc</span>.<span class="ruby-identifier">to_s</span>}.<span class="ruby-identifier">join</span>(<span class="ruby-string">&#39;, &#39;</span>)).<span class="ruby-identifier">empty?</span>
+                                <span class="ruby-identifier">label</span> = <span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-node">&quot; -&gt; #{relocs}&quot;</span>
+                        <span class="ruby-keyword">end</span>
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">mnemo</span> = <span class="ruby-identifier">d</span>.<span class="ruby-identifier">text</span>
+                                <span class="ruby-keyword">if</span> <span class="ruby-identifier">prm</span> = <span class="ruby-identifier">d</span>.<span class="ruby-identifier">args</span>
+                                        <span class="ruby-identifier">mnemo</span> = <span class="ruby-identifier">mnemo</span> <span class="ruby-operator">%</span> <span class="ruby-identifier">prm</span>.<span class="ruby-identifier">each_slice</span>(<span class="ruby-value">2</span>).<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">o</span>, <span class="ruby-identifier">t</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-keyword">case</span> <span class="ruby-identifier">t</span>
+                                                <span class="ruby-keyword">when</span> <span class="ruby-value">:word</span>
+                                                        <span class="ruby-identifier">data</span>[<span class="ruby-identifier">o</span>, <span class="ruby-value">2</span>].<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;S&lt;&#39;</span>)[<span class="ruby-value">0</span>]
+                                                <span class="ruby-keyword">when</span> <span class="ruby-value">:byte</span>
+                                                        <span class="ruby-identifier">data</span>[<span class="ruby-identifier">o</span>, <span class="ruby-value">1</span>].<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;C&#39;</span>)[<span class="ruby-value">0</span>]
+                                                <span class="ruby-keyword">when</span> <span class="ruby-value">:pcrel</span>
+                                                        <span class="ruby-identifier">data</span>[<span class="ruby-identifier">o</span>, <span class="ruby-value">1</span>].<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;c&#39;</span>)[<span class="ruby-value">0</span>] <span class="ruby-operator">+</span> <span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">d</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">org</span>
+                                                <span class="ruby-keyword">end</span>
+                                        <span class="ruby-keyword">end</span>
+                                <span class="ruby-keyword">end</span>
+                                <span class="ruby-node">&quot;#{&#39;%04X&#39;%(d.addr+org)}: #{h[data.split(&#39;&#39;),&#39;&#39;].ljust 12}#{mnemo.ljust 20}#{label}&quot;</span>
+                        <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">empty?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">label</span>
+                                <span class="ruby-node">&quot;#{&#39;%04X&#39;%(d.addr+org)}: #{&#39; &#39;*32}#{label}&quot;</span>
+                        <span class="ruby-keyword">else</span>
+                                <span class="ruby-identifier">a</span> = <span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span> <span class="ruby-operator">-</span> <span class="ruby-value">8</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">org</span>
+                                <span class="ruby-identifier">data</span>.<span class="ruby-identifier">split</span>(<span class="ruby-string">&#39;&#39;</span>).<span class="ruby-identifier">each_slice</span>(<span class="ruby-value">8</span>).<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ds</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-identifier">a</span><span class="ruby-operator">+=</span> <span class="ruby-value">8</span>
+                                        <span class="ruby-node">&quot;#{&#39;%04X&#39;%a}: #{h[ds, &#39; &#39;].ljust 24}#{ds.join.gsub(/[\x0-\x1f]/, &#39;.&#39;).ljust 8}#{label}&quot;</span>
+                                <span class="ruby-keyword">end</span>
+                        <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">else</span>
+                        [<span class="ruby-node">&quot; #{@imports[d].class} &quot;</span>.<span class="ruby-identifier">center</span>(<span class="ruby-value">38</span>, <span class="ruby-value">?=</span>)] <span class="ruby-operator">+</span> <span class="ruby-ivar">@imports</span>[<span class="ruby-identifier">d</span>].<span class="ruby-identifier">debug</span> <span class="ruby-operator">+</span> [<span class="ruby-node">&quot; #{@imports[d].class} &quot;</span>.<span class="ruby-identifier">center</span>(<span class="ruby-value">38</span>, <span class="ruby-value">?^</span>)]
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>.<span class="ruby-identifier">flatten</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

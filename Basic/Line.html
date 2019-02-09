@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class Basic::Line - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="../Object.html">Object</a>
+  
+</div>
+
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-new">::new</a>
+    
+    <li ><a href="#method-c-parse_source_line">::parse_source_line</a>
+    
+    <li ><a href="#method-i-text">#text</a>
+    
+    <li ><a href="#method-i-to_s">#to_s</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-Basic::Line">
+  <h1 id="class-Basic::Line" class="class">
+    class Basic::Line
+  </h1>
+
+  <section class="description">
+    
+<p>Represents a ZX <a href="../Basic.html"><code>Basic</code></a> program line.</p>
+
+<p>The original program line without line number, its length and a terminating ENTER character is stored in a <code>body</code> property as a binary string. <code>line_no</code> is a line number.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+    <section class="attribute-method-details" class="method-section">
+      <header>
+        <h3>Attributes</h3>
+      </header>
+
+      
+      <div id="attribute-i-body" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">body</span><span
+            class="attribute-access-type">[RW]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-line" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">line</span><span
+            class="attribute-access-type">[RW]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-line_no" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">line_no</span><span
+            class="attribute-access-type">[RW]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+    </section>
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-new" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new</span><span
+            class="method-args">(line_no, body)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="new-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 213</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">line_no</span>, <span class="ruby-identifier">body</span>)
+        <span class="ruby-ivar">@line_no</span> = <span class="ruby-identifier">line_no</span>
+        <span class="ruby-ivar">@body</span> = <span class="ruby-identifier">body</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-parse_source_line" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">parse_source_line</span><span
+            class="method-args">(line_text, last_line_no=0, line_index=0)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a <a href="Line.html"><code>Basic::Line</code></a> from a provided BASIC program text.</p>
+
+<p>See: <a href="../Basic.html#method-c-parse_source"><code>Basic.parse_source</code></a></p>
+          
+          
+
+          
+          <div class="method-source-code" id="parse_source_line-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 239</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_source_line</span>(<span class="ruby-identifier">line_text</span>, <span class="ruby-identifier">last_line_no</span>=<span class="ruby-value">0</span>, <span class="ruby-identifier">line_index</span>=<span class="ruby-value">0</span>)
+        <span class="ruby-identifier">offset</span> = <span class="ruby-value">0</span>
+        <span class="ruby-identifier">line_no</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> = <span class="ruby-constant">Tokenizer</span><span class="ruby-operator">::</span><span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">SPACES_OR_LINE_NO</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">line_text</span>)
+                <span class="ruby-identifier">line_text</span> = <span class="ruby-identifier">m</span>.<span class="ruby-identifier">post_match</span>
+                <span class="ruby-identifier">offset</span> = <span class="ruby-identifier">m</span>.<span class="ruby-identifier">end</span> <span class="ruby-value">0</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">nil?</span>
+                        <span class="ruby-identifier">last_line_no</span>.<span class="ruby-identifier">succ</span>
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">m</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">to_i</span>.<span class="ruby-identifier">tap</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">n</span><span class="ruby-operator">|</span>
+                                <span class="ruby-identifier">raise</span> <span class="ruby-constant">SyntaxError</span>, <span class="ruby-node">&quot;line number must be less than or equal to 9999, in line: #{line_index}&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">n</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">9999</span>
+                        <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">last_line_no</span>.<span class="ruby-identifier">succ</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">line_no</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">last_line_no</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">SyntaxError</span>, <span class="ruby-node">&quot;line numbers must ascending, in line: #{line_index} no: #{line_no} previous: #{last_line_no}&quot;</span>
+        <span class="ruby-keyword">end</span>
+
+        <span class="ruby-identifier">body</span> = <span class="ruby-string">&#39;&#39;</span>
+        <span class="ruby-identifier">parentheses</span> = <span class="ruby-value">0</span>
+        <span class="ruby-identifier">tokenizer</span> = <span class="ruby-constant">Tokenizer</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">line_text</span>, <span class="ruby-identifier">line_index</span>, <span class="ruby-identifier">offset</span>
+
+        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">parse_statement</span>(<span class="ruby-identifier">tokenizer</span>)
+
+        <span class="ruby-keyword">while</span> <span class="ruby-identifier">token</span> = <span class="ruby-identifier">tokenizer</span>.<span class="ruby-identifier">next_token</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">keyword?</span>
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">keyword_fn?</span>
+                                <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">to_keyword_char</span>
+                                <span class="ruby-keyword">if</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">keyword?</span>(<span class="ruby-string">&#39;BIN&#39;</span>)
+                                        <span class="ruby-identifier">arg</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">tokenizer</span>.<span class="ruby-identifier">peek_token</span>.<span class="ruby-identifier">binary_number?</span>
+                                                <span class="ruby-identifier">tokenizer</span>.<span class="ruby-identifier">next_token</span>.<span class="ruby-identifier">to_chars</span>
+                                        <span class="ruby-keyword">else</span>
+                                                <span class="ruby-string">&#39;&#39;</span>
+                                        <span class="ruby-keyword">end</span>
+                                        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">arg</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">?\x0E</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">pack_number</span>(<span class="ruby-identifier">arg</span>.<span class="ruby-identifier">to_i</span>(<span class="ruby-value">2</span>), <span class="ruby-keyword">true</span>)
+                                <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">keyword?</span>(<span class="ruby-string">&#39;THEN&#39;</span>)
+                                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">SyntaxError</span>, <span class="ruby-node">&quot;unexpected THEN in line: #{line_index} at: #{token.index}&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">parentheses</span>.<span class="ruby-identifier">zero?</span>
+                                        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">parse_statement</span>(<span class="ruby-identifier">tokenizer</span>)
+                                <span class="ruby-keyword">end</span>
+                        <span class="ruby-keyword">else</span>
+                                <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">to_chars</span>
+                        <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">number?</span>
+                        <span class="ruby-identifier">numstr</span> = <span class="ruby-identifier">token</span>.<span class="ruby-identifier">to_chars</span>
+                        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">numstr</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">?\x0E</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">numstr</span>.<span class="ruby-identifier">to_f</span>.<span class="ruby-identifier">to_z80bin</span>
+                <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">quote?</span>
+                        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">to_chars</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">parse_string_body</span>(<span class="ruby-identifier">tokenizer</span>)
+                <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">colon?</span>
+                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">SyntaxError</span>, <span class="ruby-node">&quot;unexpected colon in line: #{line_index} at: #{token.index}&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">parentheses</span>.<span class="ruby-identifier">zero?</span>
+                        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">to_chars</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">parse_statement</span>(<span class="ruby-identifier">tokenizer</span>)
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">parenthesis_open?</span>
+                                <span class="ruby-identifier">parentheses</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+                        <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">parenthesis_close?</span>
+                                <span class="ruby-identifier">raise</span> <span class="ruby-constant">SyntaxError</span>, <span class="ruby-node">&quot;parenthesis closed too many times in line: #{line_index} at: #{token.index}&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">parentheses</span>.<span class="ruby-identifier">zero?</span>
+                                <span class="ruby-identifier">parentheses</span> <span class="ruby-operator">-=</span> <span class="ruby-value">1</span>
+                        <span class="ruby-keyword">end</span>
+                        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">to_chars</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">SyntaxError</span>, <span class="ruby-node">&quot;parentheses not closed in line: #{line_index}&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">parentheses</span>.<span class="ruby-identifier">zero?</span>
+        <span class="ruby-constant">Line</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">line_no</span>, <span class="ruby-identifier">body</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-text" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">text</span><span
+            class="method-args">(escape_keywords:false, ascii_only:false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a textual representation of this line except its number. Returns an UTF-8 encoded string.</p>
+
+<p>See: <a href="Program.html#method-i-to_source"><code>Program#to_source</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="text-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 222</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">text</span>(<span class="ruby-value">escape_keywords:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ascii_only:</span><span class="ruby-keyword">false</span>)
+        <span class="ruby-constant">Tokenizer</span>.<span class="ruby-identifier">program_data_to_text</span>(<span class="ruby-identifier">body</span>, <span class="ruby-identifier">escape_keywords</span>, <span class="ruby-keyword">false</span>, <span class="ruby-identifier">ascii_only</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_s" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_s</span><span
+            class="method-args">(**opts)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a textual representation of this line with the line number. Returns an UTF-8 encoded string.</p>
+
+<p>See: <a href="Program.html#method-i-to_source"><code>Program#to_source</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_s-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 230</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_s</span>(<span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
+        <span class="ruby-node">&quot;#{line_no.to_s.rjust(4)} #{text(**opts)}&quot;</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

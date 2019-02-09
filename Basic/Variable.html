@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class Basic::Variable - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="../Object.html">Object</a>
+  
+</div>
+
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="../Z80/TAP.html">Z80::TAP</a>
+  
+  
+  </ul>
+</div>
+
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-from_data">::from_data</a>
+    
+    <li ><a href="#method-c-new">::new</a>
+    
+    <li ><a href="#method-c-new_char_array">::new_char_array</a>
+    
+    <li ><a href="#method-c-new_for_loop">::new_for_loop</a>
+    
+    <li ><a href="#method-c-new_number">::new_number</a>
+    
+    <li ><a href="#method-c-new_number_array">::new_number_array</a>
+    
+    <li ><a href="#method-c-new_string">::new_string</a>
+    
+    <li ><a href="#method-i-5B-5D">#[]</a>
+    
+    <li ><a href="#method-i-array-3F">#array?</a>
+    
+    <li ><a href="#method-i-bytesize">#bytesize</a>
+    
+    <li ><a href="#method-i-byteslice">#byteslice</a>
+    
+    <li ><a href="#method-i-char_array-3F">#char_array?</a>
+    
+    <li ><a href="#method-i-code">#code</a>
+    
+    <li ><a href="#method-i-for_loop-3F">#for_loop?</a>
+    
+    <li ><a href="#method-i-head">#head</a>
+    
+    <li ><a href="#method-i-length">#length</a>
+    
+    <li ><a href="#method-i-limit">#limit</a>
+    
+    <li ><a href="#method-i-line">#line</a>
+    
+    <li ><a href="#method-i-number-3F">#number?</a>
+    
+    <li ><a href="#method-i-number_array-3F">#number_array?</a>
+    
+    <li ><a href="#method-i-statement">#statement</a>
+    
+    <li ><a href="#method-i-step">#step</a>
+    
+    <li ><a href="#method-i-string-3F">#string?</a>
+    
+    <li ><a href="#method-i-to_s">#to_s</a>
+    
+    <li ><a href="#method-i-to_tap_chunk">#to_tap_chunk</a>
+    
+    <li ><a href="#method-i-value">#value</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-Basic::Variable">
+  <h1 id="class-Basic::Variable" class="class">
+    class Basic::Variable
+  </h1>
+
+  <section class="description">
+    
+<p>Represents a ZX Spectrum&#39;s <a href="../Basic.html"><code>Basic</code></a> variable with various methods to inspect its content.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+    <section class="attribute-method-details" class="method-section">
+      <header>
+        <h3>Attributes</h3>
+      </header>
+
+      
+      <div id="attribute-i-data" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">data</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>The variable data in its original format.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-dims" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">dims</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>The dimension sizes as an array of integers. Only for array variables.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-name" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">name</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>The original name of a variable.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-type" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">type</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>The type of a variable; one of <a href="VariableTypes.html"><code>VariableTypes</code></a>.</p>
+        
+        </div>
+      </div>
+      
+    </section>
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-from_data" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">from_data</span><span
+            class="method-args">(data)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a <a href="Variable.html"><code>Basic::Variable</code></a> from a ZX Spectrum&#39;s VARS raw data.</p>
+
+<p>Provide <code>data</code> as a binary string.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="from_data-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1578</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">from_data</span>(<span class="ruby-identifier">data</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">data</span>
+        <span class="ruby-identifier">head</span>, <span class="ruby-identifier">rest</span> = <span class="ruby-identifier">data</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;Ca*&#39;</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">VariableParseError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">head</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">rest</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">rest</span>.<span class="ruby-identifier">empty?</span>
+        <span class="ruby-identifier">name</span> = ((<span class="ruby-identifier">head</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b00011111</span>) <span class="ruby-operator">|</span> <span class="ruby-value">0b01100000</span>).<span class="ruby-identifier">chr</span>
+        <span class="ruby-identifier">type</span> = <span class="ruby-identifier">head</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">5</span>
+        <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_STRING</span>
+                <span class="ruby-identifier">len</span>, = <span class="ruby-identifier">data</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;xv&#39;</span>)
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">VariableParseError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">len</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">len</span> <span class="ruby-operator">+</span> <span class="ruby-value">3</span>
+                <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">type</span>, <span class="ruby-identifier">name</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-string">&#39;$&#39;</span>, <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">len</span> <span class="ruby-operator">+</span> <span class="ruby-value">3</span>)
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_NUMBER</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">VariableParseError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">6</span>
+                <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">type</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">0</span>, <span class="ruby-value">6</span>)
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_NUMBER_EX</span>
+                <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-value">-1</span>).<span class="ruby-identifier">each_byte</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">c</span><span class="ruby-operator">|</span>
+                        <span class="ruby-identifier">name</span> <span class="ruby-operator">&lt;&lt;</span> (<span class="ruby-identifier">c</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b01111111</span>).<span class="ruby-identifier">chr</span>
+                        <span class="ruby-keyword">break</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">c</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b10000000</span>).<span class="ruby-identifier">zero?</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">bsize</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">+</span> <span class="ruby-value">5</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">VariableParseError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">bsize</span>
+                <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">type</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">bsize</span>)
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_NUMBER_ARRAY</span>, <span class="ruby-constant">VAR_CHAR_ARRAY</span>
+                <span class="ruby-identifier">bsize</span>, <span class="ruby-identifier">ndims</span>, <span class="ruby-identifier">rest</span> = <span class="ruby-identifier">data</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;xvCa*&#39;</span>)
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">VariableParseError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">bsize</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">ndims</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">rest</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">ndims</span>.<span class="ruby-identifier">zero?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">bsize</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">ndims</span> <span class="ruby-operator">*</span> <span class="ruby-value">7</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">VariableParseError</span>, <span class="ruby-string">&quot;not enough array data&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">rest</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">bsize</span>
+                <span class="ruby-identifier">dims</span> = <span class="ruby-identifier">rest</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-node">&quot;v#{ndims}&quot;</span>)
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">VariableParseError</span>, <span class="ruby-string">&quot;invalid array dimensions&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">any?</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:zero?</span>)
+                <span class="ruby-identifier">datasize</span> = <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">inject</span>(<span class="ruby-value">:*</span>)
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_NUMBER_ARRAY</span>
+                        <span class="ruby-identifier">datasize</span> <span class="ruby-operator">*=</span> <span class="ruby-value">5</span>
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">name</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-string">&#39;$&#39;</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">VariableParseError</span>, <span class="ruby-string">&quot;invalid array data&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">bsize</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">datasize</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">ndims</span> <span class="ruby-operator">*</span> <span class="ruby-value">2</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+                <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">type</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">bsize</span> <span class="ruby-operator">+</span> <span class="ruby-value">3</span>), <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">freeze</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_FOR_LOOP</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">VariableParseError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">19</span>
+                <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">type</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">0</span>, <span class="ruby-value">19</span>)
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">VariableParseError</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-new" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new</span><span
+            class="method-args">(type, name, data, dims=nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="new-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1243</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">type</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">data</span>, <span class="ruby-identifier">dims</span>=<span class="ruby-keyword">nil</span>)
+        <span class="ruby-ivar">@type</span> = <span class="ruby-identifier">type</span>
+        <span class="ruby-ivar">@name</span> = <span class="ruby-identifier">name</span>
+        <span class="ruby-ivar">@data</span> = <span class="ruby-identifier">data</span>
+        <span class="ruby-ivar">@dims</span> = <span class="ruby-identifier">dims</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-new_char_array" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new_char_array</span><span
+            class="method-args">(name, dims, values=nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a character array <a href="Variable.html"><code>Basic::Variable</code></a>.</p>
+
+<p>The <code>strings</code> are parsed by <a href="Vars.html#method-c-program_text_to_string"><code>Vars.program_text_to_string</code></a> only if encoded as <code>UTF-8</code>.</p>
+
+<p><code>dims</code> must be an array of dimension sizes provided as positive integers. <code>values</code> if provided should be a nested array of strings of exact same dimensions as <code>dims</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="new_char_array-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1531</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_char_array</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">dims</span>, <span class="ruby-identifier">values</span>=<span class="ruby-keyword">nil</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">TypeError</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">name</span>
+        <span class="ruby-identifier">name</span>.<span class="ruby-identifier">downcase!</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-constant">Tokenizer</span><span class="ruby-operator">::</span><span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">VARSTRNAME_MATCH_EXACT</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">name</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;name must be a single alphabetic character followed by a $ sign&quot;</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;`dims` must be an array of dimension sizes&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;`dims` must not be empty&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">empty?</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;number of dimensions must be less than or equal to 255&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">255</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">all?</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">v</span><span class="ruby-operator">|</span> (<span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-value">65535</span>) <span class="ruby-operator">===</span> <span class="ruby-identifier">v</span> }
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;dimension size must be at least 1&quot;</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">head</span> = (<span class="ruby-constant">VAR_CHAR_ARRAY</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">5</span>)<span class="ruby-operator">|</span>(<span class="ruby-identifier">name</span>.<span class="ruby-identifier">ord</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b00011111</span>)
+        <span class="ruby-identifier">ndims</span> = <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-identifier">vsize</span> = <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">inject</span>(<span class="ruby-value">:*</span>)
+        <span class="ruby-identifier">bsize</span> = <span class="ruby-identifier">vsize</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">ndims</span> <span class="ruby-operator">*</span> <span class="ruby-value">2</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+        <span class="ruby-identifier">vpacked</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">values</span>.<span class="ruby-identifier">nil?</span>
+                <span class="ruby-value">?\x20</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">vsize</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">strsize</span> = <span class="ruby-identifier">dims</span>[<span class="ruby-value">-1</span>]
+                <span class="ruby-identifier">enumerate_deep_values</span>(<span class="ruby-identifier">dims</span>[<span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-value">-1</span>], <span class="ruby-identifier">values</span>).<span class="ruby-identifier">inject</span>(<span class="ruby-string">&#39;&#39;</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">buf</span>, <span class="ruby-identifier">str</span><span class="ruby-operator">|</span>
+                        <span class="ruby-identifier">str</span> = <span class="ruby-constant">Vars</span>.<span class="ruby-identifier">program_text_to_string</span>(<span class="ruby-identifier">str</span>) <span class="ruby-keyword">if</span> <span class="ruby-identifier">str</span>.<span class="ruby-identifier">encoding</span>.<span class="ruby-identifier">name</span> <span class="ruby-operator">==</span> <span class="ruby-string">&quot;UTF-8&quot;</span>.<span class="ruby-identifier">freeze</span>
+                        <span class="ruby-identifier">buf</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">str</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">strsize</span>).<span class="ruby-identifier">ljust</span>(<span class="ruby-identifier">strsize</span>)
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-constant">VAR_CHAR_ARRAY</span>, <span class="ruby-identifier">name</span>, [<span class="ruby-identifier">head</span>, <span class="ruby-identifier">bsize</span>, <span class="ruby-identifier">ndims</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">dims</span>, <span class="ruby-identifier">vpacked</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-node">&quot;CvCv#{ndims}a*&quot;</span>), <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">freeze</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-new_for_loop" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new_for_loop</span><span
+            class="method-args">(name, value, limit, step, line, statement)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a FOR loop <a href="Variable.html"><code>Basic::Variable</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="new_for_loop-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1483</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_for_loop</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">value</span>, <span class="ruby-identifier">limit</span>, <span class="ruby-identifier">step</span>, <span class="ruby-identifier">line</span>, <span class="ruby-identifier">statement</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">TypeError</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">name</span>
+        <span class="ruby-identifier">name</span>.<span class="ruby-identifier">downcase!</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-constant">Tokenizer</span><span class="ruby-operator">::</span><span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">ALPHA_MATCH_EXACT</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">name</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;name must be a single alphabetic character&quot;</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">value</span>, <span class="ruby-identifier">limit</span>, <span class="ruby-identifier">step</span> = [<span class="ruby-identifier">value</span>, <span class="ruby-identifier">limit</span>, <span class="ruby-identifier">step</span>].<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">num</span><span class="ruby-operator">|</span> <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">pack_number</span> <span class="ruby-identifier">num</span> }
+        <span class="ruby-identifier">head</span> = (<span class="ruby-constant">VAR_FOR_LOOP</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">5</span>)<span class="ruby-operator">|</span>(<span class="ruby-identifier">name</span>.<span class="ruby-identifier">ord</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b00011111</span>)
+        <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-constant">VAR_FOR_LOOP</span>, <span class="ruby-identifier">name</span>, [<span class="ruby-identifier">head</span>, <span class="ruby-identifier">value</span>, <span class="ruby-identifier">limit</span>, <span class="ruby-identifier">step</span>, <span class="ruby-identifier">line</span>, <span class="ruby-identifier">statement</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;Ca5a5a5vC&#39;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-new_number" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new_number</span><span
+            class="method-args">(name, num, simplified_int=true)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a numeric <a href="Variable.html"><code>Basic::Variable</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="new_number-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1448</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_number</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">num</span>, <span class="ruby-identifier">simplified_int</span>=<span class="ruby-keyword">true</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">TypeError</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">name</span>
+        <span class="ruby-identifier">name</span>.<span class="ruby-identifier">downcase!</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-constant">Tokenizer</span><span class="ruby-operator">::</span><span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">VARNAME_MATCH_EXACT</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">name</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;name must be composed of a single alphabetic character followed by alphabetic or numeric ones&quot;</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">value</span> = <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">pack_number</span> <span class="ruby-identifier">num</span>, <span class="ruby-identifier">simplified_int</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
+                <span class="ruby-identifier">head</span> = (<span class="ruby-constant">VAR_NUMBER</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">5</span>)<span class="ruby-operator">|</span>(<span class="ruby-identifier">name</span>.<span class="ruby-identifier">ord</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b00011111</span>)
+                <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-constant">VAR_NUMBER</span>, <span class="ruby-identifier">name</span>, [<span class="ruby-identifier">head</span>, <span class="ruby-identifier">value</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;Ca5&#39;</span>)
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">head</span> = ((<span class="ruby-constant">VAR_NUMBER_EX</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">5</span>)<span class="ruby-operator">|</span>(<span class="ruby-identifier">name</span>.<span class="ruby-identifier">ord</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b00011111</span>)).<span class="ruby-identifier">chr</span>
+                <span class="ruby-identifier">name</span>[<span class="ruby-value">1</span><span class="ruby-operator">...</span><span class="ruby-value">-1</span>].<span class="ruby-identifier">each_byte</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">code</span><span class="ruby-operator">|</span>
+                        <span class="ruby-identifier">head</span> <span class="ruby-operator">&lt;&lt;</span> (<span class="ruby-identifier">code</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b01111111</span>).<span class="ruby-identifier">chr</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">head</span> <span class="ruby-operator">&lt;&lt;</span> (<span class="ruby-identifier">name</span>[<span class="ruby-value">-1</span>].<span class="ruby-identifier">ord</span> <span class="ruby-operator">|</span> <span class="ruby-value">0b10000000</span>).<span class="ruby-identifier">chr</span>
+                <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-constant">VAR_NUMBER_EX</span>, <span class="ruby-identifier">name</span>, [<span class="ruby-identifier">head</span>, <span class="ruby-identifier">value</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;a*a5&#39;</span>)
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-new_number_array" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new_number_array</span><span
+            class="method-args">(name, dims, values=nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a numeric array <a href="Variable.html"><code>Basic::Variable</code></a>.</p>
+
+<p><code>dims</code> must be an array of dimension sizes provided as positive integers. <code>values</code> if provided should be a nested array of numbers of exact same dimensions as <code>dims</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="new_number_array-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1499</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_number_array</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">dims</span>, <span class="ruby-identifier">values</span>=<span class="ruby-keyword">nil</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">TypeError</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">name</span>
+        <span class="ruby-identifier">name</span>.<span class="ruby-identifier">downcase!</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-constant">Tokenizer</span><span class="ruby-operator">::</span><span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">ALPHA_MATCH_EXACT</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">name</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;name must be a single alphabetic character&quot;</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;`dims` must be an array of dimension sizes&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;`dims` must not be empty&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">empty?</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;number of dimensions must be less than or equal to 255&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">255</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">all?</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">v</span><span class="ruby-operator">|</span> (<span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-value">65535</span>) <span class="ruby-operator">===</span> <span class="ruby-identifier">v</span> }
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;dimension size must be at least 1&quot;</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">head</span> = (<span class="ruby-constant">VAR_NUMBER_ARRAY</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">5</span>)<span class="ruby-operator">|</span>(<span class="ruby-identifier">name</span>.<span class="ruby-identifier">ord</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b00011111</span>)
+        <span class="ruby-identifier">ndims</span> = <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-identifier">vsize</span> = <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">inject</span>(<span class="ruby-value">:*</span>)
+        <span class="ruby-identifier">bsize</span> = <span class="ruby-identifier">vsize</span> <span class="ruby-operator">*</span> <span class="ruby-value">5</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">ndims</span> <span class="ruby-operator">*</span> <span class="ruby-value">2</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+        <span class="ruby-identifier">vpacked</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">values</span>.<span class="ruby-identifier">nil?</span>
+                <span class="ruby-value">?\0</span> <span class="ruby-operator">*</span> (<span class="ruby-identifier">vsize</span> <span class="ruby-operator">*</span> <span class="ruby-value">5</span>)
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">enumerate_deep_values</span>(<span class="ruby-identifier">dims</span>, <span class="ruby-identifier">values</span>).<span class="ruby-identifier">inject</span>(<span class="ruby-string">&#39;&#39;</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">buf</span>, <span class="ruby-identifier">num</span><span class="ruby-operator">|</span>
+                        <span class="ruby-identifier">buf</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">pack_number</span>(<span class="ruby-identifier">num</span>)
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-constant">VAR_NUMBER_ARRAY</span>, <span class="ruby-identifier">name</span>, [<span class="ruby-identifier">head</span>, <span class="ruby-identifier">bsize</span>, <span class="ruby-identifier">ndims</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">dims</span>, <span class="ruby-identifier">vpacked</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-node">&quot;CvCv#{ndims}a*&quot;</span>), <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">freeze</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-new_string" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new_string</span><span
+            class="method-args">(name, string)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a string <a href="Variable.html"><code>Basic::Variable</code></a>.</p>
+
+<p>The <code>string</code> is parsed by <a href="Vars.html#method-c-program_text_to_string"><code>Vars.program_text_to_string</code></a> only if encoded as <code>UTF-8</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="new_string-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1471</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_string</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">string</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">TypeError</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">string</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">name</span>
+        <span class="ruby-identifier">name</span>.<span class="ruby-identifier">downcase!</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-constant">Tokenizer</span><span class="ruby-operator">::</span><span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">VARSTRNAME_MATCH_EXACT</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">name</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;name must be a single alphabetic character followed by a $ sign&quot;</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">string</span> = <span class="ruby-constant">Vars</span>.<span class="ruby-identifier">program_text_to_string</span>(<span class="ruby-identifier">string</span>) <span class="ruby-keyword">if</span> <span class="ruby-identifier">string</span>.<span class="ruby-identifier">encoding</span>.<span class="ruby-identifier">name</span> <span class="ruby-operator">==</span> <span class="ruby-string">&quot;UTF-8&quot;</span>.<span class="ruby-identifier">freeze</span>
+        <span class="ruby-identifier">head</span> = (<span class="ruby-constant">VAR_STRING</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">5</span>)<span class="ruby-operator">|</span>(<span class="ruby-identifier">name</span>.<span class="ruby-identifier">ord</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b00011111</span>)
+        <span class="ruby-constant">Variable</span>.<span class="ruby-identifier">new</span> <span class="ruby-constant">VAR_STRING</span>, <span class="ruby-identifier">name</span>, [<span class="ruby-identifier">head</span>, <span class="ruby-identifier">string</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-identifier">string</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;Cva*&#39;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-5B-5D" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">[]</span><span
+            class="method-args">(*at)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a selected portion of an array variable according to the provided dimension indices.</p>
+
+<p>The indices start from 1 (not 0). Indices may be negative to indicate counting from the end. The number of indices should be equal or less than the number of dimensions. The last dimension index may be provided as a Range.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="5B-5D-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1338</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">at</span>)
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">dims</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">at</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">length</span>
+                <span class="ruby-identifier">last_at</span> = <span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-identifier">dims</span>[<span class="ruby-value">-1</span>]
+                <span class="ruby-identifier">fun</span> = <span class="ruby-operator">-&gt;</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>) { <span class="ruby-keyword">self</span>.<span class="ruby-identifier">[]</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-identifier">last_at</span>) }
+                <span class="ruby-keyword">return</span> <span class="ruby-identifier">dims</span>[(<span class="ruby-identifier">at</span>.<span class="ruby-identifier">length</span>)<span class="ruby-operator">...</span><span class="ruby-value">-1</span>].<span class="ruby-identifier">reverse_each</span>.<span class="ruby-identifier">inject</span>(<span class="ruby-identifier">fun</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">fun</span>, <span class="ruby-identifier">n</span><span class="ruby-operator">|</span>
+                        <span class="ruby-operator">-&gt;</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>) <span class="ruby-keyword">do</span>
+                                <span class="ruby-value">1</span>.<span class="ruby-identifier">upto</span>(<span class="ruby-identifier">n</span>).<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-identifier">fun</span>.<span class="ruby-identifier">call</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-identifier">i</span>)
+                                <span class="ruby-keyword">end</span>
+                        <span class="ruby-keyword">end</span>
+                }.<span class="ruby-identifier">call</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">at</span>)
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">data</span> = <span class="ruby-identifier">byteslice</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">at</span>)
+        <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_NUMBER_ARRAY</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-constant">Range</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">at</span>.<span class="ruby-identifier">last</span>
+                        <span class="ruby-value">0</span>.<span class="ruby-identifier">step</span>(<span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>, <span class="ruby-value">5</span>).<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">offs</span><span class="ruby-operator">|</span>
+                                <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">unpack_number</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-identifier">offs</span>, <span class="ruby-value">5</span>), <span class="ruby-keyword">false</span>
+                        <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">unpack_number</span> <span class="ruby-identifier">data</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_CHAR_ARRAY</span>, <span class="ruby-constant">VAR_STRING</span>
+                <span class="ruby-constant">Vars</span>.<span class="ruby-identifier">string_to_program_text</span> <span class="ruby-identifier">data</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;Variable is a scalar&quot;</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-array-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">array?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p><code>true</code> if variable is a number or character array</p>
+          
+          
+
+          
+          <div class="method-source-code" id="array-3F-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1258</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">array?</span>
+        <span class="ruby-operator">!</span><span class="ruby-identifier">dims</span>.<span class="ruby-identifier">nil?</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-bytesize" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">bytesize</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns original size of this variable in bytes.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="bytesize-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1285</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bytesize</span>
+        <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-byteslice" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">byteslice</span><span
+            class="method-args">(*at)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a selected portion of an array variable according to provided dimension indices as raw bytes.</p>
+
+<p>The indices start from 1 (not 0). Indices may be negative to indicate counting from the end. All dimension indices must be provided. The last dimension index may be passed as a Range.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="byteslice-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1371</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">byteslice</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">at</span>)
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">array?</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;Subscript wrong&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">at</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">length</span>
+                <span class="ruby-identifier">start</span> = <span class="ruby-value">4</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">at</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">*</span> <span class="ruby-value">2</span>
+                <span class="ruby-identifier">offset</span> = <span class="ruby-value">0</span>
+                <span class="ruby-identifier">size</span> = <span class="ruby-value">1</span>
+                <span class="ruby-identifier">last_at</span> = <span class="ruby-identifier">at</span>.<span class="ruby-identifier">last</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-constant">Range</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">last_at</span>
+                        <span class="ruby-identifier">dlen</span> = <span class="ruby-identifier">dims</span>[<span class="ruby-value">-1</span>]
+                        <span class="ruby-identifier">last_at</span> = <span class="ruby-constant">Range</span>.<span class="ruby-identifier">new</span>( <span class="ruby-operator">*</span>[<span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">begin</span>, <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">end</span>].<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">0</span> <span class="ruby-operator">?</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">dlen</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">x</span> },
+                                                   <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">exclude_end?</span> )
+                        <span class="ruby-identifier">size</span> = <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">size</span>
+                        <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;Subscript wrong&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-identifier">dlen</span>) <span class="ruby-operator">===</span> <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">begin</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">size</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                        <span class="ruby-identifier">at</span>[<span class="ruby-value">-1</span>] = <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">begin</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">at</span>.<span class="ruby-identifier">zip</span>(<span class="ruby-identifier">dims</span>).<span class="ruby-identifier">reverse_each</span>.<span class="ruby-identifier">inject</span>(<span class="ruby-value">1</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">dsiz</span>, (<span class="ruby-identifier">x</span>, <span class="ruby-identifier">dlen</span>)<span class="ruby-operator">|</span>
+                        <span class="ruby-identifier">x</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">dlen</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">0</span>
+                        <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;Subscript wrong&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-identifier">dlen</span>) <span class="ruby-operator">===</span> <span class="ruby-identifier">x</span>
+                        <span class="ruby-identifier">offset</span> <span class="ruby-operator">+=</span> (<span class="ruby-identifier">x</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>) <span class="ruby-operator">*</span> <span class="ruby-identifier">dsiz</span>
+                        <span class="ruby-identifier">dsiz</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">dlen</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_NUMBER_ARRAY</span>
+                        <span class="ruby-identifier">offset</span> <span class="ruby-operator">*=</span> <span class="ruby-value">5</span> 
+                        <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-identifier">start</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">offset</span>, <span class="ruby-value">5</span><span class="ruby-operator">*</span><span class="ruby-identifier">size</span>)
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-identifier">start</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">offset</span>, <span class="ruby-identifier">size</span>)
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">string?</span>
+                <span class="ruby-keyword">return</span> <span class="ruby-identifier">code</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">at</span>.<span class="ruby-identifier">empty?</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;Subscript wrong&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">at</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">!=</span> <span class="ruby-value">1</span>
+                <span class="ruby-identifier">offs</span>, = <span class="ruby-identifier">at</span>
+                <span class="ruby-identifier">len</span> = <span class="ruby-identifier">length</span>
+                <span class="ruby-identifier">normalize</span> = <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">x</span>) <span class="ruby-keyword">do</span>
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">0</span>
+                                <span class="ruby-identifier">x</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">len</span>
+                        <span class="ruby-keyword">else</span>
+                                <span class="ruby-identifier">x</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                        <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-constant">Range</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">offs</span>
+                        <span class="ruby-identifier">offsets</span> = [<span class="ruby-identifier">offs</span>.<span class="ruby-identifier">begin</span>, <span class="ruby-identifier">offs</span>.<span class="ruby-identifier">end</span>].<span class="ruby-identifier">map</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">normalize</span>)
+                        <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;Subscript wrong&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">offsets</span>.<span class="ruby-identifier">all?</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> (<span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-identifier">len</span>) <span class="ruby-operator">===</span> <span class="ruby-identifier">x</span> }
+                        <span class="ruby-identifier">offs</span> = <span class="ruby-constant">Range</span>.<span class="ruby-identifier">new</span> <span class="ruby-operator">*</span><span class="ruby-identifier">offsets</span>, <span class="ruby-identifier">offs</span>.<span class="ruby-identifier">exclude_end?</span>
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">offs</span> = <span class="ruby-identifier">normalize</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">offs</span>)
+                        <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;Subscript wrong&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-identifier">len</span>) <span class="ruby-operator">===</span> <span class="ruby-identifier">offs</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">code</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-identifier">offs</span>)
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-char_array-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">char_array?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p><code>true</code> if variable is a character array</p>
+          
+          
+
+          
+          <div class="method-source-code" id="char_array-3F-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1262</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">char_array?</span>
+        <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_CHAR_ARRAY</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-code" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">code</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a portion of data after the header.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="code-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1223</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">code</span>
+        <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_NUMBER</span>, <span class="ruby-constant">VAR_NUMBER_EX</span>
+                <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">-5</span><span class="ruby-operator">..</span><span class="ruby-value">-1</span>)
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_FOR_LOOP</span>
+                <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">1</span>, <span class="ruby-value">18</span>)
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">3</span><span class="ruby-operator">..</span><span class="ruby-value">-1</span>)
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-for_loop-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">for_loop?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p><code>true</code> if variable is a FOR loop variable</p>
+          
+          
+
+          
+          <div class="method-source-code" id="for_loop-3F-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1270</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">for_loop?</span>
+        <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_FOR_LOOP</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-head" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">head</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a header byte.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="head-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1218</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">head</span>
+        <span class="ruby-identifier">data</span>.<span class="ruby-identifier">ord</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-length" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">length</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>For strings returns the original string length, for arrays a number of dimensions.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="length-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1275</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">length</span>
+        <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_STRING</span>
+                <span class="ruby-identifier">bytesize</span> <span class="ruby-operator">-</span> <span class="ruby-value">3</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_NUMBER_ARRAY</span>, <span class="ruby-constant">VAR_CHAR_ARRAY</span>
+                <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-limit" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">limit</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the FOR loop limit value.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="limit-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1306</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">limit</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">for_loop?</span>
+                <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">unpack_number</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">6</span>, <span class="ruby-value">5</span>)
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-line" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">line</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the FOR loop line number.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="line-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1320</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">line</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">for_loop?</span>
+                <span class="ruby-identifier">data</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;@16v&#39;</span>)[<span class="ruby-value">0</span>]
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-number-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">number?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p><code>true</code> if variable is a number variable</p>
+          
+          
+
+          
+          <div class="method-source-code" id="number-3F-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1254</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">number?</span>
+        <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_NUMBER</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_NUMBER_EX</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-number_array-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">number_array?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p><code>true</code> if variable is a number array</p>
+          
+          
+
+          
+          <div class="method-source-code" id="number_array-3F-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1266</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">number_array?</span>
+        <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_NUMBER_ARRAY</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-statement" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">statement</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the FOR loop execute statement number.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="statement-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1327</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">statement</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">for_loop?</span>
+                <span class="ruby-identifier">data</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;@18C&#39;</span>)[<span class="ruby-value">0</span>]
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-step" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">step</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the FOR loop step value.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="step-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1313</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">step</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">for_loop?</span>
+                <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">unpack_number</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">11</span>, <span class="ruby-value">5</span>)
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-string-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">string?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p><code>true</code> if variable is a string variable</p>
+          
+          
+
+          
+          <div class="method-source-code" id="string-3F-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1250</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">string?</span>
+        <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_STRING</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_s" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_s</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns this variable in a BASIC-like text format.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_s-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1423</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_s</span>
+        <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_STRING</span>
+                <span class="ruby-node">&quot;LET #{name}=\&quot;#{value}\&quot;&quot;</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_STRING</span>, <span class="ruby-constant">VAR_NUMBER</span>, <span class="ruby-constant">VAR_NUMBER_EX</span>
+                <span class="ruby-node">&quot;LET #{name}=#{value}&quot;</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_NUMBER_ARRAY</span>, <span class="ruby-constant">VAR_CHAR_ARRAY</span>
+                <span class="ruby-node">&quot;DIM #{name}(#{dims.join &#39;,&#39;})&quot;</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_FOR_LOOP</span>
+                <span class="ruby-node">&quot;FOR #{name}=#{value} TO #{limit} STEP #{step}, #{line}:#{statement}&quot;</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;unknown variable type&quot;</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_tap_chunk" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_tap_chunk</span><span
+            class="method-args">(name)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a <a href="../Z80/TAP/HeaderBody.html"><code>Z80::TAP::HeaderBody</code></a> instance from <a href="Variable.html"><code>Basic::Variable</code></a>.</p>
+
+<p>This method is provided for the included <a href="../Z80/TAP.html#method-i-to_tap"><code>Z80::TAP#to_tap</code></a> and <a href="../Z80/TAP.html#method-i-save_tap"><code>Z80::TAP#save_tap</code></a> methods.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_tap_chunk-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1209</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap_chunk</span>(<span class="ruby-identifier">name</span>)
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">array?</span>
+                <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span><span class="ruby-operator">::</span><span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new_var_array</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">head</span>)
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span><span class="ruby-operator">::</span><span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new_code</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-value">0x5B00</span>)
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-value" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">value</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a value of a variable.</p>
+<ul><li>
+<p>A <a href="../Float.html"><code>Float</code></a> or an Integer for numbers (including FOR loops).</p>
+</li><li>
+<p>A (possibly nested) array of values for array variables.</p>
+</li><li>
+<p>A string, suitable to be inserted as a program literal, for string variables.</p>
+</li></ul>
+          
+          
+
+          
+          <div class="method-source-code" id="value-source">
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1294</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">value</span>
+        <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_STRING</span>
+                <span class="ruby-constant">Vars</span>.<span class="ruby-identifier">string_to_program_text</span> <span class="ruby-identifier">code</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_NUMBER</span>, <span class="ruby-constant">VAR_NUMBER_EX</span>, <span class="ruby-constant">VAR_FOR_LOOP</span>
+                <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">unpack_number</span> <span class="ruby-identifier">code</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-keyword">self</span>.<span class="ruby-identifier">[]</span>()
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+
