@@ -6,6 +6,7 @@ require 'z80'
 require 'z80/math_i'
 require 'z80/stdlib'
 require 'zxlib/gfx'
+require 'zxlib/basic'
 
 class Program
   include Z80
@@ -93,7 +94,6 @@ class Program
                   ld   [hl], a
                   key_pressed?
                   jr   Z, mloop
-
                   ld   a, [gfx_fn]
                   cp   0xB6         # OR (HL)
                   jr   NZ, skip_and
@@ -173,11 +173,9 @@ end
 dots = Program.new 0x8000
 puts dots.debug
 
-dots.save_tap('dots')
-
-Z80::TAP.read_chunk('examples/loader.tzx') do |hb|
-    File.open('examples/dots.tap', 'wb') do |f|
-        f.write hb.to_tap
-        f.write dots.to_tap('dots')
-    end
+File.open('examples/dots.tap', 'wb') do |f|
+    prog = Basic.parse_source('1 CLEAR VAL "32767": LOAD ""CODE : RANDOMIZE USR VAL "32768"', start: 1)
+    puts prog
+    f.write prog.to_tap('dots')
+    f.write dots.to_tap('dots')
 end

@@ -6,6 +6,7 @@ require 'z80'
 require 'z80/math_i'
 require 'z80/stdlib'
 require 'zxlib/sys'
+require 'zxlib/basic'
 require 'utils/zx7'
 
 class Program
@@ -242,6 +243,9 @@ horse = Program.new 0x8000
 puts horse.debug
 puts "size: #{horse.code.bytesize}"
 puts "ends: #{(horse.org + horse.code.bytesize).to_s 16}"
-
-Z80::TAP.read_chunk('examples/loader.tzx').save_tap 'horse'
-horse.save_tap('horse', append: true)
+program = Basic.parse_source('1 CLEAR VAL "32767": LOAD ""CODE : RANDOMIZE USR VAL "32768"', start: 1)
+puts "="*32
+puts program
+puts "="*32
+program.save_tap 'examples/horse'
+horse.save_tap('examples/horse', append: true)

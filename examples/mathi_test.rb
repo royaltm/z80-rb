@@ -5,6 +5,7 @@ $:.unshift(here) unless $:.include?(here)
 require 'z80'
 require 'z80/math_i'
 require 'z80/stdlib'
+require 'zxlib/basic'
 
 class Program
   include Z80
@@ -718,8 +719,26 @@ end
 
 math = Program.new 0x8000
 puts math.debug
+
 puts "\nExports: "
 Program.exports.each_key {|k| puts " #{k.to_s.ljust(15)}:  0x#{math[k].to_s 16} (#{math[k]})" }
 
-Z80::TAP.read_chunk('examples/mathi_test.tap').save_tap 'mathi_test'
-math.save_tap('mathi_test', name: 'math', append: true)
+program = Basic.parse_source <<-END
+   1 DEF FN r()=USR 32770
+  10 CLEAR 32767
+  20 LOAD "math"CODE
+  30 RANDOMIZE USR 32768
+  99 STOP
+ 100 REM Verify RND routine comparing results with ZX-BASIC RND
+ 110 FOR i=0 TO 65535
+ 120 RANDOMIZE i
+ 130 LET y=FN r(): LET x=RND*65536
+ 140 IF x<>y THEN PRINT i;" ";x;"`<>`";y
+ 150 NEXT i
+END
+program.start = 10
+puts "="*32
+puts program.to_source
+puts "="*32
+program.save_tap 'examples/mathi_test'
+math.save_tap 'examples/mathi_test', name: 'math', append: true

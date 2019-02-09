@@ -3,7 +3,9 @@ here = File.expand_path('..', __dir__)
 $:.unshift(here) unless $:.include?(here)
 
 require 'z80'
-class ZXMath
+require 'zxlib/basic'
+
+class MyZXMath
   module Macros
     def mul8(eh, el, th, tl)  # performs hl * a using (a, th, tl)
                               # stops on CARRY out
@@ -50,13 +52,31 @@ class Program
   multiplicand  words 1
   multiplicator bytes 1
 
-  import ZXMath, :math
+  import MyZXMath, :math
 
 end
 
 calc = Program.new 0x8000
 
 puts calc.debug
-
-Z80::TAP.read_chunk('examples/calculator.tap').save_tap 'calculator'
+program = Basic.parse_source <<-END
+  10 CLEAR 32767
+  20 LOAD ""CODE
+  30 INPUT "Multiplicand: ",x
+  40 INPUT "Multiplicator: ",y
+  50 POKE 32800,x-INT (x/256)*256
+  60 POKE 32801,INT (x/256)
+  70 POKE 32802,y
+  80 PRINT "x: ", x, "y: ", y
+  90 PRINT USR 32768
+ 100 GO TO 30
+END
+program.start = 10
+program.save_tap 'calculator'
 calc.save_tap('calculator', append: true)
+puts "="*32
+puts program
+puts "="*32
+Z80::TAP.parse_file('calculator.tap') do |hb|
+    puts hb.to_s
+end

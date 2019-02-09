@@ -7,6 +7,7 @@ require 'z80/math_i'
 require 'z80/stdlib'
 require 'zxlib/sys'
 require 'zxlib/gfx'
+require 'zxlib/basic'
 
 class Multitasking
   MT_STACK_BOT = 0x9000
@@ -237,10 +238,15 @@ puts "Kill:  jp   #{mtkernel['terminate']}"
 
 %w[start fill coords.x coords.y].each {|n| puts "#{n.ljust(15)} #{fill[n]}"}
 
-Z80::TAP.read_chunk('examples/multifill.tap').save_tap 'multifill'
-fill.save_tap 'multifill', append: true, name: 'fill'
-mtkernel.save_tap 'multifill', append: true, name: 'mtkernel'
+tapfilename = 'examples/multifill.tap'
+program = Basic.parse_source IO.read('examples/multifill.bas'), start: 9999
+program.save_tap tapfilename
+puts "="*32
+puts program
+puts "="*32
+fill.save_tap tapfilename, append: true, name: 'fill'
+mtkernel.save_tap tapfilename, append: true, name: 'mtkernel'
 
-Z80::TAP.parse_file('multifill.tap') do |hb|
+Z80::TAP.parse_file(tapfilename) do |hb|
     puts hb.to_s
 end

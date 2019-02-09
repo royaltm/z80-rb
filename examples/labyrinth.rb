@@ -7,6 +7,7 @@ require 'z80/math_i'
 require 'z80/stdlib'
 require 'zxlib/gfx'
 require 'zxlib/sys'
+require 'zxlib/basic'
 
 class Program
   include Z80
@@ -935,8 +936,25 @@ puts labyrinth.debug
   puts "#{label.ljust(20)}: 0x#{labyrinth[label].to_s 16} - #{labyrinth[label]}"
 end
 
-Z80::TAP.read_chunk('examples/labyrinth.tap').save_tap 'labyrinth'
-labyrinth.save_tap('labyrinth', append: true)
-Z80::TAP.parse_file('labyrinth.tap') do |hb|
+program = Basic.parse_source <<-END
+   1 DEF FN l(h,w,s)=USR 32768
+   5 BRIGHT 0: FLASH 0: PAPER 1: BORDER 1: INK 5: CLS
+   6 PRINT "[`FLASH 1`SPACE`FLASH 0`] - start or continue;`TAB 10`speed up carving;`TAB 10`pause/resume solving","[5][6][7][8] - move view"
+  10 INPUT "height (1-255)",height
+  20 INPUT "width (1-255)",width
+  30 INPUT "skip rooms:",skip
+  40 RANDOMIZE FN l(height,width,skip)
+  50 GO TO 10
+9999 CLEAR 32767: LOAD "labyrinth"CODE : RUN
+END
+program.start = 9999
+puts "="*32
+puts program.to_source
+puts "="*32
+
+program.save_tap 'examples/labyrinth'
+labyrinth.save_tap 'examples/labyrinth', append: true
+
+Z80::TAP.parse_file('examples/labyrinth.tap') do |hb|
     puts hb.to_s
 end
