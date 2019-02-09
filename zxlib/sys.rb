@@ -142,7 +142,14 @@ class ZXSys
     vars_iy addr vars.err_nr - vars
 
     isolate :rom do
-        mask_int    addr 0x0038 # IM1 maskable interrupt routine
+        start       addr 0x0000 # THE 'START'
+        error_1     addr 0x0008 # THE 'ERROR' RESTART
+        print_a     addr 0x0010 # THE 'PRINT CHARACTER' RESTART
+        get_char    addr 0x0018 # THE 'COLLECT CHARACTER' RESTART
+        next_char   addr 0x0020 # THE 'COLLECT NEXT CHARACTER' RESTART
+        fp_calc     addr 0x0028 # THE 'CALCULATE' RESTART
+        bc_spaces   addr 0x0030 # THE 'CREATE BC SPACES' RESTART
+        mask_int    addr 0x0038 # THE 'MASKABLE INTERRUPT' ROUTINE
         key_int     addr 0x0048 # KEY-INT part of the interrupt routine
         keyboard    addr 0x02BF # read KEYBOARD routine called from the system interrupt routine
         error_5     addr 0x0C86 # Out of screen
@@ -155,6 +162,9 @@ class ZXSys
         pr_string   addr 0x203C # PR-STRING: start in DE, length in BC
         stk_store   addr 0x2AB6 # Pushes five registers on the calculator stack: A, E, D, C, B if there is enough room
         stk_fetch   addr 0x2BF1 # Pops five registers from the calculator stack: A, E, D, C, B
+        stack_a     addr 0x2D28 # Pushes accumulator on the calculator stack as a small integer
+        stack_bc    addr 0x2D2B # Pushes BC register pair on the calculator stack as a small integer
+        print_fp    addr 0x2DE3 # Print a floating point number
         int_fetch   addr 0x2D7F # HL: point to FP-value, restores the twos complement number to normal in DE and a sign in C.
     end
 
