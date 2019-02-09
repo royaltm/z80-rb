@@ -21,13 +21,13 @@ module Z80
 	class Syntax < StandardError; end
 	#  Error raised during program compilation (while creating instance).
 	class CompileError < StandardError; end
-	#  program's compiled code
+	#  The program's compiled code.
 	attr_reader :code
-	#  starting address of compiled code
+	#  The starting address of the compiled code.
 	attr_reader :org
-	#  evaluated label values
+	#  Evaluated label values of the compiled program.
 	attr_reader :labels
-	#  Returns relocated label value
+	#  Returns the relocated label value.
 	def [](label)
 		@labels[label.to_s]
 	end
@@ -216,10 +216,19 @@ module Z80
 		#  Do not confuse it with assembler directive ORG which sets absolute address of a program.
 		#  In ruby-z80 only an instances of a program have absolute addresses.
 		#
-		#  Returns unnamed +label+ that points to beginning of padded space.
-		def org(address, pad = 0)
-			address = address.to_i & 0xffff
+		#  Options:
+		#
+		#  * +:align+:: additionally align address to the nearest +:align+ bytes boundary
+		#  * +:offset+:: added to the +address+ after alignment
+		#
+		#  Returns unnamed +label+ that points to the beginning of a padded space.
+		def org(address = pc, pad = 0, align: 1, offset: 0)
+			address = address.to_i
+			align = align.to_i
+			raise ArgumentError, "align must be >= 1" if align < 1
+			address = (address + align - 1) / align * align + offset.to_i
 			raise Syntax, "The current code pointer: #{pc.to_s 16} is exceeding: #{address.to_i.to_s 16} " if pc > address
+			raise Syntax, "The current code pointer is exceeding 64k address range: #{address.to_i.to_s 16} " if address > 0x10000
 			Z80::add_code self, [pad].pack('c')*(address - pc)
 		end
 		##
