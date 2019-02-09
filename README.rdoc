@@ -4,33 +4,34 @@
 
 Author::    Rafał Michalski  (mailto:royaltm75@gmail.com)
 
-===Yo, dig it:
+===Now, see this:
 
   require 'z80'
+  require 'zxlib/basic'
 
-  class ZXMath
+  class MyZXMath
     module Macros
       def mul8(eh, el, th, tl)  # performs hl * a using (a, th, tl)
                                 # stops on CARRY out
                                 # result to (eh|el)
         raise ArgumentError unless th|tl != hl
         ns do |eoc|
-                ld  tl, l
-                ld  th, h
-                ld  hl,0
-          loop1 srl a
-                jr  NC, noadd
-                add hl, th|tl
-                jr  C, eoc
-          noadd jr  Z, ok
-                sla tl
-                rl  th
-                jp  NC, loop1
-          ok    label
-                unless  eh == h and el == l
-                  ld  el, l
-                  ld  eh, h
-                end
+                  ld  tl, l
+                  ld  th, h
+                  ld  hl,0
+          loop1   srl a
+                  jr  NC, noadd
+                  add hl, th|tl
+                  jr  C, eoc
+          noadd   jr  Z, ok
+                  sla tl
+                  rl  th
+                  jp  NC, loop1
+          ok      label
+                  unless  eh == h and el == l
+                    ld  el, l
+                    ld  eh, h
+                  end
         end
       end
     end
@@ -56,16 +57,11 @@ Author::    Rafał Michalski  (mailto:royaltm75@gmail.com)
     multiplicand  words 1
     multiplicator bytes 1
 
-    import :math, ZXMath
+    import MyZXMath, :math
 
   end
 
   calc = Program.new 0x8000
-
-  calc.save_tap('calculator', :append => true)
-
-
-now:
   
   puts calc.debug
 
@@ -80,15 +76,15 @@ check this out:
   8020: 00 00                   ..       :multiplicand
   8022: 00                      .        :multiplicator
   8023:                                  :math
-  =============== ZXMath ===============
-  8023:                                  :mul
+  ============== MyZXMath ==============
+  8023:             --- begin ---        :mul
   8023: 5D          ld   e, l
   8024: 54          ld   d, h
   8025: 210000      ld   hl, 0000H
   8028: CB3F        srl  a               :mul.loop1
   802A: 3003        jr   NC, 802fH       -> noadd
   802C: 19          add  hl, de
-  802D: 380B        jr   C, 803aH
+  802D: 380B        jr   C, 803aH        -> EOC
   802F: 2807        jr   Z, 8038H        :mul.noadd -> ok
   8031: CB23        sla  e
   8033: CB12        rl   d
@@ -96,25 +92,43 @@ check this out:
   8038:                                  :mul.ok
   8038: 4D          ld   c, l
   8039: 44          ld   b, h
+  803A:             ---  end  ---        :mul.EOC
   803A: D0          ret  NC
   803B: CF          rst  08H
   803C: 0A                      .
+  ^^^^^^^^^^^^^^ MyZXMath ^^^^^^^^^^^^^^
+
+there's more...
+
+ prog = Basic.parse_source <<-END
+    10 CLEAR 32767
+    20 LOAD "multiply"CODE
+    30 INPUT "Multiplicand: ", x
+    40 INPUT "Multiplicator: ", y
+    50 POKE 32800, x-INT(x/256)*256
+    60 POKE 32801, INT(x/256)
+    70 POKE 32802, y
+    80 PRINT "x: ", x, "y: ", y
+    90 PRINT USR 32768
+   100 GO TO 30
+  END
+
+  puts prog
+
+See the listing...
+
+Let's make a +.tap+ file now:
+
+  prog.save_tap 'calculator', line: 10
+  calc.save_tap 'calculator', append: true, name: 'multiply'
 
 go to ZX Spectrum:
 
-   10 CLEAR 32767
-   20 LOAD "" CODE
-   30 INPUT "Multiplicand: ", x
-   40 INPUT "Multiplicator: ", y
-   50 POKE 32800, x-INT(x/256)*256
-   60 POKE 32801, INT(x/256)
-   70 POKE 32802, y
-   80 PRINT "x: ", x, "y: ", y
-   90 PRINT USR 32768
-  100 GOTO 30
+  LOAD "calculator"
 
-  RUN
-and load calculator.tap
+and load the +calculator.tap+ file.
+
+Enjoy!
 
 link:examples/calculator.png
 
@@ -124,6 +138,13 @@ link:examples/calculator.png
 * Z80::Program::Mnemonics
 * Z80::Label
 * Z80::TAP
+* Z80Lib::Macros
+* Z80MathInt
+* ZXSys
+* ZXGfx
+* ZXGfxSprite8
+* ZXMath
+* Basic
 
 ====See examples in +examples+ dir.
 
