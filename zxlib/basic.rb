@@ -101,50 +101,50 @@ module Basic
 		#
 		#  Non-ASCII characters and alternative escape sequences:
 		#
-		#       code  unicode    escape sequence  description
-		#          8  ←  U+2190  `<`              move left
-		#          9  →  U+2192  `>`              move right
-		#         10  ↓  U+2193  `v`              move down
-		#         11  ↑  U+2191  `^`              move up
-		#         96  £  U+00A3  `&`              a pound sign
-		#        127  ©  U+00A9  `(c)`            a copyright sign
-		#        128  ░  U+2591  `|8`             various block characters
-		#        129  ▝  U+259D  `|1`
-		#        130  ▘  U+2598  `|2`
-		#        131  ▀  U+2580  `|3`
-		#        132  ▗  U+2597  `|4`
-		#        133  ▐  U+2590  `|5`
-		#        134  ▚  U+259A  `|6`
-		#        135  ▜  U+259C  `|7`
-		#        136  ▖  U+2596  `#7`
-		#        137  ▞  U+259E  `#6`
-		#        138  ▌  U+258C  `#5`
-		#        139  ▛  U+259B  `#4`
-		#        140  ▄  U+2584  `#3`
-		#        141  ▟  U+259F  `#2`
-		#        142  ▙  U+2599  `#1`
-		#        143  █  U+2588  `#8`
-		#        144  Ⓐ  U+24B6  `a`              user defined graphics
-		#        145  Ⓑ  U+24B7  `b`
-		#        146  Ⓒ  U+24B8  `c`
-		#        147  Ⓓ  U+24B9  `d`
-		#        148  Ⓔ  U+24BA  `e`
-		#        149  Ⓕ  U+24BB  `f`
-		#        150  Ⓖ  U+24BC  `g`
-		#        151  Ⓗ  U+24BD  `h`
-		#        152  Ⓘ  U+24BE  `i`
-		#        153  Ⓙ  U+24BF  `j`
-		#        154  Ⓚ  U+24C0  `k`
-		#        155  Ⓛ  U+24C1  `l`
-		#        156  Ⓜ  U+24C2  `m`
-		#        157  Ⓝ  U+24C3  `n`
-		#        158  Ⓞ  U+24C4  `o`
-		#        159  Ⓟ  U+24C5  `p`
-		#        160  Ⓠ  U+24C6  `q`
-		#        161  Ⓡ  U+24C7  `r`
-		#        162  Ⓢ  U+24C8  `s`
-		#        163  Ⓣ  U+24C9  `t`
-		#        164  Ⓤ  U+24CA  `u`
+		#       code  escaped  unicode   description
+		#          8  `<`      U+2190 ←  move left
+		#          9  `>`      U+2192 →  move right
+		#         10  `v`      U+2193 ↓  move down
+		#         11  `^`      U+2191 ↑  move up
+		#         96  `&`      U+00A3 £  a pound sign
+		#        127  `(c)`    U+00A9 ©  a copyright sign
+		#        128  `|8`     U+2591 ░  various block characters
+		#        129  `|1`     U+259D ▝  
+		#        130  `|2`     U+2598 ▘  
+		#        131  `|3`     U+2580 ▀  
+		#        132  `|4`     U+2597 ▗  
+		#        133  `|5`     U+2590 ▐  
+		#        134  `|6`     U+259A ▚  
+		#        135  `|7`     U+259C ▜  
+		#        136  `#7`     U+2596 ▖  
+		#        137  `#6`     U+259E ▞  
+		#        138  `#5`     U+258C ▌  
+		#        139  `#4`     U+259B ▛  
+		#        140  `#3`     U+2584 ▄  
+		#        141  `#2`     U+259F ▟  
+		#        142  `#1`     U+2599 ▙  
+		#        143  `#8`     U+2588 █  
+		#        144  `a`      U+24B6 Ⓐ  user defined graphics
+		#        145  `b`      U+24B7 Ⓑ  
+		#        146  `c`      U+24B8 Ⓒ  
+		#        147  `d`      U+24B9 Ⓓ  
+		#        148  `e`      U+24BA Ⓔ  
+		#        149  `f`      U+24BB Ⓕ  
+		#        150  `g`      U+24BC Ⓖ  
+		#        151  `h`      U+24BD Ⓗ  
+		#        152  `i`      U+24BE Ⓘ  
+		#        153  `j`      U+24BF Ⓙ  
+		#        154  `k`      U+24C0 Ⓚ  
+		#        155  `l`      U+24C1 Ⓛ  
+		#        156  `m`      U+24C2 Ⓜ  
+		#        157  `n`      U+24C3 Ⓝ  
+		#        158  `o`      U+24C4 Ⓞ  
+		#        159  `p`      U+24C5 Ⓟ  
+		#        160  `q`      U+24C6 Ⓠ  
+		#        161  `r`      U+24C7 Ⓡ  
+		#        162  `s`      U+24C8 Ⓢ  
+		#        163  `t`      U+24C9 Ⓣ  
+		#        164  `u`      U+24CA Ⓤ  
 		#
 		#  The above escape sequences may be safely concatenated between a single pair of enclosing backticks, e.g.:
 		#
