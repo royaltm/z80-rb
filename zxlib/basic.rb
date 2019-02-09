@@ -73,9 +73,9 @@ module Basic
 		#  The ZX Basic knows the difference because keyword +RND+ is encoded as a single code point: 165.
 		#  However when presented as text you can't really tell the difference.
 		#  This may lead to errors when trying to parse such a text back to the ZX Spectrum binary program format.
-    #
-    #  To desambiguate keywords can be encoded as escape sequences, e.g. `GO SUB`, `RND`, `OPEN #`.
-    #  Pass +true+ to +:escape_keywords+ option to enforce keywords to be always escaped.
+		#
+		#  To desambiguate keywords can be encoded as escape sequences, e.g. `GO SUB`, `RND`, `OPEN #`.
+		#  Pass +true+ to +:escape_keywords+ option to enforce keywords to be always escaped.
 		#
 		#  Escape sequences are using GRAVE ACCENT ` (U+0060, also known as a backtick) as enclosing character
 		#  because it's absent in ZX Spectrum's character set.
@@ -88,20 +88,20 @@ module Basic
 		#
 		#      code seq. count  escape sequence format
 		#      `16 n`    2      `INK n`
-    #      `17 n`    2      `PAPER n`
-    #      `18 n`    2      `FLASH n`
-    #      `19 n`    2      `BRIGHT n`
-    #      `20 n`    2      `INVERSE n`
-    #      `21 n`    2      `OVER n`
-    #      `22 y x`  3      `AT y,x`
-    #      `23 x _`  3      `TAB x` in this case the one padding byte is being assumed
-    #
-    #  Where +n+, +x+, +y+ are decimal numbers representing the following character code and at the same time
-    #  special control arguments.
-    #
-    #  Non-ASCII characters and alternative escape sequences:
-    #
-    #       code  unicode    escape sequence  description
+		#      `17 n`    2      `PAPER n`
+		#      `18 n`    2      `FLASH n`
+		#      `19 n`    2      `BRIGHT n`
+		#      `20 n`    2      `INVERSE n`
+		#      `21 n`    2      `OVER n`
+		#      `22 y x`  3      `AT y,x`
+		#      `23 x _`  3      `TAB x` in this case the one padding byte is being assumed
+		#
+		#  Where +n+, +x+, +y+ are decimal numbers representing the following character code and at the same time
+		#  special control arguments.
+		#
+		#  Non-ASCII characters and alternative escape sequences:
+		#
+		#       code  unicode    escape sequence  description
 		#          8  ←  U+2190  `<`              move left
 		#          9  →  U+2192  `>`              move right
 		#         10  ↓  U+2193  `v`              move down
@@ -846,27 +846,27 @@ module Basic
 		'▟',
 		'▙',
 		'█',
-    'Ⓐ',
-    'Ⓑ',
-    'Ⓒ',
-    'Ⓓ',
-    'Ⓔ',
-    'Ⓕ',
-    'Ⓖ',
-    'Ⓗ',
-    'Ⓘ',
-    'Ⓙ',
-    'Ⓚ',
-    'Ⓛ',
-    'Ⓜ',
-    'Ⓝ',
-    'Ⓞ',
-    'Ⓟ',
-    'Ⓠ',
-    'Ⓡ',
-    'Ⓢ',
-    'Ⓣ',
-    'Ⓤ',
+		'Ⓐ',
+		'Ⓑ',
+		'Ⓒ',
+		'Ⓓ',
+		'Ⓔ',
+		'Ⓕ',
+		'Ⓖ',
+		'Ⓗ',
+		'Ⓘ',
+		'Ⓙ',
+		'Ⓚ',
+		'Ⓛ',
+		'Ⓜ',
+		'Ⓝ',
+		'Ⓞ',
+		'Ⓟ',
+		'Ⓠ',
+		'Ⓡ',
+		'Ⓢ',
+		'Ⓣ',
+		'Ⓤ',
 	].map{|s| s.force_encoding Encoding::UTF_8 }.freeze
 
 	KEYWORDS = [
@@ -1199,8 +1199,8 @@ module Basic
 		end
 		buffer
 	end
-  ##
-  #  Represents a ZX Spectrum's Basic variable with various methods to inspect its content.
+	##
+	#  Represents a ZX Spectrum's Basic variable with various methods to inspect its content.
 	class Variable
 		include Z80::TAP
 		##
@@ -1379,7 +1379,7 @@ module Basic
 				if Range === last_at
 					dlen = dims[-1]
 					last_at = Range.new( *[last_at.begin, last_at.end].map { |x| x < 0 ? x + dlen + 1 : x },
-						                   last_at.exclude_end? )
+															 last_at.exclude_end? )
 					size = last_at.size
 					raise "Subscript wrong" unless (1..dlen) === last_at.begin + size - 1
 					at[-1] = last_at.begin
@@ -1438,10 +1438,10 @@ module Basic
 	end # Variable
 
 	class VariableParseError < RuntimeError
-	  def initialize(msg="Not a variable")
-	    super
-	  end
-  end
+		def initialize(msg="Not a variable")
+			super
+		end
+	end
 
 	class << Variable
 		##
