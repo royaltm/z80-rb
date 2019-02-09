@@ -1,5 +1,5 @@
 ##
-#  ==A module with Z80 macros for common ZX Spectrum graphics tasks
+#  ==A module with Z80 Macros for common ZX Spectrum graphics tasks
 #
 #  Example:
 #

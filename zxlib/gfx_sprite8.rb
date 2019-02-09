@@ -1,6 +1,18 @@
 require 'z80/math_i.rb'
 require 'zxlib/gfx.rb'
-
+##
+#  Sprite drawing routines.
+#
+#  See also ZXGfxSprite8::Macros.
+#
+#  By default all drawing method routines are produced. To select only required routines
+#  define a ZXGfxSprite8::DRAW_METHODS constant before importing this file.
+#
+#      class ZXGfxSprite8
+#        DRAW_METHODS = [:xor]
+#      end
+#      require 'zxlib/gfx_sprite8'
+#
 class ZXGfxSprite8
   include Z80 unless defined?(Program)
 
@@ -10,7 +22,7 @@ class ZXGfxSprite8
   export  draw_sprite8
 
   ##
-  # Array of supported draw methods: +:xor+, +:or+, +:set+, +:mask_or+
+  # Array of supported drawing methods: +:xor+, +:or+, +:set+, +:mask_or+
   DRAW_METHODS        = [:xor, :or, :set, :mask_or] unless const_defined?(:DRAW_METHODS)
 
   DRAW_METHOD_XOR     = DRAW_METHODS.include?(:xor) unless const_defined?(:DRAW_METHOD_XOR)
@@ -34,7 +46,7 @@ class ZXGfxSprite8
     #  * +bc+:: x - coordinate (-32768..32767) [screen area: 0-255]
     #  * +de+:: y - coordinate (-32768..32767) [screen area: 0-191]
     #  * +f+:: flags for mode
-    #  * +outofscreen+:: if not block is given then provide +label+, otherwise +ret+
+    #  * +outofscreen+:: if no block is given then provide +label+, otherwise +ret+
     #
     #  Flags howto:
     #
@@ -142,7 +154,7 @@ class ZXGfxSprite8
   #
   #  The data for sprites is laid verticaly: first 8-pixel column bytes, second 8-pixel column bytes, ...
   #
-  #  This routine is optimised for vertical sprites with height >= width and small ones (width < 24 pixels).
+  #  This routine is optimised for vertical sprites with height > width and small square ones (width < 24 pixels).
   #
   #  Uses:: +af+, +af'+, +bc+, +de+, +hl+, +bc'+, +de'+, +hl'+, +ix+, +sp+ (stack depth: max 6 bytes),
   #         in and+or mode also +iy+.
