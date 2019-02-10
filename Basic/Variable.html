@@ -70,6 +70,10 @@
   <ul class="link-list">
   
   
+    <li><a class="include" href="VariableTypes.html">Basic::VariableTypes</a>
+  
+  
+  
     <li><a class="include" href="../Z80/TAP.html">Z80::TAP</a>
   
   
@@ -323,7 +327,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1243</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1242</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">type</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">data</span>, <span class="ruby-identifier">dims</span>=<span class="ruby-keyword">nil</span>)
         <span class="ruby-ivar">@type</span> = <span class="ruby-identifier">type</span>
         <span class="ruby-ivar">@name</span> = <span class="ruby-identifier">name</span>
@@ -618,7 +622,7 @@
 
           
           <div class="method-source-code" id="5B-5D-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1338</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1337</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">at</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">dims</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">at</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">length</span>
                 <span class="ruby-identifier">last_at</span> = <span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-identifier">dims</span>[<span class="ruby-value">-1</span>]
@@ -676,7 +680,7 @@
 
           
           <div class="method-source-code" id="array-3F-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1258</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1257</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">array?</span>
         <span class="ruby-operator">!</span><span class="ruby-identifier">dims</span>.<span class="ruby-identifier">nil?</span>
 <span class="ruby-keyword">end</span></pre>
@@ -709,7 +713,7 @@
 
           
           <div class="method-source-code" id="bytesize-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1285</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1284</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bytesize</span>
         <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span>
 <span class="ruby-keyword">end</span></pre>
@@ -744,7 +748,7 @@
 
           
           <div class="method-source-code" id="byteslice-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1371</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1370</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">byteslice</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">at</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">array?</span>
                 <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;Subscript wrong&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">at</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">dims</span>.<span class="ruby-identifier">length</span>
@@ -755,7 +759,7 @@
                 <span class="ruby-keyword">if</span> <span class="ruby-constant">Range</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">last_at</span>
                         <span class="ruby-identifier">dlen</span> = <span class="ruby-identifier">dims</span>[<span class="ruby-value">-1</span>]
                         <span class="ruby-identifier">last_at</span> = <span class="ruby-constant">Range</span>.<span class="ruby-identifier">new</span>( <span class="ruby-operator">*</span>[<span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">begin</span>, <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">end</span>].<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">0</span> <span class="ruby-operator">?</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">dlen</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">x</span> },
-                                                   <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">exclude_end?</span> )
+                                                                                                         <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">exclude_end?</span> )
                         <span class="ruby-identifier">size</span> = <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">size</span>
                         <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;Subscript wrong&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-identifier">dlen</span>) <span class="ruby-operator">===</span> <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">begin</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">size</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
                         <span class="ruby-identifier">at</span>[<span class="ruby-value">-1</span>] = <span class="ruby-identifier">last_at</span>.<span class="ruby-identifier">begin</span>
@@ -824,7 +828,7 @@
 
           
           <div class="method-source-code" id="char_array-3F-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1262</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1261</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">char_array?</span>
         <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_CHAR_ARRAY</span>
 <span class="ruby-keyword">end</span></pre>
@@ -857,7 +861,7 @@
 
           
           <div class="method-source-code" id="code-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1223</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1222</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">code</span>
         <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
         <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_NUMBER</span>, <span class="ruby-constant">VAR_NUMBER_EX</span>
@@ -897,7 +901,7 @@
 
           
           <div class="method-source-code" id="for_loop-3F-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1270</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1269</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">for_loop?</span>
         <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_FOR_LOOP</span>
 <span class="ruby-keyword">end</span></pre>
@@ -930,7 +934,7 @@
 
           
           <div class="method-source-code" id="head-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1218</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1217</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">head</span>
         <span class="ruby-identifier">data</span>.<span class="ruby-identifier">ord</span>
 <span class="ruby-keyword">end</span></pre>
@@ -963,7 +967,7 @@
 
           
           <div class="method-source-code" id="length-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1275</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1274</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">length</span>
         <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
         <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_STRING</span>
@@ -1001,7 +1005,7 @@
 
           
           <div class="method-source-code" id="limit-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1306</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1305</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">limit</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">for_loop?</span>
                 <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">unpack_number</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">6</span>, <span class="ruby-value">5</span>)
@@ -1036,7 +1040,7 @@
 
           
           <div class="method-source-code" id="line-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1320</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1319</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">line</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">for_loop?</span>
                 <span class="ruby-identifier">data</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;@16v&#39;</span>)[<span class="ruby-value">0</span>]
@@ -1071,7 +1075,7 @@
 
           
           <div class="method-source-code" id="number-3F-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1254</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1253</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">number?</span>
         <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_NUMBER</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_NUMBER_EX</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1104,7 +1108,7 @@
 
           
           <div class="method-source-code" id="number_array-3F-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1266</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1265</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">number_array?</span>
         <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_NUMBER_ARRAY</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1137,7 +1141,7 @@
 
           
           <div class="method-source-code" id="statement-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1327</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1326</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">statement</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">for_loop?</span>
                 <span class="ruby-identifier">data</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;@18C&#39;</span>)[<span class="ruby-value">0</span>]
@@ -1172,7 +1176,7 @@
 
           
           <div class="method-source-code" id="step-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1313</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1312</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">step</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">for_loop?</span>
                 <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">unpack_number</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">byteslice</span>(<span class="ruby-value">11</span>, <span class="ruby-value">5</span>)
@@ -1207,7 +1211,7 @@
 
           
           <div class="method-source-code" id="string-3F-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1250</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1249</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">string?</span>
         <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VAR_STRING</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1240,7 +1244,7 @@
 
           
           <div class="method-source-code" id="to_s-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1423</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1422</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_s</span>
         <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
         <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_STRING</span>
@@ -1269,7 +1273,7 @@
         
         <div class="method-heading">
           <span class="method-name">to_tap_chunk</span><span
-            class="method-args">(name)</span>
+            class="method-args">(name, org:nil)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -1286,12 +1290,12 @@
 
           
           <div class="method-source-code" id="to_tap_chunk-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1209</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap_chunk</span>(<span class="ruby-identifier">name</span>)
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1208</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-value">org:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">array?</span>
                 <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span><span class="ruby-operator">::</span><span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new_var_array</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">head</span>)
         <span class="ruby-keyword">else</span>
-                <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span><span class="ruby-operator">::</span><span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new_code</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-value">0x5B00</span>)
+                <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span><span class="ruby-operator">::</span><span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new_code</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">org</span> <span class="ruby-operator">||</span> <span class="ruby-value">0x5B00</span>)
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -1330,7 +1334,7 @@
 
           
           <div class="method-source-code" id="value-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1294</span>
+            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 1293</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">value</span>
         <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
         <span class="ruby-keyword">when</span> <span class="ruby-constant">VAR_STRING</span>
