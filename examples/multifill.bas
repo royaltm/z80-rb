@@ -1,6 +1,6 @@
    1 LET api=VAL "65007": LET free=VAL "65536-`USR`7962": LET total=USR api: DEF FN m(a,s)=USR api: DEF FN t(t)=USR api: DEF FN f()=USR api
    2 LET fill=VAL "36386": LET fillX=VAL "36354": LET fillY=VAL "36355": DEF FN l(x,y)=USR 36352
-   5 BORDER VAL "7": PAPER VAL "7": INK VAL "0": BRIGHT VAL "0": OVER VAL "0": INVERSE VAL "0": FLASH VAL "0": CLS : PRINT AT VAL "0",VAL "0";"system free:",free,"multitask free:",total
+   5 BORDER VAL "7": PAPER VAL "7": INK VAL "0": BRIGHT VAL "0": OVER VAL "0": INVERSE VAL "0": FLASH VAL "0": CLS : PRINT AT VAL "0",VAL "0";"system free:",free,"multitask free:",total''"Enter`CONTINUE`to go on..."
    6 STOP 
    9 REM #demo 1
   10 LET total=USR api: LET stack=2*INT (total/18)
