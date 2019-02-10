@@ -1068,7 +1068,6 @@ module Basic
 				end
 			})
 			KEYWORDS_MATCH_EXACT = /\A#{Regexp.union(Basic::KEYWORDS.map(&:strip).sort { |x,y| y.length <=> x.length })}\z/
-			# INTEGER_MATCH = /\A\s*(0x[0-9a-fA-F]+|0b[01]+|0[0-7]+|0|[1-9]\d*)\s*,?/
 			NON_ASCII_ESCAPE_TOKEN_MATCH = Regexp.union(NON_ASCII_ESCAPE_TOKENS.keys)
 			ESCAPE_TOKEN_MATCH = /\A\s*(0x[0-9a-fA-F]+|0b[01]+|0[0-7]+|0|[1-9]\d*|#{NON_ASCII_ESCAPE_TOKEN_MATCH})\s*,?/
 			COLOR_CTRL_MATCH_EXACT = /\A(#{Regexp.union(Basic::COLOR_CTRL)})\s*(\d+)\z/
@@ -1085,7 +1084,6 @@ module Basic
 		VAR_CHAR_ARRAY   = 0b110
 		VAR_FOR_LOOP     = 0b111
 	end
-	include VariableTypes
 	##
 	#  A container class for keeping and inspecting ZX Basic program variables.
 	#
@@ -1202,16 +1200,17 @@ module Basic
 	##
 	#  Represents a ZX Spectrum's Basic variable with various methods to inspect its content.
 	class Variable
+  	include VariableTypes
 		include Z80::TAP
 		##
 		#  Creates a Z80::TAP::HeaderBody instance from Basic::Variable.
 		#
 		#  This method is provided for the included Z80::TAP#to_tap and Z80::TAP#save_tap methods.
-		def to_tap_chunk(name)
+		def to_tap_chunk(name, org:nil)
 			if array?
 				Z80::TAP::HeaderBody.new_var_array(name, code, head)
 			else
-				Z80::TAP::HeaderBody.new_code(name, code, 0x5B00)
+				Z80::TAP::HeaderBody.new_code(name, code, org || 0x5B00)
 			end
 		end
 		##
@@ -1444,6 +1443,7 @@ module Basic
 	end
 
 	class << Variable
+		include VariableTypes
 		##
 		#  Creates a numeric Basic::Variable.
 		def new_number(name, num, simplified_int=true)
