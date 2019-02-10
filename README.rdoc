@@ -2,12 +2,12 @@
 
 ==A Z80 assembler powered by ruby.
 
-Author::    Rafał Michalski
+Ruby is a powerfull meta language, so why not to leverage its meta powers to have the ultimate macro system, compiler and builder for the Z80 assembler?
 
-===Now, see this:
+Now, to answer the question git clone this repo, set the +RUBYLIB+ environment variable to the cloned repo's directory
+and go to Ruby's +irb+ or your another REP of choice and snap'&'paste this:
 
   require 'z80'
-  require 'zxlib/basic'
 
   class MyZXMath
     module Macros
@@ -65,7 +65,7 @@ Author::    Rafał Michalski
   
   puts calc.debug
 
-check this out:
+check the debug output:
 
   8000: 2A2080      ld   hl, (8020H)     -> multiplicand
   8003: 3A2280      ld   a, (8022H)      -> multiplicator
@@ -98,9 +98,11 @@ check this out:
   803C: 0A                      .
   ^^^^^^^^^^^^^^ MyZXMath ^^^^^^^^^^^^^^
 
-there's more...
+wait, there's more...
 
- prog = Basic.parse_source <<-END
+  require 'zxlib/basic'
+
+  prog = Basic.parse_source <<-END
     10 CLEAR 32767
     20 LOAD "multiply"CODE
     30 INPUT "Multiplicand: ", x
@@ -115,14 +117,12 @@ there's more...
 
   puts prog
 
-See the listing...
-
 Let's make a +.tap+ file now:
 
   prog.save_tap 'calculator', line: 10
   calc.save_tap 'calculator', append: true, name: 'multiply'
 
-go to ZX Spectrum:
+go to ZX Spectrum or an emulator[http://torinak.com/qaop]:
 
   LOAD "calculator"
 
@@ -146,14 +146,14 @@ link:examples/calculator.png
 * ZXMath
 * Basic
 
-====See examples in +examples+ dir.
+====See examples[examples] in +examples+ dir.
 
 * +calculator+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/calculator.tap
 * +dots+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/dots.tap
 * +horse+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/horse.tap
 * +labyrinth+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/labyrinth.tap
-* +mathi_test+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap
-* +multifill+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap
+* +mathi_test+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap (integer math library tests)
+* +multifill+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap (multitasking demo)
 
 ===Also features:
 
@@ -201,9 +201,10 @@ link:examples/horse.jpg
 
 link:examples/horse.png
 
-
 ==Download
 here[https://github.com/royaltm/z80-rb/archive/master.zip]
 
 ==Requirements
 ====ruby 2.0.0 or later
+
+Author::    Rafał Michalski

@@ -15,7 +15,7 @@ require 'zxlib/sys'
 # ====Machine code for tasks should respect the following restrictions:
 #
 # - Task's code shouldn't change interrupt handler (no tampering with register +I+ and no +IM+ instructions).
-# - Stacks may be moved up when other tasks terminate - tasks shouldn't store pointers to stack.
+# - Stacks may be moved up when other tasks terminate - tasks shouldn't store pointers to a stack.
 # - When using +SP+ for other purposes always disable interrupts and restore +SP+ before enabling them.
 # - Before task starts, +IY+ is initialized to its <tt>stack_bot + 128</tt> and may be used
 #   as a stack pointer frame for tasks' variables as contents of IY register is moved along with the stack.
@@ -40,7 +40,7 @@ require 'zxlib/sys'
 # =====Task registers:
 #
 # Registers may be used freely with some limitations (+SP+, +IY+) mentioned above.
-# When starting task registers contain:
+# When the task is started, registers contain:
 #
 # - +SP+:: The task's end of stack - 2. +SP+ points to the address of +terminate+ routine,
 #          so invoking +ret+ will terminate the task.

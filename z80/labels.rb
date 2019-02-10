@@ -393,7 +393,7 @@ module Z80
 	#            inc hl
 	#            djnz mylabel
 	#
-	#  Labels also allow to create structs:
+	#  Labels also allows to create structs:
 	#      class Sprite < Label
 	#        x       byte
 	#        y       byte
@@ -408,7 +408,7 @@ module Z80
 	#        sprites Sprite, 2
 	#      end
 	#
-	#  In the above example +data_p+ and +data_pl+ are aliases.
+	#  In the above example +data_p+ and (+data_pl+,+data_ph+) are aliases (union).
 	#
 	#  Allocate label with data in a *program*
 	#    sprite  data SpritePool, [2,

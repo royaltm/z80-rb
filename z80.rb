@@ -125,6 +125,13 @@ module Z80
 			end
 		end
 	end
+	##
+	#  This module defines methods that become your program's class methods when you include
+	#  the Z80 module.
+	#  Includes all of Program::Macros and Program::Mnemonics methods as well as Macros module
+	#  defined in the including class.
+	#
+	#  Use these methods to build your Z80 assembler program or macros.
 	module Program
 		VERSION = "0.9.2"
 		# raw, not relocated code
@@ -236,7 +243,7 @@ module Z80
 		#
 		#  Isolated namespace can't reference labels defined outside of it.
 		#
-		#  :see: Program#ns
+		#  See: Program#ns.
 		def isolate(name = nil, **opts, &block)
 			ns(name, **opts, isolate: true, &block)
 		end
