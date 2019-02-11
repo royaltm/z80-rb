@@ -137,7 +137,7 @@ class Program
                     cp   192
                     report_error_unless C, '5 Out of screen'
 
-                    xytoscr h, l, h, l, b, c
+                    xytoscr h, l, ah:h, al:l, s:b, t:c
                     xor  a
                     push af                         # place marker
                     inc  sp                         # only higher byte on stack

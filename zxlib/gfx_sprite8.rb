@@ -22,6 +22,10 @@ class ZXGfxSprite8
   export  draw_sprite8
 
   ##
+  # Screen address used by the routines.
+  SCREEN_ADDRESS = 0x4000
+
+  ##
   # Array of supported drawing methods: +:xor+, +:or+, +:set+, +:mask_or+
   DRAW_METHODS        = [:xor, :or, :set, :mask_or] unless const_defined?(:DRAW_METHODS)
 
@@ -186,9 +190,10 @@ class ZXGfxSprite8
             jr   Z, skipad      # sanity check
             add  7              # negative vect
     skipad  ld   c, a           # C: negshift (0, 8..14)
-            ytoscr l, h, l, b
+            ytoscr l, ah:h, al:l, t:b, scraddr:SCREEN_ADDRESS
             jp   skippos
-    skipneg xytoscr h, l, h, l, c, b # HL: yx, HL: screen, C: shift (0..7), B: temp
+                                # HL: yx, HL: screen, C: shift (0..7), B: temp
+    skipneg xytoscr h, l, ah:h, al:l, s:c, t:b, scraddr:SCREEN_ADDRESS
     skippos push hl             # screen addr
 
             ld   b, 0
@@ -332,7 +337,7 @@ class ZXGfxSprite8
             ex   af, af   # bitmap
             ora  c
             ld   [hl], a
-            nextline h, l, quitf0
+            nextline h, l, quitf0, scraddr:SCREEN_ADDRESS
             exx
             djnz copylp
             jp   quitf1
@@ -357,7 +362,7 @@ class ZXGfxSprite8
             xor  d        # 4
             ora  c        # 4
             ld   [hl], a  # 7
-            nextline h, l, quit0 #27 /49 /59
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS #27 /49 /59
             exx           # 4
             djnz shftlp   # 13/8
             pop  bc       # 10
@@ -385,7 +390,7 @@ class ZXGfxSprite8
             ora  d        # 4
             ld   [hl], a  # 7
             dec  l        # 4
-            nextline h, l, quit0 #27 /49 /59
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS #27 /49 /59
             exx           # 4
             djnz shftlp   # 13/8
             pop  bc       # 10
@@ -401,7 +406,7 @@ class ZXGfxSprite8
             anda e
             ora  c
             ld   [hl], a
-            nextline h, l, quit1
+            nextline h, l, quit1, scraddr:SCREEN_ADDRESS
             exx
             djnz shftlp
             jp   adjust1
@@ -446,7 +451,7 @@ class ZXGfxSprite8
             xor  d        # 4
             ora  c        # 4
             ld   [hl], a  # 7
-            nextline h, l, quit0 #27 /49 /59
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS #27 /49 /59
             exx           # 4
             djnz shftlp   # 13/8
             pop  bc       # 10
@@ -474,7 +479,7 @@ class ZXGfxSprite8
             ora  d
             ld   [hl], a
             dec  l
-            nextline h, l, quit0
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS
             exx
             djnz shftlp
             pop  bc
@@ -490,7 +495,7 @@ class ZXGfxSprite8
             anda e
             ora  c
             ld   [hl], a
-            nextline h, l, quit1
+            nextline h, l, quit1, scraddr:SCREEN_ADDRESS
             exx
             dec  b
             jp   NZ, shftlp
@@ -611,7 +616,7 @@ class ZXGfxSprite8
             exx           # 4
             self.send type, [hl]
             ld   [hl], a
-            nextline h, l, quitf0
+            nextline h, l, quitf0, scraddr:SCREEN_ADDRESS
             exx
             djnz copylp
             jp   quitf1
@@ -634,7 +639,7 @@ class ZXGfxSprite8
             xor  c
             self.send type, [hl]
             ld   [hl], a
-            nextline h, l, quit0
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS
             exx
             djnz shftlp
             pop  bc
@@ -658,7 +663,7 @@ class ZXGfxSprite8
             self.send type, [hl]
             ld  [hl], a
             dec  l
-            nextline h, l, quit0
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS
             exx
             djnz shftlp
             pop  bc
@@ -674,7 +679,7 @@ class ZXGfxSprite8
             anda e
             self.send type, [hl]
             ld   [hl], a
-            nextline h, l, quit1
+            nextline h, l, quit1, scraddr:SCREEN_ADDRESS
             exx
             djnz shftlp
             jp   adjust1
@@ -715,7 +720,7 @@ class ZXGfxSprite8
             xor  c        # 4
             self.send type, [hl]  # 7
             ld   [hl], a  # 7
-            nextline h, l, quit0 # 27
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS # 27
             exx           # 4
             djnz shftlp   # 13/8
             pop  bc       # 10
@@ -739,7 +744,7 @@ class ZXGfxSprite8
             self.send type, [hl]  # 7
             ld  [hl], a   # 7
             dec  l        # 4
-            nextline h, l, quit0 # 27
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS # 27
             exx           # 4
             djnz shftlp   # 13/8
             pop  bc       # 10
@@ -755,7 +760,7 @@ class ZXGfxSprite8
             anda e
             self.send type, [hl]
             ld   [hl], a
-            nextline h, l, quit1
+            nextline h, l, quit1, scraddr:SCREEN_ADDRESS
             exx
             dec  b
             jp   NZ, shftlp
@@ -820,7 +825,7 @@ class ZXGfxSprite8
             inc  hl       # 6
             exx           # 4
             ld   [hl], a
-            nextline h, l, quitf0
+            nextline h, l, quitf0, scraddr:SCREEN_ADDRESS
             exx
             djnz copylp
             jp   quitf1
@@ -846,7 +851,7 @@ class ZXGfxSprite8
             anda [hl]
             ora  d
             ld   [hl], a
-            nextline h, l, quit0
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS
             exx
             djnz shftlp
             pop  bc
@@ -875,7 +880,7 @@ class ZXGfxSprite8
             ora  b
             ld   [hl], a
             dec  l
-            nextline h, l, quit0
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS
             exx
             djnz shftlp
             pop  bc
@@ -895,7 +900,7 @@ class ZXGfxSprite8
             anda [hl]
             ora  b
             ld   [hl], a
-            nextline h, l, quit1
+            nextline h, l, quit1, scraddr:SCREEN_ADDRESS
             exx
             djnz shftlp
             jp   adjust1
@@ -940,7 +945,7 @@ class ZXGfxSprite8
             anda [hl]
             ora  d
             ld   [hl], a
-            nextline h, l, quit0
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS
             exx
             djnz shftlp
             pop  bc
@@ -969,7 +974,7 @@ class ZXGfxSprite8
             ora  b
             ld   [hl], a
             dec  l
-            nextline h, l, quit0
+            nextline h, l, quit0, scraddr:SCREEN_ADDRESS
             exx
             djnz shftlp
             pop  bc
@@ -989,7 +994,7 @@ class ZXGfxSprite8
             anda [hl]
             ora  b
             ld   [hl], a
-            nextline h, l, quit1
+            nextline h, l, quit1, scraddr:SCREEN_ADDRESS
             exx
             dec  b
             jp   NZ, shftlp
