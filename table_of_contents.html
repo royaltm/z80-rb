@@ -38,11 +38,9 @@
 
       <li><a href="README_rdoc.html#label-A+Z80+assembler+powered+by+ruby.">A Z80 assembler powered by ruby.</a>
 
-      <li><a href="README_rdoc.html#label-Now-2C+see+this-3A">Now, see this:</a>
-
       <li><a href="README_rdoc.html#label-More+study+at-3A">More study at:</a>
 
-      <li><a href="README_rdoc.html#label-See+examples+in+examples+dir.">See examples in <code>examples</code> dir.</a>
+      <li><a href="README_rdoc.html#label-See+examples+in+examples+dir.">See <a href="examples">examples</a> in <code>examples</code> dir.</a>
 
       <li><a href="README_rdoc.html#label-Also+features-3A">Also features:</a>
 
@@ -104,6 +102,22 @@
 
   <li class="class">
     <a href="Basic/Vars.html">Basic::Vars</a>
+
+  </li>
+
+  <li class="class">
+    <a href="BigFont.html">BigFont</a>
+
+  </li>
+
+  <li class="module">
+    <a href="BigFont/Macros.html">BigFont::Macros</a>
+
+    <ul>
+
+      <li><a href="BigFont/Macros.html#label-BigFont+macros.">BigFont macros.</a>
+
+    </ul>
 
   </li>
 
@@ -545,9 +559,9 @@
     <span class="container">Z80::Program::Condition</span>
 
   <li class="method">
-    <a href="Z80/Program/Register.html#method-c-new">::new</a>
+    <a href="Z80/Program/Condition.html#method-c-new">::new</a>
     &mdash;
-    <span class="container">Z80::Program::Register</span>
+    <span class="container">Z80::Program::Condition</span>
 
   <li class="method">
     <a href="Basic/Line.html#method-c-new">::new</a>
@@ -555,29 +569,14 @@
     <span class="container">Basic::Line</span>
 
   <li class="method">
-    <a href="Z80/Program/Condition.html#method-c-new">::new</a>
+    <a href="Z80/Program/Register.html#method-c-new">::new</a>
     &mdash;
-    <span class="container">Z80::Program::Condition</span>
+    <span class="container">Z80::Program::Register</span>
 
   <li class="method">
-    <a href="Basic/Tokenizer.html#method-c-new">::new</a>
+    <a href="Z80/Alloc.html#method-c-new">::new</a>
     &mdash;
-    <span class="container">Basic::Tokenizer</span>
-
-  <li class="method">
-    <a href="Basic/Program.html#method-c-new">::new</a>
-    &mdash;
-    <span class="container">Basic::Program</span>
-
-  <li class="method">
-    <a href="Z80/TAP/HeaderBody.html#method-c-new">::new</a>
-    &mdash;
-    <span class="container">Z80::TAP::HeaderBody</span>
-
-  <li class="method">
-    <a href="Basic/Variable.html#method-c-new">::new</a>
-    &mdash;
-    <span class="container">Basic::Variable</span>
+    <span class="container">Z80::Alloc</span>
 
   <li class="method">
     <a href="Basic/VariableParseError.html#method-c-new">::new</a>
@@ -590,14 +589,29 @@
     <span class="container">Z80::Label</span>
 
   <li class="method">
+    <a href="Basic/Tokenizer.html#method-c-new">::new</a>
+    &mdash;
+    <span class="container">Basic::Tokenizer</span>
+
+  <li class="method">
+    <a href="Basic/Variable.html#method-c-new">::new</a>
+    &mdash;
+    <span class="container">Basic::Variable</span>
+
+  <li class="method">
+    <a href="Z80/TAP/HeaderBody.html#method-c-new">::new</a>
+    &mdash;
+    <span class="container">Z80::TAP::HeaderBody</span>
+
+  <li class="method">
     <a href="Basic/Vars.html#method-c-new">::new</a>
     &mdash;
     <span class="container">Basic::Vars</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-c-new">::new</a>
+    <a href="Basic/Program.html#method-c-new">::new</a>
     &mdash;
-    <span class="container">Z80::Alloc</span>
+    <span class="container">Basic::Program</span>
 
   <li class="method">
     <a href="Basic/Variable.html#method-c-new_char_array">::new_char_array</a>
@@ -740,24 +754,24 @@
     <span class="container">Z80::Label</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-2A-2A">#**</a>
-    &mdash;
-    <span class="container">Z80::Alloc</span>
-
-  <li class="method">
     <a href="Z80/Label.html#method-i-2A-2A">#**</a>
     &mdash;
     <span class="container">Z80::Label</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-2B">#+</a>
+    <a href="Z80/Alloc.html#method-i-2A-2A">#**</a>
     &mdash;
-    <span class="container">Z80::Label</span>
+    <span class="container">Z80::Alloc</span>
 
   <li class="method">
     <a href="Z80/Alloc.html#method-i-2B">#+</a>
     &mdash;
     <span class="container">Z80::Alloc</span>
+
+  <li class="method">
+    <a href="Z80/Label.html#method-i-2B">#+</a>
+    &mdash;
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="Z80/Program/Register.html#method-i-2B">#+</a>
@@ -790,14 +804,14 @@
     <span class="container">Z80::Program::Register</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-2D-40">#-@</a>
-    &mdash;
-    <span class="container">Z80::Alloc</span>
-
-  <li class="method">
     <a href="Z80/Label.html#method-i-2D-40">#-@</a>
     &mdash;
     <span class="container">Z80::Label</span>
+
+  <li class="method">
+    <a href="Z80/Alloc.html#method-i-2D-40">#-@</a>
+    &mdash;
+    <span class="container">Z80::Alloc</span>
 
   <li class="method">
     <a href="Z80/Alloc.html#method-i-3C-3C">#&lt;&lt;</a>
@@ -805,14 +819,14 @@
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-3C-3C">#&lt;&lt;</a>
-    &mdash;
-    <span class="container">Z80::Label</span>
-
-  <li class="method">
     <a href="Basic/Vars.html#method-i-3C-3C">#&lt;&lt;</a>
     &mdash;
     <span class="container">Basic::Vars</span>
+
+  <li class="method">
+    <a href="Z80/Label.html#method-i-3C-3C">#&lt;&lt;</a>
+    &mdash;
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="Z80/Alloc.html#method-i-3D-3D">#==</a>
@@ -830,19 +844,9 @@
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Z80/Program.html#method-i-5B-5D">#[]</a>
+    <a href="Z80/Program/Register.html#method-i-5B-5D">#[]</a>
     &mdash;
-    <span class="container">Z80::Program</span>
-
-  <li class="method">
-    <a href="Z80.html#method-i-5B-5D">#[]</a>
-    &mdash;
-    <span class="container">Z80</span>
-
-  <li class="method">
-    <a href="Z80/Alloc.html#method-i-5B-5D">#[]</a>
-    &mdash;
-    <span class="container">Z80::Alloc</span>
+    <span class="container">Z80::Program::Register</span>
 
   <li class="method">
     <a href="Z80/Label.html#method-i-5B-5D">#[]</a>
@@ -850,14 +854,14 @@
     <span class="container">Z80::Label</span>
 
   <li class="method">
+    <a href="Basic/Variable.html#method-i-5B-5D">#[]</a>
+    &mdash;
+    <span class="container">Basic::Variable</span>
+
+  <li class="method">
     <a href="Basic/Vars.html#method-i-5B-5D">#[]</a>
     &mdash;
     <span class="container">Basic::Vars</span>
-
-  <li class="method">
-    <a href="Z80/Program/Register.html#method-i-5B-5D">#[]</a>
-    &mdash;
-    <span class="container">Z80::Program::Register</span>
 
   <li class="method">
     <a href="Basic/Program.html#method-i-5B-5D">#[]</a>
@@ -865,9 +869,19 @@
     <span class="container">Basic::Program</span>
 
   <li class="method">
-    <a href="Basic/Variable.html#method-i-5B-5D">#[]</a>
+    <a href="Z80/Program.html#method-i-5B-5D">#[]</a>
     &mdash;
-    <span class="container">Basic::Variable</span>
+    <span class="container">Z80::Program</span>
+
+  <li class="method">
+    <a href="Z80/Alloc.html#method-i-5B-5D">#[]</a>
+    &mdash;
+    <span class="container">Z80::Alloc</span>
+
+  <li class="method">
+    <a href="Z80.html#method-i-5B-5D">#[]</a>
+    &mdash;
+    <span class="container">Z80</span>
 
   <li class="method">
     <a href="Z80MathInt/Macros.html#method-i-add24_16">#add24_16</a>
@@ -935,6 +949,11 @@
     <span class="container">Basic::Variable</span>
 
   <li class="method">
+    <a href="ZXSys/Macros.html#method-i-char_ptr_from_code">#char_ptr_from_code</a>
+    &mdash;
+    <span class="container">ZXSys::Macros</span>
+
+  <li class="method">
     <a href="Basic/Vars.html#method-i-clear-21">#clear!</a>
     &mdash;
     <span class="container">Basic::Vars</span>
@@ -955,14 +974,14 @@
     <span class="container">Z80Lib::Macros</span>
 
   <li class="method">
-    <a href="Basic/Variable.html#method-i-code">#code</a>
-    &mdash;
-    <span class="container">Basic::Variable</span>
-
-  <li class="method">
     <a href="Basic/Program.html#method-i-code">#code</a>
     &mdash;
     <span class="container">Basic::Program</span>
+
+  <li class="method">
+    <a href="Basic/Variable.html#method-i-code">#code</a>
+    &mdash;
+    <span class="container">Basic::Variable</span>
 
   <li class="method">
     <a href="Z80/TAP/HeaderBody.html#method-i-code-3F">#code?</a>
@@ -1035,14 +1054,14 @@
     <span class="container">ZXGfxSprite8</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-dummy-3F">#dummy?</a>
-    &mdash;
-    <span class="container">Z80::Label</span>
-
-  <li class="method">
     <a href="Z80/Alloc.html#method-i-dummy-3F">#dummy?</a>
     &mdash;
     <span class="container">Z80::Alloc</span>
+
+  <li class="method">
+    <a href="Z80/Label.html#method-i-dummy-3F">#dummy?</a>
+    &mdash;
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="Z80/Alloc.html#method-i-dup">#dup</a>
@@ -1083,6 +1102,11 @@
     <a href="Basic/Vars.html#method-i-each_var">#each_var</a>
     &mdash;
     <span class="container">Basic::Vars</span>
+
+  <li class="method">
+    <a href="BigFont/Macros.html#method-i-enlarge_char8_16">#enlarge_char8_16</a>
+    &mdash;
+    <span class="container">BigFont::Macros</span>
 
   <li class="method">
     <a href="Z80/Program.html#method-i-export">#export</a>
@@ -1130,9 +1154,9 @@
     <span class="container">Basic::Variable</span>
 
   <li class="method">
-    <a href="Z80/Program.html#method-i-immediate-3F">#immediate?</a>
+    <a href="Z80/Label.html#method-i-immediate-3F">#immediate?</a>
     &mdash;
-    <span class="container">Z80::Program</span>
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="Z80/Alloc.html#method-i-immediate-3F">#immediate?</a>
@@ -1140,9 +1164,9 @@
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-immediate-3F">#immediate?</a>
+    <a href="Z80/Program.html#method-i-immediate-3F">#immediate?</a>
     &mdash;
-    <span class="container">Z80::Label</span>
+    <span class="container">Z80::Program</span>
 
   <li class="method">
     <a href="Z80/Program.html#method-i-import">#import</a>
@@ -1163,6 +1187,11 @@
     <a href="Z80MathInt/Macros.html#method-i-int">#int</a>
     &mdash;
     <span class="container">Z80MathInt::Macros</span>
+
+  <li class="method">
+    <a href="BigFont/Macros.html#method-i-interlace_pixels16">#interlace_pixels16</a>
+    &mdash;
+    <span class="container">BigFont::Macros</span>
 
   <li class="method">
     <a href="Z80/Program.html#method-i-isolate">#isolate</a>
@@ -1265,14 +1294,19 @@
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
+    <a href="Z80/Program.html#method-i-method_missing">#method_missing</a>
+    &mdash;
+    <span class="container">Z80::Program</span>
+
+  <li class="method">
     <a href="Z80/Label.html#method-i-method_missing">#method_missing</a>
     &mdash;
     <span class="container">Z80::Label</span>
 
   <li class="method">
-    <a href="Z80/Program.html#method-i-method_missing">#method_missing</a>
+    <a href="BigFont/Macros.html#method-i-mix_lines8_16">#mix_lines8_16</a>
     &mdash;
-    <span class="container">Z80::Program</span>
+    <span class="container">BigFont::Macros</span>
 
   <li class="method">
     <a href="Z80MathInt/Macros.html#method-i-mul16_32">#mul16_32</a>
@@ -1300,14 +1334,14 @@
     <span class="container">Z80MathInt::Macros</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-name-3D">#name=</a>
-    &mdash;
-    <span class="container">Z80::Alloc</span>
-
-  <li class="method">
     <a href="Z80/Label.html#method-i-name-3D">#name=</a>
     &mdash;
     <span class="container">Z80::Label</span>
+
+  <li class="method">
+    <a href="Z80/Alloc.html#method-i-name-3D">#name=</a>
+    &mdash;
+    <span class="container">Z80::Alloc</span>
 
   <li class="method">
     <a href="Z80/Helpers.html#method-i-neg">#neg</a>
@@ -1360,14 +1394,19 @@
     <span class="container">Basic::Variable</span>
 
   <li class="method">
+    <a href="Z80/Program/Register.html#method-i-one_of-3F">#one_of?</a>
+    &mdash;
+    <span class="container">Z80::Program::Register</span>
+
+  <li class="method">
     <a href="Z80/Program/Condition.html#method-i-one_of-3F">#one_of?</a>
     &mdash;
     <span class="container">Z80::Program::Condition</span>
 
   <li class="method">
-    <a href="Z80/Program/Register.html#method-i-one_of-3F">#one_of?</a>
+    <a href="ZXGfx/Macros.html#method-i-only_one_bit_set_or_zero-3F">#only_one_bit_set_or_zero?</a>
     &mdash;
-    <span class="container">Z80::Program::Register</span>
+    <span class="container">ZXGfx::Macros</span>
 
   <li class="method">
     <a href="Z80/Program.html#method-i-org">#org</a>
@@ -1400,19 +1439,24 @@
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Z80/Program/Register.html#method-i-pointer-3F">#pointer?</a>
-    &mdash;
-    <span class="container">Z80::Program::Register</span>
-
-  <li class="method">
     <a href="Z80/Program.html#method-i-pointer-3F">#pointer?</a>
     &mdash;
     <span class="container">Z80::Program</span>
 
   <li class="method">
+    <a href="Z80/Program/Register.html#method-i-pointer-3F">#pointer?</a>
+    &mdash;
+    <span class="container">Z80::Program::Register</span>
+
+  <li class="method">
     <a href="ZXGfx/Macros.html#method-i-prevline">#prevline</a>
     &mdash;
     <span class="container">ZXGfx::Macros</span>
+
+  <li class="method">
+    <a href="BigFont.html#method-i-print_char">#print_char</a>
+    &mdash;
+    <span class="container">BigFont</span>
 
   <li class="method">
     <a href="Z80/TAP/HeaderBody.html#method-i-program-3F">#program?</a>
@@ -1470,14 +1514,14 @@
     <span class="container">ZXSys::Macros</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-respond_to_missing-3F">#respond_to_missing?</a>
-    &mdash;
-    <span class="container">Z80::Alloc</span>
-
-  <li class="method">
     <a href="Z80/Label.html#method-i-respond_to_missing-3F">#respond_to_missing?</a>
     &mdash;
     <span class="container">Z80::Label</span>
+
+  <li class="method">
+    <a href="Z80/Alloc.html#method-i-respond_to_missing-3F">#respond_to_missing?</a>
+    &mdash;
+    <span class="container">Z80::Alloc</span>
 
   <li class="method">
     <a href="ZXSys/Macros.html#method-i-restore_rom_interrupt_handler">#restore_rom_interrupt_handler</a>
@@ -1590,27 +1634,17 @@
     <span class="container">Basic::Vars</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-to_alloc">#to_alloc</a>
-    &mdash;
-    <span class="container">Z80::Alloc</span>
-
-  <li class="method">
     <a href="Z80/Label.html#method-i-to_alloc">#to_alloc</a>
     &mdash;
     <span class="container">Z80::Label</span>
 
   <li class="method">
-    <a href="Z80/Program/Register.html#method-i-to_debug">#to_debug</a>
-    &mdash;
-    <span class="container">Z80::Program::Register</span>
-
-  <li class="method">
-    <a href="Z80/Alloc.html#method-i-to_i">#to_i</a>
+    <a href="Z80/Alloc.html#method-i-to_alloc">#to_alloc</a>
     &mdash;
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Z80/Program/Register.html#method-i-to_i">#to_i</a>
+    <a href="Z80/Program/Register.html#method-i-to_debug">#to_debug</a>
     &mdash;
     <span class="container">Z80::Program::Register</span>
 
@@ -1620,14 +1654,24 @@
     <span class="container">Z80::Program::Condition</span>
 
   <li class="method">
+    <a href="Z80/Program/Register.html#method-i-to_i">#to_i</a>
+    &mdash;
+    <span class="container">Z80::Program::Register</span>
+
+  <li class="method">
     <a href="Z80/Label.html#method-i-to_i">#to_i</a>
     &mdash;
     <span class="container">Z80::Label</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-to_label">#to_label</a>
+    <a href="Z80/Alloc.html#method-i-to_i">#to_i</a>
     &mdash;
     <span class="container">Z80::Alloc</span>
+
+  <li class="method">
+    <a href="Z80/Label.html#method-i-to_label">#to_label</a>
+    &mdash;
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="Symbol.html#method-i-to_label">#to_label</a>
@@ -1635,9 +1679,9 @@
     <span class="container">Symbol</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-to_label">#to_label</a>
+    <a href="Z80/Alloc.html#method-i-to_label">#to_label</a>
     &mdash;
-    <span class="container">Z80::Label</span>
+    <span class="container">Z80::Alloc</span>
 
   <li class="method">
     <a href="Z80/Label.html#method-i-to_name">#to_name</a>
@@ -1650,14 +1694,14 @@
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Basic/Program.html#method-i-to_s">#to_s</a>
+    <a href="Basic/Vars.html#method-i-to_s">#to_s</a>
     &mdash;
-    <span class="container">Basic::Program</span>
+    <span class="container">Basic::Vars</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-to_s">#to_s</a>
+    <a href="Basic/Line.html#method-i-to_s">#to_s</a>
     &mdash;
-    <span class="container">Z80::Label</span>
+    <span class="container">Basic::Line</span>
 
   <li class="method">
     <a href="Z80/Alloc.html#method-i-to_s">#to_s</a>
@@ -1665,9 +1709,9 @@
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Basic/Vars.html#method-i-to_s">#to_s</a>
+    <a href="Z80/Label.html#method-i-to_s">#to_s</a>
     &mdash;
-    <span class="container">Basic::Vars</span>
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="Basic/Variable.html#method-i-to_s">#to_s</a>
@@ -1675,14 +1719,14 @@
     <span class="container">Basic::Variable</span>
 
   <li class="method">
+    <a href="Basic/Program.html#method-i-to_s">#to_s</a>
+    &mdash;
+    <span class="container">Basic::Program</span>
+
+  <li class="method">
     <a href="Z80/TAP/HeaderBody.html#method-i-to_s">#to_s</a>
     &mdash;
     <span class="container">Z80::TAP::HeaderBody</span>
-
-  <li class="method">
-    <a href="Basic/Line.html#method-i-to_s">#to_s</a>
-    &mdash;
-    <span class="container">Basic::Line</span>
 
   <li class="method">
     <a href="Basic/Program.html#method-i-to_source">#to_source</a>
@@ -1700,14 +1744,14 @@
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Z80/TAP.html#method-i-to_tap">#to_tap</a>
-    &mdash;
-    <span class="container">Z80::TAP</span>
-
-  <li class="method">
     <a href="Z80/TAP/HeaderBody.html#method-i-to_tap">#to_tap</a>
     &mdash;
     <span class="container">Z80::TAP::HeaderBody</span>
+
+  <li class="method">
+    <a href="Z80/TAP.html#method-i-to_tap">#to_tap</a>
+    &mdash;
+    <span class="container">Z80::TAP</span>
 
   <li class="method">
     <a href="Z80/TAP.html#method-i-to_tap">#to_tap</a>
@@ -1720,19 +1764,19 @@
     <span class="container">Basic::Variable</span>
 
   <li class="method">
+    <a href="Z80/TAP.html#method-i-to_tap_chunk">#to_tap_chunk</a>
+    &mdash;
+    <span class="container">Z80::TAP</span>
+
+  <li class="method">
+    <a href="Z80/TAP.html#method-i-to_tap_chunk">#to_tap_chunk</a>
+    &mdash;
+    <span class="container">Z80::TAP</span>
+
+  <li class="method">
     <a href="Basic/Program.html#method-i-to_tap_chunk">#to_tap_chunk</a>
     &mdash;
     <span class="container">Basic::Program</span>
-
-  <li class="method">
-    <a href="Z80/TAP.html#method-i-to_tap_chunk">#to_tap_chunk</a>
-    &mdash;
-    <span class="container">Z80::TAP</span>
-
-  <li class="method">
-    <a href="Z80/TAP.html#method-i-to_tap_chunk">#to_tap_chunk</a>
-    &mdash;
-    <span class="container">Z80::TAP</span>
 
   <li class="method">
     <a href="Float.html#method-i-to_z80bin">#to_z80bin</a>
@@ -1768,6 +1812,11 @@
     <a href="Basic/Variable.html#method-i-value">#value</a>
     &mdash;
     <span class="container">Basic::Variable</span>
+
+  <li class="method">
+    <a href="BigFont/Macros.html#method-i-widen_pixels8_16">#widen_pixels8_16</a>
+    &mdash;
+    <span class="container">BigFont::Macros</span>
 
   <li class="method">
     <a href="Z80/Program/Macros.html#method-i-with_saved">#with_saved</a>

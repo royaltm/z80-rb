@@ -139,6 +139,11 @@
         <dd>
         
       
+        <dt id="SCREEN_ADDRESS">SCREEN_ADDRESS
+        
+        <dd><p>Screen address used by the routines.</p>
+        
+      
       </dl>
     </section>
     
@@ -220,7 +225,7 @@ howto: ora 1  scf      cp a          cp  a
 
           
           <div class="method-source-code" id="draw_sprite8-source">
-            <pre><span class="ruby-comment"># File zxlib/gfx_sprite8.rb, line 180</span>
+            <pre><span class="ruby-comment"># File zxlib/gfx_sprite8.rb, line 184</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:draw_sprite8</span> <span class="ruby-keyword">do</span>
           <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>             <span class="ruby-comment"># save width and skip</span>
           <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>
@@ -230,9 +235,10 @@ howto: ora 1  scf      cp a          cp  a
           <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">skipad</span>      <span class="ruby-comment"># sanity check</span>
           <span class="ruby-identifier">add</span>  <span class="ruby-value">7</span>              <span class="ruby-comment"># negative vect</span>
   <span class="ruby-identifier">skipad</span>  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>           <span class="ruby-comment"># C: negshift (0, 8..14)</span>
-          <span class="ruby-identifier">ytoscr</span> <span class="ruby-identifier">l</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">b</span>
+          <span class="ruby-identifier">ytoscr</span> <span class="ruby-identifier">l</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">scraddr:</span><span class="ruby-constant">SCREEN_ADDRESS</span>
           <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skippos</span>
-  <span class="ruby-identifier">skipneg</span> <span class="ruby-identifier">xytoscr</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">b</span> <span class="ruby-comment"># HL: yx, HL: screen, C: shift (0..7), B: temp</span>
+                              <span class="ruby-comment"># HL: yx, HL: screen, C: shift (0..7), B: temp</span>
+  <span class="ruby-identifier">skipneg</span> <span class="ruby-identifier">xytoscr</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">s:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">scraddr:</span><span class="ruby-constant">SCREEN_ADDRESS</span>
   <span class="ruby-identifier">skippos</span> <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># screen addr</span>
 
           <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0</span>

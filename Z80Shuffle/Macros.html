@@ -134,7 +134,7 @@
 <p>A 8bit length of an array in the range of 1..256 (0 is 256); may be a register.</p>
 </dd><dt><code>source</code>
 <dd>
-<p>If <code>nil</code> then <code>source(i) = i</code> is assumed, otherwise an address of a source routine which should expect <code>i</code> in register <code>c</code> and <strong>MUST PRESERVE</strong> <code>hl</code> and <code>de</code> registers; source routine should return value in register <code>a</code>.</p>
+<p>If <code>nil</code> then <code>source(i) = i</code> is assumed, otherwise an address of a source routine which should expect <code>i</code> in register <code>c</code> and <strong>MUST PRESERVE</strong> <code>hl</code> and <code>de</code> registers; source routine should return value in the <code>a</code> register.</p>
 </dd></dl>
           
           

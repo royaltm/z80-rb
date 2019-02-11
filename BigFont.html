@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class BigFont - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+  var index_rel_prefix = "./";
+</script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/darkfish.js"></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="Object.html">Object</a>
+  
+</div>
+
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="Z80.html">Z80</a>
+  
+  
+  </ul>
+</div>
+
+    <div id="extends-section" class="nav-section">
+  <h3>Extended With Modules</h3>
+
+  <ul class="link-list">
+    
+  
+    <li><a class="extend" href="BigFont/Macros.html">BigFont::Macros</a>
+  
+  
+  </ul>
+</div>
+
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-print_char">#print_char</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-BigFont">
+  <h1 id="class-BigFont" class="class">
+    class BigFont
+  </h1>
+
+  <section class="description">
+    
+<p><a href="Z80.html"><code>Z80</code></a> <a href="BigFont/Macros.html"><code>Macros</code></a> producing routines to create and display a 16x15 pixel characters from a 8x8 pixel font (e.g: a default ROM font) applying a simple anti-aliasing algorithm.</p>
+
+<pre>original character  character with widened pixels       final result of the algorithm
+
+ 7 6 5 4 3 2 1 0     f e d c b a 9 8 7 6 5 4 3 2 1 0     f e d c b a 9 8 7 6 5 4 3 2 1 0
+░░░░░░░░░░░░░░░░ 0  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+░░░░████████░░░░ 1  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 1  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+░░██░░░░░░░░██░░ 2  ░░░░░░░░████████████████░░░░░░░░ 2  ░░░░░░░░████████████████░░░░░░░░
+░░██░░░░░░░░██░░ 3  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 3  ░░░░░░████░░░░░░░░░░░░████░░░░░░
+░░██░░██░░░░██░░ 4  ░░░░████░░░░░░░░░░░░░░░░████░░░░ 4  ░░░░████░░░░░░░░░░░░░░░░████░░░░
+░░██░░░░██░░██░░ 5  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 5  ░░░░████░░░░░░░░░░░░░░░░████░░░░
+░░░░████████░░░░ 6  ░░░░████░░░░░░░░░░░░░░░░████░░░░ 6  ░░░░████░░░░░░░░░░░░░░░░████░░░░
+░░░░░░░░░░░░░░░░ 7  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 7  ░░░░████░░░░░░░░░░░░░░░░████░░░░
+                    ░░░░████░░░░████░░░░░░░░████░░░░ 8  ░░░░████░░░░████░░░░░░░░████░░░░
+                    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 9  ░░░░████░░░░░░████░░░░░░████░░░░
+                    ░░░░████░░░░░░░░████░░░░████░░░░ a  ░░░░████░░░░░░░░████░░░░████░░░░
+                    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ b  ░░░░░░████░░░░████████████░░░░░░
+                    ░░░░░░░░████████████████░░░░░░░░ c  ░░░░░░░░████████████████░░░░░░░░
+                    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ d  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+                    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ e  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</pre>
+<dl class="rdoc-list note-list"><dt>Author
+<dd>
+<p>Rafał Michalski, © 2018-2019</p>
+</dd></dl>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-print_char" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">print_char</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>ZX Spectrum&#39;s ROM compatible CHAN output routine</p>
+
+<p>The <code>a</code> register has the output code.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="print_char-source">
+            <pre><span class="ruby-comment"># File utils/bigfont.rb, line 299</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:print_char</span> <span class="ruby-keyword">do</span>
+  <span class="ruby-identifier">with_saved</span> <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">:exx</span>, <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">merge:</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">do</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, [<span class="ruby-identifier">cursor</span>]
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">flags</span>
+                  <span class="ruby-identifier">bit</span>  <span class="ruby-value">0</span>, [<span class="ruby-identifier">hl</span>]
+                  <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">at_control</span>
+
+                  <span class="ruby-identifier">cp</span>   <span class="ruby-value">0x20</span>             <span class="ruby-comment"># control code ?</span>
+                  <span class="ruby-identifier">jp</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">control_char</span>
+                  <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># save code</span>
+
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+                  <span class="ruby-identifier">cp</span>   <span class="ruby-value">192</span>              <span class="ruby-comment"># out of screen ?</span>
+                  <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">error_5</span>
+
+                  <span class="ruby-identifier">push</span> <span class="ruby-identifier">de</span>               <span class="ruby-comment"># save coordinates</span>
+                                        <span class="ruby-comment"># calculate screen address in HL</span>
+                  <span class="ruby-identifier">ytoscr</span> <span class="ruby-identifier">d</span>, <span class="ruby-value">col:</span><span class="ruby-identifier">e</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-value">8</span>             <span class="ruby-comment"># 8 character lines</span>
+                  <span class="ruby-identifier">exx</span>                   <span class="ruby-comment"># save screen address and height</span>
+
+                  <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># restore code</span>
+                  <span class="ruby-identifier">cp</span>   <span class="ruby-value">0x80</span>             <span class="ruby-comment"># ASCII ?</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">ascii_code</span>
+
+                  <span class="ruby-identifier">sub</span>  <span class="ruby-value">0x90</span>             <span class="ruby-comment"># block graphic character ?</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">udg_code</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>
+                  <span class="ruby-identifier">call</span> <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">po_gr_1</span>      <span class="ruby-comment"># creates a block character in MEM-0</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vars</span>.<span class="ruby-identifier">membot</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">output_char</span>
+
+  <span class="ruby-identifier">udg_code</span>        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vars</span>.<span class="ruby-identifier">udg</span>]
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">code2address</span>
+
+  <span class="ruby-identifier">ascii_code</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vars</span>.<span class="ruby-identifier">chars</span>]
+  <span class="ruby-identifier">code2address</span>    <span class="ruby-identifier">char_ptr_from_code</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>
+                                        <span class="ruby-comment"># hl&#39; = screen address, c&#39; = 8, hl = char address</span>
+  <span class="ruby-identifier">output_char</span>     <span class="ruby-identifier">enlarge_char8_16</span>(<span class="ruby-value">compact:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">assume_chars_aligned:</span><span class="ruby-keyword">false</span>)
+
+                  <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">de</span>               <span class="ruby-comment"># restore coordinates</span>
+                  <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">e</span>
+                  <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">e</span>
+
+  <span class="ruby-identifier">check_col</span>       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
+                  <span class="ruby-identifier">cp</span>   <span class="ruby-value">0x1f</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">exit_save</span>
+  <span class="ruby-identifier">next_line</span>       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-value">0</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-value">16</span>
+                  <span class="ruby-identifier">add</span>  <span class="ruby-identifier">d</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, <span class="ruby-identifier">a</span>
+
+  <span class="ruby-identifier">exit_save</span>       <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">cursor</span>], <span class="ruby-identifier">de</span>
+  <span class="ruby-keyword">end</span> <span class="ruby-comment"># with_saved</span>
+                  <span class="ruby-identifier">ret</span>
+
+  <span class="ruby-identifier">control_char</span>    <span class="ruby-identifier">cp</span>   <span class="ruby-value">?\r</span>.<span class="ruby-identifier">ord</span>      <span class="ruby-comment"># ENTER</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">skip_eol</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-value">0x20</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">check_col</span>
+  <span class="ruby-identifier">skip_eol</span>        <span class="ruby-identifier">cp</span>   <span class="ruby-value">0x16</span>         <span class="ruby-comment"># AT (y, x)</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">skip_at</span>
+                  <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0x03</span>   <span class="ruby-comment"># flags = AT_ROW</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">exit_save</span>
+  <span class="ruby-identifier">skip_at</span>         <span class="ruby-identifier">cp</span>   <span class="ruby-value">0x17</span>         <span class="ruby-comment"># TAB (x)</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">exit_save</span>
+                  <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0x01</span>   <span class="ruby-comment"># flags = AT_COL</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">exit_save</span>    <span class="ruby-comment"># ignore anything else</span>
+
+  <span class="ruby-identifier">at_control</span>      <span class="ruby-identifier">bit</span>  <span class="ruby-value">1</span>, [<span class="ruby-identifier">hl</span>]
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">at_col_ctrl</span>
+                  <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0x01</span>   <span class="ruby-comment"># flags = AT_COL</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># set row</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">exit_save</span>
+  <span class="ruby-identifier">at_col_ctrl</span>     <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0x00</span>   <span class="ruby-comment"># flags = NONE</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># set col</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">check_col</span>
+
+  <span class="ruby-identifier">cursor</span>          <span class="ruby-identifier">words</span> <span class="ruby-value">1</span>
+  <span class="ruby-identifier">flags</span>           <span class="ruby-identifier">bytes</span> <span class="ruby-value">1</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

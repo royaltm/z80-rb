@@ -67,6 +67,8 @@
     
     <li ><a href="#method-i-chan_exists">#chan_exists</a>
     
+    <li ><a href="#method-i-char_ptr_from_code">#char_ptr_from_code</a>
+    
     <li ><a href="#method-i-create_chan_and_open">#create_chan_and_open</a>
     
     <li ><a href="#method-i-cursor_key_pressed-3F">#cursor_key_pressed?</a>
@@ -169,7 +171,7 @@
 
           
           <div class="method-source-code" id="chan_exists-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 392</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 420</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">chan_exists</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">output:</span> <span class="ruby-identifier">de</span>, <span class="ruby-value">input:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">chan_name:</span> <span class="ruby-string">&#39;U&#39;</span>, <span class="ruby-value">buffer:</span> <span class="ruby-value">23296</span>)
     <span class="ruby-identifier">chan_name</span> = <span class="ruby-identifier">chan_name</span>.<span class="ruby-identifier">ord</span> <span class="ruby-keyword">if</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">chan_name</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;output or input must not be hl register pair&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">output</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">input</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
@@ -226,6 +228,67 @@
       </div>
 
     
+      <div id="method-i-char_ptr_from_code" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">char_ptr_from_code</span><span
+            class="method-args">(chars, code=a, tt:de)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Calculates the address of the first byte of a character. The calculated address will be available in the <code>hl</code> register.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>chars</code>
+<dd>
+<p>the address of a code=0 character as a <code>hl</code> register, address, label or a label pointer e.g.: [vars.chars].</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>code</code>
+<dd>
+<p>an 8-bit register or a code number (addresses and pointers works to).</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>a 16-bit register except <code>hl</code>.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>tt</code>, <code>hl</code></p>
+          
+          
+
+          
+          <div class="method-source-code" id="char_ptr_from_code-source">
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 320</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">char_ptr_from_code</span>(<span class="ruby-identifier">chars</span>, <span class="ruby-identifier">code</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> ((<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">chars</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">chars</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">chars</span>)) <span class="ruby-keyword">and</span>
+                             <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">tt</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">hl</span>
+  <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">code</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">code</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">chars</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">chars</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+                <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rlca</span> }
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">tl</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">th</span><span class="ruby-operator">|</span><span class="ruby-identifier">tl</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-i-create_chan_and_open" class="method-detail ">
         
         <div class="method-heading">
@@ -266,10 +329,10 @@
 
           
           <div class="method-source-code" id="create_chan_and_open-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 319</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 347</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">create_chan_and_open</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">output:</span>, <span class="ruby-value">input:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">strm_no:</span> <span class="ruby-value">4</span>, <span class="ruby-value">chan_name:</span> <span class="ruby-string">&#39;U&#39;</span>)
     <span class="ruby-identifier">chan_name</span> = <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">chan_name</span> <span class="ruby-operator">?</span> <span class="ruby-identifier">chan_name</span>.<span class="ruby-identifier">ord</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">chan_name</span>.<span class="ruby-identifier">to_i</span>
-    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;output or input must not be hl register pair&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">output</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">input</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;output or input must not be the hl register&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">output</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">input</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-identifier">name</span>, <span class="ruby-value">use:</span> [<span class="ruby-value">:rom</span>, <span class="ruby-value">:vars</span>] <span class="ruby-keyword">do</span>
         <span class="ruby-identifier">input</span>  = <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">error_j</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">input</span>.<span class="ruby-identifier">nil?</span>
         <span class="ruby-identifier">output</span> = <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">error_j</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">output</span>.<span class="ruby-identifier">nil?</span>
@@ -375,7 +438,7 @@
 
           
           <div class="method-source-code" id="cursor_key_pressed-3F-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 298</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 300</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cursor_key_pressed?</span>(<span class="ruby-value">t:</span><span class="ruby-identifier">b</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
             <span class="ruby-identifier">key_pressed?</span> <span class="ruby-value">0xf7</span>, <span class="ruby-value">0x10</span> <span class="ruby-comment"># key [5]</span>
@@ -443,7 +506,7 @@
 
           
           <div class="method-source-code" id="find_def_fn_args-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 579</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 607</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">find_def_fn_args</span>(<span class="ruby-identifier">argnum</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">not_found:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">cf_on_direct:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-value">use:</span> <span class="ruby-value">:vars</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                     <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">argnum</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">argnum</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">b</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">argnum</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
@@ -535,7 +598,7 @@
 
           
           <div class="method-source-code" id="find_record-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 450</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 478</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">find_record</span>(<span class="ruby-identifier">th</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">l</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
         <span class="ruby-identifier">seekloop1</span>   <span class="ruby-identifier">push</span>  <span class="ruby-identifier">bc</span>
@@ -625,7 +688,7 @@ line  b4,  b3,  b2,  b1,      b0   line  b4,  b3,  b2,   b1,      b0
 
           
           <div class="method-source-code" id="key_pressed-3F-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 273</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 275</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">key_pressed?</span>(<span class="ruby-identifier">line_mask</span>=<span class="ruby-value">0</span>, <span class="ruby-identifier">key_mask</span>=<span class="ruby-value">0x1f</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
       <span class="ruby-keyword">if</span> <span class="ruby-identifier">line_mask</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
@@ -687,7 +750,7 @@ line  b4,  b3,  b2,  b1,      b0   line  b4,  b3,  b2,   b1,      b0
 
           
           <div class="method-source-code" id="read_arg_string-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 548</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 576</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_arg_string</span>(<span class="ruby-identifier">adh</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">adl</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">lenh</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">lenl</span>=<span class="ruby-identifier">c</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">adh</span>, <span class="ruby-identifier">adl</span>, <span class="ruby-identifier">lenl</span>].<span class="ruby-identifier">any?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">r</span>) }
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -749,7 +812,7 @@ line  b4,  b3,  b2,  b1,      b0   line  b4,  b3,  b2,   b1,      b0
 
           
           <div class="method-source-code" id="read_integer_value-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 496</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 524</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_integer_value</span>(<span class="ruby-identifier">th</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">sgn</span>=<span class="ruby-identifier">c</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tl</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">a</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">th</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">a</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">sgn</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -807,7 +870,7 @@ line  b4,  b3,  b2,  b1,      b0   line  b4,  b3,  b2,   b1,      b0
 
           
           <div class="method-source-code" id="read_positive_int_value-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 522</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 550</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_positive_int_value</span>(<span class="ruby-identifier">th</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">e</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tl</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">a</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">th</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -856,7 +919,7 @@ line  b4,  b3,  b2,  b1,      b0   line  b4,  b3,  b2,   b1,      b0
 
           
           <div class="method-source-code" id="report_error-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 204</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 206</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">report_error</span>(<span class="ruby-identifier">error</span>)
     <span class="ruby-identifier">errno</span> = [<span class="ruby-operator">*</span><span class="ruby-string">&#39;0&#39;</span><span class="ruby-operator">..</span><span class="ruby-string">&#39;9&#39;</span>, <span class="ruby-operator">*</span><span class="ruby-string">&#39;A&#39;</span><span class="ruby-operator">..</span><span class="ruby-string">&#39;R&#39;</span>].<span class="ruby-identifier">index</span>(<span class="ruby-identifier">error</span>.<span class="ruby-identifier">to_s</span>.<span class="ruby-identifier">upcase</span>[<span class="ruby-value">0</span>])
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">errno</span>
@@ -903,7 +966,7 @@ line  b4,  b3,  b2,  b1,      b0   line  b4,  b3,  b2,   b1,      b0
 
           
           <div class="method-source-code" id="report_error_unless-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 189</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 191</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">report_error_unless</span>(<span class="ruby-identifier">condition</span>, <span class="ruby-identifier">error</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">Condition</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">condition</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -951,7 +1014,7 @@ line  b4,  b3,  b2,  b1,      b0   line  b4,  b3,  b2,   b1,      b0
 
           
           <div class="method-source-code" id="restore_rom_interrupt_handler-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 245</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 247</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">restore_rom_interrupt_handler</span>(<span class="ruby-value">enable_interrupts:</span><span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
             <span class="ruby-identifier">im1</span>
@@ -1000,7 +1063,7 @@ line  b4,  b3,  b2,  b1,      b0   line  b4,  b3,  b2,   b1,      b0
 
           
           <div class="method-source-code" id="setup_custom_interrupt_handler-source">
-            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 220</span>
+            <pre><span class="ruby-comment"># File zxlib/sys.rb, line 222</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">setup_custom_interrupt_handler</span>(<span class="ruby-identifier">handler</span>, <span class="ruby-value">enable_interrupts:</span><span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                     <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">a</span>, <span class="ruby-value">0x18</span>          <span class="ruby-comment"># 18H is jr</span>

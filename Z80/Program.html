@@ -149,6 +149,10 @@
 
   <section class="description">
     
+<p>This module defines methods that become your program&#39;s class methods when you include the <a href="../Z80.html"><code>Z80</code></a> module. Includes all of <a href="Program/Macros.html"><code>Program::Macros</code></a> and <a href="Program/Mnemonics.html"><code>Program::Mnemonics</code></a> methods as well as <a href="Program/Macros.html"><code>Macros</code></a> module defined in the including class.</p>
+
+<p>Use these methods to build your <a href="../Z80.html"><code>Z80</code></a> assembler program or macros.</p>
+
   </section>
 
   
@@ -775,7 +779,7 @@
 
           
           <div class="method-source-code" id="import-source">
-            <pre><span class="ruby-comment"># File z80.rb, line 393</span>
+            <pre><span class="ruby-comment"># File z80.rb, line 400</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import</span>(<span class="ruby-identifier">program</span>, <span class="ruby-identifier">name</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">flags</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">program</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Symbol</span>)
                 <span class="ruby-identifier">program</span>, <span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>, <span class="ruby-identifier">program</span>
@@ -868,7 +872,7 @@
 
           
           <div class="method-source-code" id="import_file-source">
-            <pre><span class="ruby-comment"># File z80.rb, line 453</span>
+            <pre><span class="ruby-comment"># File z80.rb, line 460</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_file</span>(<span class="ruby-identifier">file</span>, <span class="ruby-identifier">type</span> = <span class="ruby-value">:any</span>, <span class="ruby-identifier">size</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">pipe:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">check_size:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">data_type:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">args</span>)
         <span class="ruby-identifier">type</span> = <span class="ruby-identifier">type</span>.<span class="ruby-identifier">to_s</span>.<span class="ruby-identifier">upcase</span>.<span class="ruby-identifier">to_sym</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value">:ANY</span>
@@ -924,13 +928,13 @@
 
 <p>Isolated namespace can&#39;t reference labels defined outside of it.</p>
 
-<p>:see: <a href="Program.html#method-i-ns"><code>Program#ns</code></a></p>
+<p>See: <a href="Program.html#method-i-ns"><code>Program#ns</code></a>.</p>
           
           
 
           
           <div class="method-source-code" id="isolate-source">
-            <pre><span class="ruby-comment"># File z80.rb, line 239</span>
+            <pre><span class="ruby-comment"># File z80.rb, line 246</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">isolate</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         <span class="ruby-identifier">ns</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-value">isolate:</span> <span class="ruby-keyword">true</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -1125,7 +1129,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="label_import-source">
-            <pre><span class="ruby-comment"># File z80.rb, line 374</span>
+            <pre><span class="ruby-comment"># File z80.rb, line 381</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">label_import</span>(<span class="ruby-identifier">program</span>, <span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>)
         <span class="ruby-identifier">import</span> <span class="ruby-identifier">program</span>, <span class="ruby-identifier">name</span>, <span class="ruby-value">:code</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-keyword">false</span>, <span class="ruby-value">:macros</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-keyword">false</span>, <span class="ruby-value">:labels</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-keyword">true</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1163,7 +1167,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="macro_import-source">
-            <pre><span class="ruby-comment"># File z80.rb, line 364</span>
+            <pre><span class="ruby-comment"># File z80.rb, line 371</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">macro_import</span>(<span class="ruby-identifier">program</span>)
         <span class="ruby-identifier">import</span> <span class="ruby-identifier">program</span>, <span class="ruby-value">:code</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-keyword">false</span>, <span class="ruby-value">:macros</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">:labels</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-keyword">false</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1284,7 +1288,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File z80.rb, line 157</span>
+            <pre><span class="ruby-comment"># File z80.rb, line 164</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new</span>(<span class="ruby-identifier">start</span> = <span class="ruby-value">0x0000</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
         <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@dummies</span>.<span class="ruby-identifier">empty?</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-ivar">@contexts</span>.<span class="ruby-identifier">last</span>.<span class="ruby-identifier">any?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">_</span>,<span class="ruby-identifier">v</span><span class="ruby-operator">|</span> <span class="ruby-identifier">v</span>.<span class="ruby-identifier">dummy?</span>}
                 <span class="ruby-identifier">dummies</span> = <span class="ruby-ivar">@dummies</span>.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">d</span><span class="ruby-operator">|</span> <span class="ruby-identifier">d</span>[<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">1</span>]} <span class="ruby-operator">+</span> <span class="ruby-ivar">@contexts</span>.<span class="ruby-identifier">last</span>.<span class="ruby-identifier">select</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">_</span>,<span class="ruby-identifier">v</span><span class="ruby-operator">|</span> <span class="ruby-identifier">v</span>.<span class="ruby-identifier">dummy?</span>}.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">d</span><span class="ruby-operator">|</span> <span class="ruby-identifier">d</span>[<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">1</span>]}
@@ -1411,7 +1415,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="ns-source">
-            <pre><span class="ruby-comment"># File z80.rb, line 277</span>
+            <pre><span class="ruby-comment"># File z80.rb, line 284</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ns</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;no block given to ns&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">block_given?</span>
         <span class="ruby-identifier">inherit</span> = <span class="ruby-identifier">opts</span>[<span class="ruby-value">:inherit</span>] <span class="ruby-operator">||</span> <span class="ruby-identifier">opts</span>[<span class="ruby-value">:inherit_absolute</span>] <span class="ruby-operator">||</span> <span class="ruby-identifier">opts</span>[<span class="ruby-value">:inherit_labels</span>] <span class="ruby-operator">||</span> <span class="ruby-identifier">opts</span>[<span class="ruby-value">:use</span>]
@@ -1536,7 +1540,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="org-source">
-            <pre><span class="ruby-comment"># File z80.rb, line 224</span>
+            <pre><span class="ruby-comment"># File z80.rb, line 231</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">org</span>(<span class="ruby-identifier">address</span> = <span class="ruby-identifier">pc</span>, <span class="ruby-identifier">pad</span> = <span class="ruby-value">0</span>, <span class="ruby-value">align:</span> <span class="ruby-value">1</span>, <span class="ruby-value">offset:</span> <span class="ruby-value">0</span>)
         <span class="ruby-identifier">address</span> = <span class="ruby-identifier">address</span>.<span class="ruby-identifier">to_i</span>
         <span class="ruby-identifier">align</span> = <span class="ruby-identifier">align</span>.<span class="ruby-identifier">to_i</span>
@@ -1575,7 +1579,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="pc-source">
-            <pre><span class="ruby-comment"># File z80.rb, line 209</span>
+            <pre><span class="ruby-comment"># File z80.rb, line 216</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">pc</span>
         <span class="ruby-ivar">@code</span>.<span class="ruby-identifier">bytesize</span>
 <span class="ruby-keyword">end</span></pre>

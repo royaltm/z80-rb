@@ -69,6 +69,8 @@
     
     <li ><a href="#method-i-nextrow">#nextrow</a>
     
+    <li ><a href="#method-i-only_one_bit_set_or_zero-3F">#only_one_bit_set_or_zero?</a>
+    
     <li ><a href="#method-i-prevline">#prevline</a>
     
     <li ><a href="#method-i-rctoattr">#rctoattr</a>
@@ -119,7 +121,7 @@
         
         <div class="method-heading">
           <span class="method-name">nextline</span><span
-            class="method-args">(ah, al, bcheck = true, **nsopts, &amp;block)</span>
+            class="method-args">(ah, al, bcheck = true, scraddr:0x4000, **nsopts, &amp;block)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -143,6 +145,10 @@
 <dd>
 <p>boundary check flag: <code>false</code> = disable checking, <code>true</code>  = issue <code>ret</code> if out of screen (default) <code>label</code> = jump to label if out of screen, <code>hl</code>|<code>ix</code>|<code>iy</code> = jump to address in a register if out of screen</p>
 </dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>screen memory address as an integer, must be a multiple of 0x2000</p>
+</dd></dl>
 </li></ul>
 
 <p>if block is given and <code>bcheck</code> == <code>true</code> evaluates namespaced block instead of <code>ret</code>.</p>
@@ -162,29 +168,30 @@
 
           
           <div class="method-source-code" id="nextline-source">
-            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 57</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">nextline</span>(<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">bcheck</span> = <span class="ruby-keyword">true</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 63</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">nextline</span>(<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">bcheck</span> = <span class="ruby-keyword">true</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">ah</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">bcheck</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span>[<span class="ruby-identifier">hl_</span>, <span class="ruby-identifier">ix_</span>, <span class="ruby-identifier">iy_</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">bcheck</span>)) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">bcheck</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">and</span> ([<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">al</span>))) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">bcheck</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">ix</span> <span class="ruby-keyword">and</span> ([<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">al</span>))) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">bcheck</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">iy</span> <span class="ruby-keyword">and</span> ([<span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">al</span>))) <span class="ruby-keyword">or</span>
-            <span class="ruby-operator">!</span>[<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) }
+            <span class="ruby-operator">!</span>[<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) } <span class="ruby-keyword">or</span>
+            <span class="ruby-operator">!</span>(<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>))
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;nextline invalid arguments!&quot;</span>
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">ns</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
-            <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">ah</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
-            <span class="ruby-identifier">anda</span> <span class="ruby-value">0x07</span>
-            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">al</span>
-            <span class="ruby-identifier">add</span>  <span class="ruby-value">0x20</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">ah</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-value">0x07</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">al</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-value">0x20</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">bcheck</span>
-            <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">restrh</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
-            <span class="ruby-identifier">cp</span>   <span class="ruby-value">0x58</span>
-            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">restrh</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
+                <span class="ruby-identifier">cp</span>   (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>)<span class="ruby-operator">|</span><span class="ruby-value">0x18</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
             <span class="ruby-keyword">case</span> <span class="ruby-identifier">bcheck</span>
             <span class="ruby-keyword">when</span> <span class="ruby-keyword">true</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">block_given?</span>
@@ -196,11 +203,11 @@
                 <span class="ruby-identifier">jp</span>  <span class="ruby-identifier">bcheck</span>
             <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">else</span>
-            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
         <span class="ruby-keyword">end</span>
-    <span class="ruby-identifier">restrh</span>  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
-            <span class="ruby-identifier">sub</span>  <span class="ruby-value">0x08</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>
+    <span class="ruby-identifier">restrh</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
+                <span class="ruby-identifier">sub</span>  <span class="ruby-value">0x08</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -217,7 +224,7 @@
         
         <div class="method-heading">
           <span class="method-name">nextrow</span><span
-            class="method-args">(ah, al, bcheck = true, **nsopts, &amp;block)</span>
+            class="method-args">(ah, al, bcheck = true, scraddr:0x4000, **nsopts, &amp;block)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -241,6 +248,10 @@
 <dd>
 <p>boundary check flag: <code>false</code> = disable checking, <code>true</code>  = issue <code>ret</code> if out of screen (default) <code>label</code> = jump to label if out of screen, <code>hl</code>|<code>ix</code>|<code>iy</code> = jump to address in a register if out of screen</p>
 </dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>screen memory address as an integer, must be a multiple of 0x2000</p>
+</dd></dl>
 </li></ul>
 
 <p>if block is given and <code>bcheck</code> == <code>true</code> evaluates namespaced block instead of <code>ret</code>.</p>
@@ -260,14 +271,15 @@
 
           
           <div class="method-source-code" id="nextrow-source">
-            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 349</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">nextrow</span>(<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">bcheck</span> = <span class="ruby-keyword">true</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 398</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">nextrow</span>(<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">bcheck</span> = <span class="ruby-keyword">true</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">ah</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">bcheck</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span>[<span class="ruby-identifier">hl_</span>, <span class="ruby-identifier">ix_</span>, <span class="ruby-identifier">iy_</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">bcheck</span>)) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">bcheck</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">and</span> ([<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">al</span>))) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">bcheck</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">ix</span> <span class="ruby-keyword">and</span> ([<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">al</span>))) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">bcheck</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">iy</span> <span class="ruby-keyword">and</span> ([<span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">al</span>))) <span class="ruby-keyword">or</span>
-            <span class="ruby-operator">!</span>[<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) }
+            <span class="ruby-operator">!</span>[<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) } <span class="ruby-keyword">or</span>
+            <span class="ruby-operator">!</span>(<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>))
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;nextline invalid arguments!&quot;</span>
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">ns</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -279,7 +291,7 @@
             <span class="ruby-identifier">add</span>  <span class="ruby-value">0x08</span>
             <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">bcheck</span>
-            <span class="ruby-identifier">cp</span>   <span class="ruby-value">0x58</span>
+            <span class="ruby-identifier">cp</span>   (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>)<span class="ruby-operator">|</span><span class="ruby-value">0x18</span>
             <span class="ruby-keyword">case</span> <span class="ruby-identifier">bcheck</span>
             <span class="ruby-keyword">when</span> <span class="ruby-keyword">true</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">block_given?</span>
@@ -304,11 +316,44 @@
       </div>
 
     
+      <div id="method-i-only_one_bit_set_or_zero-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">only_one_bit_set_or_zero?</span><span
+            class="method-args">(v)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns true if v equals to 0 or only one bit is set.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="only_one_bit_set_or_zero-3F-source">
+            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 28</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">only_one_bit_set_or_zero?</span>(<span class="ruby-identifier">v</span>)
+    <span class="ruby-identifier">v</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-identifier">v</span><span class="ruby-operator">|</span>(<span class="ruby-identifier">v</span><span class="ruby-value">-1</span>))<span class="ruby-value">+1</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">v</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">1</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-i-prevline" class="method-detail ">
         
         <div class="method-heading">
           <span class="method-name">prevline</span><span
-            class="method-args">(ah, al, bcheck = true, **nsopts, &amp;block)</span>
+            class="method-args">(ah, al, bcheck = true, scraddr:0x4000, **nsopts, &amp;block)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -332,6 +377,10 @@
 <dd>
 <p>boundary check flag: <code>false</code> = disable checking, <code>true</code>  = issue <code>ret</code> if out of screen (default) <code>label</code> = jump to label if out of screen, <code>hl</code>|<code>ix</code>|<code>iy</code> = jump to address in a register if out of screen</p>
 </dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>screen memory address as an integer, must be a multiple of 0x2000</p>
+</dd></dl>
 </li></ul>
 
 <p>if block is given and <code>bcheck</code> == <code>true</code> evaluates namespaced block instead of <code>ret</code>.</p>
@@ -351,30 +400,31 @@
 
           
           <div class="method-source-code" id="prevline-source">
-            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 117</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">prevline</span>(<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">bcheck</span> = <span class="ruby-keyword">true</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 125</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">prevline</span>(<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">bcheck</span> = <span class="ruby-keyword">true</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">ah</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">bcheck</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span>[<span class="ruby-identifier">hl_</span>, <span class="ruby-identifier">ix_</span>, <span class="ruby-identifier">iy_</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">bcheck</span>)) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">bcheck</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">and</span> ([<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">al</span>))) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">bcheck</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">ix</span> <span class="ruby-keyword">and</span> ([<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">al</span>))) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">bcheck</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">iy</span> <span class="ruby-keyword">and</span> ([<span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">al</span>))) <span class="ruby-keyword">or</span>
-            <span class="ruby-operator">!</span>[<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) }
+            <span class="ruby-operator">!</span>[<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) } <span class="ruby-keyword">or</span>
+            <span class="ruby-operator">!</span>(<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>))
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;prevline invalid arguments!&quot;</span>
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">ns</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
-            <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">ah</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
-            <span class="ruby-identifier">ora</span>  <span class="ruby-value">0x07</span>
-            <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">ah</span>
-            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">al</span>
-            <span class="ruby-identifier">sub</span>  <span class="ruby-value">0x20</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">ah</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
+                <span class="ruby-identifier">ora</span>  <span class="ruby-value">0x07</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">ah</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">al</span>
+                <span class="ruby-identifier">sub</span>  <span class="ruby-value">0x20</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">bcheck</span>
-            <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">restrh</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
-            <span class="ruby-identifier">cp</span>   <span class="ruby-value">0x40</span>
-            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">eoc</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">restrh</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
+                <span class="ruby-identifier">cp</span>   (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>)
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">eoc</span>
             <span class="ruby-keyword">case</span> <span class="ruby-identifier">bcheck</span>
             <span class="ruby-keyword">when</span> <span class="ruby-keyword">true</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">block_given?</span>
@@ -386,11 +436,11 @@
                 <span class="ruby-identifier">jp</span>  <span class="ruby-identifier">bcheck</span>
             <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">else</span>
-            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
         <span class="ruby-keyword">end</span>
-    <span class="ruby-identifier">restrh</span>  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
-            <span class="ruby-identifier">add</span>  <span class="ruby-value">0x08</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>
+    <span class="ruby-identifier">restrh</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-value">0x08</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -407,7 +457,7 @@
         
         <div class="method-heading">
           <span class="method-name">rctoattr</span><span
-            class="method-args">(r, c, h, l, r_already_in_a = false)</span>
+            class="method-args">(r, c, ah:h, al:l, r_already_in_a:false, scraddr:0x4000)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -427,11 +477,11 @@
 <dd>
 <p>input register or a integer: text column  (may be same as: <code>l</code>)</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>h</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>ah</code>
 <dd>
 <p>output register: address high</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>l</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
 <p>output register: address low (may be same as: <code>c</code>, <code>r</code>)</p>
 </dd></dl>
@@ -439,9 +489,20 @@
 <dd>
 <p>when <code>true</code> there&#39;s no need to load <code>r</code> to <code>a</code></p>
 </dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>screen memory address as an integer, must be a multiple of 0x2000</p>
+</dd></dl>
 </li></ul>
 
-<p>T-states: 57</p>
+<p>T-states: 53</p>
+<ul><li>
+<p>T - 4: if <code>r</code> already in <code>a</code></p>
+</li><li>
+<p>T + 4: if <code>c</code> is a register</p>
+</li><li>
+<p>T + 7: if <code>c</code> is a non-zero integer</p>
+</li></ul>
 
 <p>r &lt; 0  0  0  5r 4r 3r 2r 1r,  c &lt; 0  0  0  5c 4c 3c 2c 1c, h &gt; 0  1  0  1  1  0  5r 4r,  l &lt; 3r 2r 1r 5c 4c 3c 2c 1c</p>
           
@@ -449,23 +510,25 @@
 
           
           <div class="method-source-code" id="rctoattr-source">
-            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 311</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rctoattr</span>(<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">r_already_in_a</span> = <span class="ruby-keyword">false</span>)
-  <span class="ruby-keyword">if</span> <span class="ruby-identifier">r</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">h</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">h</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">3</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">h</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">l</span> <span class="ruby-keyword">or</span>
-        <span class="ruby-operator">!</span>[<span class="ruby-identifier">r</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>)}
+            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 357</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rctoattr</span>(<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">r_already_in_a:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">r</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">ah</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">ah</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">3</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">ah</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">or</span>
+        <span class="ruby-operator">!</span>[<span class="ruby-identifier">r</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>)} <span class="ruby-keyword">or</span>
+        <span class="ruby-operator">!</span>(<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>))
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rctoattr invalid arguments!&quot;</span>
   <span class="ruby-keyword">end</span>
+  <span class="ruby-identifier">attraddr</span> = <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">+</span> <span class="ruby-value">0x1800</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">r</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">r_already_in_a</span>
         <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> {<span class="ruby-identifier">rrca</span>}
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">r</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># r= r r r 0 0 0 a a</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">r</span>, <span class="ruby-identifier">a</span>          <span class="ruby-comment"># r= r r r 0 0 0 H H</span>
         <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000011</span>
-        <span class="ruby-identifier">ora</span>  <span class="ruby-value">0b01011000</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># h= 0 1 0 1 1 0 a a</span>
-        <span class="ruby-identifier">xor</span>  <span class="ruby-value">0b01011000</span> <span class="ruby-comment"># a= 0 0 0 0 0 0 a a</span>
-        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">r</span>          <span class="ruby-comment"># a= r r r 0 0 0 0 0</span>
+        <span class="ruby-identifier">ora</span>  (<span class="ruby-identifier">attraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>)
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># h= S S S 1 1 0 H H</span>
+        <span class="ruby-identifier">xor</span>  (<span class="ruby-identifier">attraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-comment"># a= 0 0 0 0 0 0 H H</span>
+        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">r</span>             <span class="ruby-comment"># a= r r r 0 0 0 0 0</span>
         <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">c</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">c</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># l= r r r c c c c c</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># l= r r r c c c c c</span>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -482,7 +545,7 @@
         
         <div class="method-heading">
           <span class="method-name">rctoscr</span><span
-            class="method-args">(r, c, h, l, r_already_in_a = false)</span>
+            class="method-args">(r, c, ah:h, al:l, r_already_in_a:false, scraddr:0x4000)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -502,11 +565,11 @@
 <dd>
 <p>input register or a integer: text column  (may be same as: <code>l</code>)</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>h</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>ah</code>
 <dd>
 <p>output register: address high</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>l</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
 <p>output register: address low (may be same as: <code>c</code>, <code>r</code>)</p>
 </dd></dl>
@@ -514,17 +577,21 @@
 <dd>
 <p>when <code>true</code> there&#39;s no need to load <code>r</code> to <code>a</code></p>
 </dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>screen memory address as an integer, must be a multiple of 0x2000</p>
+</dd></dl>
 </li></ul>
 
-<p>T-states:</p>
+<p>T-states: 43</p>
 <ul><li>
-<p>47: <code>r_already_in_a</code> == false, <code>c</code> is a register or integer and &lt;&gt; 0</p>
+<p>T - 4: if <code>r</code> already in <code>a</code></p>
 </li><li>
-<p>43: <code>r_already_in_a</code> == true, <code>c</code> is a register or integer and &lt;&gt; 0</p>
+<p>T + 4: if <code>c</code> is a register</p>
 </li><li>
-<p>43: <code>r_already_in_a</code> == false, <code>c</code> is a integer and equals 0</p>
+<p>T + 7: if <code>c</code> is a non-zero integer</p>
 </li><li>
-<p>39: <code>r_already_in_a</code> == true, <code>c</code> is a integer and equals 0</p>
+<p>T + 6: if scraddr has more than one bit set</p>
 </li></ul>
 
 <p>r &lt; 0  0  0  5r 4r 3r 2r 1r,  c &lt; 0  0  0  5c 4c 3c 2c 1c, h &gt; 0  1  0  5r 4r 0  0  0,   l &lt; 3r 2r 1r 5c 4c 3c 2c 1c</p>
@@ -533,21 +600,27 @@
 
           
           <div class="method-source-code" id="rctoscr-source">
-            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 280</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rctoscr</span>(<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">r_already_in_a</span> = <span class="ruby-keyword">false</span>)
-  <span class="ruby-keyword">if</span> <span class="ruby-identifier">r</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">h</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">h</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">3</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">h</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">l</span> <span class="ruby-keyword">or</span>
-        <span class="ruby-operator">!</span>[<span class="ruby-identifier">r</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>)}
+            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 315</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rctoscr</span>(<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">r_already_in_a:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">r</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">ah</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">ah</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">3</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">ah</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">or</span>
+        <span class="ruby-operator">!</span>[<span class="ruby-identifier">r</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>)} <span class="ruby-keyword">or</span>
+        <span class="ruby-operator">!</span>(<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>))
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rctoscr invalid arguments!&quot;</span>
   <span class="ruby-keyword">end</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">r</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">r_already_in_a</span>
-        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00011000</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># h= 0  0  0  a  a  0  0  0</span>
-        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">r</span>          <span class="ruby-comment"># a= 0  0  0  0  0  r  r  r</span>
-        <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> {<span class="ruby-identifier">rrca</span>}  <span class="ruby-comment"># a= r  r  r  0  0  0  0  0</span>
-        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">c</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">c</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># l= r  r  r  c  c  c  c  c</span>
-        <span class="ruby-identifier">set</span>  <span class="ruby-value">6</span>, <span class="ruby-identifier">h</span>       <span class="ruby-comment"># h= 0  1  0  a  a  0  0  0</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">r</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">r_already_in_a</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00011000</span> <span class="ruby-comment"># a= 0  0  0  H  H  0  0  0</span>
+                <span class="ruby-identifier">ora</span>  (<span class="ruby-identifier">scraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">only_one_bit_set_or_zero?</span>(<span class="ruby-identifier">scraddr</span>)
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># h= S  S  S  H  H  0  0  0</span>
+                <span class="ruby-identifier">xor</span>  (<span class="ruby-identifier">scraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">only_one_bit_set_or_zero?</span>(<span class="ruby-identifier">scraddr</span>)
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">r</span>          <span class="ruby-comment"># a= 0  0  0  0  0  r  r  r</span>
+                <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> {<span class="ruby-identifier">rrca</span>}  <span class="ruby-comment"># a= r  r  r  0  0  0  0  0</span>
+                <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">c</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">c</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># l= r  r  r  c  c  c  c  c</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">only_one_bit_set_or_zero?</span>(<span class="ruby-identifier">scraddr</span>)
+            <span class="ruby-identifier">nbit</span> = <span class="ruby-constant">Math</span>.<span class="ruby-identifier">log2</span>(<span class="ruby-identifier">scraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>).<span class="ruby-identifier">to_i</span>
+                <span class="ruby-identifier">set</span>  <span class="ruby-identifier">nbit</span>, <span class="ruby-identifier">ah</span>   <span class="ruby-comment"># h= S  S  S  H  H  0  0  0</span>
+        <span class="ruby-keyword">end</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scraddr</span>.<span class="ruby-identifier">zero?</span>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -564,7 +637,7 @@
         
         <div class="method-heading">
           <span class="method-name">scrtoattr</span><span
-            class="method-args">(i, o=i)</span>
+            class="method-args">(s, o:s, scraddr:0x4000)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -573,24 +646,28 @@
 
         <div class="method-description">
           
-          <p>Converts hi byte screen address to attribute address</p>
+          <p>Converts high byte screen address to attribute address</p>
 
 <p>Modifies: <code>af</code>, <code>o</code></p>
 <ul><li>
-<p><code>i</code>: input register: hi byte screen address</p>
+<p><code>s</code>: input register: hi byte screen address</p>
 </li><li>
-<p><code>o</code>: output register: hi byte attr address, may be same as <code>i</code></p>
+<p><code>o</code>: output register: hi byte attr address, may be same as <code>s</code></p>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>screen memory address as an integer, must be a multiple of 0x2000</p>
+</dd></dl>
 </li></ul>
 
-<p>T-states:</p>
+<p>T-states: </p>
 <ul><li>
-<p>34: when neither <code>i</code> nor <code>o</code> is a register <code>a</code></p>
+<p>34: when neither <code>s</code> nor <code>o</code> is the <code>a</code> register</p>
 </li><li>
-<p>30: when <code>i</code> is a register <code>a</code></p>
+<p>30: when <code>s</code> is the <code>a</code> register but not <code>o</code></p>
 </li><li>
-<p>30: when <code>o</code> is a register <code>a</code></p>
+<p>30: when <code>o</code> is the <code>a</code> register but not <code>s</code></p>
 </li><li>
-<p>26: when each <code>i</code> and <code>o</code> is a register <code>a</code></p>
+<p>26: when each <code>s</code> and <code>o</code> is the <code>a</code> register</p>
 </li></ul>
 
 <p>i &lt; 0  1  0  2a 1a l  l  l, o &gt; 0  1  0  1  1  0  2a 1a</p>
@@ -599,14 +676,17 @@
 
           
           <div class="method-source-code" id="scrtoattr-source">
-            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 399</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">scrtoattr</span>(<span class="ruby-identifier">i</span>, <span class="ruby-identifier">o</span>=<span class="ruby-identifier">i</span>)
+            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 450</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">scrtoattr</span>(<span class="ruby-identifier">s</span>, <span class="ruby-value">o:</span><span class="ruby-identifier">s</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;scrtoattr invalid arguments!&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">i</span>, <span class="ruby-identifier">o</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>)}
+  <span class="ruby-identifier">attraddr</span> = <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">+</span> <span class="ruby-value">0x1800</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">i</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">i</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
-        <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> {<span class="ruby-identifier">rrca</span>}  <span class="ruby-comment"># h= l l l 0 1 ? a a</span>
-        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00001111</span> <span class="ruby-comment"># h= 0 0 0 0 1 ? a a</span>
-        <span class="ruby-identifier">ora</span>  <span class="ruby-value">0b01010000</span> <span class="ruby-comment"># h= 0 1 0 1 1 ? a a</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">s</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">s</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                        <span class="ruby-comment"># a= S S S H H h h h</span>
+        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00011000</span> <span class="ruby-comment"># a= 0 0 0 H H 0 0 0</span>
+        <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> {<span class="ruby-identifier">rrca</span>}  <span class="ruby-comment"># a= 0 0 0 0 0 0 H H</span>
+        <span class="ruby-identifier">ora</span>  (<span class="ruby-identifier">attraddr</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>)
+                        <span class="ruby-comment"># a= S S S 1 1 0 H H</span>
         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">o</span>, <span class="ruby-identifier">a</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">o</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
@@ -624,7 +704,7 @@
         
         <div class="method-heading">
           <span class="method-name">xy_to_pixel_addr</span><span
-            class="method-args">(x, y)</span>
+            class="method-args">(x, y, scraddr:0x4000)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -639,9 +719,9 @@
 
           
           <div class="method-source-code" id="xy_to_pixel_addr-source">
-            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 28</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">xy_to_pixel_addr</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>)
-    <span class="ruby-value">0x4000</span> <span class="ruby-operator">+</span> (
+            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 33</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">xy_to_pixel_addr</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
+    <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">+</span> (
         (
             (
                 ((<span class="ruby-identifier">y</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x07</span>) <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">3</span>) <span class="ruby-operator">|</span> ((<span class="ruby-identifier">y</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b111000</span>) <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">3</span>) <span class="ruby-operator">|</span> ((<span class="ruby-identifier">y</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xffc0</span>))
@@ -663,7 +743,7 @@
         
         <div class="method-heading">
           <span class="method-name">xytoscr</span><span
-            class="method-args">(y, x, h, l, s, t)</span>
+            class="method-args">(y, x, ah:h, al:l, s:b, t:c, scraddr:0x4000)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -672,79 +752,103 @@
 
         <div class="method-description">
           
-          <p>Converts x,y coordinates to screen byte address and bits shift</p>
+          <p>Converts x,y coordinates to the screen byte address and bits shift</p>
 
 <p>Modifies: <code>af</code>, <code>y</code>, <code>x</code>, <code>s</code>, <code>t</code></p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>y</code>
 <dd>
-<p>input register: vertical-coordinate (may be a or same as: <code>h</code>, <code>l</code>, <code>s</code>, <code>t</code>)</p>
+<p>input register: vertical-coordinate (the <code>a</code> register or the same as: <code>h</code>, <code>l</code>, <code>s</code> or <code>t</code>)</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>x</code>
 <dd>
 <p>input register: horizontal-coordinate (may be same as: <code>l</code>)</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>h</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>ah</code>
 <dd>
 <p>output register: address high</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>l</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
 <p>output register: address low</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>s</code>
 <dd>
-<p>output register: bits shift</p>
+<p>output register: bits shift 0..7</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>t</code>
 <dd>
 <p>temporary register</p>
 </dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>screen memory address as an integer, must be a multiple of 0x2000</p>
+</dd></dl>
 </li></ul>
 
-<p>T-states: 101</p>
+<p>T-states: 101/104 depending on scraddr (101 for default 0x4000)</p>
 
-<p>y &lt; a1 a2 h3 h2 h1 l3 l2 l1,  x &lt; x5 x4 x3 x2 x1 s3 s2 s1, h &gt; 0  1  0  a1 a2 l3 l2 l1,  l &gt; h3 h2 h1 x5 x4 x3 x2 x1,  s &gt; 0  0  0  0  0  s3 s2 s1</p>
+<p>y &lt; a1 a2 h3 h2 h1 l3 l2 l1,  x &lt; x5 x4 x3 x2 x1 s3 s2 s1, h &gt; S  S  S  a1 a2 l3 l2 l1,  l &gt; h3 h2 h1 x5 x4 x3 x2 x1,  s &gt; 0  0  0  0  0  s3 s2 s1</p>
           
           
 
           
           <div class="method-source-code" id="xytoscr-source">
-            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 174</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">xytoscr</span>(<span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">s</span>, <span class="ruby-identifier">t</span>)
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">x</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">x</span>,<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>,<span class="ruby-identifier">s</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>,<span class="ruby-identifier">s</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">4</span> <span class="ruby-keyword">or</span>
-            <span class="ruby-operator">!</span>[<span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">s</span>, <span class="ruby-identifier">t</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>)}
+            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 184</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">xytoscr</span>(<span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">s:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">x</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">x</span>,<span class="ruby-identifier">ah</span>,<span class="ruby-identifier">al</span>,<span class="ruby-identifier">s</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ah</span>,<span class="ruby-identifier">al</span>,<span class="ruby-identifier">s</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">4</span> <span class="ruby-keyword">or</span>
+            <span class="ruby-operator">!</span>[<span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">s</span>, <span class="ruby-identifier">t</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>)} <span class="ruby-keyword">or</span>
+            <span class="ruby-operator">!</span>(<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>))
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;xytoscr invalid arguments!&quot;</span>
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
-          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>
         <span class="ruby-keyword">else</span>
-          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">y</span>
-        <span class="ruby-keyword">end</span>            <span class="ruby-comment"># a= a a h h h l l l</span>
-        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">s</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># s= 0 0 0 0 0 l l l</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">y</span>
+        <span class="ruby-keyword">end</span>                 <span class="ruby-comment"># a= H H h h h l l l</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">s</span>, <span class="ruby-identifier">a</span>   <span class="ruby-comment"># s= 0 0 0 0 0 l l l</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
-          <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">h</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">ah</span>
         <span class="ruby-keyword">else</span>
-          <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">y</span>       <span class="ruby-comment"># a= a a h h h 0 0 0</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">y</span>      <span class="ruby-comment"># a= H H h h h 0 0 0</span>
         <span class="ruby-keyword">end</span>
-        <span class="ruby-identifier">rrca</span>           <span class="ruby-comment"># a= 0 a a h h h 0 0</span>
-        <span class="ruby-identifier">scf</span>
-        <span class="ruby-identifier">rra</span>            <span class="ruby-comment"># a= 1 0 a a h h h 0</span>
-        <span class="ruby-identifier">rrca</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># h= 0 1 0 a a h h h</span>
-        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># t= 0 0 0 0 0 h h h</span>
-        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">h</span>         <span class="ruby-comment"># a= 0 1 0 a a 0 0 0</span>
-        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">s</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># h= 0 1 0 a a l l l</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span>      <span class="ruby-comment"># a= x x x x x s s s</span>
-        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">s</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># s= 0 0 0 0 0 s s s</span>
-        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">x</span>         <span class="ruby-comment"># a= x x x x x 0 0 0</span>
-        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">t</span>         <span class="ruby-comment"># a= x x x x x h h h</span>
-        <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># l= h h h x x x x x</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">only_one_bit_set_or_zero?</span>(<span class="ruby-identifier">scraddr</span>)
+            <span class="ruby-keyword">if</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x2000</span>).<span class="ruby-identifier">zero?</span>
+                <span class="ruby-identifier">rrca</span>        <span class="ruby-comment"># a= 0 H H h h h 0 0</span>
+            <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">scf</span>
+                <span class="ruby-identifier">rra</span>         <span class="ruby-comment"># a= 1 H H h h h 0 0</span>
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">if</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x4000</span>).<span class="ruby-identifier">zero?</span>
+                <span class="ruby-identifier">rrca</span>        <span class="ruby-comment"># a= 0 S H H h h h 0</span>
+            <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">scf</span>
+                <span class="ruby-identifier">rra</span>         <span class="ruby-comment"># a= 1 S H H h h h 0</span>
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">if</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x8000</span>).<span class="ruby-identifier">zero?</span>
+                <span class="ruby-identifier">rrca</span>        <span class="ruby-comment"># a= 0 S S H H h h h</span>
+            <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">scf</span>
+                <span class="ruby-identifier">rra</span>         <span class="ruby-comment"># a= 1 S S H H h h h</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }
+                <span class="ruby-identifier">ora</span> (<span class="ruby-identifier">scraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>)
+        <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>  <span class="ruby-comment"># h= S S S H H h h h</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">a</span>   <span class="ruby-comment"># t= 0 0 0 0 0 h h h</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">ah</span>     <span class="ruby-comment"># a= S S S H H 0 0 0</span>
+                <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">s</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>  <span class="ruby-comment"># h= S S S H H l l l</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span>   <span class="ruby-comment"># a= x x x x x s s s</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">s</span>, <span class="ruby-identifier">a</span>   <span class="ruby-comment"># s= 0 0 0 0 0 s s s</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">x</span>      <span class="ruby-comment"># a= x x x x x 0 0 0</span>
+                <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">t</span>      <span class="ruby-comment"># a= x x x x x h h h</span>
+                <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>  <span class="ruby-comment"># l= h h h x x x x x</span>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -761,7 +865,7 @@
         
         <div class="method-heading">
           <span class="method-name">ytoscr</span><span
-            class="method-args">(y, h, l, t, col=nil)</span>
+            class="method-args">(y, ah:h, al:l, col:nil, t:c, scraddr:0x4000)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -770,18 +874,18 @@
 
         <div class="method-description">
           
-          <p>Converts 0,y coordinates to screen byte address</p>
+          <p>Converts 0,y coordinates to the screen byte address</p>
 
 <p>Modifies: <code>af</code>, <code>y</code>, <code>h</code>, <code>l</code>, <code>t</code></p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>y</code>
 <dd>
 <p>input register: vertical-coordinate (may be same as: <code>h</code>, <code>l</code> or <code>a</code>)</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>h</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>ah</code>
 <dd>
 <p>output register: address high</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>l</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
 <p>output register: address low</p>
 </dd></dl>
@@ -791,51 +895,58 @@
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>col</code>
 <dd>
-<p>optional column (0-31) as a register (must not be same as other arguments)</p>
+<p>optional 8-bit column number (0-31) as a register (must not be same as other arguments)</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>screen memory address as an integer, must be a multiple of 0x2000</p>
 </dd></dl>
 </li></ul>
 
-<p>T-states: 73</p>
+<p>T-states: 73/81 if <code>col</code> is not nil</p>
 
-<p>y &lt; a1 a2 h3 h2 h1 l3 l2 l1, h &gt; 0  1  0  a1 a2 l3 l2 l1,  l &gt; h3 h2 h1 0  0  0  0  0</p>
+<p>y &lt; a1 a2 h3 h2 h1 l3 l2 l1, h &gt; S  S  S  a1 a2 l3 l2 l1,  l &gt; h3 h2 h1 0  0  0  0  0</p>
           
           
 
           
           <div class="method-source-code" id="ytoscr-source">
-            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 226</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ytoscr</span>(<span class="ruby-identifier">y</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">t</span>, <span class="ruby-identifier">col</span>=<span class="ruby-keyword">nil</span>)
-    <span class="ruby-keyword">if</span> [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">3</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">y</span> <span class="ruby-keyword">or</span>
-            <span class="ruby-operator">!</span>[<span class="ruby-identifier">y</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">t</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>) } <span class="ruby-keyword">or</span>
-            (<span class="ruby-identifier">col</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">y</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">t</span>, <span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">col</span>)) <span class="ruby-keyword">or</span>
-            (<span class="ruby-operator">!</span><span class="ruby-identifier">col</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">col</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>))
+            <pre><span class="ruby-comment"># File zxlib/gfx.rb, line 257</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ytoscr</span>(<span class="ruby-identifier">y</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">col:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
+    <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ah</span>,<span class="ruby-identifier">al</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ah</span>,<span class="ruby-identifier">al</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">3</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">y</span> <span class="ruby-keyword">or</span>
+            <span class="ruby-operator">!</span>[<span class="ruby-identifier">y</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">t</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>) } <span class="ruby-keyword">or</span>
+            (<span class="ruby-identifier">col</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">y</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">t</span>, <span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">col</span>)) <span class="ruby-keyword">or</span>
+            (<span class="ruby-operator">!</span><span class="ruby-identifier">col</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">col</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>)) <span class="ruby-keyword">or</span>
+            <span class="ruby-operator">!</span>(<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>))
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;ytoscr invalid arguments!&quot;</span>
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
-          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>
         <span class="ruby-keyword">else</span>
-          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">y</span>
-        <span class="ruby-keyword">end</span>             <span class="ruby-comment"># a= a a h h h l l l</span>
-        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># h= 0 0 0 0 0 l l l</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">y</span>
+        <span class="ruby-keyword">end</span>                       <span class="ruby-comment"># a= H H h h h l l l</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># h= 0 0 0 0 0 l l l</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
-            <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">l</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">al</span>
         <span class="ruby-keyword">else</span>
-            <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">y</span>        <span class="ruby-comment"># a= a a h h h 0 0 0</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">y</span>
+        <span class="ruby-keyword">end</span>                       <span class="ruby-comment"># a= H H h h h 0 0 0</span>
+                <span class="ruby-identifier">rlca</span>              <span class="ruby-comment"># a= H h h h 0 0 0 H</span>
+                <span class="ruby-identifier">rlca</span>              <span class="ruby-comment"># a= h h h 0 0 0 H H</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># b= h h h 0 0 0 H H</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-value">0b11100000</span>   <span class="ruby-comment"># a= h h h 0 0 0 0 0</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-identifier">col</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">col</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># l= h h h c c c c c</span>
+                <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">col</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">col</span>   <span class="ruby-comment"># a= h h h 0 0 0 0 0</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">ah</span>           <span class="ruby-comment"># a= 0 0 0 0 0 0 H H</span>
+                <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rlca</span> }
+                <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">t</span>            <span class="ruby-comment"># a= 0 0 0 H H l l l</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scraddr</span>.<span class="ruby-identifier">zero?</span>
+                <span class="ruby-identifier">ora</span>  (<span class="ruby-identifier">scraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-comment"># a= S S S H H l l l</span>
         <span class="ruby-keyword">end</span>
-        <span class="ruby-identifier">rlca</span>            <span class="ruby-comment"># a= a h h h 0 0 0 a</span>
-        <span class="ruby-identifier">rlca</span>            <span class="ruby-comment"># a= h h h 0 0 0 a a</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># b= h h h 0 0 0 a a</span>
-        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b11100000</span>
-        <span class="ruby-identifier">add</span>  <span class="ruby-identifier">col</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">col</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># l= h h h c c c c c</span>
-        <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">col</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">col</span> <span class="ruby-comment"># l= h h h 0 0 0 0 0</span>
-        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">h</span>          <span class="ruby-comment"># a= 0 0 0 0 0 0 a a</span>
-        <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rlca</span> }
-        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">t</span>          <span class="ruby-comment"># a= 0 0 0 a a l l l</span>
-        <span class="ruby-identifier">ora</span>  <span class="ruby-value">0x40</span>       <span class="ruby-comment"># a= 0 1 0 a a l l l</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># h= 0 1 0 a a l l l</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># h= S S S H H l l l</span>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>

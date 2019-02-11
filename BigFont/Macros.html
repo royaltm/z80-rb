@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module BigFont::Macros - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-enlarge_char8_16">#enlarge_char8_16</a>
+    
+    <li ><a href="#method-i-interlace_pixels16">#interlace_pixels16</a>
+    
+    <li ><a href="#method-i-mix_lines8_16">#mix_lines8_16</a>
+    
+    <li ><a href="#method-i-widen_pixels8_16">#widen_pixels8_16</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-BigFont::Macros">
+  <h1 id="module-BigFont::Macros" class="module">
+    module BigFont::Macros
+  </h1>
+
+  <section class="description">
+    
+<h2 id="module-BigFont::Macros-label-BigFont+macros."><a href="../BigFont.html"><code>BigFont</code></a> macros.<span><a href="#module-BigFont::Macros-label-BigFont+macros.">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-enlarge_char8_16" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">enlarge_char8_16</span><span
+            class="method-args">(compact:true, over:false, scraddr:0x4000, assume_chars_aligned:true)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Outputs an enlarged 8x8 character with anti-aliasing into the screen memory.</p>
+<ul><li>
+<p>The register <code>hl</code> should hold the address of the character data to print.</p>
+</li><li>
+<p>The register <code>hl&#39;</code> should hold the address of the destination screen memory.</p>
+</li><li>
+<p>The register <code>c&#39;</code> should hold the height of the character to print, usually 8.</p>
+</li><li><dl class="rdoc-list note-list"><dt><code>compact</code>
+<dd>
+<p>set to <code>false</code> for a longer, but faster code</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>over</code>
+<dd>
+<p>set to one of: <code>:xor</code>, <code>:and</code>, <code>:or</code> for the character pixels to be combined with the screen memory; <code>false</code> to overwrite the screen memory</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>screen memory address as an integer, must be a multiple of 0x2000</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>assume_chars_aligned</code>
+<dd>
+<p><code>true</code> if the character address in <code>hl</code> is aligned to the multiple of 8 (<code>hl</code> % 8 == 0)</p>
+</dd></dl>
+</li></ul>
+          
+          
+
+          
+          <div class="method-source-code" id="enlarge_char8_16-source">
+            <pre><span class="ruby-comment"># File utils/bigfont.rb, line 202</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">enlarge_char8_16</span>(<span class="ruby-value">compact:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">over:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">assume_chars_aligned:</span><span class="ruby-keyword">true</span>)
+  <span class="ruby-identifier">combine</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">over</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-value">:xor</span>
+    <span class="ruby-identifier">proc</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">xor</span> <span class="ruby-identifier">x</span> }
+  <span class="ruby-keyword">when</span> <span class="ruby-value">:and</span>
+    <span class="ruby-identifier">proc</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">anda</span> <span class="ruby-identifier">x</span> }
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">proc</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">ora</span> <span class="ruby-identifier">x</span> }
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>         <span class="ruby-comment"># hl&#39; - screen adddress, c&#39; source height, hl - character address</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>] <span class="ruby-comment"># 1st line</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">assume_chars_aligned</span>
+              <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">l</span>       <span class="ruby-comment"># assuming characters are aligned to 8 bytes</span>
+    <span class="ruby-keyword">else</span>
+              <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">mloop</span>     <span class="ruby-identifier">exx</span>
+              <span class="ruby-identifier">widen_pixels8_16</span> <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-value">unroll:</span><span class="ruby-operator">!</span><span class="ruby-identifier">compact</span>
+              <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>  <span class="ruby-comment"># preserve the input line</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">over</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+              <span class="ruby-identifier">combine</span>.<span class="ruby-identifier">call</span> [<span class="ruby-identifier">hl</span>]
+              <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span> <span class="ruby-comment"># put on screen over</span>
+              <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">l</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
+              <span class="ruby-identifier">combine</span>.<span class="ruby-identifier">call</span> [<span class="ruby-identifier">hl</span>]
+              <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span> <span class="ruby-comment"># put on screen over (leave hl at 2nd half)</span>
+    <span class="ruby-keyword">else</span>
+              <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">d</span> <span class="ruby-comment"># put on screen</span>
+              <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">l</span>
+              <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">e</span> <span class="ruby-comment"># put on screen (leave hl at 2nd half)</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
+              <span class="ruby-identifier">call</span> <span class="ruby-identifier">next_line</span>
+    <span class="ruby-keyword">else</span>
+              <span class="ruby-identifier">nextline</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">eoc</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>
+    <span class="ruby-keyword">end</span>
+              <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">c</span>
+              <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">eoc</span>  <span class="ruby-comment"># 15th line?</span>
+              <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>  <span class="ruby-comment"># restore the input line</span>
+              <span class="ruby-identifier">exx</span>
+
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, [<span class="ruby-identifier">hl</span>] <span class="ruby-comment"># next input line</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">assume_chars_aligned</span>
+              <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">l</span>       <span class="ruby-comment"># assuming characters are aligned to 8 bytes</span>
+    <span class="ruby-keyword">else</span>
+              <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span>
+    <span class="ruby-keyword">end</span>
+              <span class="ruby-identifier">mix_lines8_16</span> <span class="ruby-identifier">c</span>, <span class="ruby-value">o:</span><span class="ruby-identifier">d</span>, <span class="ruby-value">t1:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">t2:</span><span class="ruby-identifier">e</span> <span class="ruby-comment"># d: 1st half</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>    <span class="ruby-comment"># e: 2nd half</span>
+
+              <span class="ruby-identifier">interlace_pixels16</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-value">unroll:</span><span class="ruby-operator">!</span><span class="ruby-identifier">compact</span>) <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">ex</span> <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>  <span class="ruby-comment"># save 1st half</span>
+              <span class="ruby-keyword">end</span>
+              <span class="ruby-identifier">exx</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">over</span>
+              <span class="ruby-identifier">combine</span>.<span class="ruby-identifier">call</span> [<span class="ruby-identifier">hl</span>]
+              <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span> <span class="ruby-comment"># put on screen 2nd half over</span>
+              <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">l</span>
+              <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+              <span class="ruby-identifier">combine</span>.<span class="ruby-identifier">call</span> [<span class="ruby-identifier">hl</span>]
+              <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span> <span class="ruby-comment"># put on screen 1st half over</span>
+    <span class="ruby-keyword">else</span>
+              <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span> <span class="ruby-comment"># put on screen 2nd half</span>
+              <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">l</span>
+              <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+              <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span> <span class="ruby-comment"># put on screen 1st half</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
+              <span class="ruby-identifier">call</span> <span class="ruby-identifier">next_line</span>
+    <span class="ruby-keyword">else</span>
+              <span class="ruby-identifier">nextline</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">eoc</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>
+    <span class="ruby-keyword">end</span>
+              <span class="ruby-identifier">exx</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>    <span class="ruby-comment"># 2nd line</span>
+              <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">mloop</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
+    <span class="ruby-identifier">next_line</span> <span class="ruby-identifier">label</span>
+              <span class="ruby-identifier">nextline</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">pop</span> <span class="ruby-identifier">af</span>     <span class="ruby-comment"># discard return address</span>
+                <span class="ruby-identifier">jr</span>  <span class="ruby-identifier">eoc</span>
+              <span class="ruby-keyword">end</span>
+              <span class="ruby-identifier">ret</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-interlace_pixels16" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">interlace_pixels16</span><span
+            class="method-args">(f1, f2, unroll:true, &amp;block)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Interlaces pixels from the <code>f1</code> and <code>f2</code> registers into the <code>a</code> register.</p>
+
+<p>Evaluates the given <code>block</code> after 8 pixels have been mixed. The block is being evaluated by <a href="../Z80/Program.html#method-i-ns"><code>Z80::Program#ns</code></a> and should not alter <code>f1</code> or <code>f2</code> registers.</p>
+
+<p>If <code>unroll</code> is <code>true</code> instead of looping, the instructions are being unrolled.</p>
+
+<p>Modifies: <code>af</code>, <code>f1</code> and <code>f2</code>. Optionally uses the <code>b</code> register if <code>unroll</code> is +false.</p>
+
+<pre>    Input bits                   Output bits
+f1: FEDCBA98, f2: 76543210 -&gt; a: F7E6D5C4, B3A29180
+f1: FDB97531, f2: ECA86420 -&gt; a: FEDCBA98, 76543210</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="interlace_pixels16-source">
+            <pre><span class="ruby-comment"># File utils/bigfont.rb, line 103</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">interlace_pixels16</span>(<span class="ruby-identifier">f1</span>, <span class="ruby-identifier">f2</span>, <span class="ruby-value">unroll:</span><span class="ruby-keyword">true</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-comment"># -&gt;(a, b) { 8.times.inject(0) {|c,i| c|(((b&gt;&gt;i)&amp;1)&lt;&lt;(i*2))|(((a&gt;&gt;i)&amp;1)&lt;&lt;(i*2+1)) } }</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll</span>
+      <span class="ruby-value">4</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">f1</span>
+                <span class="ruby-identifier">rla</span>
+                <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">f2</span>
+                <span class="ruby-identifier">rla</span>
+      <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">ns</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+      <span class="ruby-value">4</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">f1</span>
+                <span class="ruby-identifier">rla</span>
+                <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">f2</span>
+                <span class="ruby-identifier">rla</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">4</span>
+      <span class="ruby-identifier">mixloop1</span>  <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">f1</span>
+                <span class="ruby-identifier">rla</span>
+                <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">f2</span>
+                <span class="ruby-identifier">rla</span>
+                <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">mixloop1</span>
+                <span class="ruby-identifier">ns</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">4</span>
+      <span class="ruby-identifier">mixloop2</span>  <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">f1</span>
+                <span class="ruby-identifier">rla</span>
+                <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">f2</span>
+                <span class="ruby-identifier">rla</span>
+                <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">mixloop2</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-mix_lines8_16" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">mix_lines8_16</span><span
+            class="method-args">(r=b, o:c, t1:d, t2:e)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Mixes two consecutive 8-pixel lines into the 16-pixel middle anti-aliasing line. The resulting bits from this routine needs to be interlaced in order to be displayed.</p>
+
+<p>On input the <code>a</code> and <code>r</code> registers should hold the 1st and the 2nd line respectively. As a result the <code>o</code> and <code>a</code> registers should hold the mixed output pixels.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>t1</code>, <code>t2</code>
+<dd>
+<p>Temporary 8-bit registers.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>o</code>, <code>t1</code>, <code>t2</code>. Preserves the <code>r</code> register.</p>
+
+<pre>8-bit pixels  16-bit pixels
+76543210      FEDCBA98 76543210 bit index
+11010110      11110011 00111100 1st input line
+              00011110 00111000 anti-aliasing line
+00100100      00001100 00110000 2nd input line
+
+Display result bits     Actual result bits
+FEDCBA98 76543210 -&gt; o: FDB97531, a: ECA86420</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="mix_lines8_16-source">
+            <pre><span class="ruby-comment"># File utils/bigfont.rb, line 156</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mix_lines8_16</span>(<span class="ruby-identifier">r</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">o:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">t1:</span><span class="ruby-identifier">d</span>, <span class="ruby-value">t2:</span><span class="ruby-identifier">e</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">a</span>, <span class="ruby-identifier">r</span>, <span class="ruby-identifier">o</span>, <span class="ruby-identifier">t1</span>, <span class="ruby-identifier">t2</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">5</span>
+  <span class="ruby-comment"># -&gt;(a, r) {</span>
+  <span class="ruby-comment">#   a1 = a | (a&gt;&gt;1) &amp; 0xff</span>
+  <span class="ruby-comment">#   a2 = a | (a&lt;&lt;1) &amp; 0xff</span>
+  <span class="ruby-comment">#   r1 = r | (r&gt;&gt;1) &amp; 0xff</span>
+  <span class="ruby-comment">#   r2 = r | (r&lt;&lt;1) &amp; 0xff</span>
+  <span class="ruby-comment">#   o, a = r1 &amp; a1 &amp; (a|r), r2 &amp; a2 &amp; (a|r) }</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t1</span>, <span class="ruby-identifier">a</span>   <span class="ruby-comment"># a</span>
+              <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">r</span>       <span class="ruby-comment"># a|r, clears CF=0</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t2</span>, <span class="ruby-identifier">a</span>   <span class="ruby-comment"># a|r</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">t1</span>
+              <span class="ruby-identifier">rra</span>          <span class="ruby-comment"># (a &gt;&gt; 1) CF==0</span>
+              <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">t1</span>      <span class="ruby-comment"># (a &gt;&gt; 1) | a, clears CF=0</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">o</span>, <span class="ruby-identifier">a</span>    <span class="ruby-comment"># a1 = (a &gt;&gt; 1) | a</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">r</span>    <span class="ruby-comment"># r</span>
+              <span class="ruby-identifier">rra</span>          <span class="ruby-comment"># (r &gt;&gt; 1) CF==0</span>
+              <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">r</span>       <span class="ruby-comment"># r1 = (r &gt;&gt; 1) | r</span>
+              <span class="ruby-identifier">anda</span> <span class="ruby-identifier">o</span>       <span class="ruby-comment"># r1&amp;=a1</span>
+              <span class="ruby-identifier">anda</span> <span class="ruby-identifier">t2</span>      <span class="ruby-comment"># r1&amp;a1&amp;=(a|r)</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">o</span>, <span class="ruby-identifier">a</span>    <span class="ruby-comment"># r1&amp;a1&amp;(a|r)</span>
+
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">t1</span>   <span class="ruby-comment"># a</span>
+              <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>       <span class="ruby-comment"># (a &lt;&lt; 1)</span>
+              <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">t1</span>      <span class="ruby-comment"># (a &lt;&lt; 1) | a</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t1</span>, <span class="ruby-identifier">a</span>   <span class="ruby-comment"># a2 = a | (a &lt;&lt; 1)</span>
+              <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">r</span>    <span class="ruby-comment"># r</span>
+              <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>       <span class="ruby-comment"># (r &lt;&lt; 1)</span>
+              <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">r</span>       <span class="ruby-comment"># r2 = (r &lt;&lt; 1) | r</span>
+              <span class="ruby-identifier">anda</span> <span class="ruby-identifier">t1</span>      <span class="ruby-comment"># r2&amp;=a2</span>
+              <span class="ruby-identifier">anda</span> <span class="ruby-identifier">t2</span>      <span class="ruby-comment"># r2&amp;a2&amp;=(a|r)</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-widen_pixels8_16" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">widen_pixels8_16</span><span
+            class="method-args">(f1, f2, unroll:true)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Each bit of the <code>a</code> register is duplicated and placed in the <code>f1</code> and <code>f2</code> registers.</p>
+
+<p>Modifies: <code>af</code>, <code>f1</code> and <code>f2</code>. Optionally uses <code>b</code> register if <code>unroll</code> is +false.</p>
+
+<p>Preserves the <code>a</code> register&#39;s content.</p>
+
+<p>If <code>unroll</code> is <code>true</code> instead of looping, the instructions are being unrolled.</p>
+
+<pre>   Input bits        Output bits
+a: 76543210   -&gt; f1: 77665544, f2: 33221100</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="widen_pixels8_16-source">
+            <pre><span class="ruby-comment"># File utils/bigfont.rb, line 62</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">widen_pixels8_16</span>(<span class="ruby-identifier">f1</span>, <span class="ruby-identifier">f2</span>, <span class="ruby-value">unroll:</span><span class="ruby-keyword">true</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">f1</span>, <span class="ruby-identifier">f2</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>)} <span class="ruby-keyword">and</span> <span class="ruby-identifier">f1</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">f2</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll</span>
+      <span class="ruby-value">4</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                  <span class="ruby-identifier">rrca</span>
+                  <span class="ruby-identifier">rr</span>  <span class="ruby-identifier">f2</span>
+                  <span class="ruby-identifier">sra</span> <span class="ruby-identifier">f2</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-value">4</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                  <span class="ruby-identifier">rrca</span>
+                  <span class="ruby-identifier">rr</span>  <span class="ruby-identifier">f1</span>
+                  <span class="ruby-identifier">sra</span> <span class="ruby-identifier">f1</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">else</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">4</span>
+      <span class="ruby-identifier">wideloop1</span>   <span class="ruby-identifier">rrca</span>
+                  <span class="ruby-identifier">rr</span>   <span class="ruby-identifier">f2</span>
+                  <span class="ruby-identifier">sra</span>  <span class="ruby-identifier">f2</span>
+                  <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">wideloop1</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">4</span>
+      <span class="ruby-identifier">wideloop2</span>   <span class="ruby-identifier">rrca</span>
+                  <span class="ruby-identifier">rr</span>   <span class="ruby-identifier">f1</span>
+                  <span class="ruby-identifier">sra</span>  <span class="ruby-identifier">f1</span>
+                  <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">wideloop2</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

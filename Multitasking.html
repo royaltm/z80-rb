@@ -130,7 +130,7 @@
 <ul><li>
 <p>Task&#39;s code shouldn&#39;t change interrupt handler (no tampering with register <code>I</code> and no <code>IM</code> instructions).</p>
 </li><li>
-<p>Stacks may be moved up when other tasks terminate - tasks shouldn&#39;t store pointers to stack.</p>
+<p>Stacks may be moved up when other tasks terminate - tasks shouldn&#39;t store pointers to a stack.</p>
 </li><li>
 <p>When using <code>SP</code> for other purposes always disable interrupts and restore <code>SP</code> before enabling them.</p>
 </li><li>
@@ -156,7 +156,7 @@
 
 <h5 id="class-Multitasking-label-Task+registers-3A">Task registers:<span><a href="#class-Multitasking-label-Task+registers-3A">&para;</a> <a href="#top">&uarr;</a></span></h5>
 
-<p>Registers may be used freely with some limitations (<code>SP</code>, <code>IY</code>) mentioned above. When starting task registers contain:</p>
+<p>Registers may be used freely with some limitations (<code>SP</code>, <code>IY</code>) mentioned above. When the task is started, registers contain:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>SP</code>
 <dd>
 <p>The task&#39;s end of stack - 2. <code>SP</code> points to the address of <code>terminate</code> routine, so invoking <code>ret</code> will terminate the task.</p>

@@ -59,9 +59,8 @@
   <ul class="link-list" role="directory">
     <li><a href="#label-ruby-Z80">ruby-Z80</a>
     <li><a href="#label-A+Z80+assembler+powered+by+ruby.">A Z80 assembler powered by ruby.</a>
-    <li><a href="#label-Now-2C+see+this-3A">Now, see this:</a>
     <li><a href="#label-More+study+at-3A">More study at:</a>
-    <li><a href="#label-See+examples+in+examples+dir.">See examples in <code>examples</code> dir.</a>
+    <li><a href="#label-See+examples+in+examples+dir.">See <a href="examples">examples</a> in <code>examples</code> dir.</a>
     <li><a href="#label-Also+features-3A">Also features:</a>
     <li><a href="#label-Download">Download</a>
     <li><a href="#label-Requirements">Requirements</a>
@@ -89,15 +88,12 @@
 <h1 id="label-ruby-Z80">ruby-Z80<span><a href="#label-ruby-Z80">&para;</a> <a href="#top">&uarr;</a></span></h1>
 
 <h2 id="label-A+Z80+assembler+powered+by+ruby.">A <a href="Z80.html"><code>Z80</code></a> assembler powered by ruby.<span><a href="#label-A+Z80+assembler+powered+by+ruby.">&para;</a> <a href="#top">&uarr;</a></span></h2>
-<dl class="rdoc-list note-list"><dt>Author
-<dd>
-<p>Rafał Michalski</p>
-</dd></dl>
 
-<h3 id="label-Now-2C+see+this-3A">Now, see this:<span><a href="#label-Now-2C+see+this-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
+<p><a href="https://www.ruby-lang.org">Ruby</a> is a powerfull meta language, so why not to leverage its meta powers to have the ultimate macro system, compiler and builder for the <a href="Z80.html"><code>Z80</code></a> assembler?</p>
+
+<p>Now, to answer the question git clone this repo, set the <code>RUBYLIB</code> environment variable to the cloned repo&#39;s directory and go to Ruby&#39;s <code>irb</code> or your another REP of choice and snap&#39;&amp;&#39;paste this:</p>
 
 <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;z80&#39;</span>
-<span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxlib/basic&#39;</span>
 
 <span class="ruby-keyword">class</span> <span class="ruby-constant">MyZXMath</span>
   <span class="ruby-keyword">module</span> <span class="ruby-constant">Macros</span>
@@ -156,7 +152,7 @@
 <span class="ruby-identifier">puts</span> <span class="ruby-identifier">calc</span>.<span class="ruby-identifier">debug</span>
 </pre>
 
-<p>check this out:</p>
+<p>check the debug output:</p>
 
 <pre>8000: 2A2080      ld   hl, (8020H)     -&gt; multiplicand
 8003: 3A2280      ld   a, (8022H)      -&gt; multiplicator
@@ -189,25 +185,25 @@
 803C: 0A                      .
 ^^^^^^^^^^^^^^ MyZXMath ^^^^^^^^^^^^^^</pre>
 
-<p>there&#39;s more…</p>
+<p>wait, there&#39;s more…</p>
 
-<pre class="ruby"><span class="ruby-identifier">prog</span> = <span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-END</span>
-<span class="ruby-value">   10 CLEAR 32767
-   20 LOAD &quot;multiply&quot;CODE
-   30 INPUT &quot;Multiplicand: &quot;, x
-   40 INPUT &quot;Multiplicator: &quot;, y
-   50 POKE 32800, x-INT(x/256)*256
-   60 POKE 32801, INT(x/256)
-   70 POKE 32802, y
-   80 PRINT &quot;x: &quot;, x, &quot;y: &quot;, y
-   90 PRINT USR 32768
-  100 GO TO 30
-</span><span class="ruby-identifier"> END</span>
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxlib/basic&#39;</span>
 
- <span class="ruby-identifier">puts</span> <span class="ruby-identifier">prog</span>
+<span class="ruby-identifier">prog</span> = <span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-END</span>
+<span class="ruby-value">  10 CLEAR 32767
+  20 LOAD &quot;multiply&quot;CODE
+  30 INPUT &quot;Multiplicand: &quot;, x
+  40 INPUT &quot;Multiplicator: &quot;, y
+  50 POKE 32800, x-INT(x/256)*256
+  60 POKE 32801, INT(x/256)
+  70 POKE 32802, y
+  80 PRINT &quot;x: &quot;, x, &quot;y: &quot;, y
+  90 PRINT USR 32768
+ 100 GO TO 30
+</span><span class="ruby-identifier">END</span>
+
+<span class="ruby-identifier">puts</span> <span class="ruby-identifier">prog</span>
 </pre>
-
-<p>See the listing…</p>
 
 <p>Let&#39;s make a <code>.tap</code> file now:</p>
 
@@ -215,7 +211,7 @@
 <span class="ruby-identifier">calc</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&#39;calculator&#39;</span>, <span class="ruby-value">append:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">name:</span> <span class="ruby-string">&#39;multiply&#39;</span>
 </pre>
 
-<p>go to ZX Spectrum:</p>
+<p>go to ZX Spectrum or an <a href="http://torinak.com/qaop">emulator</a>:</p>
 
 <pre class="ruby"><span class="ruby-constant">LOAD</span> <span class="ruby-string">&quot;calculator&quot;</span>
 </pre>
@@ -253,8 +249,12 @@
 <p><a href="Basic.html"><code>Basic</code></a></p>
 </li></ul>
 
-<h4 id="label-See+examples+in+examples+dir.">See examples in <code>examples</code> dir.<span><a href="#label-See+examples+in+examples+dir.">&para;</a> <a href="#top">&uarr;</a></span></h4>
-<ul><li><dl class="rdoc-list note-list"><dt><code>calculator</code>
+<h4 id="label-See+examples+in+examples+dir.">See <a href="examples">examples</a> in <code>examples</code> dir.<span><a href="#label-See+examples+in+examples+dir.">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<ul><li><dl class="rdoc-list note-list"><dt><code>bfont_demo</code>
+<dd>
+<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/bfont_demo.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/bfont_demo.tap</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>calculator</code>
 <dd>
 <p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/calculator.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/calculator.tap</a></p>
 </dd></dl>
@@ -272,11 +272,11 @@
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>mathi_test</code>
 <dd>
-<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap</a></p>
+<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap</a> (integer math library tests)</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>multifill</code>
 <dd>
-<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap</a></p>
+<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap</a> (multitasking demo)</p>
 </dd></dl>
 </li></ul>
 
@@ -333,6 +333,10 @@ zxconv source destination [options]
 <h2 id="label-Requirements">Requirements<span><a href="#label-Requirements">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
 <h4 id="label-ruby+2.0.0+or+later">ruby 2.0.0 or later<span><a href="#label-ruby+2.0.0+or+later">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<dl class="rdoc-list note-list"><dt>Author
+<dd>
+<p>Rafał Michalski</p>
+</dd></dl>
 
 </main>
 
