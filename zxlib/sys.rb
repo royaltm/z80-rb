@@ -152,6 +152,8 @@ class ZXSys
         mask_int    addr 0x0038 # THE 'MASKABLE INTERRUPT' ROUTINE
         key_int     addr 0x0048 # KEY-INT part of the interrupt routine
         keyboard    addr 0x02BF # read KEYBOARD routine called from the system interrupt routine
+        po_any      addr 0x0B24 # THE 'PRINT ANY CHARACTER' ROUTINE
+        po_gr_1     addr 0x0B38 # The 16 2*2 mosaic characters 128-143 decimal are formed from bits 0-3 of the character
         error_5     addr 0x0C86 # Out of screen
         cl_all      addr 0x0DAF # CL-ALL
         error_j     addr 0x15C4 # Invalid I/O device
@@ -307,6 +309,32 @@ class ZXSys
             end
         end
         ##
+        # Calculates the address of the first byte of a character.
+        # The calculated address will be available in the +hl+ register.
+        #
+        # * +chars+:: the address of a code=0 character as a +hl+ register, address,
+        #             label or a label pointer e.g.: [vars.chars].
+        # * +code+:: an 8-bit register or a code number (addresses and pointers works to).
+        # * +tt+:: a 16-bit register except +hl+.
+        #
+        # Modifies: +af+, +tt+, +hl+
+        def char_ptr_from_code(chars, code=a, tt:de)
+          raise ArgumentError unless ((register?(chars) and chars == hl) or address?(chars)) and
+                                     register?(tt) and !tt.bit8? and tt != hl
+          th, tl = tt.split
+          isolate do
+                        ld   a, code unless code == a
+                        ld   hl, chars unless chars == hl
+                        3.times { rlca }
+                        ld   tl, a
+                        anda 0b00000111
+                        ld   th, a
+                        xor  tl
+                        ld   tl, a
+                        add  hl, th|tl
+          end
+        end
+        ##
         # Creates ZX Spectrum CHAN entry and opens it as stream #N.
         #
         # * output:: output routine address or a 16bit register holding that address except +hl+
@@ -319,7 +347,7 @@ class ZXSys
         # Modifies: +af+, +hl+, +bc+, +de+
         def create_chan_and_open(name = nil, output:, input: nil, strm_no: 4, chan_name: 'U')
             chan_name = String === chan_name ? chan_name.ord : chan_name.to_i
-            raise ArgumentError, "output or input must not be hl register pair" if output == hl or input == hl
+            raise ArgumentError, "output or input must not be the hl register" if output == hl or input == hl
             isolate name, use: [:rom, :vars] do
                 input  = rom.error_j if input.nil?
                 output = rom.error_j if output.nil?
