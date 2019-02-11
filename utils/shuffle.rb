@@ -25,7 +25,7 @@ class Z80Shuffle
         # +length+:: A 8bit length of an array in the range of 1..256 (0 is 256); may be a register.
         # +source+:: If +nil+ then <tt>source(i) = i</tt> is assumed, otherwise an address of a source routine
         #            which should expect +i+ in register +c+ and <b>MUST PRESERVE</b> +hl+ and +de+ registers;
-        #            source routine should return value in register +a+.
+        #            source routine should return value in the +a+ register.
         def shuffle_bytes_source_max256(next_rng, target:hl, length:a, source:nil)
             unless source.nil? or (address?(source) and !pointer?(source))
                 raise ArgumentError, "source should be nil or an address" 
