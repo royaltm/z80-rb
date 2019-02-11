@@ -94,7 +94,7 @@ module Basic
 		#      `20 n`    2      `INVERSE n`
 		#      `21 n`    2      `OVER n`
 		#      `22 y x`  3      `AT y,x`
-		#      `23 x _`  3      `TAB x` in this case the one padding byte is being assumed
+		#      `23 x x`  3      `TAB x`
 		#
 		#  Where +n+, +x+, +y+ are decimal numbers representing the following character code and at the same time
 		#  special control arguments.
@@ -523,8 +523,7 @@ module Basic
 					when 22 # cursor control
 						res << "`AT #{bytes.next},#{bytes.next}`"
 					when 23 # tab control
-						res << "`TAB #{bytes.next}`"
-						bytes.next # ignore second byte
+						res << "`TAB #{bytes.next + (bytes.next << 8)}`"
 					when 0...KEYWORD_START_CODE
 						if c == 14 &&  # a number
 							5.times { bytes.next }
@@ -679,11 +678,12 @@ module Basic
 						@token = Token.new @index, chars, chars, nil
 					elsif m = Patterns::CURSOR_CTRL_MATCH_EXACT.match(escexpr)
 						ctrl = CTRL_CODES[m[1]]
-						y, x = m[2].to_i, m[3].to_i
-						unless (0..31) === y && (0..31) === x
-							raise SyntaxError, "special control arguments must be in a 0..31 range: #{escstr} in line: #{@line_index} at: #{@index}"
+						y, x = m[2].to_i, m[3]
+						if x.nil?
+							chars = [ctrl, y].pack('Cv')
+						else
+							chars = [ctrl, y, x.to_i].pack('CCC')
 						end
-						chars = [ctrl, y, x].pack('CCC')
 						@token = Token.new @index, chars, chars, nil
 					elsif m = Patterns::KEYWORDS_MATCH_EXACT.match(escexpr)
 						code = KEYWORD_CODES[m.to_s]
