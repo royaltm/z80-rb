@@ -159,6 +159,15 @@ class ZXSys
         error_j     addr 0x15C4 # Invalid I/O device
         chan_open   addr 0x1601 # THE 'OPEN CHANNEL' ROUTINE
         make_room   addr 0x1655 # ROM MAKE-ROOM routine
+        line_addr   addr 0x196E # Get starting address of line, or line after
+        cp_lines    addr 0x1980 # Compare line numbers
+        next_one    addr 0x19B8 # Get next one
+        differ      addr 0x19DD # Difference routine: BC = HL - DE, DE <-> HL
+        reclaim_1   addr 0x19E5 # Handle reclaiming space: DE - start address of the space to reclaim, HL - address after the space
+        reclaim_2   addr 0x19E8 # HL - start address of the space to reclaim, BC - size of the space to reclaim
+        go_to       addr 0x1E67 # Handle GO TO command
+        go_to_1     addr 0x1E6C # Handle GO TO command: expecting line in HL with line number check
+        go_to_2     addr 0x1E73 # Handle GO TO command: expecting line in HL and statement number in D
         free_mem    addr 0x1F1A # free memory in result BC
         break_key   addr 0x1F54 # returns CF=0 if shift+space (break) is being pressed
         pr_string   addr 0x203C # PR-STRING: start in DE, length in BC
