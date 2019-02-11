@@ -252,7 +252,7 @@ module Basic
 				else
 					last_line_no.succ
 				end
-				if line_no <= last_line_no
+				if line_no <= last_line_no && !line_no.zero?
 					raise SyntaxError, "line numbers must ascending, in line: #{line_index} no: #{line_no} previous: #{last_line_no}"
 				end
 
