@@ -100,7 +100,7 @@ class Z80SinCos
             end
         end
         ##
-        # Code that returns an address of SinCos entry for a given 256-based angle in register +a+.
+        # Code that returns an address of SinCos entry for a given 256-based angle in the register +a+.
         #
         # Mofifies: +af+, +th+, +tl+
         #
@@ -213,6 +213,9 @@ class Z80SinCos
 end
 
 if __FILE__ == $0
+    require 'z80/math_i'
+    require 'zxlib/gfx'
+    require 'zxlib/basic'
     # :stopdoc:
     class TestSinCos # :nodoc: all
         include Z80
@@ -222,39 +225,158 @@ if __FILE__ == $0
         SinCos      = Z80SinCos::SinCos
 
         macro_import Z80SinCos
+        macro_import Z80MathInt
+        macro_import ZXGfx
+        import       ZXSys, macros: true, code: false
 
-        sincos      addr 0xF000, SinCos
+        sincos      addr 0xFB00, SinCos
 
-        start       exx
-                    push hl
+        with_saved :start, :exx, hl do
                     call make_sincos
-                    pop  hl
-                    exx
+        end
+
+        ns :test_sincos, use: sincos do
                     ld   hl, sincos
                     ld   de, sincos_tmpl
                     ld   bc, +sincos_tmpl
         compare     ld   a, [de]
                     inc  de
-                    cp   [hl]
-                    inc  hl
-                    ret  NZ   # bc contains how many bytes to go
-                    dec  bc
+                    cpi                # [de] - [hl], hl++, bc--
+                    jr   NZ, was_error # [de]<>[hl]
+                    ret  PO            # bc = 0
+                    jr   compare
+        was_error   inc  bc
+                    ret                # bc<>0 and contains an offset from the end of the table
+        end
+
+        with_saved(:draw, :exx, hl, use: sincos) do |eoc|
+                    find_def_fn_args 1, subroutine:false, cf_on_direct:true
+                    jr   C, skip_args         # direct USR function call
+                    report_error_unless Z, 'Q Parameter error'
+                    read_positive_int_value d, e
+                    report_error_unless Z, 'A Invalid argument'
+                    xor  a
+                    ora  d
+        too_big     report_error_unless Z, '6 Number too big'
+                    ld   a, e
+                    cp   88                   # scale_y < 88
+                    jr   NC, too_big.err
+                    ld   [mult_de_a + 1], a   # f(s)
+                                              # read system color attributes
+        skip_args   ld   hl, [vars.attr_p]    # l: attr_p, h: mask_p
+                    ld   a, h
+                    ld   [mask_p_a + 1], a
+                    cpl
+                    anda  l
+                    ld   [attrmask_a + 1], a
+                    ld   a, [vars.p_flag]
+                    ld   hl, preshift_p
+                    anda 0b00001010           # INVERSE 1 or OVER 1
+                    jr   Z, normal
+                    cp   0b00001010           # INVERSE 1 and OVER 1
+                    jr   NZ, inverse_1
+                    ld   a, 0x7E              # OP-CODE: LD A,(HL)
+                    jr   set_fx
+        inverse_1   anda 0b00001000           # INVERSE 1
+                    jr   Z, over_1
+                    ld   a, 0xA6              # OP-CODE: AND (HL)
+                    ld   hl, preshift_n
+                    jr   set_fx
+        over_1      ld   a, 0xAE              # OP-CODE: XOR (HL)
+                    jr   set_fx
+        normal      ld   a, 0xB6              # OP-CODE: OR (HL)
+        set_fx      ld   [plot], a            # fx [hl]
+                    ld   [preshift_a + 1], hl # normal or negative preshift
+                                              # FOR x=0 TO 255: PLOT x,SIN (x/128*PI)*87+88: NEXT x
+                    xor  a
+        drawloop    ld   e, a
+                    exx
+                    sincos_from_angle sincos, h, l
+                    ld   e, [hl]
+                    inc  l
+                    ld   d, [hl]
+                    bit  7, d
+                    jr   NZ, negative
+                    call mult_de_a      # hl = sin(x)*256*h
+                    xor  a
+                    sub  h              # a = 0-(sin(x)*h)
+                    jr   plot_jump
+        negative    neg16 d, e, th:d, tl:e
+                    call mult_de_a      # hl = -sin(x)*256*h
+                    ld   a, h           # a = -sin(x)*h
+        plot_jump   add  88
+                    exx
+                    ld   d, a
+                    ld   a, e
+                    ex   af, af
+
+                    xytoscr d, e, ah:d, al:e, s:c, t:b
+        preshift_a  ld   hl, preshift_p # preshift + c
                     ld   a, c
-                    ora  b
-                    jr   NZ, compare
+                    add  l
+                    ld   l, a
+                    ld   a, [hl]
+                    ex   de, hl
+        plot        ora  [hl]
+                    ld   [hl], a
+
+                    scrtoattr h, o:h
+        mask_p_a    ld   a, 0b00000000
+                    anda [hl]
+        attrmask_a  ora  0b00111000
+                    ld   [hl], a
+
+                    ex   af, af
+                    inc  a
+                    jr   NZ, drawloop
+        end
+                    ret
+
+        mult_de_a   ld   a, 87
+                    mul8 d, e, a, tt:de, clrhl:true, double:true
+                    inc  h  # rounding up instead of truncating
+                    srl  h  # (v +.5)/2
                     ret
 
         make_sincos create_sincos_from_sintable sincos, sintable:sintable
 
         sintable    bytes   neg_sintable256_pi_half_no_zero_lo
 
-                    org  (pc + 0xFF) & 0xFF00
-        # normally this should be on a 256 byte boundary
-        # but we only use to verify here
+                    org  align: 8
+        preshift_p  bytes (0..7).map{|x| 0x80 >> x}
+        preshift_n  bytes (0..7).map{|x| ~(0x80 >> x) }
+
+                    org  align: 0x100
         sincos_tmpl data SinCosTable, sincos_table_descriptors
+        eop         label
+
+        center_y    draw.plot_jump + 1
+        scale_y     mult_de_a + 1
     end
 
-    p = TestSinCos.new 0x8000
-    puts p.debug
-    p.save_tap 'testsincos.tap'
+    testsincos = TestSinCos.new 0xF000
+    program = Basic.parse_source <<-END
+       1 DEF FN s(h)=USR #{testsincos[:draw]}
+      10 LET res=USR #{testsincos.org}
+      20 IF res<>0 THEN PRINT "Error at: ";#{testsincos[:eop]-testsincos[:sincos_tmpl]}-res: STOP
+      30 FOR h=0 TO 87: RANDOMIZE FN s(h): NEXT h: PAUSE 0
+    9998 STOP
+    9999 CLEAR #{testsincos.org - 1}: LOAD ""CODE: RUN
+    END
+
+    puts testsincos.debug
+    puts program.to_source escape_keywords:true
+
+    puts "code size: #{testsincos[:sintable] - testsincos[:start]}"
+    puts "sincos: #{testsincos[:sincos]}"
+    puts "sincos_tmpl: #{testsincos[:sincos_tmpl]}"
+    puts "start: #{testsincos[:start]}"
+    puts "draw: #{testsincos[:draw]}"
+    puts "center_y: #{testsincos[:center_y]}"
+    puts "scale_y: #{testsincos[:scale_y]}"
+    puts "eop: #{testsincos[:eop]}"
+    raise "memory clash detected" if testsincos[:eop] > testsincos[:sincos]
+
+    program.save_tap 'testsincos.tap', line:9999
+    testsincos.save_tap 'testsincos.tap', append: true
 end
