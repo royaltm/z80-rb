@@ -129,7 +129,7 @@ class ZXSys
         mask_p byte    # 23694 Used for transparent colours, etc. Any bit that is 1 shows that the corresponding attribute bit is taken not from ATTR P, but from what is already on the screen.
         attr_t byte    # 23695 Temporary current colours, etc (as set up by colour items).
         mask_t byte    # 23696 Like MASK P, but temporary.
-        p_flag byte    # 23697 More flags.
+        p_flag byte    # 23697 More flags. Bits: 7:P_PAPER_9 6:T_PAPER_9 5:P_INK_9 4:T_INK_9 3:P_INVERSE_1 2:T_INVERSE_1 1:P_OVER_1 0:T_OVER_1
         membot byte,30 # 23698 Calculator's memory area; used to store numbers that cannot conveniently be put on the calculator stack.
         nmiadd word    # 23728 This is the address of a user supplied NMI address which is read by the standard ROM when a peripheral activates the NMI. Probably intentionally disabled so that the effect is to perform a reset if both locations hold zero, but do nothing if the locations hold a non-zero value. Interface 1's with serial number greater than 87315 will initialize these locations to 0 and 80 to allow the RS232 "T" channel to use a variable line width. 23728 is the current print position and 23729 the width - default 80.
         ramtop word    # 23730 Address of last byte of BASIC system area.
