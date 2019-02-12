@@ -84,6 +84,7 @@ class Z80Shuffle
 end
 
 if __FILE__ == $0
+    require 'zxlib/basic'
     # :stopdoc:
     class TestShuffle # :nodoc: all
         include Z80
@@ -93,27 +94,16 @@ if __FILE__ == $0
         macro_import Z80MathInt
         label_import ZXSys
 
-        start       ld   hl, mem.screen
+        start       ld   hl, testarea
                     ld   a, 256
                     ld   ix, identity
                     call shuffle_it
                     ld   hl, mem.attrs
-                    ld   a, 15
-                    ld   ix, to_attr
+                    ld   a, 256
+                    ld   ix, identity
                     call shuffle_it
                     ld16 bc, hl
                     ret
-
-        ns :to_attr do
-                    ld   a, c
-                    cp   8
-                    jr   C, skip # i < 8 ? i
-                    sub  7       # i - 7
-                    ora  0x08    # | 0x08
-            skip    label
-                    3.times { rlca }
-                    ret
-        end
 
         identity    ld   a, c   # i = i
                     ret
@@ -128,10 +118,28 @@ if __FILE__ == $0
         shuffle_it  shuffle_bytes_source_max256 next_rng, target:hl, length:a, source:forward_ix
         shuffle_end ret
 
+        testarea    label
     end
 
-    p = TestShuffle.new 0x8000
-    puts p.debug
-    puts "shuffle length: #{p[:shuffle_end] - p[:shuffle_it]}"
-    p.save_tap 'testshuffle.tap'
+    testshuffle = TestShuffle.new 0xe000
+    testarea = testshuffle[:testarea]
+    mem_attrs = ZXSys.new['mem.attrs']
+    program = Basic.parse_source <<-END
+      10 CLS: FOR i=0 TO 255: PRINT "`#6`";: POKE #{mem_attrs}+i, i: NEXT i
+         PRINT #1;"press any key...";: PAUSE 0: INPUT ""
+      20 RANDOMIZE : RANDOMIZE USR #{testshuffle.org}
+      30 LET y=80
+         FOR i=#{testarea} TO #{testarea+255}
+         LET x=PEEK i: IF POINT (x,y) THEN PRINT "Error: duplicate at: ";i-#{testarea};" x=";x: GO TO 9998
+         PLOT x,y: DRAW 0,7
+         NEXT i
+      40 PRINT "OK"
+    9998 STOP
+    9999 CLEAR #{testshuffle.org - 1}: LOAD ""CODE: RUN
+    END
+    puts testshuffle.debug
+    puts program.to_source escape_keywords:true
+    program.save_tap 'testshuffle.tap', line:9999
+    puts "shuffle length: #{testshuffle[:shuffle_end] - testshuffle[:shuffle_it]}"
+    testshuffle.save_tap 'testshuffle.tap', append:true
 end
