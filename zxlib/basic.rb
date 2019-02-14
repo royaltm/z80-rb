@@ -1,8 +1,8 @@
 # -*- coding: BINARY -*-
 require 'z80'
-require 'zxlib/math'
+require 'zxlib/math' unless defined?(ZXMath)
 ##
-#  A module with ZX Spectrum's BASIC program utilites.
+#  A module with ZX Spectrum's BASIC program utilities.
 #
 #  See: Basic::Program, Basic::Vars, Basic::Variable
 #
@@ -55,14 +55,14 @@ module Basic
 		#
 		#  * Each character in the ASCII printable range 32..126 except the £ (pound, code 96) is left unmodified.
 		#  * The £ (pound, code 96) and the © (code 127) characters are converted to a U+00A3 and U+00A9 accordingly.
-		#  * Raw FP numbers beginning with character code 14 are being stripped outside of literal strings.
-		#  * Control character comma (code 6) is encoded as \\t (TABULATION U+0009) character.
+		#  * Raw FP numbers beginning with a character code 14 are being stripped outside of literal strings.
+		#  * A comma control character (code 6) is encoded as \\t (TABULATION U+0009) character.
 		#  * Control characters 8..11 are encoded as Unicode ARROWS (see table below).
 		#  * The remaining control characters in the code range 0..31 are encoded using escape sequences.
 		#  * The block characters in the code range 128..143 are converted to Unicode BLOCK elements (see table below).
 		#  * The characters in the UDG code range 144..164 are converted to CIRCLED LATIN CAPITAL LETTERs.
 		#  * Keywords in the code range 165..255 are either encoded as escaped keywords (e.g. `PRINT`) when found inside
-		#    literal strings or just as sequences of its constituents characters.
+		#    literal strings or just as sequences of its constituent characters.
 		#
 		#  ====Note:
 		#  The last rule may lead to some disambiguities. Consider a line:
@@ -70,23 +70,24 @@ module Basic
 		#      PRINT RND
 		#
 		#  The +RND+ keyword in this case may be a variable name consisting of 3 capital letters R N D or a +RND+ function.
-		#  The ZX Basic knows the difference because keyword +RND+ is encoded as a single code point: 165.
+		#  The ZX Basic knows the difference because the keyword +RND+ is encoded as a single code point: 165.
 		#  However when presented as text you can't really tell the difference.
-		#  This may lead to errors when trying to parse such a text back to the ZX Spectrum binary program format.
+		#  This may lead to errors when trying to parse such a text back to the ZX Spectrum's binary program format.
 		#
-		#  To desambiguate keywords can be encoded as escape sequences, e.g. `GO SUB`, `RND`, `OPEN #`.
+		#  To desambiguate keywords from regular characters in strings they are being encoded as escape sequences,
+		#  e.g. `GO SUB`, `RND`, `OPEN #`.
 		#  Pass +true+ to +:escape_keywords+ option to enforce keywords to be always escaped.
 		#
 		#  Escape sequences are using GRAVE ACCENT ` (U+0060, also known as a backtick) as enclosing character
-		#  because it's absent in ZX Spectrum's character set.
+		#  because it's absent in the ZX Spectrum's character set.
 		#
 		#  The control characters are encoded as decimal code numbers, e.g: `12`. More codes can be put inside
 		#  an escape sequence using whitespaces or commas as separators, e.g.: `0xff, 201, 0b01010001` stands for 3 bytes.
 		#  Any ruby number literal is accepted: decimal, hexadecimal, octal, binary.
 		#
-		#  Special control escape sequences:
+		#  Color and cursor position control condes are multi-byte. There are special control escape sequences for them:
 		#
-		#      code seq. count  escape sequence format
+		#      code seq. count  special escape sequence format
 		#      `16 n`    2      `INK n`
 		#      `17 n`    2      `PAPER n`
 		#      `18 n`    2      `FLASH n`
@@ -162,11 +163,11 @@ module Basic
 			lines.index{|l| l.line_no >= line_no}
 		end
 		##
-		#  Returns a new Basic::Program instance with the subset of its lines according to +line_no+ argument.
+		#  Returns a new Basic::Program instance with the subset of its lines according to the +line_no+ argument.
 		#
 		#  +line_no+ may be an integer or a Range. The integer indicates the first line to be included.
 		#  The Range selects a range of lines to be included.
-		#  +line_no+ relates to Basic line numbers.
+		#  +line_no+ relates to the Basic line number.
 		def list(line_no)
 			if Integer === line_no
 				if index = line_index(line_no)
@@ -460,14 +461,14 @@ module Basic
 		#  However the program text is interpreted using a Basic::Tokenizer and some simple heuristics,
 		#  mainly to ensure the proper sytax of strings, numbers and some specific expressions:
 		#
-		#  * All numbers outside of string literals are followed by character code 14 and 5 bytes of their
+		#  * All numbers outside of string literals are followed by a character code 14 and 5 bytes of their
 		#    internal representation in FP format (see ZXMath).
 		#  * After every argument of a DEF FN header list a character code 14 and 5 placeholder bytes
 		#    are being added.
 		#  * Literal strings are being tracked, ensuring they are properly closed.
 		#  * Argument after the +BIN+ keyword will be interpreted as a binary number.
 		#  * Opened and closed parentheses are counted ensuring they are properly balanced.
-		#  * A statement keyword is expected (except space, control characters and colon) at the beginning
+		#  * A statement keyword is expected (except spaces, control characters and colons) at the beginning
 		#    of each line, after the colon character or after a +THEN+ keyword. In these instances only
 		#    the statement keywords are being accepted.
 		#  * Inside parentheses the colon character or a +THEN+ keyword is forbidden.

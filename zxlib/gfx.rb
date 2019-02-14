@@ -165,9 +165,9 @@ class ZXGfx
         end
     end
     ##
-    # Converts x,y coordinates to the screen byte address and bits shift
+    # Converts y,x coordinates to the screen byte address and bits shift
     #
-    # Modifies: +af+, +y+, +x+, +s+, +t+
+    # Modifies: +af+, +s+, +t+, +ah+, +al+
     #
     # * +y+:: input register: vertical-coordinate (the +a+ register or the same as: +h+, +l+, +s+ or +t+)
     # * +x+:: input register: horizontal-coordinate (may be same as: +l+)
