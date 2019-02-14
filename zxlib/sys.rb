@@ -171,6 +171,8 @@ class ZXSys
         free_mem    addr 0x1F1A # free memory in result BC
         break_key   addr 0x1F54 # returns CF=0 if shift+space (break) is being pressed
         pr_string   addr 0x203C # PR-STRING: start in DE, length in BC
+        draw_line   addr 0x24B7 # THE 'LINE DRAWING' ROUTINE
+        draw_line_1 addr 0X24BA # THE 'LINE DRAWING' ROUTINE: C: x, B: y, E:sgn(x), D:sgn(y)
         stk_store   addr 0x2AB6 # Pushes five registers on the calculator stack: A, E, D, C, B if there is enough room
         stk_fetch   addr 0x2BF1 # Pops five registers from the calculator stack: A, E, D, C, B
         stack_a     addr 0x2D28 # Pushes accumulator on the calculator stack as a small integer
@@ -252,6 +254,8 @@ class ZXSys
         # Restore interrupt handler ZX Spectrum ROM's standard IM1 mode.
         #
         # * enable_interrupts:: If +true+ invoke +ei+ instruction at the end.
+        #
+        # T-states: 28/24
         #
         # Modifies: +a+, +i+.
         def restore_rom_interrupt_handler(enable_interrupts:true)
