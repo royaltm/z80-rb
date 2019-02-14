@@ -7,8 +7,8 @@ class Float
     #
     # Suitable to be used with ZXMath::ZXReal struct for data.
     #
-    # +simplified_int+ indicates if the integers in the
-    # range of -65535..65535 should be stored in a simplified integer form.
+    # +simplified_int+ indicates if integers in the range of -65535..65535
+    # should be stored in a simplified integer form.
     #
     # Returns binary string.
     def to_z80bin(simplified_int=true)
@@ -148,7 +148,8 @@ class ZXMath
     # to print that number to the currently opened channel.
     #
     # After return the ZF flag can be inspected to check if the number was 0.
-    print_fp_hl     ld a, [hl]      # get floating point from (hl)
+    isolate :print_fp_hl, use: rom do
+                    ld a, [hl]      # get floating point from (hl)
                     inc hl
                     ld e, [hl]
                     inc hl
@@ -166,16 +167,18 @@ class ZXMath
                     ora b
                     push af
                     ld  a, l
-                    call rom.stk_store  # store number on calculator stack
-                    call rom.print_fp   # print number from stack
+                    call rom.stk_store  # store number on the calculator's stack
+                    call rom.print_fp   # print number from the stack
                     pop af
                     pop hl
                     ret
+    end
 end
 
 if __FILE__ == $0
     # :stopdoc:
     require 'test/unit/assertions'
+    require 'zxlib/basic'
     include Test::Unit::Assertions
     class TestMath # :nodoc: all
         include Z80
@@ -186,51 +189,76 @@ if __FILE__ == $0
         label_import ZXSys
 
         # print real numbers, up to 0
-        start         ld a, 2
-                                    call rom.chan_open
-                                    ld hl, numbers[0]
-        ploop         call math.print_fp_hl
-                                    push af
-                                    push hl
-                                    ld a, "\r".ord
-                                    rst rom.print_a
-                                    pop hl
-                                    pop af
-                                    jr NZ, ploop
-                                    ret
-        numbers       data ZXReal,
-                                                        -1.0,
-                                                         1.0,
-                                                         0.1,
-                                                (-1.0/3),
-                                                 32767.0,
-                                                 32767.0.to_z80bin(false),
-                                                 32768.5,
-                                                 65535.0,
-                                                 65535.0.to_z80bin(false),
-                                                -65535.0,
-                                                -65535.0.to_z80bin(false),
-                                                -65536.0,
-                                                 65536.0,
-                                                [0xff,0x7f,0xff,0xff,0xff],
-                                                [0xff,0xff,0xff,0xff,0xff],
-                                                [1,0,0,0,0],
-                                                [1,0x80,0,0,0],
-                                                Math::PI,
-                                                Math::E,
-                                                (Math::PI*(10**-39)),
-                                                (Math::E*(10**37)),
-                                                {exponent: 4+128, mantissabin: "\x80\x80\x80\x80"},
-                                                {exponent: 4+128, mantissa: [0x80,0x80,0x80,0x80]},
-                                                [0,-1,1,0,0],
-                                                '!@#$%^',
-                                                {exponent: 0, intsign: -1, intlsb: 0x80, intmsb: 0},
-                                                8.5,
-                                                0.5,
-                                                0
+        ns :start, use: rom do
+                        ld   a, 2
+                        call rom.chan_open
+                        ld   hl, numbers[0]
+                        ld   b, 0
+        ploop           inc  b
+                        push bc
+                        push hl
+                        ld   a, b
+                        call print_index
+                        pop  hl
+                        call math.print_fp_hl
+                        push af
+                        push hl
+                        ld   a, "\r".ord
+                        rst  rom.print_a
+                        pop  hl
+                        pop  af
+                        pop  bc
+                        jr   NZ, ploop
+                        ret
+        end
+        ns :print_index, use: rom do
+                        cp   10
+                        jr   NC, skip_spc
+                        push af
+                        ld   a, " ".ord
+                        rst  rom.print_a
+                        pop  af
+        skip_spc        call rom.stack_a
+                        call rom.print_fp
+                        ld   a, ":".ord
+                        rst  rom.print_a
+                        ld   a, " ".ord
+                        rst  rom.print_a
+                        ret
+        end
+        numbers         data ZXReal,
+                            -1.0,                                                #  1: -1
+                             1.0,                                                #  2: 1
+                             0.1,                                                #  3: 0.1
+                            (-1.0/3),                                            #  4: -0.33333333
+                             32767.0,                                            #  5: 32767
+                             32767.0.to_z80bin(false),                           #  6: 32767.0
+                             32768.5,                                            #  7: 32768.5
+                             65535.0,                                            #  8: 65535
+                             65535.0.to_z80bin(false),                           #  9: 65535.0
+                            -65535.0,                                            # 10: -65535
+                            -65535.0.to_z80bin(false),                           # 11: -65535.0
+                            -65536.0,                                            # 12: -65536.0
+                             65536.0,                                            # 13: 65536.0
+                            [0xff,0x7f,0xff,0xff,0xff],                          # 14: 1.7014118e+38
+                            [0xff,0xff,0xff,0xff,0xff],                          # 15: -1.7014118e+38
+                            [1,0,0,0,0],                                         # 16: 2.9387359e-39
+                            [1,0x80,0,0,0],                                      # 17: -2.9387359e-39
+                            Math::PI,                                            # 18: 3.14159265
+                            Math::E,                                             # 19: 2.71828183
+                            (Math::PI*(10**-39)),                                # 20: 3.1415927e-39
+                            (Math::E*(10**37)),                                  # 21: 2.7182818e+37
+                            {exponent: 4+128, mantissabin: "\x80\x80\x80\x80"},  # 22: -8.03137255
+                            {exponent: 4+128, mantissa: [0x80,0x80,0x80,0x80]},  # 23: -8.03137255
+                            [0,-1,1,0,0],                                        # 24: -65535
+                            '!@#$%^',                                            # 25: 1.8946198e-29
+                            {exponent: 0, intsign: -1, intlsb: 0x80, intmsb: 0}, # 26: -65408
+                            8.5,                                                 # 27: 8.5
+                            0.5,                                                 # 28: 0.5
+                            0                                                    # 29: 0
         import ZXMath, :math
     end
-
+    puts "Testing pack/unpack..."
     (-127..127).each do |e|
         100.times do
             num = if e < 0
@@ -260,8 +288,24 @@ if __FILE__ == $0
         assert_equal res, i
     end
 
-    p = TestMath.new 0x8000
-    puts p.debug
-    p.save_tap 'testmath.tap'
-
+    testzxmath = TestMath.new 0x8000
+    puts testzxmath.debug
+    program = Basic.parse_source <<-END
+      10 RANDOMIZE USR #{testzxmath[:start]}
+    9998 STOP
+    9999 CLEAR #{testzxmath.org - 1}: LOAD ""CODE: RUN
+    END
+    puts program.to_source escape_keywords:true
+    puts "="*32
+    (testzxmath[:numbers]...testzxmath[:math]).step(5).each.with_index(1) do |addr, i|
+        n = ZXMath.unpack_number(testzxmath.code.byteslice(addr - testzxmath.org, 5))
+        fmtn = if n.zero? || n.abs >= 1e-8 && n.abs < 1e+8
+            n.round(8).to_s
+        else
+            format('%.7e', n)
+        end
+        puts i.to_s.rjust(2) + ": " + fmtn
+    end
+    program.save_tap 'testzxmath.tap', line: 9999
+    testzxmath.save_tap 'testzxmath.tap', append: true
 end
