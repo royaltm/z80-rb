@@ -155,9 +155,11 @@ class ZXSys
         po_any      addr 0x0B24 # THE 'PRINT ANY CHARACTER' ROUTINE
         po_gr_1     addr 0x0B38 # The 16 2*2 mosaic characters 128-143 decimal are formed from bits 0-3 of the character
         error_5     addr 0x0C86 # Out of screen
-        cl_all      addr 0x0DAF # CL-ALL
+        cl_all      addr 0x0DAF # Clearing whole display area
+        cl_line     addr 0x0E44 # THE 'CLEAR TEXT LINES' ROUTINE. The B register holds on entry the number of lines to be cleared 1-24.
         error_j     addr 0x15C4 # Invalid I/O device
         chan_open   addr 0x1601 # THE 'OPEN CHANNEL' ROUTINE
+        call_jump   addr 0x162C # jump to the routine (in HL). JP (HL)
         make_room   addr 0x1655 # ROM MAKE-ROOM routine
         line_addr   addr 0x196E # Get starting address of line, or line after
         cp_lines    addr 0x1980 # Compare line numbers
