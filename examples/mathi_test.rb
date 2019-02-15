@@ -27,29 +27,7 @@ class Program
 
   macro_import  Z80MathInt
   macro_import  Z80Lib
-
-  ########
-  # Vars #
-  ########
-
-  # ROM procedures
-  chanopen      addr 0x1601
-  pr_string     addr 0x203C
-  cl_all        addr 0x0DAF
-  cl_line       addr 0x0E44
-  call_jump     addr 0x162C
-
-  # VARS
-  frames        addr 0x5C78
-  rnd_seed      addr 0x5C76
-  bordcr        addr 0x5C48
-  udg_default   addr 0xFF58
-
-  # HW
-  scr_p         addr 0x4000
-  scrlen        6144
-  attr_p        addr scr_p + scrlen
-  attrlen       6912 - 6144
+  import        ZXSys, macros: true, labels: true, code: false
 
   ##########
   # Macros #
@@ -65,14 +43,6 @@ class Program
                 call  print_cstr
     text_p      bytes text
                 db    0
-  end
-
-  # ZF=0 if any key is being pressed
-  macro :key_pressed? do
-                xor  a
-                inp  a, (254)
-                cpl
-                anda 0x1F
   end
 
   macro :load_i32_hl_bc do |_, n|
@@ -183,7 +153,10 @@ class Program
   macro :benchmark do |_, title, &block|
                 print_text "#{title} ..."
                 halt
-                memcpy somebigint, frames, 3
+                ld   hl, [vars.frames]
+                ld   [somebigint], hl
+                ld   a, [vars.frames+2]
+                ld   [somebigint+2], a
                 ns(&block)
                 di
                 call bench_results
@@ -206,9 +179,9 @@ class Program
                 ret
 
   math_test_ext call call_me_safe
-  ns :math_test do
+  ns :math_test, inherit: true do
                 ld  a, 2
-                call chanopen
+                call rom.chan_open
                 print_text "PRINT 0 (32, 64, 128): "
                 clrmem8 somebigint, 16, 0
                 ld  c, 4
@@ -355,7 +328,7 @@ class Program
   end
 
   rnd_test1_ext call call_me_safe
-  ns :rnd_test1 do
+  ns :rnd_test1, use: :mem do
                 ld   a, 0b01000111
                 call clear_screen
       key_loop  halt
@@ -365,11 +338,13 @@ class Program
                 exx
                 ld   [sp_save], sp
                 di
-      loop1     ld   sp, attr_p
+      loop1     ld   sp, mem.screen + mem.scrlen
                 ld   bc, 12
       loop2     exx
                 rnd
                 push hl
+                ld   a, l
+                out (254), a
                 exx
                 djnz loop2
                 key_pressed?
@@ -384,14 +359,14 @@ class Program
                 rrca
                 ld   h, a
                 exx
-                jr   loop1
+                jp   loop1
       brloop    ld   sp, [sp_save]
                 ei
                 ret
   end
 
   rnd_test2_ext call call_me_safe
-  ns :rnd_test2 do
+  ns :rnd_test2, use: :mem do
                 halt
                 ld   a, 0b00111000
                 call clear_screen
@@ -399,8 +374,8 @@ class Program
                 call seed_entropy
                 ld   [sp_save], sp
                 di
-                ld   sp, udg_default
-                ld   bc, 12*4 # 4 screens
+                ld   sp, [vars.udg]
+                ld   bc, 12*4 # make 4 screens of noise
       loop1     exx
                 call next_rnd
                 push hl
@@ -408,26 +383,44 @@ class Program
                 djnz loop1
                 dec  c
                 jr   NZ, loop1
-                ld   hl, 0
-                add  hl, sp
+                ld   [noise_ptr + 1], sp
                 ld   sp, [sp_save]
                 ei
       key_loop  halt
                 key_pressed?
                 jr   NZ, key_loop
-      loop2     push hl
-                ld   a, 4
-      loop3     halt
-                ld   de, scr_p
-                ld   bc, 6144
-                ldir
-                dec  a
-                jr   NZ, loop3
+                di
+                setup_custom_interrupt_handler swap_int, enable_interrupts:false
+                ld   hl, [noise_ptr + 1]
+                ld   ixl, 4
+                exx
+                ld   hl, [seed]
+                ei
+      forever   call next_rnd_hl
+                ld   a, l
+                anda 0b00011000
+                out  (254), a
+                jp   forever
+
+      swap_int  ex   af, af
+                exx
                 key_pressed?
                 jr   NZ, cleanup
-                pop  hl
-                jr   loop2
-      cleanup   pop  hl
+                ld   de, mem.screen
+                ld   bc, mem.scrlen
+      loop_swp  label
+                32.times { ldi }
+                jp   PE, loop_swp
+                dec  ixl
+                jr   NZ, swap_exit
+                ld   ixl, 4
+      noise_ptr ld   hl, 0
+      swap_exit exx
+                ex   af, af
+                ei
+                ret
+      cleanup   ld   sp, [sp_save]
+                restore_rom_interrupt_handler
                 ret
   end
 
@@ -447,7 +440,7 @@ class Program
                 exx
                 push hl # save STACK pointer
                 exx
-                call call_jump
+                call rom.call_jump
                 pop  hl # restore STACK pointer
                 exx
                 call cleanup_scr
@@ -455,8 +448,8 @@ class Program
 
   # clear screen using CL-ALL and reset border
   cleanup_scr   label
-                call cl_all
-                ld   a, [bordcr]
+                call rom.cl_all
+                ld   a, [vars.bordcr]
                 call set_border_cr
                 ret
 
@@ -467,8 +460,8 @@ class Program
                 ret
 
   # clears screen area with border and attributes set according to register a
-  clear_screen  clrmem  scr_p, scrlen
-                clrmem  attr_p, attrlen, a
+  clear_screen  clrmem  mem.screen, mem.scrlen
+                clrmem  mem.attrs, mem.attrlen, a
   set_border_cr anda 0b00111000
                 3.times { rrca }
                 out  (254), a
@@ -622,9 +615,9 @@ class Program
   end
 
   # Subroutine used by benchmark macro
-  ns :bench_results do
-                ld    hl, [frames]
-                ld    a,  [frames + 2]
+  ns :bench_results, use: :vars do
+                ld    hl, [vars.frames]
+                ld    a,  [vars.frames + 2]
                 ei
                 ex    af, af
                 ld    de, [somebigint]
@@ -669,15 +662,15 @@ class Program
   end
 
   # get next pseudo-random number seeding from VARS SEED and update the seed
-  next_rnd_fn   ld   hl, [rnd_seed]
+  next_rnd_fn   ld   hl, [vars.seed]
                 call next_rnd_hl
                 ld   c, l
                 ld   b, h
                 ret
 
   # create seed from frames and register r
-  seed_entropy  ld hl, [frames]
-                ld a, [frames + 2]
+  seed_entropy  ld hl, [vars.frames]
+                ld a, [vars.frames + 2]
                 xor h
                 ld h, a
                 xor l
@@ -724,10 +717,10 @@ puts "\nExports: "
 Program.exports.each_key {|k| puts " #{k.to_s.ljust(15)}:  0x#{math[k].to_s 16} (#{math[k]})" }
 
 program = Basic.parse_source <<-END
-   1 DEF FN r()=USR 32770
-  10 CLEAR 32767
+   1 DEF FN r()=USR #{math[:rnd_seed_fn]}
+  10 CLEAR #{math.org - 1}
   20 LOAD "math"CODE
-  30 RANDOMIZE USR 32768
+  30 RANDOMIZE USR #{math[:tests]}
   99 STOP
  100 REM Verify RND routine comparing results with ZX-BASIC RND
  110 FOR i=0 TO 65535
@@ -738,7 +731,7 @@ program = Basic.parse_source <<-END
 END
 program.start = 10
 puts "="*32
-puts program.to_source
+puts program.to_source escape_keywords: true
 puts "="*32
 program.save_tap 'examples/mathi_test'
 math.save_tap 'examples/mathi_test', name: 'math', append: true
