@@ -55,6 +55,7 @@ class ZXGfx
     # * +scraddr+:: screen memory address as an integer, must be a multiple of 0x2000
     #
     # if block is given and +bcheck+ == +true+ evaluates namespaced block instead of +ret+.
+    # The code in the given block should not fall through and should end with a jump.
     #
     # T-states: 
     #
@@ -79,8 +80,8 @@ class ZXGfx
                     add  0x20
                     ld   al, a
             if bcheck
-                    jp   NC, restrh
                     ld   a, ah
+                    jp   NC, restrh
                     cp   (scraddr >> 8)|0x18
                     jr   C, eoc
                 case bcheck
@@ -95,9 +96,9 @@ class ZXGfx
                 end
             else
                     jr   C, eoc
+                    ld   a, ah
             end
-        restrh      ld   a, ah
-                    sub  0x08
+        restrh      sub  0x08
                     ld   ah, a
         end
     end
@@ -117,6 +118,7 @@ class ZXGfx
     # * +scraddr+:: screen memory address as an integer, must be a multiple of 0x2000
     #
     # if block is given and +bcheck+ == +true+ evaluates namespaced block instead of +ret+.
+    # The code in the given block should not fall through and should end with a jump.
     #
     # T-states: 
     #
@@ -141,8 +143,8 @@ class ZXGfx
                     sub  0x20
                     ld   al, a
             if bcheck
-                    jp   NC, restrh
                     ld   a, ah
+                    jp   NC, restrh
                     cp   (scraddr >> 8)
                     jr   NC, eoc
                 case bcheck
@@ -157,9 +159,9 @@ class ZXGfx
                 end
             else
                     jr   C, eoc
+                    ld   a, ah
             end
-        restrh      ld   a, ah
-                    add  0x08
+        restrh      add  0x08
                     ld   ah, a
         end
     end
