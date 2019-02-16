@@ -120,8 +120,8 @@ class ZXGfx
     #
     # T-states: 
     #
-    # * when +bcheck+ is +false+:: 31:87.5% / 53:1.56% / 63:10.94%
-    # * when +bcheck+ is +true+ or +label+::  31:87.5% / (74:2 / 79:1):1.56% / 66:10.94%
+    # * when +bcheck+ is +false+:: 27:87.5% / 49:1.56% / 59:10.94%
+    # * when +bcheck+ is +true+ or +label+::  27:87.5% / (70:2 / 75:1):1.56% / 62:10.94%
     def prevline(ah, al, bcheck = true, scraddr:0x4000, **nsopts, &block)
         if ah == al or [ah, al].include?(a) or
                 (register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
@@ -133,10 +133,9 @@ class ZXGfx
             raise ArgumentError, "prevline invalid arguments!"
         end
         ns do |eoc|
-                    dec  ah
                     ld   a, ah
-                    ora  0x07
-                    xor  ah
+                    dec  ah
+                    anda 0x07
                     jr   NZ, eoc
                     ld   a, al
                     sub  0x20
