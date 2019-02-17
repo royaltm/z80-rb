@@ -38,7 +38,7 @@ class Program
                 rst 0x10
   end
 
-  macro :print_text do |eoc, text|
+  macro :print_text do |_, text|
     raise ArgumentError unless text.is_a?(String)
                 call  print_cstr
     text_p      bytes text
@@ -130,6 +130,25 @@ class Program
         assert_equals x%y, sombigint1, 2
     end
         call print_16_16
+  end
+
+  macro :div_euc24_test do |_, x, y|
+    raise ArgumentError unless x.is_a?(Integer) and (0..0xffffff).include?(x) and
+                               y.is_a?(Integer) and (0..255).include?(y)
+        print_text "#{x}/#{y} = "
+        ld  l, (x >> 16) & 0xff
+        ld  de, x & 0xffff
+        ld  c, y
+        call div_euc24
+    if y.zero?
+        jp   NC, error
+        print_text "division by 0!\r  "
+    else
+        jp   C, error
+        assert_equals x/y, somebigint, 3
+        assert_equals x%y, sombigint1, 1
+    end
+        call print_24_8
   end
 
   macro :div_euc32_test do |_, x, y|
@@ -277,6 +296,38 @@ class Program
                 div_euc16_test 65534, 65535
                 div_euc16_test 65521, 1
                 div_euc16_test 65535, 0
+
+                print_text "\r24bit dividend/8bit divisor:\r"
+                div_euc24_test 16777215, 255
+                div_euc24_test 16777215, 2
+                div_euc24_test 16777215, 3
+                div_euc24_test 16777215, 1
+                div_euc24_test 16777215, 0
+                div_euc24_test 16777214, 255
+                div_euc24_test 16777214, 2
+                div_euc24_test 16777214, 3
+                div_euc24_test 16777214, 1
+                div_euc24_test 16777214, 0
+                div_euc24_test 16776960, 255
+                div_euc24_test 16776960, 2
+                div_euc24_test 16776960, 3
+                div_euc24_test 16776960, 1
+                div_euc24_test 16776960, 0
+                div_euc24_test 16776961, 255
+                div_euc24_test 16776961, 2
+                div_euc24_test 16776961, 3
+                div_euc24_test 16776961, 1
+                div_euc24_test 16776961, 0
+                div_euc24_test 32768, 255
+                div_euc24_test 32769, 255
+                div_euc24_test 32896, 255
+                div_euc24_test 32897, 255
+                div_euc24_test 65535, 255
+                div_euc24_test 0, 255
+                div_euc24_test 65521, 121
+                div_euc24_test 65521, 1
+                div_euc24_test 254, 255
+                div_euc24_test 65535, 0
 
                 print_text "\r32bit dividend:\r"
                 div_euc32_test 32768, 255
@@ -447,8 +498,7 @@ class Program
                 ret
 
   # clear screen using CL-ALL and reset border
-  cleanup_scr   label
-                call rom.cl_all
+  cleanup_scr   call rom.cl_all
                 ld   a, [vars.bordcr]
                 call set_border_cr
                 ret
@@ -492,6 +542,16 @@ class Program
                 ld  [somebigint], hl
                 ld  c, 2
                 jp  print_num
+  # print 24bit number stored in memory at +somebigint+
+  # followed by 8bit number stored in memory at +sombigint1+
+  # after the numbers an ENTER character is being printed out
+  print_24_8    ld  c, 3
+                ld  a, ' '.ord
+                call prnum_term
+                ld  a, [sombigint1]
+                ld  [somebigint], a
+                ld  c, 1
+                jp  print_num
   # print 32bit number stored in memory at +somebigint+
   # followed by 16bit number stored in memory at +sombigint1+
   # after the numbers an ENTER character is being printed out
@@ -525,10 +585,8 @@ class Program
                 exx
                 ld  hl, bcdbufend
                 sub_from c, h, l
-                bcdtoa hl, c do |eoc|
-                  jr  NC, pr1  # skip check if not first
-                  jr  Z, eoc   # skip if 0
-            pr1   add '0'.ord
+                bcdtoa hl, c, skip_leading0:true do |eoc|
+                  add '0'.ord
                   rst 0x10
                 end
                 ld  a, [terminator]
@@ -553,6 +611,18 @@ class Program
   div_euc16     divmod16 quick8:false
                 ld  [somebigint], hl
                 ld  [sombigint1], bc
+                ret
+
+  # Subroutine used by div_euc24_test macro
+  ns :div_euc24 do |eoc|
+                divmod l, c, check0: eoc, check1: eoc
+                divmod d, c, clrrem: false
+                divmod e, c, clrrem: false
+                ora  a                  # clear carry
+  end
+                ld  [somebigint], de
+                ld  [somebigint[1]], hl # ignored h
+                ld  [sombigint1], a
                 ret
 
   # Subroutine used by div_euc32_test macro
@@ -718,18 +788,17 @@ Program.exports.each_key {|k| puts " #{k.to_s.ljust(15)}:  0x#{math[k].to_s 16} 
 
 program = Basic.parse_source <<-END
    1 DEF FN r()=USR #{math[:rnd_seed_fn]}
-  10 CLEAR #{math.org - 1}
-  20 LOAD "math"CODE
-  30 RANDOMIZE USR #{math[:tests]}
+  10 RANDOMIZE USR #{math[:tests]}
   99 STOP
- 100 REM Verify RND routine comparing results with ZX-BASIC RND
+ 100 REM: VERIFY RND routine comparing results with ZX-BASIC RND
  110 FOR i=0 TO 65535
  120 RANDOMIZE i
  130 LET y=FN r(): LET x=RND*65536
  140 IF x<>y THEN PRINT i;" ";x;"`<>`";y
  150 NEXT i
+9999 CLEAR #{math.org - 1}: LOAD "math"CODE: RUN
 END
-program.start = 10
+program.start = 9999
 puts "="*32
 puts program.to_source escape_keywords: true
 puts "="*32

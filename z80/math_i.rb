@@ -132,7 +132,7 @@ class Z80MathInt
         ##
         # Subtracts +r+ from +h+, +l+.
         #
-        # Uses: +af+, +r+, +h+, +l+, preserves +r+.
+        # Uses: +af+, +h+, +l+, preserves: +r+.
         #
         # ====Note:
         # Although this method is often better (faster and does not use other registers) way
@@ -441,18 +441,88 @@ class Z80MathInt
             end
         end
         ##
-        # Performs euclidean divison. Divides +hl+ by +m+.
-        # Returns quotient in +hl+ and remainder in +a+. +m+ remains unaltered.
+        # Performs an euclidean division: +k+ / +m+.
+        # Returns a quotient in +k+ and a remainder in +a+.
+        # This routine can be stacked up one after another to divide arbitrary size dividends.
+        # Just preserve the +a+ and +m+ registers and pass +false+ to +clrrem:+ on subsequent routines.
+        # Start with the most significant byte of the dividend.
         #
-        # Uses: +af+, +b+, +m+, +hl+
+        #    ns :divide24_8 do |eoc| # divide (l|de)/c
+        #      divmod l, c, check0:eoc, check1:eoc
+        #      divmod d, c, clrrem:false
+        #      divmod e, c, clrrem:false
+        #      anda a # clear CF
+        #    end
+        #
+        # Uses: +af+, +b+, +k+, preserves: +m+.
+        #
+        # * +k+:: a dividend (8-bit register except: +a+ and +b+)
+        # * +m+:: a divisor (8-bit register except: +a+, +b+ and +k+)
+        # * opts::
+        #   - :clrrem:: Clears a reminder (register +a+). If this is +false+, +check0+ and +check1+
+        #               options are being ignored.
+        #   - :check0:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
+        #               and nothing except the register +a+ is being altered.
+        #               +CF+ should be ignored if +check0+ is +false+.
+        #   - :check1:: Checks if a divisor equals 1, a hot path optimization. It may also be a label.
+        #               to indicate where to jump if +m+ equals 1.
+        #   - :modulo:: Calculates a remainder only.
+        def divmod(k, m, clrrem:true, check0:true, check1:true, modulo:false)
+            unless clrrem
+                check0 = false
+                check1 = false
+            end
+            check1 = eoc if check1 == true
+            check0 = eoc if check0 == true
+            raise ArgumentError unless [d, e, h, l, c].include?(k) and [d, e, h, l, c].include?(m) and k != m
+            isolate do |eoc|
+                if check0 or check1
+                                ld  a, m
+                                cp  1
+                                jr  C, check0 if check0 # division by 0
+                    if check1
+                                jp  NZ, divstrt  # division by m > 1
+                                xor a            # clear rest
+                                jp  check1       # division by 1
+                    end
+                end
+                divstrt         ld  b, 8
+                if clrrem
+                                xor a            # a = 0
+                    findhi      sla k            # align highest set bit at CF
+                                jr  C, found1
+                                djnz findhi
+                                jp  eoc          # k == 0
+                end
+                loopfit         sla k            # carry <- k <- 0
+                found1          adc a            # carry <- a <- carry
+                                jr  C, fits      # a >= 256
+                                cp  m            # a - m
+                                jr  NC, fits     # a >= m
+                                djnz loopfit     # loop
+                                ccf if check0    # clear carry only when check0
+                                jp  eoc
+                fits            sub m            # a = a - m (rest)
+                unless modulo
+                                inc k            # k <- 1 (quotient)
+                end
+                                djnz loopfit     # loop
+                                ora  a if check0 # clear carry only when check0
+            end
+        end
+        ##
+        # Performs an euclidean division: +hl+ / +m+.
+        # Returns a quotient in +hl+ and a remainder in +a+.
+        #
+        # Uses: +af+, +b+, +hl+, preserves: +m+.
         #
         # * +m+:: a divisor (+c+, +d+ or +e+)
         # * opts::
-        #   - :check0:: (default +true+) checks if divisor is 0, in this instance CF indicates division error
-        #               and nothing except +a+ register is altered on CF=1. If +false+ CF should be ignored.
-        #   - :check1:: (default +true+) checks if divisor is 1, a hot path optimization
-        #   - :modulo:: (default +false+) calculates remainder only, in this instance +hl+ will be 0
-        #               when division is finished.
+        #   - :check0:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
+        #               and nothing except the register +a+ is being altered.
+        #               +CF+ should be ignored if +check0+ is +false+.
+        #   - :check1:: Checks if a divisor is 1, a hot path optimization.
+        #   - :modulo:: Calculates a remainder only.
         def divmod8(m=c, check0:true, check1:true, modulo:false)
             raise ArgumentError unless [c, d, e].include?(m)
             isolate do |eoc|
@@ -489,19 +559,19 @@ class Z80MathInt
             end
         end
         ##
-        # Performs euclidean divison. Divides +hl+ by +de+.
-        # Returns quotient in +hl+ and remainder in +bc+. +de+ remains unaltered.
+        # Performs an euclidean division: +hl+ / +de+.
+        # Returns a quotient in +hl+ and a remainder in +bc+.
         #
-        # Uses: +af+, +bc+, +de+, +hl+, +x+
+        # Uses: +af+, +bc+, +hl+, +x+, preserves: +de+.
         #
         # * +x+:: a temporary register (+ixh+, +ixl+, +iyh+ or +iyl+).
         # * opts::
-        #   - :check0:: (default +true+) checks if divisor is 0, in this instance CF indicates division error
-        #               and nothing except +a+ register is altered on CF=1. If +false+ CF should be ignored.
-        #   - :check1:: (default +true+) checks if divisor is 1, a hot path optimization
-        #   - :modulo:: (default +false+) calculates remainder only, in this instance +hl+ will be 0
-        #               when division is finished.
-        #   - :quick8:: (default +true+) checks if divisor fits in 8 bits and in this instance
+        #   - :check0:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
+        #               and nothing except the register +a+ is being altered. 
+        #               +CF+ should be ignored if +check0+ is +false+.
+        #   - :check1:: Checks if a divisor is 1, a hot path optimization.
+        #   - :modulo:: Calculates a remainder only.
+        #   - :quick8:: Checks if a divisor fits in 8 bits and in this instance
         #               uses different, optimized code.
         def divmod16(x=ixl, check0:true, check1:true, modulo:false, quick8:true)
             raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
@@ -558,19 +628,20 @@ class Z80MathInt
             end
         end
         ##
-        # Performs euclidean divison. Divides +hl+|+hl'+ by +m+.
-        # Returns quotient in +hl+|+hl'+ and remainder in +a+. +m+ remains unaltered.
+        # Performs an euclidean division: +hl+|+hl'+ / +m+.
+        # Returns a quotient in +hl+|+hl'+ and a remainder in +a+.
         #
-        # Uses: +af+, +a'+, +b+, +b'+, +m+, +m'+, +hl+, +hl'+
+        # Uses: +af+, +af'+, +b+, +b'+, +hl+, +hl'+, +mt'+, preserves: +m+
         #
         # * +m+:: a divisor (+c+, +d+ or +e+)
+        # * +mt'+:: a temporary register (from the alternative set) (+c+, +d+ or +e+)
         # * opts::
-        #   - :check0:: (default +true+) checks if divisor is 0, in this instance CF indicates division error
-        #               and nothing except +a+ register is altered on CF=1. If +false+ CF should be ignored.
-        #   - :check1:: (default +true+) checks if divisor is 1, a hot path optimization
-        #   - :modulo:: (default +false+) calculates remainder only, in this instance +hl+|+hl'+ will be 0
-        #               when division is finished.
-        def divmod32_8(m=c, check0:true, check1:true, modulo:false)
+        #   - :check0:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
+        #               and nothing except the register +a+ is being altered.
+        #               +CF+ should be ignored if +check0+ is +false+.
+        #   - :check1:: Checks if a divisor is 1, a hot path optimization.
+        #   - :modulo:: Calculates a remainder only.
+        def divmod32_8(m=c, mt:c, check0:true, check1:true, modulo:false)
             raise ArgumentError unless [c, d, e].include?(m)
             isolate do |eoc|
                 if check0 or check1
@@ -601,18 +672,18 @@ class Z80MathInt
                 divlo16             ex  af, af
                                     ld  a, m
                                     exx
-                                    ld  m, a
+                                    ld  mt, a
                                     ex  af, af
                                     ld  b, 16
                 loopfit2            add hl, hl       # carry <- hl <- 0
                                     adc a            # carry <- a <- carry
                                     jr  C, fits2     # a > m
-                                    cp  m            # a - m
+                                    cp  mt           # a - m
                                     jr  NC, fits2    # a >= m
                                     djnz loopfit2    # loop
                                     ccf if check0    # clear carry only when check0
                                     jp  over
-                fits2               sub m            # a = a - m (rest)
+                fits2               sub mt           # a = a - m (rest)
                 unless modulo
                                     inc l            # hl <- 1 (quotient)
                 end
@@ -622,19 +693,19 @@ class Z80MathInt
             end
         end
         ##
-        # Performs euclidean divison. Divides +hl+|+hl'+ by +de+.
-        # Returns quotient in +hl+|+hl'+ and remainder in +bc+. +de+ remains unaltered.
+        # Performs an euclidean division: +hl+|+hl'+ / +de+.
+        # Returns a quotient in +hl+|+hl'+ and a remainder in +bc+.
         #
-        # Uses: +af+, +a'+, +bc+, +bc'+, +de+, +de'+, +hl+, +hl'+, +x+
+        # Uses: +af+, +af'+, +bc+, +bc'+, +hl+, +hl'+, +de'+, +x+, preserves: +de+.
         #
         # * +x+:: a temporary register (+ixh+, +ixl+, +iyh+ or +iyl+).
         # * opts::
-        #   - :check0:: (default +true+) checks if divisor is 0, in this instance CF indicates division error
-        #               and nothing except +a+ register is altered on CF=1. If +false+ CF should be ignored.
-        #   - :check1:: (default +true+) checks if divisor is 1, a hot path optimization
-        #   - :modulo:: (default +false+) calculates remainder only, in this instance +hl+|+hl'+ will be 0
-        #               when division is finished.
-        #   - :quick8:: (default +true+) checks if divisor fits in 8 bits and in this instance
+        #   - :check0:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
+        #               and nothing except the register +a+ is being altered.
+        #               +CF+ should be ignored if +check0+ is +false+.
+        #   - :check1:: Checks if a divisor is 1, a hot path optimization.
+        #   - :modulo:: Calculates a remainder only.
+        #   - :quick8:: Checks if a divisor fits in 8 bits and in this instance
         #               uses different, optimized code.
         def divmod32_16(x:ixl, check0:true, check1:true, modulo:false, quick8:true)
             raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
@@ -733,13 +804,13 @@ class Z80MathInt
         #
         # See: https://en.wikipedia.org/wiki/Lehmer_random_number_generator
         #
-        # Routine uses similar parameters as in ZX-Spectrum ROM:
+        # This routine uses the following parameters (similar to ZX-Spectrum ROM's):
         # 
         #    s1 = (s0 + 1) * 75 % 65537 - 1
         #
         # Uses: +af+, +bc+, +de+, +hl+.
         #
-        # Expects seed in +hl+ and produces next seed iteration in +hl+.
+        # Expects a seed (s0) in +hl+ and produces the result (s1) in +hl+.
         def rnd
             isolate do |eoc|
                                 inc hl          # seed + 1
@@ -752,7 +823,7 @@ class Z80MathInt
                                                 # overflow 0x1_0000 - 0x1_0001 = -1 happens only for seeds:
                                                 # 65535, 20097, 34952, 40195
                 ovrflow         add a           # shift left (for all possible cases CF=0 after this)
-                                                                # otherwise we should have take care of CF=1
+                                                # otherwise we should have take care of CF=1
                                 djnz mnext      # this was the last iteration so the remainder result is 65536
                                 jr  eoc         # remainder = (borrow|hl = 0x1_0000) (seed - 1) == 65535
 
@@ -784,8 +855,8 @@ class Z80MathInt
             end
         end
         ##
-        # Convert a 8-bit unsigned integer to bcd
-        # allows for arbitrary integer size conversion.
+        # Convert a 8-bit unsigned integer to a BCD string.
+        # Allows arbitrary integer sizes.
         #
         # Used by +utobcd+.
         #
@@ -816,12 +887,12 @@ class Z80MathInt
             end
         end
         ##
-        # Converts arbitrary size unsigned integer (LSB) to bcd
+        # Converts an unsigned integer (LSB) of an arbitrary size to a BCD string.
         #
-        # Uses: +a+, +b+, +rr+, +bc'+, +hl'+, +r'+
+        # Uses: +a+, +b+, +rr+, +bc'+, +hl'+, +r'+.
         #
-        # After conversion +c'+ contains number of bytes used to store bcd number.
-        # Subtract it from +bufend+ to get the first byte.
+        # After conversion +c'+ contains number of bytes used to store a BCD string.
+        # Subtract it from +bufend+ to reach the first byte.
         #
         # Place integer address in +input+ of +size+ bytes and +bufend+ should point to the address
         # immediately following buffer end. Provide large enough buffer.
@@ -860,24 +931,47 @@ class Z80MathInt
             end
         end
         ##
-        # Reads each bcd digit as +a+ destroying content of a buffer in the process.
+        # Reads each BCD digit in the register +a+, destroying content of a buffer in the process.
         #
         # Uses: +a+, +hl+, +b+.
         #
-        # On first digit carry is 1 on subsequent is 0 before +block+.
+        # Provide a +block+ of code which will receive digits. The block will be inserted twice.
+        # On the first digit CF=1, on subsequent CF=0. Alternatively set +skip_leading0:+ +true+.
+        # In this instance CF will be always 0 and the block will not be evaluated if the first digit
+        # is 0.
         #
-        # Block must not alter +hl+ or +b+.
-        def bcdtoa(buffer, size, &block)
+        # Block must not alter +hl+ or +b+ registers.
+        #
+        # Example:
+        #
+        #       bcdtoa hl, b do |eoc|
+        #         jr  NC, pr1  # skip zero check if not first
+        #         jr  Z, eoc   # skip leading 0
+        #   pr1   add ?0.ord
+        #         rst 0x10     # print a character
+        #       end
+        #       # or
+        #       bcdtoa(hl, b, skip_leading0: true) do |eoc|
+        #         add ?0.ord
+        #         rst 0x10     # print a character
+        #       end
+        def bcdtoa(buffer, size, skip_leading0:false, &block)
             raise ArgumentError unless (!buffer.is_a?(Register) or buffer == hl)
             isolate do
                         ld  b, size unless size == b
                         ld  hl, buffer unless buffer == hl
                         xor a
-                        scf
-            loopa       rld
-                        ns(&block)
-                        xor a
+                if skip_leading0
                         rld
+                        jr  Z, skip0
+                        jr  noskip0
+                else
+                        scf
+                end
+            loopa       rld
+            noskip0     ns(&block)
+                        xor a
+            skip0       rld
                         ns(&block)
                         inc hl
                         xor a
