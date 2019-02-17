@@ -496,7 +496,9 @@ class Z80MathInt
                 end
                 loopfit         sla k            # carry <- k <- 0
                 found1          adc a            # carry <- a <- carry
+                unless clrrem
                                 jr  C, fits      # a >= 256
+                end
                                 cp  m            # a - m
                                 jr  NC, fits     # a >= m
                                 djnz loopfit     # loop
