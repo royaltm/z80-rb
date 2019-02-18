@@ -472,10 +472,10 @@ class Z80MathInt
                 check0 = false
                 check1 = false
             end
-            check1 = eoc if check1 == true
-            check0 = eoc if check0 == true
             raise ArgumentError unless [d, e, h, l, c].include?(k) and [d, e, h, l, c].include?(m) and k != m
             isolate do |eoc|
+                check1 = eoc if check1 == true
+                check0 = eoc if check0 == true
                 if check0 or check1
                                 ld  a, m
                                 cp  1
@@ -528,14 +528,16 @@ class Z80MathInt
         def divmod8(m=c, check0:true, check1:true, modulo:false)
             raise ArgumentError unless [c, d, e].include?(m)
             isolate do |eoc|
+                check1 = eoc if check1 == true
+                check0 = eoc if check0 == true
                 if check0 or check1
                                 ld  a, m
                                 cp  1
-                                jr  C, eoc if check0 # division by 0
+                                jr  C, check0 if check0 # division by 0
                     if check1
                                 jp  NZ, divstrt  # division by m > 1
                                 xor a            # clear rest
-                                jp  eoc          # division by 1
+                                jp  check1       # division by 1
                     end
                 end
                 divstrt         xor a            # a = 0
@@ -578,23 +580,35 @@ class Z80MathInt
         def divmod16(x=ixl, check0:true, check1:true, modulo:false, quick8:true)
             raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
             isolate do |eoc|
+                check0 = eoc if check0 == true
+                check1 = eoc if check1 == true
                 if check0 or check1 or quick8
                                     xor a
                                     ora d
                                     jp  NZ, div16strt
                     if quick8
-                                    divmod8 e, check0:check0, check1:check1, modulo:modulo
-                                    ld  b, 0
+                                    divmod8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo
                                     ld  c, a
+                        if check0 == eoc
+                        qcheck0     label
+                        end
                                     jp  eoc
+                        if check1
+                        qcheck1     ld  b, a
+                                    ld  c, a
+                                    jp  check1
+                        end
+                        if check0 && !(check0 == eoc)
+                        qcheck0     jp  check0
+                        end
                     elsif check0 or check1
                                     ld  a, e
                                     cp  1
-                                    jr  C, eoc if check0 # division by 0
+                                    jr  C, check0 if check0 # division by 0
                         if check1
                                     jp  NZ, div16strt # division by m > 1
                                     ld  bc, 0         # clear rest
-                                    jp  eoc           # division by 1
+                                    jp  check1        # division by 1
                         end
                     end
                 end
@@ -646,14 +660,16 @@ class Z80MathInt
         def divmod32_8(m=c, mt:c, check0:true, check1:true, modulo:false)
             raise ArgumentError unless [c, d, e].include?(m)
             isolate do |eoc|
+                check0 = eoc if check0 == true
+                check1 = eoc if check1 == true
                 if check0 or check1
                                     ld  a, m
                                     cp  1
-                                    jr  C, eoc if check0 # division by 0
+                                    jr  C, check0 if check0 # division by 0
                     if check1
                                     jp  NZ, divstrt  # division by m > 1
                                     xor a            # clear rest
-                                    jp  eoc          # division by 1
+                                    jp  check1       # division by 1
                     end
                 end
                 divstrt             xor a            # a = 0
@@ -712,23 +728,35 @@ class Z80MathInt
         def divmod32_16(x:ixl, check0:true, check1:true, modulo:false, quick8:true)
             raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
             isolate do |eoc|
+                check0 = eoc if check0 == true
+                check1 = eoc if check1 == true
                 if check0 or check1 or quick8
                                     xor a
                                     ora d
                                     jp  NZ, div32strt
                     if quick8
-                                    divmod32_8 e, check0:check0, check1:check1, modulo:modulo
-                                    ld  b, 0
+                                    divmod32_8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo
                                     ld  c, a
+                        if check0 == eoc
+                        qcheck0     label
+                        end
                                     jp  eoc
+                        if check1
+                        qcheck1     ld  b, a
+                                    ld  c, a
+                                    jp  check1
+                        end
+                        if check0 && !(check0 == eoc)
+                        qcheck0     jp  check0
+                        end
                     elsif check0 or check1
                                     ld  a, e
                                     cp  1
-                                    jr  C, eoc if check0 # division by 0
+                                    jr  C, check0 if check0 # division by 0
                         if check1
                                     jp  NZ, div32strt # division by m > 1
                                     ld  bc, 0
-                                    jp  eoc           # division by 1
+                                    jp  check1        # division by 1
                         end
                     end
                 end
