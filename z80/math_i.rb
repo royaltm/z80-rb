@@ -105,6 +105,30 @@ class Z80MathInt
             end
         end
         ##
+        # Negates +t3+, +t2+, +t1+, +t0+.
+        #
+        # Uses: +af+, +t3+, +t2+, +t1+, +t0+.
+        #
+        # T-states: 48
+        def neg32(t3, t2, t1, t0)
+            raise ArgumentError, "neg32 invalid arguments!" if [t3, t2, t1, t0].include?(a) or
+                                                               [t3, t2, t1, t0].uniq.size != 4
+            ns do
+                    xor  a
+                    sub  t0
+                    ld   t0, a
+                    sbc  a, a
+                    sub  t1
+                    ld   t1, a
+                    sbc  a, a
+                    sub  t2
+                    ld   t2, a
+                    sbc  a, a
+                    sub  t3
+                    ld   t3, a
+            end
+        end
+        ##
         # Adds +a+ to +h+|+l+.
         #
         # Uses: +af+, +h+, +l+.
@@ -376,7 +400,7 @@ class Z80MathInt
                                 adc a            # carry <- mh <- 1
                                 jr  NC, noadd1
 
-                shadd1  srl mh           # mh -> ml -> th'
+                shadd1          srl mh           # mh -> ml -> th'
                                 rr  ml
                                 exx
                                 rr  th
@@ -387,7 +411,7 @@ class Z80MathInt
                                 jr  Z, multlo
                                 jp  C, shadd1
 
-                noadd1  srl mh           # mh -> ml -> mh'
+                noadd1          srl mh           # mh -> ml -> mh'
                                 rr  ml
                                 exx
                                 rr  th
@@ -397,19 +421,19 @@ class Z80MathInt
                                 jp  C, shadd1
                                 jp  noadd1
 
-                multlo0 ld  ml, h        # mh = 0, ml = h, th' = l, tl' = 0
+                multlo0         ld  ml, h        # mh = 0, ml = h, th' = l, tl' = 0
                                 ld  a, l
                                 exx
                                 ld  th, a
                                 exx
                                 ld  hl, 0        # hl = 0
 
-                multlo  ex  af, af       # a = ml, ZF = a == 0
+                multlo          ex  af, af       # a = ml, ZF = a == 0
                                 jr  Z, eoc
                                 add a            # carry <- ml
                                 jr  NC, noadd2
 
-                shadd2  srl ml           # ml -> mh' -> ml'
+                shadd2          srl ml           # ml -> mh' -> ml'
                                 exx
                                 rr  th
                                 rr  tl
@@ -420,7 +444,7 @@ class Z80MathInt
                                 jr  Z, finlo
                                 jp  C, shadd2
 
-                noadd2  srl ml           # ml -> mh' -> ml'
+                noadd2          srl ml           # ml -> mh' -> ml'
                                 exx
                                 rr  th
                                 rr  tl
@@ -430,7 +454,7 @@ class Z80MathInt
                                 jp  C, shadd2
                                 jp  noadd2
 
-                finlo   jr  NC, eoc
+                finlo           jr  NC, eoc
                                 srl ml           # ml -> mh' -> ml'
                                 exx
                                 rr  th
