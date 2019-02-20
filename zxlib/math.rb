@@ -57,7 +57,7 @@ class ZXMath
              num,
              0].pack('CcvC')
         else
-            m = sgn ? -num : num
+            m = (sgn ? -num : num).to_f
             e = (Math.log2(m)+1.0).floor
             raise "overflow error" if e > 127
             if e < -127
@@ -71,7 +71,7 @@ class ZXMath
                 end
                 [
                     e + 128,
-                    sgn ? (m*(1<<32)).round : (m*(1<<32)).round ^ (1<<31)
+                    sgn ? (m*(1<<32)).truncate : (m*(1<<32)).truncate ^ (1<<31)
                 ].pack('CN')
             end
         end
@@ -118,7 +118,7 @@ class ZXMath
     include Z80
 
     ## ZX-Spectrum's float number epsilon
-    EPSILON = 1.0 / (1<<32)
+    EPSILON = 1.0 / (1<<31)
     ##
     # A struct representing a ZX-Spectrum's FP calculator's real number data type.
     #
