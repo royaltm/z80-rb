@@ -69,6 +69,11 @@ module Z80
 			# * +:no_ixy+ evaluates to: +af+, +bc+, +de+, +hl+
 			# * +:ixy:+ evaluates to: +ix+, +iy+
 			#
+			# +opts+ may be one of:
+			#
+			# * +:ret+ if the +ret+ instruction should be added after the registers have been restored.
+			#          In this instance jumping to +eoc+ will effectively return from the subroutine.
+			#
 			# +opts+ are passed to Program.ns for a namespace around your code.
 			#
 			# Examples:
@@ -89,6 +94,7 @@ module Z80
 			# <b>Be carefull with a +ret+ instruction in your code block.</b>
 			def with_saved(*registers, **opts, &block)
 				name = nil
+				with_return = opts.delete :ret
 				registers.map!.with_index do |rr, i|
 					case rr
 					when :all
@@ -97,6 +103,8 @@ module Z80
 						[af, bc, de, hl]
 					when :ixy
 						[ix, iy]
+					when :ex_af, :ex_af_af, :exx
+						rr
 					when Symbol, String
 						if i == 0
 							name = rr
@@ -124,6 +132,7 @@ module Z80
 					registers.each{|rr| saver[rr, :push]}
 					ns(**opts, merge: true, &block)
 					registers.reverse.each.each{|rr| saver[rr, :pop]}
+					ret if with_return
 				end
 			end
 			##
