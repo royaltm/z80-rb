@@ -578,6 +578,77 @@ class ZXSys
             end
         end
         ##
+        # Read a 32-bit integer from a ZX Basic's FP-value.
+        #
+        # +hl+:: must point to the 1st byte of the FP-value.
+        # +th+:: most significant 16-bit output register pair.
+        # +tl+:: least significant 16-bit output register pair.
+        #
+        # Result is being loaded into +th+|+tl+.
+        # CF=1 signals that the FP-value is too big to fit into a 32-bit integer.
+        # ZF=1 signals that the FP-value is positive. In this instance +a+ = 0.
+        # ZF=0 signals that the FP-value is negative. In this instance +a+ = 0xFF.
+        # If the FP-value was negative the integer will NOT BE a 2's complement.
+        #
+        # +hl+ will always point to the last byte of the FP-value.
+        #
+        # Modifies: +af+, +af'+, +hl+, +th+, +tl+
+        def read_integer32_value(th=de, tl=bc)
+            raise ArgumentError unless [th, tl].uniq.size == 2 and
+                                       [th, tl].all? {|t| [bc, de].include?(t)}
+            t1, t0 = tl.split
+            t3, t2 = th.split
+            isolate do |eoc|
+                            ld    a, [hl]
+                            inc   hl
+                            ld    t3, [hl]
+                            inc   hl
+                            ld    t2, [hl]
+                            inc   hl
+                            ld    t1, [hl]
+                            inc   hl
+                            ld    t0, [hl]
+                            ora   a
+                            jr    Z, small_int
+                            sub   129
+                            jr    NC, fp_value   # exp >= 129
+                zero        xor   a
+                            ld    tl, 0
+                            jr    clear_hi
+                small_int   ld    t0, t2         # simple int
+                            ld    a, t3          # sign
+                clear_hi    ld    th, 0
+                            jr    cl_flags
+                too_big     scf
+                            jr    eoc
+                fp_value    sub   32
+                            jr    NC, too_big
+                            ex    af, af
+                            ld    a, t3
+                            add   a
+                            sbc   a
+                            ex    af, af         # a': sgn
+                            set   7, t3
+                            jr    chckswap8
+                swap8       ld    t0, t1
+                            ld    t1, t2
+                            ld    t2, t3
+                            ld    t3, 0
+                chckswap8   add   8
+                            jr    NC, swap8
+                            sub   7
+                            jr    Z, skipsh
+                shloop      srl   t3
+                            rr    t2
+                            rr    t1
+                            rr    t0
+                            inc   a
+                            jr    NZ, shloop
+                skipsh      ex    af, af         # a: sgn
+                cl_flags    ora   a              # CF: 0, Z: 1 (+), Z: 0 (-)
+            end
+        end
+        ##
         # Read a string address and its length from a ZX Basic's stringish FP-value.
         #
         # +hl+:: must point to the 1st byte of the FP-value.
