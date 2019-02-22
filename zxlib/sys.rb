@@ -617,6 +617,9 @@ class ZXSys
                             jr    clear_hi
                 small_int   ld    t0, t2         # simple int
                             ld    a, t3          # sign
+                            ora   a
+                            jr    Z, clear_hi    # positive
+                            neg16 t1, t0         # convert 2'complement
                 clear_hi    ld    th, 0
                             jr    cl_flags
                 too_big     scf
