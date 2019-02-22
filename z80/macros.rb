@@ -66,8 +66,8 @@ module Z80
 			# * +:exx+ symbol to evaluate +exx+ instruction,
 			# * +:ex_af+ symbol to evaluate <code>ex af, af</code> instruction,
 			# * +:all+ evaluates to: +af+, +bc+, +de+, +hl+, +ix+, +iy+
-			# * +:no_ixy+ evaluates to: +af+, +bc+, +de+, +hl+
-			# * +:ixy:+ evaluates to: +ix+, +iy+
+			# * +:all_but_ixiy+ evaluates to: +af+, +bc+, +de+, +hl+
+			# * +:ixiy:+ evaluates to: +ix+, +iy+
 			#
 			# +opts+ may be one of:
 			#
@@ -85,7 +85,7 @@ module Z80
 			#     # ... saves and restores af, hl, hl' and swaps shadow registers back before here
 			#   end
 			#
-			#   with_saved :bar, :all, :exx, :ex_af, :no_ixy, inherit: foo, isolate: true do
+			#   with_saved :bar, :all, :exx, :ex_af, :all_but_ixiy, inherit: foo, isolate: true do
 			#     # saves and restores: af, bc, de, hl, ix, iy, af', bc', de', hl'
 			#     # creates isolated namespace with inherited foo immediate label around here
 			#     # creates bar label in the enclosing namespace to the beginning of the pushes
@@ -99,9 +99,9 @@ module Z80
 					case rr
 					when :all
 						[af, bc, de, hl, ix, iy]
-					when :no_ixy
+					when :no_ixy, :no_ixiy, :all_but_ixy, :all_but_ixiy, :afbcdehl
 						[af, bc, de, hl]
-					when :ixy
+					when :ixy, :ixiy
 						[ix, iy]
 					when :ex_af, :ex_af_af, :exx
 						rr
