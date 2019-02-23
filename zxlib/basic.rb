@@ -268,12 +268,8 @@ module Basic
 						if token.keyword_fn?
 							body << token.to_keyword_char
 							if token.keyword?('BIN')
-								arg = if tokenizer.peek_token.binary_number?
-									tokenizer.next_token.to_chars
-								else
-									''
-								end
-								body << arg << ?\x0E << ZXMath.pack_number(arg.to_i(2), true)
+								arg = token.extract_binary_number_argument
+								body << arg << ?\x0E << ZXMath.pack_number(arg.gsub(Tokenizer::Patterns::SPACE_OR_CONTROL,'').to_i(2), true)
 							elsif token.keyword?('THEN')
 								raise SyntaxError, "unexpected THEN in line: #{line_index} at: #{token.index}" unless parentheses.zero?
 								body << parse_statement(tokenizer)
@@ -283,7 +279,7 @@ module Basic
 						end
 					elsif token.number?
 						numstr = token.to_chars
-						body << numstr << ?\x0E << numstr.to_f.to_z80bin
+						body << numstr << ?\x0E << numstr.gsub(Tokenizer::Patterns::SPACE_OR_CONTROL,'').to_f.to_z80bin
 					elsif token.quote?
 						body << token.to_chars << parse_string_body(tokenizer)
 					elsif token.colon?
@@ -595,8 +591,10 @@ module Basic
 			def kind_of_space?
 				keyword_code.nil? && Patterns::SPACE_LIKE === chars
 			end
-			def binary_number?
-				Patterns::BINARY_NUMBER_EXACT_MATCH === chars
+			def extract_binary_number_argument
+				if m = Patterns::BINARY_EXPR_MATCH_EXTRACT.match(chars)
+					m[1]
+				end
 			end
 			def number?
 				Patterns::NUMBER_EXACT_MATCH === chars
@@ -708,6 +706,11 @@ module Basic
 						@token = Token.new @index, chars, chars, chars.bytesize == 1 && code >= KEYWORD_START_CODE ? code : nil
 					end
 					@index += offset
+				elsif m = Patterns::BINARY_EXPR_MATCH.match(@source)
+					key = m.to_s
+					@token = Token.new @index, key, key, KEYWORD_CODES['BIN']
+					@index += m.end 0
+					@source = m.post_match
 				elsif m = Patterns::KEYWORDS_MATCH.match(@source)
 					key = m.to_s
 					@token = Token.new @index, key, key, KEYWORD_CODES[key.strip]
@@ -1040,10 +1043,12 @@ module Basic
 	class Tokenizer
 		module Patterns
 			SPACES_OR_LINE_NO = /\A\s*(?:(\d+)\s?)?/
+			SPACE_OR_CONTROL = /[\x00-\x20]/
 			SPACE_LIKE = /\A[\x00-\x20]/
-			NUMBER_MATCH = /\A(\d*\.?\d+)/
-			NUMBER_EXACT_MATCH = /\A\d*\.?\d+\z/
-			BINARY_NUMBER_EXACT_MATCH = /\A[01]+\z/
+			NUMBER_MATCH = /\A(?:\d*\.(?:[\x00-\x20]*\d)+(?:[\x00-\x20]*e[\x00-\x20]*[-+]?[\x00-\x20]*\d+)?|(?:\d+e[\x00-\x20]*[-+]?[\x00-\x20]*\d+)|\d+)/i
+			NUMBER_EXACT_MATCH = /#{NUMBER_MATCH}\z/
+			BINARY_EXPR_MATCH = /\ABIN(?:[\x00-\x20]*[01])*/
+			BINARY_EXPR_MATCH_EXTRACT = /\ABIN((?:[\x00-\x20]*[01])*)\z/
 			ESCAPE_MATCH = /\A`([^`]*)(?:`|\z)/
 			VARNAME_MATCH_EXACT = /\A[[:alpha:]][[:alnum:]]*\z/
 			VARSTRNAME_MATCH_EXACT = /\A[[:alpha:]]\$\z/
