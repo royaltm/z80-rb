@@ -22,6 +22,8 @@
 #              ret
 #    end
 class ZXGfx
+  ##
+  #  ==ZXGfx macros.
   module Macros
     ##
     # Returns true if v equals to 0 or only one bit is set.

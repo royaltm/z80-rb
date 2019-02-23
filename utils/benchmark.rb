@@ -93,6 +93,8 @@ class ZXBenchmark
     export forward
     export interrup_vec
 
+    ##
+    # =ZXBenchmark macros.
     module Macros
         include Z80MathInt::Macros
         include ZXSys::Macros

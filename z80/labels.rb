@@ -239,20 +239,20 @@ module Z80
 		#  See Label for more information and examples.
 		#
 		#  Example:
-		#    # creates label foo of type 2 and fills 10 bytes of code (5 words) with data from array.
+		#    # Creates +foo+ of type 2 and fills 10 bytes of code (5 words) with data from array.
 		#    foo   data 2, [0, 2, 4, label1, label2]
-		#    # creates label bar and fills 10 bytes of code with 0s.
+		#    # Creates +bar+ and fills 10 bytes of code with 0s.
 		#    bar   data 1, 10
-		#    # creates label bar and fills 2 words of code with data from array and the rest (3 words) with 0s.
-		#    baz   data 2, 10, [1, 2]
-		#    baz   data 2, 10, 1, 2
-		#    # creates label mystr and fills 12 bytes of code with bytes from string, add byte 10 at the end.
+		#    # Creates +bar+ and fills 2 words of code with data from an array and the rest (3 words) with 0s.
+		#    baz   data 2, 5, [1, 2]
+		#    baz   data 2, 5, 1, 2
+		#    # Creates +mystr+ and fills 12 bytes of code with bytes from a string, adds a byte +10+ at the end.
 		#    mystr data 1, "Hello World!", 10
-		#    # creates label mystr and fills 12 bytes of code with bytes from string, add word 4242 at the end
+		#    # Creates +mystr+ and fills 12 bytes of code with bytes from a string, adds a word +4242+ at the end
 		#    # and fills additional 14 bytes of code with 0s.
 		#    mystr data 2, 20, "Hello World!", 4242
-		#    # creates label hello which addresses the following string and +hello resolves to its length
-		#    # which is 12 in this instance
+		#    # Creates +hello+ which addresses the following string and +hello+ resolves to its length
+		#    # which is 12 in this instance.
 		#    hello data "Hello World!"
 		#  See: Label for more examples.
 		def data(type = 1, size = nil, *args)
@@ -411,9 +411,9 @@ module Z80
 	#  In the above example +data_p+ and (+data_pl+,+data_ph+) are aliases (union).
 	#
 	#  Allocate label with data in a *program*
-	#    sprite  data SpritePool, [2,
+	#    sprite  data SpritePool, 2,
 	#             {x:0, y:0, size:12, data_p:sprite1_data},
-	#             {x:0, y:0, size:16, data_p:sprite2_data}]
+	#             {x:0, y:0, size:16, data_p:sprite2_data}
 	#  or with an absolute address
 	#    sprite  addr 0x8888, SpritePool
 	#  or just a label at Program.pc
