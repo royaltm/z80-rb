@@ -258,7 +258,9 @@ class Stars
     change_color      ld   a, h
                       xor  l
                       anda 0b01000011
-                      ld   ixl, a
+                      jr   NZ, set_color
+                      ld   a, 0b00000001
+    set_color         ld   ixl, a
                       jr   next_plot
   end
 
