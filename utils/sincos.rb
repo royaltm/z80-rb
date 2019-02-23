@@ -213,20 +213,20 @@ class Z80SinCos
 end
 
 if __FILE__ == $0
-    require 'z80/math_i'
-    require 'zxlib/gfx'
+    require 'zxlib/gfx_draw'
     require 'zxlib/basic'
     # :stopdoc:
     class TestSinCos # :nodoc: all
         include Z80
         include Z80::TAP
+        include ZXGfxDraw::Constants
 
         SinCosTable = Z80SinCos::SinCosTable
         SinCos      = Z80SinCos::SinCos
 
-        macro_import Z80SinCos
+        macro_import ZXGfxDraw
         macro_import Z80MathInt
-        macro_import ZXGfx
+        macro_import Z80SinCos
         import       ZXSys, macros: true, code: false
 
         sincos      addr 0xFB00, SinCos
@@ -249,9 +249,9 @@ if __FILE__ == $0
                     ret                # bc<>0 and contains an offset from the end of the table
         end
 
-        with_saved(:draw, :exx, hl, use: sincos) do |eoc|
+        ns :radius_arg do
                     find_def_fn_args 1, subroutine:false, cf_on_direct:true
-                    jr   C, skip_args         # direct USR function call
+                    ret  C
                     report_error_unless Z, 'Q Parameter error'
                     read_positive_int_value d, e
                     report_error_unless Z, 'A Invalid argument'
@@ -262,31 +262,92 @@ if __FILE__ == $0
                     cp   88                   # scale_y < 88
                     jr   NC, too_big.err
                     ld   [mult_de_a + 1], a   # f(s)
+                    ret
+        end
+
+        with_saved(:draw_circle, :exx, hl, use: sincos, ret: true) do |eoc|
+                    call radius_arg
+
+                    ld   a, [vars.p_flag]
+                    ld   hl, draw.line
+                    anda 0b00001010           # INVERSE 1 or OVER 1
+                    jr   Z, set_fx
+                    cp   0b00001010           # INVERSE 1 and OVER 1
+                    jr   NZ, inverse_1
+                    jp   eoc                  # do nothing
+        inverse_1   anda 0b00001000           # INVERSE 1
+                    jr   Z, over_1
+                    ld   hl, draw.line_inversed
+                    jr   set_fx
+        over_1      ld   hl, draw.line_over
+        set_fx      ld   [draw_jump + 1], hl
+
+                    xor  a
+        drawloop    push af
+                    sincos_from_angle sincos, h, l
+                    ld   e, [hl]
+                    inc  l
+                    ld   d, [hl]
+                    inc  l
+                    push hl
+                    bit  7, d
+                    jr   NZ, neg_sin
+                    call mult_de_a      # hl = sin(a)*256*h
+                    ld   l, h
+                    ld   h, 0
+                    jr   get_cosinus
+        neg_sin     neg16 d, e
+                    call mult_de_a      # hl = -sin(a)*256*h
+                    ld   l, h
+                    ld   h, -1
+        get_cosinus ex   [sp], hl
+                    ld   e, [hl]
+                    inc  l
+                    ld   d, [hl]
+                    bit  7, d
+                    jr   NZ, neg_cos
+                    call mult_de_a      # hl = cos(a)*256*h
+                    ld   d, 0
+                    jr   skip_dy
+        neg_cos     neg16 d, e
+                    call mult_de_a      # hl = -cos(a)*256*h
+                    ld   d, -1
+        skip_dy     ld   e, h
+                    pop  bc
+                    ld   hl, (88<<8)|128
+        draw_jump   call draw.line
+                    pop  af
+                    inc  a
+                    jr   NZ, drawloop
+        end
+
+        with_saved(:draw_sinus, :exx, hl, use: sincos, ret: true) do |eoc|
+                    call radius_arg
                                               # read system color attributes
         skip_args   ld   hl, [vars.attr_p]    # l: attr_p, h: mask_p
                     ld   a, h
-                    ld   [mask_p_a + 1], a
+                    ld   [plot_a.mask_a + 1], a
                     cpl
                     anda  l
-                    ld   [attrmask_a + 1], a
+                    ld   [plot_a.attr_a + 1], a
                     ld   a, [vars.p_flag]
-                    ld   hl, preshift_p
+                    ld   hl, draw.preshifted_pixel
                     anda 0b00001010           # INVERSE 1 or OVER 1
                     jr   Z, normal
                     cp   0b00001010           # INVERSE 1 and OVER 1
                     jr   NZ, inverse_1
-                    ld   a, 0x7E              # OP-CODE: LD A,(HL)
+                    ld   a, PLOT_FX_NONE      # OP-CODE: LD A,(HL)
                     jr   set_fx
         inverse_1   anda 0b00001000           # INVERSE 1
                     jr   Z, over_1
-                    ld   a, 0xA6              # OP-CODE: AND (HL)
-                    ld   hl, preshift_n
+                    ld   a, PLOT_FX_AND       # OP-CODE: AND (HL)
+                    ld   hl, draw.preshifted_inversed_pixel
                     jr   set_fx
-        over_1      ld   a, 0xAE              # OP-CODE: XOR (HL)
+        over_1      ld   a, PLOT_FX_XOR       # OP-CODE: XOR (HL)
                     jr   set_fx
-        normal      ld   a, 0xB6              # OP-CODE: OR (HL)
-        set_fx      ld   [plot], a            # fx [hl]
-                    ld   [preshift_a + 1], hl # normal or negative preshift
+        normal      ld   a, PLOT_FX_OR        # OP-CODE: OR (HL)
+        set_fx      ld   [plot_a.plot_fx], a  # fx [hl]
+                    ld   [plot_a.preshift_a + 1], hl # normal or negative preshift
                                               # FOR x=0 TO 255: PLOT x,SIN (x/128*PI)*87+88: NEXT x
                     xor  a
         drawloop    ld   e, a
@@ -301,7 +362,7 @@ if __FILE__ == $0
                     xor  a
                     sub  h              # a = 0-(sin(x)*h)
                     jr   plot_jump
-        negative    neg16 d, e, th:d, tl:e
+        negative    neg16 d, e
                     call mult_de_a      # hl = -sin(x)*256*h
                     ld   a, h           # a = -sin(x)*h
         plot_jump   add  88
@@ -310,27 +371,12 @@ if __FILE__ == $0
                     ld   a, e
                     ex   af, af
 
-                    xytoscr d, e, ah:d, al:e, s:c, t:b
-        preshift_a  ld   hl, preshift_p # preshift + c
-                    ld   a, c
-                    add  l
-                    ld   l, a
-                    ld   a, [hl]
-                    ex   de, hl
-        plot        ora  [hl]
-                    ld   [hl], a
-
-                    scrtoattr h, o:h
-        mask_p_a    ld   a, 0b00000000
-                    anda [hl]
-        attrmask_a  ora  0b00111000
-                    ld   [hl], a
+        plot_a      plot_pixel(e, d, draw.preshifted_pixel, fx: :or, with_attributes: true, color_attr: 0b00111000, color_mask: 0)
 
                     ex   af, af
                     inc  a
                     jr   NZ, drawloop
         end
-                    ret
 
         mult_de_a   ld   a, 87
                     mul8 d, e, a, tt:de, clrhl:true, double:true
@@ -342,39 +388,48 @@ if __FILE__ == $0
 
         sintable    bytes   neg_sintable256_pi_half_no_zero_lo
 
-                    org  align: 8
-        preshift_p  bytes (0..7).map{|x| 0x80 >> x}
-        preshift_n  bytes (0..7).map{|x| ~(0x80 >> x) }
+        draw        make_draw_line_subroutines
+        draw_end    label
 
                     org  align: 0x100
         sincos_tmpl data SinCosTable, sincos_table_descriptors
+
         eop         label
 
-        center_y    draw.plot_jump + 1
+        center_y    draw_sinus.plot_jump + 1
         scale_y     mult_de_a + 1
     end
 
-    testsincos = TestSinCos.new 0xF000
+    testsincos = TestSinCos.new 0xE000
     program = Basic.parse_source <<-END
-       1 DEF FN s(h)=USR #{testsincos[:draw]}
+       1 DEF FN s(h)=USR #{testsincos[:draw_sinus]}: DEF FN c(r)=USR #{testsincos[:draw_circle]}
       10 LET res=USR #{testsincos.org}
       20 IF res<>0 THEN PRINT "Error at: ";#{testsincos[:eop]-testsincos[:sincos_tmpl]}-res: STOP
       30 FOR h=0 TO 87: RANDOMIZE FN s(h): NEXT h: PAUSE 0
+     100 CLS
+     110 FOR r=1 TO 87: RANDOMIZE FN c(r): NEXT r: STOP
     9998 STOP
-    9999 CLEAR #{testsincos.org - 1}: LOAD ""CODE: RUN
+    9999 CLEAR #{testsincos.org - 1}: LOAD ""CODE
     END
 
     puts testsincos.debug
     puts program.to_source escape_keywords:true
 
+    [:sincos,
+     :sincos_tmpl,
+     :start,
+     :draw_circle,
+     :draw_sinus,
+     :draw,
+     :center_y,
+     :scale_y,
+     :eop
+    ].each do |name|
+        puts "#{name.to_s.ljust(14)}: 0x#{testsincos[name].to_s(16).rjust(4,?0)} : #{testsincos[name]}"
+    end
+    puts "make sincos size: #{testsincos[:sintable] - testsincos[:make_sincos]}"
+    puts "draw size: #{testsincos[:draw_end] - testsincos[:draw]}"
     puts "code size: #{testsincos[:sintable] - testsincos[:start]}"
-    puts "sincos: #{testsincos[:sincos]}"
-    puts "sincos_tmpl: #{testsincos[:sincos_tmpl]}"
-    puts "start: #{testsincos[:start]}"
-    puts "draw: #{testsincos[:draw]}"
-    puts "center_y: #{testsincos[:center_y]}"
-    puts "scale_y: #{testsincos[:scale_y]}"
-    puts "eop: #{testsincos[:eop]}"
     raise "memory clash detected" if testsincos[:eop] > testsincos[:sincos]
 
     program.save_tap 'testsincos.tap', line:9999
