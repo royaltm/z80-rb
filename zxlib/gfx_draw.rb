@@ -135,14 +135,14 @@ class ZXGfxDraw
     # * +x+:: The input register: horizontal-coordinate.
     # * +y+:: The input register: vertical-coordinate.
     # * +preshift+:: a label from the preshifted_pixel_mask_data called with a +:pixel+ or a +:inversed_pixel+ argument.
-    # * +fx+:: How to mix pixel with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
+    # * +fx+:: How to mix pixel with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+, +:skip+.
     # * +with_attributes+:: Optionally writes to the screen attributes if not +false+.
     #   Pass +:overwrite+ to ignore the +color_mask+.
     # * +color_attr+:: an address, an immediate value or a 8-bit half of +ix+ or +iy+ register.
     # * +color_mask+:: an address, an immediate value or a 8-bit half of +ix+ or +iy+ register.
     # * +scraddr+:: a screen memory address as an integer, must be a multiple of 0x2000
     #
-    # Unless +with_attributes+ is +:overwrite+: +memory+ = (+memory+ & +color_mask+) | +color_attr+.
+    # Unless +with_attributes:+ is +:overwrite+: +memory+ = (+memory+ & +color_mask+) | +color_attr+.
     #
     # Modifies: +af+, +bc+, +de+, +hl+.
     #
@@ -187,11 +187,11 @@ class ZXGfxDraw
         plot_fx     ld   a, [hl]
         when :nop
         plot_fx     nop
-        when :write
+        when :write, :skip
         else
           raise ArgumentError, "unknown fx value"
         end
-                    ld   [hl], a
+                    ld   [hl], a unless fx == :skip
 
         if with_attributes
                     scrtoattr h, o:h, scraddr:0x4000
