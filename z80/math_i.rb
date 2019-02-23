@@ -540,6 +540,8 @@ class Z80MathInt
         # Performs an euclidean division: +hl+ / +m+.
         # Returns a quotient in +hl+ and a remainder in +a+.
         #
+        # DEPRECATED:: use stacked divmod instead, it's faster and more versatile.
+        #
         # Uses: +af+, +b+, +hl+, preserves: +m+.
         #
         # * +m+:: a divisor (+c+, +d+ or +e+)
@@ -670,6 +672,8 @@ class Z80MathInt
         ##
         # Performs an euclidean division: +hl+|+hl'+ / +m+.
         # Returns a quotient in +hl+|+hl'+ and a remainder in +a+.
+        #
+        # DEPRECATED:: use stacked divmod instead, it's faster and more versatile.
         #
         # Uses: +af+, +af'+, +b+, +b'+, +hl+, +hl'+, +mt'+, preserves: +m+
         #
@@ -863,6 +867,8 @@ class Z80MathInt
         #    s1 = (s0 + 1) * 75 % 65537 - 1
         #
         # Uses: +af+, +bc+, +de+, +hl+.
+        #
+        # T-states: ~ 601.7 (46 for seed=65535, 247 for seed<=872, max: 655)
         #
         # Expects a seed (s0) in +hl+ and produces the result (s1) in +hl+.
         def rnd

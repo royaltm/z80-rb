@@ -286,7 +286,7 @@ class ZXSys
         # Modifies: +af+.
         #
         # Output:
-        # * +ZF+=0:: if any of the specified keys is being pressed.
+        # * +ZF+=0:: (NZ) if any of the specified keys is being pressed.
         # * +a+:: bits b0..b4=1 if a key is being pressed at any of the specified half-line.
         def key_pressed?(line_mask=0, key_mask=0x1f)
             isolate do
