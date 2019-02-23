@@ -535,6 +535,7 @@ module Z80
 				].map {|n| address.instance_variable_get(n) }
 				self.name = name if name
 			end
+			raise Syntax, "address is not an integer." unless Integer === address
 			@address = address & 0xffff
 			@size = type.to_i
 			@type = type
