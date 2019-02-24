@@ -72,11 +72,11 @@ program = Basic.parse_source <<-END
  100 GO TO 30
 END
 program.start = 10
-program.save_tap 'calculator'
-calc.save_tap('calculator', append: true)
+program.save_tap 'examples/calculator'
+calc.save_tap('examples/calculator', append: true)
 puts "="*32
 puts program
 puts "="*32
-Z80::TAP.parse_file('calculator.tap') do |hb|
+Z80::TAP.parse_file('examples/calculator.tap') do |hb|
     puts hb.to_s
 end
