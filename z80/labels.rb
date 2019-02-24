@@ -827,7 +827,7 @@ module Z80
 					if String === i
 						(l = label ** i) and l.immediate?
 					else
-						true
+						@label.immediate?
 					end
 				}
 			else
