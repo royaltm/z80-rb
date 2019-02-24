@@ -274,7 +274,7 @@ class Stars
 
   preshifted_pixel    preshifted_pixel_mask_data :pixel
   stars               label Star
-  stars_end           union stars + 256*(+stars), Star
+  stars_end           union stars[256], Star
 end
 
 stars = Stars.new 0xf000
