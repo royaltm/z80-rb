@@ -70,6 +70,28 @@ class Z80Lib
             end
         end
         ##
+        # Clears a memory area using unrolled +push+ with a tight loop. The address should point
+        # to the next byte after the memory area to be cleared.
+        #
+        # Modifies: +b+, +hl+
+        def clrmem_fastest(address=hl, chunks_count=b, chunk_size=2, disable_interrupts:true, enable_interrupts:true, save_sp:true)
+            chunk_size = chunk_size.to_i
+            raise ArgumentError "chunk_size must be even" if chunk_size.odd?
+            raise ArgumentError "chunk_size must be less than 256" if chunk_size >= 256
+            isolate do
+                            ld  [restore_sp + 1], sp if save_sp
+                            ld  b, chunks_count unless chunks_count==b || chunks_count <= 1
+                            di if disable_interrupts
+                            ld  sp, address unless address == sp
+                            ld  hl, 0
+                loop1       label
+                            (chunk_size>>1).times { push hl }
+                            djnz loop1 unless chunks_count <= 1
+                restore_sp  ld  sp, 0 if save_sp
+                            ei if enable_interrupts
+            end
+        end
+        ##
         # Copies memory from +source+ to +dest+
         #
         # If +source+ or +dest+ and +size+ are absolute detects memory overlaps.

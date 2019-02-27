@@ -77,22 +77,6 @@ class ZXGfxDraw
       end
     end
     ##
-    # Clears a memory area using unrolled +push+ with a tight loop. The address should point
-    # to the next byte after the memory area to be cleared.
-    def clear_mem_fastest(address=hl, chunks_count=b, chunk_size=2, disable_interrupts=true, enable_interrupts=true)
-      raise ArgumentError if chunk_size.odd?
-                      ld  [restore_sp + 1], sp
-                      ld  b, chunks_count unless chunks_count==b || chunks_count.zero?
-                      di if disable_interrupts
-                      ld  sp, address
-                      ld  hl, 0
-        loop1         label
-        (chunk_size>>1).times { push hl }
-                      djnz loop1 unless chunks_count.zero?
-        restore_sp    ld  sp, 0
-                      ei if enable_interrupts
-    end
-    ##
     # The common pixel mask data, precalculated to be used with other drawing routines.
     #
     # +data_type+:
