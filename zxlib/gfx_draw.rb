@@ -56,16 +56,19 @@ class ZXGfxDraw
     ##
     # A convenient method to build drawing subroutines.
     # Returns a label with members including the routines and preshifted pixels data.
-    def make_draw_line_subroutines(make_line:true, make_line_over:true, make_line_inversed:true, scraddr:0x4000, check_oos:true)
+    def make_draw_line_subroutines(make_line:true, make_line_over:true, make_line_inversed:true, make_lines_to:true, scraddr:0x4000, check_oos:true)
       isolate do
         if make_line
-          line            draw_line(preshifted_pixel, preshifted_pixel_cover_left, preshifted_pixel_cover_right, fx: :or, pixel_type: :pixel, scraddr:scraddr, check_oos:check_oos, end_with: :ret)
+          line_to           prepare_args_draw_line_to if make_lines_to
+          line              draw_line(preshifted_pixel, preshifted_pixel_cover_left, preshifted_pixel_cover_right, fx: :or, pixel_type: :pixel, scraddr:scraddr, check_oos:check_oos, end_with: :ret)
         end
         if make_line_over
-          line_over       draw_line(preshifted_pixel, preshifted_pixel_cover_left, preshifted_pixel_cover_right, fx: :xor, pixel_type: :pixel, scraddr:scraddr, check_oos:check_oos, end_with: :ret)
+          line_over_to      prepare_args_draw_line_to if make_lines_to
+          line_over         draw_line(preshifted_pixel, preshifted_pixel_cover_left, preshifted_pixel_cover_right, fx: :xor, pixel_type: :pixel, scraddr:scraddr, check_oos:check_oos, end_with: :ret)
         end
         if make_line_inversed
-          line_inversed   draw_line(preshifted_inversed_pixel, preshifted_inversed_pixel_cover_left, preshifted_inversed_pixel_cover_right, fx: :and, pixel_type: :mask, scraddr:scraddr, check_oos:check_oos, end_with: :ret)
+          line_inversed_to  prepare_args_draw_line_to if make_lines_to
+          line_inversed     draw_line(preshifted_inversed_pixel, preshifted_inversed_pixel_cover_left, preshifted_inversed_pixel_cover_right, fx: :and, pixel_type: :mask, scraddr:scraddr, check_oos:check_oos, end_with: :ret)
         end
 
         preshifted_pixel                      preshifted_pixel_mask_data(:pixel)
