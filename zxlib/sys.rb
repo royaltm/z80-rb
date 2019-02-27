@@ -529,7 +529,7 @@ class ZXSys
             end
         end
         ##
-        # Search for a record that matches large block of a memory.
+        # Search for a record that matches a large block of memory.
         #
         # * +th|tl'+:: address of the last byte to search + 1 (preserved)
         # * +hl+:: target
@@ -782,6 +782,77 @@ class ZXSys
                 found_arg   djnz  loop0
                             ret if subroutine
                 end
+            end
+        end
+        ##
+        # Selects an upper memory bank (0-7) and/or a screen memory page (0-1) to be displayed.
+        #
+        # Modifies: +af+, +bc+, memory at 0x5B5C.
+        # 
+        # Options:
+        #
+        # * +screen+: 0 - Display screen from bank 5.
+        # * +screen+: 1 - Display screen from bank 7.
+        # * +bank+: 0..7 - Selects a memory bank available at 0xC000-0xFFFF.
+        # * +bank+: any of the 8-bit registers except +a+, or indirect memory address via a 16-bit register.
+        #           In this instance you should pass +true+ to the +screen:+ option if bit-4 of 
+        #           the +bank+ should select a screen to be displayed.
+        #
+        #     0xFFFF                                       screen: 0         screen: 1
+        #     +--------+--------+--------+--------+--------+--------+--------+--------+
+        #     | Bank 0 | Bank 1 | Bank 2 | Bank 3 | Bank 4 | Bank 5 | Bank 6 | Bank 7 |
+        #     |        |        |(also at|        |        |(also at|        |        |
+        #     |        |        | 0x8000)|        |        | 0x4000)|        | shadow |
+        #     |        |        |        |        |        | screen |        | screen |
+        #     +--------+--------+--------+--------+--------+--------+--------+--------+
+        #     0xC000
+        #
+        # Memory banks 1,3,5 and 7 are contended, which reduces the speed of memory access in these banks.
+        def mmu128_select_bank(bank:nil, screen:nil, disable_interrupts:true, enable_interrupts:true)
+            mask = 0b11111111
+            merg = 0b00000000
+            unless bank.nil?
+                mask = mask & 0b11111000
+                if register?(bank)
+                    merg = bank
+                else
+                    merg = merg | (bank.to_i & 0b00000111)
+                end
+            end
+            unless screen.nil?
+                mask = mask & 0b11110111
+                unless register?(bank)
+                    merg = merg | ((screen.to_i.zero? ? 0 : -1) & 0b00001000)
+                end
+            end
+            isolate use: :sys128 do
+                      ld   a, [sys128.mmu_value] # previous value of port
+                      anda mask
+                      ora  merg
+                      ld   bc, sys128.mmu_port
+                      di   if disable_interrupts
+                      ld   [sys128.mmu_value],a
+                      out  (c), a
+                      ei   if enable_interrupts
+            end
+        end
+        ##
+        # Swap displayed screens.
+        #
+        # Pass +true+ to the +:swap_bank+ option to additionally swap screen memory banks at 0xC000.
+        # For this to have a desired effect bank 5 or 7 should be previously selected.
+        #
+        # Modifies: +af+, +bc+, memory at 0x5B5C.
+        def mmu128_swap_screens(swap_bank:false, disable_interrupts:true, enable_interrupts:true)
+            swap_bits = if swap_bank then 0b00001010 else 0b00001000 end
+            isolate use: :sys128 do
+                      ld   a, [sys128.mmu_value] # previous value of port
+                      xor  swap_bits
+                      ld   bc, sys128.mmu_port
+                      di   if disable_interrupts
+                      ld   [sys128.mmu_value],a
+                      out  (c), a
+                      ei   if enable_interrupts
             end
         end
     end
