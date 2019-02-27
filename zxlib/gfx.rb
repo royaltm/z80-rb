@@ -463,6 +463,53 @@ class ZXGfx
             ld   o, a unless o == a
       end
     end
+
+    def clear_screen_region_fast(address=hl, rows=c, cols=2, disable_interrupts:true, enable_interrupts:true, save_sp:true)
+      cols = cols.to_i
+      raise ArgumentError "cols must be even" if cols.odd?
+      raise ArgumentError "cols must be less than or equal to 32" if cols > 32
+      isolate do |eoc|
+                      ld   [restore_sp + 1], sp if save_sp
+                      ld   c, rows unless rows==c
+                      di if disable_interrupts
+                      ld   hl, address unless address == hl
+                      ld   de, 0
+                      ld   a, h        # calculate counter based on screen address modulo 8
+                      anda 0b11111000 # (h & 0b11111000)
+                      sub  h          # (h & 0b11111000) - h % 8
+                      add  8          # 8 - h % 8
+                      ld   b, a       # b: counter: 8 - h % 8
+                      ld   a, c       # a: rows
+                      dec  a          # a: rows - 1 (remaining rows)
+                      sub  b          # a: rows - 1 - counter
+                      jr   NC, loop1
+                      ld   b, c       # b: counter = dy
+        loop1         ld   sp, hl
+                      inc  h
+                      (cols>>1).times { push de }
+                      djnz loop1
+                      jr   C, quit
+                      ex   af, af     # a': remaining rows
+                      ld   a, l
+                      add  0x20
+                      ld   l, a
+                      jr   C, skip_adj
+                      ld   a, h
+                      sub  0x08
+                      ld   h, a
+        skip_adj      ex   af, af     # a: remaining rows
+                      ld   b, 8
+                      sub  b
+                      jr   NC, loop1
+                      add  b
+                      ld   b, a
+                      inc  b
+                      jp   loop1
+        quit          label
+        restore_sp    ld  sp, 0 if save_sp
+                      ei if enable_interrupts
+      end
+    end
   end
   include Z80
 end
