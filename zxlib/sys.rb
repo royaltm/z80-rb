@@ -181,19 +181,68 @@ class ZXSys
         stack_bc    addr 0x2D2B # Pushes BC register pair on the calculator stack as a small integer
         print_fp    addr 0x2DE3 # Print a floating point number
         int_fetch   addr 0x2D7F # HL: point to FP-value, restores the twos complement number to normal in DE and a sign in C.
+        font_p      addr 0x3D00
     end
 
-    isolate :mem do
-        font_p  addr 0x3D00
-        romtop  addr 0X3FFF
+    isolate :sys do
+        pr_buf  addr 0x5B00
+        vars    addr 0x5C00
+        mmaps   addr 0x5CB6
+    end
+
+    isolate :mem, use: [:rom, :sys] do
+        font_p  addr rom.font_p
+        romtop  addr 0x3FFF
         screen  addr 0x4000
         scrlen  32*192
         attrs   addr 0x5800
         attrlen 32*24
         rambot  addr 0x5B00
-        pr_buf  addr 0x5B00
-        vars    addr 0x5C00
-        mmaps   addr 0x5CB6
+        pr_buf  addr sys.pr_buf
+        vars    addr sys.vars
+        mmaps   addr sys.mmaps
+    end
+
+    # I/O and peripherals
+    # https://www.worldofspectrum.org/faq/reference/48kreference.htm
+    # https://www.worldofspectrum.org/faq/reference/peripherals.htm
+    isolate :io do
+        ula     addr 0x00FE #  in: 0b-E-Keybr out: 0b---EMBor
+        printer addr 0x00FB #  in: 0bLC-----R Line starts: 1, Connected: 0, Ready for the next bit: 1
+                            # out: 0bP----MS- Print: 1, Motor start|stop: 0|1, Slow motor: 1
+    end
+
+    isolate :fuller_io do
+        ay_sel      addr 0x003F # out: select a register, in: read the value of the selected register
+        ay_out      addr 0x005F # out: write data to the selected register
+        joystick    addr 0x007F # in: 0bF---RLDU joystick active bits=0
+    end
+
+    isolate :kempston_io do
+        mouse_h     addr 0xFBDF # 
+        mouse_v     addr 0xFFDF # 
+        mouse_btn   addr 0xFADF # in: 0b------RL buttons active bits=0
+        joystick    addr 0x001F # in: 0b---FUDLR joystick active bits=1
+    end
+
+    # ZX Spectrum 128k
+    # https://www.worldofspectrum.org/faq/reference/128kreference.htm
+    isolate :io128 do
+        ay_sel  addr 0xFFFD # out: select a register 0-14, in: read the value of the selected register
+        ay_out  addr 0xBFFD # out: write data to the selected register
+        mmu     addr 0x7FFD # 0b--DRSBnk D - disable mmu, R - rom, S - screen, Bnk - bank
+    end
+
+    isolate :sys128, use: :io128 do
+        mmu_value    addr 0x5B5C    # 0b00DRSBnk
+        mmu_port     addr io128.mmu # D - disable mmu, R - rom, S - screen, Bnk - bank
+    end
+
+    isolate :mem128, use: :sys128 do
+        mmu_value    addr sys128.mmu_value
+        swap_p       addr 0xC000
+        screen_alt   addr 0xC000
+        attrs_alt    addr 0xD800
     end
 
     module Macros
