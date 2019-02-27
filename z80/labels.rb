@@ -412,9 +412,9 @@ module Z80
 	#  In the above example +data_p+ and (+data_pl+,+data_ph+) are aliases (union).
 	#
 	#  Allocate label with data in a *program*
-	#    sprite  data SpritePool, 2,
+	#    sprite  data SpritePool, [2,
 	#             {x:0, y:0, size:12, data_p:sprite1_data},
-	#             {x:0, y:0, size:16, data_p:sprite2_data}
+	#             {x:0, y:0, size:16, data_p:sprite2_data}]
 	#  or with an absolute address
 	#    sprite  addr 0x8888, SpritePool
 	#  or just a label at Program.pc
