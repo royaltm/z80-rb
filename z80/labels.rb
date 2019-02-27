@@ -262,8 +262,9 @@ module Z80
 					args.unshift size
 					size = args.length
 				end
-				size.times do
-					res << type.to_data(self, 0, args.shift)
+				type_size = type.to_i
+				size.times do |i|
+					res << type.to_data(self, i*type_size, args.shift)
 				end
 				size = nil
 			elsif type.is_a?(String)
