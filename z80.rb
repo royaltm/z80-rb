@@ -390,7 +390,7 @@ module Z80
 		#  Without +name+ labels from +program+ will be defined in a current namespace.
 		#  Pass +program+ class (not an instance!).
 		#  Give flags to choose what to import from +program+:
-		#  * +:labels+:: +true/false+ (default: +true+)
+		#  * +:labels+:: +true/false+ or an absolute address (default: +true+)
 		#  * +:code+::   +true/false+ or an absolute address (default: +true+)
 		#  * +:macros+:: +true/false+ (default: +false+)
 		#  * +:args+::   program initialize arguments
@@ -399,7 +399,7 @@ module Z80
 		#  inside +program+ class and put methods there. They will be imported as macros.
 		#  <b>In such a method always wrap your code inside #ns.</b>
 		#
-		#  Returns (optionally named) +label+ that points to beginning of imported code.
+		#  Returns (optionally named) +label+ that points to the beginning of imported code.
 		def import(program, name=nil, **flags)
 			if program.is_a?(Symbol)
 				program, name = name, program
@@ -418,8 +418,13 @@ module Z80
 				self.extend program::Macros if defined?(program::Macros)
 			end
 			if options[:labels]
+				label_addr, absolute = if options[:labels].respond_to?(:to_i)
+					[options[:labels].to_i, true]
+				else
+					[addr, false]
+				end
 				members = Hash[program.exports.map {|n, l|
-					[n, l.deep_clone_with_relocation(addr)]
+					[n, l.deep_clone_with_relocation(label_addr, absolute)]
 				}]
 			end
 			type = options[:code] ? program.code.bytesize : 1

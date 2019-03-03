@@ -466,10 +466,10 @@ module Z80
 	#
 	class Label
 		# This method is being used when importing labels from other programs.
-		def deep_clone_with_relocation(addr) # :nodoc:
-			members = Hash[@members.map {|n, m| [n, m.deep_clone_with_relocation(addr)] }]
+		def deep_clone_with_relocation(addr, absolute=false) # :nodoc:
+			members = Hash[@members.map {|n, m| [n, m.deep_clone_with_relocation(addr, absolute)] }]
 			addr = @reloc ? @address + addr.to_i : @address
-			l = Label.new(addr, @type, @reloc, members)
+			l = Label.new(addr, @type, absolute ? nil : @reloc, members)
 			l.name = @name if @name
 			l
 		end
