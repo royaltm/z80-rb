@@ -149,9 +149,63 @@ module Z80
 				raise ArgumentError, "Registers must be different" if aa == bb
 				ah, al = aa.split
 				bh, bl = bb.split
-				ns do
+				isolate do
 					ld  al, bl
 					ld  ah, bh
+				end
+			end
+			##
+			# Compares a register pair +th+|+th+ with a 16bit +value+.
+			#
+			# Example:
+			#   cp16n  h,l, foo, jr_msb_c: less_than_foo
+			#   jr C, less_than_foo
+			def cp16n(th, tl, value, jr_msb_c: nil, jr_msb_nz: :eoc)
+				isolate do |eoc|
+					jr_msb_nz = eoc if jr_msb_nz == :eoc
+						ld   a, th
+						cp   value>>8
+						case jr_msb_c
+						when :ret
+							ret  C
+						else
+							jr   C, jr_msb_c
+						end unless jr_msb_c.nil?
+						case jr_msb_nz
+						when :ret
+							ret  NZ
+						else
+							jr   NZ, jr_msb_nz
+						end
+						ld   a, tl
+						cp   value
+				 end
+			end
+			##
+			# Compares a register pair +th+|+th+ with another register pair +sh+|+sl+.
+			#
+			# Example:
+			#   cp16n  h,l, d,e, jr_msb_nz: not_equal
+			#   jr NZ, not_equal
+			def cp16r(th, tl, sh, sl, jr_msb_c: nil, jr_msb_nz: :eoc)
+				isolate do |eoc|
+					jr_msb_nz = eoc if jr_msb_nz == :eoc
+						ld   a, th
+						cp   sh
+						case jr_msb_c
+						when :ret
+							ret  C
+						else
+							jr   C, jr_msb_c
+						end unless jr_msb_c.nil?
+						case jr_msb_nz
+						when :ret
+							ret  NZ
+						else
+							jr   NZ, jr_msb_nz
+						end
+						ld   a, tl
+						cp   sl
 				end
 			end
 		end
