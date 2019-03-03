@@ -200,6 +200,8 @@ class BigFont
     #            +false+ to overwrite the screen memory
     # * +scraddr+:: screen memory address as an integer, must be a multiple of 0x2000
     # * +assume_chars_aligned+:: +true+ if the character address in +hl+ is aligned to the multiple of 8 (+hl+ % 8 == 0)
+    #
+    # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+
     def enlarge_char8_16(compact:true, over:false, scraddr:0x4000, assume_chars_aligned:true)
       combine = case over
       when :xor
@@ -298,7 +300,9 @@ class BigFont
   #
   # The +a+ register has the output code.
   ns :print_char do
-    with_saved bc, de, hl, :exx, bc, de, hl, merge: true do
+    # The routine may modify the registers AF, AF', BC, DE, HL, IX. We should only preserve an alternative set
+    # which is a regular set for the system. Modifying IY is not a good idea without disabling interrupts first.
+    with_saved :exx, bc, de, hl, merge: true do
                     ld   de, [cursor]
                     ld   hl, flags
                     bit  0, [hl]
