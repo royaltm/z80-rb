@@ -281,7 +281,7 @@ class ZXSys
             errno = [*'0'..'9', *'A'..'R'].index(error.to_s.upcase[0])
             raise ArgumentError unless errno
             isolate do
-                        rst  0x08
+                err     rst  0x08
                         db   errno - 1
             end
         end
