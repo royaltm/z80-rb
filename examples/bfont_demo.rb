@@ -12,13 +12,14 @@ require 'utils/bigfont'
 class Bootstrap
   include Z80
 
-  macro_import  Z80Lib
-  import        ZXSys, macros: true, code: false
+  macro_import      Z80Lib
+  import            ZXSys, macros: true, code: false
 
   big_font_start    addr 0x10000 - 21*8 - BigFont.code.bytesize
 
   ns :start, use: :big_font_start do |eoc|
-              create_chan_and_open output: big_font_start + BigFont.new[:print_char], chan_name: 'X'
+              # create_chan_and_open output: big_font_start + BigFont.new[:print_char], chan_name: 'B'
+              create_chan_and_open output: bfont.print_char, chan_name: 'B'
               ld    hl, [vars.prog]
               ld    bc, 0             # check if 1st program line has number 0
               call  rom.cp_lines
@@ -34,20 +35,20 @@ class Bootstrap
               jp    rom.go_to_1       # GO TO line 1
   end
                                       # called from basic line 9999
-  bootinit    ld     de, mem.pr_buf   # address of the printer buffer
-              push   de               # will exit via pr_buff
+  bootinit    ld     de, mem.attrs    # address of temporary space (screen attributes in this case, can't use printer buffer on 128k)
+              push   de               # will exit via :start routine
               ld     hl, [vars.prog]  # find self
               push   hl               # save PROG value
-              ld     bc, start        # offset to start from the beginning of the program data
+              ld     bc, start        # offset to :start from the beginning of the program data
               add    hl, bc
-              memcpy de, hl, +start   # copy start to printer buffer
+              memcpy de, hl, +start   # copy :start routine to temporary space
               pop    hl               # restore PROG value
-              ld     bc, bfont        # find start of bfont
-              add    hl, bc           # copy bfont to the ramtop memory
+              ld     bc, bfont        # find start of :bfont
+              add    hl, bc           # copy :bfont code to the ramtop memory
               memcpy big_font_start, hl, +bfont
-              ret                     # exit via code in the printer buffer
+              ret                     # exit via code in the :start routine in temporary space
 
-  import      BigFont, :bfont, code: big_font_start
+  import      BigFont, :bfont, code: big_font_start, labels: big_font_start
   eop         label
 end
 
