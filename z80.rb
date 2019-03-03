@@ -27,6 +27,8 @@ module Z80
 	attr_reader :org
 	#  Evaluated label values of the compiled program.
 	attr_reader :labels
+	#  Compiled imported code modules.
+	attr_reader :imports
 	#  Returns the relocated label value.
 	def [](label)
 		@labels[label.to_s]
