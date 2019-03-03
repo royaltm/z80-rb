@@ -143,7 +143,7 @@ class ZXSys
 
     isolate :rom do
         start       addr 0x0000 # THE 'START'
-        error_1     addr 0x0008 # THE 'ERROR' RESTART
+        error       addr 0x0008 # THE 'ERROR' RESTART
         print_a     addr 0x0010 # THE 'PRINT CHARACTER' RESTART
         get_char    addr 0x0018 # THE 'COLLECT CHARACTER' RESTART
         next_char   addr 0x0020 # THE 'COLLECT NEXT CHARACTER' RESTART
@@ -158,9 +158,20 @@ class ZXSys
         cl_all      addr 0x0DAF # Clearing whole display area
         cl_line     addr 0x0E44 # THE 'CLEAR TEXT LINES' ROUTINE. The B register holds on entry the number of lines to be cleared 1-24.
         error_j     addr 0x15C4 # Invalid I/O device
-        chan_open   addr 0x1601 # THE 'OPEN CHANNEL' ROUTINE
+        wait_key    addr 0x15D4 # THE 'INPUT CONTROL' SUBROUTINE
+        wait_key1   addr 0x15DE # Routine INPUT-AD is called repeatedly until a character is available. Reports 8 End of file error when there is no more.
+        error_8     addr 0x15E4 # End of file
+        input_ad    addr 0x15E6 # THE 'INPUT ADDRESS' ROUTINE. Register A: data, CF=1: data available, CF=0,ZF=0: end of file
+        chan_open   addr 0x1601 # THE 'OPEN CHANNEL' ROUTINE. A: stream #
+        error_o     addr 0x160E # Invalid stream
         call_jump   addr 0x162C # jump to the routine (in HL). JP (HL)
         make_room   addr 0x1655 # ROM MAKE-ROOM routine
+        close       addr 0x16E5 # THE 'CLOSE #' COMMAND
+        close_hl    addr 0x16EB # Close stream. Address of the stream entry expected in HL.
+        str_data    addr 0x171E # Stream data. Gets #stream from fp-stack. Returns HL: STRMS entry, BC: offset to channel data + 1 or 0 if closed.
+        str_data_a  addr 0x1721 # Stream data. Stream # should be in A. Checks if A is in range 0..15. Reports O Invalid stream if not so.
+        errror_o_2  addr 0x1725 # Invalid stream
+        str_data1   addr 0x1727 # Stream data. Stream # should be in A. No checks.
         line_addr   addr 0x196E # Get starting address of line, or line after
         cp_lines    addr 0x1980 # Compare line numbers
         next_one    addr 0x19B8 # Get next one
