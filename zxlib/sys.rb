@@ -410,16 +410,16 @@ class ZXSys
           end
         end
         ##
-        # Creates ZX Spectrum CHAN entry and opens it as stream #N.
+        # Creates a ZX Spectrum CHAN entry and opens it as a stream #N.
         #
-        # * output:: output routine address or a 16bit register holding that address except +hl+
-        # * input:: input routine address or a 16bit register holding that address
-        # * strm_no:: stream number (4 - 15) or 8bit register name
-        # * chan_name:: a channel name immediate value
+        # * output:: a routine address or a 16bit register holding that address, except +hl+.
+        # * input:: a routine address or a 16bit register holding that address, except +hl+.
+        # * strm_no:: a stream number (4 - 15) or an 8bit register name; +nil+ if none of the streams should be attached.
+        # * chan_name:: a channel name (immediate value). if +nil+ or +0+ no channel name is being written.
         #
-        # Optionally give namespace label a +name+.
+        # Optionally give the returned namespace label a +name+.
         #
-        # Modifies: +af+, +hl+, +bc+, +de+
+        # Modifies: +af+, +hl+, +bc+, +de+.
         def create_chan_and_open(name = nil, output:, input: nil, strm_no: 4, chan_name: 'U')
             chan_name = String === chan_name ? chan_name.ord : chan_name.to_i
             raise ArgumentError, "output or input must not be the hl register" if output == hl or input == hl
@@ -431,8 +431,11 @@ class ZXSys
                         ld   a, strm_no   # stream to open
                     end
                         add  a, a         # calculate the strm vector offset in hl
-                        ld   hl, vars.strms.user # hl points to STRMS #0
-                        adda_to h, l
+                        # ld   hl, vars.strms.user # hl points to STRMS #0
+                        # adda_to h, l
+                        add  vars.strms.user
+                        ld   l, a
+                        ld   h, vars.strms>>8
                         push hl
                 end
                         push input if register?(input)
@@ -455,14 +458,17 @@ class ZXSys
                 else
                         ld   de, input
                 end
-                        push hl          # save address of 2nd byte of new channel data
+                                         # save address of 2nd byte of new channel data
+                        push hl unless strm_no.nil?
                         inc  hl
                         ld   [hl], e
                         inc  hl
                         ld   [hl], d
                         inc  hl
-                        ld   a, chan_name
-                        ld   [hl], a     # channel name
+                unless chan_name.zero?   # channel name
+                        ld   [hl], chan_name
+                end
+                unless strm_no.nil?      # open #stream_no to channel
                         pop  hl          # get address of 2nd byte of output routine
                         ld   de, [vars.chans] # calculate the offset to the channel data
                         anda a           # and store it in de
@@ -476,6 +482,7 @@ class ZXSys
                         ld   [hl], e      # lsb of 2nd byte of new channel data
                         inc  hl
                         ld   [hl], d      # msb of 2nd byte of new channel data
+                end
             end
         end
         ##
@@ -526,11 +533,11 @@ class ZXSys
                         pop  de            # de record address
                         exx
                         push hl
-                        ld   hl, [prog]
+                        ld   hl, [vars.prog]
                         dec  hl
                         exx                # hl' stop search address
                         ld   bc, 5         # record length
-                        ld   hl, [chan]    # CHAN
+                        ld   hl, [vars.chan]    # CHAN
                         find_record h, l
                         jr   NZ, cleanup
                         sbc  hl, bc        # beginning of the record found
@@ -583,23 +590,57 @@ class ZXSys
             end
         end
         ##
-        # Read a signed integer from a ZX Basic's FP-value.
+        # Reads a signed integer from a ZX Basic's FP-value.
         #
         # +hl+:: must point to the 1st byte of the FP-value.
         # +th+:: most significant byte output register.
         # +tl+:: least significant byte output register.
         # +sgn+:: sign byte register.
+        # +normal_negative+:: if the twos complement number should be normalized.
+        # +t+:: a temporary register, used only with +normal_negative+ = +true+.
         #
-        # The twos complement is not being converted for a negative number.
+        # If +t+ is the accumulator register the +a'+ register is being used.
         #
-        # Result is being loaded into +th+|+tl+ and +sgn+.
-        # ZF=0 signals the FP-value is not an integer.
+        # The result is being loaded into +th+|+tl+ and +sgn+.
+        # ZF=0 (NZ) signals the FP-value is not an integer.
         # +hl+ will always point to the last byte of the FP-value.
         #
-        # Modifies: +af+, +hl+, +th+, +tl+ and +sgn+
-        def read_integer_value(th=d, tl=e, sgn=c)
-            raise ArgumentError if [h, l, a].include?(tl) or a == th or a == sgn
-            isolate do
+        # T-States: 59, normal_negative=true: (t=a') 91, (t=r) 87.
+        #
+        # Modifies: +af+, +hl+, +th+, +tl+ and +sgn+, optionally: +t+ or +af'+.
+        def read_integer_value(th=d, tl=e, sgn=c, normal_negative:false, t:a)
+            raise ArgumentError if [h,l,ixh,ixl,iyh,iyl,a].include?(tl) or !register?(tl) or
+                                   [h,l,ixh,ixl,iyh,iyl,a].include?(th) or !register?(th) or
+                                   [h,l,ixh,ixl,iyh,iyl,a].include?(sgn) or !register?(sgn) or
+                                   (register?(t) and [h,l,th,tl,sgn,ixh,ixl,iyh,iyl].include?(t)) or !register?(t)
+            isolate do |eoc|
+                if normal_negative
+                    if t == a
+                            ld    a, [hl]
+                            ex    af, af
+                    else
+                            ld    t, [hl]
+                    end
+                            inc   hl
+                            ld    sgn, [hl]
+                            inc   hl
+                            ld    a, [hl]
+                            inc   hl
+                            xor   sgn
+                            sub   sgn
+                            ld    tl, a
+                            ld    a, [hl]
+                            inc   hl
+                            adc   a, sgn
+                            xor   sgn
+                            ld    th, a
+                    if t == a
+                            ex    af, af
+                    else
+                            ld    a, t
+                    end
+                            ora   [hl]
+                else
                             ld    a, [hl]
                             inc   hl
                             ld    sgn, [hl]
@@ -609,22 +650,25 @@ class ZXSys
                             ld    th, [hl]
                             inc   hl
                             ora   [hl]
+                end
             end
         end
         ##
-        # Read a positive integer from a ZX Basic's FP-value.
+        # Reads a positive integer from a ZX Basic's FP-value.
         #
         # +hl+:: must point to the 1st byte of the FP-value.
         # +th+:: most significant byte output register.
         # +tl+:: least significant byte output register.
         #
-        # Result is being loaded into +th+|+tl+.
-        # ZF=0 signals the FP-value is not a positive integer.
+        # The result is being loaded into +th+|+tl+.
+        # ZF=0 (NZ) signals the FP-value is not a positive integer.
         # +hl+ will always point to the last byte of the FP-value.
         #
-        # Modifies: +af+, +hl+, +th+ and +tl+
+        # T-States: 59.
+        #
+        # Modifies: +af+, +hl+, +th+ and +tl+.
         def read_positive_int_value(th=d, tl=e)
-            raise ArgumentError if [h, l, a].include?(tl) or a == th
+            raise ArgumentError if [h,l,ixh,ixl,iyh,iyl,a].include?(tl) or [h,l,ixh,ixl,iyh,iyl,a].include?(th)
             isolate do
                             ld    a, [hl]
                             inc   hl
@@ -638,21 +682,21 @@ class ZXSys
             end
         end
         ##
-        # Read a 32-bit integer from a ZX Basic's FP-value.
+        # Reads a 32-bit integer from a ZX Basic's FP-value.
         #
         # +hl+:: must point to the 1st byte of the FP-value.
         # +th+:: most significant 16-bit output register pair.
         # +tl+:: least significant 16-bit output register pair.
         #
-        # Result is being loaded into +th+|+tl+.
+        # The result is being loaded into +th+|+tl+.
         # CF=1 signals that the FP-value is too big to fit into a 32-bit integer.
-        # ZF=1 signals that the FP-value is positive. In this instance +a+ = 0.
-        # ZF=0 signals that the FP-value is negative. In this instance +a+ = 0xFF.
-        # If the FP-value was negative the integer will NOT BE a 2's complement.
+        # ZF=1 signals that the FP-value is positive. In this instance accumulator +a+ = 0.
+        # ZF=0 signals that the FP-value is negative. In this instance accumulator +a+ = 0xFF.
+        # If the value is negative the integer WON'T BE a twos complement number.
         #
         # +hl+ will always point to the last byte of the FP-value.
         #
-        # Modifies: +af+, +af'+, +hl+, +th+, +tl+
+        # Modifies: +af+, +af'+, +hl+, +th+, +tl+.
         def read_integer32_value(th=de, tl=bc)
             raise ArgumentError unless [th, tl].uniq.size == 2 and
                                        [th, tl].all? {|t| [bc, de].include?(t)}
@@ -670,27 +714,31 @@ class ZXSys
                             ld    t0, [hl]
                             ora   a
                             jr    Z, small_int
+                            ex    af, af         # determine sign
+                            ld    a, t3
+                            add   a
+                            sbc   a
+                            ex    af, af         # a': sign
                             sub   129
                             jr    NC, fp_value   # exp >= 129
-                zero        xor   a
+                less_than_1 ex    af, af         # a: sign
                             ld    tl, 0
                             jr    clear_hi
-                small_int   ld    t0, t2         # simple int
+                small_int   ld    a, t2          # a: lsb
+                            xor   t3             # t3: sign
+                            sub   t3
+                            ld    t0, a          # t0: sign normalized lsb
+                            ld    a, t1          # a: msb
+                            adc   a, t3
+                            xor   t3
+                            ld    t1, a          # t1: sign normalized msb
                             ld    a, t3          # sign
-                            ora   a
-                            jr    Z, clear_hi    # positive
-                            neg16 t1, t0         # convert 2'complement
                 clear_hi    ld    th, 0
                             jr    cl_flags
                 too_big     scf
                             jr    eoc
                 fp_value    sub   32
                             jr    NC, too_big
-                            ex    af, af
-                            ld    a, t3
-                            add   a
-                            sbc   a
-                            ex    af, af         # a': sgn
                             set   7, t3
                             jr    chckswap8
                 swap8       ld    t0, t1
@@ -712,7 +760,7 @@ class ZXSys
             end
         end
         ##
-        # Read a string address and its length from a ZX Basic's stringish FP-value.
+        # Reads a string address and its length from a ZX Basic's stringish FP-value.
         #
         # +hl+:: must point to the 1st byte of the FP-value.
         # +adh+:: most significant byte address output register.
@@ -721,6 +769,8 @@ class ZXSys
         # +lenl+:: least significant byte length output register.
         #
         # +hl+ will point to the last byte of the FP-value.
+        #
+        # T-States: 52.
         #
         # Modifies: +hl+, +adh+, +adl+, +lenl+, +lenh+
         def read_arg_string(adh=d, adl=e, lenh=b, lenl=c)
@@ -737,7 +787,7 @@ class ZXSys
             end
         end
         ##
-        # Get a DEF FN argument value address.
+        # Gets a DEF FN argument value address.
         #
         # * +argnum+:: 1-based argument index (0 is 256), may be a register or a number.
         # * +subroutine+:: if +true+ will use +ret+ instruction.
@@ -753,7 +803,7 @@ class ZXSys
         #
         # +hl+ points to the argument value when found.
         #
-        # Modifies: +af+, +hl+ and +b+ unless +argnum+ == 1
+        # Modifies: +af+, +hl+ and optionally +b+ unless +argnum+ == 1.
         def find_def_fn_args(argnum=b, subroutine:true, not_found:nil, cf_on_direct:false)
             isolate use: :vars do |eoc|
                             ld    b, argnum unless argnum == b or argnum == 1
