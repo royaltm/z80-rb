@@ -92,8 +92,6 @@ require 'zxlib/sys'
 # +Spawn+ will result in "4 Out of memory" error if there is not enough
 # room for a task info entry or stack space.
 #
-# +Kill+ will result in "N Statement lost" when trying to terminate non-existing task.
-#
 # "A Invalid argument" error may also be triggered when arguments are incorrect.
 #
 # ===Task API
@@ -116,15 +114,32 @@ class Multitasking
   # Exports #
   ###########
 
+  # Variables
   export mtvars
-  export api
+  # Api
+  export api # ZX Basic api
   export task_yield
   export terminate
-
+  # Utilities
+  export find_def_fn_arg
+  export ei_report_oom
+  export error_4
+  export get_uint_arg
+  export error_a
+  # Advanced
+  export init_multitasking
+  export stack_space_free
+  export task_kill
+  export task_spawn
   ##
-  # Instantiate Multitasking kernel with the highest possible starting address
+  # Instantiate Multitasking kernel with the highest possible starting address.
   def self.new_kernel
-    new 0x10000 - code.bytesize
+    new kernel_org
+  end
+  ##
+  # The highest possible starting address.
+  def self.kernel_org
+    0x10000 - code.bytesize
   end
 
   ###########
@@ -174,28 +189,102 @@ class Multitasking
   # ==Multitasking Macros for tasks.
   module Macros
     ##
+    # Checks if we are being running as a task. Sets ZF=1 if not a task.
+    #
+    # * +tt+:: A temporary 16bit register, may be one of: +hl+, +bc+, +de+, +ix+ or +iy+.
+    #
+    # T-States depending on +tt+ used:
+    # * +ix+, +iy+: 36
+    # * +hl+: 24
+    # * +bc+, +de+: 28
+    #
+    # Modifies: +af+, +tt+.
+    def task?(tt:hl, mtvars:self.mtvars)
+      th, tl = tt.split
+      isolate do
+                      ld   tt, [mtvars.current_task]
+                      ld   a, tl
+                      ora  th
+      end
+    end
+    ##
     # Retrieves current task's id.
     #
-    # * +oh+, +ol+:: Hi and lo byte register for output.
-    # * +tt+:: Temporary 16bit register, may be +ix+, +iy+ or +hl+.
+    # * +oh+, +ol+:: MSB and LSB 8-bit registers for output. Together oh|ol form a task id.
+    # * +tt+:: A temporary 16bit register, may be one of: +hl+, +bc+, +de+, +ix+ or +iy+.
+    # * +check_if_system+:: If truish the routine will check if the execution context is of a system or a task.
+    #                     In this instance the ZF=1 (Z) will indicate that the code is being executed in a system's context
+    #                     and none of +oh+,+ol+ registers will be modified. May be a label or an address and in this inctance
+    #                     the routine performs a jump to the provided address if the context is of a system.
     #
-    # T-states depending on +tt+ used:
-    # * +ix+, +iy+: 58
-    # * +hl+: 54
-    def task_id(oh, ol, tt:hl)
-      isolate use: :mtvars do
-        if [ix, iy].include?(tt)
-                      ld   tt, [mtvars.current_task]
-                      ld   oh, [tt - 3]
-                      ld   ol, [tt - 4]
-        elsif tt == hl
-                      ld   tt, [mtvars.current_task]
-                      3.times { dec tt }
-                      ld   oh, [tt]
-                      dec  tt
-                      ld   ol, [tt]
+    # Modifies: +tt+, +oh+, +ol+, optionally +af+ if +oh+, +ol+ is one of the +tt+ sub-registers.
+    def task_id(oh, ol, tt:hl, check_if_system:false, mtvars:self.mtvars)
+      raise ArgumentError, "tt must be one of: hl, bc, de, ix or iy" unless [hl,bc,de,ix,iy].include?(tt)
+      raise ArgumentError, "oh and ol must be different 8-bit registers" unless register?(oh) and register?(ol) and
+                                                                                oh != ol and oh.bit8? and ol.bit8?
+      th, tl = tt.split
+      isolate do |eoc|
+        if check_if_system
+                      task?(tt:tt, mtvars:mtvars)
+          case check_if_system
+          when true, :eoc
+                      jr   Z, eoc
+          when :ret
+                      ret  Z
+          else
+                      jp   Z, check_if_system
+          end
         else
-          raise ArgumentError, "tt may be only: hl, ix or iy"
+                      ld   tt, [mtvars.current_task]
+        end
+        if [ix, iy].include?(tt)
+          if [ixh, ixl, iyh, iyl].include?(oh)
+                      ld   a, [tt - 3]
+            if [th, tl].include?(oh)
+              raise ArgumentError, "ol must not be accumulator if tt is ix or iy and oh is one of: tt sub-registers" if ol == a
+            else
+                      ld   oh, a
+            end
+          else
+                      ld   oh, [tt - 3]
+          end
+          if [ixh, ixl, iyh, iyl].include?(ol)
+            raise ArgumentError, "oh must not be accumulator or a sub-register of tt if tt is ix or iy and ol is one of: ix or iy sub-registers" if [a,th,tl].include?(oh)
+                      ld   a, [tt - 4]
+                      ld   ol, a
+          else
+                      ld   ol, [tt - 4]
+                      ld   oh, a if [th, tl].include?(oh)
+          end
+        elsif tt == hl
+                      3.times { dec tt }
+          if [th, tl, ixh, ixl, iyh, iyl].include?(oh)
+                      ld   a, [tt]
+            if [th, tl].include?(oh)
+              raise ArgumentError, "ol must not be accumulator if tt is hl and oh is one of: tt sub-registers" if ol == a
+            else
+                      ld   oh, a
+            end
+          else
+                      ld   oh, [tt]
+          end
+                      dec  tt
+          if [ixh, ixl, iyh, iyl].include?(ol)
+            raise ArgumentError, "oh must not be accumulator or a sub-register of tt if tt is hl and ol is one of: ix or iy sub-registers" if [a,th,tl].include?(oh)
+                      ld   a, [tt]
+                      ld   ol, a
+          else
+                      ld   ol, [tt]
+                      ld   oh, a if [th, tl].include?(oh)
+          end
+        elsif [bc, de].include?(tt)
+          raise ArgumentError, "oh must not be accumulator or a sub-register of tt if tt is bc or de" if [a,th,tl].include?(oh)
+                      3.times { dec tt }
+                      ld   a, [tt]
+                      ld   oh, a
+                      dec  tt
+                      ld   a, [tt]
+                      ld   ol, a unless ol == a
         end
       end
     end
@@ -224,8 +313,8 @@ class Multitasking
     #      hl          false        59     63     67
     #   ix,iy           true       101    105    109
     #      hl           true        83     87     91
-    def task_stack_free_bytes(tt:hl, positive_size:true, disable_intr:true, enable_intr:true)
-      isolate use: :mtvars do
+    def task_stack_free_bytes(tt:hl, positive_size:true, disable_intr:true, enable_intr:true, mtvars:self.mtvars)
+      isolate do
                       di if disable_intr
         if [ix, iy].include?(tt) # 58
                       ld   tt, [mtvars.current_task]
@@ -275,35 +364,43 @@ class Multitasking
   end
 
   # ZX Basic API
-  ns :api, use: mtvars do
-                      call fn_argn                    # is this an FN call with arguments?
+  api                 call find_def_fn_arg            # is this an FN call with arguments?
                       jr   Z, new_or_terminate        # yes: skip to new_or_terminate
                       jr   C, init_multitasking       # called via USR
                                                       # called via FN with no arguments
-    # Returns free stack space reserved for new tasks in BC or raises OOM error.
-    ns :stack_space_free, use: mtvars do
-                        ld   hl, mtvars.stack_end - (TaskInfo.to_i - 3)
-                        ld   bc, TaskInfo.to_i - 3
-      search_last       add  hl, bc
-                        ld   e, [hl]
-                        inc  hl
-                        ld   d, [hl]                 # task.stack_bot
-                        inc  hl
-                        ld   a, [hl]
-                        inc  hl
-                        ora  [hl]                    # task.tid
-                        jr   NZ, search_last         # some tid?
-                        ld   hl, [mtvars.stack_bot]  # DE: tasks[last].stack_bot
-                        ex   de, hl
-                        sbc  hl, de                  # task.stack_bot - mtvars.stack_bot
-                        jr   C, ei_report_oom
-                        ld16 bc, hl
-                        ret
-    end
-    # Initialize global variables and setup interrupt handler.
-    init_multitasking di                              # prevent switching
+  # Returns free stack space reserved for new tasks in BC or raises OOM error.
+  ns :stack_space_free, use: mtvars do
+                      ld   hl, mtvars.stack_end - (TaskInfo.to_i - 3)
+                      ld   bc, TaskInfo.to_i - 3
+    search_last       add  hl, bc
+                      ld   e, [hl]
+                      inc  hl
+                      ld   d, [hl]                 # task.stack_bot
+                      inc  hl
+                      ld   a, [hl]
+                      inc  hl
+                      ora  [hl]                    # task.tid
+                      jr   NZ, search_last         # some tid?
+                      ld   hl, [mtvars.stack_bot]  # DE: tasks[last].stack_bot
+                      ex   de, hl
+                      sbc  hl, de                  # task.stack_bot - mtvars.stack_bot
+                      jr   C, ei_report_oom
+                      ld16 bc, hl
+                      ret
+  end
+
+  # Try to get positive integer from FP-value addressed by HL.
+  # DE holds a value on success.
+  get_uint_arg      read_positive_int_value d, e
+                    inc  hl                       # point to a next argument possibly
+                    ret  Z
+  error_a           report_error 'A Invalid argument'
+
+  # Initialize global variables and setup interrupt handler.
+  ns :init_multitasking, use: :mtvars do
+                      di                              # prevent switching
                       clrmem mtvars, +mtvars          # remove all tasks
-                      ld   hl, initial_stack_end
+    init_stack_end    ld   hl, initial_stack_end
                       ld   [mtvars.stack_end], hl     # initialize stack_end
     init_stack_bottom ld   hl, initial_stack_bot
                       ld   [mtvars.stack_bot], hl     # initialize stack_bot
@@ -313,29 +410,25 @@ class Multitasking
                       im2
                       ei
                       ret
+  end
 
-    # Try to get positive integer from FP-value addressed by HL.
-    # DE holds a value on success.
-    get_arg_int       read_positive_int_value d, e
-                      inc  hl                       # point to a next argument possibly
-                      ret  Z
-    invalid_arg       report_error 'A Invalid argument'
-
+  # Decide based on arguments: do we kill a task (1) or spawn a new one (2)
+  ns :new_or_terminate, use: :mtvars do
     # Get first DEF FN argument.
-    new_or_terminate  call get_arg_int                # 1st argument as 16bit unsigned integer into DE
+                      call get_uint_arg               # 1st argument as 16bit unsigned integer into DE
     # Determine if there is another argument and call new or kill accordingly.
-                      call fn_argn.seek_next          # check if exists next argument
+                      call find_def_fn_arg.seek_next  # check if exists next argument
                       jr   NZ, task_kill              # nope: then terminate, DE: tid
     # Try to spawn new task, DE: task code address.
                       push de                         # [SP]: task code address
     # Get the stacksize argument.
-                      call get_arg_int                # 2nd argument as 16bit unsigned
+                      call get_uint_arg               # 2nd argument as 16bit unsigned
     # Validate the stacksize argument (must be even and >= 42)
                       bit  0, e                       # DE: stack size
-                      jr   NZ, invalid_arg            # stack size must be even
+                      jr   NZ, error_a.err            # stack size must be even
                       ld   hl, 41
                       sbc  hl, de                     # 41 - stack size
-                      jr   NC, invalid_arg            # stack size < 42
+                      jr   NC, error_a.err            # stack size < 42
 
     # Find empty task info record and create a new entry.
                       di                              # prevent switching
@@ -363,14 +456,16 @@ class Multitasking
     # Check if this entry is below mtvars.terminator.
     check_is_free     ld   hl, -mtvars.terminator     # SP: -> task.stack_save
                       add  hl, sp                     # HL: -mtvars.terminator + SP
-                      jr   NC, slot_found
-    # Sorry, no more room for new tasks.
-    no_more_room      ld   sp, [mtvars.system_sp]     # restore system SP in case an interrupt would occur
-    ei_report_oom     ei                              # enable switching
-    report_oom        report_error '4 Out of memory'
+                      jr   NC, task_spawn
+  end
+  # Sorry, no more room for new tasks.
+  no_more_room      ld   sp, [mtvars.system_sp]     # restore system SP in case an interrupt would occur
+  ei_report_oom     ei                              # enable switching
+  error_4           report_error '4 Out of memory'
 
-    # Continue from main, terminate a task.
-    task_kill         di                              # DE: tid
+  # Continue from main, terminate a task.
+  ns :task_kill, use: :mtvars do
+                      di                              # DE: tid
                       push iy
                       exx
                       push hl                         # save calculator's H'L'
@@ -384,9 +479,11 @@ class Multitasking
                       pop  iy
     ei_return         ei
                       ret
-    # Let's create a new task info entry.
-                                                      # SP: -> task.stack_save, IX: stack size, DE: stack_end, BC: next_tid
-    slot_found        ex   de, hl                     # HL: stack_end
+  end
+
+  # Let's create a new task info entry.
+  ns :task_spawn, use: :mtvars do                     # SP: -> task.stack_save, IX: stack size, DE: stack_end, BC: next_tid
+                      ex   de, hl                     # HL: stack_end
                       ld   [load_task_stack + 1], hl
                       ld16 de, ix                     # DE: stack size
                       sbc  hl, de                     # HL: stack_bot = stack_end - stack size
@@ -425,7 +522,7 @@ class Multitasking
                       ei
                       jp   (hl)                       # go to task's code
   end
-
+  ##
   # Task API
   # Tasks may jump to this endpoint directly to terminate themselves.
   #
@@ -433,7 +530,7 @@ class Multitasking
   ns :terminate, use: mtvars do
                       di                            # prevent switching
                       check_current_task            # HL: -> task.stack_bot, CF: 0
-                      jr   Z, api.ei_return        # called not from a task
+                      jr   Z, task_kill.ei_return   # called not from a task
                       ld   sp, [mtvars.system_sp]
                       ld   bc, switch_to_sys        # store switch_to_sys as a
                       push bc                       # ret address
@@ -448,7 +545,7 @@ class Multitasking
                       pop  hl                       # HL: task.tid
                       ld   a, l
                       ora  h                        # CF: 0
-                      jr   Z, not_found             # task.tid == 0
+                      jr   Z, task_not_found        # task.tid == 0
                       sbc  hl, bc                   # task.tid == BC
                       pop  hl                       # HL: task.stack_save (ignored)
                       jr   NZ, search_loop          # SP: -> task.stack_bot, CF: 0
@@ -515,18 +612,15 @@ class Multitasking
                       lddr
     # That's it, now restore SP and just return.
     skip_reclaim_stk  label
+    task_not_found    label
     restore_sp        ld   sp, 0
                       ret
-    # No such tid found.
-    not_found         ld   sp, [vars.err_sp]
-                      ei
-                      report_error 'N Statement lost'
   end
 
   # Find DEF FN argument value.
   # ZF=1 if found and then HL points to the FP-value.
   # CF=1 if called directly via USR and not FN.
-  fn_argn             find_def_fn_args 1, cf_on_direct: true
+  find_def_fn_arg     find_def_fn_args 1, cf_on_direct: true
 
   # Task API
   # Task should call this endpoint directly instead of invoking halt.
@@ -674,11 +768,11 @@ if __FILE__ == $0
   puts "Total stack space for tasks: #{mtkernel[:initial_stack_end] - mtkernel[:initial_stack_bot]}"
   puts "\n ZX Basic API:"
   puts "Setup: PRINT USR #{mtkernel[:api]}"
-  puts "Spawn: DEF FN m(a,s) = USR #{mtkernel[:api]}"
-  puts "       LET tid = FN m(address,stacksize)"
-  puts "Kill:  DEF FN t(t) = USR #{mtkernel[:api]}"
+  puts "Spawn: DEF FN m(a,s)=USR #{mtkernel[:api]}"
+  puts "       LET tid=FN m(address,stacksize)"
+  puts "Kill:  DEF FN t(t)=USR #{mtkernel[:api]}"
   puts "       PRINT FN t(tid)"
-  puts "Free:  DEF FN f() = USR #{mtkernel[:api]}"
+  puts "Free:  DEF FN f()=USR #{mtkernel[:api]}"
   puts "       PRINT FN f()"
   puts "\n Task API:"
   puts "Yield: call #{mtkernel[:task_yield]}"
