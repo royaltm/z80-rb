@@ -439,10 +439,11 @@ if __FILE__ == $0
          PRINT "`BRIGHT 1``INVERSE 1`Est. T-States:`INVERSE 0`";res;"`INVERSE 1` (`FLASH 1`";FN r();"`FLASH 0`)`TAB 32``BRIGHT 0``INVERSE 0`"
          STOP
      100 REM Estimate T-States/interrupt
-         LET adj=FN n(USR #{benchmark[:estimate_tsframes]}): LET idl=FN i(): 
+         LET adj=FN n(USR #{benchmark[:estimate_tsframes]}): LET idl=FN i()
+         LET tf=FN t()
          PRINT "Est. T-States/int.:";idl*512+adj;" (+-4)"
          INPUT "Is this ok? Y/n", a$: IF a$<>"n" AND a$<>"N" THEN RETURN
-     110 INPUT "Enter value: ",tf: PRINT "T-States/int.:";FN s(tf)
+     110 INPUT "Enter value [";(tf);"]: ";tf: PRINT "T-States/int.:";FN s(tf)
          RETURN
     9998 STOP
     9999 CLEAR #{benchmark.org-1}: LOAD "benchmark"CODE: CLS: PRINT " `GO TO`  10 - benchmark"'"`GO SUB`100 - estimate TS/int."
