@@ -117,7 +117,7 @@ class ZXSys
         frames  byte, 3 # 23672 3 byte (least significant first), frame counter. Incremented every 20ms. See Chapter 18.
         udg     word    # 23675 Address of 1st user defined graphic You can change this for instance to save space by having fewer user defined graphics.
         coords  Coords  # 23677 Coordinate of last point plotted.
-        p_posn  Cursor  # 23679 33 column number of printer position
+        p_posn  byte    # 23679 33 column number of printer position
         pr_cc   word    # 23680 Full address of next position for LPRINT to print at (in ZX printer buffer). Legal values 5B00 - 5B1F. [Not used in 128K mode or when certain peripherals are attached]
         echo_e  word    # 23682 33 column number and 24 line number (in lower half) of end of input buffer.
         df_cc   word    # 23684 Address in display file of PRINT position.
