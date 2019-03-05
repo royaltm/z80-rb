@@ -10,31 +10,24 @@ require 'zxlib/gfx'
 require 'zxlib/basic'
 
 class Multitasking
-  MT_STACK_BOT = 0x9000
+  MT_STACK_BOT = 0x8E3B
+  MT_VARS = ZXSys.mem.mmaps.to_i
 end
 
-require 'utils/multitasking'
+require 'utils/multitasking_io'
 
 class Program
   include Z80
   include Z80::TAP
 
-  MTKernel = Multitasking.new_kernel
-  MTYield = MTKernel['task_yield']
-  def self.mtyield(condition=nil)
-    if condition
-            call  condition, MTYield
-    else
-            call  MTYield
-    end
-  end
+  CHAN_NAME = "F"
 
   ###########
   # Exports #
   ###########
 
   export start
-  export coords
+  export drain
   export fill
 
   ###########
@@ -45,10 +38,21 @@ class Program
   macro_import  Z80MathInt
   macro_import  ZXGfx
   import        ZXSys, macros: true
+  import        MultitaskingIO, :mtio, code: false, macros: true, labels: MultitaskingIO.kernel_org
+
+  task_yield    addr mtio.task_yield
 
   ##########
   # Macros #
   ##########
+
+  def self.mtyield(condition=nil)
+    if condition
+            call  condition, task_yield
+    else
+            call  task_yield
+    end
+  end
 
   macro :checkpixel do |eoc, mask:a, counter:nil|
     if mask == a
@@ -113,91 +117,142 @@ class Program
   #     1 DEF FN f(x,y)=USR start
   #     FN f(x, y)
   # where x is a horizontal start pixel 0..255 (left to right), y is a vertical start pixel 0..175 (bottom to top)
-  start             jr   getparams
-  coords            data ZXSys::Coords, {x: 0, y: 0}
-  getparams         call fn_argn                    # is this an FN call with arguments?
-                    jr   C, fill                    # called via USR
+  start             task?(mtvars:mtio.mtvars)
+                    jr   Z, fill_sys
 
+  # Task (asynchronous) call
+  ns :fill_io do
+                    ld   a, CHAN_NAME.ord
+    handler_loop    call mtio.find_input_handle
+                    jr   Z, wait_loop               # HL: task output
+                    mtyield
+                    jr   handler_loop
+    wait_loop       mtio_wait(:read, 2, enable_intr:false)
+                    call getc_io                    # no need to check: interrupts are disabled, at least 2 chars ready
+                    ld   e, a                       # x
+                    call getc_io                    # y
+                    ei
+                    cp   192                        # out of screen?
+                    ret  NC                         # panic
+                    ld   d, a
+                    jr   fill
+  end
+
+  # Drain I/O buffers
+  drain             ld   a, CHAN_NAME.ord
+                    call mtio.find_io_handles
+                    ret  NZ
+                    mtio_drain(enable_intr:false)
+                    ex   de, hl
+                    mtio_drain(disable_intr:false)
+                    ret
+
+  # Regular system (synchronous) call
+  fill_sys          call mtio.find_def_fn_arg       # is this an FN call with arguments?
+                    jr   C, drain                   # drain I/O input buffer if called not via FN
   error_q           report_error_unless Z, 'Q Parameter error'
                     call get_arg_int8               # x argument as 8bit unsigned integer into A
                     ex   af, af                     # save x
-                    call fn_argn.seek_next
+                    call mtio.find_def_fn_arg.seek_next
                     jr   NZ, error_q.err
                     call get_arg_int8               # y argument as 8bit unsigned integer into A
                     neg
                     add  175                        # convert PLOT y argument
-                    ld   h, a                       # H: y
-                    ex   af, af                     # restore x
-                    ld   l, a                       # L: x
-                    jr   skipcoords
-
-  fill              ld   hl, [coords]               # H: y, L: x
-                    mtyield
-  skipcoords        ld   a, h
                     cp   192
                     report_error_unless C, '5 Out of screen'
+                    ld   d, a                       # H: y
+                    ex   af, af                     # restore x
+                    ld   e, a                       # L: x
 
-                    xytoscr h, l, ah:h, al:l, s:b, t:c
+  ns :fill do
+                    xytoscr d, e, ah:h, al:l, s:b, t:c
                     xor  a
                     push af                         # place marker
                     inc  sp                         # only higher byte on stack
-  # Create pixel mask
+    # Create pixel mask
                     inc  b
                     scf
-  loopmask          rra
+    loopmask        rra
                     djnz loopmask
                     ld   b, a
                     ld   ix, 0
-                    ex   af, af
-                    xor  a
-                    ex   af, af
+                    ex   af, af                     # make task switching more often
+                    xor  a                          # make task switching more often
+                    ex   af, af                     # make task switching more often
                     jp   check0.skipdupmask
 
-  loop0             pop  hl                         # plotted pixel address
-                    ex   af, af
-                    sub  8
-                    mtyield C
-                    ex   af, af
-  # Go right
+    loop0           pop  hl                         # plotted pixel address
+                    ex   af, af                     # make task switching more often
+                    sub  8                          # make task switching more often
+                    mtyield C                       # make task switching more often
+                    ex   af, af                     # make task switching more often
+    # Go right
                     ld   e, l                       # E: saved L
                     ld   d, a                       # D: saved mask
                     nextpixel l, a, skipright       # L: new address B: new mask
-  # Check right
+    # Check right
                     checkpixel mask:b, counter:ix
-  # Go left
-  skipright         ld   l, e                       # restore L
+    # Go left
+    skipright       ld   l, e                       # restore L
                     ld   a, d                       # restore mask
                     prevpixel l, a, skipleft        # L: new address B: new mask
-  # Check left
+    # Check left
                     checkpixel mask:b, counter:ix
-  # Go down
-  skipleft          ld   b, d                       # B: saved restored mask
+    # Go down
+    skipleft        ld   b, d                       # B: saved restored mask
                     ld   l, e                       # restore L
                     ld   d, h                       # D: saved H
                     nextline h, l, skipdown
-  # Check down
+    # Check down
                     checkpixel mask:b, counter:ix
-  # Go down
-  skipdown          ld16 hl, de                     # restore HL
+    # Go down
+    skipdown        ld16 hl, de                     # restore HL
                     prevline h, l, skipup
 
-  check0            checkpixel mask:b, counter:ix
-  skipup            dec  sp
+    check0          checkpixel mask:b, counter:ix
+    skipup          dec  sp
                     pop  af                         # A: plotted pixel mask or 0 - end marker
                     ora  a
                     jp   NZ, loop0                  # return on marker
-                    ld16 bc, ix
+
+                    ld16 bc, ix                     # pixel counter
+                    task_id(d, e, check_if_system: true, mtvars:mtio.mtvars)
+                    ret  Z
+
+                    push bc                         # pixel counter
+                    push de                         # task id
+                    ld   a, CHAN_NAME.ord
+                    call mtio.find_io_handles
+                    jp   NZ, mtio.terminate         # panic if no I/O
+                    push hl                         # inp_handler
+                    ex   de, hl                     # HL: out_handler, DE: inp_handler
+                    mtio_wait(:write, 4, enable_intr:false)
+                    ex   de, hl                     # DE: out_handler, HL: inp_handler
+                    ld   hl, 2
+                    add  hl, sp                     # address of task id + pixel counter on a stack (safe because di)
+                    ex   de, hl                     # DE: data to output, HL: out_handler
+                    mtio_puts(4, subroutine:false, disable_intr:false, enable_intr:true)
+                    pop  hl                         # inp_handler
+                    pop  af
+                    pop  af                         # erase task id and pixel count
+                    jp   fill_io.wait_loop
+  end
+
+  # Make room for mtiovars and clear the buffers_top entry.
+  # Must be called once before multitasking will be intialized.
+  make_mtvars_space ld   hl, mtio.mtiovars-1
+                    ld   bc, +mtio.mtiovars
+                    call rom.make_room
+                    ld   [mtio.mtiovars.buffers_top], bc
                     ret
 
   ###############
   # Subroutines #
   ###############
 
-  fn_argn           find_def_fn_args 1, cf_on_direct: true
+  getc_io           mtio_getc(a, tt:bc, disable_intr:false, enable_intr:false)
 
-  get_arg_int8      read_positive_int_value d, e
-                    inc  hl                       # point to a next argument possibly
-                    report_error_unless Z, 'A Invalid argument'
+  get_arg_int8      call mtio.get_uint_arg
                     ld   a, d
                     ora  a
                     report_error_unless Z, '6 Number too big'
@@ -205,47 +260,65 @@ class Program
                     ret
 end
 
-fill = Program.new 0x8E00
+mtiokernel = MultitaskingIO.new_kernel
+puts mtiokernel.debug
+
+fill = Program.new mtiokernel[:mtio_buffers_bot] - Program.code.bytesize
 puts fill.debug
 
-mtkernel = Program::MTKernel
-puts mtkernel.debug
-
+puts "MultitaskingIO size: #{mtiokernel.code.bytesize}"
 %w[
   mtvars
   initial_stack_bot
   initial_stack_end
+  mtio_buffers_bot
+  open_io
+  wait_io
   api
   task_yield
   terminate
-  fff4
 ].each do |label|
-  puts "#{label.ljust(20)}: 0x#{mtkernel[label].to_s 16} - #{mtkernel[label]}, size: #{mtkernel.code.bytesize}"
+  puts "#{label.ljust(20)}: 0x#{mtiokernel[label].to_s 16} - #{mtiokernel[label]}"
 end
 
-puts "Total stack space for tasks: #{mtkernel[:initial_stack_end] - 0xE000}"
+puts "Total stack space for tasks: #{mtiokernel[:initial_stack_end] - mtiokernel[:initial_stack_bot]}"
 puts "\n ZX Basic API:"
-puts "Setup: PRINT USR #{mtkernel[:api]}"
-puts "Spawn: DEF FN m(a,s) = USR #{mtkernel[:api]}"
-puts "       LET tid = FN m(address,stacksize)"
-puts "Kill:  DEF FN t(t) = USR #{mtkernel[:api]}"
+puts "Setup: PRINT USR #{mtiokernel[:open_io]}"
+puts "Reset: PRINT USR #{mtiokernel[:api]}"
+puts "Spawn: DEF FN m(a,s)=USR #{mtiokernel[:api]}"
+puts "       LET tid=FN m(address,stacksize)"
+puts "Kill:  DEF FN t(t)=USR #{mtiokernel[:api]}"
 puts "       PRINT FN t(tid)"
-puts "Free:  DEF FN f() = USR #{mtkernel[:api]}"
+puts "Free:  DEF FN f()=USR #{mtiokernel[:api]}"
 puts "       PRINT FN f()"
+puts "Open:  DEF FN o(s,c$)=USR #{mtiokernel[:open_io]}"
+puts "       PRINT FN CHR$ o(7,\"Q\")"
+puts "Wait:  DEF FN w(s,n)=USR #{mtiokernel[:wait_io]}"
+puts "       LET chars=FN w(7,3): LET a$=INKEY$#7+INKEY$#7+INKEY$#7"
+puts "       LET chars=FN w(7,-3): PRINT #7;\"abc\""
 puts "\n Task API:"
-puts "Yield: call #{mtkernel[:task_yield]}"
-puts "Kill:  jp   #{mtkernel['terminate']}"
+puts "Yield: call #{mtiokernel[:task_yield]}"
+puts "Kill:  jp   #{mtiokernel[:terminate]}"
 
-%w[start fill coords.x coords.y].each {|n| puts "#{n.ljust(15)} #{fill[n]}"}
+puts "\nCLEAR #{fill.org - 1}"
+%w[start drain fill mtio.mtvars mtio.find_def_fn_arg].each {|n| puts "#{n.ljust(15)} #{fill[n]}"}
 
 tapfilename = 'examples/multifill.tap'
-program = Basic.parse_source IO.read('examples/multifill.bas'), start: 9999
+
+header = <<-END
+   1 DEF FN w(s,n)=USR #{mtiokernel[:wait_io]}: DEF FN f()=USR api: DEF FN t(t)=USR api: DEF FN l(x,y)=USR fill: DEF FN m(a,s)=USR api: DEF FN o(s,c$)=USR io: DEF FN z()=VAL "65536-`USR`#{mtiokernel['rom.free_mem']}": LET fill=VAL "#{fill[:start]}": LET api=VAL "#{mtiokernel[:api]}": LET io=VAL "#{mtiokernel[:open_io]}": RANDOMIZE USR io: LET total=USR api
+END
+footer = <<-END
+9998 STOP 
+9999 CLEAR VAL "#{fill.org-1}": LOAD "fill"CODE : LOAD "mtiokernel"CODE : RANDOMIZE USR VAL "#{fill[:make_mtvars_space]}": RUN
+END
+program = Basic.parse_source header + IO.read('examples/multifill.bas') + ?\n + footer, start: 9999
 program.save_tap tapfilename
 puts "="*32
 puts program
 puts "="*32
 fill.save_tap tapfilename, append: true, name: 'fill'
-mtkernel.save_tap tapfilename, append: true, name: 'mtkernel'
+mtiokernel.save_tap tapfilename, append: true, name: 'mtiokernel'
 
 Z80::TAP.parse_file(tapfilename) do |hb|
     puts hb.to_s
