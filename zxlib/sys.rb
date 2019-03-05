@@ -178,6 +178,7 @@ class ZXSys
         differ      addr 0x19DD # Difference routine: BC = HL - DE, DE <-> HL
         reclaim_1   addr 0x19E5 # Handle reclaiming space: DE - start address of the space to reclaim, HL - address after the space
         reclaim_2   addr 0x19E8 # HL - start address of the space to reclaim, BC - size of the space to reclaim
+        error_0     addr 0x1BB0 # OK
         go_to       addr 0x1E67 # Handle GO TO command
         go_to_1     addr 0x1E6C # Handle GO TO command: expecting line in HL with line number check
         go_to_2     addr 0x1E73 # Handle GO TO command: expecting line in HL and statement number in D
