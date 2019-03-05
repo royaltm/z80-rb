@@ -56,7 +56,7 @@ class Z80MathInt
     # =Z80MathInt Macros
     module Macros
         ##
-        # Packs an integer of arbitrary byte size, creates a label and adds it to Program.code at Program.pc.
+        # Packs an integer of arbitrary byte size, creates a label and adds it to the Program.code at Program.pc.
         #
         # Provided +bitsize+ must be a multiple of 8.
         # Integer data is packed in LSB order.
@@ -181,7 +181,7 @@ class Z80MathInt
             end
         end
         ##
-        # Adds 16bit +tt+ to 24bit +th8+|+tl16+, result in +a+|+tl16+.
+        # Adds 16bit +tt+ to 24bit +th8+|+tl16+, returns the result in +a+|+tl16+.
         #
         # Modifies: +af+, +tl16+.
         #
@@ -210,71 +210,132 @@ class Z80MathInt
             end
         end
         ##
-        # Performs multiplication of unsigned 16bit +mh+|+ml+ * 8bit +m+ and returns result in +hl+.
+        # Performs a multiplication of a signed 8bit +k+ * 8bit signed +m+.
+        #
+        # See [mul] for details.
+        def mul_signed(k=d, m=a, tt:de, clrhl:true)
+            th, tl = tt.split
+            raise ArgumentError if tt == hl or m == th
+            isolate do
+                        ld   th, k unless k == th
+                        ld   a, m unless m == a
+                        anda a
+                        jp   P, mul_it      # m >= 0
+                        ld   tl, a
+                        xor  a
+                        sub  th
+                        ld   th, a
+                        xor  a
+                        sub  tl
+                mul_it  mul(th, a, tt:tt, clrhl:clrhl, signed_k:true)
+            end
+        end
+        ##
+        # Performs a multiplication of an 8bit +k+ * 8bit unsigned +m+.
+        # Returns the result in the +hl+ registers.
+        # Optionally the result in the +hl+ is being accumulated.
+        #
+        # As a side-effect accumulator is always cleared to 0 and +m+ and +k+ are left unmodified
+        # if they are not one of: accumulator, +th+ nor +tl+.
+        #
+        # Uses: +af+, +hl+, +tt+, +k+, +m+.
+        #
+        # * +k+::        a multiplicant as an immediate value or an 8bit register.
+        # * +m+::        a multiplicator as an immediate value or an 8bit register.
+        # * +tt+::       a 16 bit temporary register (+de+ or +bc+).
+        # * +clrhl+::    if the result should be set or accumulated, if +false+ acts like: +hl+ += +k+ * +m+.
+        # * +signed_k+:: if the multiplicant (+k+) should be treated as a signed integer (-128..127).
+        def mul(k=d, m=a, tt:de, clrhl:true, signed_k:false)
+            th, tl = tt.split
+            raise ArgumentError if tt == hl or m == th
+            isolate do
+                        ld   th, k unless k == th
+                        ld   a, m unless m == a
+                        ld   tl, 0
+                if clrhl
+                        ld   h, tl
+                        ld   l, tl
+                end
+                if signed_k
+                    loop1   sra  th
+                else
+                    loop1   srl  th
+                end
+                        rr   tl
+                        add  a, a
+                        jr   NC, noadd
+                        add  hl, tt
+                noadd   jr   NZ, loop1
+            end
+        end
+        ##
+        # Performs a multiplication of an unsigned 16bit +mh+|+ml+ * 8bit unsigned +m+.
+        # Returns the result in the +hl+ registers.
         # Optionally accumulates result in +hl+.
         # Breaks on overflow with CF=1.
         # 
         # As a side-effect +m+ is cleared to 0 when CF=0 and +ml+ and +mh+ are left unmodified
-        # if they are not one of: +th+ nor +tl+.
+        # if they are not one of a: +th+ nor +tl+.
         #
-        # Uses: +hl+, +m+, +mh+, +ml+, +tt+
+        # Uses: +f+, +hl+, +m+, +mh+, +ml+, +tt+
         #
-        # * +mh+::    hi multiplicant immediate value or any 8bit register.
-        # * +ml+::    lo multiplicant immediate value or any 8bit register.
-        # * +m+::     a multiplicator register, must not be +tthi+, +ttlo+.
-        # * +tt+::    16 bit temporary register (de or bc).
-        # * +clrhl+:: if +hl+ should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
+        # * +mh+::    most significant part of the multiplicant as an immediate value or an 8bit register.
+        # * +ml+::    least significant part of the multiplicant as an immediate value or an 8bit register.
+        # * +m+::     a multiplicator register, must not be a part of the +tt+.
+        # * +tt+::    a 16 bit temporary register (de or bc).
+        # * +clrhl+:: if the result should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
         def mul8_c(mh=h, ml=l, m=a, tt:de, clrhl:true)
             th, tl = tt.split
             raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !m.is_a?(Register)
             isolate do |eoc|
-                        ld  tl, ml unless ml == tl
-                        ld  th, mh unless mh == th
-                        ld  hl, 0 if clrhl
-                loop1   srl m
-                        jr  NC, noadd
-                        add hl, tt
-                        jr  C, eoc
-                noadd   jr  Z, eoc
-                skip1   sla tl
-                        rl  th
-                        jp  NC, loop1
+                        ld   tl, ml unless ml == tl
+                        ld   th, mh unless mh == th
+                        ld   hl, 0 if clrhl
+                loop1   srl  m
+                        jr   NC, noadd
+                        add  hl, tt
+                        jr   C, eoc
+                noadd   jr   Z, eoc
+                skip1   sla  tl
+                        rl   th
+                        jp   NC, loop1
             end
         end
         ##
-        # Performs multiplication of unsigned 16bit +mh+|+ml+ * 8bit +m+ and returns result in +hl+.
-        # Optionally accumulates result in +hl+.
-        # Optionally multiplies result * 2.
+        # Performs a multiplication of a 16bit +mh+|+ml+ * 8bit unsigned +m+.
+        # Returns the result in the +hl+ registers.
+        # Optionally the result in the +hl+ is being accumulated.
+        # Optionally multiplies the result by 2.
         #
         # As a side-effect +m+ is always cleared to 0 and +ml+ and +mh+ are left unmodified
-        # if they are not one of: +th+ nor +tl+.
+        # if they are not one of a: +th+ nor +tl+.
         #
-        # Uses: +hl+, +m+, +mh+, +ml+, +tt+
+        # Uses: +f+, +hl+, +m+, +mh+, +ml+, +tt+
         #
-        # * +mh+::    hi multiplicant immediate value or any 8bit register.
-        # * +ml+::    lo multiplicant immediate value or any 8bit register.
-        # * +m+::     a multiplicator register, must not be +tthi+, +ttlo+.
-        # * +tt+::    16 bit temporary register (de or bc).
-        # * +clrhl+:: if +hl+ should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
-        # * +double+:: +true+ if should double the result (mh|ml * 2).
+        # * +mh+::    most significant part of the multiplicant as an immediate value or an 8bit register.
+        # * +ml+::    least significant part of the multiplicant as an immediate value or an 8bit register.
+        # * +m+::     a multiplicator register, must not be a part of the +tt+.
+        # * +tt+::    a 16 bit temporary register (de or bc).
+        # * +clrhl+:: if the result should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
+        # * +double+:: +true+ if the result should be double (+mh+|+ml+ * 2).
         def mul8(mh=h, ml=l, m=a, tt:de, clrhl:true, double:false)
             th, tl = tt.split
             raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !m.is_a?(Register)
             isolate do |eoc|
-                        ld  tl, ml unless ml == tl
-                        ld  th, mh unless mh == th
-                        ld  hl, 0 if clrhl
-                        jp  muls1 unless double
+                        ld   tl, ml unless ml == tl
+                        ld   th, mh unless mh == th
+                        ld   hl, 0 if clrhl
+                        jp   muls1 unless double
                 loop1   sla  tl
                         rl   th
                 muls1   srl  m
-                        jr  NC, noadd
-                        add hl, tt
-                noadd   jr  NZ, loop1
+                        jr   NC, noadd
+                        add  hl, tt
+                noadd   jr   NZ, loop1
             end
         end
         ##
-        # Performs multiplication of unsigned 16bit +mh+|+ml+ * 8bit +m+ and returns result in 24bit +a+|+hl+.
+        # Performs a multiplication of unsigned 16bit +mh+|+ml+ * 8bit +m+ and returns result in 24bit +a+|+hl+.
         # Optionally accumulates result in +a+|+hl+.
         #
         # Uses: +af+, +bc+, +de+, +hl+
@@ -316,7 +377,7 @@ class Z80MathInt
             end
         end
         ##
-        # Performs multiplication of unsigned 16bit +mh+|+ml+ * 8bit +m+ and returns result in 24bit +a+|+hl+.
+        # Performs a multiplication of unsigned 16bit +mh+|+ml+ * 8bit +m+ and returns result in 24bit +a+|+hl+.
         # Creates unrolled code so +m+ should be constant in range: 0..255.
         # Optionally accumulates result in +a+|+hl+.
         # CF=0 ZF=1 if result fits in 16bits.
@@ -367,7 +428,7 @@ class Z80MathInt
             end
         end
         ##
-        # Performs multiplication of unsigned 16bit +hl+ by 16bit +mm+ (+bc+ or +de+)
+        # Performs a multiplication of unsigned 16bit +hl+ by 16bit +mm+ (+bc+ or +de+)
         # and returns result in 32 bit +hl+|+hl'+.
         #
         # Uses: +af+, +af'+, +hl+, +hl'+, +mm+, +tt'+
