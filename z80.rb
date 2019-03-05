@@ -372,7 +372,7 @@ module Z80
 		#     import program, :code => false, :macros => true, :labels => false
 		#
 		def macro_import(program)
-			import program, :code => false, :macros => true, :labels => false
+			import program, code: false, macros: true, labels: false
 		end
 		##
 		#  Import labels from another +program+.
@@ -381,8 +381,8 @@ module Z80
 		#
 		#     import program, :code => false, :macros => false, :labels => true
 		#
-		def label_import(program, name = nil)
-			import program, name, :code => false, :macros => false, :labels => true
+		def label_import(program, name = nil, labels:true)
+			import program, name, code: false, macros: false, labels: labels
 		end
 		##
 		#  Import code, labels and macros from another +program+.
