@@ -6,19 +6,30 @@ require 'zxlib/sys'
 ##
 # =Multitasking
 #
-# Run machine code programs (a.k.a. "tasks") in parallel with ZX Basic.
+# Run machine code programs (a.k.a. "tasks") in parallel with the ZX Spectrum's Basic.
 #
-# This class contains Macros and kernel labels, for tasks and the kernel code.
+# This class contains Macros and kernel labels for tasks and the kernel code.
+#
+# The "tasks" are machine code programs that are run in parallel as opposed to system programs which are run
+# in sequence.
+#
+# The Multitasking module provides a kernel that handles a task creation, execution switching and termination.
+# Switching between tasks is handled on each maskable interrupt or on demand.
+# Each task is being provided with its own stack space. System programs such as Basic or user machine code (USR)
+# use the system stack as usual. An execution of a system program is intertwined with an execution of each task
+# in turn. Tasks as well as system programs may "yield" its execution early with an API call.
 #
 # ===Task guide
 #
 # ====Machine code for tasks should respect the following restrictions:
 #
 # - Task's code shouldn't change interrupt handler (no tampering with register +I+ and no +IM+ instructions).
-# - Stacks may be moved up when other tasks terminate - tasks shouldn't store pointers to a stack.
-# - When using +SP+ for other purposes always disable interrupts and restore +SP+ before enabling them.
-# - Before task starts, +IY+ is initialized to its <tt>stack_bot + 128</tt> and may be used
-#   as a stack pointer frame for tasks' variables as contents of IY register is moved along with the stack.
+# - Task's stacks may be moved up when other tasks terminate - tasks shouldn't store pointers to its own stack entries.
+# - When using +SP+ for other purposes always disable interrupts and restore +SP+ to the previous value
+#   before enabling interrupts.
+# - At the task initialization, +IY+ register is set to tasks' <tt>stack_bot + 128</tt> address
+#   and may be used as a stack pointer frame for tasks' variables as the value of +IY+ register is being moved
+#   along with the stack.
 #
 # ====Task code recommendations:
 #
@@ -29,24 +40,25 @@ require 'zxlib/sys'
 #
 # ====Task initialization:
 #
-# Each task when initialized has some stack space allocated for it. When tasks are being switched, their +SP+
-# is checked against their stacks' bottoms and if +SP+ goes below it the whole multitasking is being terminated
-# (panic) and the control is returned to the system.
+# Each task receives its own, dedicated stack space. Whenever the execution context is being switched,
+# next task's +SP+ register address is being checked against its own stack's boundary. If it points
+# below the designated address space the whole multitasking is being terminated (panic) and the control 
+# is returned to the system.
 #
 # Tasks may also use bottom of the stack space for task-local variables storing them via +IY+ register
-# which points to the 128 byte above the stack's bottom. So to be on the safe side tasks should start 
+# which addresses the 128'th byte above the stack's bottom. So to be on the safe side tasks should start 
 # allocating variables from <tt>[IY-128]</tt> up.
 #
 # =====Task registers:
 #
 # Registers may be used freely with some limitations (+SP+, +IY+) mentioned above.
-# When the task is started, registers contain:
+# When the task starts, the CPU registers hold:
 #
 # - +SP+:: The task's end of stack - 2. +SP+ points to the address of +terminate+ routine,
 #          so invoking +ret+ will terminate the task.
 # - +IY+:: The task's bottom of stack + 128.
 # - +IX+:: The task's stack size.
-# - +HL+:: The task's start +PC+.
+# - +HL+:: The task's initial +PC+.
 # - +BC+:: The task's id.
 # - +DE+:: The +terminate+ routine address.
 #
@@ -59,27 +71,30 @@ require 'zxlib/sys'
 #   |  ROM    |  Attributes |     Buffer | Variables | Workspace |    and Data |  Stack Space |       Kernel |
 #   +---------+-------------+------------+-----------+-----------+-------------+--------------+--------------+
 #   ^         ^             ^            ^           ^           ^             ^              ^              ^
-#   $0000     $4000         $5B00        $5C00       $5CB6       RAMTOP                                 P_RAMT
+#   $0000     $4000         $5B00        $5C00       $5CB6       RAMTOP        |              |         P_RAMT
 #                           mtvars                                             stack_bot      stack_end
 #
 # ===ZX Basic API
 #
 #   REM Setup:
 #   REM Initializes or resets multitasking.
-#   REM Returns number of stack space bytes available.
+#   REM Returns the number of bytes available for new tasks' stacks.
 #   PRINT USR api
 #
 #   REM Spawns a task:
 #   1 DEF FN m(a,s) = USR api
+#
 #   LET tid = FN m(address,stacksize)
 #
 #   REM Terminates a task:
 #   2 DEF FN t(t) = USR api
-#   REM Returns number of stack space bytes available after the task is terminated.
+#
+#   REM Returns the number of bytes available for new tasks' stacks after the task is terminated.
 #   PRINT FN t(tid)
 #
-#   REM Returns total bytes available for stacks:
+#   REM Returns the number of bytes available for new tasks' stacks.
 #   3 DEF FN f() = USR api
+#
 #   PRINT FN f()
 #
 # +address+:: Must be a task's machine code entry point address.
@@ -92,20 +107,21 @@ require 'zxlib/sys'
 # +Spawn+ will result in "4 Out of memory" error if there is not enough
 # room for a task info entry or stack space.
 #
-# "A Invalid argument" error may also be triggered when arguments are incorrect.
+# "A Invalid argument" error may also be reported when arguments are incorrect.
 #
 # ===Task API
 #
-#   MTKernel = Multitasking.new_kernel
+#   import        Multitasking, code: false, macros: true, labels: Multitasking.kernel_org
 #
-#                   # ...
-#                   # instead of invoking halt, call mt.task_yield
-#                   call MTKernel[:task_yield]
-#                   # ...
-#                   # to terminate:
-#                   jp   MTKernel[:terminate]
-#                   # or when stack is depleted just:
-#                   ret
+#                 # ...
+#                 # instead of invoking halt, call task_yield
+#                 call task_yield
+#                 # ...
+#                 # to terminate:
+#                 jp   terminate
+#                 # or when a stack is depleted just:
+#                 ret
+#
 class Multitasking
   include Z80
   include Z80::TAP
@@ -126,18 +142,20 @@ class Multitasking
   export error_4
   export get_uint_arg
   export error_a
+  export ei_report_ok
+  export error_0
   # Advanced
   export init_multitasking
   export stack_space_free
   export task_kill
   export task_spawn
   ##
-  # Instantiate Multitasking kernel with the highest possible starting address.
+  # Instantiate Multitasking kernel with the proper code address.
   def self.new_kernel
     new kernel_org
   end
   ##
-  # The highest possible starting address.
+  # The Multitasking kernel code start address.
   def self.kernel_org
     0x10000 - code.bytesize
   end
@@ -146,29 +164,39 @@ class Multitasking
   # Structs #
   ###########
 
-  # Should not be enlarged if MT_VARS are placed inside ZX Printer Buffer.
+  ## A hard limit on the number of tasks. Should not be enlarged if MT_VARS are placed inside ZX Printer Buffer.
   TASK_QUEUE_MAX = 40 unless const_defined?(:TASK_QUEUE_MAX)
-  # Can be moved up/down to adjust stack space.
+  ## Bottom of the multitasking stack space.
   MT_STACK_BOT = 0xE000 unless const_defined?(:MT_STACK_BOT)
-  # Can be moved elsewhere if ZX Printer is needed.
+  ## An address of the task variables (TaskVars). Can be moved elsewhere if ZX Printer is needed.
   MT_VARS = mem.pr_buf unless const_defined?(:MT_VARS)
 
-  # Task info struct. Each running task has one.
+  ## Task info structure. Each running task has one.
   class TaskInfo < Label
+    ## Task's id.
     tid        word
-    stack_save word  # task's current SP when yielding execution
-    stack_bot  word  # task's stack boundaries: task[-1].stack_bot <= SP <= stack_bot
+    ## Task's last +sp+ before yielding execution.
+    stack_save word
+    ## Task's stack boundaries: task[-1].stack_bot <= +sp+ <= +task.stack_bot+
+    stack_bot  word
   end
 
-  # Struct definition for mtvars.
+  ## Definition of +mtvars+.
   class TaskVars < Label
-    stack_end    word  # the upper boundary of the tasks's stack, becomes 1st task's task_end. Initializes to initial_stack_end.
+    ## The upper boundary of the tasks's stack, becomes 1st task's task_end. Initializes to initial_stack_end.
+    stack_end    word
+    ## The tasks' queue.
     tasks        TaskInfo, TASK_QUEUE_MAX
-    terminator   word  # a terminator value, must be 0
-    system_sp    word  # system SP when yielding execution
-    stack_bot    word  # the bottom boundary of the stack space. Initialized to MT_STACK_BOT.
-    current_task word  # pointer to task's stack_bot of the currently executed task, 0 if system code execution
-    last_tid     word  # last task id created
+    ## A terminator value, must be 0
+    terminator   word
+    ## Last system +sp+ before transfering execution to tasks.
+    system_sp    word
+    ## The bottom boundary of the stack space. Initialized to Multtasking::MT_STACK_BOT.
+    stack_bot    word
+    ## A pointer to task's stack_bot of the currently executed task, 0 while executing system code.
+    current_task word
+    ## Last created task id.
+    last_tid     word
   end
 
   raise CompileError if TaskVars.to_i > 256
@@ -189,9 +217,10 @@ class Multitasking
   # ==Multitasking Macros for tasks.
   module Macros
     ##
-    # Checks if we are being running as a task. Sets ZF=1 if not a task.
+    # Checks if the code is being run as a task. ZF flag will be set (Z) if not a task.
     #
     # * +tt+:: A temporary 16bit register, may be one of: +hl+, +bc+, +de+, +ix+ or +iy+.
+    # * +mtvars+:: should contain an address of the task variables.
     #
     # T-States depending on +tt+ used:
     # * +ix+, +iy+: 36
@@ -213,27 +242,24 @@ class Multitasking
     # * +oh+, +ol+:: MSB and LSB 8-bit registers for output. Together oh|ol form a task id.
     # * +tt+:: A temporary 16bit register, may be one of: +hl+, +bc+, +de+, +ix+ or +iy+.
     # * +check_if_system+:: If truish the routine will check if the execution context is of a system or a task.
-    #                     In this instance the ZF=1 (Z) will indicate that the code is being executed in a system's context
-    #                     and none of +oh+,+ol+ registers will be modified. May be a label or an address and in this inctance
-    #                     the routine performs a jump to the provided address if the context is of a system.
+    #                       In this instance the ZF=1 (Z) will indicate that the code is being executed in a system's context
+    #                       and none of +oh+,+ol+ registers will be modified.
+    # * +disable_intr+:: +true+ will disable interrupts before probing; the interrupts must be disabled for this routine to work
+    #                    and <tt>disable_intr=false</tt> assumes the interrupts are already disabled.
+    # * +enable_intr+:: +true+ will enable interrupts after probing.
+    # * +mtvars+:: should contain an address of the task variables.
     #
     # Modifies: +tt+, +oh+, +ol+, optionally +af+ if +oh+, +ol+ is one of the +tt+ sub-registers.
-    def task_id(oh, ol, tt:hl, check_if_system:false, mtvars:self.mtvars)
+    def task_id(oh, ol, tt:hl, check_if_system:false, disable_intr:true, enable_intr:true, mtvars:self.mtvars)
       raise ArgumentError, "tt must be one of: hl, bc, de, ix or iy" unless [hl,bc,de,ix,iy].include?(tt)
       raise ArgumentError, "oh and ol must be different 8-bit registers" unless register?(oh) and register?(ol) and
                                                                                 oh != ol and oh.bit8? and ol.bit8?
       th, tl = tt.split
       isolate do |eoc|
+                      di if disable_intr
         if check_if_system
                       task?(tt:tt, mtvars:mtvars)
-          case check_if_system
-          when true, :eoc
-                      jr   Z, eoc
-          when :ret
-                      ret  Z
-          else
-                      jp   Z, check_if_system
-          end
+                      jr   Z, eop
         else
                       ld   tt, [mtvars.current_task]
         end
@@ -286,23 +312,24 @@ class Multitasking
                       ld   a, [tt]
                       ld   ol, a unless ol == a
         end
+        eop           label
+                      ei   if enable_intr
       end
     end
     ##
     # Calculates how many bytes are available yet on the task's stack below SP.
     #
     # * +tt+:: Temporary 16bit register, may be +ix+, +iy+ or +hl+.
-    # * positive_size:: If +false+, will output <tt>-stack_free - 1</tt> instead.
-    # * disable_intr:: If +true+ will disable interrupts before probing;
-    #                  the interrupts must be disabled for this routine to work
-    #                  and <tt>disable_intr=false</tt> assumes the interrupts are
-    #                  already disabled.
-    # * enable_intr:: If +false+ will enable interrupts after probing.
+    # * +positive_size+:: If +false+, will output <tt>-stack_free - 1</tt> instead.
+    # * +disable_intr+:: +true+ will disable interrupts before probing; the interrupts must be disabled for this routine to work
+    #                    and <tt>disable_intr=false</tt> assumes the interrupts are already disabled.
+    # * +enable_intr+:: +true+ will enable interrupts after probing.
+    # * +mtvars+:: should contain an address of the task variables.
     #
     # Modifies: +af+ and +hl+ if +tt+=+hl+ otherwise +tt+ and +hl+.
     #
     # Output:
-    # +hl+:: number of bytes available on stack.
+    # +hl+:: how many bytes are available on the stack.
     # +CF+:: should be 1 on succees; if CF=0, SP already exceeded its designated
     #        space and the multitasking will be terminated on the next task
     #        switching iteration.
@@ -313,7 +340,7 @@ class Multitasking
     #      hl          false        59     63     67
     #   ix,iy           true       101    105    109
     #      hl           true        83     87     91
-    def task_stack_free_bytes(tt:hl, positive_size:true, disable_intr:true, enable_intr:true, mtvars:self.mtvars)
+    def task_stack_bytes_free(tt:hl, positive_size:true, disable_intr:true, enable_intr:true, mtvars:self.mtvars)
       isolate do
                       di if disable_intr
         if [ix, iy].include?(tt) # 58
@@ -355,7 +382,7 @@ class Multitasking
 
   # Get and check current task info pointer.
   # CF: 0
-  # ZF: 1 if system task
+  # ZF: 1, HL: 0 if system task
   # ZF: 0, HL: -> current_task.stack_bot
   macro :check_current_task, use: :mtvars do
                       ld   hl, [mtvars.current_task]
@@ -363,21 +390,48 @@ class Multitasking
                       ora  h
   end
 
+  ##
+  # :call-seq:
+  #       USR api
+  #       DEF FN m(a,s)=USR api
+  #       DEF FN t(t)=USR api
+  #       DEF FN f()=USR api
+  #
   # ZX Basic API
-  api                 call find_def_fn_arg            # is this an FN call with arguments?
+  #
+  # This endpoint should be invoked from the ZX Basic directly via USR or indirectly via FN.
+  #
+  #   LET stackFreeBytes=USR api: REM Initializes multitasking.
+  #
+  #   1 DEF FN m(a,s)=USR api: REM Spawns a task
+  #   LET tid=FN m(address,stacksize)
+  #
+  #   2 DEF FN t(t)=USR api: REM Terminates a task
+  #   LET stackFreeBytes=FN t(tid)
+  #
+  #   3 DEF FN f() = USR api: REM Returns the number of bytes available for new tasks' stacks.
+  ns :api do
+                      call find_def_fn_arg            # is this an FN call with arguments?
                       jr   Z, new_or_terminate        # yes: skip to new_or_terminate
                       jr   C, init_multitasking       # called via USR
-                                                      # called via FN with no arguments
-  # Returns free stack space reserved for new tasks in BC or raises OOM error.
-  ns :stack_space_free, use: mtvars do
+  end                                                 # called via FN with no arguments
+  ##
+  # :call-seq:
+  #       call stack_space_free
+  #
+  # Returns (in +bc+) how many bytes are available in multitasking stack space for new tasks.
+  # Reports an OOM error if the task variables are corrupted or uninitialized.
+  #
+  # Modifies: +af+, +bc+, +de+, +hl+.
+  ns :stack_space_free, use: :mtvars do
                       ld   hl, mtvars.stack_end - (TaskInfo.to_i - 3)
-                      ld   bc, TaskInfo.to_i - 3
-    search_last       add  hl, bc
-                      ld   e, [hl]
+                      ld   bc, TaskInfo.to_i - 3   # begin with mtvars.stack_end as the 1st task's stack_end
+    search_last       add  hl, bc                  # skip task.stack_save
+                      ld   e, [hl]                 # task.stack_bot
                       inc  hl
                       ld   d, [hl]                 # task.stack_bot
                       inc  hl
-                      ld   a, [hl]
+                      ld   a, [hl]                 # task.tid
                       inc  hl
                       ora  [hl]                    # task.tid
                       jr   NZ, search_last         # some tid?
@@ -389,14 +443,37 @@ class Multitasking
                       ret
   end
 
-  # Try to get positive integer from FP-value addressed by HL.
-  # DE holds a value on success.
+  ##
+  # :call-seq:
+  #       call get_uint_arg
+  #
+  # Attempts to read a positive 16-bit integer from a FP-value addressed by +hl+.
+  #
+  # _NOTE_:: This routine must never be called from a task!
+  #
+  # Input:
+  # * +hl+:: an address of a FP-value.
+  #
+  # On success +de+ holds a value and +hl+ will be incremented past the last FP-value's byte.
+  # On failure reports "A Invalid argument" error.
+  #
+  # Modifies: +af+, +de+, +hl+.
   get_uint_arg      read_positive_int_value d, e
                     inc  hl                       # point to a next argument possibly
                     ret  Z
   error_a           report_error 'A Invalid argument'
 
-  # Initialize global variables and setup interrupt handler.
+  ##
+  # :call-seq:
+  #       call init_multitasking
+  #
+  # Initializes multitasking.
+  #
+  # _NOTE_:: This routine must never be called from a task!
+  #
+  # Clears all tasks, sets global variables and enables the custom interrupt handler.
+  #
+  # Modifies: +af+, +bc+, +de+, +hl+, +i+, +IFF+.
   ns :init_multitasking, use: :mtvars do
                       di                              # prevent switching
                       clrmem mtvars, +mtvars          # remove all tasks
@@ -477,7 +554,7 @@ class Multitasking
                       pop  hl
                       exx
                       pop  iy
-    ei_return         ei
+                      ei
                       ret
   end
 
@@ -522,15 +599,24 @@ class Multitasking
                       ei
                       jp   (hl)                       # go to task's code
   end
+
+  ei_report_ok        ei
+  error_0             report_error '0 OK'
+
   ##
-  # Task API
-  # Tasks may jump to this endpoint directly to terminate themselves.
+  # :call-seq:
+  #       jp terminate
   #
-  # +ret+ from a task will actually jump here.
-  ns :terminate, use: mtvars do
+  # Terminates the current task.
+  #
+  # Tasks may jump to this endpoint directly to terminate themselves.
+  # If called or jumped to from a system program and not from a task reports "0 OK" error.
+  #
+  # +ret+ instruction from a task will actually jump back here.
+  ns :terminate, use: :mtvars do
                       di                            # prevent switching
                       check_current_task            # HL: -> task.stack_bot, CF: 0
-                      jr   Z, task_kill.ei_return   # called not from a task
+                      jr   Z, ei_report_ok          # called not from a task
                       ld   sp, [mtvars.system_sp]
                       ld   bc, switch_to_sys        # store switch_to_sys as a
                       push bc                       # ret address
@@ -617,15 +703,35 @@ class Multitasking
                       ret
   end
 
-  # Find DEF FN argument value.
-  # ZF=1 if found and then HL points to the FP-value.
-  # CF=1 if called directly via USR and not FN.
-  find_def_fn_arg     find_def_fn_args 1, cf_on_direct: true
+  ##
+  # :call-seq:
+  #       call find_def_fn_arg
+  #
+  # Looks for a first DEF FN argument value address.
+  #
+  # _NOTE_:: This routine must never be called from a task!
+  #
+  # If an argument is found the +hl+ registers will address an argument's FP-value and the ZF flag will be set (Z).
+  # If the code wasn't invoked via the FN function call, the CF flag will be set instead (C).
+  #
+  # Modifies: +af+ and +hl+.
+  ns :rdoc_mark_find_def_fn_arg, merge: true do
+    find_def_fn_arg     find_def_fn_args 1, cf_on_direct: true
+  end
 
-  # Task API
-  # Task should call this endpoint directly instead of invoking halt.
-  # This will switch the context to the next task immediately.
-  task_yield          di
+  ##
+  # :call-seq:
+  #       call task_yield
+  #
+  # Yields task execution.
+  #
+  # Tasks or system programs should call this endpoint instead of invoking halt.
+  # This will switch the execution context to the next task in the queue immediately.
+  # The execution of the calling task will resume when its turn will come.
+  #
+  # Modifies: nothing. Requires at least 22 bytes on a machine stack to be available.
+  ns :task_yield      do
+                      di
                       push bc
                       push de
                       push hl
@@ -639,8 +745,9 @@ class Multitasking
                       push hl
                       push iy
                       jr   handle_interrupts.task_yield
+  end
 
-  ns :handle_interrupts, use: mtvars do
+  ns :handle_interrupts, use: :mtvars do
                       # push bc
                       # push de
                       # push hl
