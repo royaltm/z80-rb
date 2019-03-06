@@ -1302,7 +1302,7 @@ class MultitaskingIO
 
   end_of_mtio         label
 
-  import              Multitasking, args: [pc]
+  mt                  import  Multitasking, args: [pc]
 
   mtiovars            union mtvars, TaskVarsIO
 end
@@ -1395,7 +1395,7 @@ if __FILE__ == $0
   puts "Multitasking::MT_VARS:            #{Multitasking::MT_VARS}"
 
   puts "IO Kernel size:   #{mtiokernel[:end_of_mtio]-mtiokernel.org}"
-  puts "MT Kernel size:   #{mtiokernel.imports[0].code.bytesize}"
+  puts "MT Kernel size:   #{mtiokernel.imports[mtiokernel[:mt]].code.bytesize}"
   puts "MTIO Kernel size: #{mtiokernel.code.bytesize}"
   %w[
     mtiovars.buffers_top

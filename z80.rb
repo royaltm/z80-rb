@@ -60,19 +60,25 @@ module Z80
 	def debug
 		return @debug if @debug
 		reloc = self.class.reloc
+		imports = @imports.values
 		@debug = self.class.debug.map do |d|
 			case d
 			when DebugInfo
 				data = code[d.addr, d.size]
-				h = proc {|as, g| as.map {|c| '%02X'%c.ord}.join g}
+
+				hxd = proc {|as, g| as.map {|c| '%02X'%c.ord}.join g}
+
 				label = if d.labels.last.to_name
 					" :" + d.labels.map {|n| n.to_name || n.to_i(org).to_s(16) }.join('.')
 				end
-				unless (relocs = reloc.select {|r| (d.addr...d.addr+d.size).member? r.addr }.map {|r| r.alloc.to_s}.join(', ')).empty?
+
+				relocs = reloc.select {|r| (d.addr...d.addr+d.size).member? r.addr }.map {|r| r.alloc.to_s}.join(', ')
+				unless relocs.empty?
 					label = label.to_s + " -> #{relocs}"
 				end
-				if mnemo = d.text
-					if prm = d.args
+
+				if (mnemo = d.text)
+					if (prm = d.args)
 						mnemo = mnemo % prm.each_slice(2).map do |o, t|
 							case t
 							when :word
@@ -84,18 +90,18 @@ module Z80
 							end
 						end
 					end
-					"#{'%04X'%(d.addr+org)}: #{h[data.split(''),''].ljust 12}#{mnemo.ljust 20}#{label}"
+					"#{'%04X'%(d.addr+org)}: #{hxd[data.split(''),''].ljust 12}#{mnemo.ljust 20}#{label}"
 				elsif data.empty? and label
 					"#{'%04X'%(d.addr+org)}: #{' '*32}#{label}"
 				else
 					a = d.addr - 8 + org
 					data.split('').each_slice(8).map do |ds|
 						a+= 8
-						"#{'%04X'%a}: #{h[ds, ' '].ljust 24}#{ds.join.gsub(/[\x0-\x1f]/, '.').ljust 8}#{label}"
+						"#{'%04X'%a}: #{hxd[ds, ' '].ljust 24}#{ds.join.gsub(/[\x0-\x1f]/, '.').ljust 8}#{label}"
 					end
 				end
 			else
-				[" #{@imports[d].class} ".center(38, ?=)] + @imports[d].debug + [" #{@imports[d].class} ".center(38, ?^)]
+				[" #{imports[d].class} ".center(38, ?=)] + imports[d].debug + [" #{imports[d].class} ".center(38, ?^)]
 			end
 		end.flatten
 	end
@@ -171,13 +177,13 @@ module Z80
 			end
 			p = super(*args)
 			c = @code.dup
-			imports = @imports.map do |addr, size, program, code_addr, arguments|
+			imports = Hash[@imports.map do |addr, size, program, code_addr, arguments, name|
 				code_addr = addr + start if code_addr.nil?
 				ip = program.new(code_addr, *arguments)
 				raise CompileError, "Imported program #{program} has been modified." unless ip.code.bytesize == size
 				c[addr, size] = ip.code
-				ip
-			end
+				[name.nil? ? addr + start : name.to_sym, ip]
+			end]
 			eval_labels = proc {|members, prefix|
 				members.map {|n, v|
 					[n = prefix ? "#{prefix}.#{n}" : n, v.to_i(start)] +
@@ -400,26 +406,23 @@ module Z80
 		#  <b>In such a method always wrap your code inside #ns.</b>
 		#
 		#  Returns (optionally named) +label+ that points to the beginning of imported code.
-		def import(program, name=nil, **flags)
+		def import(program, name=nil, labels:true, code:true, macros:false, args:[])
 			if program.is_a?(Symbol)
 				program, name = name, program
 			end
 			addr = pc
-			options = {
-				:labels => true,
-				:code   => true,
-				:macros => false,
-				:args => []
-			}.merge flags
-			code_addr = if options[:code].respond_to?(:to_i)
-				options[:code].to_i
+
+			code_addr = if code.respond_to?(:to_i)
+				code.to_i
 			end
-			if options[:macros]
+
+			if macros
 				self.extend program::Macros if defined?(program::Macros)
 			end
-			if options[:labels]
-				label_addr, absolute = if options[:labels].respond_to?(:to_i)
-					[options[:labels].to_i, true]
+
+			if labels
+				label_addr, absolute = if labels.respond_to?(:to_i)
+					[labels.to_i, true]
 				else
 					[addr, false]
 				end
@@ -427,22 +430,27 @@ module Z80
 					[n, l.deep_clone_with_relocation(label_addr, absolute)]
 				}]
 			end
-			type = options[:code] ? program.code.bytesize : 1
+
+			type = code ? program.code.bytesize : 1
+
 			if name
-				l = Label.new(addr, type, :code, members)
-				self.send name.to_sym, l
+				plabel = Label.new(addr, type, :code, members)
+				self.send name.to_sym, plabel
 			else
 				members.each {|n, m| self.send n.to_sym, m} if members
-				l = Label.new addr, type, :code
+				plabel = Label.new addr, type, :code
 			end
-			if options[:code] and !program.code.bytesize.zero?
-				@debug << DebugInfo.new(addr, 0, nil, nil, @context_labels.dup << l)
+
+			if code and !program.code.bytesize.zero?
+				@debug << DebugInfo.new(addr, 0, nil, nil, @context_labels.dup << plabel)
 				@debug << @imports.size
-				@imports << [addr, type, program, code_addr, options[:args]]
+				@imports << [addr, type, program, code_addr, args, name]
 				@code << program.code
 			end
+
 			program.freeze
-			l
+			program.code.freeze
+			plabel
 		end
 		##
 		#  Import binary file.
