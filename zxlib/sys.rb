@@ -245,6 +245,15 @@ class ZXSys
         mmu     addr 0x7FFD # 0b--DRSBnk D - disable mmu, R - rom, S - screen, Bnk - bank
     end
 
+    # Timex TC2068, TS2068, TC2048 (only ula).
+    # https://www.worldofspectrum.org/faq/reference/tmxreference.htm
+    isolate :ioT2k do
+        mmu     addr 0xF4 # determines which banks are to be paged in with each bit referring to the relevant bank (0-7 or 0'-7')
+        ay_sel  addr 0xF5 # out: select a register 0-14, in: read the value of the selected register
+        ay_out  addr 0xF6 # out: write data to the selected register
+        ula     addr 0xFF # 0bMIColScr M - MMU 0=DOCK, 1=EX-ROM; I - Interrupts 1=DI, 0=EI; Col - colors for hi-res; Scr - screen modes: 000=screen 0, 001=screen 1, 010=hi-colour, 110=hi-res
+    end
+
     isolate :sys128, use: :io128 do
         mmu_value    addr 0x5B5C    # 0b00DRSBnk
         mmu_port     addr io128.mmu # D - disable mmu, R - rom, S - screen, Bnk - bank
