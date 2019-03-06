@@ -307,7 +307,7 @@ class ZXSys
                             ld  hl, handler
                             ld  [0xFFF5], hl
                 end
-                            ld  a, 0x39
+                            ld  a, 0x3B          # Supported by ZX Spectrum 128, +2, +2A, +3 and probably most clones.
                             ld  i, a             # load the accumulator with FF filled page in rom.
                             im2
                             ei if enable_interrupts
