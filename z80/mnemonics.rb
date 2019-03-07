@@ -503,39 +503,43 @@ module Z80
 			def out(oo, rr)
 				rr = self[rr] if rr.is_a?(Array)
 				op = case oo
-				when Integer
-					raise Syntax, "Invalid argument for 8-bit out." unless rr == a
-					tt = "(#{oo & 0xff}), a"
-					"\xD3" + [oo].pack('C')
 				when c
 					if rr == 0
 						tt = "(c), 0"
 						"\xED\x71"
 					else
-						raise Syntax, "Invalid argument for 16-bit out." unless rr.is_a?(Register) and rr.one_of? %w[a b c d e h l]
+						raise Syntax, "Invalid register argument for out (c)." unless rr.is_a?(Register) and rr.one_of? %w[a b c d e h l]
 						tt = "(c), " + rr.to_debug
 						"\xED" + (0x41 + (rr.to_i << 3)).chr
 					end
 				else
-					raise Syntax, "Invalid argument for out."
+					raise Syntax, "Invalid argument for: out (n)." unless Integer === oo or (oo.respond_to?(:immediate?) and oo.immediate?())
+					raise Syntax, "Invalid register argument for: out (n)." unless rr == a
+					oo = oo.to_i
+					tt = "(#{oo & 0xff}), a"
+					"\xD3" + [oo].pack('C')
 				end
 				Z80::add_code self, op, 1, "out  #{tt}"
 			end
 			def inp(rr, oo = nil)
 				rr = self[rr] if rr.is_a?(Array)
+				oo, rr = rr, nil if oo.nil?
 				op = case oo
-				when Integer
-					raise Syntax, "Invalid argument for 8-bit in." unless rr == a
+				when c
+					if rr.nil?
+						tt = "f, (c)"
+						"\xED\x70"
+					else
+						raise Syntax, "Invalid register argument for in (c)." unless rr.is_a?(Register) and rr.one_of? %w[a b c d e h l]
+						tt = rr.to_debug + ", (c)"
+						"\xED" + (0x40 + (rr.to_i << 3)).chr
+					end
+				else
+					raise Syntax, "Invalid argument for: in (n)." unless Integer === oo or (oo.respond_to?(:immediate?) and oo.immediate?())
+					raise Syntax, "Invalid register argument for in (n)." unless rr == a
+					oo = oo.to_i
 					tt = "a, (#{oo & 0xff})"
 					"\xDB" + [oo].pack('C')
-				when c
-					raise Syntax, "Invalid argument for 16-bit in." unless rr.is_a?(Register) and rr.one_of? %w[a b c d e h l]
-					tt = rr.to_debug + ", (c)"
-					"\xED" + (0x40 + (rr.to_i << 3)).chr
-				when nil
-					tt = "f, (c)"
-					"\xED\x70"
-				else
 					raise Syntax, "Invalid argument for in."
 				end
 				Z80::add_code self, op, 1, "in   #{tt}"
