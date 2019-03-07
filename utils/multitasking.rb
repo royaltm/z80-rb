@@ -482,7 +482,7 @@ class Multitasking
     init_stack_bottom ld   hl, initial_stack_bot
                       ld   [mtvars.stack_bot], hl     # initialize stack_bot
                       call stack_space_free
-                      ld   a, 0x39
+                      ld   a, 0x3B
                       ld   i, a                       # load the accumulator with unused (filled with 255) page in rom.
                       im2
                       ei
