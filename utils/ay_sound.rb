@@ -121,6 +121,8 @@ class AYSound
   end
   include Registers
 
+  NOTE_SYMBOLS = %w[A A# B C C# D D# E F F# G G#]
+
   ##
   # ==AYSound macros.
   module Macros
@@ -143,11 +145,13 @@ class AYSound
     # 
     # Middle (frequency table base) octave is 4.
     def ay_tone_periods(min_octave:0, max_octave:7, notes_hz:self.equal_tempered_scale_notes_hz, clock_hz: AYSound::CLOCK_HZ)
+      idx = 0
       (min_octave..max_octave).map do |octave|
-        notes_hz.map do |hz|
+        notes_hz.map.with_index do |hz, n|
           hz = (hz * 2.0**(octave-4))
-          puts "#{'%.2f' % hz} Hz, octave: #{octave}"
           tp = (clock_hz / (16.0 * hz)).round
+          puts "#{idx.to_s.rjust(3,' ')}: #{('%.2f' % hz).rjust(7)} Hz, tp: #{tp.to_s.rjust(4)}, #{octave} #{AYSound::NOTE_SYMBOLS[n]}"
+          idx += 1
           raise ArgumentError, "tone period out of range: #{tp} (#{hz} Hz)" unless (1..4095).include?(tp)
           tp
         end
@@ -209,7 +213,7 @@ class AYSound
       end
     end
 
-    def ay_set_register_value(regn=a, regv=e, bc_const_loaded:false, io:self.io128, &output_value)
+    def ay_set_register_value(regn=a, regv=e, bc_const_loaded:false, io:self.io128)
       raise ArgumentError if [b,c].include?(regv) or (regv == a and regn != 0)
       isolate do |eoc|
         if Integer === regn || [a,b,c].include?(regn)
@@ -238,7 +242,7 @@ class AYSound
                       out (c), a
           end
         elsif block_given?
-                      output_value.call(eoc)
+                      yield eoc
         else
                       out (c), regv
         end
@@ -314,7 +318,6 @@ class AYSound
               else
                       ld   a, vol & 0x0F
               end
-                      out  (c), a
             end
           else
                       ld   a, vol
@@ -322,8 +325,8 @@ class AYSound
                       4.times { rrca }
             end
                       anda 0x0F
-                      out  (c), a
           end
+                      out  (c), a
         end
       end
     end
@@ -359,12 +362,14 @@ class AYSound
           elsif pitch_8bit
                       ld   a, pitch
                       3.times { rrca }
+                      out  (c), a
           else
-                      out (c), pitch
+                      out  (c), pitch
           end
         end
       end
     end
+
   end # Macros
   include Z80
 end
