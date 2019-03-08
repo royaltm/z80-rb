@@ -540,7 +540,6 @@ module Z80
 					oo = oo.to_i
 					tt = "a, (#{oo & 0xff})"
 					"\xDB" + [oo].pack('C')
-					raise Syntax, "Invalid argument for in."
 				end
 				Z80::add_code self, op, 1, "in   #{tt}"
 			end
