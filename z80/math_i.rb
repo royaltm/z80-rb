@@ -345,7 +345,7 @@ class Z80MathInt
         # * +m+::      a multiplicator register, must not be +a+, +tthi+, +ttlo+ or +t+.
         # * +t+::      8 bit temporary register, must not be +a+, +tthi+, +ttlo+ or +m+.
         # * +tt+::     16 bit temporary register (+de+ or +bc+).
-        # * +clrahl+:: if +a+|+hl+  should be set or accumulated, if +false+ acts like: +a+|+hl+ += +mh+|+ml+ * +m+.
+        # * +clrahl+:: if +a+|+hl+ should be set or accumulated, if +false+ acts like: +a+|+hl+ += +mh+|+ml+ * +m+.
         def mul8_24(mh=h, ml=l, m=b, t:c, tt:de, clrahl:true)
             th, tl = tt.split
             raise ArgumentError if tt == hl or [a,th,tl,t].include?(m) or [a,th,tl,m].include?(t) or
@@ -435,7 +435,9 @@ class Z80MathInt
         #
         # * +mm+:: 16bit multiplicator (+bc+ or +de+)
         # * +tt'+:: 16bit tempoarary register (+bc+ or +de+)
-        def mul16_32(mm=bc, tt:bc)
+        # * +clrhlhl+:: if +hl+|+hl'+ should be cleared, if +false+ acts like: +hl+|+hl'+ += +hl+ * +mm+;
+        #               also it may be a 32-bit constant, in this instance acts like: +hl+|+hl'+ = clrhlhl + +hl+ * +mm+.
+        def mul16_32(mm=bc, tt:bc, clrhlhl:true)
             raise ArgumentError unless [bc, de].include?(mm) and [bc, de].include?(tt)
             mh, ml = mm.split
             th, tl = tt.split
@@ -445,8 +447,12 @@ class Z80MathInt
                                 ex  af, af       # a' = ml, ZF' = a' == 0
                                 xor a            # a  = 0
                                 exx
+                if Integer===clrhlhl
+                                ld  hl, clrhlhl 
+                elsif clrhlhl
                                 ld  h, a         # hl' = 0
                                 ld  l, a
+                end
                                 ld  th, a        # th'|tl' = 0
                                 ld  tl, a
                                 exx
@@ -455,8 +461,11 @@ class Z80MathInt
 
                                 ld  mh, h        # mh|ml = hl
                                 ld  ml, l
+                if Integer===clrhlhl
+                                ld  hl, clrhlhl >> 16
+                elsif clrhlhl
                                 ld  hl, 0        # hl = 0
-
+                end
                                 scf
                                 adc a            # carry <- mh <- 1
                                 jr  NC, noadd1
