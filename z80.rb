@@ -124,8 +124,9 @@ module Z80
 		##
 		#  Method used by Program instructions was placed here to not pollute *program* namespace
 		def add_reloc(prg, label, size, offset = 0, from = nil)
-			if (alloc = label.to_label(prg).to_alloc).immediate? and (size == 2 or from)
-				prg.reloc << Relocation.new(prg.pc + offset, alloc, 0, from) unless alloc.to_name.nil?
+			alloc = label.to_label(prg).to_alloc
+			if alloc.immediate? and (size == 2 or from)
+				prg.reloc << Relocation.new(prg.pc + offset, alloc, size, from) unless alloc.to_name.nil?
 				[alloc.to_i(0, from)].pack(size == 1 ? 'c' : 's<')
 			else
 				prg.reloc << Relocation.new(prg.pc + offset, alloc, size, from)
@@ -170,55 +171,77 @@ module Z80
 		##
 		#  Compiles *program* at +start+ address passing *args to initialize().
 		#  Returns compiled instance of a *program*.
-		def new(start = 0x0000, *args)
+		#
+		#  * +:override+:: a flat hash containing names of labels with addresses to be overwritten
+		def new(start = 0x0000, *args, override:{})
 			unless @dummies.empty? and !@contexts.last.any? {|_,v| v.dummy?}
 				dummies = @dummies.map {|d| d[0..1]} + @contexts.last.select {|_,v| v.dummy?}.map {|d| d[0..1]}
 				raise CompileError, "Labels referenced but not defined: #{dummies.inspect}"
 			end
-			p = super(*args)
-			c = @code.dup
-			imports = Hash[@imports.map do |addr, size, program, code_addr, arguments, name|
+
+			raise ArgumentError, "override should be a map of label and value pairs" unless override.respond_to?(:map)
+			override = Hash[override.map{|n,v| [n.to_s, v.to_i] }]
+
+			prog = super(*args)
+			code = @code.dup
+
+			imports = Hash[@imports.map do |addr, size, program, code_addr, arguments, name, import_override|
+				merged_override = import_override.dup
+				if name.nil?
+					merged_override.merge!(override)
+				else
+					prefix = name.to_s + '.'.freeze
+					merged_override.merge!(override.
+						select{ |k,| k.start_with?(prefix) }.
+						map{ |k,v| [k.slice(prefix.length), v] }.
+						to_h)
+				end
 				code_addr = addr + start if code_addr.nil?
-				ip = program.new(code_addr, *arguments)
+				ip = program.new(code_addr, *arguments, override:merged_override)
 				raise CompileError, "Imported program #{program} has been modified." unless ip.code.bytesize == size
-				c[addr, size] = ip.code
+				code[addr, size] = ip.code
 				[name.nil? ? addr + start : name.to_sym, ip]
 			end]
+
 			eval_labels = proc {|members, prefix|
 				members.map {|n, v|
-					[n = prefix ? "#{prefix}.#{n}" : n, v.to_i(start)] +
+					value = v.to_i(start, nil, override:override, prefix:prefix)
+					lname = prefix + n
+					[lname, value] +
 					(if (m = v.instance_variable_get '@members')
-						eval_labels[m, n].flatten
+						eval_labels[m, lname + '.'.freeze].flatten
 					end || [])
 				}.flatten
 			}
-			labels = Hash[*eval_labels[@labels].flatten]
+			labels = Hash[*eval_labels[@labels, ''.freeze].flatten]
+
 			@reloc.each do |r|
 				case r.size
 				when 0
-					# ignore, this is an absolute address but we need relocation info for debug
+					raise CompileError, "Absolute labels need relocation sizes for the overrides"
+					# OBSOLETE: ignore, this is an absolute address but we need relocation info for debug
 				when 1
 					addr = r.from ? r.from : r.addr + 1 + start
-					i = r.alloc.to_i(start, addr)
+					i = r.alloc.to_i(start, addr, override:override)
 					unless Integer === r.from or (-128..127).include?(i)
 						raise CompileError, "Relative relocation out of range at 0x#{'%04x' % r.addr} -> #{i} #{r.inspect}"
 					end
-					c[r.addr] = [i].pack('c')
+					code[r.addr] = [i].pack('c')
 				when 2
-					c[r.addr, 2] = [r.alloc.to_i(start)].pack('S<')
+					code[r.addr, 2] = [r.alloc.to_i(start, override:override)].pack('S<')
 				else
-					c[r.addr, r.size] = [r.alloc.to_i(start)].pack('Q<')[0, r.size].ljust(r.size, "\0")
+					code[r.addr, r.size] = [r.alloc.to_i(start, override:override)].pack('Q<')[0, r.size].ljust(r.size, "\0")
 				end
 			end
-			['@code', c,
+			['@code', code,
 			 '@org', start,
 			 '@debug', nil,
 			 '@labels', labels,
 			 '@imports', imports
 			].each_slice(2) do |n,v|
-				p.instance_variable_set n,v
+				prog.instance_variable_set n,v
 			end
-			p
+			prog
 		end
 		##
 		#  Current program counter relative to 0.
@@ -399,6 +422,7 @@ module Z80
 		#  * +:labels+:: +true/false+ or an absolute address (default: +true+)
 		#  * +:code+::   +true/false+ or an absolute address (default: +true+)
 		#  * +:macros+:: +true/false+ (default: +false+)
+		#  * +:override+:: a flat hash containing names of labels with addresses to be overwritten
 		#  * +:args+::   program initialize arguments
 		#  
 		#  To be able to import *macros* create module `Macros'
@@ -406,11 +430,14 @@ module Z80
 		#  <b>In such a method always wrap your code inside #ns.</b>
 		#
 		#  Returns (optionally named) +label+ that points to the beginning of imported code.
-		def import(program, name=nil, labels:true, code:true, macros:false, args:[])
+		def import(program, name=nil, labels:true, code:true, macros:false, override:{}, args:[])
 			if program.is_a?(Symbol)
 				program, name = name, program
 			end
 			addr = pc
+
+			raise ArgumentError, "override should be a map of label and value pairs" unless override.respond_to?(:map)
+			override = Hash[override.map{|n,v| [n.to_s, v.to_i] }]
 
 			code_addr = if code.respond_to?(:to_i)
 				code.to_i
@@ -427,7 +454,7 @@ module Z80
 					[addr, false]
 				end
 				members = Hash[program.exports.map {|n, l|
-					[n, l.deep_clone_with_relocation(label_addr, absolute)]
+					[n, l.deep_clone_with_relocation(label_addr, absolute, override)]
 				}]
 			end
 
@@ -444,7 +471,7 @@ module Z80
 			if code and !program.code.bytesize.zero?
 				@debug << DebugInfo.new(addr, 0, nil, nil, @context_labels.dup << plabel)
 				@debug << @imports.size
-				@imports << [addr, type, program, code_addr, args, name]
+				@imports << [addr, type, program, code_addr, args, name, override]
 				@code << program.code
 			end
 

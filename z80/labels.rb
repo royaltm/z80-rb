@@ -466,21 +466,28 @@ module Z80
 	#
 	class Label
 		# This method is being used when importing labels from other programs.
-		def deep_clone_with_relocation(addr, absolute=false) # :nodoc:
-			members = Hash[@members.map {|n, m| [n, m.deep_clone_with_relocation(addr, absolute)] }]
-			addr = @reloc ? @address + addr.to_i : @address
-			l = Label.new(addr, @type, absolute ? nil : @reloc, members)
-			l.name = @name if @name
-			l
+		def deep_clone_with_relocation(addr, absolute, override, prefix=''.freeze) # :nodoc:
+			raise Syntax, "only named labels may be exported" unless @name
+			fullname = prefix + @name
+			address = override[fullname] || @address
+			members = Hash[@members.map {|n, m| [n, m.deep_clone_with_relocation(addr, absolute, override, fullname + '.'.freeze)] }]
+			addr = @reloc ? address + addr.to_i : address
+			Label.new(addr, @type, absolute ? nil : @reloc, members).tap {|l| l.name = @name }
 		end
 		# Evaluates label. Do not use it directly.
 		# This method is being used during program compilation.
-		def to_i(start = 0, rel_to = nil)
+		def to_i(start = 0, rel_to = nil, override:nil, prefix:''.freeze)
 			raise Syntax, "a label `#{@name}' can't be coerced to a Integer before it's defined" if dummy?
+			address = if @name
+				fullname = prefix + @name
+				override && override[fullname] || @address
+			else
+				@address
+			end
 			if rel_to == :self
 				0
 			else
-				@address - rel_to.to_i + (@reloc ? start : 0)
+				address - rel_to.to_i + (@reloc ? start : 0)
 			end
 		end
 		# Checks if label is a pointer. Prefer using Program.pointer? instead.
@@ -722,8 +729,9 @@ module Z80
 	#  See Label instead.
 	#
 	class Alloc
-		# This method is being used when importing labels from other programs.
+		# # This method is being used when importing labels from other programs.
 		def deep_clone_with_relocation(addr)
+			raise "deep_clone_with_relocation unsupported on allocs"
 			l = dup
 			l.instance_variable_set('@label', @label.deep_clone_with_relocation(addr))
 			l
@@ -860,32 +868,35 @@ module Z80
 		end
 		alias_method :to_s, :to_str
 
-		def to_i(start = 0, rel_to = nil)
-			addr = (label = @label).to_i
-			@index.each do |i|
-				if String === i
-					raise CompileError, "Unknown member: #{i} of label #{label}." unless l = label ** i
-					if l.immediate?
+		def to_i(start = 0, rel_to = nil, override:nil)
+			prefix = ''.freeze
+			addr = (label = @label).to_i(override:override)
+			@index.each do |idx|
+				if String === idx
+					raise CompileError, "Unknown member: #{idx} of label #{label}." unless sublabel = label ** idx
+					subprefix = prefix + label.to_name + '.'.freeze
+					if sublabel.immediate?
 						if label.immediate?
-							addr+= l.to_i - label.to_i
+							addr+= sublabel.to_i(override:override, prefix:subprefix) - label.to_i(override:override, prefix:prefix)
 						else
-							addr = l.to_i
-							rel_to = l.to_i if rel_to == :self
+							addr = sublabel.to_i(override:override, prefix:subprefix)
+							rel_to = sublabel.to_i(override:override, prefix:subprefix) if rel_to == :self
 						end
 					elsif label.immediate?
-						raise CompileError, "Relative member #{l} of absolute label #{label}!"
+						raise CompileError, "Relative member #{sublabel} of an absolute label #{label}!"
 					else
-						addr+= l.to_i - label.to_i
+						addr+= sublabel.to_i(override:override, prefix:subprefix) - label.to_i(override:override, prefix:prefix)
 					end
-					label = l
+					prefix = subprefix
+					label = sublabel
 				else
-					addr+= i*(+label)
+					addr+= idx*(+label)
 				end
 			end
 			val = (if @size
 				+label + @offset
 			else
-				rel_to = @label.to_i(start) if rel_to == :self
+				rel_to = @label.to_i(start, override:override) if rel_to == :self
 				addr + @offset + (label.immediate? ? 0 : start) - rel_to.to_i
 			end) << @shift
 			val = -val if @neg
