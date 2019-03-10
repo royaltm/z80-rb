@@ -1,16 +1,5 @@
 # -*- coding: BINARY -*-
 require 'utils/multitasking'
-class Multitasking
-  def self.new(start=kernel_org, stack_end_offset=0)
-    mt = super(start)
-    @reloc.each do |r|
-      if r.size == 2 and r.alloc.to_name == 'initial_stack_end'
-        mt.code[r.addr, 2] = [r.alloc.to_i(start-stack_end_offset)].pack('S<')
-      end
-    end
-    mt
-  end
-end
 ##
 # =MultitaskingIO
 #
@@ -256,8 +245,8 @@ class MultitaskingIO
   export task_spawn
   ##
   # Instantiate MultitaskingIO kernel with the proper code address.
-  def self.new_kernel
-    new kernel_org
+  def self.new_kernel(*args, **opts)
+    new kernel_org, *args, **opts
   end
   ##
   # The MultitaskingIO kernel code start address.
@@ -1302,7 +1291,7 @@ class MultitaskingIO
 
   end_of_mtio         label
 
-  mt                  import  Multitasking, args: [pc]
+  mt                  import  Multitasking, override: {initial_stack_end: -pc}
 
   mtiovars            union mtvars, TaskVarsIO
 end

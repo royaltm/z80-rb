@@ -151,8 +151,8 @@ class Multitasking
   export task_spawn
   ##
   # Instantiate Multitasking kernel with the proper code address.
-  def self.new_kernel
-    new kernel_org
+  def self.new_kernel(*args, **opts)
+    new kernel_org, *args, **opts
   end
   ##
   # The Multitasking kernel code start address.
