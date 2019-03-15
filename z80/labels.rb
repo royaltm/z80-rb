@@ -13,12 +13,14 @@ end
 module Z80
 	module Program
 		##
-		#  Exports +label+. This will allow other programs to Program.import it.
-		#  All members of +label+ will also be exported but within a namespace of exported label.
-		#  Alternatively pass +:auto+ to make all subsequent labels to be exported
-		#  or +:noauto+ to stop autoexporting.
+		#  Marks +label+ as exportable. Programs may import labels from another programs with Program.import.
+		#  Only exportable labels will be imported into the parent program.
+		#  Imported labels retain all their members.
 		#
-		#  Only top level labels may be exported from a program.
+		#  Alternatively pass +:auto+ symbol to make all subsequent top level labels exportable
+		#  or +:noauto+ to stop auto-exporting.
+		#
+		#  Only top level labels may be exported this way.
 		def export(label)
 			raise Syntax, "Only labels on the top level may be exported" if @contexts.length != 1
 			case label
@@ -64,16 +66,16 @@ module Z80
 			end
 		end
 		##
-		#  Return normalized pointer-like label, Register or a integer.
+		#  Returns a normalized pointer label, Register or an integer.
 		#  Otherwise pass-through.
 		#
 		#  Convenient method for checking arguments in macros.
 		#
-		#  The following examples will be unwrapped as pointer-like labels:
+		#  The following example arguments will be unwrapped as pointer labels:
 		#    [0x1234], [foo], [:bar]
-		#  The following examples will be unwrapped as pointer-like registers:
+		#  The following example arguments will be unwrapped as pointer registers:
 		#    [hl], [de], [ix]
-		#  The following examples will pass unmodified:
+		#  The following example arguments will pass unmodified:
 		#    a, bc, :foo, bar
 		def unwrap_pointer(arg)
 			if arg.is_a?(Array)
@@ -89,7 +91,7 @@ module Z80
 				@labels.has_key? name.to_s
 		end
 		##
-		#  Convenient method for macros to check if argument is a Register.
+		#  A convenient method for macros to check if argument is a Register.
 		#
 		#  Returns +true+ for:
 		#    hl, a, [hl], [iy + 6]
@@ -98,7 +100,7 @@ module Z80
 			arg.is_a?(Register)
 		end
 		##
-		#  Convenient method for macros to check if argument is label-like.
+		#  A convenient method for macros to check if argument is label-like.
 		#
 		#  Returns +true+ for:
 		#    foo, :foo, [foo], [foo + 10], [:foo]
@@ -107,7 +109,7 @@ module Z80
 			arg.respond_to?(:to_label)
 		end
 		##
-		#  Convenient method for macros to check if argument is pointer-like.
+		#  A convenient method for macros to check if argument is pointer-like.
 		#
 		#  Returns +true+ for:
 		#    [foo], [:foo], [foo + 10], [foo[10]], foo[], foo[10][], [0x1234], [hl], [ix + 6], ix[7]
@@ -123,7 +125,7 @@ module Z80
 			end
 		end
 		##
-		#  Convenient method for macros to check if argument is non-register value or a pointer.
+		#  A convenient method for macros to check if argument is non-register value or a pointer.
 		#
 		#  Returns +true+ for:
 		#    0x1234, foo, :foo, [0x1234], [foo], foo[10], [:foo], [foo + 10]
@@ -132,7 +134,7 @@ module Z80
 			arg.is_a?(Integer) or arg.respond_to?(:to_label)
 		end
 		##
-		#  Convenient method for macros to check if argument is an immediate label.
+		#  A convenient method for macros to check if argument is an immediate label.
 		#
 		#  Returns +true+ for:
 		#    foo addr 0x1234
@@ -146,7 +148,7 @@ module Z80
 			end
 		end
 		##
-		#  Convenient method for macros to check if argument is an immediate label or a integer
+		#  A convenient method for macros to check if argument is an immediate label or an integer
 		#
 		#  Returns +true+ for:
 		#    foo addr 0x1234
@@ -156,31 +158,29 @@ module Z80
 			label_immediate?(arg) or arg.is_a?(Integer)
 		end
 		##
-		#  Creates relocatable label at Program.pc of (optional) +type+.
+		#  Returns an unnamed, relocatable label at Program.pc of (optional) +type+.
+		#  +type+ can be an integer or a data structure (a class derived from Label).
 		#
 		#  Example:
-		#    foo label
-		#    bar label 2
-		#
-		#  Returns unnamed +label+ that points to Program.pc and is of +type+.
-		#  The +type+ can be a integer or a struct derived from a Label.
+		#    foo     label
+		#    bar     label 2
 		def label(type = 1)
 			l = Label.new pc, type, :code
 			@debug << DebugInfo.new(pc, 0, nil, nil, @context_labels.dup << l)
 			l
 		end
 		##
-		#  Creates an immediate label at an absolute +address+ of (optional) +type+
+		#  Returns an unnamed, immediate label at an absolute +address+ of (optional) +type+
 		#
 		#  Example:
 		#    foo addr 0xffff
 		#    bar addr 0x4000, 2
+		#    baz addr :next, 2 # 0x4002
 		#
-		#  Returns unnamed +label+ that points to +address+ and is of +type+.
-		#  The +type+ can be a integer or a struct derived from a Label.
-		#  The +address+ may be a number or another (possibly with offset) label.
+		#  +type+ can be an integer or a data structure (a class derived from Label).
+		#  The +address+ may be a number or another label or an immediate expression.
 		#  It may also be a +:next+ symbol. In this instance the label address
-		#  will be the previously added label address + its size.
+		#  will be the previously added label address offset by its size.
 		def addr(address, type = 1)
 			if address == :next
 				last_label = @labels.values.last
@@ -191,16 +191,18 @@ module Z80
 			end
 		end
 		##
-		#  Creates a label at +label+ of different +type+.
+		#  Returns a new, unnamed label addressed by +label+, but of different +type+.
+		#  +type+ can be an integer or a data structure (a class derived from Label).
+		#  If +label+ was relative the returned label will also be relative.
+		#  If +label+ was absolute the returned label will also be absolute.
 		#
 		#  Example:
 		#    foo label
 		#    bar union foo, 2
-		#
-		#  Returns unnamed +label+ that points to +label+ and is of different +type+.
-		#  The +type+ can be a integer or a struct derived from a Label.
 		def union(label, type)
-			raise Syntax, "Invalid union argument." unless label.respond_to?(:to_label) and !label.dummy? and !type.nil?
+			unless label.respond_to?(:to_label) and !label.sublabel? and !label.dummy? and !type.nil?
+				raise Syntax, "Invalid union argument."
+			end
 			Label.new label.to_i, type, label.immediate? ? nil : :code
 		end
 		## call-seq:
@@ -208,55 +210,68 @@ module Z80
 		#       data(type, size = 1)
 		#       data(type, size, *data)
 		#       data(type, *data)
+		#       data(str[, size = str.bytesize])
 		#
-		#  Creates relocatable label and adds data to Program.code at Program.pc.
-		#  The data size will be of +type.to_i+ multiplied by +size+.
+		#  Returns an unnamed, relocatable label and adds provided data to the Program.code at Program.pc.
+		#  The size of each data item will be of +type.to_i+ multiplied by +size+.
 		#
-		#  The +type+ argument may be a +1+ to indicate integers as bytes or a +2+ to indicate them as words.
+		#  The +type+ argument may be a number +1+ to indicate bytes or +2+ to indicate words.
+		#  For larger integers please consult Z80MathInt::Macros.int.
 		#
-		#  +type+ may also be a String. In this instance a label is created of the +type+
-		#  being equal to the String bytesize. It allows you to easily access string byte size
-		#  pointed by a label with a unary + method. The string is also being added as a data
+		#  +type+ may also be a class derived from Label, which represents a data structure
+		#  with named fields. In this instance each +data+ argument must be an Array or a Hash
+		#  containing data for each field in the structure.
+		#  Please consult Label for more information and examples.
+		#
+		#  +type+ may also be one of the following symbols - in this instance the +type+ will always be 1 (a byte):
+		#  * +:pc+:: A +data+ label will be evaluated relatively to the program counter, e.g. an offset of a jump table.
+		#  * +:jr+:: A +data+ label will be evaluated relatively to the program counter + 1, like an offset of a +jr+ instruction.
+		#  * +:self+:: A +data+ label will be evaluated relatively to self, like an offset of an address using +ix+/+iy+ registers.
+		#              In this instance all labels but fields will evaluate to 0.
+		#
+		#  If the first argument is a string, a label is being created of the +type+
+		#  being equal to the string's byte size. It allows you to easily access string's size
+		#  with unary + method on a returned label. The string is being added as a binary string
 		#  to Program.code at Program.pc and may be limited (or extended) with a +size+ argument.
-		#  Any +data+ arguments are ignored in this form.
+		#  Any other arguments are ignored in this form.
 		#
 		#  The +data+ argument must be one of the following:
 		#
-		#  * a String - it will be added as an 8bit binary string
-		#  * a convertible Object (with method :to_z80bin which should return binary String)
-		#  * an Integer starting from third argument - it will be added as a byte or word
-		#    depending on the +type+
-		#  * a Label already representing a value or lazy evaluated
-		#  * an Array of integers, strings, convertible objects or labels
-		#    (possibly containing another Arrays - it will be flattened)
+		#  * A string: it will be added as a binary string.
+		#  * A convertible Object (with method +:to_z80bin+ which should return a binary string).
+		#  * An integer (starting from 3rd argument), a label or a lazy evaluated expression
+		#    will be added as a byte or a word (2-bytes, LSB) depending on the +type+.
+		#  * An array of integers, strings, convertible objects or labels (the array will be flattened),
+		#    will be added consecutively to the Program.code.
 		#
-		#  If the +size+ is specified as a second Integer argument, +data+ will be padded with zeroes
-		#  or cut according to +size+ * +type+.
+		#  If the +size+ is specified as a second argument, +data+ will be padded with zeroes
+		#  or cut according to +size+ * +type.to_i+.
 		#
-		#  Additionally a +type+ may be a user defined class inherited from the Label, which represents
-		#  a data structure with named fields.
-		#  In this case each +data+ argument must be an Array or a Hash containing data for the structure.
-		#  See Label for more information and examples.
-		#
-		#  Example:
-		#    # Creates +foo+ of type 2 and fills 10 bytes of code (5 words) with data from array.
+		#  Examples:
+		#    # Creates "foo" label of type 2 and fills 10 bytes of code (5 words) with data from array.
 		#    foo   data 2, [0, 2, 4, label1, label2]
-		#    # Creates +bar+ and fills 10 bytes of code with 0s.
+		#    # Creates "bar" label and fills 10 bytes of code with 0s.
 		#    bar   data 1, 10
-		#    # Creates +bar+ and fills 2 words of code with data from an array and the rest (3 words) with 0s.
+		#    # Creates "bar" label and fills 2 words of code with data from an array and the rest (3 words) with 0s.
 		#    baz   data 2, 5, [1, 2]
 		#    baz   data 2, 5, 1, 2
-		#    # Creates +mystr+ and fills 12 bytes of code with bytes from a string, adds a byte +10+ at the end.
+		#    # Creates "mystr" label and fills 12 bytes of code with bytes from a string, adds a byte +10+ at the end.
 		#    mystr data 1, "Hello World!", 10
-		#    # Creates +mystr+ and fills 12 bytes of code with bytes from a string, adds a word +4242+ at the end
+		#    # Creates "mystr" label and fills 12 bytes of code with bytes from a string, adds a word +4242+ at the end
 		#    # and fills additional 14 bytes of code with 0s.
 		#    mystr data 2, 20, "Hello World!", 4242
-		#    # Creates +hello+ which addresses the following string and +hello+ resolves to its length
+		#    # Creates "hello" label which addresses the following string and +hello resolves to its length
 		#    # which is 12 in this instance.
 		#    hello data "Hello World!"
-		#  See: Label for more examples.
+		#  See also: Label for additional examples on how to use labels.
 		def data(type = 1, size = nil, *args)
 			res = ''
+			from = 0
+			case type
+				when :jr, :pc, :self
+					from = type
+					type = 1
+			end
 			if type.respond_to? :to_data
 				unless Integer === size
 					args.unshift size
@@ -284,7 +299,7 @@ module Z80
 					res << 
 					if data.respond_to? :to_label
 						case bsize
-						when 1 then Z80::add_reloc(self, data, 1, index, :self)
+						when 1 then Z80::add_reloc(self, data, 1, index, from)
 						when 2 then Z80::add_reloc(self, data, 2, index*2)
 						end
 					elsif data.respond_to? :to_z80bin
@@ -303,10 +318,9 @@ module Z80
 			Z80::add_code(self, res.force_encoding(Encoding::ASCII_8BIT), type)
 		end
 		## call-seq:
-		#       bytes(size = 1, *data)
-		#       bytes(*data)
+		#       bytes(count, *data)
 		#
-		#  Creates a label and allocate bytes with Program.data.
+		#  Returns an unnamed label and allocates +count+ bytes with Program.data.
 		#
 		#  Sugar for:
 		#    data 1, ...
@@ -314,16 +328,15 @@ module Z80
 		## call-seq:
 		#       db(*byte_integers)
 		#
-		#  Creates a label and allocate bytes with Program.data.
+		#  Returns an unnamed label and adds the provided integers to Program.code as bytes.
 		#
 		#  Sugar for:
 		#    data 1, [...]
 		def db(*args); data(1, args); end
 		## call-seq:
-		#       words(size = 1, *data)
-		#       words(*data)
+		#       words(count = 1, *data)
 		#
-		#  Creates a label and allocate words with Program.data.
+		#  Returns an unnamed label and allocates +count+ words with Program.data.
 		#
 		#  Sugar for:
 		#    data 2, ...
@@ -331,31 +344,35 @@ module Z80
 		## call-seq:
 		#       dw(*word_integers)
 		#
-		#  Creates a label and allocate bytes with Program.data.
+		#  Returns an unnamed label and adds the provided integers to Program.code as words.
 		#
 		#  Sugar for:
 		#    data 2, [...]
 		def dw(*args); data(2, args); end
 		##
-		#  If no method +m+ is defined assume it is a label.
-		#  Label with no arguments is a label being referenced.
-		#  If label has argument and it is a label (or integer) allocate a name for it.
+		#  If no method +m+ is defined as a self class method, assume +m+ is a label name.
+		#  Returns a named label.
+		#  +label+, if provided, may be an integer, unnamed label, or a lazy evaluated expression.
+		#  If +label+ has already some other name an error will be raised.
+		#  
+		#  If +label+ argument is missing the "dummy" label is being created instead. See Label and Label.dummy?.
 		#
 		#  Example:.
 		#    mylabel 0x0123
-		#  is the same as:
 		#    mylabel addr 0x0123
-		#  This creates a label at a instruction and references it:
+		#  This example gives a name "mylabel" to a label produced by an +ld+ instruction and later references it:
 		#    mylabel ld  a, [hl]
 		#            inc hl
 		#            djnz mylabel
-		#
-		#  Returns named +label+ that points to +label+ or is a dummy label (not yet defined).
+		#  This example creates a dummy label "skipret" and assings a value to it later:
+		#            jp  Z, skipret
+		#            ret
+		#    skipret label
 		def method_missing(m, label = nil)
 			if ct = @contexts.last
 				name = m.to_s
-				@labels[name] = if label
-					label = if label.respond_to? :to_label
+				if label
+					label = if label.respond_to?(:to_label)
 						label.to_label self
 					else
 						Label.new label.to_i, 1
@@ -363,6 +380,7 @@ module Z80
 					@dummies.delete_if do |n, lbl, *cts|
 						if n == name and cts.include? ct.object_id
 							lbl.reinitialize label
+							label.name = name
 							true
 						else
 							false
@@ -381,7 +399,10 @@ module Z80
 						ct[name]
 					end
 				else
-					ct[name]||= Label.dummy(name)
+					ct[name]||= Label.dummy(name).to_alloc
+				end.tap do |label|
+					label.name = name
+					@labels[name] = label
 				end
 			end
 		end
@@ -389,19 +410,61 @@ module Z80
 	##
 	#  =Z80 Label
 	#
-	#  A Label class is the CORE of relocation mechanizm:
-	#    mylabel inc [hl]
+	#    myloop  inc [hl]
 	#            inc hl
-	#            djnz mylabel
+	#            djnz myloop 
 	#
-	#  Labels also allows to create structs:
+	#  A label in a Z80::Program represents an address, a number, an expression or an index to another label.
+	#  Instead of using numbers, provide a name and define its value above or below.
+	#  Labels have three properties assotiated with them: an +address+, a +type+ (which influences its size) and
+	#  the property indicating if the label is absolute or relative to the code or a field of a structure.
+	#
+	#  Labels are being lazy evaluated when a program is being compiled.
+	#  Labels as well as integers may be used in expressions.
+	#  Currently there are lazy evaluated expression functions available:
+	#
+	#    -x      - a negative x
+	#    x + y   - a result of y added to x
+	#    x - y   - a result of y subtracted from x
+	#    x * y   - a result of x times y
+	#    x / y   - a quotient of an euclidean division of x by y
+	#    x % y   - a remainder of an euclidean division of x by y
+	#    x << y  - a bitwise left shifted x by y bits
+	#    x >> y  - a bitwise right shifted x by y bits
+	#    ~x      - a bitwise negated x
+	#    x ^ y   - a bitwise "exclusive or" of x and y
+	#    x | y   - a bitwise "or" of x and y
+	#    x & y   - a bitwise "and" of x and y
+	#    +z      - a byte size of a type of z (in this instance z must not be an expression)
+	#
+	#  Where +x+ and +y+ represents labels or indexes to labels or expressions; +y+ may also be an integer;
+	#  +z+ may only be a label or an index.
+	#
+	#  Labels may be nested, that is each label may contain named members.
+	#  There are two types of such members:
+	#  * Independent labels, living in a namespace, formed as a result of using: Program.import or Program.ns.
+	#  * Fields of a data structure; fields represents offsets relative to a parent label;
+	#    fields may also contain members, but only as fields.
+	#
+	#  Members are being accessed by indexes. An index is being formed by either:
+	#
+	#  * using [index] after a label name, see: Label#[], e.g.: <tt>foo[:bar][2]['baz']</tt>
+	#  * using an undefined method on a label, e.g.: <tt>foo.bar[2].baz</tt>
+	#
+	#  Indices as integers or expressions offset labels' address by its type size.
+	#  Indices as names access members.
+	#
+	#  A data structure is a ruby class inherited from Label.
+	#
+	#      # a data structure, also a new type: Sprite
 	#      class Sprite < Label
-	#        x       byte
-	#        y       byte
+	#      # name    type, count
+	#        x       byte, 1
+	#        y       byte # , 1 is default
 	#        data_pl byte
 	#        data_ph byte
 	#        data_p  data_pl word
-	#        size    byte
+	#        size    word
 	#      end
 	#
 	#      class SpritePool < Label
@@ -409,38 +472,70 @@ module Z80
 	#        sprites Sprite, 2
 	#      end
 	#
-	#  In the above example +data_p+ and (+data_pl+,+data_ph+) are aliases (union).
+	#  Fields are being formed by labeling data types and providing its count as a second, optional argument.
+	#  The only basic data types are: Label.byte and Label.word. A data structure may also be used as a data type.
+	#  In the above example +data_p+ and +data_pl+ are aliases (unions) which means that +data_p+ represents
+	#  the same offset as +data_pl+ but has different size.
 	#
-	#  Allocate label with data in a *program*
-	#    sprite  data SpritePool, [2,
-	#             {x:0, y:0, size:12, data_p:sprite1_data},
-	#             {x:0, y:0, size:16, data_p:sprite2_data}]
-	#  or with an absolute address
-	#    sprite  addr 0x8888, SpritePool
-	#  or just a label at Program.pc
-	#    someprc label
+	#  Labels that are not part of a structure may be absolute or relative to the program code. 
+	#  Absolute labels resolve always to the same value so they are also called "immediate" as we don't
+	#  need to know the program origin to evaluate them. See Program.immediate?.
 	#
-	#  To peek +data_p+ from second +Sprite+:
-	#    ld  hl, [sprite.sprites[1].data_p]
+	#  Note:: Labels are being evaluated by calling Label#to_i method on them. Normally you don't need to know this,
+	#         but in some corner cases you may want to take advantage of that. However be warned that labels are lazy
+	#         by its nature and may be defined in the future. Labels that are part of an expression but are not defined
+	#         yet are called "dummy". See: Label.dummy?. Calling +to_i+ on a "dummy" label results in an error.
+	#         An expression containing at least one "dummy" label is also a "dummy" one.
+	#
+	#  Allocating, that is assigning values to labels may be done in several ways:
+	#  * With Program.addr::
+  #    Creates an absolute (immediate) label "spritep", with +value+ = +0x8888+ and of type +SpritePool+:
+  #      spritep   addr 0x8888, SpritePool
+  #
+	#  * With Program.data::
+	#    Creates a relative label "spritep", with +value+ = Program.pc and of type +SpritePool+,
+	#    fills SpritePool fields with provided data:
+	#      spritep   data SpritePool, [2,
+	#                    {x:0, y:0, size:12, data_p: sprite1_data},
+	#                    {x:0, y:0, size:16, data_p: sprite2_data}]
+  #
+	#  * With Program.label::
+	#    Creates a relative label "someprc", with +value+ = Program.pc and of type 1:
+	#      someprc   label
+	#
+	#  * With a mnemonic::
+	#    Creates a relative label "someprc", with +value+ = Program.pc and of type 1:
+	#      someprc   ld  de, [foo.bar]
+	#
+	#  * With Program.union::
+	#    Creates a relative label "foo", with +value+ = +bar+ and of type 2:
+	#      foo       union bar, 2
+	#
+	#  Examples::
+	#  To access +data_p+ field from a second +Sprite+ in the +spritep+:
+	#    ld  hl, [spritep.sprites[1].data_p]
 	#  or
-	#    ld  l, [sprite.sprites[1].data_pl]
-	#    ld  h, [sprite.sprites[1].data_ph]
+	#    ld  l, [spritep.sprites[1].data_pl]
+	#    ld  h, [spritep.sprites[1].data_ph]
+	#
 	#  To set register pointing to data_p from second sprite:
-	#    ld  hl, sprite.sprites[1].data_p
+	#    ld  hl, spritep.sprites[1].data_p
 	#    ld  e, [hl]
 	#    inc hl
 	#    ld  d, [hl]
 	#  or
 	#    ld  ix, sprite
-	#    ld  b, [ix + sprite.numspr]
-	#    ld  l, [ix + sprite.sprites[1].data_pl]
-	#    ld  h, [ix + sprite.sprites[1].data_ph]
-	#  You may even want to load the offset of a struct member
-	#    ld  a, sprite.sprites[1].data_ph   # -> ld a, 9
+	#    ld  b, [ix + spritep.numspr]
+	#    ld  l, [ix + spritep.sprites[1].data_pl]
+	#    ld  h, [ix + spritep.sprites[1].data_ph]
+	#  Access a size of a label
+	#    ld  bc, +spritep # lazy evaluates to +SpritePool to 13
+	#  Access a size of a field
+	#    ld  bc, +spritep.sprites       # lazy evaluates to +Sprite to 6
+	#    ld  b, +spritep.sprites.size   # lazy evaluates to 2
 	#
 	#  ===Label names
-	#  Label name may be any valid ruby method name and not a singleton method name of your *program*.
-	#  It excludes:
+	#  Label name may be a valid ruby method name except singleton method names of your *program* and any existing ruby class method name:
 	#  * ruby statements
 	#  * ruby core Class.methods:
 	#    <code>! != !~ < <= <=> == === =~ > >= __id__ __send__ allocate ancestors autoload autoload? class class_eval class_exec class_variable_defined?
@@ -458,116 +553,131 @@ module Z80
 	#    rrc rrca rrd rst sbc scf set sl1 sla sll sp sp_ sra srl sub union words xor</code>
 	#  * and macros defined in your *program*.
 	#
-	#  Use namespaces (Program.ns) extensively in your program.
-	#  It is also wise to add numeric suffixes to label names:
-	#    loop1 label
+	#  Pro tip:: Use namespaces: Program.ns extensively in your program.
 	#
-	#  +loop+ is a ruby statement.
+	#  Be carefull, as +loop+ is a ruby statement.
 	#
 	class Label
-		# This method is being used when importing labels from other programs.
+		# This method is being used internally when importing labels from other programs.
 		def deep_clone_with_relocation(addr, absolute, override, prefix=''.freeze) # :nodoc:
-			raise Syntax, "only named labels may be exported" unless @name
-			fullname = prefix + @name
-			address = override[fullname] || @address
-			members = Hash[@members.map {|n, m| [n, m.deep_clone_with_relocation(addr, absolute, override, fullname + '.'.freeze)] }]
-			addr = @reloc ? address + addr.to_i : address
-			Label.new(addr, @type, absolute ? nil : @reloc, members).tap {|l| l.name = @name }
-		end
-		# Evaluates label. Do not use it directly.
-		# This method is being used during program compilation.
-		def to_i(start = 0, rel_to = nil, override:nil, prefix:''.freeze)
-			raise Syntax, "a label `#{@name}' can't be coerced to a Integer before it's defined" if dummy?
-			address = if @name
-				fullname = prefix + @name
-				override && override[fullname] || @address
-			else
-				@address
+			fullname = prefix + @name.to_s
+			if @name
+				if (override_label = override && override[fullname])
+					return override_label#.deep_clone_with_relocation(0, false, nil)
+				end
 			end
+			members = Hash[@members.map {|n, m| [n, m.deep_clone_with_relocation(addr, absolute, override, fullname + '.'.freeze)] }]
+			addr = @reloc == :code ? @address + addr.to_i : @address
+			reloc = (absolute && @reloc == :code) ? nil : @reloc
+			Label.new(addr, @type, reloc, members).tap do |l|
+				l.name = @name if @name
+			end
+		end
+		##
+		# Evaluates a label. This method is being used during program compilation.
+		# * +start+:: An absolute address to offset a label if it's relative to the code base.
+		# * +rel_to+:: An absolute address to subtract from a label value or +:self+ (used by ix/iy offset addressing).
+		# * +override+:: A Hash containing a possibly nested label names and override values for label overriding.
+		# * +prefix+:: A prefix of a nested label used for label overriding.
+		# * +size_of+:: If +true+ returns a size of a label's type instead.
+		def to_i(start = 0, rel_to = nil, override:nil, prefix:''.freeze, size_of:false)
+			raise Syntax, "a label `#{@name}' can't be coerced to a Integer before it's defined" if dummy?
+
+			return @size if size_of
+
 			if rel_to == :self
 				0
 			else
-				address - rel_to.to_i + (@reloc ? start : 0)
+				if @name
+					fullname = prefix + @name
+					if (override_value = override && override[fullname])
+						return override_value - rel_to.to_i
+					end
+				end
+				@address - rel_to.to_i + (@reloc == :code ? start : 0)
 			end
 		end
-		# Checks if label is a pointer. Prefer using Program.pointer? instead.
-		# This method is being used during program compilation.
+		## Checks if label is a pointer. Prefer using Program.pointer? instead.
 		def pointer?; false; end
-		# Creates a dummy label. Do not use it directly.
-		# This is called when referenced label has not been yet defined.
+		## Checks if a label is an expression.
+		def expression?; false; end
+		## Checks if a label is defined and absolute (+true+) or relocatable or dummy (+false+). Prefer using Program.immediate? instead.
+		def immediate?
+			!dummy? and !@reloc
+		end
+		## Checks if a label is a member of a struct or a stand-alone label.
+		def sublabel?
+			@reloc == :parent
+		end
+		## Checks if a label is not yet defined (in-the-future a.k.a. a +dummy+ label).
+		def dummy?
+			@type.nil?
+		end
+		##
+		# Creates a dummy label. Should not be used directly in programs.
+		# This is called by Program.method_missing when referenced label has not been defined yet.
 		def self.dummy(name = nil)
 			n = new(0, nil)
 			n.name = name if name
 			n
 		end
+
 		def initialize(address, type = 1, reloc = nil, members = nil) # :notnew:
-			@address = address.to_i & 0xffff
+			# an absolute or relative address
+			@address = address.to_i
+			# size in bytes
 			@size = type.to_i
-			# a dummy label has @type == nil
+			# a dummy label has @type == nil, usually 1 or 2 or a class inherited from the Label
+			if type.nil? and (!(members.nil? or members.empty?) or !reloc.nil? or address != 0)
+				raise Syntax, "not a really dummy label: #{self.inspect} reloc: #{reloc.inspect} address: #{address.inspect} members: #{members.inspect}"
+			end
 			@type = type
+			# nil, :code or :parent
+			raise Syntax, "reloc should be nil, :code or :parent, got: #{reloc.inspect}" unless reloc.nil? or reloc == :code or reloc == :parent
 			@reloc = reloc
+			# a hash with members (struct base members have reloc == :parent)
 			@members = {}.update(members || {})
+			# optional name, assigned later
 			@name = nil
 		end
-		# Checks if label is absolute (+true+) or relocatable (+false+). Prefer using Program.immediate? instead.
-		# This method is being used during program compilation.
-		def immediate?
-			!dummy? and !@reloc
+		## Returns a member by its +name+ as a separate label. This is used internally. Use Label#[] and Label#method_missing instead.
+		def **(name)
+			@members[name]
 		end
-		# Checks if a label is already defined or is in-the-future a.k.a. a +dummy+ label.
-		# Do not use it directly.
-		# This method is being used during program compilation.
-		def dummy?
-			@type.nil?
-		end
-		# Returns a member +m+ as a separate label.
-		def **(m)
-			@members[m]
-		end
-		# Shifts right label binary value when resolved.
-		def >>(m)
-			to_alloc >> m
-		end
-		# Shifts left label binary value when resolved.
-		def <<(m)
-			to_alloc << m
-		end
-		# Reinitializes dummy label. Do not use it directly.
-		# This method is being used during program compilation.
-		def reinitialize(address, type = 1, reloc = nil, members = nil)
+		## Reinitializes a dummy label. Internal use only.
+		def reinitialize(address, type = 1, reloc = nil, members = nil) # :nodoc:
 			return self if address == self
 			raise Syntax, "label #{self} already initialized." unless dummy?
 			if address.is_a? self.class
-				address, type, reloc, name, members = [
-					'@address', '@type', '@reloc', '@name', '@members'
-				].map {|n| address.instance_variable_get(n) }
+				raise Syntax, "can't assign a dummy to another dummy" if address.dummy?
+				address, type, reloc, name, members = %w[@address @type @reloc @name @members].
+				                                        map {|n| address.instance_variable_get(n) }
 				self.name = name if name
 			end
 			raise Syntax, "address is not an integer." unless Integer === address
-			@address = address & 0xffff
+			@address = address
 			@size = type.to_i
 			@type = type
 			@reloc = reloc
 			@members = members if members
 			self
 		end
+		## Returns a lazy evaluated label as an instance of Alloc class. Use one of the lazy operators directly on a label instead.
 		def to_alloc
 			Alloc.new(self)
 		end
-		# Returns size (type size) of a label.
+		## Returns a lazy evaluated size of a type of a label.
 		def +@
-			if dummy?
-				+to_alloc
-			else
-				@size
-			end
+			+to_alloc
 		end
-		# Returns negated label.
+		## Returns a lazy evaluated negative label.
 		def -@
 			-to_alloc
 		end
-		# Returns a label offset by +index+ multiplied by label type size.
-		# If +index+ is nil, returns a pointer instead.
+		# Returns a lazy evaluated label offset by +index+.
+		# * If +index+ is +nil+, returns a pointer label instead.
+		# * If +index+ is a number or an expression the offset is multiplied by a size of a label's type.
+		# * If +index+ is a symbol or a string an accessor to the member of this label will be created. See: Label#method_missing.
 		#
 		# e.g.:
 		#    foo addr 0x1234, 2
@@ -576,38 +686,79 @@ module Z80
 		#                     # pointer conversion (2nd form)
 		#    ld  hl, foo[]    # loads a byte from memory pointed at 0x1234 into l
 		#                     # and a byte pointed at 0x1235 into h
-		# =====If possible don't use directly the 2nd, pointer form in your programs.
-		# For clarity use one-element array wrapped around a label, integer or a Register:
+		# =====For clarity don't use the pointer form directly in your programs.
+		# Instead prefer to use one-element array wrapped around a label, integer or a Register, like this:
 		#    ld  hl, [foo]
 		def [](index = nil)
 			to_alloc[index]
 		end
 
-		# Returns label indexed by +index+ but not as a pointer.
-		# Returns label offset by +offset+.
-		# It can be an integer or another label.
-		def +(offset)
-			to_alloc + offset
+		## Returns a lazy evaluated label offset by an +other+ label or an integer.
+		def +(other)
+			to_alloc + other
 		end
-		# Returns label offset by negative +offset+.
-		# It can be an integer or another label.
-		def -(offset)
-			to_alloc - offset
+		## Returns a lazy evaluated label negatively offset by an +other+ label or an integer.
+		def -(other)
+			to_alloc - other
 		end
+		## Returns a lazy evaluated label multiplied by an +other+ label or an integer.
+		def *(other)
+			to_alloc * other
+		end
+		## Returns a lazy evaluated quotient of a label divided by an +other+ label or an integer.
+		def /(other)
+			to_alloc / other
+		end
+		## Returns a lazy evaluated remainder of a label divided by an +other+ label or an integer.
+		def %(other)
+			to_alloc % other
+		end
+		## Returns a lazy evaluated label right shifted by a number of bits as an +other+ label or an integer.
+		def >>(m)
+			to_alloc >> m
+		end
+		## Returns a lazy evaluated label left shifted by a number of bits as an +other+ label or an integer.
+		def <<(m)
+			to_alloc << m
+		end
+		## Returns a lazy evaluated bitwise "exclusive or" of a label and an +other+ label or an integer.
+		def ^(m)
+			to_alloc ^ m
+		end
+		## Returns a lazy evaluated bitwise "or" of a label and an +other+ label or an integer.
+		def |(m)
+			to_alloc | m
+		end
+		## Returns a lazy evaluated bitwise "and" of a label and an +other+ label or an integer.
+		def &(m)
+			to_alloc & m
+		end
+		## Returns a lazy evaluated bitwise negated label.
+		def ~
+			~to_alloc
+		end
+		## call-seq:
+		#       to_label(program)
+		#
+		# Should return a Label or an Alloc. This method's existence indicates that something quacks like a label.
+		# The only argument is a program class on which the label will be used.
 		def to_label(_); self; end
-		# Gives name to no-name label. Do not use it directly.
+		## Gives a name to a no-named label. Should not be used directly in programs.
 		def name=(value)
-			raise Syntax, "Invalid label name: #{value.inspect}" if (value = value.to_s).empty?
-			raise Syntax, "Can't rename already named label: #{@name}!= #{value}" if @name and @name != value
+			value = value.to_s
+			raise Syntax, "Invalid label name: #{value.inspect}" if value.empty?
+			raise Syntax, "Can't rename already named label: #{@name} != #{value}" if @name and @name != value
 			@name = value
 		end
-		# Returns label name or +nil+.
+		## Returns this label's name as string or +nil+.
 		def to_name; @name; end
+		## Returns an abbreviated string information about a label, mostly used in error messages.
 		def to_str; "`#{@name}':#{'%04X' % @address}:#{@size} #{@reloc}#{dummy? ? '?':''}"; end
 		alias_method :to_s, :to_str
-		def respond_to_missing?(m, include_private=false)
+		def respond_to_missing?(m, include_private=false) # :nodoc:
 			m != :to_ary && m != :to_a && m != :to_hash && m != :to_h
 		end
+		## Any other method will lazy evaluate as an accessor to the member label of this label.
 		def method_missing(m)
 			if m == :to_ary || m == :to_a || m == :to_hash || m == :to_h
 				super
@@ -615,42 +766,56 @@ module Z80
 				to_alloc.send m
 			end
 		end
+
+		## A class representing members of a data structure.
 		Member = ::Struct.new :name, :offset, :type, :count, :alias
+
 		class << self
 			def inherited(klass) # :nodoc:
 				klass.instance_variable_set '@struct_size', 0
 				klass.instance_variable_set '@members', []
 			end
-			# Struct definition type.
+			## A data structure's field type.
 			def byte(size = 1)
 				1*size
 			end
-			# Struct definition type.
+			## A data structure's field type.
 			def word(size = 1)
 				2*size
 			end
-			def method_missing(m, struct, count = 1) # :nodoc:
-				n = m.to_s
-				if struct.is_a? Member
-					struct.name = n
-					raise "#{self.name} has already member: #{n}" if @members.assoc(n)
-					@members << [n, struct]
-					nil
+			def respond_to_missing?(m, include_private=false) # :nodoc:
+				m != :to_ary && m != :to_a && m != :to_hash && m != :to_h && defined?(@struct_size) && defined?(@members)
+			end
+			## Any other method is being used as a label to a member of a data structure.
+			def method_missing(m, struct, count = 1)
+				if m == :to_ary || m == :to_a || m == :to_hash || m == :to_h || !defined?(@struct_size) || !defined?(@members)
+					super
 				else
-					tsize = struct.is_a?(Integer) ? struct : struct.to_i
-					_, mem = @members.assoc(n)
-					if mem
-						Member.new(nil, mem.offset, struct, count, true)
-					else
-						@members << [n, Member.new(n, @struct_size, struct, count, false)]
-						@struct_size+= tsize*count
+					n = m.to_s
+					if struct.is_a? Member
+						struct.name = n
+						raise "#{self.name} has already a member: #{n}" if @members.assoc(n)
+						@members << [n, struct]
 						nil
+					else
+						tsize = struct.is_a?(Integer) ? struct : struct.to_i
+						_, mem = @members.assoc(n)
+						if mem
+							Member.new(nil, mem.offset, struct, count, true)
+						else
+							@members << [n, Member.new(n, @struct_size, struct, count, false)]
+							@struct_size+= tsize*count
+							nil
+						end
 					end
 				end
 			end
-			# Used by Program.data. Do not use it directly.
-			# data must be a Hash, Array, String or convertible Object (with #to_z80bin)
+			## Used by Program.data. Do not use it directly in programs.
+			#  +data+ must be a +Hash+, +Array+, +String+ or a convertible +Object+ (with a +to_z80bin+ method).
 			def to_data(prog, offset, data)
+				unless defined?(@struct_size) && defined?(@members)
+					raise Syntax, "Label is not a data strucutre"
+				end
 				if data.is_a?(Hash)
 					res = "\x0"*@struct_size
 					@members.each do |n, m|
@@ -699,24 +864,35 @@ module Z80
 				end[0,len].ljust(len, "\x0")
 			end
 			public
+			## Returns a size of a data structure immediately.
 			def to_i; @struct_size; end
+			## Returns a lazy evaluated size of a data structure. Better for debugging than Label.to_i.
+			def +@
+				if defined?(@struct_size)
+					+(self.new(0).tap{|l|l.name = self.name}.to_alloc)
+				else
+					raise Syntax, "Label has no size"
+				end
+			end
+			## Returns a hash containing structure members as instances of a Member class.
 			def members_of_struct; @members; end
-			# Creates an instance of a label. Do not use it directly.
-			# Use Program.data, Program.label, Program.addr, Program.union or prepend any instruction with a name instead.
-			# Some instructions like Program.ns can create named labels if given symbolic name.
+			##
+			# Creates an instance of a label. Do not use it directly in programs.
+			# Instead use Program.data, Program.label, Program.addr, Program.union or prepend any instruction with a name instead.
+			# Some instructions like Program.ns can create named labels if given a symbol.
 			def new(addr, type = 1, reloc = nil, members = nil)
 				if members.nil?
 					if defined?(@struct_size)
 						members = Hash[@members.map do |_, m|
 							l = if m.type.is_a?(Class) && m.type.respond_to?(:to_data)
-								m.type.new(addr + m.offset, 1, reloc)
+								m.type.new(m.offset, 1, :parent)
 							else
-								super(addr + m.offset, m.type, reloc)
+								Label.new(m.offset, m.type, :parent)
 							end
 							l.name = m.name
 							[m.name, l]
 						end]
-						super(addr, self, reloc, members)
+						Label.new(addr, self, reloc, members)
 					elsif type.is_a?(Class) && type.ancestors.include?(self)
 						type.new(addr, type.to_i, reloc)
 					end
@@ -725,199 +901,364 @@ module Z80
 		end
 	end
 	##
-	#  Alloc class is used internally by relocation mechanizm.
-	#  See Label instead.
-	#
+	# Alloc class is used internally by relocation mechanizm and lazy evaluation of labels' values.
+	# See Label instead.
 	class Alloc
-		# # This method is being used when importing labels from other programs.
-		def deep_clone_with_relocation(addr)
-			raise "deep_clone_with_relocation unsupported on allocs"
-			l = dup
-			l.instance_variable_set('@label', @label.deep_clone_with_relocation(addr))
-			l
+		# Compile labels to re-allocated addresses.
+		def Alloc.compile(labels, start, override) # :nodoc:
+			res = []
+			labels.each_value do |label|
+				eval_labels = ->(alloc, label) do
+					res << [alloc.to_s, alloc.to_i(start, override:override)]
+					label = label.instance_variable_get('@lhs') if label.is_a?(Alloc)
+					members = if label.is_a?(Label)
+						label.instance_variable_get('@members')
+					else
+						{}
+					end
+					members.each { |n, l| eval_labels[alloc[n], l] }
+				end
+				eval_labels[label.to_alloc, label]
+			end
+			Hash[res]
 		end
-		def dup
-			l = super
-			l.instance_variable_set('@index', @index.dup)
-			l
-		end
-		def initialize(label)
-			raise Syntax, "label is not a Label" unless label.is_a? Label
-			@label   = label
-			@index   = []
-			@offset  = 0
-			@pointer = false
-			@name    = nil
-			@size    = false
-			@shift   = 0
-			@neg     = false
-		end
-
-		def [](index = nil)
-			l = dup
-			if index.nil?
-				l.instance_variable_set('@pointer', true)
-			else
-				index = index.to_i
-				lindex = l.instance_variable_get('@index')
-				if lindex.last and lindex.last.is_a? Integer
-					lindex[-1]+= index
+		# This method is being used when importing labels from other programs.
+		def deep_clone_with_relocation(addr, absolute, override, prefix=''.freeze) # :nodoc:
+			lhs = @lhs.deep_clone_with_relocation(addr, absolute, override, prefix)
+			rhs = case @rhs
+			when Integer
+				@rhs
+			when Alloc
+				@rhs.deep_clone_with_relocation(addr, absolute, override, prefix)
+			end
+			index = @index.map do |idx|
+				case idx
+				when Alloc
+					idx.deep_clone_with_relocation(addr, absolute, override, prefix)
 				else
-					lindex << index unless index.zero?
+					idx
 				end
 			end
-			l
+			Alloc.new(lhs, @oper, rhs, index).tap {|l| 
+				l.instance_variable_set('@pointer', @pointer)
+				if (name = to_name)
+					l.name = name
+				end
+			}
+		end
+
+		def dup
+			super.tap do |l| 
+				l.instance_variable_set('@index', @index.dup)
+			end
+		end
+
+		def initialize(lhs, oper=nil, rhs=nil, index=[])
+			raise Syntax, "lhs is not a Label or an Alloc" unless lhs.is_a?(Label) or lhs.is_a?(Alloc)
+			rhs = rhs.to_alloc if rhs.is_a?(Label)
+			raise Syntax, "rhs is not an Alloc or an integer" unless rhs.nil? or Integer === rhs or rhs.is_a?(Alloc)
+			raise Syntax, "lhs nor rhs must not be a pointer" if lhs.pointer? or (rhs.respond_to?(:pointer?) and rhs.pointer?)
+			raise Syntax, "invalid operator" unless oper.nil? or [:+,:-,:+@,:-@,:>>,:<<,:/,:%,:*,:^,:&,:|,:~].include?(oper)
+			raise Syntax, "invalid operator's rhs" unless (rhs.nil? and (oper.nil? or [:+@,:-@,:~].include?(oper))) or
+			                                              (!oper.nil? and !rhs.nil?)
+			raise Syntax, "invalid index" unless Array === index and index.all?{|m| Integer === m || String === m || m.is_a?(Alloc) }
+			raise Syntax, "index-op is only allowed on labels" unless index.empty? or oper.nil?
+			unless oper.nil?
+				raise Syntax, "invalid operator's lhs" unless lhs.is_a?(Alloc)
+			end
+			@lhs     = lhs
+			@oper    = oper
+			@rhs     = rhs
+			@index   = index
+			@pointer = false
+			@name    = nil
 		end
 
 		def ==(other)
-			if other.is_a?(Alloc)
-				@label == other.instance_variable_get("@label")
+			case other
+			when Label
+				!expression? && @lhs == other
+			when Alloc
+				%w[@lhs @oper @rhs @index @pointer].all? do |n|
+					self.instance_variable_get(n) == other.instance_variable_get(n)
+				end
 			else
-				@label == other
+				false
 			end
 		end
 
 		def pointer?; @pointer; end
 
-		def +(other)
-			l = dup
-			l.instance_variable_set('@offset', @offset + other.to_i)
-			l
-		end
-
-		def -(other)
-			l = dup
-			l.instance_variable_set('@offset', @offset - other.to_i)
-			l
+		def expression?
+			@pointer || !@oper.nil? || !@index.empty?
 		end
 
 		def **(m)
-			@label ** m
+			label = self
+			begin
+				raise Syntax, "** #{m} not allowed on an expression: #{label.inspect}" if label.expression?
+				label = label.instance_variable_get('@lhs')
+			end until label.is_a?(Label)
+			label.**(m)
 		end
 
-		def >>(m)
-			l = dup
-			l.instance_variable_set('@shift', @shift - m.to_i)
-			l
+		def +(other)
+			Alloc.new(self, :+, other)
 		end
 
-		def <<(m)
-			l = dup
-			l.instance_variable_set('@shift', @shift + m.to_i)
-			l
+		def -(other)
+			Alloc.new(self, :-, other)
+		end
+
+		def *(other)
+			Alloc.new(self, :*, other)
+		end
+
+		def /(other)
+			Alloc.new(self, :/, other)
+		end
+
+		def %(other)
+			Alloc.new(self, :%, other)
+		end
+
+		def >>(other)
+			Alloc.new(self, :>>, other)
+		end
+
+		def <<(other)
+			Alloc.new(self, :<<, other)
 		end
 
 		def +@
-			l = dup
-			l.instance_variable_set('@size', true)
-			l
+			Alloc.new(self, :+@)
 		end
 
 		def -@
-			l = dup
-			l.instance_variable_set('@neg', !@neg)
-			l
+			Alloc.new(self, :-@)
 		end
 
-		def reinitialize(*args)
-			@label.reinitialize(*args)
+		def ^(other)
+			Alloc.new(self, :^, other)
+		end
+
+		def |(other)
+			Alloc.new(self, :|, other)
+		end
+
+		def &(other)
+			Alloc.new(self, :&, other)
+		end
+
+		def ~
+			Alloc.new(self, :~)
+		end
+
+		def dummy?
+			@lhs.dummy? || (@rhs.respond_to?(:dummy?) && @rhs.dummy?)
+		end
+
+		def immediate?
+			if @index.empty?
+				@lhs.immediate? && (@rhs.respond_to?(:immediate?) ? @rhs.immediate? : true)
+			else
+				label = @lhs
+				return false if label.dummy?
+				@index.all? do |idx|
+					case idx
+					when String
+						label = label ** idx
+						label ? label.immediate? : false
+					when Alloc
+						idx.immediate?
+					else
+						label.immediate?
+					end
+				end # all?
+			end
+		end
+
+		def sublabel?
+			false
+		end
+
+		def reinitialize(address, type = 1, reloc = nil, members = nil)
+			return self if address == self
+			raise Syntax, "Can't re-initialize" unless @oper.nil? && @index.empty? && @lhs.is_a?(Label) && @lhs.dummy? && !@pointer
+			if address.is_a?(Label) || Integer === address
+				@lhs.reinitialize(address, type, reloc, members)
+			elsif address.is_a?(self.class)
+				lhs, oper, rhs, index, pointer = %w[@lhs @oper @rhs @index @pointer].
+																					 map {|n| address.instance_variable_get(n) }
+				if lhs.is_a?(Label)
+					@lhs.reinitialize(lhs, type, reloc, members)
+				else
+					@lhs   = lhs
+				end
+				@oper    = oper
+				@rhs     = rhs
+				@index   = index
+				@pointer = pointer
+			else
+				raise Syntax, "invalid re-initialize address"
+			end
+			name = if address.respond_to?(:to_name)
+				address.to_name
+			elsif
+				@lhs.to_name
+			end
+			self.name = name unless name.nil?
+			self
 		end
 
 		def to_alloc; self; end
 
 		def to_label(_); self; end
 
-		def immediate?
-			if @index.empty?
-				@label.immediate?
-			elsif !@label.dummy?
-				label = @label
-				@index.all? {|i|
-					if String === i
-						(l = label ** i) and l.immediate?
-					else
-						@label.immediate?
-					end
-				}
-			else
-				false
-			end
-		end
-		def dummy?; @label.dummy?; end
-
 		def to_str
-			str = (@size ? '+' : '') + to_name.to_s + @index.map {|i|
-				if String === i
-					'.' + i
-				else
-					"[#{i}]"
-				end
-			}.join + (if @offset > 0
-				"+#@offset"
-			elsif @offset < 0
-				"#@offset"
-			end.to_s)
-			str = "(#{str})" unless @shift.zero? or @offset.zero?
-			if @shift > 0
-			  str += " << #@shift"
-			elsif @shift < 0
-				str += " >> #{-@shift}"
+			return @name if @name
+			return @lhs.to_str if @pointer
+			case @oper
+			when nil
+				@lhs.to_name.to_s + @index.map {|idx|
+					case idx
+					when String
+						'.' + idx
+					else
+						"[#{idx}]"
+					end
+				}.join
+			when :+@
+				"(+#{@lhs})"
+			when :~, :-@
+				"#{@oper.to_s[0]}(#{@lhs})"
+			else
+				"(#{@lhs}#{@oper}#{@rhs})"
 			end
-			str = "-(#{str})" if @neg
-			str
 		end
 		alias_method :to_s, :to_str
 
-		def to_i(start = 0, rel_to = nil, override:nil)
-			prefix = ''.freeze
-			addr = (label = @label).to_i(override:override)
-			@index.each do |idx|
-				if String === idx
-					raise CompileError, "Unknown member: #{idx} of label #{label}." unless sublabel = label ** idx
-					subprefix = prefix + label.to_name + '.'.freeze
-					if sublabel.immediate?
-						if label.immediate?
-							addr+= sublabel.to_i(override:override, prefix:subprefix) - label.to_i(override:override, prefix:prefix)
-						else
-							addr = sublabel.to_i(override:override, prefix:subprefix)
-							rel_to = sublabel.to_i(override:override, prefix:subprefix) if rel_to == :self
-						end
-					elsif label.immediate?
-						raise CompileError, "Relative member #{sublabel} of an absolute label #{label}!"
-					else
-						addr+= sublabel.to_i(override:override, prefix:subprefix) - label.to_i(override:override, prefix:prefix)
-					end
-					prefix = subprefix
-					label = sublabel
+		# rel_to: an absolute address or :self used by ix/iy offset addressing
+		def to_i(start = 0, rel_to = nil, override:nil, prefix:''.freeze, size_of:false)
+			rel_to_label = rel_to == :self && :self || nil
+
+			arg_to_i = ->(arg, rel_to) do
+				case arg
+				when Integer
+					arg.to_i
+				when Alloc, Label
+					arg.to_alloc.to_i(start, rel_to, override:override)
 				else
-					addr+= idx*(+label)
+					raise CompileError, "Invalid argument: #{arg.inspect}"
 				end
 			end
-			val = (if @size
-				+label + @offset
+
+			val = if @oper.nil?
+				label = @lhs
+				raise CompileError, "can't calculate an address of a directly addressed sublabel: #{label}" if label.sublabel?
+				addr = label.to_i(start, rel_to_label, override:override, prefix:prefix)
+				@index.each do |idx|
+					case idx
+					when String
+						raise CompileError, "Unknown member: #{idx} of label #{label}." unless sublabel = label ** idx
+						subprefix = prefix + label.to_name + '.'.freeze
+						# a member of struct
+						if sublabel.sublabel?
+							addr += sublabel.to_i
+						elsif label.sublabel?
+							raise CompileError, "Non struct member as a member of a struct label: #{subprefix}#{sublabel.to_name}"
+						# a label
+						else
+							if label.immediate? and !sublabel.immediate?
+								raise CompileError, "Relative member #{subprefix}#{sublabel.to_name} of an absolute label #{label}!"
+							end
+							addr = sublabel.to_i(start, rel_to_label, override:override, prefix:subprefix)
+						end
+						prefix = subprefix
+						label = sublabel
+					else
+						addr+= arg_to_i.call(idx, nil) * label.to_i(size_of:true)
+					end
+				end
+				if size_of
+					label.to_i(size_of:true)
+				else
+					addr
+				end
 			else
-				rel_to = @label.to_i(start, override:override) if rel_to == :self
-				addr + @offset + (label.immediate? ? 0 : start) - rel_to.to_i
-			end) << @shift
-			val = -val if @neg
-			val
+				raise CompileError, "Can't get a size from expression" if size_of
+				case @oper
+				when :+@ then return @lhs.to_i(start, rel_to, override:override, size_of:true)
+				when :-@ then -arg_to_i.call(@lhs, rel_to_label)
+				when :~ then ~arg_to_i.call(@lhs, rel_to_label)
+				else
+					arg_to_i[@lhs, rel_to_label].send(@oper, arg_to_i[@rhs, rel_to_label])
+				end
+			end
+
+			if Integer === rel_to
+				val - rel_to
+			else
+				val
+			end
 		end
+
 		def name=(value)
-			raise Syntax, "Invalid label name: #{value.inspect}" if (value = value.to_s).empty?
-			raise Syntax, "Can't rename already named label: #{@name}!= #{value}" if @name and @name != value and @name != @label.to_name
+			value = value.to_s
+			raise Syntax, "Invalid label name: #{value.inspect}" if value.empty?
+			raise Syntax, "Can't rename already named label: #{@name} != #{value}" if @name and @name != value
 			@name = value
 		end
-		def to_name; @name || @label.to_name; end
+
+		def to_name
+		 	return @name if @name
+		 	return @lhs.to_name if !expression?
+		end
+
+		def [](index = nil)
+			if index.nil?
+				if @pointer
+					dup
+				else
+					raise Syntax, "pointer not allowed from a sizeof" if @oper == :+@
+					Alloc.new(self).tap { |l| l.instance_variable_set('@pointer', true) }
+				end 
+			else
+				raise Syntax, "indexing is only allowed on a label" unless !@pointer and @oper.nil? and 
+				                                                      (@lhs.is_a?(Label) or !@index.empty?)
+        if @index.empty?
+        	Alloc.new(self)
+        else
+        	dup
+        end.tap do |l|
+					lix = l.instance_variable_get('@index')
+					case index
+					when String, Symbol
+						lix << index.to_s
+					when Label, Alloc
+						lix << index.to_alloc
+					when Integer
+						if Integer === lix.last
+							lix[-1]+= index
+						else
+							lix << index
+						end
+					else
+						raise Syntax, "invalid index"
+					end
+				end
+			end
+		end
+
 		def respond_to_missing?(m, include_private=false)
 			m != :to_ary && m != :to_a && m != :to_hash && m != :to_h
 		end
+
 		def method_missing(m)
 			if m == :to_ary || m == :to_a || m == :to_hash || m == :to_h
 				super
 			else
-				l = dup
-				l.instance_variable_get('@index') << m.to_s
-				l
+				self.[](m)
 			end
 		end
 	end

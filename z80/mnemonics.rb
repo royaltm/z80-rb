@@ -23,7 +23,6 @@ module Z80
 		#  The ones below are due to my lazyness:
 		#
 		#  * use +im0+, +im01+, +im1+, +im2+  instead of +im+ +n+.
-		#    It is so rarely used so i didn't care creating a single method for it.
 		#  * do not use [ ] around +out+ and +inp+ instructions' arguments e.g.:
 		#      out c, a    # ok
 		#      out (c), a  # () are ok, ruby doesn't care much about them
@@ -197,7 +196,7 @@ module Z80
 							else
 								[i].pack('c')
 							end
-							tta = [2, :byte]
+							tta = [2, :index]
 							rr.prefix + (v + rr.to_i).chr + i
 						else
 							rr.prefix.to_s + (v + rr.to_i).chr
@@ -241,7 +240,7 @@ module Z80
 								else
 									[i].pack('c')
 								end
-								tta = [2, :byte]
+								tta = [2, :index]
 								bb.prefix + (v + bb.to_i).chr + i
 							else
 								bb.prefix.to_s + (v + bb.to_i).chr
@@ -284,7 +283,7 @@ module Z80
 							else
 								[i].pack('c')
 							end
-							tta = [2, :byte]
+							tta = [2, :index]
 							rr.prefix.to_s + "\xCB" + i + (v + bb.to_i).chr
 						else
 							raise Syntax, "Invalid second argument for #{n}: #{bb}." if bb
@@ -319,7 +318,7 @@ module Z80
 							else
 								[i].pack('c')
 							end
-							tta = [2, :byte]
+							tta = [2, :index]
 							rr.prefix.to_s + "\xCB" + i + (v + bit + bb.to_i).chr
 						else
 							raise Syntax, "Invalid third argument for #{n}: #{bb}." if bb
@@ -345,7 +344,7 @@ module Z80
 								else
 									[i].pack('c')
 								end
-								tta = [2, :byte]
+								tta = [2, :index]
 								rr.prefix + (v + (rr.to_i << 3)).chr + i
 							else
 								rr.prefix.to_s + (v + (rr.to_i << 3)).chr
@@ -396,7 +395,7 @@ module Z80
 								else
 									[i].pack('c')
 								end
-								tta = [2, :byte]
+								tta = [2, :index]
 								rr.prefix + (0x40 + (aa.to_i << 3) + bb.to_i).chr + i
 							elsif (aa.prefix and bb.one_of? %w[h l]) or (bb.prefix and aa.one_of? %w[h l])
 								raise Syntax, "Can not mix ix/iy with h/l registers."
@@ -425,7 +424,7 @@ module Z80
 								else
 									[i].pack('c')
 								end
-								tta = [2, :byte]
+								tta = [2, :index]
 								aa.prefix + (0x06 + (aa.to_i << 3)).chr + i
 							else
 								tta = []

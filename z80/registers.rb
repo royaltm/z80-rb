@@ -97,7 +97,7 @@ module Z80
 			#  Example:
 			#    ld  b, [ix + 2]
 			#    ld  [hl], b
-			def [](index = 0)
+			def [](index = 0, sgn = :+)
 				if name.size == 2 or pointer?
 					if index != 0 and name[0] != ?i
 						raise Syntax, "Only ix,iy registers may be indexed pointers."
@@ -106,10 +106,12 @@ module Z80
 					end
 					raise Syntax, "Register #{name} can not be a pointer." unless r = @@regindex[name + '_'] or (pointer? and r = self)
 					r = r.dup
-					if index.respond_to?(:to_alloc) and !r.index.respond_to?(:to_alloc)
-						r.index = index + r.index
-					else
-						r.index = r.index + index
+					if r.index == 0
+						r.index = sgn == :- ? -index : index
+					elsif index.respond_to?(:to_alloc) and !r.index.respond_to?(:to_alloc)
+						r.index = index.send(sgn, r.index)
+					elsif index != 0
+						r.index = r.index.send(sgn, index)
 					end
 					r
 				else
@@ -121,18 +123,18 @@ module Z80
 			#  Example:
 			#    ld a, [ix + 7]
 			def +(other)
-				self[other]
+				self[other, :+]
 			end
 			#  This method makes possible to write indexed expressions with +ix/iy+ registers.
 			#  Example:
 			#    ld a, [ix - 7]
 			def -(other)
-				self[-other.to_i]
+				self[other, :-]
 			end
 			def to_debug
 				if pointer?
 					"(#{name[0,2]}" + if prefix
-						'+%02xH'
+						'%.1s%02xH'
 					end.to_s + ')'
 				else
 					name

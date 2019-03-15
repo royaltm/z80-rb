@@ -17,25 +17,25 @@ require 'z80/tap'
 module Z80
 	Relocation = ::Struct.new :addr, :alloc, :size, :from
 	DebugInfo  = ::Struct.new :addr, :size, :text, :args, :labels
-	#  Error raised during program parsing.
+	## Error raised during program parsing.
 	class Syntax < StandardError; end
-	#  Error raised during program compilation (while creating instance).
+	## Error raised during program compilation (while creating instance).
 	class CompileError < StandardError; end
-	#  The program's compiled code.
+	## A compiled code for the Z80 CPU as a binary string.
 	attr_reader :code
-	#  The starting address of the compiled code.
+	## The starting address of the compiled code.
 	attr_reader :org
-	#  Evaluated label values of the compiled program.
+	## A hash containing all evaluated label values of the compiled program.
 	attr_reader :labels
-	#  Compiled imported code modules.
+	## A hash containing all instanced of imported programs.
 	attr_reader :imports
-	#  Returns the relocated label value.
-	def [](label)
-		@labels[label.to_s]
+	## Returns an evaluated label's value by its name.
+	def [](name)
+		@labels[name.to_s]
 	end
 	##
-	#  Creates debugger view from instance of a program.
-	#  Returns an Array of Strings.
+	#  Creates a debugger view from an instance of a Z80::Program.
+	#  Returns an array of strings.
 	#
 	#  Example debugger output:
 	#    =============== ZXMath ===============
@@ -79,16 +79,22 @@ module Z80
 
 				if (mnemo = d.text)
 					if (prm = d.args)
-						mnemo = mnemo % prm.each_slice(2).map do |o, t|
+						mnemo = mnemo % prm.each_slice(2).map { |o, t|
 							case t
 							when :word
 								data[o, 2].unpack('S<')[0]
+							when :index
+								if (v = data[o, 1].unpack('c')[0]) < 0
+									[?-, -v]
+								else
+									[?+, v]
+								end	
 							when :byte
 								data[o, 1].unpack('C')[0]
 							when :pcrel
 								data[o, 1].unpack('c')[0] + d.addr + d.size + org
 							end
-						end
+						}.flatten
 					end
 					"#{'%04X'%(d.addr+org)}: #{hxd[data.split(''),''].ljust 12}#{mnemo.ljust 20}#{label}"
 				elsif data.empty? and label
@@ -112,8 +118,7 @@ module Z80
 				klass.extend klass::Macros
 			end
 		end
-		##
-		#  Method used by Program instructions was placed here to not pollute *program* namespace
+		## Method used by Program instructions was placed here to not pollute *program* namespace anymore.
 		def add_code(prg, data, type = 1, mnemo = nil, *mpar)
 			raise TypeError unless data.is_a? String
 			l = Label.new(pc = prg.pc, type, :code)
@@ -121,12 +126,12 @@ module Z80
 			prg.code << data
 			l
 		end
-		##
-		#  Method used by Program instructions was placed here to not pollute *program* namespace
+		## Method used by Program instructions was placed here to not pollute *program* namespace anymore.
 		def add_reloc(prg, label, size, offset = 0, from = nil)
+			raise Syntax, "from argument accepted only for reloc size == 1" unless from.nil? or size == 1
 			alloc = label.to_label(prg).to_alloc
-			if alloc.immediate? and (size == 2 or from)
-				prg.reloc << Relocation.new(prg.pc + offset, alloc, size, from) unless alloc.to_name.nil?
+			if alloc.immediate? and (size == 2 or from==:self)
+				prg.reloc << Relocation.new(prg.pc + offset, alloc, size, from)
 				[alloc.to_i(0, from)].pack(size == 1 ? 'c' : 's<')
 			else
 				prg.reloc << Relocation.new(prg.pc + offset, alloc, size, from)
@@ -142,15 +147,15 @@ module Z80
 	#
 	#  Use these methods to build your Z80 assembler program or macros.
 	module Program
-		VERSION = "0.9.2"
-		# raw, not relocated code
+		VERSION = "1.0.0"
+		## A raw, not relocated code.
 		attr_reader :code
-		# relocation table
+		## A relocation table.
 		attr_reader :reloc
-		# raw, debug information
+		## A raw, debug information.
 		attr_reader :debug
-		# original exported labels
-		attr_reader :exports#, :labels, :contexts, :dummies, :context_labels
+		## Exportable labels.
+		attr_reader :exports
 		def self.extended(klass) # :nodoc:
 			['@code', '',
 			 '@reloc', [],
@@ -169,33 +174,42 @@ module Z80
 			end
 		end
 		##
-		#  Compiles *program* at +start+ address passing *args to initialize().
-		#  Returns compiled instance of a *program*.
+		#  Compiles a *program* at the +start+ address passing *args to initialize().
+		#  Returns a compiled instance of a *program*.
 		#
-		#  * +:override+:: a flat hash containing names of labels with addresses to be overwritten
+		#  * +:override+:: A flat hash containing names of labels with addresses to be overwritten.
 		def new(start = 0x0000, *args, override:{})
 			unless @dummies.empty? and !@contexts.last.any? {|_,v| v.dummy?}
 				dummies = @dummies.map {|d| d[0..1]} + @contexts.last.select {|_,v| v.dummy?}.map {|d| d[0..1]}
 				raise CompileError, "Labels referenced but not defined: #{dummies.inspect}"
 			end
 
-			raise ArgumentError, "override should be a map of label and value pairs" unless override.respond_to?(:map)
-			override = Hash[override.map{|n,v| [n.to_s, v.to_i] }]
+			raise ArgumentError, "override should be a map of override names to labels" unless override.respond_to?(:map)
+			override = override.map { |n,v| [n.to_s, v.to_i] }.to_h
 
 			prog = super(*args)
 			code = @code.dup
 
 			imports = Hash[@imports.map do |addr, size, program, code_addr, arguments, name, import_override|
-				merged_override = import_override.dup
+				merged_override = import_override.map do |n, v|
+					v = case v
+					when Label, Alloc
+						v.to_i(start)
+					else
+						raise ArgumentError, "override: #{n} is not a label or an address"
+					end
+					[n.to_s, v]
+				end.to_h
 				if name.nil?
 					merged_override.merge!(override)
 				else
 					prefix = name.to_s + '.'.freeze
 					merged_override.merge!(override.
 						select{ |k,| k.start_with?(prefix) }.
-						map{ |k,v| [k.slice(prefix.length), v] }.
+						map{ |k,v| [k.slice(prefix.length..), v] }.
 						to_h)
 				end
+
 				code_addr = addr + start if code_addr.nil?
 				ip = program.new(code_addr, *arguments, override:merged_override)
 				raise CompileError, "Imported program #{program} has been modified." unless ip.code.bytesize == size
@@ -203,17 +217,7 @@ module Z80
 				[name.nil? ? addr + start : name.to_sym, ip]
 			end]
 
-			eval_labels = proc {|members, prefix|
-				members.map {|n, v|
-					value = v.to_i(start, nil, override:override, prefix:prefix)
-					lname = prefix + n
-					[lname, value] +
-					(if (m = v.instance_variable_get '@members')
-						eval_labels[m, lname + '.'.freeze].flatten
-					end || [])
-				}.flatten
-			}
-			labels = Hash[*eval_labels[@labels, ''.freeze].flatten]
+			labels = Alloc.compile(@labels, start, override)
 
 			@reloc.each do |r|
 				case r.size
@@ -221,10 +225,24 @@ module Z80
 					raise CompileError, "Absolute labels need relocation sizes for the overrides"
 					# OBSOLETE: ignore, this is an absolute address but we need relocation info for debug
 				when 1
-					addr = r.from ? r.from : r.addr + 1 + start
+					addr = case r.from
+					when Integer
+						r.from
+					when :jr, nil
+						r.addr + 1 + start
+					when :pc
+						r.addr + start
+					when :self
+						:self
+					else
+						raise CompileError, "Unknown from relocation parameter: #{r.inspect}"
+					end
 					i = r.alloc.to_i(start, addr, override:override)
-					unless Integer === r.from or (-128..127).include?(i)
+					if (r.from.nil? or r.from == :jr) and !(-128..127).include?(i)
 						raise CompileError, "Relative relocation out of range at 0x#{'%04x' % r.addr} -> #{i} #{r.inspect}"
+					end
+					if r.from == :pc and !(0..255).include?(i)
+						raise CompileError, "Jump table relocation out of range at 0x#{'%04x' % r.addr} -> #{i} #{r.inspect}"
 					end
 					code[r.addr] = [i].pack('c')
 				when 2
@@ -243,23 +261,25 @@ module Z80
 			end
 			prog
 		end
-		##
-		#  Current program counter relative to 0.
+		## Returns current byte offset from the beginning of the Program.code (a program counter relative to 0).
 		def pc
 			@code.bytesize
 		end
 		##
-		#  Creates offset from Program.pc to +address+ padding it with +pad+.
+		#  Returns an unnamed, relative label that points to the beginning of padded space.
+		#  The space is being padded with +pad+ byte.
+		#  The +address+ should be relative to the beginning of the Program.code and must be
+		#  equal to or greater than Program.pc.
 		#
-		#  Do not confuse it with assembler directive ORG which sets absolute address of a program.
-		#  In ruby-z80 only an instances of a program have absolute addresses.
+		#  *Note*:: Do not confuse it with assembler directive ORG which sets absolute address of a program.
+		#           Only instances of Z80::Program have absolute addresses.
 		#
 		#  Options:
 		#
-		#  * +:align+:: additionally align address to the nearest +:align+ bytes boundary
-		#  * +:offset+:: added to the +address+ after alignment
+		#  * +:align+:: Additionally aligns +address+ to the nearest +:align+ bytes boundary
+		#               (relative to the beginning of code).
+		#  * +:offset+:: Added to the +address+ after alignment.
 		#
-		#  Returns unnamed +label+ that points to the beginning of a padded space.
 		def org(address = pc, pad = 0, align: 1, offset: 0)
 			address = address.to_i
 			align = align.to_i
@@ -270,39 +290,44 @@ module Z80
 			Z80::add_code self, [pad].pack('c')*(address - pc)
 		end
 		##
-		#  Creates a isolated namespace for relocatable labels defined inside your code.
+		#  Returns a relative label as an isolated namespace for relative labels defined inside the code created within +block+.
 		#
-		#  Isolated namespace can't reference labels defined outside of it.
+		#  A code in an isolated namespace can't reference labels defined outside of it.
 		#
 		#  See: Program#ns.
 		def isolate(name = nil, **opts, &block)
 			ns(name, **opts, isolate: true, &block)
 		end
-		##
-		#  Creates a namespace for relocatable labels defined inside your code.
+		## call-seq:
+		#       ns **opts {|eoc| ... }
+		#       ns name, **opts {|eoc| ... }
 		#
-		#  Give a block which generates z80 code containing labels or possibly other
-		#  namespaces (namespaces can be nested).
+		#  Returns a relative label as a namespace for relative labels defined inside the code created within +block+.
 		#
-		#  Give optional +name+ as a String or a Symbol for named (labeled) namespaces.
+		#  This function requires a block which may generate Z80 code containing labels or possibly other
+		#  namespaces (namespaces can be nested). Every label defined within this block will become a member label.
+		#
+		#  An optional +name+ may be provided, as a string or a symbol. In this instance the returned label
+		#  will already have a name. Otherwise an unnamed label is being returned.
 		#
 		#  Options:
 		#
-		#  * +:inherit+:: if +true+ namespace inherits absolute labels from parent namespaces
-		#                 if a name, label or an Array of names only specified labels are inherited;
-		#                 +false+ by default,
-		#  * +:inherit_absolute+:: alias of +:inherit+,
-		#  * +:inherit_labels+:: alias of +:inherit+,
-		#  * +:use+:: alias of +:inherit+,
-		#  * +:isolate+:: +true+ creates isolated namespace :see: Program#isolate,
-		#  * +:merge+:: +true+ merges labels from within a namespace with the current context;
-		#               usefull if you only want to pass a +eoc+ label to some block of code.
+		#  * +:inherit+:: If +true+ namespace inherits absolute labels from parent namespaces
+		#                 if a name, label or an Array of names - only specified labels are inherited;
+		#                 +false+ by default.
+		#  * +:inherit_absolute+:: An alias of +:inherit+.
+		#  * +:inherit_labels+:: An alias of +:inherit+.
+		#  * +:use+:: An alias of +:inherit+.
+		#  * +:isolate+:: If +true+ creates an isolated namespace :see: Program#isolate.
+		#  * +:merge+:: If +true+ merges labels from within a namespace with the current context;
+		#               usefull if you only want to pass an +eoc+ label to some block of code.
 		#
-		#  The block receives one variable: +eoc+ which is a label pointing immediately +after+
-		#  the namespaced code.
+		#  Given +block+ receives one variable: +eoc+ which is a "dummy" label that will relatively
+		#  address the end of the namespaced code and may be referenced from within the +block+.
 		#
-		#  If +:inherit+ option is +false+ but +:isolate+ is also +false+ it's still possible to
-		#  reference absolute labels but it would be impossible to coerce such label to a Integer.
+		#  If +:inherit+ option is +false+ but +:isolate+ is also +false+ it's possible to
+		#  reference absolute labels defined outside of the namespace, but it would be impossible
+		#  to coerce such a label to an integer.
 		#
 		#  Example:
 		#    ns :foo do |eoc|
@@ -312,7 +337,7 @@ module Z80
 		#            jr NZ, loop1
 		#    end
 		#
-		#  Returns (optionally named) +label+ that points to the beginning of a namespaced code.
+		#  Returns an (optionally named) +label+ that points to the beginning of a namespaced code.
 		def ns(name = nil, **opts)
 			raise ArgumentError, "no block given to ns" unless block_given?
 			inherit = opts[:inherit] || opts[:inherit_absolute] || opts[:inherit_labels] || opts[:use]
@@ -394,50 +419,66 @@ module Z80
 			top
 		end
 		##
-		#  Import macros from another +program+.
+		#  Imports macros from another +program+.
 		#
 		#  A sugar for:
 		#
-		#     import program, :code => false, :macros => true, :labels => false
+		#     import program, code: false, macros: true, labels: false
 		#
 		def macro_import(program)
 			import program, code: false, macros: true, labels: false
 		end
 		##
-		#  Import labels from another +program+.
+		#  Imports labels from another +program+.
 		#
 		#  A sugar for:
 		#
-		#     import program, :code => false, :macros => false, :labels => true
+		#     import program, code: false, macros: false, labels: true
 		#
 		def label_import(program, name = nil, labels:true)
 			import program, name, code: false, macros: false, labels: labels
 		end
 		##
-		#  Import code, labels and macros from another +program+.
-		#  Give (optional) +name+ for namespace.
-		#  Without +name+ labels from +program+ will be defined in a current namespace.
+		#  Imports code, labels or macros from another +program+.
+		#  Give (optional) +name+ to create a namespace for imported labels.
+		#  Without +name+ labels from +program+ will be defined in the current context.
 		#  Pass +program+ class (not an instance!).
-		#  Give flags to choose what to import from +program+:
-		#  * +:labels+:: +true/false+ or an absolute address (default: +true+)
-		#  * +:code+::   +true/false+ or an absolute address (default: +true+)
-		#  * +:macros+:: +true/false+ (default: +false+)
-		#  * +:override+:: a flat hash containing names of labels with addresses to be overwritten
-		#  * +:args+::   program initialize arguments
-		#  
-		#  To be able to import *macros* create module `Macros'
-		#  inside +program+ class and put methods there. They will be imported as macros.
-		#  <b>In such a method always wrap your code inside #ns.</b>
 		#
-		#  Returns (optionally named) +label+ that points to the beginning of imported code.
+		#  Options to choose what to import:
+		#  * +:labels+:: +true/false+ or an absolute address (default: +true+).
+		#  * +:code+::   +true/false+ or an absolute address (default: +true+).
+		#  * +:macros+:: +true/false+ (default: +false+).
+		#  * +:override+:: A flat hash containing names with labels to be replaced.
+		#  * +:args+:: Initialize arguments for an imported program.
+		#  
+		#  If +:labels+ is an address, all relative labels being imported will be converted to absolute
+		#  and will be offset by the given value.
+		#
+		#  If +:code+ is an address, the imported code will be always compiled at this absolute address.
+		#
+		#  To be able to import *macros* create a module named +Macros+
+		#  inside +program+ class and put methods there. They will be imported as macros.
+		#  <b>In such methods remember to wrap your code with Program.ns.</b>
+		#
+		#  Returns an (optionally named) label that points to the beginning of the imported code.
 		def import(program, name=nil, labels:true, code:true, macros:false, override:{}, args:[])
 			if program.is_a?(Symbol)
 				program, name = name, program
 			end
 			addr = pc
 
-			raise ArgumentError, "override should be a map of label and value pairs" unless override.respond_to?(:map)
-			override = Hash[override.map{|n,v| [n.to_s, v.to_i] }]
+			raise ArgumentError, "override should be a map of override names to labels" unless override.respond_to?(:map)
+			override = override.map do |n,v|
+				v = case v
+				when Integer
+					Label.new(v, 0)
+				when Label, Alloc
+					v
+				else
+					raise ArgumentError, "override: #{n} is not a label or an address"
+				end
+				[n.to_s, v]
+			end.to_h
 
 			code_addr = if code.respond_to?(:to_i)
 				code.to_i
@@ -454,6 +495,7 @@ module Z80
 					[addr, false]
 				end
 				members = Hash[program.exports.map {|n, l|
+					raise Syntax, "only named labels may be exported" if l.to_name.nil?
 					[n, l.deep_clone_with_relocation(label_addr, absolute, override)]
 				}]
 			end
@@ -480,26 +522,26 @@ module Z80
 			plabel
 		end
 		##
-		#  Import binary file.
-		#  * +file+ is a filename.
-		#  * +type+ specifies format of binary file (as Symbol),
-		#    if +:any+ -> format will be determined by filename's extension.
-		#  * +size+ specifies a binary size (cropped or extended to),
+		#  Imports a binary file.
+		#  * +file+:: A file name.
+		#  * +type+:: A format of a binary file (as a symbol),
+		#             if +:any+ -> format will be determined by file name's extension.
+		#  * +size+:: A size in bytes to which imported data will be cropped or extended.
 		#
 		#  Options:
-		#  * +pipe+ should be a +proc+ to postprocess binary data with (e.g. compress it)
-		#  * +check_size+ may be given to check the size of the imported data
-		#    (before pipe) otherwise the CompileError is being raised.
-		#  * +data_type+ argument may be given to specify label type.
+		#  * +pipe+:: A +proc+ to postprocess binary data with (e.g. compress it).
+		#  * +check_size+:: A byte size to check the size of the imported data against
+		#    (before pipe). If the sizes don't match a CompileError will be raised.
+		#  * +data_type+:: A returned label's type.
 		#
-		#  Other options are passed to +read_data+ method of the format handler.
+		#  Any additional options are being passed to +read_data+ method of the format handler.
 		#
 		#  <b>Currently only :tap or :tzx format is supported and only,
 		#  if you include Z80::TAP in your program</b>.
 		#
-		#  If format is not known, file is being imported as a binary.
+		#  If format is not known, a file is being imported as a blob.
 		#
-		#  Returns unnamed +label+ that points to beginning of imported data.
+		#  Returns an unnamed label that points to the beginning of imported data.
 		def import_file(file, type = :any, size = nil, pipe:nil, check_size:nil, data_type:nil, **args)
 			type = type.to_s.upcase.to_sym
 			if type == :ANY
@@ -530,7 +572,7 @@ module Z80
 		end
 	end
 	#  some useless stuff; needed for z80 opcode testing; but didn't delete it (maybe will come in handy)
-	module Helpers
+	module Helpers # :nodoc:
 		def neg(a); -a & 0xff; end
 		def cpl(a); ~a & 0xff; end
 		def hb(a); '%02x'%(a & 0xff) ; end

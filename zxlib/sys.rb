@@ -139,7 +139,7 @@ class ZXSys
     export :auto
 
     vars    addr 23552, Vars
-    vars_iy addr vars.err_nr - vars
+    vars_iy vars.err_nr
 
     isolate :rom do
         start       addr 0x0000 # THE 'START'
