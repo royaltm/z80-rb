@@ -10,59 +10,58 @@ require 'zxlib/sys'
 #
 # Registers
 # The AY-3-8910/8912 contains 16 internal registers as follows: 
-# Register        Function                        Range
-# 
-#  0              Channel A fine pitch            8-bit (0-255)
-#  1              Channel A course pitch          4-bit (0-15)
-#  2              Channel B fine pitch            8-bit (0-255)
-#  3              Channel B course pitch          4-bit (0-15)
-#  4              Channel C fine pitch            8-bit (0-255)
-#  5              Channel C course pitch          4-bit (0-15)
-#  6              Noise pitch                     5-bit (0-31)
-#  7              Mixer                           8-bit (see below)
-#  8              Channel A volume                4-bit (0-15, see below)
-#  9              Channel B volume                4-bit (0-15, see below)
-# 10              Channel C volume                4-bit (0-15, see below)
-# 11              Envelope fine duration          8-bit (0-255)
-# 12              Envelope course duration        8-bit (0-255)
-# 13              Envelope shape                  4-bit (0-15)
-# 14              I/O port A                      8-bit (0-255)
-# 15              I/O port B                      8-bit (0-255)
-# Notes: 
-# 
-#   The AY-3-8912 does not contain register 15.
-#   The volume registers (8, 9 and 10) contain a 4-bit setting but if bit 5 is set then that channel uses the envelope defined by register 13 and ignores its volume setting.
-# 
+#   Register        Function                        Range
+#   
+#    0              Channel A fine pitch            8-bit (0-255)
+#    1              Channel A course pitch          4-bit (0-15)
+#    2              Channel B fine pitch            8-bit (0-255)
+#    3              Channel B course pitch          4-bit (0-15)
+#    4              Channel C fine pitch            8-bit (0-255)
+#    5              Channel C course pitch          4-bit (0-15)
+#    6              Noise pitch                     5-bit (0-31)
+#    7              Mixer                           8-bit (see below)
+#    8              Channel A volume                4-bit (0-15, see below)
+#    9              Channel B volume                4-bit (0-15, see below)
+#   10              Channel C volume                4-bit (0-15, see below)
+#   11              Envelope fine duration          8-bit (0-255)
+#   12              Envelope course duration        8-bit (0-255)
+#   13              Envelope shape                  4-bit (0-15)
+#   14              I/O port A                      8-bit (0-255)
+#   15              I/O port B                      8-bit (0-255)
+#
+# Notes:: The AY-3-8912 does not contain register 15.
+# The volume registers (8, 9 and 10) contain a 4-bit setting but if bit 5 is set then that channel uses the envelope defined by register 13 and ignores its volume setting.
+#   
 # 
 # The mixer (register 7) is made up of the following bits (low = enabled): 
-# Bit: 7        6        5        4        3        2        1        0
-#    _         _
-#    I/O       I/O   Noise    Noise    Noise     Tone     Tone     Tone
-#      B        A        C        B        A        C        B        A
+#   Bit: 7        6        5        4        3        2        1        0
+#      _         _
+#      I/O       I/O   Noise    Noise    Noise     Tone     Tone     Tone
+#        B        A        C        B        A        C        B        A
 # 
 # The AY-3-8912 ignores bit 7 of this register.
 # 
 # Envelopes
 # The AY-3-8910/8912 contains the following preset envelopes or waveforms (set using control register 13). Note that these affect volume only and not the pitch: 
-#  0      \__________     single decay then off
-# 
-#  4      /|_________     single attack then off
-# 
-#  8      \|\|\|\|\|\     repeated decay
-# 
-#  9      \__________     single decay then off
-# 
-# 10      \/\/\/\/\/\     repeated decay-attack
-#           _________
-# 11      \|              single decay then hold
-# 
-# 12      /|/|/|/|/|/     repeated attack
-#          __________
-# 13      /               single attack then hold
-# 
-# 14      /\/\/\/\/\/     repeated attack-decay
-# 
-# 15      /|_________     single attack then off
+#   0      \__________     single decay then off
+#  
+#   4      /|_________     single attack then off
+#  
+#   8      \|\|\|\|\|\     repeated decay
+#  
+#   9      \__________     single decay then off
+#  
+#  10      \/\/\/\/\/\     repeated decay-attack
+#            _________
+#  11      \|              single decay then hold
+#  
+#  12      /|/|/|/|/|/     repeated attack
+#           __________
+#  13      /               single attack then hold
+#  
+#  14      /\/\/\/\/\/     repeated attack-decay
+#  
+#  15      /|_________     single attack then off
 #
 class AYSound
 
@@ -134,6 +133,10 @@ class AYSound
       (0...steps).map {|n| frequency.to_f * 2.0**((n + n0).to_f/steps.to_f) }
     end
 
+    def ay_hz2tp(hz, clock_hz:AYSound::CLOCK_HZ)
+      (clock_hz / (16.0 * hz)).round
+    end
+
     ##
     # Returns a tone period table for the AY-3-891x chip.
     #
@@ -144,18 +147,41 @@ class AYSound
     # * +clock_hz+:: AY-3-891x clock frequency in Hz.
     # 
     # Middle (frequency table base) octave is 4.
-    def ay_tone_periods(min_octave:0, max_octave:7, notes_hz:self.equal_tempered_scale_notes_hz, clock_hz: AYSound::CLOCK_HZ)
+    def ay_tone_periods(min_octave:0, max_octave:7, notes_hz:self.equal_tempered_scale_notes_hz, clock_hz:AYSound::CLOCK_HZ)
       idx = 0
       (min_octave..max_octave).map do |octave|
         notes_hz.map.with_index do |hz, n|
           hz = (hz * 2.0**(octave-4))
-          tp = (clock_hz / (16.0 * hz)).round
+          tp = ay_hz2tp(hz, clock_hz:clock_hz)
           puts "#{idx.to_s.rjust(3,' ')}: #{('%.2f' % hz).rjust(7)} Hz, tp: #{tp.to_s.rjust(4)}, #{octave} #{AYSound::NOTE_SYMBOLS[n]}"
           idx += 1
           raise ArgumentError, "tone period out of range: #{tp} (#{hz} Hz)" unless (1..4095).include?(tp)
           tp
         end
       end.flatten
+    end
+
+    def ay_extend_notes(notes=hl, octaves:8, save_sp:true, disable_intr:true, enable_intr:true)
+      isolate do
+                      ld   [restore_sp + 1], sp if save_sp
+                      ld   b, (octaves-1)*12
+                      ld   hl, notes unless notes==hl
+                      di if disable_intr
+                      ld   sp, hl
+                      ld   de, 24
+                      add  hl, de
+        eloop         pop  de
+                      inc  de
+                      srl  d
+                      rr   e
+                      ld   [hl], e
+                      inc  hl
+                      ld   [hl], d
+                      inc  hl
+                      djnz eloop
+        restore_sp    ld   sp, 0 if save_sp
+                      ei if enable_intr
+      end
     end
 
     def ay_io_load_const_reg_bc(io=self.io128)
