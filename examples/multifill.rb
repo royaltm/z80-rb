@@ -8,12 +8,6 @@ require 'z80/stdlib'
 require 'zxlib/sys'
 require 'zxlib/gfx'
 require 'zxlib/basic'
-
-class Multitasking
-  MT_STACK_BOT = 0x8E3B
-  MT_VARS = ZXSys.mem.mmaps.to_i
-end
-
 require 'utils/multitasking_io'
 
 class Program
@@ -21,6 +15,8 @@ class Program
   include Z80::TAP
 
   CHAN_NAME = "F"
+
+  MT_OVERRIDES = {initial_stack_bot: 0x8E3B, mtvars: mmtvars, mtiovars: mmtiovars}
 
   ###########
   # Exports #
@@ -38,8 +34,10 @@ class Program
   macro_import  Z80MathInt
   macro_import  ZXGfx
   import        ZXSys, macros: true
-  import        MultitaskingIO, :mtio, code: false, macros: true, labels: MultitaskingIO.kernel_org
+  import        MultitaskingIO, :mtio, code: false, macros: true, labels: MultitaskingIO.kernel_org, override: MT_OVERRIDES
 
+  mmtvars       addr mem.mmaps, Multitasking::TaskVars
+  mmtiovars     union mmtvars, MultitaskingIO::TaskVarsIO
   task_yield    addr mtio.task_yield
 
   ##########
@@ -260,7 +258,7 @@ class Program
                     ret
 end
 
-mtiokernel = MultitaskingIO.new_kernel
+mtiokernel = MultitaskingIO.new_kernel(override: Program::MT_OVERRIDES)
 puts mtiokernel.debug
 
 fill = Program.new mtiokernel[:mtio_buffers_bot] - Program.code.bytesize
@@ -269,6 +267,8 @@ puts fill.debug
 puts "MultitaskingIO size: #{mtiokernel.code.bytesize}"
 %w[
   mtvars
+  mtiovars
+  mtiovars.buffers_top
   initial_stack_bot
   initial_stack_end
   mtio_buffers_bot
@@ -301,7 +301,7 @@ puts "Yield: call #{mtiokernel[:task_yield]}"
 puts "Kill:  jp   #{mtiokernel[:terminate]}"
 
 puts "\nCLEAR #{fill.org - 1}"
-%w[start drain fill mtio.mtvars mtio.find_def_fn_arg].each {|n| puts "#{n.ljust(15)} #{fill[n]}"}
+%w[start drain fill mtio.mtvars mtio.mtiovars mtio.mtiovars.buffers_top mtio.find_def_fn_arg].each {|n| puts "#{n.ljust(15)} #{fill[n]}"}
 
 tapfilename = 'examples/multifill.tap'
 

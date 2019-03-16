@@ -246,7 +246,12 @@ class MultitaskingIO
   ##
   # Instantiate MultitaskingIO kernel with the proper code address.
   def self.new_kernel(*args, **opts)
-    new kernel_org, *args, **opts
+    new(kernel_org, *args, **opts).tap do |kernel|
+      mtio_buffers_bot = kernel[:initial_stack_bot] - kernel[:mtio_buffer_chans]*2*MultitaskingIO::BufferIO.to_i
+      if kernel[:mtio_buffers_bot] > mtio_buffers_bot
+        raise CompileError, "mtio_buffers_bot may be at most: #{mtio_buffers_bot}"
+      end
+    end
   end
   ##
   # The MultitaskingIO kernel code start address.
@@ -280,11 +285,6 @@ class MultitaskingIO
   MTIO_BUFFER_CHANNELS = 1 unless const_defined?(:MTIO_BUFFER_CHANNELS)
 
   ##
-  # The bottom address of the reserved space for I/O buffers.
-  # Can be moved up/down to adjust buffers space. It's calculated from MTIO_BUFFER_CHANNELS by default.
-  MTIO_BUFFERS_BOT = Multitasking::MT_STACK_BOT - MTIO_BUFFER_CHANNELS*2*BufferIO.to_i unless const_defined?(:MTIO_BUFFERS_BOT)
-
-  ##
   # If the I/O operation blocks program while waiting for data or free buffer space, pressing BREAK
   # will stop the program execution with "8 End of file" error report.
   # Define MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO = +false+ to disable this.
@@ -314,10 +314,6 @@ class MultitaskingIO
   # being called immediately and the cursor appears. ED-COPY prevents the error message to be cleared, so the further
   # user input will be echoed after the message.
   MTIO_CLEAR_TV_FLAG_ON_INPUT = true
-
-  if MTIO_BUFFERS_BOT > Multitasking::MT_STACK_BOT - 2*BufferIO.to_i
-    raise CompileError, "MTIO_BUFFERS_BOT may be at most: #{Multitasking::MT_STACK_BOT - 2*BufferIO.to_i}"
-  end
 
   ###########
   # Imports #
@@ -778,11 +774,17 @@ class MultitaskingIO
   # I/O KERNEL #
   ##############
 
-  # For debug purposes
+  # Number of channels
+  mtio_buffer_chans   addr MTIO_BUFFER_CHANNELS
+
+  # The initial bottom address of the tasks' stack space.
   initial_stack_bot   addr Multitasking::MT_STACK_BOT
+  # The initial bottom address of the reserved space for I/O buffers.
+  mtio_buffers_bot    initial_stack_bot - mtio_buffer_chans * 2 * +BufferIO
+
+  # An override for Multitasking
   initial_stack_end   label
 
-  mtio_buffers_bot    addr MTIO_BUFFERS_BOT
   ##
   # :call-seq:
   #       USR open_io
@@ -843,9 +845,9 @@ class MultitaskingIO
                       ret  NZ              # initialize only once
                       ld   hl, [vars.prog] # make room for new channels below PROG
                       dec  hl
-                      ld   bc, ((Multitasking::MT_STACK_BOT - MTIO_BUFFERS_BOT)/BufferIO.to_i/2)*5
+                      ld   bc, mtio_buffer_chans*5
                       call rom.make_room   # make space  HL->p nnnn DE->n ooooo
-                      ld   bc, ((Multitasking::MT_STACK_BOT - MTIO_BUFFERS_BOT)/BufferIO.to_i/2)*5 - 1
+                      ld   bc, mtio_buffer_chans*5 - 1
                       ld16 hl, de
                       ld   [hl], 0
                       dec  de
@@ -964,7 +966,7 @@ class MultitaskingIO
                       call find_channel    # Find first unused channel slot
                       jp   NZ, error_4     # Out of Memory
                       ex   [sp], hl        # (SP): channel -> name character, HL: [mtiovars.buffers_top]
-                      ld   de, -(BufferIO.to_i - 4)
+                      ld   de, -(+BufferIO - 4)
                       dec  hl
                       ld   bc, system_inp
                       ld   [hl], b
@@ -1291,7 +1293,7 @@ class MultitaskingIO
 
   end_of_mtio         label
 
-  mt                  import  Multitasking, override: {initial_stack_end: -pc}
+  mt                  import  Multitasking, override: {initial_stack_end: initial_stack_end}
 
   mtiovars            union mtvars, TaskVarsIO
 end
@@ -1378,23 +1380,30 @@ if __FILE__ == $0
   echo = Echo.new 0xA000
   puts echo.debug
   puts "echo top:                         #{echo.org+echo.code.bytesize}"
-  puts "MultitaskingIO::MTIO_BUFFERS_BOT: #{MultitaskingIO::MTIO_BUFFERS_BOT} (#{(Multitasking::MT_STACK_BOT - MultitaskingIO::MTIO_BUFFERS_BOT)/MultitaskingIO::BufferIO.to_i/2})"
+  puts "Max top:                          #{mtiokernel[:initial_stack_bot] - mtiokernel[:mtio_buffer_chans]*2*MultitaskingIO::BufferIO.to_i}"
   puts "Multitasking::MT_STACK_BOT:       #{Multitasking::MT_STACK_BOT} (#{mtiokernel.org - Multitasking::MT_STACK_BOT})"
   puts "Multitasking::TASK_QUEUE_MAX:     #{Multitasking::TASK_QUEUE_MAX}"
   puts "Multitasking::MT_VARS:            #{Multitasking::MT_VARS}"
+  puts "Size of TaskInfo:                 #{Multitasking::TaskInfo.to_i}"
+  puts "Size of TaskVars:                 #{Multitasking::TaskVars.to_i}"
+  puts "Size of TaskVars:                 #{Multitasking::TaskVars.to_i}"
+  puts "Size of BufferIO:                 #{MultitaskingIO::BufferIO.to_i}"
+  puts "BufferIO reserved size:           #{mtiokernel[:mtio_buffer_chans]*2*MultitaskingIO::BufferIO.to_i}"
 
   puts "IO Kernel size:   #{mtiokernel[:end_of_mtio]-mtiokernel.org}"
   puts "MT Kernel size:   #{mtiokernel.imports[mtiokernel[:mt]].code.bytesize}"
   puts "MTIO Kernel size: #{mtiokernel.code.bytesize}"
   %w[
+    mtvars mtiovars
     mtiovars.buffers_top
-    mtio_buffers_bot
+    initial_stack_end initial_stack_bot
+    mtio_buffer_chans mtio_buffers_bot
     open_io wait_io initialize_io
     find_io_handles find_input_handle find_output_handle
     system_out system_inp
-    mtvars mtiovars api terminate task_yield 
+    api terminate task_yield 
   ].each do |label|
-    puts "#{label.ljust(20)}: 0x#{mtiokernel[label].to_s 16} - #{mtiokernel[label]}"
+    puts "#{label.ljust(20)}: 0x#{'%04x'%mtiokernel[label]} - #{mtiokernel[label]}"
   end
 
   puts "Setup: PRINT USR #{mtiokernel[:open_io]}"

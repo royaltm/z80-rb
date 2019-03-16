@@ -424,8 +424,8 @@ class Multitasking
   #
   # Modifies: +af+, +bc+, +de+, +hl+.
   ns :stack_space_free, use: :mtvars do
-                      ld   hl, mtvars.stack_end - (TaskInfo.to_i - 3)
-                      ld   bc, TaskInfo.to_i - 3   # begin with mtvars.stack_end as the 1st task's stack_end
+                      ld   hl, mtvars.stack_end - (+TaskInfo - 3)
+                      ld   bc, +TaskInfo - 3       # begin with mtvars.stack_end as the 1st task's stack_end
     search_last       add  hl, bc                  # skip task.stack_save
                       ld   e, [hl]                 # task.stack_bot
                       inc  hl
@@ -678,7 +678,7 @@ class Multitasking
                       sbc  hl, de                   # HL: SP - task[tid + 1]
                       ld16 bc, hl                   # BC: SP - task[tid + 1]
                       ld16 hl, de                   # HL: task[tid + 1]
-                      ld   sp, -TaskInfo.to_i
+                      ld   sp, -(+TaskInfo)
                       add  hl, sp                   # HL: task[tid]
                       ex   de, hl                   # DE: task[tid], HL: task[tid + 1]
                       ldir
@@ -795,7 +795,7 @@ class Multitasking
                       sbc  hl, de                 # stack_bot - SP - 1
                       jr   NC, task_stack_panic   # panic if stack_bot >= SP + 1
 
-                      # ld   hl, -TaskInfo.to_i - 2
+                      # ld   hl, -(+TaskInfo) - 2
                       # add  hl, sp
                       # ld   a, [hl]
                       # dec  hl
