@@ -428,31 +428,94 @@ class Z80MathInt
             end
         end
         ##
-        # Performs a multiplication of unsigned 16bit +hl+ by 16bit +mm+ (+bc+ or +de+)
-        # and returns result in 32 bit +hl+|+hl'+.
+        # Performs a multiplication of a 16-bit integer (+hl+) by an unsigned 16-bit integer +mm+ (+bc+ or +de+)
+        # and returns the 32-bit integer result in a +hl+|+hl'+.
         #
         # Uses: +af+, +af'+, +hl+, +hl'+, +mm+, +tt'+
+        #
+        # T-states: (+2 if +clrhlhl+ is an integer)
+        #        optimize:  time   size
+        #   0xFFFF*0xFFFF:  1346   1674
+        #        0*0     :   102   1136
+        #   0xFFFF*0     :   102   1136
+        #        0*0xFFFF:  1346   1674
+        #   0xFFFF*1     :   604   1169
+        #        1*0xFFFF:  1346   1674
+        #   0xFFFF*0xAAAA:  1085   1410
         #
         # * +mm+:: 16bit multiplicator (+bc+ or +de+)
         # * +tt'+:: 16bit tempoarary register (+bc+ or +de+)
         # * +clrhlhl+:: if +hl+|+hl'+ should be cleared, if +false+ acts like: +hl+|+hl'+ += +hl+ * +mm+;
-        #               also it may be a 32-bit constant, in this instance acts like: +hl+|+hl'+ = clrhlhl + +hl+ * +mm+.
-        def mul16_32(mm=bc, tt:bc, clrhlhl:true)
+        #               also it may be a 32-bit constant, in this instance acts like: +hl+|+hl'+ = +clrhlhl+ + +hl+ * +mm+.
+        # * +signed_hl+:: if the multiplicant (+hl+) represents a twos complement signed integer (-32768..32767).
+        # * +optimize+:: what is more important: a +:time+ (117 bytes) or a +:size+ (51 bytes)?
+        def mul16_32(mm=bc, tt:bc, clrhlhl:true, signed_hl:false, optimize: :time)
             raise ArgumentError unless [bc, de].include?(mm) and [bc, de].include?(tt)
             mh, ml = mm.split
             th, tl = tt.split
+            srx = if signed_hl
+                ->(x) { sra x }
+            else
+                ->(x) { srl x }
+            end
             isolate do |eoc|
+                if optimize == :size
+                                ld  a, ml
+                                scf
+                                adc a, a         # carry <- ml <- 1
+                                ex  af, af       # a' = ml, CF' = carry, ZF = 0
+                                ld  a, mh
+                                ld  mh, h
+                                ld  ml, l
+                    if address?(clrhlhl)
+                                ld  hl, clrhlhl >> 16
+                    elsif clrhlhl
+                                ld  hl, 0        # hl = 0
+                    end
+                                srx[mh]
+                                rr  ml
+                                exx
+                    if address?(clrhlhl)
+                                ld  hl, clrhlhl & 0xFFFF
+                                ld  tt, 0        # th'|tl' = 0
+                    elsif clrhlhl
+                                ld  hl, 0        # hl' = 0
+                                ld  th, h
+                                ld  tl, l
+                    end
+                                rr  th
+                                scf
+                                adc a, a         # carry <- mh <- 1
+                                jr  C, doadd1
+                    shadd0      exx
+                    shadd1      srx[mh]          # mh -> ml -> th'
+                                rr  ml
+                                exx
+                                rr  th
+                                rr  tl
+                                add a, a         # carry <- mh|ml
+                                jr  Z, multlo
+                    backloop    jr  NC, shadd0
+                    doadd1      add hl, th|tl    # hl' += th'|tl'
+                                exx
+                                adc hl, mh|ml    # hl  += mh|ml + carry
+                                jr  shadd1
+
+                    multlo      ex  af, af       # a = ml, ZF = a == 0
+                                jr  NZ, backloop
+                                exx
+                elsif optimize == :time
                                 ld  a, ml
                                 ora a            # a' ?= 0
                                 ex  af, af       # a' = ml, ZF' = a' == 0
                                 xor a            # a  = 0
                                 exx
-                if Integer===clrhlhl
-                                ld  hl, clrhlhl 
-                elsif clrhlhl
+                    if address?(clrhlhl)
+                                ld  hl, clrhlhl & 0xFFFF
+                    elsif clrhlhl
                                 ld  h, a         # hl' = 0
                                 ld  l, a
-                end
+                    end
                                 ld  th, a        # th'|tl' = 0
                                 ld  tl, a
                                 exx
@@ -461,27 +524,27 @@ class Z80MathInt
 
                                 ld  mh, h        # mh|ml = hl
                                 ld  ml, l
-                if Integer===clrhlhl
+                    if address?(clrhlhl)
                                 ld  hl, clrhlhl >> 16
-                elsif clrhlhl
+                    elsif clrhlhl
                                 ld  hl, 0        # hl = 0
-                end
+                    end
                                 scf
                                 adc a            # carry <- mh <- 1
                                 jr  NC, noadd1
 
-                shadd1          srl mh           # mh -> ml -> th'
+                    shadd1      srx[mh]          # mh -> ml -> th'
                                 rr  ml
                                 exx
                                 rr  th
                                 add hl, th|tl    # hl' += th'|tl'
                                 exx
                                 adc hl, mh|ml    # hl  += mh|ml + carry
-                                add a            # carry <- ml
+                                add a            # carry <- mh
                                 jr  Z, multlo
                                 jp  C, shadd1
 
-                noadd1          srl mh           # mh -> ml -> mh'
+                    noadd1      srx[mh]          # mh -> ml -> mh'
                                 rr  ml
                                 exx
                                 rr  th
@@ -491,19 +554,19 @@ class Z80MathInt
                                 jp  C, shadd1
                                 jp  noadd1
 
-                multlo0         ld  ml, h        # mh = 0, ml = h, th' = l, tl' = 0
+                    multlo0     ld  ml, h        # mh = 0, ml = h, th' = l, tl' = 0
                                 ld  a, l
                                 exx
                                 ld  th, a
                                 exx
                                 ld  hl, 0        # hl = 0
 
-                multlo          ex  af, af       # a = ml, ZF = a == 0
+                    multlo      ex  af, af       # a = ml, ZF = a == 0
                                 jr  Z, eoc
                                 add a            # carry <- ml
                                 jr  NC, noadd2
 
-                shadd2          srl ml           # ml -> mh' -> ml'
+                    shadd2      srx[ml]          # ml -> mh' -> ml'
                                 exx
                                 rr  th
                                 rr  tl
@@ -514,7 +577,7 @@ class Z80MathInt
                                 jr  Z, finlo
                                 jp  C, shadd2
 
-                noadd2          srl ml           # ml -> mh' -> ml'
+                    noadd2      srx[ml]          # ml -> mh' -> ml'
                                 exx
                                 rr  th
                                 rr  tl
@@ -524,14 +587,17 @@ class Z80MathInt
                                 jp  C, shadd2
                                 jp  noadd2
 
-                finlo           jr  NC, eoc
-                                srl ml           # ml -> mh' -> ml'
+                    finlo       jr  NC, eoc
+                                srx[ml]          # ml -> mh' -> ml'
                                 exx
                                 rr  th
                                 rr  tl
                                 add hl, th|tl    # hl' += th'|tl'
                                 exx
                                 adc hl, mh|ml    # hl  += mh|ml + carry
+                else
+                    raise ArgumentError, "optimize should be :time or :size"
+                end
             end
         end
         ##
