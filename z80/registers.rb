@@ -98,11 +98,13 @@ module Z80
 			#    ld  b, [ix + 2]
 			#    ld  [hl], b
 			def [](index = 0, sgn = :+)
+				raise Syntax, "sgn must be :+ or :- only" unless sgn == :+ or sgn == :-
 				if name.size == 2 or pointer?
 					if index != 0 and name[0] != ?i
-						raise Syntax, "Only ix,iy registers may be indexed pointers."
-					elsif !index.respond_to?(:to_alloc) and !(-128..127).include?(index)
-						raise Syntax, "Pointer index out of range."
+						raise Syntax, "Only ix and iy registers may be pointers with an index."
+					elsif !index.respond_to?(:to_alloc)
+						sindex = sgn == :+ ? index.to_i : -index.to_i
+						raise Syntax, "Pointer index out of range." unless (-128..127).include?(sindex)
 					end
 					raise Syntax, "Register #{name} can not be a pointer." unless r = @@regindex[name + '_'] or (pointer? and r = self)
 					r = r.dup
