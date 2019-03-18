@@ -88,10 +88,16 @@ class Program
   macro :multiply32_test do |_, x, y|
     raise ArgumentError unless x.is_a?(Integer) and (0..65535).include?(x) and
                                y.is_a?(Integer) and (0..65535).include?(y)
-        print_text "#{x}*#{y} = "
+        print_text "(t) #{x}*#{y} = "
         ld  hl, x
         ld  bc, y
-        call multiply32
+        call multiply32_t
+        assert_equals x*y, somebigint, 4
+        call print_num32
+        print_text "(s) #{x}*#{y} = "
+        ld  hl, x
+        ld  bc, y
+        call multiply32_s
         assert_equals x*y, somebigint, 4
         call print_num32
   end
@@ -263,6 +269,13 @@ class Program
                 multiply32_test 32768, 2
                 multiply32_test 0, 65535
                 multiply32_test 65535, 0
+                multiply32_test 0, 0
+                multiply32_test 1, 1
+                multiply32_test 0x8080, 0x8080
+                multiply32_test 0xff00, 0xff00
+                multiply32_test 0x00ff, 0x00ff
+                multiply32_test 0xff00, 0x00ff
+                multiply32_test 0x00ff, 0xff00
                 multiply32_test 65535, 65535
 
                 print_text "\r8bit divisor:\r"
@@ -594,7 +607,15 @@ class Program
                 ret
 
   # Subroutine used by multiply32_test macro
-  multiply32    mul16_32
+  multiply32_t  mul16_32(optimize: :time)
+                ld  [somebigint[1]], hl
+                exx
+                ld  [somebigint], hl
+                exx
+                ret
+
+  # Subroutine used by multiply32_test macro
+  multiply32_s mul16_32(optimize: :size)
                 ld  [somebigint[1]], hl
                 exx
                 ld  [somebigint], hl
@@ -780,11 +801,13 @@ class Program
 
 end
 
-math = Program.new 0x8000
+rnd_test_bottom = 65536-168-12*4*256*2
+math = Program.new rnd_test_bottom - Program.code.bytesize
 puts math.debug
-
+puts "\nORG:             #{'%04x'%math.org} - #{math.org}"
+puts "rnd_test_bottom: #{'%04x'%rnd_test_bottom} - #{rnd_test_bottom}"
 puts "\nExports: "
-Program.exports.each_key {|k| puts " #{k.to_s.ljust(15)}:  0x#{math[k].to_s 16} (#{math[k]})" }
+Program.exports.each_key {|k| puts " #{k.to_s.ljust(15)}:  0x#{'%04x'%math[k]} (#{math[k]})" }
 
 program = Basic.parse_source <<-END
    1 DEF FN r()=USR #{math[:rnd_seed_fn]}
