@@ -734,14 +734,7 @@ class ZXSys
                 less_than_1 ex    af, af         # a: sign
                             ld    tl, 0
                             jr    clear_hi
-                small_int   ld    a, t2          # a: lsb
-                            xor   t3             # t3: sign
-                            sub   t3
-                            ld    t0, a          # t0: sign normalized lsb
-                            ld    a, t1          # a: msb
-                            adc   a, t3
-                            xor   t3
-                            ld    t1, a          # t1: sign normalized msb
+                small_int   twos_complement16_by_sgn(t1, t2, t3, th:t1, tl:t0)
                             ld    a, t3          # sign
                 clear_hi    ld    th, 0
                             jr    cl_flags
