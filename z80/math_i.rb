@@ -56,10 +56,11 @@ class Z80MathInt
     # =Z80MathInt Macros
     module Macros
         ##
-        # Packs an integer of arbitrary byte size, creates a label and adds it to the Program.code at Program.pc.
+        # Packs an integer of an arbitrary size and adds it to the Program.code at Program.pc.
+        # Returns an unnamed relative label.
         #
         # Provided +bitsize+ must be a multiple of 8.
-        # Integer data is packed in LSB order.
+        # Integer data is being packed in a least significant byte first order.
         def int(bitsize, value)
             raise ArgumentError, "int bitsize must be > 0" unless bitsize.is_a?(Integer) and bitsize > 0
             raise ArgumentError, "int bitsize must be multiple of 8" unless (bitsize & 7).zero?
@@ -83,16 +84,44 @@ class Z80MathInt
                     data int_klass, blob
         end
         ##
-        # Negates +h+, +l+.
+        # Changes sign of a twos complement 16-bit integer depending on the content of the +sgn+.
         #
-        # Uses: +af+, +h+, +l+.
+        # When +sgn+ equals 0 an integer is left unmodified: +th+|+tl+ = +h+|+l+.
+        # When +sgn+ equals -1 an integer's sign is being changed: +th+|+tl+ = 0 - +h+|+l+.
+        #
+        # Uses: +af+, +th+, +tl+, preserves: +sgn+, +h+, +l+.
+        #
+        # T-states: 32
+        #
+        # * +h+:: 16bit integer MSB register.
+        # * +l+:: 16bit integer LSB register.
+        # * +sgn+:: 8bit sign, must be 0 or -1 (0xFF). Other values will render unexpected results.
+        # * +th+:: target register MSB.
+        # * +tl+:: target register LSB.
+        def twos_complement16_by_sgn(h, l, sgn, th:h, tl:l)
+            raise ArgumentError if [h, l, tl, sgn].include?(a) or h == l or th == tl or [h, l, th, tl].include?(sgn)
+            ns do
+                    ld    a, sgn
+                    xor   l
+                    sub   sgn
+                    ld    tl, a
+                    ld    a, h
+                    adc   a, sgn
+                    xor   sgn
+                    ld    th, a unless th == a
+            end
+        end
+        ##
+        # Changes sign of a twos complement 16-bit integer in +h+, +l+.
+        #
+        # Uses: +af+, +th+, +tl+, preserves: +h+, +l+.
         #
         # T-states: 24
         #
-        # * +h+:: negated 16bit register hi.
-        # * +l+:: negated 16bit register lo.
-        # * +th+:: target register hi.
-        # * +tl+:: target register lo.
+        # * +h+:: input 16-bit register MSB.
+        # * +l+:: input 16-bit register LSB.
+        # * +th+:: target register MSB.
+        # * +tl+:: target register LSB.
         def neg16(h, l, th:h, tl:l) # 24
             raise ArgumentError, "neg16 invalid arguments!" if [h, l, tl].include?(a) or h == l or th == tl
             ns do
@@ -105,7 +134,7 @@ class Z80MathInt
             end
         end
         ##
-        # Negates +t3+, +t2+, +t1+, +t0+.
+        # Changes sign of a twos complement 32-bit integer in +t3+|+t2+|+t1+|+t0+.
         #
         # Uses: +af+, +t3+, +t2+, +t1+, +t0+.
         #
@@ -129,18 +158,18 @@ class Z80MathInt
             end
         end
         ##
-        # Adds +a+ to +h+|+l+.
+        # Adds accumulator to +h+|+l+.
         #
         # Uses: +af+, +h+, +l+.
         #
         # ====Note:
-        # Although this method is often better (faster and does not use other registers) way
-        # to add 8bit unsigned register +a+ value to 16bit register it does not set flags properly.
+        # Although this method is often a more convenient way to add an 8-bit unsigned register +a+
+        # to a 16-bit pair of registers, it does not set flags properly.
         #
         # T-states: 20
         #
-        # * +h+:: register input accumulator hi.
-        # * +l+:: register input accumulator lo.
+        # * +h+:: MSB register.
+        # * +l+:: LSB register.
         def adda_to(h, l) # 20
             if h == l or [h,l].include?(a)
                 raise ArgumentError, "adda_to invalid arguments!"
@@ -159,14 +188,14 @@ class Z80MathInt
         # Uses: +af+, +h+, +l+, preserves: +r+.
         #
         # ====Note:
-        # Although this method is often better (faster and does not use other registers) way
-        # to subtract 8bit unsigned register value from 16bit register it does not set flags properly.
+        # Although this method is often a more convenient way to subtract an 8-bit unsigned register value
+        # from a 16-bit pair of registers, it does not set flags properly.
         #
         # T-states: 24
         #
-        # * +r+:: register subtractor must not be +a+.
-        # * +h+:: register input accumulator hi.
-        # * +l+:: register input accumulator lo.
+        # * +r+:: register subtractor (must not be accumulator).
+        # * +h+:: MSB register.
+        # * +l+:: LSB register.
         def sub_from(r, h, l)
             if h == l or [r,h,l].include?(a)
                 raise ArgumentError, "sub_from invalid arguments!"
@@ -181,16 +210,16 @@ class Z80MathInt
             end
         end
         ##
-        # Adds 16bit +tt+ to 24bit +th8+|+tl16+, returns the result in +a+|+tl16+.
+        # Adds a 16-bit integer +tt+ to a 24-bit integer +th8+|+tl16+, returns the result in +a+|+tl16+.
         #
         # Modifies: +af+, +tl16+.
         #
         # T-states: 27 signed / 19 unsigned
         #
-        # * +th8+:: 8 bit register containing the highest 8bit of the value to be added to, must not be +a+.
-        # * +tl16+:: 16 bit register containing low 16bit of the value to be added to: +hl+, +ix+, +iy+.
-        # * +tt+:: 16 bit register containing value to add: +bc+, +de+ or +sp+.
-        # * +signed+:: should the 16 bit added value be treated as a signed integer.
+        # * +th8+:: an 8-bit register containing the highest 8 bits of the value to be added to, must not be +a+.
+        # * +tl16+:: a 16-bit register containing low 16 bits of the value to be added to (+hl+, +ix+ or +iy+).
+        # * +tt+:: a 16-bit register containing value to add (+bc+, +de+ or +sp+).
+        # * +signed+:: +true+ if the 16-bit value being added is a twos complement signed integer.
         def add24_16(th8=c, tl16=hl, tt=de, signed:true)
             th, tl = tt.split
             tlh, tll = tl16.split
@@ -210,9 +239,9 @@ class Z80MathInt
             end
         end
         ##
-        # Performs a multiplication of a signed 8bit +k+ * 8bit signed +m+.
+        # Performs a multiplication of a signed 8-bit +k+ * 8-bit signed +m+.
         #
-        # See [mul] for details.
+        # See Macros.mul for details.
         def mul_signed(k=d, m=a, tt:de, clrhl:true)
             th, tl = tt.split
             raise ArgumentError if tt == hl or m == th
@@ -231,8 +260,8 @@ class Z80MathInt
             end
         end
         ##
-        # Performs a multiplication of an 8bit +k+ * 8bit unsigned +m+.
-        # Returns the result in the +hl+ registers.
+        # Performs a multiplication of an 8-bit integer +k+ * 8-bit unsigned +m+.
+        # Returns the result as a 16-bit integer in +hl+.
         # Optionally the result in the +hl+ is being accumulated.
         #
         # As a side-effect accumulator is always cleared to 0 and +m+ and +k+ are left unmodified
@@ -240,11 +269,11 @@ class Z80MathInt
         #
         # Uses: +af+, +hl+, +tt+, +k+, +m+.
         #
-        # * +k+::        a multiplicant as an immediate value or an 8bit register.
-        # * +m+::        a multiplicator as an immediate value or an 8bit register.
-        # * +tt+::       a 16 bit temporary register (+de+ or +bc+).
+        # * +k+::        a multiplicant as an immediate value or an 8-bit register.
+        # * +m+::        a multiplicator as an immediate value or an 8-bit register.
+        # * +tt+::       a 16-bit temporary register (+de+ or +bc+).
         # * +clrhl+::    if the result should be set or accumulated, if +false+ acts like: +hl+ += +k+ * +m+.
-        # * +signed_k+:: if the multiplicant (+k+) should be treated as a signed integer (-128..127).
+        # * +signed_k+:: if the multiplicant (+k+) represents a twos complement signed integer (-128..127).
         def mul(k=d, m=a, tt:de, clrhl:true, signed_k:false)
             th, tl = tt.split
             raise ArgumentError if tt == hl or m == th
@@ -269,20 +298,21 @@ class Z80MathInt
             end
         end
         ##
-        # Performs a multiplication of an unsigned 16bit +mh+|+ml+ * 8bit unsigned +m+.
-        # Returns the result in the +hl+ registers.
+        # Performs a multiplication of an unsigned 16-bit integer +mh+|+ml+ * 8-bit unsigned +m+.
+        # Returns the result as a 16-bit unsigned integer in +hl+.
         # Optionally accumulates result in +hl+.
-        # Breaks on overflow with CF=1.
+        #
+        # Breaks on overflow with +CF+=1.
         # 
         # As a side-effect +m+ is cleared to 0 when CF=0 and +ml+ and +mh+ are left unmodified
-        # if they are not one of a: +th+ nor +tl+.
+        # if they are not one of accumulator: +th+ nor +tl+.
         #
-        # Uses: +f+, +hl+, +m+, +mh+, +ml+, +tt+
+        # Uses: +f+, +hl+, +m+, +mh+, +ml+, +tt+.
         #
-        # * +mh+::    most significant part of the multiplicant as an immediate value or an 8bit register.
-        # * +ml+::    least significant part of the multiplicant as an immediate value or an 8bit register.
+        # * +mh+::    most significant part of the multiplicant as an immediate value or an 8-bit register.
+        # * +ml+::    least significant part of the multiplicant as an immediate value or an 8-bit register.
         # * +m+::     a multiplicator register, must not be a part of the +tt+.
-        # * +tt+::    a 16 bit temporary register (de or bc).
+        # * +tt+::    a 16-bit temporary register (+de+ or +bc+).
         # * +clrhl+:: if the result should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
         def mul8_c(mh=h, ml=l, m=a, tt:de, clrhl:true)
             th, tl = tt.split
@@ -302,20 +332,20 @@ class Z80MathInt
             end
         end
         ##
-        # Performs a multiplication of a 16bit +mh+|+ml+ * 8bit unsigned +m+.
-        # Returns the result in the +hl+ registers.
+        # Performs a multiplication of a 16-bit integer +mh+|+ml+ * 8bit unsigned +m+.
+        # Returns the result as a 16-bit integer in +hl+.
         # Optionally the result in the +hl+ is being accumulated.
         # Optionally multiplies the result by 2.
         #
         # As a side-effect +m+ is always cleared to 0 and +ml+ and +mh+ are left unmodified
         # if they are not one of a: +th+ nor +tl+.
         #
-        # Uses: +f+, +hl+, +m+, +mh+, +ml+, +tt+
+        # Uses: +f+, +hl+, +m+, +mh+, +ml+, +tt+.
         #
-        # * +mh+::    most significant part of the multiplicant as an immediate value or an 8bit register.
-        # * +ml+::    least significant part of the multiplicant as an immediate value or an 8bit register.
+        # * +mh+::    most significant part of the multiplicant as an immediate value or an 8-bit register.
+        # * +ml+::    least significant part of the multiplicant as an immediate value or an 8-bit register.
         # * +m+::     a multiplicator register, must not be a part of the +tt+.
-        # * +tt+::    a 16 bit temporary register (de or bc).
+        # * +tt+::    a 16-bit temporary register (+de+ or +bc+).
         # * +clrhl+:: if the result should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
         # * +double+:: +true+ if the result should be double (+mh+|+ml+ * 2).
         def mul8(mh=h, ml=l, m=a, tt:de, clrhl:true, double:false)
@@ -335,15 +365,16 @@ class Z80MathInt
             end
         end
         ##
-        # Performs a multiplication of unsigned 16bit +mh+|+ml+ * 8bit +m+ and returns result in 24bit +a+|+hl+.
+        # Performs a multiplication of an unsigned 16-bit integer +mh+|+ml+ * 8-bit unsigned +m+.
+        # Returns the result as a 24-bit unsigned integer in +a+|+hl+.
         # Optionally accumulates result in +a+|+hl+.
         #
-        # Uses: +af+, +bc+, +de+, +hl+
+        # Uses: +af+, +bc+, +de+, +hl+.
         #
-        # * +mh+::     hi multiplicant immediate value or any 8bit register.
-        # * +ml+::     lo multiplicant immediate value or any 8bit register.
+        # * +mh+::     hi multiplicant immediate value or any 8-bit register.
+        # * +ml+::     lo multiplicant immediate value or any 8-bit register.
         # * +m+::      a multiplicator register, must not be +a+, +tthi+, +ttlo+ or +t+.
-        # * +t+::      8 bit temporary register, must not be +a+, +tthi+, +ttlo+ or +m+.
+        # * +t+::      an 8-bit temporary register, must not be +a+, +tthi+, +ttlo+ or +m+.
         # * +tt+::     16 bit temporary register (+de+ or +bc+).
         # * +clrahl+:: if +a+|+hl+ should be set or accumulated, if +false+ acts like: +a+|+hl+ += +mh+|+ml+ * +m+.
         def mul8_24(mh=h, ml=l, m=b, t:c, tt:de, clrahl:true)
@@ -377,18 +408,19 @@ class Z80MathInt
             end
         end
         ##
-        # Performs a multiplication of unsigned 16bit +mh+|+ml+ * 8bit +m+ and returns result in 24bit +a+|+hl+.
-        # Creates unrolled code so +m+ should be constant in range: 0..255.
+        # Performs a multiplication of an unsigned 16-bit +mh+|+ml+ * 8-bit unsigned +m+.
+        # Returns the result as a 24-bit unsigned integer in +a+|+hl+.
+        # Creates a fast, unrolled code so +m+ should be constant in range: 0..255.
         # Optionally accumulates result in +a+|+hl+.
         # CF=0 ZF=1 if result fits in 16bits.
         #
-        # Uses: +af+, +bc+, +de+, +hl+
+        # Uses: +af+, +bc+, +de+, +hl+.
         #
-        # * +mh+::     hi multiplicant immediate value or any 8bit register.
-        # * +ml+::     lo multiplicant immediate value or any 8bit register.
+        # * +mh+::     MSB multiplicant as an immediate value or any 8-bit register.
+        # * +ml+::     LSB multiplicant as an immediate value or any 8-bit register.
         # * +m+::      an immediate 8bit multiplicator value.
-        # * +t+::      8 bit temporary register, must not be +a+, +tthi+ or +ttlo+.
-        # * +tt+::     16 bit temporary register (+de+ or +bc+).
+        # * +t+::      an 8-bit temporary register, must not be +a+, +tthi+ or +ttlo+.
+        # * +tt+::     a 16 bit temporary register (+de+ or +bc+).
         # * +clrahl+:: if +a+|+hl+  should be set or accumulated, if +false+ acts like: +a+|+hl+ += +mh+|+ml+ * +m+.
         def mul_const8_24(mh=h, ml=l, m=0, t:c, tt:de, clrahl:true)
             th, tl = tt.split
