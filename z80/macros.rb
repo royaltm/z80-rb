@@ -131,7 +131,7 @@ module Z80
 				ns(name, **opts) do
 					registers.each{|rr| saver[rr, :push]}
 					ns(**opts, merge: true, &block)
-					registers.reverse.each.each{|rr| saver[rr, :pop]}
+					registers.reverse_each{|rr| saver[rr, :pop]}
 					ret if with_return
 				end
 			end
