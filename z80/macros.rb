@@ -3,21 +3,25 @@ module Z80
 	module Program
 		#  ==Z80 Macros
 		#
-		#  Commonly used macros.
+		#  A few handy macros.
 		module Macros
 			##
-			# Convenient method to create local macros.
+			# A convenient method to create local macros.
 			#
-			# Give a +name+ (Symbol) to your macro, (optional) list of +registers+ to push before and pop after code
+			# Give a +name+ (Symbol) to your macro, an optional list of +registers+ to push before and pop after code
 			# and a block of code. See Macros.with_saved for explanation of +registers+ arguments.
 			# The block will receive +eoc+ label (see Program.ns) and any argument you pass when calling a macro.
 			#
 			# If you want your macros being exportable, do not use this method.
 			# Instead create module `Macros' inside your *program* class and define methods there.
+			# Remember to wrap the code in Program.ns, or better yet: Program.isolate.
 			#
-			# <b>Unlike labels, macros must be defined before being referenced.</b>
+			# <b>Macros and labels share the same namespace, however labels can be nested, but macros can't.</b>
 			#
-			# <b>Be carefull with +ret+ instruction if you used +registers+.</b>
+			# <b>Unlike labels, macros must be defined before being used.</b>
+			#
+			# *Note*:: Be carefull with +ret+ instruction if you used +registers+.
+			#          You can use <tt>ret: +true+</tt> option instead, see: Macros.with_saved.
 			#
 			# Example:
 			#   macro :cp16 do |eoc, aa, bb|
@@ -33,9 +37,10 @@ module Z80
 			#   cp16 bc, hl
 			#   jr   C, bc_less_than_hl
 			def macro(name, *registers, **nsopts, &mblock)
-				raise Syntax, "Macro must have name" unless name.is_a?(Symbol)
-				raise Syntax, "Macro may be defined only in main program context." if @contexts.size > 1
-				raise Syntax, "A label: #{name} is already allocated." if @labels.has_key?(label.to_s)
+				name = name.to_sym if name.is_a?(String)
+				raise Syntax, "A macro must have a name" unless name.is_a?(Symbol)
+				raise Syntax, "Macros may only be defined in the program context." if @contexts.size > 1
+				raise Syntax, "A label with the same name: \"#{name}\" exists." if @labels.has_key?(label.to_s)
 				m = lambda do |*args, &block|
 					if args.first.is_a?(Symbol)
 						n = args.shift
@@ -55,43 +60,44 @@ module Z80
 				define_singleton_method(name.to_sym, &m)
 			end
 			##
-			# Saves specified registers on a machine stack, evaluates block wrapped around
-			# a namespace and restores registers in reverse order.
+			# Pushes specified registers on a machine stack, evaluates block inside a namespace
+			# and pops registers in reverse order.
 			# Returns a label pointing to the beginning of the pushes. You may optionally pass a +name+
-			# to it as first argument.
+			# for the returned label to be named.
 			#
 			# +registers+ should be one of:
 			#
 			# * a 16bit register to push on a stack and pop after your code, except +sp+ obviously,
 			# * +:exx+ symbol to evaluate +exx+ instruction,
 			# * +:ex_af+ symbol to evaluate <code>ex af, af</code> instruction,
-			# * +:all+ evaluates to: +af+, +bc+, +de+, +hl+, +ix+, +iy+
-			# * +:all_but_ixiy+ evaluates to: +af+, +bc+, +de+, +hl+
-			# * +:ixiy:+ evaluates to: +ix+, +iy+
+			# * +:all+ symbol evaluates to: +af+, +bc+, +de+, +hl+, +ix+, +iy+
+			# * +:all_but_ixiy+ symbol evaluates to: +af+, +bc+, +de+, +hl+
+			# * +:ixiy+ symbol evaluates to: +ix+, +iy+
 			#
 			# +opts+ may be one of:
 			#
 			# * +:ret+ if the +ret+ instruction should be added after the registers have been restored.
-			#          In this instance jumping to +eoc+ will effectively return from the subroutine.
+			#   In this instance jumping to +eoc+ will effectively return from the subroutine.
 			#
-			# +opts+ are passed to Program.ns for a namespace around your code.
+			# Evaluates your +block+ inside Program.ns. All other +opts+ are being passed along to Program.ns.
 			#
 			# Examples:
-			#   with_saved af, de do
+			#   with_saved af, de do |eoc|
 			#     # ... do something with af and de
 			#   end
 			#
-			#   with_saved af, hl, :exx, hl, :exx do
-			#     # ... saves and restores af, hl, hl' and swaps shadow registers back before here
+			#   with_saved af, hl, :exx, hl, :exx, ret: true do |eoc|
+			#     # ... saves and restores af, hl, hl' and swaps shadow registers back before
+			#     # adds `ret' instruction after restoring all the registers
 			#   end
 			#
-			#   with_saved :bar, :all, :exx, :ex_af, :all_but_ixiy, inherit: foo, isolate: true do
+			#   with_saved :bar, :all, :exx, :ex_af, :all_but_ixiy, inherit: foo, isolate: true do |eoc|
 			#     # saves and restores: af, bc, de, hl, ix, iy, af', bc', de', hl'
-			#     # creates isolated namespace with inherited foo immediate label around here
-			#     # creates bar label in the enclosing namespace to the beginning of the pushes
+			#     # creates an isolated namespace with inherited `foo' label
+			#     # returns "bar" namespace label addressing beginning of the pushes
 			#   end
 			#
-			# <b>Be carefull with a +ret+ instruction in your code block.</b>
+			# <b>Be carefull with +ret+ instruction in a provided block. Remember to pop registers first or use +:ret+ option instead.</b>
 			def with_saved(*registers, **opts, &block)
 				name = nil
 				with_return = opts.delete :ret
@@ -136,9 +142,9 @@ module Z80
 				end
 			end
 			##
-			# Loads a content of the register +bb+ into register +aa+.
+			# Loads a content of the 16-bit register +bb+ into the 16-bit register +aa+.
 			#
-			# A sugar for two 8bit ld instructions.
+			# A sugar for two 8-bit +ld+ instructions.
 			#
 			# Example:
 			#   ld16  bc, hl
@@ -155,8 +161,20 @@ module Z80
 				end
 			end
 			##
-			# Compares a register pair +th+|+th+ with a 16bit +value+.
+			# Compares a register pair +th+|+th+ with a 16-bit +value+.
 			#
+			#   CF, ZF = (th|tl - value)
+			#
+			#   CF = 1 if th|tl <  value
+			#   CF = 0 if th|tl >= value
+			#   ZF = 0 if th|tl <> value
+			#   ZF = 1 if th|tl == value
+			#
+			# * +jr_msb_c+: provide a label if you want to jump immediately after +th+ < (value >> 8)
+			#   or +:ret+ symbol to return from a subroutine.
+			# * +jr_msb_nz+: provide a label if you want to jump immediately after +th+ <> (value >> 8)
+			#   or +:ret+ symbol to return from a subroutine. By default jumps to +eoc+ of the +cp16n+ code,
+			#   so flags can be examined later.
 			# Example:
 			#   cp16n  h,l, foo, jr_msb_c: less_than_foo
 			#   jr C, less_than_foo
@@ -183,6 +201,19 @@ module Z80
 			end
 			##
 			# Compares a register pair +th+|+th+ with another register pair +sh+|+sl+.
+			#
+			#   CF, ZF = (th|tl - +sh+|+sl+)
+			#
+			#   CF = 1 if th|tl <  sh|sl
+			#   CF = 0 if th|tl >= sh|sl
+			#   ZF = 0 if th|tl <> sh|sl
+			#   ZF = 1 if th|tl == sh|sl
+			#
+			# * +jr_msb_c+: provide a label if you want to jump immediately after +th+ < +sh+
+			#   or +:ret+ symbol to return from a subroutine.
+			# * +jr_msb_nz+: provide a label if you want to jump immediately after +th+ <> +sh+
+			#   or +:ret+ symbol to return from a subroutine. By default jumps to +eoc+ of the +cp16r+ code,
+			#   so flags can be examined later.
 			#
 			# Example:
 			#   cp16n  h,l, d,e, jr_msb_nz: not_equal

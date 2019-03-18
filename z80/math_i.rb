@@ -536,7 +536,9 @@ class Z80MathInt
                     multlo      ex  af, af       # a = ml, ZF = a == 0
                                 jr  NZ, backloop
                                 exx
+
                 elsif optimize == :time
+
                                 ld  a, ml
                                 ora a            # a' ?= 0
                                 ex  af, af       # a' = ml, ZF' = a' == 0
