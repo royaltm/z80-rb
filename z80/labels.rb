@@ -922,6 +922,14 @@ module Z80
 			end
 			Hash[res]
 		end
+		## Return true if +label+ takes part in an +alloc+ expression.
+		def Alloc.include?(alloc, label)
+			return true if alloc == label
+			return false unless alloc.is_a?(Alloc)
+			alloc.instance_exec do
+				Alloc.include?(@lhs, label) || Alloc.include?(@rhs, label)
+			end
+		end
 		# This method is being used when importing labels from other programs.
 		def deep_clone_with_relocation(addr, absolute, override, prefix=''.freeze) # :nodoc:
 			lhs = @lhs.deep_clone_with_relocation(addr, absolute, override, prefix)

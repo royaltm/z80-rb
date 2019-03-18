@@ -340,11 +340,22 @@ module Z80
 		#  Returns an (optionally named) +label+ that points to the beginning of a namespaced code.
 		def ns(name = nil, **opts)
 			raise ArgumentError, "no block given to ns" unless block_given?
-			inherit = opts[:inherit] || opts[:inherit_absolute] || opts[:inherit_labels] || opts[:use]
+			# Save parent labels
 			labels = @labels
 			@labels = labels.dup
+			# Normalize inherit option
+			inherit = opts[:inherit] || opts[:inherit_absolute] || opts[:inherit_labels] || opts[:use]
 			inherit = [inherit] if !inherit.is_a?(Array) &&
 									(inherit.is_a?(Symbol) || inherit.is_a?(String) || label?(inherit))
+			# Looks for labels in every context
+			find_1st_defined_label_in_contexts = ->(name) do
+				ct = @contexts.reverse_each.find do |ct|
+					l = ct[name]
+					l and !l.dummy?
+				end
+				ct and ct[name]
+			end
+			# Handle inherit option
 			@contexts << if inherit.is_a?(Array)
 				inherit.map do |name|
 					name = if name.respond_to?(:to_name)
@@ -354,36 +365,47 @@ module Z80
 					end
 					labl = labels[name]
 					if labl and labl.dummy?
-						ct = @contexts.reverse_each.find do |ct|
-							l = ct[name]
-							l and !l.dummy?
-						end
-						labl = ct and ct[name]
+						labl = find_1st_defined_label_in_contexts[name]
 					end
 					raise CompileError, "Label: `#{name}' not found" if labl.nil?
 					[name, labl]
 				end.to_h
 			elsif inherit == true
-				labels.select{|_,v| v.immediate?}
+				labels.select do |name,label|
+					if label.dummy?
+						label = find_1st_defined_label_in_contexts[name]
+					end
+					label && label.immediate?
+				end
 			elsif !inherit
 				{}
 			else
 				raise ArgumentError, "ns :inherit option must be a boolean, name or array of names"
 			end
+			# Prepare top and eoc labels
 			addr = pc
 			top = Label.dummy
 			eoc = Label.dummy 'EOC'
+			# Prepare debug info for a namespace
 			begin_reloc_index = @reloc.length
 			begin_debug = DebugInfo.new(addr, 0, '--- begin ---', nil, @context_labels.dup << top)
 			@debug << begin_debug
 			@context_labels << top unless opts[:merge]
+			# Execute block
 			yield eoc
-			if @reloc[begin_reloc_index...@reloc.length].all? {|r| r.alloc != eoc}
-				begin_debug.text = nil
-			else
+			# Check if eoc was used and modify debug info accordingly
+			if @reloc[begin_reloc_index...@reloc.length].any? {|r| Alloc.include?(r.alloc, eoc) }
 				@debug << DebugInfo.new(pc, 0, '---  end  ---', nil, @context_labels.dup << eoc)
+			else
+				begin_debug.text = nil
 			end
+			# Finally define eoc label
 			eoc.reinitialize(pc, 1, :code)
+			# Restore parent labels
+			@labels = labels
+			# Get our context's id
+			context_id = @contexts.last.object_id
+			# Partition labels created in this context
 			members, dummies = @contexts.pop.partition do |n, l|
 				if l.dummy?
 					false
@@ -391,30 +413,43 @@ module Z80
 					true
 				end
 			end
+			# Handle dummies left by inner namespaces
+			@dummies.delete_if do |name, label, *cts|
+				if cts.include?(context_id) and @labels.has_key?(name) and !@labels[name].dummy?
+					label.reinitialize @labels[name]
+					true
+				else
+					false
+				end
+			end
+			# Prepare contexts array for dummies
 			contexts = @contexts.map(&:object_id)
-			@labels = labels
+			# Handle isolate option
 			if opts[:isolate]
 				unless dummies.empty?
 					dummies = dummies.map {|d| d[0..1]}
 					raise CompileError, "Undefined labels referenced in isolated namespace: #{dummies.inspect}"
 				end
 			else
-				@dummies+= dummies.map do |n, l|
-					if @labels.has_key?(n) and !@labels[n].dummy?
-						l.reinitialize @labels[n]
+				@dummies+= dummies.map do |name, label|
+					if @labels.has_key?(name) and !@labels[name].dummy?
+						label.reinitialize @labels[name]
 						nil
 					else
-						[n, l] + contexts
+						[name, label] + contexts
 					end
 				end.compact
 			end
+			# Remove our context from debug info
 			@context_labels.pop
+			# Handle merge option
 			if opts[:merge]
 				members.each {|n, l| self.send(n, l) }
 				top.reinitialize addr, pc - addr, :code
 			else
 				top.reinitialize addr, pc - addr, :code, Hash[members]
 			end
+			# Optionally give name to top label
 			top = self.send name.to_sym, top if name
 			top
 		end
