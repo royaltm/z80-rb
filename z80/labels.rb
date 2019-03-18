@@ -402,6 +402,7 @@ module Z80
 					ct[name]||= Label.dummy(name).to_alloc
 				end.tap do |label|
 					label.name = name
+					@labels.delete name # move label to last position
 					@labels[name] = label
 				end
 			end
