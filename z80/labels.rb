@@ -911,6 +911,10 @@ module Z80
 			labels.each_value do |label|
 				eval_labels = ->(alloc, label) do
 					res << [alloc.to_s, alloc.to_i(start, override:override)]
+					begin
+						res << ['+' + alloc.to_s, alloc.to_i(size_of:true)]
+					rescue
+					end
 					label = label.instance_variable_get('@lhs') if label.is_a?(Alloc)
 					members = if label.is_a?(Label)
 						label.instance_variable_get('@members')
