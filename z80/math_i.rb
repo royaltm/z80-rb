@@ -661,12 +661,14 @@ class Z80MathInt
         #   - :check1:: Checks if a divisor equals 1, a hot path optimization. It may also be a label.
         #               to indicate where to jump if +m+ equals 1.
         #   - :modulo:: Calculates a remainder only.
-        def divmod(k, m, clrrem:true, check0:true, check1:true, modulo:false)
+        #   - :optimize:: what is more important: a +:time+ or a +:size+?
+        def divmod(k, m, clrrem:true, check0:true, check1:true, modulo:false, optimize: :time)
             unless clrrem
                 check0 = false
                 check1 = false
             end
             raise ArgumentError unless [d, e, h, l, c].include?(k) and [d, e, h, l, c].include?(m) and k != m
+            raise ArgumentError, "optimize should be :time or :size" unless [:size, :time].include?(optimize)
             isolate do |eoc|
                 check1 = eoc if check1 == true
                 check0 = eoc if check0 == true
@@ -675,7 +677,11 @@ class Z80MathInt
                                 cp  1
                                 jr  C, check0 if check0 # division by 0
                     if check1
+                        if optimize == :size
+                                jr  NZ, divstrt  # division by m > 1
+                        else
                                 jp  NZ, divstrt  # division by m > 1
+                        end
                                 xor a            # clear rest
                                 jp  check1       # division by 1
                     end
@@ -683,10 +689,12 @@ class Z80MathInt
                 divstrt         ld  b, 8
                 if clrrem
                                 xor a            # a = 0
-                    findhi      sla k            # align highest set bit at CF
+                    if optimize == :time
+                        findhi  sla k            # align highest set bit at CF
                                 jr  C, found1
                                 djnz findhi
                                 jp  eoc          # k == 0
+                    end
                 end
                 loopfit         sla k            # carry <- k <- 0
                 found1          adc a            # carry <- a <- carry
@@ -697,7 +705,11 @@ class Z80MathInt
                                 jr  NC, fits     # a >= m
                                 djnz loopfit     # loop
                                 ccf if check0    # clear carry only when check0
+                if optimize == :size
+                                jr  eoc
+                else
                                 jp  eoc
+                end
                 fits            sub m            # a = a - m (rest)
                 unless modulo
                                 inc k            # k <- 1 (quotient)
