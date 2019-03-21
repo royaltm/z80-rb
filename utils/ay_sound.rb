@@ -286,7 +286,7 @@ class AYSound
                       dec  e
                       jr   NZ, vol_res_loop
                       ay_get_set_mixer(a, bc_const_loaded:true, io:io) do |_|
-                        anda 0b11111000
+                        anda 0b11000000
                         ora  0b00111000
                       end
       end
