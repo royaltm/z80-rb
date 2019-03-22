@@ -402,6 +402,8 @@ class ZXSys
         # * +code+:: an 8-bit register or a code number (addresses and pointers works to).
         # * +tt+:: a 16-bit register except +hl+.
         #
+        # T-States: 46, +(0|4|7|13) depending on code, +(0|10|16) depending on chars.
+        #
         # Modifies: +af+, +tt+, +hl+
         def char_ptr_from_code(chars, code=a, tt:de)
           raise ArgumentError unless ((register?(chars) and chars == hl) or address?(chars)) and
