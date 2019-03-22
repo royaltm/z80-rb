@@ -42,7 +42,7 @@ class ZXGfx
         )
     end
     ##
-    # Advances to the next screen line byte address (down) using ah|al registers.
+    # Advances to the next screen line address (down) using ah|al registers.
     # (optionally) returns from subroutine if address goes out of screen area.
     #
     # Modifies: +af+, +ah+, +al+
@@ -52,11 +52,12 @@ class ZXGfx
     # * +bcheck+:: boundary check flag:
     #              +false+ = disable checking,
     #              +true+  = issue +ret+ if out of screen (default)
-    #              +label+ = jump to label if out of screen,
-    #              +hl+|+ix+|+iy+ = jump to address in a register if out of screen
-    # * +scraddr+:: screen memory address as an integer, must be a multiple of 0x2000
+    #              +label+ = jump to a label if out of screen,
+    #              +hl+|+ix+|+iy+ = jump to an address in a register if out of screen
+    # * +scraddr+:: screen memory address as an integer, must be a multiple of 0x2000,
+    #               this is being used to prevent overwriting out of screen memory area.
     #
-    # if block is given and +bcheck+ == +true+ evaluates namespaced block instead of +ret+.
+    # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
     # The code in the given block should not fall through and should end with a jump.
     #
     # T-states: 
@@ -69,8 +70,8 @@ class ZXGfx
                 (bcheck == hl and ([h, l].include?(ah) or [h, l].include?(al))) or
                 (bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
                 (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
-                ![ah, al].all?{|r| register?(r) } or
-                !(Integer === scraddr and scraddr == (scraddr & 0xE000))
+                ![ah, al].all?{|r| register?(r) } or 
+                (bcheck and !(Integer === scraddr and scraddr == (scraddr & 0xE000)))
             raise ArgumentError, "nextline invalid arguments!"
         end
         ns do |eoc|
@@ -105,7 +106,7 @@ class ZXGfx
         end
     end
     ##
-    # Moves up to the previous screen line byte address using ah|al registers.
+    # Moves up to the previous screen line address using ah|al registers.
     # (optionally) returns from subroutine if address goes out of screen area.
     #
     # Modifies: +af+, +ah+, +al+
@@ -117,7 +118,8 @@ class ZXGfx
     #              +true+  = issue +ret+ if out of screen (default)
     #              +label+ = jump to label if out of screen,
     #              +hl+|+ix+|+iy+ = jump to address in a register if out of screen
-    # * +scraddr+:: screen memory address as an integer, must be a multiple of 0x2000
+    # * +scraddr+:: screen memory address as an integer, must be a multiple of 0x2000,
+    #               this is being used to prevent overwriting out of screen memory area.
     #
     # if block is given and +bcheck+ == +true+ evaluates namespaced block instead of +ret+.
     # The code in the given block should not fall through and should end with a jump.
@@ -133,7 +135,7 @@ class ZXGfx
                 (bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
                 (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
                 ![ah, al].all?{|r| register?(r) } or
-                !(Integer === scraddr and scraddr == (scraddr & 0xE000))
+                (bcheck and !(Integer === scraddr and scraddr == (scraddr & 0xE000)))
             raise ArgumentError, "prevline invalid arguments!"
         end
         ns do |eoc|
