@@ -3,7 +3,7 @@ require 'z80'
 require 'zxlib/gfx'
 require 'zxlib/sys'
 ##
-# Z80 Macros producing routines to create and display a 16x15 pixel characters from a 8x8 pixel font
+# Z80 Macros producing routines to create and display 16x15 characters from a 8x8 font
 # (e.g: a default ROM font) applying a simple anti-aliasing algorithm.
 #
 #   original character  character with widened pixels       final result of the algorithm
@@ -198,8 +198,11 @@ class BigFont
     # * +compact+:: set to +false+ for a longer, but faster code
     # * +over+:: set to one of: +:xor+, +:and+, +:or+ for the character pixels to be combined with the screen memory;
     #            +false+ to overwrite the screen memory
-    # * +scraddr+:: screen memory address as an integer, must be a multiple of 0x2000
-    # * +assume_chars_aligned+:: +true+ if the character address in +hl+ is aligned to the multiple of 8 (+hl+ % 8 == 0)
+    # * +scraddr+:: screen memory address as an integer, must be a multiple of 0x2000,
+    #               this is being used to prevent overwriting out of screen memory area.
+    #               Provide +nil+ if you don't care.
+    # * +assume_chars_aligned+:: +true+ if every byte of a character resides on the same 256 byte size address page.
+    #                            This is true for e.g. an 8 pixels height character addressed at the multiple of 8.
     #
     # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+
     def enlarge_char8_16(compact:true, over:false, scraddr:0x4000, assume_chars_aligned:true)
@@ -212,6 +215,11 @@ class BigFont
         proc {|x| ora x }
       end
       isolate do |eoc|         # hl' - screen adddress, c' source height, hl - character address
+        bcheck = if scraddr
+          if compact then true else eoc end
+        else
+          false
+        end
                   ld   a, [hl] # 1st line
         if assume_chars_aligned
                   inc  l       # assuming characters are aligned to 8 bytes
@@ -237,7 +245,7 @@ class BigFont
         if compact
                   call next_line
         else
-                  nextline h, l, eoc, scraddr:scraddr
+                  nextline h, l, bcheck, scraddr:scraddr
         end
                   dec  c
                   jr   Z, eoc  # 15th line?
@@ -273,14 +281,14 @@ class BigFont
         if compact
                   call next_line
         else
-                  nextline h, l, eoc, scraddr:scraddr
+                  nextline h, l, bcheck, scraddr:scraddr
         end
                   exx
                   ld   a, c    # 2nd line
                   jp   mloop
         if compact
         next_line label
-                  nextline h, l, scraddr:scraddr do
+                  nextline h, l, bcheck, scraddr:scraddr do
                     pop af     # discard return address
                     jr  eoc
                   end
