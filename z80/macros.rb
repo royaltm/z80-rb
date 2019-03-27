@@ -78,6 +78,13 @@ module Z80
 			#
 			# * +:ret+ if the +ret+ instruction should be added after the registers have been restored.
 			#   In this instance jumping to +eoc+ will effectively return from the subroutine.
+			#   If <tt>:ret => :after_ei</tt> the +ei+ instruction will be added before +ret+.
+			#
+			# Other accepted values for +ret:+ option are:
+			# * +:reti+: the +reti+ instruction will be added instead of +ret+.
+			# * +:retn+: the +retn+ instruction will be added instead of +ret+.
+			# * +:after_ei+: the +ei+ instruction will be added before +ret+.
+			# * +:ei_reti+: the +ei+ instruction will be added before +reti+.
 			#
 			# Evaluates your +block+ inside Program.ns. All other +opts+ are being passed along to Program.ns.
 			#
@@ -138,7 +145,19 @@ module Z80
 					registers.each{|rr| saver[rr, :push]}
 					ns(**opts, merge: true, &block)
 					registers.reverse_each{|rr| saver[rr, :pop]}
-					ret if with_return
+					if with_return
+						ei if [:after_ei, :ei, :ei_ret, :ei_reti].include?(with_return)
+						case with_return
+						when :reti, :ei_reti
+							reti
+						when :retn
+							retn
+						when true, :after_ei, :ei, :ei_ret, :ret
+							ret
+						else
+							raise ArgumentError, "unrecognized value of :ret option: #{with_return.inspect}"
+						end
+					end
 				end
 			end
 			##
