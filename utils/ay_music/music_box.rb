@@ -66,12 +66,16 @@
 module MusicBox
   class Track
     attr_reader :name, :instruments
+    attr_accessor :counter
     def initialize(name, &block)
       @name = name.to_sym if name
       @track = []
       @labels = {}
       @octave = 3
+      @tempo = 64
       @instruments = nil
+      @counter = 0
+      @last_wait_index = nil
       if block_given?
         add(&block)
       end
@@ -114,15 +118,22 @@ module MusicBox
     def label(name)
       name = name.to_sym
       # raise ArgumentError, "label: #{name} already exists at: ##{@labels[name]}" if @labels.has_key?(name)
+      @last_wait_index = nil
       @labels[name] = @track.length
     end
     alias_method :l, :label
 
+    def tempo(ticks=nil)
+      @tempo = ticks if ticks
+      @tempo
+    end
+
     %w[a a! b c c! d d! e f f! g g!].each_with_index do |name, index|
-      define_method(name) do |octave=@octave|
+      define_method(name) do |octave=@octave, duration=nil, *durext|
         note = octave*12 + index
         raise ArgumentError, "invalid note: #{note}" unless (0..95).include?(note)
         @track << note + 1
+        pause(duration, *durext) if duration
       end
     end
     %w[b_ a!  d_ c!  e_ d!  g_ f!  a_ g!].each_slice(2) do |a, b|
@@ -134,11 +145,6 @@ module MusicBox
     end
     alias_method :i, :instrument
     alias_method :instr, :instrument
-
-    def sync(sync_to)
-      @track << 98 << (sync_to & 0xff)
-    end
-    alias_method :s, :sync
 
     def mode1; @track << 99; end
     alias_method :m1, :mode1
@@ -248,6 +254,22 @@ module MusicBox
     end
     alias_method :sub, :sub_track
 
+    def repeat(counter=nil)
+      if counter == 1
+        return yield
+      end
+      raise ArgumentError, "counter: 2 - 256" unless (2..256).include?(counter) or counter.nil?
+      @last_wait_index = nil
+      offset = @track.length
+      yield
+      counter = counter.nil? ? 0 : counter - 1
+      @track << 122 << counter
+      offset = offset - @track.length
+      raise ArgumentError, "repeat block too large" if offset < -256
+      @track << (offset & 0xff)
+    end
+    alias_method :rpt, :repeat
+
     def loop_to(name, counter=nil)
       return @track if counter == 1
       raise ArgumentError, "counter: 2 - 256" unless (2..256).include?(counter) or counter.nil?
@@ -267,13 +289,37 @@ module MusicBox
     def volume(level); @track << 160 + (level & 0x0f); end
     alias_method :v, :volume
 
+    def sync(sync_to)
+      sync_to = sync_to.to_i & 0xff
+      @counter += (sync_to - @counter) & 0xff
+      @track << 98 << sync_to
+    end
+    alias_method :s, :sync
+
+    def pause(duration, *durexts)
+      time = (@tempo/duration.to_f).round
+      durexts.each do |durext|
+        time += (@tempo/durext.to_f).round
+      end
+      wait time
+    end
+    alias_method :p, :pause
+
     def wait(ticks)
       raise ArgumentError, "ticks must be > 0" unless Integer === ticks && ticks > 0
+      @counter += ticks
+      if @last_wait_index == @track.length - 1
+        ticks += @track.pop - 175
+      end
       while ticks > 80
+        @last_wait_index = @track.length
         @track << 255
         ticks -= 80
       end
-      @track << 176 + ticks - 1 unless ticks == 0
+      unless ticks == 0
+        @last_wait_index = @track.length
+        @track << 175 + ticks
+      end
     end
     alias_method :w, :wait
 
