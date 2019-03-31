@@ -1,3 +1,4 @@
+# http://neilhawes.com/sstheory/theory12.htm#Semibreve
 # track record
 # alias_method :l, :label
 # alias_method :i, :instrument
@@ -66,15 +67,15 @@
 module MusicBox
   class Track
     attr_reader :name, :instruments
-    attr_accessor :counter
+    attr_accessor :tick_counter
     def initialize(name, &block)
       @name = name.to_sym if name
       @track = []
       @labels = {}
       @octave = 3
-      @tempo = 64
+      @tempo = 128
       @instruments = nil
-      @counter = 0
+      @tick_counter = 0
       @last_wait_index = nil
       if block_given?
         add(&block)
@@ -261,8 +262,11 @@ module MusicBox
       raise ArgumentError, "counter: 2 - 256" unless (2..256).include?(counter) or counter.nil?
       @last_wait_index = nil
       offset = @track.length
+      tick_counter = @tick_counter
       yield
+      tick_counter_delta = @tick_counter - tick_counter
       counter = counter.nil? ? 0 : counter - 1
+      @tick_counter += tick_counter_delta * counter
       @track << 122 << counter
       offset = offset - @track.length
       raise ArgumentError, "repeat block too large" if offset < -256
@@ -291,7 +295,7 @@ module MusicBox
 
     def sync(sync_to)
       sync_to = sync_to.to_i & 0xff
-      @counter += (sync_to - @counter) & 0xff
+      @tick_counter += (sync_to - @tick_counter) & 0xff
       @track << 98 << sync_to
     end
     alias_method :s, :sync
@@ -307,7 +311,7 @@ module MusicBox
 
     def wait(ticks)
       raise ArgumentError, "ticks must be > 0" unless Integer === ticks && ticks > 0
-      @counter += ticks
+      @tick_counter += ticks
       if @last_wait_index == @track.length - 1
         ticks += @track.pop - 175
       end
