@@ -3,6 +3,7 @@ require 'utils/sincos'
 require 'z80/stdlib'
 
 ##
+# http://pages.mtu.edu/~suits/chords.html
 # ===AY music engine
 class AYMusic
   include Z80
@@ -172,7 +173,7 @@ class AYMusic
     amplitude     byte # amplitude in tone period, tp += sin(angle)*ampl
   end
 
-  ## AY-3-8912 register mirror
+  ## AY-3-891x register mirror
   class AYRegisterMirror < Label
     tone_pitch_a      word
     tone_pitch_b      word
@@ -233,7 +234,9 @@ class AYMusic
 
   class MusicControl < Label
     ay_registers      AYRegisterMirror
-    counter           byte              # a counter tracks can synchronize to
+    counter_lo        byte # a counter tracks can synchronize to with the sync command
+    counter_hi        byte # an MSB of the counter, can be used externally
+    counter           counter_lo word
     noise_envelope    EnvelopeControl
     chan_a            ChannelControl
     chan_b            ChannelControl
@@ -356,8 +359,11 @@ class AYMusic
                       cp   +music_control.ay_registers
                       jr   C, rloop
 
-                      inc  [hl]                    # update counter
-
+                      inc  [hl]                    # update counter_lo
+                      jr   NZ, skip_high
+                      inc  hl
+                      inc  [hl]                    # update counter_hi
+    skip_high         label
                       ld   de, music_control.chan_a
                       call track_progress
                       ld   de, music_control.chan_b
