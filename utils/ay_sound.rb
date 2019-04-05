@@ -153,7 +153,7 @@ class AYSound
         notes_hz.map.with_index do |hz, n|
           hz = (hz * 2.0**(octave-4))
           tp = ay_hz2tp(hz, clock_hz:clock_hz)
-          puts "#{idx.to_s.rjust(3,' ')}: #{('%.2f' % hz).rjust(7)} Hz, tp: #{tp.to_s.rjust(4)}, #{octave} #{AYSound::NOTE_SYMBOLS[n]}"
+          # puts "#{idx.to_s.rjust(3,' ')}: #{('%.2f' % hz).rjust(7)} Hz, tp: #{tp.to_s.rjust(4)}, #{octave} #{AYSound::NOTE_SYMBOLS[n]}"
           idx += 1
           raise ArgumentError, "tone period out of range: #{tp} (#{hz} Hz)" unless (1..4095).include?(tp)
           tp
@@ -162,6 +162,7 @@ class AYSound
     end
 
     def ay_extend_notes(notes=hl, octaves:8, save_sp:true, disable_intr:true, enable_intr:true)
+      raise ArgumentError, "octaves out of range: #{octaves} (2-8)" unless (2..8).include?(octaves)
       isolate do
                       ld   [restore_sp + 1], sp if save_sp
                       ld   b, (octaves-1)*12
