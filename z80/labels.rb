@@ -876,7 +876,7 @@ module Z80
 				end
 			end
 			## Returns a hash containing structure members as instances of a Member class.
-			def members_of_struct; @members; end
+			def members_of_struct; @members && Hash[@members]; end
 			##
 			# Creates an instance of a label. Do not use it directly in programs.
 			# Instead use Program.data, Program.label, Program.addr, Program.union or prepend any instruction with a name instead.
