@@ -1,7 +1,6 @@
 # -*- coding: BINARY -*-
 require 'z80'
 require 'z80/math_i'
-require 'zxlib/sys'
 
 class Z80Shuffle
     module Macros
@@ -85,6 +84,7 @@ end
 
 if __FILE__ == $0
     require 'zxlib/basic'
+    require 'zxlib/sys'
     # :stopdoc:
     class TestShuffle # :nodoc: all
         include Z80
