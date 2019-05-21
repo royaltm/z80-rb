@@ -160,16 +160,27 @@ class AYSound
         end
       end.flatten
     end
-
-    def ay_extend_notes(notes=hl, octaves:8, save_sp:true, disable_intr:true, enable_intr:true)
+    ##
+    # Creates a routine for expanding the note to tone period table to a higher number of octaves.
+    #
+    # * +notes+:: An address of the lowest octave of the notes to expand.
+    # * +octaves+:: How many octaves should be expanded to, must be between 2 and 8.
+    # * +half_tones+:: How many half-tones in one actave.
+    # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored. Otherwise
+    #               +sp+ will point to the beginning of the last octave of the table.
+    # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
+    #                    only if you have already disabled the interrupts.
+    # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
+    #                   if you need to perform more uninterrupted actions.
+    def ay_extend_notes(notes=hl, octaves:8, half_tones: 12, save_sp:true, disable_intr:true, enable_intr:true)
       raise ArgumentError, "octaves out of range: #{octaves} (2-8)" unless (2..8).include?(octaves)
       isolate do
                       ld   [restore_sp + 1], sp if save_sp
-                      ld   b, (octaves-1)*12
+                      ld   b, (octaves-1)*half_tones
                       ld   hl, notes unless notes==hl
                       di if disable_intr
                       ld   sp, hl
-                      ld   de, 24
+                      ld   de, half_tones*2
                       add  hl, de
         eloop         pop  de
                       inc  de
