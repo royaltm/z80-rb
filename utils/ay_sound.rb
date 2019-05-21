@@ -6,7 +6,9 @@ require 'zxlib/sys'
 #
 # Macros to help program the AY-3-8910/8912 sound chipsets.
 #
-# _From_:: http://www.armory.com/~rstevew/Public/SoundSynth/Novelty/AY3-8910/start.html
+# _Sources_::
+# * http://www.armory.com/~rstevew/Public/SoundSynth/Novelty/AY3-8910/start.html
+# * https://faqwiki.zxnet.co.uk/wiki/AY-3-8912
 #
 # Registers
 # The AY-3-8910/8912 contains 16 internal registers as follows: 
@@ -64,29 +66,19 @@ require 'zxlib/sys'
 #  15      /|_________     single attack then off
 #
 class AYSound
-
-  ###########
-  # Exports #
-  ###########
-
-  # export ay
-
-  ###########
-  # Imports #
-  ###########
-
-  # import        ZXSys, macros: true, labels: true, code: false
-
-  ##########
-  # Macros #
-  ##########
-
-  # https://faqwiki.zxnet.co.uk/wiki/AY-3-8912
-  # https://www.worldofspectrum.org/faq/reference/tmxreference.htm
+  ## ZX Spectrum 128k AY-891x frequency
   CLOCK_HZ_128 = 3.5469/2 * 1_000_000 # 1.77345 MHz
+
+  ## ZX Spectrum 48k AY-891x frequency
   CLOCK_HZ_48 = 3.5/2 * 1_000_000 # 1.75 MHz
+
+  ##
+  # Timex 2068 AY-891x frequency
+  # https://www.worldofspectrum.org/faq/reference/tmxreference.htm
   CLOCK_HZ_TIMEX = 1.76475*1_000_000 # Timex TS2068 (1.76475 MHz) 3.52800/2
-  CLOCK_HZ = CLOCK_HZ_128
+
+  ## Default AY-891x frequency
+  CLOCK_HZ = CLOCK_HZ_128 unless const_defined?(:CLOCK_HZ)
 
   module EnvelopeControl
     HOLD          = 1
@@ -120,30 +112,37 @@ class AYSound
   end
   include Registers
 
+  ## An array of note symbols as strings.
   NOTE_SYMBOLS = %w[A A# B C C# D D# E F F# G G#]
 
   ##
   # ==AYSound macros.
   module Macros
     ##
-    # Returns a table of equal tempered 12 half-tone scale based on a given frequency.
+    # Returns an array of equal tempered scale based on a given frequency.
     # _See_:: http://pages.mtu.edu/~suits/NoteFreqCalcs.html
-    # n0: -9 for C
+    #
+    # Options:
+    # * +n0+:: an index of the first note in the table: 0 is for "A", -9 for "C".
+    # * +steps:: how many half tones, 12 is the default.
     def equal_tempered_scale_notes_hz(frequency: 440, n0:0, steps:12)
       (0...steps).map {|n| frequency.to_f * 2.0**((n + n0).to_f/steps.to_f) }
     end
-
+    ##
+    # Converts a frequency given in hertzs to AY-891x tone period value.
+    #
+    # Options:
+    # * +clock_hz+:: AY-3-891x clock frequency in Hz.
     def ay_hz2tp(hz, clock_hz:AYSound::CLOCK_HZ)
       (clock_hz / (16.0 * hz)).round
     end
-
     ##
-    # Returns a tone period table for the AY-3-891x chip.
+    # Returns a tone period array for the AY-3-891x chip.
     #
     # Options:
-    # * +min_octave:: Minimal octave number.
-    # * +max_octave:: Maximal octave number.
-    # * +notes_hz+:: A table of tone frequencies (in Hz) in the middle (4) octave.
+    # * +min_octave:: Minimal octave number, 0-based.
+    # * +max_octave:: Maximal octave number, 0-based.
+    # * +notes_hz+:: An array of tone frequencies (in Hz) in the middle (4) octave.
     # * +clock_hz+:: AY-3-891x clock frequency in Hz.
     # 
     # Middle (frequency table base) octave is 4.
@@ -198,6 +197,13 @@ class AYSound
 
     def ay_io_load_const_reg_bc(io=self.io128)
       port_bit_diff = io.ay_out.to_i ^ io.ay_sel.to_i
+      # select((io.ay_out ^ io.ay_sel) & 0xFF00, &:zero?).then do |eoc|
+      #   ld   b, io.ay_out>>8
+      # end.else_select((io.ay_out ^ io.ay_sel) & 0x00FF, &:zero?).then do |eoc|
+      #   ld   c, io.ay_out
+      # end.else do
+      #   raise ArgumentError, "ay_out and ay_sel should be different on 8-bit either lo or hi"
+      # end
       if (port_bit_diff & 0xFF00).zero?
                       ld   b, io.ay_out>>8
       elsif (port_bit_diff & 0x00FF).zero?
