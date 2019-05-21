@@ -1,5 +1,5 @@
-require 'z80/math_i.rb'
-require 'zxlib/gfx.rb'
+require 'z80/math_i'
+require 'zxlib/gfx'
 ##
 #  Sprite drawing routines.
 #
@@ -11,7 +11,7 @@ require 'zxlib/gfx.rb'
 #      class ZXGfxSprite8
 #        DRAW_METHODS = [:xor]
 #      end
-#      require 'zxlib/gfx_sprite8'
+#      require 'zxlib/gfx/sprite8'
 #
 class ZXGfxSprite8
   include Z80 unless defined?(Program)

@@ -6,7 +6,7 @@ require 'z80'
 require 'z80/stdlib'
 require 'zxlib/sys'
 require 'zxlib/basic'
-require 'utils/bigfont'
+require 'zxutils/bigfont'
 
 # NOTE: This code will work only in ZX Spectrum 48k mode.
 class Bootstrap

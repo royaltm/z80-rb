@@ -1,6 +1,6 @@
-require 'utils/ay_sound'
-require 'utils/sincos'
 require 'z80/stdlib'
+require 'z80/utils/sincos'
+require 'zxlib/ay_sound'
 ##
 # http://pages.mtu.edu/~suits/chords.html
 # ===AY music engine
@@ -1152,8 +1152,8 @@ end
 
 if __FILE__ == $0
     # :stopdoc:
-  require 'utils/zx7'
-  require 'utils/ay_music/music_box'
+  require 'zxutils/zx7'
+  require 'zxutils/ay_music/music_box'
   require 'zxlib/basic'
 
   class MusicTest

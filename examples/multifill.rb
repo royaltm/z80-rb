@@ -8,7 +8,7 @@ require 'z80/stdlib'
 require 'zxlib/sys'
 require 'zxlib/gfx'
 require 'zxlib/basic'
-require 'utils/multitasking_io'
+require 'zxutils/multitasking_io'
 
 class Program
   include Z80

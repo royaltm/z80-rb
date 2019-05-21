@@ -7,7 +7,7 @@ require 'z80/math_i'
 require 'z80/stdlib'
 require 'zxlib/sys'
 require 'zxlib/basic'
-require 'utils/zx7'
+require 'zxutils/zx7'
 
 class Program
   include Z80

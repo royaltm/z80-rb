@@ -1,5 +1,5 @@
 # -*- coding: BINARY -*-
-require 'utils/multitasking'
+require 'zxutils/multitasking'
 ##
 # =MultitaskingIO
 #

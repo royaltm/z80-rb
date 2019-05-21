@@ -1,6 +1,6 @@
 require 'z80'
 require 'z80/stdlib'
-require 'zxlib/gfx_draw'
+require 'zxlib/gfx/draw'
 require 'zxlib/basic'
 
 class Stars
