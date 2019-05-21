@@ -1,10 +1,12 @@
 require 'utils/ay_sound'
 require 'utils/sincos'
 require 'z80/stdlib'
-
 ##
 # http://pages.mtu.edu/~suits/chords.html
 # ===AY music engine
+#
+# Music player routines and Macros.
+#
 class AYMusic
   include Z80
   include AYSound::Registers
@@ -14,7 +16,19 @@ class AYMusic
   ##
   # ====AY music engine utils
   module Macros
-    ## Execute this code before each play iteration if you care about preserving the AY general purpose I/O ports' state.
+    ##
+    # Creates a routine that reads a state of the I/O ports from the AY-891x chip
+    # and stores it into the player's register mirror.
+    #
+    # Execute this code before each play iteration if you care about preserving
+    # the AY general purpose I/O ports' state.
+    #
+    # * +music_control+:: A label of the type MusicControl addressing the data structure.
+    # * +play+:: A label addressing the AYMusic player's iteration routine.
+    #
+    # Options:
+    # * +bc_const_loaded+:: If AYSound::Macros.ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
+    # * +io+:: A label containing +ay_out+ and +ay_sel+ sublabels addressing the AY-891x output and select/input I/O bus.
     def ay_preserve_io_ports_state(music_control, play, bc_const_loaded:true, io:self.io128)
       isolate do
                           ay_get_register_value(AYMusic::MIXER, a, bc_const_loaded:bc_const_loaded, io:io)
@@ -23,53 +37,37 @@ class AYMusic
                           call play.apply_mask_de
       end
     end
-    # CLOCK_HZ=3.5469/2 * 1_000_000
-    # aaa=->(notes, steps) {2**(notes.to_f/steps.to_f/12.0)}
-    # a=aaa[-12,STEPS]
-    # x0=(CLOCK_HZ / (16.0 * 440.0/STEPS.to_f)).round
-    # xf0=(CLOCK_HZ / (16.0 * 440.0/(STEPS.to_f/8)))
+    ##
+    # Creates a routine that builds a note-to-fine tones index table.
     #
-    # STEPS=256
-    # fc=->(steps){[2**(-1.0/steps.to_f),(CLOCK_HZ/(16.0*440.0/steps.to_f)).round,(CLOCK_HZ/(16.0*440.0/(steps.to_f/8)))]}
-    # a,x0,xf0 = fc[STEPS]
-    # a0=(a*65536).round
-    # d1=->(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| puts "#{i.to_s.rjust(4)}:#{x1=x>>3} #{x2=(xf0*a**i).round} #{delta+=(x2-x1).abs}"; ((x*a0)+fi)>>16};delta}
-    # dd=->(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| x1=x>>3; x2=(xf0*a**i).round; delta+=(x2-x1).abs; ((x*a0)+fi)>>16}; delta }
-    # dd[16384+8192-673]
-    # (-1024..1024).map{|i| [i,dd[16384+8192+i]]}
+    # * +note_to_cursor+:: An address of the table to be built (192 bytes).
     #
-    # a=2**(1.0/steps.to_f)
-    # a0=((a-1.0)*65536).round
-    # x0=(CLOCK_HZ / (16.0 * 440.0/STEPS.to_f)/2.0).round
-    # xf0=(CLOCK_HZ / (16.0 * 440.0/(STEPS.to_f/8))/2.0)
-    # d1=->(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| puts "#{i.to_s.rjust(4)}:#{x1=(x+4)>>3} #{x2=(xf0*a**i).round} #{delta+=(x2-x1).abs}"; x+(((x*a0)+fi)>>16)};delta}
-    # dd=->(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| x1=(x+4)>>3; x2=(xf0*a**i).round; delta+=(x2-x1).abs; x+(((x*a0)+fi)>>16)};delta}
-    # (0..1024).map{|i| [i,dd[16384+2048+i]]}
-    # d1[16384+2048+594]
-    # (note*256*32/12)
+    # Options:
+    # * +play+:: An optional label addressing the AYMusic player's iteration routine (code re-use optimisation).
+    # * +num_notes+:: An optional number of notes to cover which is by default its maximum value: 96.
     def ay_note_to_fine_tone_cursor_table_factory(note_to_cursor, play:nil, num_notes:8*12)
-      raise ArgumentError, "num_notes should be between 1 and 96" unless (1..8*12).include?(num_notes)
+      raise ArgumentError, "num_notes should be between 1 and #{8*12}" unless (1..8*12).include?(num_notes)
       isolate do |eoc|
                           ld   bc, 12
                           ld   hl, note_to_cursor
-        floop             ld   a, b
+        floop             ld   a, b         # index = note * 256 * 32 / 12
                           cp   num_notes
                           jr   NC, eoc
                           push bc
-                          3.times { rrca } # eeeddddd
-                          ld   d, a
+                          3.times { rrca }  # note * 32
+                          ld   d, a         # 000ddddd eee00000
                           anda 0b11100000
                           ld   e, a
                           xor  d
                           ld   d, a
                           ex   de, hl
-        if play.nil?
+        if play.nil?                        # note * 32 / 12
                           divmod h, c, check0:false, check1:false, optimize: :size
                           divmod l, c, clrrem:false, optimize: :size
         else
                           call play.divmod_hl_c
         end
-                          ld   h, l
+                          ld   h, l         # note * 256 * 32 / 12
                           ld   l, 0
         if play.nil?
                           divmod l, c, clrrem:false
@@ -86,8 +84,38 @@ class AYMusic
                           jr   floop
       end
     end
-
+    ##
+    # Creates a routine that builds a fine tones to AY-891x tone periods table.
+    #
+    # * +fine_tones+:: An address of the fine tones table to be built (512 bytes).
+    #
+    # Options:
+    # * +hz+:: base (middle) frequency in Hz.
+    # * +clock_hz+:: AY-3-891x clock frequency in Hz.
     def ay_tone_progress_table_factory(fine_tones, hz: 440, clock_hz: AYSound::CLOCK_HZ)
+      # CLOCK_HZ=3.5469/2 * 1_000_000
+      # STEPS=256
+      # aaa=->(notes, steps) {2**(notes.to_f/steps.to_f/12.0)}
+      # a=aaa[-12,STEPS]
+      #
+      # x0=(CLOCK_HZ / (16.0 * 440.0/STEPS.to_f)).round
+      # xf0=(CLOCK_HZ / (16.0 * 440.0/(STEPS.to_f/8)))
+      # fc=->(steps){[2**(-1.0/steps.to_f),(CLOCK_HZ/(16.0*440.0/steps.to_f)).round,(CLOCK_HZ/(16.0*440.0/(steps.to_f/8)))]}
+      # a,x0,xf0 = fc[STEPS]
+      # a0=(a*65536).round
+      # d1=->(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| puts "#{i.to_s.rjust(4)}:#{x1=x>>3} #{x2=(xf0*a**i).round} #{delta+=(x2-x1).abs}"; ((x*a0)+fi)>>16};delta}
+      # dd=->(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| x1=x>>3; x2=(xf0*a**i).round; delta+=(x2-x1).abs; ((x*a0)+fi)>>16}; delta }
+      # dd[16384+8192-673]
+      # (-1024..1024).map{|i| [i,dd[16384+8192+i]]}
+      #
+      # a=2**(1.0/steps.to_f)
+      # a0=((a-1.0)*65536).round
+      # x0=(CLOCK_HZ / (16.0 * 440.0/STEPS.to_f)/2.0).round
+      # xf0=(CLOCK_HZ / (16.0 * 440.0/(STEPS.to_f/8))/2.0)
+      # d1=->(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| puts "#{i.to_s.rjust(4)}:#{x1=(x+4)>>3} #{x2=(xf0*a**i).round} #{delta+=(x2-x1).abs}"; x+(((x*a0)+fi)>>16)};delta}
+      # dd=->(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| x1=(x+4)>>3; x2=(xf0*a**i).round; delta+=(x2-x1).abs; x+(((x*a0)+fi)>>16)};delta}
+      # (0..1024).map{|i| [i,dd[16384+2048+i]]}
+      # d1[16384+2048+594]
       steps = 256
       af = 2**(-1.0/steps.to_f)
       a0 = (af*65536).round
@@ -216,6 +244,7 @@ class AYMusic
     note_progress     byte # 0 - ignore tone progress when playing notes, 1 and more tone progress counter
   end
 
+  ## A channel control structure
   class ChannelControl < Label
     volume_envelope   EnvelopeControl
     tone_progress     ToneProgressControl
@@ -232,6 +261,7 @@ class AYMusic
     instrument        InstrumentControl
   end
 
+  ## A main music control structure
   class MusicControl < Label
     ay_registers      AYRegisterMirror
     counter_lo        byte # a counter tracks can synchronize to with the sync command
@@ -265,45 +295,9 @@ class AYMusic
 
   ministack           addr 0xE800, 2 # depth: 6 (12 bytes)
 
+  # used as ix indexes and sizes only
   channel_control     addr 0, ChannelControl
   instrument_control  addr 0, InstrumentControl
-
-  # stop interrupts first
-  # 3 words of track.cursor addresses must follow
-  ns :init, use: :io128 do
-                      # clear control data
-                      clrmem music_control, +music_control
-                      # initialize pointers
-                      pop  hl             # 3 words of track.cursor addresses must follow
-                      ld   [restore_sp + 1], sp
-                      ld   ix, music_control.chan_a.instrument.flags
-                      ld   de, track_stack_end[-1]
-                      ld   a, 3
-    init_loop         ld   sp, ix         # instrument.flags
-                      ld   bc, empty_instrument
-                      push bc             # instrument.start
-                      push bc             # instrument.track.cursor
-                      dec  sp             # instrument.track.delay
-                      push de             # instrument.track.track_stack
-                      ld   c, [hl]
-                      inc  hl
-                      ld   b, [hl]        # bc: cursor
-                      inc  hl
-                      push bc             # track.cursor
-                      ld   bc, -track_stack_size
-                      ex   de, hl
-                      add  hl, bc         # decrease stack pointer
-                      dec  sp             # track.delay
-                      push hl             # track.track_stack
-                      add  hl, bc         # decrease stack pointer
-                      ex   de, hl
-                      ld   bc, +channel_control
-                      add  ix, bc
-                      dec  a
-                      jr   NZ, init_loop
-    restore_sp        ld   sp, 0
-                      jp   (hl)
-  end
 
   # inp hl: tone progress control (moves hl past it)
   # ZF:0 and bc: current tone
@@ -345,7 +339,77 @@ class AYMusic
                       add  hl, sp
                       ld   sp, ministack
   end
-
+  ##
+  # Call to initialize music structures and reset track and instrument cursors.
+  #
+  # _NOTE_:: Stop interrupts (+di+) first before calling this routine.
+  #
+  # 3 words of track addresses must follow:
+  #
+  #          di
+  #          call music.init
+  #          dw   track1, track2, track3
+  #          ei
+  #          ...
+  #
+  #   music_track :track1 do
+  #     ...
+  #   end
+  #   music_track :track2 do
+  #     ...
+  #   end
+  #   music_track :track3 do
+  #     ...
+  #   end
+  #
+  ns :init, use: :io128 do
+                      # clear control data
+                      clrmem music_control, +music_control
+                      # initialize pointers
+                      pop  hl             # 3 words of track.cursor addresses must follow
+                      ld   [restore_sp + 1], sp
+                      ld   ix, music_control.chan_a.instrument.flags
+                      ld   de, track_stack_end[-1]
+                      ld   a, 3
+    init_loop         ld   sp, ix         # instrument.flags
+                      ld   bc, empty_instrument
+                      push bc             # instrument.start
+                      push bc             # instrument.track.cursor
+                      dec  sp             # instrument.track.delay
+                      push de             # instrument.track.track_stack
+                      ld   c, [hl]
+                      inc  hl
+                      ld   b, [hl]        # bc: cursor
+                      inc  hl
+                      push bc             # track.cursor
+                      ld   bc, -track_stack_size
+                      ex   de, hl
+                      add  hl, bc         # decrease stack pointer
+                      dec  sp             # track.delay
+                      push hl             # track.track_stack
+                      add  hl, bc         # decrease stack pointer
+                      ex   de, hl
+                      ld   bc, +channel_control
+                      add  ix, bc
+                      dec  a
+                      jr   NZ, init_loop
+    restore_sp        ld   sp, 0
+                      jp   (hl)
+  end
+  ##
+  # Call this routine in turns to play the music.
+  #
+  # _NOTE_:: Stop interrupts (+di+) first before calling this routine.
+  #
+  # Example:
+  #
+  #   forever           ei
+  #                     halt
+  #                     di
+  #                     push iy
+  #                     call music.play
+  #                     pop  iy
+  #                     jr   forever
   ns :play, use: :io128 do
                       ld   [restore_sp + 1], sp
                       ld   sp, ministack
