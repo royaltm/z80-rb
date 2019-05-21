@@ -1,5 +1,5 @@
 # -*- coding: BINARY -*-
-here = File.expand_path('..', __dir__)
+here = File.expand_path('../lib', __dir__)
 $:.unshift(here) unless $:.include?(here)
 
 require 'z80'

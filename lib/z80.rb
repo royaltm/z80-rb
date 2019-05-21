@@ -1,4 +1,5 @@
 # -*- coding: BINARY -*-
+require 'z80/version'
 require 'z80/registers'
 require 'z80/labels'
 require 'z80/mnemonics'
@@ -147,7 +148,6 @@ module Z80
 	#
 	#  Use these methods to build your Z80 assembler program or macros.
 	module Program
-		VERSION = "1.0.0"
 		## A raw, not relocated code.
 		attr_reader :code
 		## A relocation table.
