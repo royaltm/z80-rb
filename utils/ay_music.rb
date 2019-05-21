@@ -153,8 +153,10 @@ class AYMusic
 
   export init
   export play
-  export notes
   export music_control
+  export notes
+  export instrument_table
+  export sincos
 
   # data: loop_offset(,counter,delta)*,0 (init: counter=1, cursor=[loop_offset], loop_at=cursor+loop_offset+1)
   class EnvelopeControl < Label
