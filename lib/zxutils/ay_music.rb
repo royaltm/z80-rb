@@ -1,5 +1,7 @@
+require 'z80'
 require 'z80/stdlib'
 require 'z80/utils/sincos'
+require 'zxlib/sys'
 require 'zxlib/ay_sound'
 ##
 # http://pages.mtu.edu/~suits/chords.html
