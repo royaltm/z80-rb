@@ -1,4 +1,5 @@
 # -*- coding: BINARY -*-
+require 'z80'
 require 'tempfile'
 ##
 # =ZX7 decoding routines.
@@ -25,7 +26,13 @@ require 'tempfile'
 #
 # Get compressor from:: World Of Spectrum: {ZX7}[http://www.worldofspectrum.org/infoseekid.cgi?id=0027996]
 class ZX7
-    COMMAND = File.expand_path(File.join('..', 'bin', 'zx7.exe'), __dir__)
+    COMMAND = begin
+        exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+        ENV['PATH'].split(File::PATH_SEPARATOR).flat_map do |path|
+            exts.map { |ext| File.join(path, 'zx7' + ext) }
+        end.uniq.find {|path| !File.directory?(path) && File.executable?(path) }
+    end
+
     ##
     # ZX7.compress(data) -> data (zx7 compressed)
     def self.compress(data)
@@ -33,8 +40,8 @@ class ZX7
             file = Tempfile.new 'zx7-pack-', encoding: 'ascii-8bit', binmode: true
             file.write data
             file.close
-            unless File.executable?(ZX7::COMMAND)
-                raise "Download: http://www.worldofspectrum.org/pub/sinclair/games-extras/ZX7_(WindowsExecutable).zip and unpack zx7.exe to bin directory."
+            unless COMMAND && File.executable?(ZX7::COMMAND)
+                raise "Download: http://www.worldofspectrum.org/pub/sinclair/games-extras/ZX7_(WindowsExecutable).zip and unpack zx7.exe to any directory on a PATH."
             end
             system ZX7::COMMAND, file.path
             IO.read(file.path + '.zx7', mode: 'rb')
