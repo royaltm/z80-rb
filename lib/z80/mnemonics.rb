@@ -435,7 +435,8 @@ module Z80
 								tta+= [op.bytesize, :byte]
 								Z80::add_reloc self, bb, 1, op.bytesize, 0
 							else
-								tt+= "#{'%02xH' % (bb.to_i & 0xff)}"
+								bb = bb.to_i & 0xff
+								tt+= "#{'%02xH' % bb}"
 								[bb].pack('c')
 							end
 						end
@@ -503,6 +504,7 @@ module Z80
 				rr = self[rr] if rr.is_a?(Array)
 				op = case oo
 				when c
+					tta = []
 					if rr == 0
 						tt = "(c), 0"
 						"\xED\x71"
@@ -512,19 +514,26 @@ module Z80
 						"\xED" + (0x41 + (rr.to_i << 3)).chr
 					end
 				else
-					raise Syntax, "Invalid argument for: out (n)." unless Integer === oo or (oo.respond_to?(:immediate?) and oo.immediate?())
 					raise Syntax, "Invalid register argument for: out (n)." unless rr == a
-					oo = oo.to_i
-					tt = "(#{oo & 0xff}), a"
-					"\xD3" + [oo].pack('C')
+					"\xD3" + if oo.respond_to?(:to_label)
+						tt = "(%02xH), a"
+						tta = [1, :byte]
+						Z80::add_reloc self, oo, 1, 1, 0
+					else
+						oo = oo.to_i & 0xff
+						tt = "(#{'%02xH' % oo}), a"
+						tta = []
+						[oo].pack('C')
+					end
 				end
-				Z80::add_code self, op, 1, "out  #{tt}"
+				Z80::add_code self, op, 1, "out  #{tt}", *tta
 			end
 			def inp(rr, oo = nil)
 				rr = self[rr] if rr.is_a?(Array)
 				oo, rr = rr, nil if oo.nil?
 				op = case oo
 				when c
+					tta = []
 					if rr.nil?
 						tt = "f, (c)"
 						"\xED\x70"
@@ -534,13 +543,19 @@ module Z80
 						"\xED" + (0x40 + (rr.to_i << 3)).chr
 					end
 				else
-					raise Syntax, "Invalid argument for: in (n)." unless Integer === oo or (oo.respond_to?(:immediate?) and oo.immediate?())
 					raise Syntax, "Invalid register argument for in (n)." unless rr == a
-					oo = oo.to_i
-					tt = "a, (#{oo & 0xff})"
-					"\xDB" + [oo].pack('C')
+					"\xDB" + if oo.respond_to?(:to_label)
+						tt = "a, (%02xH)"
+						tta = [1, :byte]
+						Z80::add_reloc self, oo, 1, 1, 0
+					else 
+						oo = oo.to_i & 0xff
+						tt = "a, (#{'%02xH' % oo})"
+						tta = []
+						[oo].pack('C')
+					end
 				end
-				Z80::add_code self, op, 1, "in   #{tt}"
+				Z80::add_code self, op, 1, "in   #{tt}", *tta
 			end
 			['nop', "\x00",
 			'rlca', "\x07",
