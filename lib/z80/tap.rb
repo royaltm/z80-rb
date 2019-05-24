@@ -10,6 +10,9 @@ module Z80
 	#      Program: "calculator" LINE 10 (226/226)
   #      Bytes: "calculator" CODE 32768,61
 	#
+	#      # convert a TZX file to a TAP file (may not work for custom loaders)
+	#      Z80::TAP.parse_file('foobar.tzx') {|t| t.save_tap('foobar', append:true) }
+	#
 	#  Program.import_file will make use of Z80::TAP.read_data.
 	#  Pass additional +:index+ => +n+ argument to Program.import_file to choose n'th chunk from a tap file.
 	#
