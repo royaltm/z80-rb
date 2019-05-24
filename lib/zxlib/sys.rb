@@ -225,7 +225,8 @@ class ZXSys
     end
 
     isolate :fuller_io do
-        ay_sel      addr 0x003F # out: select a register, in: read the value of the selected register
+        ay_sel      addr 0x003F # out: select a register
+        ay_inp      addr 0x003F # in: read the value of the selected register
         ay_out      addr 0x005F # out: write data to the selected register
         joystick    addr 0x007F # in: 0bF---RLDU joystick active bits=0
     end
@@ -240,7 +241,8 @@ class ZXSys
     # ZX Spectrum 128k
     # https://www.worldofspectrum.org/faq/reference/128kreference.htm
     isolate :io128 do
-        ay_sel  addr 0xFFFD # out: select a register 0-14, in: read the value of the selected register
+        ay_sel  addr 0xFFFD # out: select a register 0-14
+        ay_inp  addr 0xFFFD # in: read the value of the selected register
         ay_out  addr 0xBFFD # out: write data to the selected register
         mmu     addr 0x7FFD # 0b--DRSBnk D - disable mmu, R - rom, S - screen, Bnk - bank
     end
@@ -250,6 +252,7 @@ class ZXSys
     isolate :ioT2k do
         mmu     addr 0xF4 # determines which banks are to be paged in with each bit referring to the relevant bank (0-7 or 0'-7')
         ay_sel  addr 0xF5 # out: select a register 0-14, in: read the value of the selected register
+        ay_inp  addr 0xF6 # in: read the value of the selected register
         ay_out  addr 0xF6 # out: write data to the selected register
         ula     addr 0xFF # 0bMIColScr M - MMU 0=DOCK, 1=EX-ROM; I - Interrupts 1=DI, 0=EI; Col - colors for hi-res; Scr - screen modes: 000=screen 0, 001=screen 1, 010=hi-colour, 110=hi-res
     end
