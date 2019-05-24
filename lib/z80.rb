@@ -3,6 +3,7 @@ require 'z80/version'
 require 'z80/registers'
 require 'z80/labels'
 require 'z80/mnemonics'
+require 'z80/select'
 require 'z80/macros'
 require 'z80/tap'
 # ==Include this module in your *program* class to turn it to a powerfull Z80 macro assembler.
@@ -30,6 +31,10 @@ module Z80
 	attr_reader :labels
 	## A hash containing all instanced of imported programs.
 	attr_reader :imports
+	## A relocation table with all selections applied.
+	attr_reader :reloc_info
+	## A raw, debug information with all selections applied.
+	attr_reader :debug_info
 	## Returns an evaluated label's value by its name.
 	def [](name)
 		@labels[name.to_s]
@@ -60,9 +65,9 @@ module Z80
 	#    ^^^^^^^^^^^^^^^ ZXMath ^^^^^^^^^^^^^^^
 	def debug
 		return @debug if @debug
-		reloc = self.class.reloc
+		reloc = @reloc_info
 		imports = @imports.values
-		@debug = self.class.debug.map do |d|
+		@debug = @debug_info.map do |d|
 			case d
 			when DebugInfo
 				data = code[d.addr, d.size]
@@ -107,8 +112,10 @@ module Z80
 						"#{'%04X'%a}: #{hxd[ds, ' '].ljust 24}#{ds.join.gsub(/[\x0-\x1f]/, '.').ljust 8}#{label}"
 					end
 				end
-			else
+			when Integer
 				[" #{imports[d].class} ".center(38, ?=)] + imports[d].debug + [" #{imports[d].class} ".center(38, ?^)]
+			else
+				raise "Invalid debug element: #{d.inspect}"
 			end
 		end.flatten
 	end
@@ -164,6 +171,7 @@ module Z80
 			 '@context_labels', [],
 			 '@labels', {},
 			 '@dummies', [],
+			 '@conditional_blocks', [],
 			 '@imports', [],
 			 '@exports', {},
 			 '@autoexport', false].each_slice(2) do |n,v|
@@ -219,7 +227,14 @@ module Z80
 
 			labels = Alloc.compile(@labels, start, override)
 
-			@reloc.each do |r|
+			reloc = @reloc.dup
+			debug = @debug.dup
+			@conditional_blocks.each do |cndblk|
+				raise CompileError, "Invalid conditional block program" unless cndblk.program.equal?(self)
+				ConditionalBlock.compile(cndblk, code, reloc, debug, start, override)
+			end
+
+			reloc.each do |r|
 				case r.size
 				when 0
 					raise CompileError, "Absolute labels need relocation sizes for the overrides"
@@ -255,7 +270,9 @@ module Z80
 			 '@org', start,
 			 '@debug', nil,
 			 '@labels', labels,
-			 '@imports', imports
+			 '@imports', imports,
+			 '@reloc_info', reloc,
+			 '@debug_info', debug
 			].each_slice(2) do |n,v|
 				prog.instance_variable_set n,v
 			end
@@ -500,8 +517,10 @@ module Z80
 			if program.is_a?(Symbol)
 				program, name = name, program
 			end
-			addr = pc
 
+			raise Syntax, "modules may not be imported from under namespaces" if @contexts.length != 1
+
+			addr = pc
 			raise ArgumentError, "override should be a map of override names to labels" unless override.respond_to?(:map)
 			override = override.map do |n,v|
 				v = case v
