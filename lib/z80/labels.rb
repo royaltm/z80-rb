@@ -602,6 +602,8 @@ module Z80
 		def pointer?; false; end
 		## Checks if a label is an expression.
 		def expression?; false; end
+		## Checks if a label is a named sub-label access expression.
+		def sublabel_access_expression?; false; end
 		## Checks if a label is defined and absolute (+true+) or relocatable or dummy (+false+). Prefer using Program.immediate? instead.
 		def immediate?
 			!dummy? and !@reloc
@@ -1012,11 +1014,24 @@ module Z80
 			@pointer || !@oper.nil? || !@index.empty?
 		end
 
+		def sublabel_access_expression?
+			!@pointer && @oper.nil? && !@index.empty? && @index.all? {|s| String === s }
+		end
+
 		def **(m)
 			label = self
 			begin
-				raise Syntax, "** #{m} not allowed on an expression: #{label.inspect}" if label.expression?
-				label = label.instance_variable_get('@lhs')
+				if label.sublabel_access_expression?
+					label.instance_eval do
+						label = @lhs
+						@index.each do |idx|
+							label = label ** idx
+						end
+					end
+				else
+					raise Syntax, "** #{m} not allowed on an expression: #{label.inspect}" if label.expression?
+					label = label.instance_variable_get('@lhs')
+				end
 			end until label.is_a?(Label)
 			label.**(m)
 		end
