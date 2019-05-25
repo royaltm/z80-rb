@@ -192,22 +192,14 @@ module Z80
 				raise CompileError, "Labels referenced but not defined: #{dummies.inspect}"
 			end
 
-			raise ArgumentError, "override should be a map of override names to labels" unless override.respond_to?(:map)
-			override = override.map { |n,v| [n.to_s, v.to_i] }.to_h
+			raise ArgumentError, "override should be a map of override names to labels" unless override.respond_to?(:to_h)
+			override = Alloc.compile(override, 0, include_sizes:false)
 
 			prog = super(*args)
 			code = @code.dup
 
 			imports = Hash[@imports.map do |addr, size, program, code_addr, arguments, name, import_override|
-				merged_override = import_override.map do |n, v|
-					v = case v
-					when Label, Alloc
-						v.to_i(start)
-					else
-						raise ArgumentError, "override: #{n} is not a label or an address"
-					end
-					[n.to_s, v]
-				end.to_h
+				merged_override = Alloc.compile(import_override, start, override, include_sizes:false)
 				if name.nil?
 					merged_override.merge!(override)
 				else

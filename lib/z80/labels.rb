@@ -907,27 +907,30 @@ module Z80
 	# Alloc class is used internally by relocation mechanizm and lazy evaluation of labels' values.
 	# See Label instead.
 	class Alloc
-		# Compile labels to re-allocated addresses.
-		def Alloc.compile(labels, start, override) # :nodoc:
-			res = []
-			labels.each_value do |label|
-				eval_labels = ->(alloc, label) do
-					res << [alloc.to_s, alloc.to_i(start, override:override)]
-					begin
-						res << ['+' + alloc.to_s, alloc.to_i(size_of:true)]
-					rescue
+		# Compile labels recursively to re-allocated addresses.
+		def Alloc.compile(labels, start, override={}, include_sizes:true) # :nodoc:
+			res = {}
+			eval_labels = ->(name, alloc, label) do
+				res[name] = alloc.to_i(start, override:override)
+				begin
+					res['+' + name] =  alloc.to_i(size_of:true)
+				rescue
+				end if include_sizes
+				label = label.instance_variable_get('@lhs') if label.is_a?(Alloc)
+				if label.is_a?(Label)
+					label.instance_variable_get('@members').each do |n, l|
+						eval_labels["#{name}.#{n}", alloc[n], l]
 					end
-					label = label.instance_variable_get('@lhs') if label.is_a?(Alloc)
-					members = if label.is_a?(Label)
-						label.instance_variable_get('@members')
-					else
-						{}
-					end
-					members.each { |n, l| eval_labels[alloc[n], l] }
 				end
-				eval_labels[label.to_alloc, label]
 			end
-			Hash[res]
+			labels.each do |name, label|
+				if label.respond_to?(:to_alloc)
+					eval_labels[name.to_s, label.to_alloc, label]
+				else
+					res[name.to_s] = label.to_i
+				end
+			end
+			res
 		end
 		## Return true if +label+ takes part in an +alloc+ expression.
 		def Alloc.include?(alloc, label)
