@@ -564,7 +564,7 @@ module Z80
 			fullname = prefix + @name.to_s
 			if @name
 				if (override_label = override && override[fullname])
-					return override_label#.deep_clone_with_relocation(0, false, nil)
+					return override_label
 				end
 			end
 			members = Hash[@members.map {|n, m| [n, m.deep_clone_with_relocation(addr, absolute, override, fullname + '.'.freeze)] }]
@@ -937,6 +937,11 @@ module Z80
 		end
 		# This method is being used when importing labels from other programs.
 		def deep_clone_with_relocation(addr, absolute, override, prefix=''.freeze) # :nodoc:
+			if @name
+				if (override_label = override && override[prefix + @name])
+					return override_label
+				end
+			end
 			lhs = @lhs.deep_clone_with_relocation(addr, absolute, override, prefix)
 			rhs = case @rhs
 			when Integer
@@ -952,17 +957,18 @@ module Z80
 					idx
 				end
 			end
-			Alloc.new(lhs, @oper, rhs, index).tap {|l| 
+			Alloc.new(lhs, @oper, rhs, index).tap do |l| 
 				l.instance_variable_set('@pointer', @pointer)
 				if (name = to_name)
 					l.name = name
 				end
-			}
+			end
 		end
 
 		def dup
 			super.tap do |l| 
 				l.instance_variable_set('@index', @index.dup)
+				l.instance_variable_set('@name', nil)
 			end
 		end
 
@@ -1153,7 +1159,7 @@ module Z80
 
 		# rel_to: an absolute address or :self used by ix/iy offset addressing
 		def to_i(start = 0, rel_to = nil, override:nil, prefix:''.freeze, size_of:false)
-			rel_to_label = rel_to == :self && :self || nil
+			rel_to_label = rel_to == :self ? :self : nil
 
 			arg_to_i = ->(arg, rel_to) do
 				case arg
@@ -1163,6 +1169,12 @@ module Z80
 					arg.to_alloc.to_i(start, rel_to, override:override)
 				else
 					raise CompileError, "Invalid argument: #{arg.inspect}"
+				end
+			end
+
+			if !size_of and @name and rel_to_label.nil?
+				if (override_value = override && override[prefix + @name])
+					return override_value - rel_to.to_i
 				end
 			end
 
