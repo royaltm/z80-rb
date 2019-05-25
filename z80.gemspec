@@ -3,7 +3,7 @@ require File.expand_path("../lib/z80/version", __FILE__)
 Gem::Specification.new do |s|
   s.name = "z80"
   s.version = Z80::Program::VERSION
-  s.required_ruby_version = ">= 2.0.0"
+  s.required_ruby_version = ">= 2.1.0"
   s.executables = ['zxconv']
   s.summary = "Z80 CPU and ZX Spectrum programming tools"
   s.homepage = "https://royaltm.github.io/z80-rb/"
