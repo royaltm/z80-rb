@@ -299,14 +299,36 @@ class ZXSys
             end
         end
         ##
-        # Setup custom interrupt handler using ZX Spectrum ROM's unused space as a IM2 mode jump table.
+        # Creates a routine that sets up custom interrupt handler using ZX Spectrum ROM's unused space
+        # as a IM2 mode jump table.
         #
         # * handler:: One of the 16bit register pair or an address or a pointer to the address
         #             of the handler routine.
         # * enable_interrupts:: If +true+ invoke +ei+ instruction at the end.
         #
+        # This routine uses a mode 2 interrupt. In this mode the address
+        # of the interrupt routine is formed in the following way:
+        # an 8-bit value found on the BUS (which in most ZX Spectrum models is 255)
+        # is being added to register +i+ x 256, which form a vector table address.
+        # A word (two bytes) is being read from that address, providing the address
+        # where the call to the interrupt routine is made to.
+        #
+        # This routine makes these assumptions about the machine:
+        # * The byte at the memory address 0 contains 243.
+        # * The 2 consecutive bytes at the memory address +vector_page+ x 256 + 8-bit BUS value
+        #   and the following one, both contain 255.
+        # * The RAM memory between 65524 and 65535 will not be used for other purposes.
+        #
+        # _NOTE_:: The assumptions are true for most ZX Spectrum models and clones including Pentagon machines and
+        #          Timex TC2048. However they are not true on Timex TC2068 or TS2068 machines.
+        #
+        # Options:
+        # * +vector_page+:: A most significant byte of the interrupt vector table address
+        #                   loaded into +i+ register. The default is 0x3B so the address
+        #                   of the routine is found at 0x3BFF in most ZX Spectrum models.
+        #
         # Modifies: +a+, +i+, +hl+ if +handler+ is not a register pair.
-        def setup_custom_interrupt_handler(handler, enable_interrupts:true)
+        def setup_custom_interrupt_handler(handler, enable_interrupts:true, vector_page:0x3B)
             isolate do
                             ld  a, 0x18          # 18H is jr
                             ld  [0xFFFF], a
@@ -319,7 +341,7 @@ class ZXSys
                             ld  hl, handler
                             ld  [0xFFF5], hl
                 end
-                            ld  a, 0x3B          # Supported by ZX Spectrum 128, +2, +2A, +3 and probably most clones.
+                            ld  a, vector_page   # Supported by ZX Spectrum 128, +2, +2A, +3 and probably most clones.
                             ld  i, a             # load the accumulator with FF filled page in rom.
                             im2
                             ei if enable_interrupts
