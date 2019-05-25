@@ -366,13 +366,16 @@ class ZXSys
         ##
         # Test for a key or keys being pressed.
         #
-        # * line_mask:: Keyboard half-line mask, may be an 8 bit register.
-        #               The default is 0 which means all available lines.
-        # * key_mask:: Key mask (b0..b4), may be an 8 bit register.
-        #              The default is 0b11111 which means all keys in a half-line.
+        # * +line_mask+:: Keyboard half-line mask, may be an 8 bit register.
+        #                 The default is 0 which means all available lines.
+        # * +key_mask+:: Key mask (b0..b4), may be an 8 bit register.
+        #                The default is 0b11111 which means all keys in a half-line.
         #
-        #           key bits                           key bits
-        #     line  b4,  b3,  b2,  b1,      b0   line  b4,  b3,  b2,   b1,      b0
+        # Options:
+        # * +io+:: A label containing +ula+ sublabel addressing ULA I/O bus.
+        #
+        #     line  key bits                     line  key bits
+        #           b4,  b3,  b2,  b1,      b0         b4,  b3,  b2,   b1,      b0
         #     0xf7 [5], [4], [3], [2],     [1]   0xef [6], [7], [8],  [9],     [0]
         #     0xfb [T], [R], [E], [W],     [Q]   0xdf [Y], [U], [I],  [O],     [P]
         #     0xfd [G], [F], [D], [S],     [A]   0xbf [H], [J], [K],  [L], [ENTER]
@@ -383,14 +386,14 @@ class ZXSys
         # Output:
         # * +ZF+=0:: (NZ) if any of the specified keys is being pressed.
         # * +a+:: bits b0..b4=1 if a key is being pressed at any of the specified half-line.
-        def key_pressed?(line_mask=0, key_mask=0x1f)
+        def key_pressed?(line_mask=0, key_mask=0x1f, io:self.io)
             isolate do
               if line_mask == 0
                     xor  a
               else
                     ld   a, line_mask unless line_mask == a
               end
-                    inp  a, (254)
+                    inp  a, (io.ula)
                     cpl
                     anda key_mask
             end
@@ -398,7 +401,9 @@ class ZXSys
         ##
         # Test for cursor keys being pressed.
         #
-        # +t+:: a temporary register.
+        # Options:
+        # * +t+:: A temporary 8-bit register.
+        # * +io+:: A label containing +ula+ sublabel addressing ULA I/O bus.
         #
         # Modifies: +af+, +t+.
         #
@@ -408,14 +413,14 @@ class ZXSys
         #
         #      b3  b2  b1  b0
         #     [←] [↓] [↑] [→]
-        def cursor_key_pressed?(t:b)
+        def cursor_key_pressed?(t:b, io:self.io)
             isolate do
-                    key_pressed? 0xf7, 0x10 # key [5]
+                    key_pressed? 0xf7, 0x10, io:io # key [5]
                     ld   t, a
-                    key_pressed? 0xef, 0x1c # keys [6] [7] [8] . .
+                    key_pressed? 0xef, 0x1c, io:io # keys [6] [7] [8] . .
                     rrca
-                    ora  t                  # keys [5] [6] [7] [8] .
-                    rrca                    # keys [←] [↓] [↑] [→]
+                    ora  t                         # keys [5] [6] [7] [8] .
+                    rrca                           # keys [←] [↓] [↑] [→]
             end
         end
         ##
