@@ -14,18 +14,18 @@ require 'z80'
 #   Register        Function                        Range
 #   
 #    0              Channel A fine pitch            8-bit (0-255)
-#    1              Channel A course pitch          4-bit (0-15)
+#    1              Channel A coarse pitch          4-bit (0-15)
 #    2              Channel B fine pitch            8-bit (0-255)
-#    3              Channel B course pitch          4-bit (0-15)
+#    3              Channel B coarse pitch          4-bit (0-15)
 #    4              Channel C fine pitch            8-bit (0-255)
-#    5              Channel C course pitch          4-bit (0-15)
+#    5              Channel C coarse pitch          4-bit (0-15)
 #    6              Noise pitch                     5-bit (0-31)
 #    7              Mixer                           8-bit (see below)
 #    8              Channel A volume                4-bit (0-15, see below)
 #    9              Channel B volume                4-bit (0-15, see below)
 #   10              Channel C volume                4-bit (0-15, see below)
 #   11              Envelope fine duration          8-bit (0-255)
-#   12              Envelope course duration        8-bit (0-255)
+#   12              Envelope coarse duration        8-bit (0-255)
 #   13              Envelope shape                  4-bit (0-15)
 #   14              I/O port A                      8-bit (0-255)
 #   15              I/O port B                      8-bit (0-255)
@@ -111,11 +111,21 @@ class AYSound
   end
   include Registers
 
-  ## An array of note symbols as strings.
+  ## An array of musical notes as strings.
   NOTE_SYMBOLS = %w[A A# B C C# D D# E F F# G G#]
 
   ##
   # ==AYSound macros.
+  #
+  #    require 'zxlib/ay_sound'
+  #    require 'zxlib/sys'
+  #
+  #    class Program
+  #      include Z80
+  #      label_import    ZXSys
+  #      macro_import    AYSound
+  #      ...
+  #    end
   module Macros
     ##
     # Returns an array of equal tempered scale based on a given frequency.
@@ -170,6 +180,14 @@ class AYSound
     #                    only if you have already disabled the interrupts.
     # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
     #                   if you need to perform more uninterrupted actions.
+    #
+    # Example:
+    #
+    #           ay_extend_notes(notes)
+    #           ...
+    #
+    #    notes  dw ay_tone_periods(min_octave:0, max_octave:0)
+    #           words 7*12
     def ay_extend_notes(notes=hl, octaves:8, half_tones: 12, save_sp:true, disable_intr:true, enable_intr:true)
       raise ArgumentError, "octaves out of range: #{octaves} (2-8)" unless (2..8).include?(octaves)
       isolate do
@@ -193,45 +211,114 @@ class AYSound
                       ei if enable_intr
       end
     end
-
+    ##
+    # Creates a routine that loads a constant 8-bit part of the AY-891x I/O addresses into +b+ or +c+
+    # register.
+    #
+    # Run this routine before running one of:
+    #
+    # * ay_io_swap2out_bc
+    # * ay_io_swap2inp_bc
+    # * ay_io_swap2sel_bc
+    #
+    # to get a full AY-891x I/O address of the specific chip function into +bc+ register pair.
+    #
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
     def ay_io_load_const_reg_bc(io=self.io128)
-      port_bit_diff = io.ay_out.to_i ^ io.ay_sel.to_i
-      # select((io.ay_out ^ io.ay_sel) & 0xFF00, &:zero?).then do |eoc|
-      #   ld   b, io.ay_out>>8
-      # end.else_select((io.ay_out ^ io.ay_sel) & 0x00FF, &:zero?).then do |eoc|
-      #   ld   c, io.ay_out
-      # end.else do
-      #   raise ArgumentError, "ay_out and ay_sel should be different on 8-bit either lo or hi"
-      # end
-      if (port_bit_diff & 0xFF00).zero?
-                      ld   b, io.ay_out>>8
-      elsif (port_bit_diff & 0x00FF).zero?
-                      ld   c, io.ay_out
+      ay_reg_combined = ((io.ay_out ^ io.ay_sel) | (io.ay_inp ^ io.ay_sel))
+      select(ay_reg_combined & 0xFF00, &:zero?).then do |eoc|
+            ld   b, io.ay_sel >> 8
+      end.else_select(ay_reg_combined & 0x00FF, &:zero?).then do |eoc|
+            ld   c, io.ay_sel & 0x00FF
+      end.else do
+        raise ArgumentError, "ay_out, ay_inp and ay_sel should have different only 8-bit msb or lsb"
       end
     end
-
-    def ay_io_swap_sel2out_bc(io=self.io128)
-      port_bit_diff = io.ay_out.to_i ^ io.ay_sel.to_i
-      if (port_bit_diff & 0xFF00).zero?
-                      ld   c, io.ay_out
-      elsif (port_bit_diff & 0x00FF).zero?
-                      ld   b, io.ay_out>>8
-      else
-                      ld   bc, io.ay_out
+    ##
+    # Creates a routine that loads a specific 8-bit part of the AY-891x +output+ addresses into +b+ or +c+
+    # register.
+    #
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
+    #
+    # Example:
+    #          ay_io_load_const_reg_bc
+    #          ...
+    #          ay_io_swap2sel_bc
+    #          ld   a, AYSound::VOLUME_A
+    #          out  (c), a        # select VOLUME_A register
+    #          ay_io_swap2out_bc
+    #          out  (c), e        # set a value of the selected register
+    def ay_io_swap2out_bc(io=self.io128)
+      ay_reg_combined = ((io.ay_out ^ io.ay_sel) | (io.ay_inp ^ io.ay_sel))
+      select(ay_reg_combined & 0xFF00, &:zero?).then do |eoc|
+            ld   c, io.ay_out & 0x00FF
+      end.else_select(ay_reg_combined & 0x00FF, &:zero?).then do |eoc|
+            ld   b, io.ay_out >> 8
+      end.else do
+        raise ArgumentError, "ay_out, ay_inp and ay_sel should have different only 8-bit msb or lsb"
       end
     end
-
-    def ay_io_swap_out2sel_bc(io=self.io128)
-      port_bit_diff = io.ay_sel.to_i ^ io.ay_out.to_i
-      if (port_bit_diff & 0xFF00).zero?
-                      ld   c, io.ay_sel
-      elsif (port_bit_diff & 0x00FF).zero?
-                      ld   b, io.ay_sel>>8
-      else
-                      ld   bc, io.ay_sel
+    ##
+    # Creates a routine that loads a specific 8-bit part of the AY-891x +input+ addresses into +b+ or +c+
+    # register.
+    #
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
+    #
+    # Example:
+    #          ay_io_load_const_reg_bc
+    #          ...
+    #          ay_io_swap2sel_bc
+    #          ld   a, AYSound::VOLUME_A
+    #          out  (c), a        # select VOLUME_A register
+    #          ay_io_swap2inp_bc
+    #          inp  e, (c)        # get a value from the selected register
+    def ay_io_swap2inp_bc(io=self.io128)
+      ay_reg_combined = ((io.ay_out ^ io.ay_sel) | (io.ay_inp ^ io.ay_sel))
+      select(ay_reg_combined & 0xFF00, &:zero?).then do |eoc|
+            ld   c, io.ay_inp & 0x00FF
+      end.else_select(ay_reg_combined & 0x00FF, &:zero?).then do |eoc|
+            ld   b, io.ay_inp >> 8
+      end.else do
+        raise ArgumentError, "ay_out, ay_inp and ay_sel should have different only 8-bit msb or lsb"
       end
     end
-
+    ##
+    # Creates a routine that loads a specific 8-bit part of the AY-891x +select+ addresses into +b+ or +c+
+    # register.
+    #
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
+    #
+    # Example:
+    #          ay_io_load_const_reg_bc
+    #          ...
+    #          ay_io_swap2sel_bc
+    #          ld   a, AYSound::MIXER
+    #          out  (c), a        # select MIXER register
+    #          ay_io_swap2inp_bc
+    #          inp  a, (c)        # get a value from the selected register
+    #          anda 0b11000000
+    #          ora  0b00111000    # apply mask
+    #          ay_io_swap2out_bc
+    #          out  (c), a        # set a value of the selected register
+    def ay_io_swap2sel_bc(io=self.io128)
+      ay_reg_combined = ((io.ay_out ^ io.ay_sel) | (io.ay_inp ^ io.ay_sel))
+      select(ay_reg_combined & 0xFF00, &:zero?).then do |eoc|
+            ld   c, io.ay_sel & 0x00FF
+      end.else_select(ay_reg_combined & 0x00FF, &:zero?).then do |eoc|
+            ld   b, io.ay_sel >> 8
+      end.else do
+        raise ArgumentError, "ay_out, ay_inp and ay_sel should have different only 8-bit msb or lsb"
+      end
+    end
+    ##
+    # Creates a routine that reads a specific AY-891x register's value.
+    #
+    # * +regn+:: A AY-891x register index as an integer or a 8-bit CPU register.
+    # * +regv+:: An 8-bit CPU register to receive a value from a AY-891x register.
+    #
+    # Options:
+    # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
     def ay_get_register_value(regn=a, regv=e, bc_const_loaded:false, io:self.io128)
       raise ArgumentError unless register?(regv)
       isolate do
@@ -239,7 +326,7 @@ class AYSound
                       ld   a, regn unless [0, a].include?(regn)
         end
         if bc_const_loaded
-                      ay_io_swap_out2sel_bc(io)
+                      ay_io_swap2sel_bc(io)
         else
                       ld   bc, io.ay_sel
         end
@@ -252,10 +339,25 @@ class AYSound
         else
                       out (c), regn
         end
+                      ay_io_swap2inp_bc(io)
                       inp regv, (c)
       end
     end
-
+    ##
+    # Creates a routine that writes a value to a specific AY-891x register.
+    #
+    # If the block is given, the code it creates will be evaluated after the AY-891x register
+    # has been selected and +bc+ registers has been loaded with an "output" AY-891x I/O address.
+    # The +regv+ value will not be output in this instance and the +regv+ argument will be ignored.
+    # Instead the code created by the block should perform writing out the value with <tt>out (c), regv</tt>.
+    #
+    # * +regn+:: A AY-891x register index as an integer or a 8-bit CPU register.
+    # * +regv+:: A value to write to a AY-891x register as an integer or an 8-bit CPU register
+    #            except +b+, +c+ or +a+.
+    #
+    # Options:
+    # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
     def ay_set_register_value(regn=a, regv=e, bc_const_loaded:false, io:self.io128)
       raise ArgumentError if [b,c].include?(regv) or (regv == a and regn != 0)
       isolate do |eoc|
@@ -263,7 +365,7 @@ class AYSound
                       ld   a, regn unless [0, a].include?(regn)
         end
         if bc_const_loaded
-                      ay_io_swap_out2sel_bc(io)
+                      ay_io_swap2sel_bc(io)
         else
                       ld   bc, io.ay_sel
         end
@@ -276,48 +378,83 @@ class AYSound
         else
                       out (c), regn
         end
-                      ay_io_swap_sel2out_bc(io)
-        if Integer === regv
+                      ay_io_swap2out_bc(io)
+        if block_given?
+                      yield eoc
+        elsif Integer === regv
           if regv.zero?
                       out (c), 0
           else
                       ld   a, regv
                       out (c), a
           end
-        elsif block_given?
-                      yield eoc
         else
                       out (c), regv
         end
       end
     end
-
-    def ay_init(io:self.io128)
+    ##
+    # Creates a routine that sets volume of all AY-891x sound channels to 0, disables noise on all channels
+    # and enables tone output on all channels.
+    #
+    # This effectively mutes all sound.
+    #
+    # Options:
+    # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
+    def ay_init(bc_const_loaded:false, io:self.io128)
       isolate do
-                      ld   e, 3
-                      ld   a, e
-                      add  AYSound::VOLUME_A
-                      ay_io_load_const_reg_bc(io)
-        vol_res_loop  dec  a
-                      ay_set_register_value(a, 0, bc_const_loaded:true, io:io)
-                      dec  e
+                      ld   a, AYSound::VOLUME_C
+                      ay_io_load_const_reg_bc(io) unless bc_const_loaded
+        vol_res_loop  ay_set_register_value(a, 0, bc_const_loaded:true, io:io)
+                      dec  a
+                      cp   AYSound::MIXER
                       jr   NZ, vol_res_loop
-                      ay_get_set_mixer(a, bc_const_loaded:true, io:io) do |_|
-                        anda 0b11000000
-                        ora  0b00111000
-                      end
+                      ay_get_register_value(a, a, bc_const_loaded:true, io:io)
+                      anda 0b11000000
+                      ora  0b00111000
+                      ay_io_swap2out_bc(io)
+                      out  (c), a
       end
     end
-
+    ##
+    # Creates a routine that gets the AY-891x mixer's value applies a block of code and sets the mixer value back.
+    # The block of code should not modify +bc+ register pair.
+    #
+    # * +vinp+:: An 8-bit CPU register to receive the mixer's value.
+    # * +vout+:: An 8-bit CPU register that will contain a value which will be written back to the mixer.
+    #
+    # Options:
+    # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
+    #
+    # Example:
+    #          ay_get_set_mixer(a) do |eoc|
+    #            bit  0, a
+    #            # jumping to the +eoc+ label will cancel writing mixer's value back.
+    #            jr   NZ, eoc
+    #            ora  0b00000001
+    #          end
     def ay_get_set_mixer(vinp=a, vout=vinp, bc_const_loaded:false, io:self.io128)
       isolate do |eoc|
                       ay_get_register_value(AYSound::MIXER, vinp, bc_const_loaded:bc_const_loaded, io:io)
                       yield eoc
-                      ay_io_swap_sel2out_bc(io)
+                      ay_io_swap2out_bc(io)
                       out (c), vout
       end
     end
-
+    ##
+    # Creates a routine that sets a AY-891x channel's tone period.
+    #
+    # * +ch+:: A channel number 0..2 as an integer, label, or an 8-bit CPU register.
+    # * +tph+:: The most significant 4 bits of the 12-bit tone period value as an integer or an 8-bit CPU register
+    #           except +b+, +c+ or +a+. This value is known as the coarse tone period value.
+    # * +tpl+:: The least significant 8 bits of the 12-bit tone period value as an integer or an 8-bit CPU register
+    #           except +b+, +c+ or +a+. This value is known as the fine tone period value.
+    #
+    # Options:
+    # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
     def ay_set_tone_period(ch=a, tph:d, tpl:e, bc_const_loaded:false, io:self.io128)
       isolate do
         if Integer === ch
@@ -335,13 +472,16 @@ class AYSound
                       ay_set_register_value(a, tph, bc_const_loaded:true, io:io)
       end
     end
-
-
     ##
-    # Set channel volume
+    # Creates a routine that sets a AY-891x channel's volume level.
     #
-    # *+ch+:: Channel number 0-2
-    # *+vol+:: Volume level or an 8-bit register except +b+, +c+ or +a+.
+    # * +ch+:: A channel number 0..2 as an integer, label, or an 8-bit CPU register.
+    # * +vol+:: A volume level or an 8-bit register except +b+, +c+ or +a+.
+    #
+    # Options:
+    # * +vol_8bit+:: True if the volume is in the range: 0..255. False if the volume is in the range: 0..15.
+    # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
     def ay_set_volume(ch=a, vol=e, vol_8bit:false, bc_const_loaded:false, io:self.io128)
       raise ArgumentError if [a,b,c].include?(vol)
       isolate do
@@ -373,25 +513,15 @@ class AYSound
         end
       end
     end
-
-    def ay_set_envelope_duration(dh=d, dl=e, bc_const_loaded:false, io:self.io128)
-      isolate do
-                      ld   a, AYSound::ENV_PER_FINE
-                      ay_set_register_value(a, dl, bc_const_loaded:bc_const_loaded, io:io)
-                      inc  a
-                      ay_set_register_value(a, dh, bc_const_loaded:true, io:io)
-      end
-    end
-
-    def ay_get_set_env_shape(sinp=a, sout=sinp, bc_const_loaded:false, io:self.io128)
-      isolate do |eoc|
-                      ay_get_register_value(AYSound::ENV_SHAPE, sinp, bc_const_loaded:bc_const_loaded, io:io)
-                      yield eoc
-                      ay_io_swap_sel2out_bc(io)
-                      out (c), sout
-      end
-    end
-
+    ##
+    # Creates a routine that sets a AY-891x noise pitch.
+    #
+    # * +pitch+:: A pitch level or an 8-bit register except +b+, +c+ or +a+.
+    #
+    # Options:
+    # * +pitch_8bit+:: True if the pitch is in the range: 0..255. False if the pitch is in the range: 0..31.
+    # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
     def ay_set_noise_pitch(pitch=e, pitch_8bit:false, bc_const_loaded:false, io:self.io128)
       isolate do
         ay_set_register_value(AYSound::NOISE_PERIOD, pitch, bc_const_loaded:bc_const_loaded, io:io) do |_|
@@ -412,7 +542,43 @@ class AYSound
         end
       end
     end
-
+    ##
+    # Creates a routine that sets a AY-891x envelope duration.
+    #
+    # * +dh+:: The most significant 8 bits of the 16-bit envelope duration value as an integer or an 8-bit CPU register
+    #          except +b+, +c+ or +a+. This value is known as the envelope coarse duration value.
+    # * +dl+:: The least significant 8 bits of the 16-bit envelope duration value as an integer or an 8-bit CPU register
+    #          except +b+, +c+ or +a+. This value is known as the envelope fine duration value.
+    #
+    # Options:
+    # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
+    def ay_set_envelope_duration(dh=d, dl=e, bc_const_loaded:false, io:self.io128)
+      isolate do
+                      ld   a, AYSound::ENV_PER_FINE
+                      ay_set_register_value(a, dl, bc_const_loaded:bc_const_loaded, io:io)
+                      inc  a
+                      ay_set_register_value(a, dh, bc_const_loaded:true, io:io)
+      end
+    end
+    ##
+    # Creates a routine that gets the AY-891x envelope shape's value applies a block of code and sets the value back.
+    # The block of code should not modify +bc+ register pair.
+    #
+    # * +sinp+:: An 8-bit CPU register to receive the shape's value.
+    # * +sout+:: An 8-bit CPU register that will contain a value which will be written back to the register.
+    #
+    # Options:
+    # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
+    # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
+    def ay_get_set_env_shape(sinp=a, sout=sinp, bc_const_loaded:false, io:self.io128)
+      isolate do |eoc|
+                      ay_get_register_value(AYSound::ENV_SHAPE, sinp, bc_const_loaded:bc_const_loaded, io:io)
+                      yield eoc
+                      ay_io_swap2out_bc(io)
+                      out (c), sout
+      end
+    end
   end # Macros
   include Z80
 end
