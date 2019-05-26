@@ -16,7 +16,20 @@ class AYMusic
   SinCosTable = Z80SinCos::SinCosTable
   SinCos      = Z80SinCos::SinCos
   ##
-  # ====AY music engine utils
+  # ====AYMusic engine utilities.
+  #
+  # _NOTE_:: AYMusic::Macros require Z80MathInt::Macros and some require AYSound::Macros.
+  #
+  #    require 'zxutils/ay_music'
+  #
+  #    class Program
+  #      include Z80
+  #      label_import    ZXSys
+  #      macro_import    AYSound
+  #      macro_import    Z80MathInt
+  #      macro_import    AYMusic
+  #      ...
+  #    end
   module Macros
     ##
     # Creates a routine that reads a state of the I/O ports from the AY-891x chip
@@ -30,8 +43,10 @@ class AYMusic
     #
     # Options:
     # * +bc_const_loaded+:: If AYSound::Macros.ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
-    # * +io+:: A label containing +ay_out+ and +ay_sel+ sublabels addressing the AY-891x output and select/input I/O bus.
-    def ay_preserve_io_ports_state(music_control, play, bc_const_loaded:true, io:self.io128)
+    # * +io+:: A label containing +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x output and select/input I/O bus.
+    #
+    # _NOTE_:: This macro requires AYSound::Macros.
+    def ay_preserve_io_ports_state(music_control, play, bc_const_loaded:false, io:self.io128)
       isolate do
                           ay_get_register_value(AYMusic::MIXER, a, bc_const_loaded:bc_const_loaded, io:io)
                           ld   de, music_control.ay_registers.mixer
@@ -366,7 +381,7 @@ class AYMusic
   #     ...
   #   end
   #
-  ns :init, use: :io128 do
+  ns :init do
                       # clear control data
                       clrmem music_control, +music_control
                       # initialize pointers
@@ -1149,11 +1164,11 @@ class AYMusic
   end # :play
 
   # notes durations table
-  notes           label
+  notes             label(2)[1]
 end
 
 if __FILE__ == $0
-    # :stopdoc:
+  # :stopdoc:
   require 'zxutils/zx7'
   require 'zxutils/ay_music/music_box'
   require 'zxlib/basic'
@@ -1167,10 +1182,14 @@ if __FILE__ == $0
     SinCosTable = AYMusic::SinCosTable
 
     import            ZXSys, macros: true, code: false
-    macro_import      AYSound
-    macro_import      AYMusic
     macro_import      Z80MathInt
     macro_import      Z80SinCos
+    macro_import      AYSound
+    macro_import      AYMusic
+
+    io_ay = io128
+    # io_ay = fuller_io
+    # io_ay = ioT2k
 
     sincos              addr 0xE000, SinCos
     ministack           addr sincos[0], 2
@@ -1182,13 +1201,16 @@ if __FILE__ == $0
     empty_instrument    addr track_stack_end[-1]
     music_control       addr track_stack_end[0], AYMusic::MusicControl
 
-    AY_MUSIC_OVERRIDE = { instrument_table: instrument_table, notes: notes, sincos: sincos,
+    AY_MUSIC_OVERRIDE = { instrument_table: instrument_table, sincos: sincos,
                           note_to_cursor: note_to_cursor, fine_tones: fine_tones,
                           track_stack_end: track_stack_end,
                           empty_instrument: empty_instrument,
-                          music_control: music_control, ministack: ministack }
+                          music_control: music_control, ministack: ministack,
+                          'io128.ay_sel': io_ay.ay_sel,
+                          'io128.ay_inp': io_ay.ay_inp,
+                          'io128.ay_out': io_ay.ay_out }
 
-    with_saved :demo, :exx, hl, ret: true, use: [:io128, :io] do
+    with_saved :demo, :exx, hl, ret: true do
                         di
                         call mute
                         call make_sincos
@@ -1231,7 +1253,7 @@ if __FILE__ == $0
                         push iy
                         xor  a
                         out  (io.ula), a
-                        ay_preserve_io_ports_state(music.music_control, music.play, bc_const_loaded:false)
+                        ay_preserve_io_ports_state(music.music_control, music.play, bc_const_loaded:false, io:io_ay)
                         call music.play
                         ld   a, 6
                         out  (io.ula), a
@@ -1242,13 +1264,22 @@ if __FILE__ == $0
                         ei
     end
 
-    ns :mute, use: :io128 do
-                        ay_init
+    ns :mute do
+                        ay_init(io:io_ay)
                         ret
     end
 
     import            AYMusic, :music, override: AY_MUSIC_OVERRIDE
     music_end         label
+
+    NOTES = ay_tone_periods(min_octave:0, max_octave:7)
+
+    (1...NOTES.length).each do |i|
+      puts "#{NOTES[i-1].to_s.rjust(4)}-#{NOTES[i].to_s.rjust(4)} #{NOTES[i-1]-NOTES[i]} #{(NOTES[i-1].to_f/NOTES[i])}"
+    end
+                      dw NOTES[11]*2
+                      dw NOTES[0...12]
+                      words 7*12
 
     instrument_table  instruments(
                           instrument1,
@@ -1418,16 +1449,6 @@ if __FILE__ == $0
     mask_data_off     music_mask_data :all, 255, 255
     mask_data_on      music_mask_data :all, 255, 0
 
-    NOTES = ay_tone_periods(min_octave:0, max_octave:7)
-
-    (1...NOTES.length).each do |i|
-      puts "#{NOTES[i-1].to_s.rjust(4)}-#{NOTES[i].to_s.rjust(4)} #{NOTES[i-1]-NOTES[i]} #{(NOTES[i-1].to_f/NOTES[i])}"
-    end
-
-                      dw NOTES[11]*2
-    notes             dw NOTES[0...12]
-                      words 7*12
-
     make_sincos       create_sincos_from_sintable sincos, sintable:sintable
 
     sintable          bytes   neg_sintable256_pi_half_no_zero_lo
@@ -1443,7 +1464,7 @@ if __FILE__ == $0
   %w[
     +demo.extend_notes +demo.tone_progress_table_factory +demo.note_to_fine_tone_cursor_table_factory
     instrument_table
-    notes
+    music.notes
     ministack
     sincos
     note_to_cursor
