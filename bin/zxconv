@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: BINARY -*-
-ZXCONV_VERSION = '0.3'
+ZXCONV_VERSION = '0.4'
 k,v = [
 	:dither1,    ?n,
 	:dither2,    ?n,
@@ -8,6 +8,7 @@ k,v = [
 	:upper,      4,
 	:colors,     (0..15),
 	:colormode,  0,
+	:hires,      ?n,
 	:onlycolors, nil,
 	:autogamma,  false,
 	:autolevel,  false,
@@ -15,6 +16,7 @@ k,v = [
 	:savebin,    false,
 	:saveattr,   false,
 	:saveimg,    true,
+	:x2pixels,   false,
 	:format,     ?t,
 	:source,     nil,
 	:dest,       nil,
@@ -23,7 +25,7 @@ k,v = [
 $options = Struct.new(*k).new(*v)
 
 HELP = <<_EOH_
-ZXCONV #{ZXCONV_VERSION}: Importing images to ZX Spectrum is fun!
+ZXCONV #{ZXCONV_VERSION}: Converting images to ZX Spectrum is fun!
 Usage:
 #{File.basename($0)} source destination [options]
   rendering options:
@@ -33,15 +35,20 @@ Usage:
           2: 8  bright colors
           3: 15 colors, bright colors have priority
           4: 15 colors, basic colors only on black backgrounds
-  -d, --dither n|r|f[n|r|f]     dithering mode phase1,phase2
+  -h, --hires n|c|p|i         high resolution mode
+          n: 256x192 pixels 8x8 color attributes (ZX Spectrum)
+          c: 256x192 pixels 8x1 color attributes (ULA+)
+          p: 512x192 pixels monochrome (ULA+)
+          i: 256x384 pixels interlaced (ZX Spectrum 128k/ULA+)
+  -d, --dither n|r|f[n|r|f]   dithering mode phase1,phase2
           n: none
           r: riemersma
           f: floyd-steinberg
   -c, --colors CCC....        list of allowed color indexes (0..7)
   -0..15, --bg N              background color (0..15)
   -r, --ratio N/N             bright/basic color level ratio
-  -l, --[no-]autolevel        apply auto level to source image
-  -g, --[no-]autogamma        apply auto gamma to source image
+  -l|L, --[no-]autolevel      apply auto level to source image
+  -g|G, --[no-]autogamma      apply auto gamma to source image
 
   destination format and content:
   -f, --format t|b|r|a        zx spectrum data file format
@@ -49,13 +56,15 @@ Usage:
           b: save as binary data; separate files for scr and bitamp
           r: save as ruby source
           a: save as assembler source
-  -s, --[no-]savescr          save data as zx screen (6912 bytes)
-  -b, --[no-]savebin          save b/w bitmap raw data
-  -a, --[no-]saveattr         save attributes raw data
-  -i, --[no-]saveimg          save as normal image
-                                 (format determined by destination ext.)
+  -s|S, --[no-]savescr        save ZX Spectrum screen data
+  -b|B, --[no-]savebin        save pixel bitmap (linear) data
+  -a|A, --[no-]saveattr       save color attributes (linear) data
+  -i|I, --[no-]saveimg        save image file
+                              (format determined by destination ext.)
+  -x|X, --[no-]x2-pixels      enlarge and normalize output image pixels
+                              (only applied for image file)
   default options are:
-  -m0 -dn -r4/3 -0 -ft -s -i
+  -m0 -hn -dn -r4/3 -0 -ft -s -i
 _EOH_
 
 while arg = ARGV.shift
@@ -64,6 +73,9 @@ while arg = ARGV.shift
 		v = $1 || (ARGV.shift =~ /^[0-4]$/ and $&) || (puts HELP; exit)
 		$options.colors = [0..15, 0..7, 8..15, 0..15, 0..15][v.to_i]
 		$options.colormode = v.to_i
+	when /^-h([ncpi])?$/, /^--hires(?:=([ncpi]))?$/
+		v = $1 || (ARGV.shift =~ /^[ncpi]$/ and $&) || (puts HELP; exit)
+		$options.hires = v
 	when /^-d([nrf]{0,2})?$/, /^--dither(?:=([nrf]{0,2}))?$/
 		v = $1 || (ARGV.shift =~ /^[nrf]{0,2}$/ and $&) || (puts HELP; exit)
 		$options.dither1 = v[0] || ?n
@@ -77,29 +89,33 @@ while arg = ARGV.shift
 	when /^-r(\d+\/\d+)?$/, /^--ratio(?:=(\d+\/\d+))?$/
 		v = $1 || (ARGV.shift =~ /^\d+\/\d+$/ and $&) || (puts HELP; exit)
 		$options.upper, $options.lower = v.split('/').map(&:to_i)
-		raise ArgumentError, "Bright color ratio must be higher." if $options.upper <= $options.lower
-	when '-l'
-		$options.autolevel = !$options.autolevel
+		raise ArgumentError, "Bright color ratio must be higher than 1." if $options.upper <= $options.lower
+	when /-(l|L)/
+		$options.autolevel = $1 == ?l
 	when /^--(no-)?autolevel/
 		$options.autolevel = !$1
-	when '-g'
-		$options.autogamma = !$options.autogamma
+	when /-(g|G)/
+		$options.autogamma = $1 == ?g
 	when /^--(no-)?autogamma/
 		$options.autogamma = !$1
 	when /^-f([tbra])?$/, /^--format(?:=([tbra]))?$/
 		v = $1 || (ARGV.shift =~ /^[tbra]$/ and $&) || (puts HELP; exit)
 		$options.format = v[0] || ?t
-	when /^-s/
-		$options.savescr = !$options.savescr
-	when /^-b/
-		$options.savebin = !$options.savebin
-	when /^-a/
-		$options.saveattr = !$options.saveattr
-	when /^-i/
-		$options.saveimg = !$options.saveimg
+	when /^-(s|S)/
+		$options.savescr = $1 == ?s
+	when /^-(b|B)/
+		$options.savebin = $1 == ?b
+	when /^-(a|A)/
+		$options.saveattr = $1 == ?a
+	when /^-(i|I)/
+		$options.saveimg = $1 == ?i
 	when /^--(no-)?(save(?:scr|bin|attr|img))/
 		$options[$2] = !$1
-    when /^-/
+	when /^-(x|X)/
+		$options.x2pixels = $1 == ?x
+	when /^--(no-)?x2-pixels/
+		$options.x2pixels = !$1
+  when /^-/
 		puts HELP
 		exit
 	else
@@ -129,6 +145,10 @@ begin
 	img = Image.read($options.source).first
 	img.alpha DeactivateAlphaChannel
 	puts img.inspect
+  puts "   Colors: #{img.number_colors}"
+  puts "   Resolution: #{img.x_resolution.to_i}x#{img.y_resolution.to_i} "+
+      "pixels/#{img.units == Magick::PixelsPerInchResolution ?
+      "inch" : "centimeter"}"
 rescue Magick::ImageMagickError
 	puts $!
 	exit
@@ -137,16 +157,48 @@ unless $options.saveimg or $options.savescr or $options.savebin or $options.save
 	puts "No saving specified."
 	exit
 end
-puts "Color mode: #{$options.colormode}"
-puts "Number of colors: #{$options.colors.to_a.size > 8 ? 15 : 8}"
-puts "Selected colors: #{$options.onlycolors*', '}" if $options.onlycolors
-puts "Background color: #{$options.background}"
-puts "Bright/basic color ratio: #{$options.upper}/#{$options.lower}"
-puts "Saving image: #{$options.saveimg ? 'YES' : 'NO'}"
-puts "Saving screen: #{$options.savescr ? 'YES' : 'NO'}"
-puts "Saving bitmap: #{$options.savebin ? 'YES' : 'NO'}"
-puts "Saving attributes: #{$options.saveattr ? 'YES' : 'NO'}"
-puts "ZX file format: #{{?t => 'TAP', ?b => 'SCR/BIN', ?r => 'RUBY SOURCE', ?a => 'ASM SOURCE'}[$options.format]}"
+
+if $options.onlycolors && $options.onlycolors.one?
+	raise ArgumentError, "List of allowed colors should contain at least 2 colors"
+end
+
+if $options.hires == ?p
+	$options.colors = (8..15)
+	$options.colormode = 2
+	if $options.onlycolors
+		case $options.onlycolors
+		when [0,7], [1,6], [2,5], [3,4]
+		else
+			raise ArgumentError, "List of allowed colors in 512x192 resolution may only be: 07 or 16 or 25 or 34"
+		end
+	else
+		$options.onlycolors = [0,7]
+	end
+end
+print "Color mode: #{$options.colormode} - "
+case $options.colormode
+when 0 then puts "15 colors."
+when 1 then puts "8 basic colors."
+when 2 then puts "8 bright colors."
+when 3 then puts "15 colors, bright colors have priority."
+when 4 then puts "15 colors, basic colors only on black backgrounds."
+end
+print "Resolution mode: #{$options.hires} - "
+case $options.hires
+when ?n then puts "256x192, 8x8 color attributes."
+when ?c then puts "256x192, 8x1 color attributes."
+when ?p then puts "512x192, monochromatic."
+when ?i then puts "256x384, 8x16 color attributes."
+end
+puts "Selected colors: #{$options.onlycolors*', '}." if $options.onlycolors
+puts "Background color: #{$options.background}."
+puts "Bright/basic color ratio: #{$options.upper}/#{$options.lower}."
+puts "Saving image: #{$options.saveimg ? 'YES' : 'NO'}."
+puts "Image pixels enlarged: #{$options.x2pixels ? 'YES' : 'NO'}" if $options.saveimg
+puts "Saving screen: #{$options.savescr ? 'YES' : 'NO'}."
+puts "Saving bitmap: #{$options.savebin ? 'YES' : 'NO'}."
+puts "Saving attributes: #{$options.saveattr ? 'YES' : 'NO'}."
+puts "ZX file format: #{{?t => 'TAP', ?b => 'SCR/BIN', ?r => 'RUBY SOURCE', ?a => 'ASM SOURCE'}[$options.format]}."
 dither1, dither2 = [$options.dither1, $options.dither2].each_with_index.map do |dd, i|
 	print "Phase ##{i+1} dithering: "
 	case dd.downcase
@@ -184,7 +236,7 @@ pixels = $options.colors.to_a.map {|c|
 if $options.onlycolors
 	c = nil
 	$pixels = pixels.each_with_index.map {|p,i|
-		if $options.onlycolors.include?(i) or (i > 7 and $options.onlycolors.include?(i - 8))
+		if $options.onlycolors.include?(i & 7)
 			c||= p
 			p
 		end
@@ -193,7 +245,9 @@ else
 	$pixels = pixels
 end
 
-puts $pixels.each_with_index.map {|p, i| "color #{'%2d'%i}: " + p.to_color(AllCompliance, false, MAGICKCORE_QUANTUM_DEPTH, true) }
+$pixels.each_with_index do |p, i|
+	puts "Color #{'%2d' % i}: " + p.to_color(AllCompliance, false, MAGICKCORE_QUANTUM_DEPTH, true)
+end
 
 ref = Image.new($pixels.size,1) { self.background_color = '#000000' }
 ref.store_pixels 0, 0, $pixels.size, 1, $pixels
@@ -205,12 +259,55 @@ if $pixels.size > 8
 	ref1.store_pixels 0, 0, 8, 1, $pixels[8..15]
 end
 
-img.change_geometry!('256x192') { |cols, rows, im|
-	puts "Changing image size to: #{cols}, #{rows}"
-	im.resize!(cols, rows)
-} if img.rows > 192 or img.columns > 256
+$pixw = 256
+$resw = 1
+$pixh = 192
+$resh = 1
+$pixpage = $pixw / 8 * $pixh
+$attrh = 8
 
-puts "Remaping colors..."
+def screen_addr(row, col)
+    (((row & 0b00000111) | ((row & 0b11000000) >> 3)) << 8) | ((row & 0b00111000) << 2) | col
+end
+
+case $options.hires
+when ?c
+	$attrh = 1
+	def attr_addr(row, col)
+		screen_addr(row, col)
+	end
+when ?p
+	$pixw *= 2
+	$resw = 2
+	alias screen_page_addr screen_addr
+	def screen_addr(row, col)
+	    screen_page_addr(row, col >> 1) + ($pixpage * (col & 1))
+	end
+when ?i
+	$pixh *= 2
+	$attrh *= 2
+	$resh = 2
+	def attr_addr(row, col)
+		(row << 1) & 0xffe0 | col
+	end
+	alias screen_page_addr screen_addr
+	def screen_addr(row, col)
+	    screen_page_addr(row >> 1, col) + ($pixpage * (row & 1))
+	end
+else
+	def attr_addr(row, col)
+		(row << 2) & 0xffe0 | col
+	end
+end
+$pixbsize = $pixw / 8 * $pixh
+$attrbsize = $pixw / 8 * $pixh / $attrh
+
+img.change_geometry!("256x192") do |cols, rows, im|
+	puts "Changing image size to: #{cols*$resw}x#{rows*$resh}"
+	im.resize!(cols*$resw, rows*$resh)
+end if img.rows > 192 or img.columns > 256
+
+puts "Remapping colors..."
 img2 = img.copy.remap ref, dither1
 
 rmap = Image.new(2,1) { self.background_color = 'black' }
@@ -219,12 +316,12 @@ puts "Using low intensity colors only on single color attributes and black backg
 puts "Using low intensity colors only on black backgrounds." if $options.colormode == 4
 
 spectrumize = if $pixels.size == 8
-	proc do |i, j, ws, hs, hist|
+	proc do |x, y, ws, hs, hist|
 		if hist.size > 2
 			rmap.store_pixels 0, 0, 2, 1, hist[0,2].map {|n| $pixels[n]}
-			cropped = img.crop i*8, j*8, ws, hs, true
+			cropped = img.crop x, y, ws, hs, true
 			cropped.remap rmap, dither2
-			img2.composite!(cropped, i*8, j*8, CopyCompositeOp)
+			img2.composite!(cropped, x, y, CopyCompositeOp)
 			print '+'
 		else
 			print '.'
@@ -232,7 +329,7 @@ spectrumize = if $pixels.size == 8
 		to_attr(*hist[0,2])
 	end
 elsif $options.colormode == 3
-	proc do |i, j, ws, hs, hist|
+	proc do |x, y, ws, hs, hist|
 		if hist.size > 2 or
 			(hist.size > 1 and ((hist[0] > 0 and hist[0] < 8) or (hist[0] != 0 and hist[1] != 0 and (hist[0]&8 != hist[1]&8))))
 			palette = if hist[0] == 0
@@ -240,25 +337,25 @@ elsif $options.colormode == 3
 			else
 				ref1
 			end
-			cropped = img.crop i*8, j*8, ws, hs, true
+			cropped = img.crop x, y, ws, hs, true
 			cropped.remap palette, dither2
 			hist = pixogram cropped, 0, 0, ws, hs
 			if hist.size > 2
 				rmap.store_pixels 0, 0, 2, 1, hist[0,2].map {|n| $pixels[n]}
-				cropped = img.crop i*8, j*8, ws, hs, true
+				cropped = img.crop x, y, ws, hs, true
 				cropped.remap rmap, dither2
 				print '*'
 			else
 				print '+'
 			end
-			img2.composite!(cropped, i*8, j*8, CopyCompositeOp)
+			img2.composite!(cropped, x, y, CopyCompositeOp)
 		else
 			print '.'
 		end
 		to_attr(*hist[0,2])
 	end
 elsif $options.colormode == 4
-	proc do |i, j, ws, hs, hist|
+	proc do |x, y, ws, hs, hist|
 		if hist.size > 2 or
 			(hist.size > 1 and ((hist[0] > 0 and hist[0] < 8) or (hist[0] != 0 and hist[1] != 0 and (hist[0]&8 != hist[1]&8)))) or
 			(hist.size == 1 and (hist[0] > 0 and hist[0] < 8))
@@ -267,25 +364,25 @@ elsif $options.colormode == 4
 			else
 				ref1
 			end
-			cropped = img.crop i*8, j*8, ws, hs, true
+			cropped = img.crop x, y, ws, hs, true
 			cropped.remap palette, dither2
 			hist = pixogram cropped, 0, 0, ws, hs
 			if hist.size > 2
 				rmap.store_pixels 0, 0, 2, 1, hist[0,2].map {|n| $pixels[n]}
-				cropped = img.crop i*8, j*8, ws, hs, true
+				cropped = img.crop x, y, ws, hs, true
 				cropped.remap rmap, dither2
 				print '*'
 			else
 				print '+'
 			end
-			img2.composite!(cropped, i*8, j*8, CopyCompositeOp)
+			img2.composite!(cropped, x, y, CopyCompositeOp)
 		else
 			print '.'
 		end
 		to_attr(*hist[0,2])
 	end
 else
-	proc do |i, j, ws, hs, hist|
+	proc do |x, y, ws, hs, hist|
 		if hist.size > 2 or
 			(hist.size > 1 and hist[0] != 0 and hist[1] != 0 and (hist[0]&8 != hist[1]&8))
 			palette = if hist[0] == 0
@@ -293,18 +390,18 @@ else
 			else
 				hist[0] >= 8 ? ref1 : ref0
 			end
-			cropped = img.crop i*8, j*8, ws, hs, true
+			cropped = img.crop x, y, ws, hs, true
 			cropped.remap palette, dither2
 			hist = pixogram cropped, 0, 0, ws, hs
 			if hist.size > 2
 				rmap.store_pixels 0, 0, 2, 1, hist[0,2].map {|n| $pixels[n]}
-				cropped = img.crop i*8, j*8, ws, hs, true
+				cropped = img.crop x, y, ws, hs, true
 				cropped.remap rmap, dither2
 				print '*'
 			else
 				print '+'
 			end
-			img2.composite!(cropped, i*8, j*8, CopyCompositeOp)
+			img2.composite!(cropped, x, y, CopyCompositeOp)
 		else
 			print '.'
 		end
@@ -313,16 +410,14 @@ else
 end
 
 def pixogram(im, x, y, w, h)
-	hist = {}
+	hist = Hash.new(0)
 	im.get_pixels(x, y, w, h).each do |p|
 		p.opacity = 0
 		k = $pixels.index p
-		hist[k]||=0
-		hist[k]+=1
+		hist[k] += 1
 	end
 	hist.sort {|a,b| b[1] <=> a[1] }.map {|n,_| n }
 end
-
 
 def to_attr(c1, c2 = nil)
 	bg = $options.background
@@ -340,37 +435,51 @@ def to_attr(c1, c2 = nil)
 	end) | ($options.colormode == 2 ? 0x40 : 0)].pack('C')
 end
 
-width = img.columns / 8
-height = img.rows / 8
-width+= 1 if img.columns % 8 != 0
-height+= 1 if img.rows % 8 != 0
-puts "Adjusting attributes: #{width}, #{height}"
+$bwidth = img.columns / 8
+$bwidth+= 1 if img.columns % 8 != 0
 
-$attrs = to_attr($options.background, $options.background)*768
-$battr = ''
-height.times do |j|
-	width.times do |i|
-		ws = i*8 + 8 > img.columns ? img.columns%8 : 8
-		hs = j*8 + 8 > img.rows ? img.rows%8 : 8
-		hist = pixogram img2, i*8, j*8, ws, hs
-		$battr << $attrs[j*32 + i] = spectrumize[i, j, ws, hs, hist]
+if $options.hires == ?p
+	$attrs = ''
+	$battr = ''
+	bg = $options.onlycolors[($options.background & 7) >= 4 ? 1 : 0]
+	$hires_colors = [bg, 7 - bg].freeze
+
+	def attr2colors(_, _)
+		$hires_colors
 	end
-	puts " #{j}"
-end
-puts nil, "Done."
 
-def calc_addr(row, col)
-    (((row & 0b00000111) | ((row & 0b11000000) >> 3)) << 8) | ((row & 0b00111000) << 2) | col
+else
+	aheight = img.rows / $attrh
+	aheight+= 1 if img.rows % $attrh != 0
+	puts "Adjusting attributes: #{$bwidth}, #{aheight}"
+
+	$attrs = to_attr($options.background, $options.background)*$attrbsize
+	$battr = ''
+	(0...aheight*$attrh).step($attrh) do |row|
+		$bwidth.times do |col|
+			ws = col*8 + 8 > img.columns ? img.columns % 8 : 8
+			hs = row + $attrh > img.rows ? img.rows % $attrh : $attrh
+			hist = pixogram img2, col*8, row, ws, hs
+			$battr << $attrs[attr_addr(row, col)] = spectrumize[col*8, row, ws, hs, hist]
+		end
+		puts " #{row}"
+	end
+
+	puts nil, "Done."
+
+	def attr2colors(row, col)
+		a = $attrs[attr_addr(row, col)].unpack('C')[0] ^ ($options.colormode == 2 ? 0x40 : 0)
+		[(a & 0b01111000) >> 3, (a & 7) | ((a & 0b01000000) >> 3)].map { |c| c == 8 ? 0 : c }
+	end
 end
 
-$screen = "\x00"*6144
+$screen = "\x00"*$pixbsize
 $bitmap = ''
 img2.rows.times do |row|
-	width.times do |col|
-		ws = col*8 + 8 > img.columns ? img.columns%8 : 8
-		a = $attrs[row / 8 * 32 + col].unpack('C')[0] ^ ($options.colormode == 2 ? 0x40 : 0)
-		colors = [(a & 0b01111000) >> 3, (a & 7) | ((a & 0b01000000) >> 3)].map { |c| c == 8 ? 0 : c }
-		$bitmap << $screen[calc_addr(row, col)] = [img2.get_pixels(col*8, row, ws, 1).map { |p|
+	$bwidth.times do |col|
+		ws = col*8 + 8 > img.columns ? img.columns % 8 : 8
+		colors = attr2colors(row, col)
+		$bitmap << $screen[screen_addr(row, col)] = [img2.get_pixels(col*8, row, ws, 1).map { |p|
 			colors.index $pixels.index p
 		}.join].pack('B*')
 	end
@@ -378,6 +487,15 @@ end
 
 if $options.saveimg
 	begin
+		if $options.x2pixels
+			new_width = img2.columns * (2/$resw)
+			new_height = img2.rows * (2/$resh)
+			puts "Enlarging image to: #{new_width}x#{new_height} before saving..."
+			img2.resize!(new_width, new_height, UndefinedFilter)
+		else
+			img2.x_resolution *= $resw if $resw > 1
+			img2.y_resolution *= $resh if $resh > 1
+		end
 		img2.write $options.dest
 		puts "Saving image: `#{$options.dest}'."
 	rescue Magick::ImageMagickError
@@ -388,39 +506,66 @@ end
 
 def to_tap(name, org, code)
 	raise TapeError, "Name should cointain ASCII 7-bit only!" unless name.ascii_only?
-	head = "\x00\x03" + name.ljust(10)[0,10] + [code.bytesize, org, 0x8000].pack('S3')
+	head = "\x00\x03" + name.ljust(10)[0,10] + [code.bytesize, org, 0x8000].pack('v3')
 	addsum = lambda { |s| s << s.split('').map(&:ord).inject(&:^).chr }
 	addsum.call head
 	data =  "\xff" + code
 	addsum.call data
-	[head.bytesize].pack('S') + head + [data.bytesize].pack('S') + data
+	[head.bytesize].pack('v') + head + [data.bytesize].pack('v') + data
 end
 
 def to_ruby(label, data, cols)
+	return '' if data.empty?
 	"# #{label}\n [" + data.bytes.each_slice(cols).map { |slice|
 		slice.map { |b| '0x%02X'%b }.join ','
 	}.join(",\n  ") + "]\n\n"
 end
 
 def to_asm(label, data, cols)
+	return '' if data.empty?
 	"; #{label}\n  DEFB  " + data.bytes.each_slice(cols).map { |slice|
 		slice.map { |b| '$%02X'%b }.join ','
 	}.join("\n  DEFB  ") + "\n\n"
 end
 
 basefilename = File.join(File.dirname($options.dest), File.basename($options.dest, File.extname($options.dest)))
-$data = ''
 bindata = ($options.savebin ? $bitmap : '') + ($options.saveattr ? $battr : '')
 wmode = 'wb'
+screens = if $options.savescr
+	case $options.hires
+	when ?c
+		[[$screen, "pixels"], [$attrs, "attributes"]]
+	when ?p
+		[[$screen[0, $pixpage], "pixels0"], [$screen[$pixpage, $pixpage], "pixels1"]]
+	when ?i
+		[[$screen[0, $pixpage] + $attrs, "screen0"], [$screen[$pixpage, $pixpage] + $attrs, "screen1"]]
+	else
+		[[$screen + $attrs, nil]]
+	end
+else
+	[]
+end
+
+$data = ''
+
 case $options.format
 when ?t
-	$data+= to_tap(File.basename(basefilename), 0x4000, $screen + $attrs) if $options.savescr
+	screens.each_with_index do |(scrdata, name), i|
+		$data+= to_tap(name||File.basename(basefilename), 0x4000 + i*0x2000, scrdata)
+	end
 	$data+= to_tap(File.basename(basefilename), 0x8000, bindata) unless bindata.empty?
 	puts "Saving to TAP: `#{basefilename+='.tap'}'."
 when ?b
-	if $options.savescr
+	case screens.length
+	when 1
 		puts "Saving to SCR: `#{basefilename}.scr'."
-		File.open(basefilename+'.scr', 'wb') { |file| file.write $screen + $attrs }
+		File.open(basefilename+'.scr', 'wb') { |file| file.write screens[0][0] }
+	when 2
+		screens.each_with_index do |(scrdata, name), i|
+			filename = "#{basefilename}.#{name}.scr"
+			puts "Saving to SCR: `#{filename}'."
+			File.open(filename, 'wb') { |file| file.write scrdata.ljust(6912, "\x00") }
+		end
 	end
 	unless bindata.empty?
 		puts "Saving to BIN: `#{basefilename+='.bin'}'."
@@ -429,18 +574,21 @@ when ?b
 when ?r
 	puts "Saving to RUBY SOURCE: `#{basefilename+='.rb'}'."
 	wmode = 'wt'
-	if $options.savescr
-		$data+= to_ruby('screen bitmap', $screen, 32) + to_ruby('screen attributes', $attrs, 32)
+	screens.each_with_index do |(scrdata, name), i|
+		name||="screen"
+		$data+= to_ruby("#{name} bitmap", scrdata[0, $pixpage], 32) + to_ruby("#{name} attributes", scrdata[$pixpage..-1], 32)
 	end
-	$data+= to_ruby('bitmap', $bitmap, width) if $options.savebin
-	$data+= to_ruby('attributes', $battr, width) if $options.saveattr
+	$data+= to_ruby('bitmap', $bitmap, $bwidth) if $options.savebin
+	$data+= to_ruby('attributes', $battr, $bwidth) if $options.saveattr
 when ?a
 	puts "Saving to ASM SOURCE: `#{basefilename+='.asm'}'."
 	wmode = 'wt'
-	if $options.savescr
-		$data+= to_asm('screen bitmap', $screen, 32) + to_asm('screen attributes', $attrs, 32)
+	screens.each_with_index do |(scrdata, name), i|
+		name||="screen"
+		$data+= to_asm("#{name} bitmap", scrdata[0, $pixpage], 32) + to_asm("#{name} attributes", scrdata[$pixpage..-1], 32)
 	end
-	$data+= to_asm('bitmap', $bitmap, width) if $options.savebin
-	$data+= to_asm('attributes', $battr, width) if $options.saveattr
+	$data+= to_asm('bitmap', $bitmap, $bwidth) if $options.savebin
+	$data+= to_asm('attributes', $battr, $bwidth) if $options.saveattr
 end
+
 File.open(basefilename, wmode) { |file| file.write $data } unless $data.empty?
