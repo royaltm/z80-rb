@@ -269,6 +269,13 @@ class ZXSys
         attrs_alt    addr 0xD800
     end
 
+    isolate :memT2k do
+        screen0      addr 0x4000
+        attrs0       addr 0x5800
+        screen1      addr 0x6000
+        attrs1       addr 0x7800
+    end
+
     module Macros
         ##
         # Returns to ZX Basic with the error report if condition is NOT met.
