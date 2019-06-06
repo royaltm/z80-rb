@@ -129,7 +129,7 @@ class Z80SinCos
         #
         # Mofifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+
         #
-        # +sincos+:: Address of a SinCos table as a label.
+        # +sincos+:: Address of a SinCos table as a label or an integer.
         # +sintable+:: Address of a #neg_sintable256_pi_half_no_zero_lo sinus table.
         #              Can be a +label+, +hl+ register or a +label+ pointer.
         #
@@ -137,77 +137,78 @@ class Z80SinCos
         #            (lower byte of +sincos+ address must be +0+); reserve 1024 bytes.
         def create_sincos_from_sintable(sincos, sintable:hl)
             isolate do
-                        ld   hl, sintable unless sintable == hl
-                        ld   b, 64
-                        xor  a         # -sin256(0) == -0
-                        jr   skip_aget
-            aloop       ld   a, [hl]   # -sin256(64-b)
-                        inc  hl
-            skip_aget   ex   af, af
-                        ld   a, 64
-                        sub  b         # a = angle (1-63)
-                        exx
-                        ld   b, a      # save angle (1-63)
-                        ld   a, 64
-                        add  b         # a + 64: cos256(a + 64) == -sin256(a)
-                        call to_sincos
-                        scf
-                        call put_cos
-                        ld   a, 128
-                        add  b         # a + 128: sin256(a + 128) == -sin(a)
-                        call to_sincos
-                        scf
-                        call put_sin
-                        ld   a, 192
-                        sub  b         # 192 - a: cos256(192 - a) == -sin256(a)
-                        call to_sincos
-                        scf
-                        call put_cos
-                        xor  a
-                        sub  b         # (256) - a: sin256(-a) == -sin256(a)
-                        call to_sincos
-                        scf
-                        call put_sin
-                        ex   af, af    # -sin256(a)
-                        neg            # sin256(a)
-                        ex   af, af
-                        ld   a, b      # a: sin256(a)
-                        call to_sincos # CF=0
-                        call put_sin
-                        ld   a, 64
-                        sub  b         # 64 - a: cos256(64-a) == sin256(a)
-                        call to_sincos # CF=0
-                        call put_cos
-                        ld   a, 128
-                        sub  b         # 128 - a: sin256(128 - a) == sin256(a)
-                        call to_sincos # CF=0
-                        call put_sin
-                        ld   a, 192
-                        add  b         # a + 192: cos256(a+192) == sin256(a)
-                        call to_sincos # CF=0
-                        call put_cos
-                        exx
-                        djnz aloop
+                sincos0     addr 0, SinCos
+                            ld   hl, sintable unless sintable == hl
+                            ld   b, 64
+                            xor  a         # -sin256(0) == -0
+                            jr   skip_aget
+                aloop       ld   a, [hl]   # -sin256(64-b)
+                            inc  hl
+                skip_aget   ex   af, af
+                            ld   a, 64
+                            sub  b         # a = angle (1-63)
+                            exx
+                            ld   b, a      # save angle (1-63)
+                            ld   a, 64
+                            add  b         # a + 64: cos256(a + 64) == -sin256(a)
+                            call to_sincos
+                            scf
+                            call put_cos
+                            ld   a, 128
+                            add  b         # a + 128: sin256(a + 128) == -sin(a)
+                            call to_sincos
+                            scf
+                            call put_sin
+                            ld   a, 192
+                            sub  b         # 192 - a: cos256(192 - a) == -sin256(a)
+                            call to_sincos
+                            scf
+                            call put_cos
+                            xor  a
+                            sub  b         # (256) - a: sin256(-a) == -sin256(a)
+                            call to_sincos
+                            scf
+                            call put_sin
+                            ex   af, af    # -sin256(a)
+                            neg            # sin256(a)
+                            ex   af, af
+                            ld   a, b      # a: sin256(a)
+                            call to_sincos # CF=0
+                            call put_sin
+                            ld   a, 64
+                            sub  b         # 64 - a: cos256(64-a) == sin256(a)
+                            call to_sincos # CF=0
+                            call put_cos
+                            ld   a, 128
+                            sub  b         # 128 - a: sin256(128 - a) == sin256(a)
+                            call to_sincos # CF=0
+                            call put_sin
+                            ld   a, 192
+                            add  b         # a + 192: cos256(a+192) == sin256(a)
+                            call to_sincos # CF=0
+                            call put_cos
+                            exx
+                            djnz aloop
 
-                        ld   hl, 256
-                        ld   [sincos[0].cos], hl     # cos256(0) == 1
-                        ld   [sincos[64/4].sin], hl  # sin256(64) == 1
-                        ld   h, -1
-                        ld   [sincos[128/4].cos], hl # cos256(128) == -1
-                        ld   [sincos[192/4].sin], hl # sin256(192) == -1
-                        ret
+                            ld   hl, 256
+                            ld   [sincos0[0].cos + sincos], hl     # cos256(0) == 1
+                            ld   [sincos0[64/4].sin + sincos], hl  # sin256(64) == 1
+                            ld   h, -1
+                            ld   [sincos0[128/4].cos + sincos], hl # cos256(128) == -1
+                            ld   [sincos0[192/4].sin + sincos], hl # sin256(192) == -1
+                            ret
 
-            put_cos     inc  hl
-                        inc  hl
-            put_sin     ex   af, af    # sin(a)
-                        ld   [hl], a   # lower sin256 byte
-                        inc  hl
-                        ex   af, af    # save sin
-                        sbc  a         # 0 or -1 depending on CF
-                        ld   [hl], a   # higher sin256 byte
-                        ret
-            to_sincos   sincos_from_angle sincos
-                        ret
+                put_cos     inc  hl
+                            inc  hl
+                put_sin     ex   af, af    # sin(a)
+                            ld   [hl], a   # lower sin256 byte
+                            inc  hl
+                            ex   af, af    # save sin
+                            sbc  a         # 0 or -1 depending on CF
+                            ld   [hl], a   # higher sin256 byte
+                            ret
+                to_sincos   sincos_from_angle sincos
+                            ret
             end
         end
 
