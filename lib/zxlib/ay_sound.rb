@@ -9,7 +9,8 @@ require 'z80'
 # * http://www.armory.com/~rstevew/Public/SoundSynth/Novelty/AY3-8910/start.html
 # * https://faqwiki.zxnet.co.uk/wiki/AY-3-8912
 #
-# Registers
+# ===Registers
+#
 # The AY-3-8910/8912 contains 16 internal registers as follows: 
 #   Register        Function                        Range
 #   
@@ -42,7 +43,8 @@ require 'z80'
 # 
 # The AY-3-8912 ignores bit 7 of this register.
 # 
-# Envelopes
+# ===Envelopes
+#
 # The AY-3-8910/8912 contains the following preset envelopes or waveforms (set using control register 13). Note that these affect volume only and not the pitch: 
 #   0      \__________     single decay then off
 #  
@@ -128,14 +130,15 @@ class AYSound
   #    end
   module Macros
     ##
-    # Returns an array of equal tempered scale based on a given frequency.
+    # Returns an array of equal tempered scale frequencies from a given base frequency.
     # _See_:: http://pages.mtu.edu/~suits/NoteFreqCalcs.html
     #
     # Options:
-    # * +n0+:: an index of the first note in the table: 0 is for "A", -9 for "C".
-    # * +steps:: how many half tones, 12 is the default.
-    def equal_tempered_scale_notes_hz(frequency: 440, n0:0, steps:12)
-      (0...steps).map {|n| frequency.to_f * 2.0**((n + n0).to_f/steps.to_f) }
+    # * +hz+:: base frequency in Hz.
+    # * +n0+:: an index from the base frequency to the first note in the table: 0 is for "A", -9 for "C".
+    # * +steps+:: how many half tones, 12 is the default.
+    def equal_tempered_scale_notes_hz(hz:440, n0:0, steps:12)
+      (0...steps).map {|n| hz.to_f * 2.0**((n + n0).to_f/steps.to_f) }
     end
     ##
     # Converts a frequency given in hertzs to AY-891x tone period value.
@@ -149,8 +152,8 @@ class AYSound
     # Returns a tone period array for the AY-3-891x chip.
     #
     # Options:
-    # * +min_octave:: Minimal octave number, 0-based.
-    # * +max_octave:: Maximal octave number, 0-based.
+    # * +min_octave+:: Minimal octave number, 0-based.
+    # * +max_octave+:: Maximal octave number, 0-based.
     # * +notes_hz+:: An array of tone frequencies (in Hz) in the middle (4) octave.
     # * +clock_hz+:: AY-3-891x clock frequency in Hz.
     # 
