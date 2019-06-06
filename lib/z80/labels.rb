@@ -161,32 +161,56 @@ module Z80
 		#  Returns an unnamed, relocatable label at Program.pc of (optional) +type+.
 		#  +type+ can be an integer or a data structure (a class derived from Label).
 		#
+		#  Options:
+		#
+		#  * +:align+:: Additionally aligns a label to the nearest multiple of +:align+ bytes
+		#               applying a lazy evaluated expression to a label.
+		#  * +:offset+:: Added to a label after alignment.
+		#
 		#  Example:
 		#    foo     label
 		#    bar     label 2
-		def label(type = 1)
-			l = Label.new pc, type, :code
-			@debug << DebugInfo.new(pc, 0, nil, nil, @context_labels.dup << l)
-			l
+		def label(type = 1, align: nil, offset: 0)
+			lbl = Label.new pc, type, :code
+			if align.nil? or offset == 0
+				@debug << DebugInfo.new(pc, 0, nil, nil, @context_labels.dup << lbl)
+			else
+				if align
+					align = align.to_i
+					raise ArgumentError, "align must be >= 1" if align < 1
+					lbl = (lbl + align - 1) / align * align
+				end
+				lbl = lbl + offset unless offset == 0
+			end
+			lbl
 		end
 		##
 		#  Returns an unnamed, immediate label at an absolute +address+ of (optional) +type+
-		#
-		#  Example:
-		#    foo addr 0xffff
-		#    bar addr 0x4000, 2
-		#    baz addr :next, 2 # 0x4002
 		#
 		#  +type+ can be an integer or a data structure (a class derived from Label).
 		#  The +address+ may be a number or another label or an immediate expression.
 		#  It may also be a +:next+ symbol. In this instance the label address
 		#  will be the previously added label address offset by its size.
-		def addr(address, type = 1)
+		#
+		#  Options:
+		#
+		#  * +:align+:: Additionally aligns the +address+ to the nearest multiple of +:align+ bytes.
+		#  * +:offset+:: Added to the +address+ after alignment.
+		#
+		#  Example:
+		#    foo addr 0xffff
+		#    bar addr 0x4000, 2
+		#    baz addr :next, 2 # 0x4002
+		def addr(address, type = 1, align: 1, offset: 0)
 			if address == :next
 				last_label = @labels.values.last
 				raise Syntax, "There is no label added to the program yet." if last_label.nil?
-				addr last_label[1], type
+				addr last_label[1], type, align:align, offset:offset
 			else
+				address = address.to_i
+				align = align.to_i
+				raise ArgumentError, "align must be >= 1" if align < 1
+				address = (address + align - 1) / align * align + offset.to_i
 				Label.new address, type
 			end
 		end
@@ -196,14 +220,27 @@ module Z80
 		#  If +label+ was relative the returned label will also be relative.
 		#  If +label+ was absolute the returned label will also be absolute.
 		#
+		#  Options:
+		#
+		#  * +:align+:: Additionally aligns the +label+ to the nearest multiple of +:align+ bytes
+		#               applying a lazy evaluated expression to a label.
+		#  * +:offset+:: Added to the +label+ after alignment.
+		#
 		#  Example:
 		#    foo label
 		#    bar union foo, 2
-		def union(label, type)
+		def union(label, type, align: nil, offset: 0)
 			unless label.respond_to?(:to_label) and !label.sublabel? and !label.dummy? and !type.nil?
 				raise Syntax, "Invalid union argument."
 			end
-			Label.new label.to_i, type, label.immediate? ? nil : :code
+			lbl = Label.new label.to_i, type, label.immediate? ? nil : :code
+			if align
+				align = align.to_i
+				raise ArgumentError, "align must be >= 1" if align < 1
+				lbl = (lbl + align - 1) / align * align
+			end
+			lbl = lbl + offset unless offset == 0
+			lbl
 		end
 		## call-seq:
 		#       data(type = 1)
@@ -1229,7 +1266,7 @@ module Z80
 					addr
 				end
 			else
-				raise CompileError, "Can't get a size from expression" if size_of
+				raise CompileError, "Can't get a size from an expression: #{self.inspect}" if size_of
 				case @oper
 				when :+@ then return @lhs.to_i(start, rel_to, override:override, size_of:true)
 				when :-@ then -arg_to_i.call(@lhs, rel_to_label)

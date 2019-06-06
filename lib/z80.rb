@@ -285,7 +285,7 @@ module Z80
 		#
 		#  Options:
 		#
-		#  * +:align+:: Additionally aligns +address+ to the nearest +:align+ bytes boundary
+		#  * +:align+:: Additionally aligns the +address+ to the nearest multiple of +:align+ bytes
 		#               (relative to the beginning of code).
 		#  * +:offset+:: Added to the +address+ after alignment.
 		#
