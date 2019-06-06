@@ -170,7 +170,7 @@ class ZXSys
         close_hl    addr 0x16EB # Close stream. Address of the stream entry expected in HL.
         str_data    addr 0x171E # Stream data. Gets #stream from fp-stack. Returns HL: STRMS entry, BC: offset to channel data + 1 or 0 if closed.
         str_data_a  addr 0x1721 # Stream data. Stream # should be in A. Checks if A is in range 0..15. Reports O Invalid stream if not so.
-        errror_o_2  addr 0x1725 # Invalid stream
+        error_o_2   addr 0x1725 # Invalid stream
         str_data1   addr 0x1727 # Stream data. Stream # should be in A. No checks.
         line_addr   addr 0x196E # Get starting address of line, or line after
         cp_lines    addr 0x1980 # Compare line numbers
@@ -187,13 +187,15 @@ class ZXSys
         pr_string   addr 0x203C # PR-STRING: start in DE, length in BC
         draw_line   addr 0x24B7 # THE 'LINE DRAWING' ROUTINE
         draw_line_1 addr 0X24BA # THE 'LINE DRAWING' ROUTINE: C: x, B: y, E:sgn(x), D:sgn(y)
+        error_q     addr 0x288B # Parameter error
         stk_store   addr 0x2AB6 # Pushes five registers on the calculator stack: A, E, D, C, B if there is enough room
         stk_fetch   addr 0x2BF1 # Pops five registers from the calculator stack: A, E, D, C, B
         stack_a     addr 0x2D28 # Pushes accumulator on the calculator stack as a small integer
         stack_bc    addr 0x2D2B # Pushes BC register pair on the calculator stack as a small integer
         print_fp    addr 0x2DE3 # Print a floating point number
         int_fetch   addr 0x2D7F # HL: point to FP-value, restores the twos complement number to normal in DE and a sign in C.
-        font_p      addr 0x3D00
+        error_a     addr 0x34E7 # Invalid argument
+        font_p      addr 0x3D00 # THE 'ZX SPECTRUM CHARACTER SET'
     end
 
     isolate :sys do
