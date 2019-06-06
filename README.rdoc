@@ -163,7 +163,7 @@ link:examples/calculator.png
 
 (requires RMagick http://rmagick.rubyforge.org/)
 
-  ZXCONV 0.2: Importing images to ZX Spectrum is fun!
+  ZXCONV 0.4: Converting images to ZX Spectrum is fun!
   Usage:
   zxconv source destination [options]
     rendering options:
@@ -173,15 +173,20 @@ link:examples/calculator.png
             2: 8  bright colors
             3: 15 colors, bright colors have priority
             4: 15 colors, basic colors only on black backgrounds
-    -d, --dither n|r|f[n|r|f]     dithering mode phase1,phase2
+    -h, --hires n|c|p|i         high resolution mode
+            n: 256x192 pixels 8x8 color attributes (ZX Spectrum)
+            c: 256x192 pixels 8x1 color attributes (ULA+)
+            p: 512x192 pixels monochrome (ULA+)
+            i: 256x384 pixels interlaced (ZX Spectrum 128k/ULA+)
+    -d, --dither n|r|f[n|r|f]   dithering mode phase1,phase2
             n: none
             r: riemersma
             f: floyd-steinberg
     -c, --colors CCC....        list of allowed color indexes (0..7)
     -0..15, --bg N              background color (0..15)
     -r, --ratio N/N             bright/basic color level ratio
-    -l, --[no-]autolevel        apply auto level to source image
-    -g, --[no-]autogamma        apply auto gamma to source image
+    -l|L, --[no-]autolevel      apply auto level to source image
+    -g|G, --[no-]autogamma      apply auto gamma to source image
 
     destination format and content:
     -f, --format t|b|r|a        zx spectrum data file format
@@ -189,24 +194,37 @@ link:examples/calculator.png
             b: save as binary data; separate files for scr and bitamp
             r: save as ruby source
             a: save as assembler source
-    -s, --[no-]savescr          save data as zx screen (6912 bytes)
-    -b, --[no-]savebin          save b/w bitmap raw data
-    -a, --[no-]saveattr         save attributes raw data
-    -i, --[no-]saveimg          save as normal image
-                                   (format determined by destination ext.)
+    -s|S, --[no-]savescr        save ZX Spectrum screen data
+    -b|B, --[no-]savebin        save pixel bitmap (linear) data
+    -a|A, --[no-]saveattr       save color attributes (linear) data
+    -i|I, --[no-]saveimg        save image file
+                                (format determined by destination ext.)
+    -x|X, --[no-]x2-pixels      enlarge and normalize output image pixels
+                                (only applied for image file)
     default options are:
-    -m0 -dn -r4/3 -0 -ft -s -i
+    -m0 -hn -dn -r4/3 -0 -ft -s -i
+
 
 link:examples/horse.jpg
 
-  zxconv -m4 -l --no-savescr horse.jpg horse.png
+  zxconv -m4 -l -x examples/horse.jpg horse.png
 
 link:examples/horse.png
+
+ULA+ modes are also supported:
+
+  zxconv -m4 -l -hc -x examples/horse.jpg horse_hicolor.png
+
+link:examples/horse_hicolor.png
+
+  zxconv -l -df -hp -x examples/horse.jpg horse_hires.png
+
+link:examples/horse_hires.png
 
 ==Download
 here[https://github.com/royaltm/z80-rb/archive/master.zip]
 
 ==Requirements
-====ruby 2.0.0 or later
+====ruby 2.1.0 or later
 
 Author::    Rafał Michalski
