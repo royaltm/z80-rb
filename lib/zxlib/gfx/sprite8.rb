@@ -17,7 +17,7 @@ class ZXGfxSprite8
   include Z80 unless defined?(Program)
 
   macro_import MathInt
-  macro_import ZXGfx
+  macro_import ZXLib::Gfx
 
   export  draw_sprite8
 

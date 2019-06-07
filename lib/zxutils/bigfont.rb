@@ -39,7 +39,7 @@ class BigFont
   # Imports #
   ###########
 
-  macro_import  ZXGfx
+  macro_import  ZXLib::Gfx
   import        ZXLib::Sys, macros: true, labels: true, code: false
 
   ##########

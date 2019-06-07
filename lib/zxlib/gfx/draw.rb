@@ -53,7 +53,7 @@ class ZXGfxDraw
   ##
   #  ==ZXGfxDraw macros for drawing lines and plotting pixels on the ZX Spectrum.
   module Macros
-    include ZXGfx::Macros
+    include ZXLib::Gfx::Macros
     include Z80::MathInt::Macros
     ##
     # A convenient method to build drawing subroutines.
