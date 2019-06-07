@@ -122,7 +122,7 @@ module Z80
 	class << self
 		def included(klass) # :nodoc:
 			klass.extend Program
-			if defined?(klass::Macros)
+			if defined?(klass::Macros) and klass.respond_to?(:new)
 				klass.extend klass::Macros
 			end
 		end
@@ -176,7 +176,7 @@ module Z80
 			 '@exports', {},
 			 '@autoexport', false].each_slice(2) do |n,v|
 				klass.instance_variable_set n, v
-			end
+			end if klass.respond_to?(:new)
 			constants.each do |c|
 				klass.const_set c, const_get(c) unless c == :Macros
 			end
@@ -561,10 +561,10 @@ module Z80
 				@debug << @imports.size
 				@imports << [addr, type, program, code_addr, args, name, override]
 				@code << program.code
+				program.code.freeze
 			end
 
-			program.freeze
-			program.code.freeze
+			program.freeze if labels or code
 			plabel
 		end
 		##
