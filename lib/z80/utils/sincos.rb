@@ -229,7 +229,7 @@ if __FILE__ == $0
         SinCos      = Z80SinCos::SinCos
 
         macro_import ZXGfxDraw
-        macro_import Z80MathInt
+        macro_import MathInt
         macro_import Z80SinCos
         import       ZXSys, macros: true, code: false
 

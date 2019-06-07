@@ -23,7 +23,7 @@ class Program
   ###########
 
   macro_import  Z80Lib
-  macro_import  Z80MathInt
+  macro_import  MathInt
   macro_import  ZXGfx
 
   ########

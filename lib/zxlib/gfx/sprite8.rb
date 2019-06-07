@@ -16,7 +16,7 @@ require 'zxlib/gfx'
 class ZXGfxSprite8
   include Z80 unless defined?(Program)
 
-  macro_import Z80MathInt
+  macro_import MathInt
   macro_import ZXGfx
 
   export  draw_sprite8

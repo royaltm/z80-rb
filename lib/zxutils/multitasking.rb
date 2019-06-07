@@ -206,7 +206,7 @@ class Multitasking
   ###########
 
   macro_import  Z80Lib
-  macro_import  Z80MathInt
+  macro_import  MathInt
   import        ZXSys, macros:true, code:false
 
   ##########

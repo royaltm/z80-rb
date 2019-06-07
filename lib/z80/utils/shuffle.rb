@@ -91,7 +91,7 @@ if __FILE__ == $0
         include Z80::TAP
 
         macro_import Z80Shuffle
-        macro_import Z80MathInt
+        macro_import MathInt
         label_import ZXSys
 
         start       ld   hl, testarea

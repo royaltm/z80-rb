@@ -599,7 +599,7 @@ if __FILE__ == $0
 
       label_import    ZXSys
       macro_import    AYSound
-      macro_import    Z80MathInt
+      macro_import    Z80::MathInt
 
       NOTES = ay_tone_periods
 

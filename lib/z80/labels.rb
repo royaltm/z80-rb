@@ -253,7 +253,7 @@ module Z80
 		#  The size of each data item will be of +type.to_i+ multiplied by +size+.
 		#
 		#  The +type+ argument may be a number +1+ to indicate bytes or +2+ to indicate words.
-		#  For larger integers please consult Z80MathInt::Macros.int.
+		#  For larger integers please consult Z80::MathInt::Macros.int.
 		#
 		#  +type+ may also be a class derived from Label, which represents a data structure
 		#  with named fields. In this instance each +data+ argument must be an Array or a Hash

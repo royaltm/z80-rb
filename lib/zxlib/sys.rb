@@ -11,9 +11,6 @@ require 'z80/math_i'
 #  * labels for ZX Spectrum 16/48K basic and system variables in a +vars+ namespace.
 #  * Macros for various tasks tied to the ZX Spectrum hardware or ZX Basic.
 #
-#  Requires:
-#    macro_import Z80MathInt
-#
 #  Example:
 #
 #    require 'zxlib/sys'
@@ -21,7 +18,7 @@ require 'z80/math_i'
 #    class Program
 #      include Z80
 #
-#      macro_import Z80MathInt
+#      macro_import MathInt
 #      import ZXSys, macros: true
 #
 #      open_chan   create_chan_and_open output: output_p, chan_name: 'X'
@@ -278,6 +275,10 @@ class ZXSys
         attrs1       addr 0x7800
     end
 
+    ##
+    #  ZXSys Macros require:
+    #    macro_import MathInt
+    #
     module Macros
         ##
         # Returns to ZX Basic with the error report if condition is NOT met.

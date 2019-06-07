@@ -52,7 +52,7 @@ class ZXGfxDraw
   #  ==ZXGfxDraw macros for drawing lines and plotting pixels on the ZX Spectrum.
   module Macros
     include ZXGfx::Macros
-    include Z80MathInt::Macros
+    include Z80::MathInt::Macros
     ##
     # A convenient method to build drawing subroutines.
     # Returns a label with members including the routines and preshifted pixels data.
@@ -1277,7 +1277,7 @@ if __FILE__ == $0
 
         DRAW_OUT_OF_SCREEN_SAFE = true
 
-        macro_import Z80MathInt
+        macro_import MathInt
         macro_import ZXGfxDraw
         import       ZXSys, macros: true, code: false
 

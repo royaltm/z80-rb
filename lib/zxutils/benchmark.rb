@@ -70,33 +70,10 @@ require 'zxlib/sys'
 #
 # See also: ZXBenchmark::Macros
 class ZXBenchmark
-    include Z80
-    include Z80::TAP
-
-    export bench
-    export start
-    export nop_test
-    export getset_tsframe
-    export get_frames
-    export get_idle
-    export get_adjustment
-    export overflow_err
-    export fn_argn
-    export get_arg_bc
-    export get_arg_debc
-    export routine
-    export counter
-    export frames
-    export idle
-    export adjustment
-    export tsframe
-    export forward
-    export interrup_vec
-
     ##
     # =ZXBenchmark macros.
     module Macros
-        include Z80MathInt::Macros
+        include Z80::MathInt::Macros
         include ZXSys::Macros
         ## 
         # Returns the benchmark result.
@@ -242,8 +219,30 @@ class ZXBenchmark
         end
     end
 
-    import       ZXSys, macros: true, code: false
-    macro_import Z80MathInt
+    include Z80
+    include Z80::TAP
+
+    export bench
+    export start
+    export nop_test
+    export getset_tsframe
+    export get_frames
+    export get_idle
+    export get_adjustment
+    export overflow_err
+    export fn_argn
+    export get_arg_bc
+    export get_arg_debc
+    export routine
+    export counter
+    export frames
+    export idle
+    export adjustment
+    export tsframe
+    export forward
+    export interrup_vec
+
+    label_import       ZXSys
 
     ##
     # Benchmarks the tested routine. Provide a +routine+ address and a +counter+.
