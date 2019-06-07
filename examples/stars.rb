@@ -12,7 +12,7 @@ class Stars
   include Z80::TAP
 
   import       ZXSys, macros: true, code: false, labels: true
-  macro_import Z80Lib
+  macro_import Stdlib
   macro_import MathInt
   macro_import ZXGfxDraw
 

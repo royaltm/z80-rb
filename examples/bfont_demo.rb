@@ -12,7 +12,7 @@ require 'zxutils/bigfont'
 class Bootstrap
   include Z80
 
-  macro_import      Z80Lib
+  macro_import      Stdlib
   import            ZXSys, macros: true, code: false
 
   big_font_start    addr 0x10000 - 21*8 - BigFont.code.bytesize

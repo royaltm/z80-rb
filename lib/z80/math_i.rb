@@ -1227,8 +1227,5 @@ module Z80
     end
 end
 
-def Object.const_missing(const_name) # :nodoc:
-    super unless const_name == :Z80MathInt
-    warn "DEPRECATION WARNING: the class Z80MathInt is deprecated. Use Z80::MathInt instead."
-    ::Z80::MathInt
-end
+# DEPRECATED
+Z80MathInt = ::Z80::MathInt # :nodoc:

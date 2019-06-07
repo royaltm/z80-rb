@@ -23,7 +23,7 @@ class Program
   # Imports #
   ###########
 
-  macro_import  Z80Lib
+  macro_import  Stdlib
   macro_import  MathInt
   label_import  ZXSys
   macro_import  ZX7

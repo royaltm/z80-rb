@@ -319,7 +319,7 @@ class MultitaskingIO
   # Imports #
   ###########
 
-  macro_import  Z80Lib
+  macro_import  Stdlib
   import        ZXSys, macros:true, code:false
 
   ##########

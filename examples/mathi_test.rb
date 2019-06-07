@@ -26,7 +26,7 @@ class Program
   ###########
 
   macro_import  MathInt
-  macro_import  Z80Lib
+  macro_import  Stdlib
   import        ZXSys, macros: true, labels: true, code: false
 
   ##########
