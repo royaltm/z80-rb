@@ -6,7 +6,6 @@
 #
 # Example:
 #   require 'z80'
-#   require 'z80/math_i'
 #
 #   class Program
 #     include Z80

@@ -624,5 +624,8 @@ module Z80
 		def hb(a); '%02x'%(a & 0xff) ; end
 		def h(a); '%04x'%(a & 0xffff) ; end
 	end
+
+	autoload :MathInt, 'z80/math_i'
+	autoload :Stdlib, 'z80/stdlib'
 end
 extend Z80::Helpers

@@ -3,7 +3,6 @@ here = File.expand_path('../lib', __dir__)
 $:.unshift(here) unless $:.include?(here)
 
 require 'z80'
-require 'z80/stdlib'
 require 'zxlib/gfx/draw'
 require 'zxlib/basic'
 
