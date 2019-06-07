@@ -207,7 +207,7 @@ class Multitasking
 
   macro_import  Stdlib
   macro_import  MathInt
-  import        ZXSys, macros:true, code:false
+  import        ZXLib::Sys, macros:true, code:false
 
   ##########
   # Macros #

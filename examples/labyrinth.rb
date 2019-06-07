@@ -26,7 +26,7 @@ class Program
   macro_import  Stdlib
   macro_import  MathInt
   macro_import  ZXGfx
-  import        ZXSys, macros:true, code:false
+  import        ZXLib::Sys, macros:true, code:false
 
   ########
   # MAIN #

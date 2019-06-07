@@ -238,7 +238,7 @@ if __FILE__ == $0
         macro_import ZXGfxDraw
         macro_import MathInt
         macro_import Utils::SinCos
-        import       ZXSys, macros: true, code: false
+        import       ZXLib::Sys, macros: true, code: false
 
         sincos      addr 0xFB00, SinCos
 

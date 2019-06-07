@@ -25,7 +25,7 @@ class Program
 
   macro_import  MathInt
   macro_import  Stdlib
-  import        ZXSys, macros: true, labels: true, code: false
+  import        ZXLib::Sys, macros: true, labels: true, code: false
 
   ##########
   # Macros #

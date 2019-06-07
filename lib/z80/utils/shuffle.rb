@@ -100,7 +100,7 @@ if __FILE__ == $0
 
         macro_import Utils::Shuffle
         macro_import MathInt
-        label_import ZXSys
+        label_import ZXLib::Sys
 
         start       ld   hl, testarea
                     ld   a, 256
@@ -133,7 +133,7 @@ if __FILE__ == $0
 
     testshuffle = TestShuffle.new 0xe000
     testarea = testshuffle[:testarea]
-    mem_attrs = ZXSys.new['mem.attrs']
+    mem_attrs = Sys.new['mem.attrs']
     program = Basic.parse_source <<-END
       10 CLS: FOR i=0 TO 255: PRINT "`#6`";: POKE #{mem_attrs}+i, i: NEXT i
          PRINT #1;"press any key...";: PAUSE 0: INPUT ""

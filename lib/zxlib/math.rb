@@ -137,7 +137,7 @@ module ZXLib
             mantissabin intsign 4
         end
 
-        label_import ZXSys
+        label_import ZXLib::Sys
 
         export print_fp_hl
 
@@ -191,7 +191,7 @@ if __FILE__ == $0
 
         ZXReal = ZXLib::Math::ZXReal # :nodoc:
 
-        label_import ZXSys
+        label_import ZXLib::Sys
 
         # print real numbers, up to 0
         ns :start, use: rom do

@@ -320,7 +320,7 @@ class MultitaskingIO
   ###########
 
   macro_import  Stdlib
-  import        ZXSys, macros:true, code:false
+  import        ZXLib::Sys, macros:true, code:false
 
   ##########
   # Macros #

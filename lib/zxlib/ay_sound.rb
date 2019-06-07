@@ -124,7 +124,7 @@ class AYSound
   #
   #    class Program
   #      include Z80
-  #      label_import    ZXSys
+  #      label_import    ZXLib::Sys
   #      macro_import    AYSound
   #      ...
   #    end
@@ -597,7 +597,7 @@ if __FILE__ == $0
       include AYSound::Registers
       include AYSound::EnvelopeControl
 
-      label_import    ZXSys
+      label_import    ZXLib::Sys
       macro_import    AYSound
       macro_import    Z80::MathInt
 

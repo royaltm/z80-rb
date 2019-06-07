@@ -23,7 +23,7 @@ require 'zxlib/gfx'
 #                      call draw.line
 #      end
 #    
-#      points          data ZXSys::Coords, 2, {x:0, y:0}, {x:255, y:191}
+#      points          data ZXLib::Sys::Coords, 2, {x:0, y:0}, {x:255, y:191}
 #    
 #      draw            make_draw_line_subroutines(scraddr: 0x4000, check_oos: true)
 #    end
@@ -1281,7 +1281,7 @@ if __FILE__ == $0
 
         macro_import MathInt
         macro_import ZXGfxDraw
-        import       ZXSys, macros: true, code: false
+        import       ZXLib::Sys, macros: true, code: false
 
         import       ZXBenchmark, :benchmark, code: true, labels: true, macros: true
 
@@ -1331,7 +1331,7 @@ if __FILE__ == $0
                       ld   de, [dy]
           draw_jump   jp   draw.line
         end
-        coords        data ZXSys::Coords, {x:0, y:0}
+        coords        data ZXLib::Sys::Coords, {x:0, y:0}
         dx            dw 0
         dy            dw 0
         draw          make_draw_line_subroutines(scraddr:0x4000, check_oos:DRAW_OUT_OF_SCREEN_SAFE)

@@ -22,7 +22,7 @@ require 'zxlib/sys'
 #     
 #         export test_neg16
 #     
-#         label_import        ZXSys
+#         label_import        ZXLib::Sys
 #         import              ZXBenchmark, :bm, macros: true
 #     
 #         get_bench_result    calculate_benchmark_tstates(bm.counter, bm.tsframe, bm.frames, bm.idle, bm.adjustment)
@@ -76,7 +76,7 @@ class ZXBenchmark
     # =ZXBenchmark macros.
     module Macros
         include Z80::MathInt::Macros
-        include ZXSys::Macros
+        include ZXLib::Sys::Macros
         ## 
         # Returns the benchmark result.
         #
@@ -244,7 +244,7 @@ class ZXBenchmark
     export forward
     export interrup_vec
 
-    label_import       ZXSys
+    label_import       ZXLib::Sys
 
     ##
     # Benchmarks the tested routine. Provide a +routine+ address and a +counter+.
@@ -415,7 +415,7 @@ if __FILE__ == $0
         include Z80
         include Z80::TAP
 
-        label_import        ZXSys
+        label_import        ZXLib::Sys
         import              ZXBenchmark, macros: true, labels: true, code: true
 
         get_result          calculate_benchmark_tstates(counter, tsframe, frames, idle, adjustment)

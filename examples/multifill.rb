@@ -31,7 +31,7 @@ class Program
   macro_import  Stdlib
   macro_import  MathInt
   macro_import  ZXGfx
-  import        ZXSys, macros: true
+  import        ZXLib::Sys, macros: true
   import        MultitaskingIO, :mtio, code: false, macros: true, labels: MultitaskingIO.kernel_org, override: MT_OVERRIDES
 
   mmtvars       addr mem.mmaps, Multitasking::TaskVars

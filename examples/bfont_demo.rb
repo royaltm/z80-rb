@@ -12,7 +12,7 @@ class Bootstrap
   include Z80
 
   macro_import      Stdlib
-  import            ZXSys, macros: true, code: false
+  import            ZXLib::Sys, macros: true, code: false
 
   big_font_start    addr 0x10000 - 21*8 - BigFont.code.bytesize
 
@@ -54,7 +54,7 @@ end
 include ZXLib
 
 bootstrap = Bootstrap.new Basic.parse_source('0 REM').code.bytesize - 1
-VARS_PROG = ZXSys.new['vars.prog']
+VARS_PROG = Sys.new['vars.prog']
 program = Basic.parse_source <<-END
    0 REM `#{bootstrap.code.bytes.join(',')}`
    1 INK 6: PAPER 1: BRIGHT 1: BORDER 1: CLS

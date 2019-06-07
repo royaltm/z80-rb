@@ -23,7 +23,7 @@ class Program
 
   macro_import  Stdlib
   macro_import  MathInt
-  label_import  ZXSys
+  label_import  ZXLib::Sys
   macro_import  ZX7
 
   ########
