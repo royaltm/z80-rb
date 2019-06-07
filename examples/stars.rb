@@ -13,7 +13,7 @@ class Stars
   import       ZXLib::Sys, macros: true, code: false, labels: true
   macro_import Stdlib
   macro_import MathInt
-  macro_import ZXGfxDraw
+  macro_import ZXLib::Gfx::Draw
 
   BG_STARS = 256
   NSTARS = 64

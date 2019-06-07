@@ -230,12 +230,12 @@ if __FILE__ == $0
     class TestSinCos # :nodoc: all
         include Z80
         include Z80::TAP
-        include ZXGfxDraw::Constants
+        include ZXLib::Gfx::Draw::Constants
 
         SinCosTable = Utils::SinCos::SinCosTable
         SinCos      = Utils::SinCos::SinCos
 
-        macro_import ZXGfxDraw
+        macro_import ZXLib::Gfx::Draw
         macro_import MathInt
         macro_import Utils::SinCos
         import       ZXLib::Sys, macros: true, code: false
