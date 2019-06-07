@@ -2,85 +2,93 @@
 require 'z80'
 require 'z80/math_i'
 
-class Z80Shuffle
-    module Macros
-        ##
-        # Shuffles an array of bytes.
-        #
-        #   for i from 0 to length − 1 do
-        #       j ← random integer such that 0 ≤ j ≤ i
-        #       if j ≠ i
-        #           target[i] ← target[j]
-        #       target[j] ← source[i]
-        #
-        # After the shuffle is performed +hl+ points to the memory address immediately
-        # following the shuffled table.
-        #
-        # Modifies: +af+, +bc+, +de+, +hl+
-        #
-        # +next_rng+:: Address of random number generator routine;
-        #              it should return a 8bit next random number in a +l+ register.
-        # +target+:: An address or a pointer to a target array; may be +hl+.
-        # +length+:: A 8bit length of an array in the range of 1..256 (0 is 256); may be a register.
-        # +source+:: If +nil+ then <tt>source(i) = i</tt> is assumed, otherwise an address of a source routine
-        #            which should expect +i+ in register +c+ and <b>MUST PRESERVE</b> +hl+ and +de+ registers;
-        #            source routine should return value in the +a+ register.
-        def shuffle_bytes_source_max256(next_rng, target:hl, length:a, source:nil)
-            unless source.nil? or (address?(source) and !pointer?(source))
-                raise ArgumentError, "source should be nil or an address" 
-            end
-            unless address?(next_rng) and !pointer?(next_rng)
-                raise ArgumentError, "next_rng should be an address"
-            end
-            i = d
-            mask = e
-            j = b
-            t = c
-            isolate do
-                            ld   hl, target unless hl == target
-                            ld   a, length unless a == length
-                            ld   i|mask, 0
-                loop0       push af             # save length
-                            ld   a, mask
-                            ora  i              # make mask from i
-                            ld   mask, a
-                            push hl
-                repeat_rand push i|mask
-                            call next_rng
-                            ld   a, l           # j = random
-                            pop  i|mask         # i|mask
-                            anda mask
-                            ld   j, a
-                            ld   a, i
-                            sub  j              # i - j
-                            jr   C, repeat_rand # j > i
-                            pop  hl             # restore target
-                            push i|mask         # save i|mask
-                            ld   t, i
-                            ld16 de, hl
-                            jr   Z, skip_mov    # j == i
-                            ld   j, a           # if j ≠ i
-                            sub_from j, d, e
-                            ld   a, [de]        # target[j]
-                            ld   [hl], a        # target[i] = target[j]
-                skip_mov    label
-                if source.nil?
-                            ld   [de], t        # target[j] = source[i]
-                else
-                            call source
-                            ld   [de], a
+module Z80
+    module Utils
+        class Shuffle
+            module Macros
+                ##
+                # Shuffles an array of bytes.
+                #
+                #   for i from 0 to length − 1 do
+                #       j ← random integer such that 0 ≤ j ≤ i
+                #       if j ≠ i
+                #           target[i] ← target[j]
+                #       target[j] ← source[i]
+                #
+                # After the shuffle is performed +hl+ points to the memory address immediately
+                # following the shuffled table.
+                #
+                # Modifies: +af+, +bc+, +de+, +hl+
+                #
+                # +next_rng+:: Address of random number generator routine;
+                #              it should return a 8bit next random number in a +l+ register.
+                # +target+:: An address or a pointer to a target array; may be +hl+.
+                # +length+:: A 8bit length of an array in the range of 1..256 (0 is 256); may be a register.
+                # +source+:: If +nil+ then <tt>source(i) = i</tt> is assumed, otherwise an address of a source routine
+                #            which should expect +i+ in register +c+ and <b>MUST PRESERVE</b> +hl+ and +de+ registers;
+                #            source routine should return value in the +a+ register.
+                def shuffle_bytes_source_max256(next_rng, target:hl, length:a, source:nil)
+                    unless source.nil? or (address?(source) and !pointer?(source))
+                        raise ArgumentError, "source should be nil or an address" 
+                    end
+                    unless address?(next_rng) and !pointer?(next_rng)
+                        raise ArgumentError, "next_rng should be an address"
+                    end
+                    i = d
+                    mask = e
+                    j = b
+                    t = c
+                    isolate do
+                                    ld   hl, target unless hl == target
+                                    ld   a, length unless a == length
+                                    ld   i|mask, 0
+                        loop0       push af             # save length
+                                    ld   a, mask
+                                    ora  i              # make mask from i
+                                    ld   mask, a
+                                    push hl
+                        repeat_rand push i|mask
+                                    call next_rng
+                                    ld   a, l           # j = random
+                                    pop  i|mask         # i|mask
+                                    anda mask
+                                    ld   j, a
+                                    ld   a, i
+                                    sub  j              # i - j
+                                    jr   C, repeat_rand # j > i
+                                    pop  hl             # restore target
+                                    push i|mask         # save i|mask
+                                    ld   t, i
+                                    ld16 de, hl
+                                    jr   Z, skip_mov    # j == i
+                                    ld   j, a           # if j ≠ i
+                                    sub_from j, d, e
+                                    ld   a, [de]        # target[j]
+                                    ld   [hl], a        # target[i] = target[j]
+                        skip_mov    label
+                        if source.nil?
+                                    ld   [de], t        # target[j] = source[i]
+                        else
+                                    call source
+                                    ld   [de], a
+                        end
+                                    pop  i|mask         # restore i|mask
+                                    pop  af             # length
+                                    inc  hl             # target++
+                                    inc  i
+                                    cp   i
+                                    jr   NZ, loop0
+                    end
                 end
-                            pop  i|mask         # restore i|mask
-                            pop  af             # length
-                            inc  hl             # target++
-                            inc  i
-                            cp   i
-                            jr   NZ, loop0
             end
+
+            include Z80
         end
     end
-    include Z80
 end
+
+# DEPRECATED
+Z80Shuffle = Z80::Utils::Shuffle # :nodoc:
 
 if __FILE__ == $0
     require 'zxlib/basic'
@@ -90,7 +98,7 @@ if __FILE__ == $0
         include Z80
         include Z80::TAP
 
-        macro_import Z80Shuffle
+        macro_import Utils::Shuffle
         macro_import MathInt
         label_import ZXSys
 
