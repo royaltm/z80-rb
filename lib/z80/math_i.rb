@@ -1,47 +1,47 @@
 # -*- coding: BINARY -*-
-##
-# =Z80::MathInt - integer math common routines.
-#
-# in Z80::MathInt::Macros
-#
-# Example:
-#   require 'z80'
-#
-#   class Program
-#     include Z80
-#
-#     macro_import  MathInt
-#
-#                   ld  hl, [dividend.words[0]]
-#                   exx
-#                   ld  hl, [dividend.words[1]]
-#                   ld  de, [divisor]
-#                   divmod32_16
-#                   ld  [result.words[1]], hl
-#                   exx
-#                   ld  [result.words[0]], hl
-#                   ld  [remainder], de
-#                   # convert integer to bcd
-#                   utobcd bcdbufend, result, size: 4
-#                   exx
-#                   ld  hl, bcdbufend
-#                   sub_from c, h, l
-#                   # print integer
-#                   bcdtoa hl, c do |eoc|
-#                     jr  NC, pr1  # skip check if not first
-#                     jr  Z, eoc   # skip if 0
-#               pr1   add '0'.ord
-#                     rst 0x10
-#                   end
-#
-#     dividend      int 32, 0xdeadbaca
-#     divisor       int 16, 0xbaba
-#     result        int 32, 0
-#     remainder     int 16, 0
-#                   bytes 5
-#     bcdbufend     label
-#   end
 module Z80
+    ##
+    # =Z80::MathInt - integer math common routines.
+    #
+    # in Z80::MathInt::Macros
+    #
+    # Example:
+    #   require 'z80'
+    #
+    #   class Program
+    #     include Z80
+    #
+    #     macro_import  MathInt
+    #
+    #                   ld  hl, [dividend.words[0]]
+    #                   exx
+    #                   ld  hl, [dividend.words[1]]
+    #                   ld  de, [divisor]
+    #                   divmod32_16
+    #                   ld  [result.words[1]], hl
+    #                   exx
+    #                   ld  [result.words[0]], hl
+    #                   ld  [remainder], de
+    #                   # convert integer to bcd
+    #                   utobcd bcdbufend, result, size: 4
+    #                   exx
+    #                   ld  hl, bcdbufend
+    #                   sub_from c, h, l
+    #                   # print integer
+    #                   bcdtoa hl, c do |eoc|
+    #                     jr  NC, pr1  # skip check if not first
+    #                     jr  Z, eoc   # skip if 0
+    #               pr1   add '0'.ord
+    #                     rst 0x10
+    #                   end
+    #
+    #     dividend      int 32, 0xdeadbaca
+    #     divisor       int 16, 0xbaba
+    #     result        int 32, 0
+    #     remainder     int 16, 0
+    #                   bytes 5
+    #     bcdbufend     label
+    #   end
     class MathInt
         # :nodoc:
         module Integers # :nodoc: all

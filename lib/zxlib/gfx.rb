@@ -1,27 +1,27 @@
-##
-#  ==A module with Z80 Macros for common ZX Spectrum graphics tasks
-#
-#  Example:
-#
-#    require 'zxlib/gfx'
-#
-#    class Program
-#      include Z80
-#      macro_import  ZXLib::Gfx
-#
-#              # invert pixel at 100, 100
-#              ld  l, 100
-#              ld  a, 100
-#              xytoscr(a, l, ah:h, al:l, s:b, t:c)
-#              inc b
-#              ld  a, 1
-#      shift1  rrca
-#              djnz shift1
-#              xor  [hl]
-#              ld   [hl], a
-#              ret
-#    end
 module ZXLib
+  ##
+  #  ==A module with Z80 Macros for common ZX Spectrum graphics tasks
+  #
+  #  Example:
+  #
+  #    require 'zxlib/gfx'
+  #
+  #    class Program
+  #      include Z80
+  #      macro_import  ZXLib::Gfx
+  #
+  #              # invert pixel at 100, 100
+  #              ld  l, 100
+  #              ld  a, 100
+  #              xytoscr(a, l, ah:h, al:l, s:b, t:c)
+  #              inc b
+  #              ld  a, 1
+  #      shift1  rrca
+  #              djnz shift1
+  #              xor  [hl]
+  #              ld   [hl], a
+  #              ret
+  #    end
   module Gfx
     ##
     #  ==ZXLib::Gfx macros.

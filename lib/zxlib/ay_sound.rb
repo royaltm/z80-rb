@@ -1,72 +1,73 @@
 # -*- coding: BINARY -*-
 require 'z80'
-##
-# ==ZXLib::AYSound.
-#
-# Macros to help program the AY-3-8910/8912 sound chipsets.
-#
-# _Sources_::
-# * http://www.armory.com/~rstevew/Public/SoundSynth/Novelty/AY3-8910/start.html
-# * https://faqwiki.zxnet.co.uk/wiki/AY-3-8912
-#
-# ===Registers
-#
-# The AY-3-8910/8912 contains 16 internal registers as follows: 
-#   Register        Function                        Range
-#   
-#    0              Channel A fine pitch            8-bit (0-255)
-#    1              Channel A coarse pitch          4-bit (0-15)
-#    2              Channel B fine pitch            8-bit (0-255)
-#    3              Channel B coarse pitch          4-bit (0-15)
-#    4              Channel C fine pitch            8-bit (0-255)
-#    5              Channel C coarse pitch          4-bit (0-15)
-#    6              Noise pitch                     5-bit (0-31)
-#    7              Mixer                           8-bit (see below)
-#    8              Channel A volume                4-bit (0-15, see below)
-#    9              Channel B volume                4-bit (0-15, see below)
-#   10              Channel C volume                4-bit (0-15, see below)
-#   11              Envelope fine duration          8-bit (0-255)
-#   12              Envelope coarse duration        8-bit (0-255)
-#   13              Envelope shape                  4-bit (0-15)
-#   14              I/O port A                      8-bit (0-255)
-#   15              I/O port B                      8-bit (0-255)
-#
-# Notes:: The AY-3-8912 does not contain register 15.
-# The volume registers (8, 9 and 10) contain a 4-bit setting but if bit 5 is set then that channel uses the envelope defined by register 13 and ignores its volume setting.
-#   
-# 
-# The mixer (register 7) is made up of the following bits (low = enabled): 
-#   Bit: 7        6        5        4        3        2        1        0
-#      _         _
-#      I/O       I/O   Noise    Noise    Noise     Tone     Tone     Tone
-#        B        A        C        B        A        C        B        A
-# 
-# The AY-3-8912 ignores bit 7 of this register.
-# 
-# ===Envelope shapes
-#
-# The AY-3-8910/8912 contains the following preset envelopes or waveforms (set using control register 13). Note that these affect volume only and not the pitch: 
-#   0      \__________     single decay then off
-#  
-#   4      /|_________     single attack then off
-#  
-#   8      \|\|\|\|\|\     repeated decay
-#  
-#   9      \__________     single decay then off
-#  
-#  10      \/\/\/\/\/\     repeated decay-attack
-#            _________
-#  11      \|              single decay then hold
-#  
-#  12      /|/|/|/|/|/     repeated attack
-#           __________
-#  13      /               single attack then hold
-#  
-#  14      /\/\/\/\/\/     repeated attack-decay
-#  
-#  15      /|_________     single attack then off
-#
+
 module ZXLib
+  ##
+  # ==ZXLib::AYSound.
+  #
+  # Macros to help program the AY-3-8910/8912 sound chipsets.
+  #
+  # _Sources_::
+  # * http://www.armory.com/~rstevew/Public/SoundSynth/Novelty/AY3-8910/start.html
+  # * https://faqwiki.zxnet.co.uk/wiki/AY-3-8912
+  #
+  # ===Registers
+  #
+  # The AY-3-8910/8912 contains 16 internal registers as follows: 
+  #   Register        Function                        Range
+  #   
+  #    0              Channel A fine pitch            8-bit (0-255)
+  #    1              Channel A coarse pitch          4-bit (0-15)
+  #    2              Channel B fine pitch            8-bit (0-255)
+  #    3              Channel B coarse pitch          4-bit (0-15)
+  #    4              Channel C fine pitch            8-bit (0-255)
+  #    5              Channel C coarse pitch          4-bit (0-15)
+  #    6              Noise pitch                     5-bit (0-31)
+  #    7              Mixer                           8-bit (see below)
+  #    8              Channel A volume                4-bit (0-15, see below)
+  #    9              Channel B volume                4-bit (0-15, see below)
+  #   10              Channel C volume                4-bit (0-15, see below)
+  #   11              Envelope fine duration          8-bit (0-255)
+  #   12              Envelope coarse duration        8-bit (0-255)
+  #   13              Envelope shape                  4-bit (0-15)
+  #   14              I/O port A                      8-bit (0-255)
+  #   15              I/O port B                      8-bit (0-255)
+  #
+  # Notes:: The AY-3-8912 does not contain register 15.
+  # The volume registers (8, 9 and 10) contain a 4-bit setting but if bit 5 is set then that channel uses the envelope defined by register 13 and ignores its volume setting.
+  #   
+  # 
+  # The mixer (register 7) is made up of the following bits (low = enabled): 
+  #   Bit: 7        6        5        4        3        2        1        0
+  #      _         _
+  #      I/O       I/O   Noise    Noise    Noise     Tone     Tone     Tone
+  #        B        A        C        B        A        C        B        A
+  # 
+  # The AY-3-8912 ignores bit 7 of this register.
+  # 
+  # ===Envelope shapes
+  #
+  # The AY-3-8910/8912 contains the following preset envelopes or waveforms (set using control register 13). Note that these affect volume only and not the pitch: 
+  #   0      \__________     single decay then off
+  #  
+  #   4      /|_________     single attack then off
+  #  
+  #   8      \|\|\|\|\|\     repeated decay
+  #  
+  #   9      \__________     single decay then off
+  #  
+  #  10      \/\/\/\/\/\     repeated decay-attack
+  #            _________
+  #  11      \|              single decay then hold
+  #  
+  #  12      /|/|/|/|/|/     repeated attack
+  #           __________
+  #  13      /               single attack then hold
+  #  
+  #  14      /\/\/\/\/\/     repeated attack-decay
+  #  
+  #  15      /|_________     single attack then off
+  #
   class AYSound
     ## ZX Spectrum 128k AY-891x frequency
     CLOCK_HZ_128 = 3.5469/2 * 1_000_000 # 1.77345 MHz

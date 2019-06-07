@@ -1,48 +1,48 @@
 require 'z80'
 require 'z80/math_i'
 require 'zxlib/gfx'
-##
-#  ==A module with Z80 Macros for drawing lines and plotting pixels on the ZX Spectrum.
-#
-#  Example:
-#
-#    require 'zxlib/gfx/draw'
-#    require 'zxlib/basic'
-#
-#    include ZXLib
-#    
-#    class DrawLine
-#      include Z80
-#      include Z80::TAP
-#      macro_import    ZXLib::Gfx::Draw
-#    
-#      with_saved :start, :exx, hl, ret: true do
-#                      ld   hl, [points[0]]
-#                      ld   de, [points[1]]
-#                      prepare_args_draw_line_to
-#                      call draw.line
-#      end
-#    
-#      points          data ZXLib::Sys::Coords, 2, {x:0, y:0}, {x:255, y:191}
-#    
-#      draw            make_draw_line_subroutines(scraddr: 0x4000, check_oos: true)
-#    end
-#    drawline = DrawLine.new 0x8000
-#    puts drawline.debug
-#    program = Basic.parse_source <<-END
-#       10 INPUT "x0:";x0;" y0:";y0, "x1:";x1;" y1:";y1
-#          POKE #{drawline['points.x']}, x0: POKE #{drawline['points.y']}, y0
-#          POKE #{drawline['points.x']+2}, x1: POKE #{drawline['points.y']+2}, y1
-#          RANDOMIZE USR #{drawline[:start]}
-#          PAUSE 0: GO TO 10
-#     9998 STOP
-#     9999 CLEAR #{drawline.org-1}: LOAD ""CODE: RUN
-#    END
-#    program.save_tap 'drawline', line: 9999
-#    drawline.save_tap 'drawline', append: true
-#
 module ZXLib
   module Gfx
+    ##
+    #  ==A module with Z80 Macros for drawing lines and plotting pixels on the ZX Spectrum.
+    #
+    #  Example:
+    #
+    #    require 'zxlib/gfx/draw'
+    #    require 'zxlib/basic'
+    #
+    #    include ZXLib
+    #    
+    #    class DrawLine
+    #      include Z80
+    #      include Z80::TAP
+    #      macro_import    ZXLib::Gfx::Draw
+    #    
+    #      with_saved :start, :exx, hl, ret: true do
+    #                      ld   hl, [points[0]]
+    #                      ld   de, [points[1]]
+    #                      prepare_args_draw_line_to
+    #                      call draw.line
+    #      end
+    #    
+    #      points          data ZXLib::Sys::Coords, 2, {x:0, y:0}, {x:255, y:191}
+    #    
+    #      draw            make_draw_line_subroutines(scraddr: 0x4000, check_oos: true)
+    #    end
+    #    drawline = DrawLine.new 0x8000
+    #    puts drawline.debug
+    #    program = Basic.parse_source <<-END
+    #       10 INPUT "x0:";x0;" y0:";y0, "x1:";x1;" y1:";y1
+    #          POKE #{drawline['points.x']}, x0: POKE #{drawline['points.y']}, y0
+    #          POKE #{drawline['points.x']+2}, x1: POKE #{drawline['points.y']+2}, y1
+    #          RANDOMIZE USR #{drawline[:start]}
+    #          PAUSE 0: GO TO 10
+    #     9998 STOP
+    #     9999 CLEAR #{drawline.org-1}: LOAD ""CODE: RUN
+    #    END
+    #    program.save_tap 'drawline', line: 9999
+    #    drawline.save_tap 'drawline', append: true
+    #
     class Draw
       module Constants
         PLOT_FX_NOP  = 0x00

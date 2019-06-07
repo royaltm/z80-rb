@@ -1,50 +1,51 @@
 # -*- coding: BINARY -*-
 require 'z80'
-##
-# =Z80SinCos - integer sinus-cosinus table routines.
-#
-# in Z80SinCos::Macros
-#
-# ==Structs
-#
-# * Z80SinCos::SinCos
-# * Z80SinCos::SinCosTable
-#
-# ==Example
-#
-#    require 'z80'
-#    require 'z80/utils/sincos'
-#    class Program
-#        include Z80
-#
-#        SinCosTable = Z80SinCos::SinCosTable
-#        SinCos      = Z80SinCos::SinCos
-#
-#        macro_import Z80SinCos
-#
-#        sincos      addr 0xF000, SinCos
-#
-#        start       exx
-#                    push  hl
-#                    call  make_sincos
-#                    pop   hl
-#                    exx
-#                    ld    a, 31    # angle = PI*31/128
-#                    sincos_from_angle sincos, h, l
-#                    ld    c, [hl]  # sinus to bc
-#                    inc   hl
-#                    ld    b, [hl]
-#                    ret
-#
-#        make_sincos create_sincos_from_sintable sincos, sintable:sintable
-#        sintable    bytes   neg_sintable256_pi_half_no_zero_lo
-#    end
-#
+
 module Z80
     module Utils
+        ##
+        # =Z80::Utils::SinCos - integer sinus-cosinus table routines.
+        #
+        # in Z80::Utils::SinCos::Macros
+        #
+        # ==Structs
+        #
+        # * Z80::Utils::SinCos::SinCos
+        # * Z80::Utils::SinCos::SinCosTable
+        #
+        # ==Example
+        #
+        #    require 'z80'
+        #    require 'z80/utils/sincos'
+        #    class Program
+        #        include Z80
+        #
+        #        SinCosTable = Utils::SinCos::SinCosTable
+        #        SinCos      = Utils::SinCos::SinCos
+        #
+        #        macro_import Utils::SinCos
+        #
+        #        sincos      addr 0xF000, SinCos
+        #
+        #        start       exx
+        #                    push  hl
+        #                    call  make_sincos
+        #                    pop   hl
+        #                    exx
+        #                    ld    a, 31    # angle = PI*31/128
+        #                    sincos_from_angle sincos, h, l
+        #                    ld    c, [hl]  # sinus to bc
+        #                    inc   hl
+        #                    ld    b, [hl]
+        #                    ret
+        #
+        #        make_sincos create_sincos_from_sintable sincos, sintable:sintable
+        #        sintable    bytes   neg_sintable256_pi_half_no_zero_lo
+        #    end
+        #
         class SinCos
             ##
-            # A Z80SinCos table entry struct.
+            # A Z80::Utils::SinCos table entry struct.
             #
             # Consists of two +words+:
             # * +sin+
@@ -57,7 +58,7 @@ module Z80
                 cos  word
             end
             ##
-            # Z80SinCos table struct.
+            # Z80::Utils::SinCos table struct.
             #
             # The angle [0,256) being used in this table translates to radians in the following way:
             #   PI * angle / 128
@@ -77,7 +78,7 @@ module Z80
               entries SinCos, 256
             end
             ##
-            # =Z80SinCos Macros
+            # =Z80::Utils::SinCos Macros
             module Macros
                 ##
                 # Returns an array of 63 bytes containing the first quarter sinus table, 256-based angle, negated, fractional parts only.
@@ -135,7 +136,7 @@ module Z80
                 # +sintable+:: Address of a #neg_sintable256_pi_half_no_zero_lo sinus table.
                 #              Can be a +label+, +hl+ register or a +label+ pointer.
                 #
-                # _NOTE_:: +sincos+ must be an address of type Z80SinCos::SinCos on a 256 byte boundary
+                # _NOTE_:: +sincos+ must be an address on a 256 byte boundary
                 #            (lower byte of +sincos+ address must be +0+); reserve 1024 bytes.
                 def create_sincos_from_sintable(sincos, sintable:hl)
                     isolate do

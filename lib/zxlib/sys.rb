@@ -1,42 +1,43 @@
 # -*- coding: BINARY -*-
 require 'z80'
 require 'z80/math_i'
-##
-#  ==A module with Z80 macros for common ZX Spectrum system tasks.
-#
-#  Contains:
-#
-#  * labels for some of ZX Spectrum 16/48K ROM routine addresses in a +rom+ namespace.
-#  * labels for ZX Spectrum 16/48K memory layout in a +mem+ namespace.
-#  * labels for ZX Spectrum 16/48K basic and system variables in a +vars+ namespace.
-#  * Macros for various tasks tied to the ZX Spectrum hardware or ZX Basic.
-#
-#  Example:
-#
-#    require 'zxlib/sys'
-#
-#    class Program
-#      include Z80
-#
-#      macro_import MathInt
-#      import ZXLib::Sys, macros: true
-#
-#      open_chan   create_chan_and_open output: output_p, chan_name: 'X'
-#                  ret
-#      output_p    # ... do something with register A
-#
-#      # use memory hardware layout labels
-#                  ld   de, mem.attrs
-#                  ld   bc, mem.attrlen
-#      # use IY register to address VARS table
-#                  ld   a, [iy + vars.bordcr - vars_iy]
-#      # use VARS table directly
-#                  ld   hl, [vars.seed]
-#      # call ROM routines
-#                  call rom.break_key
-#                  report_error_unless C, 'D BREAK - CONT repeats'
-#    end
+
 module ZXLib
+    ##
+    #  ==A module with Z80 macros for common ZX Spectrum system tasks.
+    #
+    #  Contains:
+    #
+    #  * labels for some of ZX Spectrum 16/48K ROM routine addresses in a +rom+ namespace.
+    #  * labels for ZX Spectrum 16/48K memory layout in a +mem+ namespace.
+    #  * labels for ZX Spectrum 16/48K basic and system variables in a +vars+ namespace.
+    #  * Macros for various tasks tied to the ZX Spectrum hardware or ZX Basic.
+    #
+    #  Example:
+    #
+    #    require 'zxlib/sys'
+    #
+    #    class Program
+    #      include Z80
+    #
+    #      macro_import MathInt
+    #      import ZXLib::Sys, macros: true
+    #
+    #      open_chan   create_chan_and_open output: output_p, chan_name: 'X'
+    #                  ret
+    #      output_p    # ... do something with register A
+    #
+    #      # use memory hardware layout labels
+    #                  ld   de, mem.attrs
+    #                  ld   bc, mem.attrlen
+    #      # use IY register to address VARS table
+    #                  ld   a, [iy + vars.bordcr - vars_iy]
+    #      # use VARS table directly
+    #                  ld   hl, [vars.seed]
+    #      # call ROM routines
+    #                  call rom.break_key
+    #                  report_error_unless C, 'D BREAK - CONT repeats'
+    #    end
     class Sys
         include Z80
 

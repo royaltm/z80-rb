@@ -1,4 +1,6 @@
 module Z80
+    ##
+    # =Z80::Stdlib - Macros with common memory routines.
     class Stdlib
         module Macros
             ##

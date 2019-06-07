@@ -1,35 +1,36 @@
 # -*- coding: BINARY -*-
 require 'z80'
 require 'zxlib/math' unless defined?(ZXLib::Math)
-##
-#  A module with ZX Spectrum's BASIC program utilities.
-#
-#  See: ZXLib::Basic::Program, ZXLib::Basic::Vars, ZXLib::Basic::Variable
-#
-#  Example:
-#
-#    require 'zxlib/basic'
-#    include ZXLib
-#
-#    program = Basic.parse_source <<-EOB
-#      10 LET a$="Hello World!"
-#      20 PRINT a$
-#    EOB
-#    program.start = 10
-#    program.save_tap 'helloworld.tap'
-#
-#    program = Basic.parse_source '10 PRINT s$'
-#    program.start = 10
-#    program.vars << Basic::Variable.new_string('s$', '`FLASH 1`""`INK 1`Hello World!`INK 0`""`FLASH 0`')
-#    program.save_tap 'helloworld.tap', append: true
-#    puts program.vars
-#
-#    chunk = Z80::TAP.read_chunk('helloworld.tap')
-#    program = Basic.from_tap_chunk(chunk)
-#    puts program
-#    source = program.to_source
-#
+
 module ZXLib
+	##
+	#  A module with ZX Spectrum's BASIC program utilities.
+	#
+	#  See: ZXLib::Basic::Program, ZXLib::Basic::Vars, ZXLib::Basic::Variable
+	#
+	#  Example:
+	#
+	#    require 'zxlib/basic'
+	#    include ZXLib
+	#
+	#    program = Basic.parse_source <<-EOB
+	#      10 LET a$="Hello World!"
+	#      20 PRINT a$
+	#    EOB
+	#    program.start = 10
+	#    program.save_tap 'helloworld.tap'
+	#
+	#    program = Basic.parse_source '10 PRINT s$'
+	#    program.start = 10
+	#    program.vars << Basic::Variable.new_string('s$', '`FLASH 1`""`INK 1`Hello World!`INK 0`""`FLASH 0`')
+	#    program.save_tap 'helloworld.tap', append: true
+	#    puts program.vars
+	#
+	#    chunk = Z80::TAP.read_chunk('helloworld.tap')
+	#    program = Basic.from_tap_chunk(chunk)
+	#    puts program
+	#    source = program.to_source
+	#
 	module Basic
 		##
 		#  Represents a ZX Basic program in a semi-parsed form.

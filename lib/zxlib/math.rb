@@ -15,33 +15,33 @@ class Float
         ::ZXLib::Math.pack_number self, simplified_int
     end
 end
-##
-# A module with the ZXReal struct definition and ZX-Spectrum FP helpers.
-#
-# Example:
-#
-#    require('zxlib/math')
-#
-#    class TestMath
-#      include Z80
-#      include Z80::TAP
-#  
-#      ZXReal = ZXLib::Math::ZXReal
-#  
-#      chan_open addr 0x1601
-#
-#      export :auto
-#      start       ld a, 2
-#                  call chan_open
-#                  ld hl, pi
-#                  call math.print_fp_hl
-#                  ret
-#
-#      pi          data ZXReal, Math::PI
-#
-#      import :math, ZXLib::Math
-#    end
 module ZXLib
+    ##
+    # A module with the ZXReal struct definition and ZX-Spectrum FP helpers.
+    #
+    # Example:
+    #
+    #    require('zxlib/math')
+    #
+    #    class TestMath
+    #      include Z80
+    #      include Z80::TAP
+    #  
+    #      ZXReal = ZXLib::Math::ZXReal
+    #  
+    #      chan_open addr 0x1601
+    #
+    #      export :auto
+    #      start       ld a, 2
+    #                  call chan_open
+    #                  ld hl, pi
+    #                  call math.print_fp_hl
+    #                  ret
+    #
+    #      pi          data ZXReal, Math::PI
+    #
+    #      import :math, ZXLib::Math
+    #    end
     class Math
         ##
         # Converts +num+ to a ZX-Spectrum's real number encoded as a 5-byte binary string.
