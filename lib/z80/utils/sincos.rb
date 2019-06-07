@@ -40,181 +40,188 @@ require 'z80'
 #        sintable    bytes   neg_sintable256_pi_half_no_zero_lo
 #    end
 #
-class Z80SinCos
-    ##
-    # A Z80SinCos table entry struct.
-    #
-    # Consists of two +words+:
-    # * +sin+
-    # * +cos+
-    # where each of them is a signed 16bit +word+ (LSB 1st) fixed point number with
-    # the integral part in its high 8 bits and the fractional part in its low 8 bits.
-    # Each of them contain a corresponding trigonometric function value: [-1.0, 1.0].
-    class SinCos < Z80::Label
-        sin  word
-        cos  word
-    end
-    ##
-    # Z80SinCos table struct.
-    #
-    # The angle [0,256) being used in this table translates to radians in the following way:
-    #   PI * angle / 128
-    #
-    # The full table consist of 256 SinCos entries which occupy 1024 bytes.
-    #
-    #   offset fn(angle)
-    #
-    #   0x000: sin(0)   0x100: sin(1)   0x200: sin(2)   0x300: sin(3)
-    #   0x002: cos(0)   0x102: cos(1)   0x202: cos(2)   0x302: cos(3)
-    #   0x004: sin(4)   0x104: sin(5)   0x204: sin(6)   0x304: sin(7)
-    #   0x008: cos(4)   0x108: cos(5)   0x208: cos(6)   0x308: cos(7)
-    #   ...
-    #   0x0fc: sin(252) 0x1fc: sin(253) 0x2fc: sin(254) 0x3fc: sin(255)
-    #   0x0fe: cos(252) 0x1fe: cos(253) 0x2fe: cos(254) 0x3fe: cos(255)
-    class SinCosTable < Z80::Label
-      entries SinCos, 256
-    end
-    ##
-    # =Z80SinCos Macros
-    module Macros
-        ##
-        # Returns an array of 63 bytes containing the first quarter sinus table, 256-based angle, negated, fractional parts only.
-        #
-        #   for a in 1..63 -> (-256 * sin(PI * a / 128)) & 0x00FF
-        #
-        # Suitable for #create_sincos_from_sintable macro.
-        def neg_sintable256_pi_half_no_zero_lo
-            (1..63).map{|a| (-Math.sin(Math::PI*a.to_f/128.0)*256.0).truncate & 0xff }
-        end
-        ##
-        # Returns a SinCosTable descriptors.
-        #
-        # Example:
-        #   sincos data SinCosTable, sincos_table_descriptors
-        def sincos_table_descriptors
-            (0..255).map do |a|
-                a = ((a & 0x3F) << 2) | ((a & 0xC0) >> 6)
-                sin = (Math.sin(Math::PI*a.to_f/128.0)*256.0).truncate
-                cos = (Math.cos(Math::PI*a.to_f/128.0)*256.0).truncate
-                {sin: sin, cos: cos}
+module Z80
+    module Utils
+        class SinCos
+            ##
+            # A Z80SinCos table entry struct.
+            #
+            # Consists of two +words+:
+            # * +sin+
+            # * +cos+
+            # where each of them is a signed 16bit +word+ (LSB 1st) fixed point number with
+            # the integral part in its high 8 bits and the fractional part in its low 8 bits.
+            # Each of them contain a corresponding trigonometric function value: [-1.0, 1.0].
+            class SinCos < Z80::Label
+                sin  word
+                cos  word
             end
-        end
-        ##
-        # Code that returns an address of SinCos entry for a given 256-based angle in the register +a+.
-        #
-        # Mofifies: +af+, +th+, +tl+
-        #
-        # For each angle: a <= llllllhh; th =>  MSB SinCos address + 000000hh, tl => llllll00
-        # 
-        # +sincos+:: Address of SinCos table, must be on a 256 byte boundary.
-        #            (LSB of +sincos+ address must be +0+).
-        def sincos_from_angle(sincos, th=h, tl=l)
-            raise ArgumentError, "sincos must be a direct address" if pointer?(sincos)
-            if immediate?(sincos)
-                sincos = sincos.to_i
-                raise ArgumentError, "sincos must be on a 256 byte boundary" unless (sincos & 0x00FF).zero?
+            ##
+            # Z80SinCos table struct.
+            #
+            # The angle [0,256) being used in this table translates to radians in the following way:
+            #   PI * angle / 128
+            #
+            # The full table consist of 256 SinCos entries which occupy 1024 bytes.
+            #
+            #   offset fn(angle)
+            #
+            #   0x000: sin(0)   0x100: sin(1)   0x200: sin(2)   0x300: sin(3)
+            #   0x002: cos(0)   0x102: cos(1)   0x202: cos(2)   0x302: cos(3)
+            #   0x004: sin(4)   0x104: sin(5)   0x204: sin(6)   0x304: sin(7)
+            #   0x008: cos(4)   0x108: cos(5)   0x208: cos(6)   0x308: cos(7)
+            #   ...
+            #   0x0fc: sin(252) 0x1fc: sin(253) 0x2fc: sin(254) 0x3fc: sin(255)
+            #   0x0fe: cos(252) 0x1fe: cos(253) 0x2fe: cos(254) 0x3fe: cos(255)
+            class SinCosTable < Z80::Label
+              entries SinCos, 256
             end
-            isolate do
-                    ld   th, a
-                    anda 0b11111100
-                    ld   tl, a
-                    xor  th
-                    add  sincos >> 8
-                    ld   th, a
-            end
-        end
-        ##
-        # Makes a subroutine that creates a full SinCosTable from a quarter sinus table
-        # generated by neg_sintable256_pi_half_no_zero_lo.
-        #
-        # Mofifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+
-        #
-        # +sincos+:: Address of a SinCos table as a label or an integer.
-        # +sintable+:: Address of a #neg_sintable256_pi_half_no_zero_lo sinus table.
-        #              Can be a +label+, +hl+ register or a +label+ pointer.
-        #
-        # _NOTE_:: +sincos+ must be an address of type Z80SinCos::SinCos on a 256 byte boundary
-        #            (lower byte of +sincos+ address must be +0+); reserve 1024 bytes.
-        def create_sincos_from_sintable(sincos, sintable:hl)
-            isolate do
-                sincos0     addr 0, SinCos
-                            ld   hl, sintable unless sintable == hl
-                            ld   b, 64
-                            xor  a         # -sin256(0) == -0
-                            jr   skip_aget
-                aloop       ld   a, [hl]   # -sin256(64-b)
-                            inc  hl
-                skip_aget   ex   af, af
-                            ld   a, 64
-                            sub  b         # a = angle (1-63)
-                            exx
-                            ld   b, a      # save angle (1-63)
-                            ld   a, 64
-                            add  b         # a + 64: cos256(a + 64) == -sin256(a)
-                            call to_sincos
-                            scf
-                            call put_cos
-                            ld   a, 128
-                            add  b         # a + 128: sin256(a + 128) == -sin(a)
-                            call to_sincos
-                            scf
-                            call put_sin
-                            ld   a, 192
-                            sub  b         # 192 - a: cos256(192 - a) == -sin256(a)
-                            call to_sincos
-                            scf
-                            call put_cos
-                            xor  a
-                            sub  b         # (256) - a: sin256(-a) == -sin256(a)
-                            call to_sincos
-                            scf
-                            call put_sin
-                            ex   af, af    # -sin256(a)
-                            neg            # sin256(a)
-                            ex   af, af
-                            ld   a, b      # a: sin256(a)
-                            call to_sincos # CF=0
-                            call put_sin
-                            ld   a, 64
-                            sub  b         # 64 - a: cos256(64-a) == sin256(a)
-                            call to_sincos # CF=0
-                            call put_cos
-                            ld   a, 128
-                            sub  b         # 128 - a: sin256(128 - a) == sin256(a)
-                            call to_sincos # CF=0
-                            call put_sin
-                            ld   a, 192
-                            add  b         # a + 192: cos256(a+192) == sin256(a)
-                            call to_sincos # CF=0
-                            call put_cos
-                            exx
-                            djnz aloop
+            ##
+            # =Z80SinCos Macros
+            module Macros
+                ##
+                # Returns an array of 63 bytes containing the first quarter sinus table, 256-based angle, negated, fractional parts only.
+                #
+                #   for a in 1..63 -> (-256 * sin(PI * a / 128)) & 0x00FF
+                #
+                # Suitable for #create_sincos_from_sintable macro.
+                def neg_sintable256_pi_half_no_zero_lo
+                    (1..63).map{|a| (-Math.sin(Math::PI*a.to_f/128.0)*256.0).truncate & 0xff }
+                end
+                ##
+                # Returns a SinCosTable descriptors.
+                #
+                # Example:
+                #   sincos data SinCosTable, sincos_table_descriptors
+                def sincos_table_descriptors
+                    (0..255).map do |a|
+                        a = ((a & 0x3F) << 2) | ((a & 0xC0) >> 6)
+                        sin = (Math.sin(Math::PI*a.to_f/128.0)*256.0).truncate
+                        cos = (Math.cos(Math::PI*a.to_f/128.0)*256.0).truncate
+                        {sin: sin, cos: cos}
+                    end
+                end
+                ##
+                # Code that returns an address of SinCos entry for a given 256-based angle in the register +a+.
+                #
+                # Mofifies: +af+, +th+, +tl+
+                #
+                # For each angle: a <= llllllhh; th =>  MSB SinCos address + 000000hh, tl => llllll00
+                # 
+                # +sincos+:: Address of SinCos table, must be on a 256 byte boundary.
+                #            (LSB of +sincos+ address must be +0+).
+                def sincos_from_angle(sincos, th=h, tl=l)
+                    raise ArgumentError, "sincos must be a direct address" if pointer?(sincos)
+                    if immediate?(sincos)
+                        sincos = sincos.to_i
+                        raise ArgumentError, "sincos must be on a 256 byte boundary" unless (sincos & 0x00FF).zero?
+                    end
+                    isolate do
+                            ld   th, a
+                            anda 0b11111100
+                            ld   tl, a
+                            xor  th
+                            add  sincos >> 8
+                            ld   th, a
+                    end
+                end
+                ##
+                # Makes a subroutine that creates a full SinCosTable from a quarter sinus table
+                # generated by neg_sintable256_pi_half_no_zero_lo.
+                #
+                # Mofifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+
+                #
+                # +sincos+:: Address of a SinCos table as a label or an integer.
+                # +sintable+:: Address of a #neg_sintable256_pi_half_no_zero_lo sinus table.
+                #              Can be a +label+, +hl+ register or a +label+ pointer.
+                #
+                # _NOTE_:: +sincos+ must be an address of type Z80SinCos::SinCos on a 256 byte boundary
+                #            (lower byte of +sincos+ address must be +0+); reserve 1024 bytes.
+                def create_sincos_from_sintable(sincos, sintable:hl)
+                    isolate do
+                        sincos0     addr 0, SinCos
+                                    ld   hl, sintable unless sintable == hl
+                                    ld   b, 64
+                                    xor  a         # -sin256(0) == -0
+                                    jr   skip_aget
+                        aloop       ld   a, [hl]   # -sin256(64-b)
+                                    inc  hl
+                        skip_aget   ex   af, af
+                                    ld   a, 64
+                                    sub  b         # a = angle (1-63)
+                                    exx
+                                    ld   b, a      # save angle (1-63)
+                                    ld   a, 64
+                                    add  b         # a + 64: cos256(a + 64) == -sin256(a)
+                                    call to_sincos
+                                    scf
+                                    call put_cos
+                                    ld   a, 128
+                                    add  b         # a + 128: sin256(a + 128) == -sin(a)
+                                    call to_sincos
+                                    scf
+                                    call put_sin
+                                    ld   a, 192
+                                    sub  b         # 192 - a: cos256(192 - a) == -sin256(a)
+                                    call to_sincos
+                                    scf
+                                    call put_cos
+                                    xor  a
+                                    sub  b         # (256) - a: sin256(-a) == -sin256(a)
+                                    call to_sincos
+                                    scf
+                                    call put_sin
+                                    ex   af, af    # -sin256(a)
+                                    neg            # sin256(a)
+                                    ex   af, af
+                                    ld   a, b      # a: sin256(a)
+                                    call to_sincos # CF=0
+                                    call put_sin
+                                    ld   a, 64
+                                    sub  b         # 64 - a: cos256(64-a) == sin256(a)
+                                    call to_sincos # CF=0
+                                    call put_cos
+                                    ld   a, 128
+                                    sub  b         # 128 - a: sin256(128 - a) == sin256(a)
+                                    call to_sincos # CF=0
+                                    call put_sin
+                                    ld   a, 192
+                                    add  b         # a + 192: cos256(a+192) == sin256(a)
+                                    call to_sincos # CF=0
+                                    call put_cos
+                                    exx
+                                    djnz aloop
 
-                            ld   hl, 256
-                            ld   [sincos0[0].cos + sincos], hl     # cos256(0) == 1
-                            ld   [sincos0[64/4].sin + sincos], hl  # sin256(64) == 1
-                            ld   h, -1
-                            ld   [sincos0[128/4].cos + sincos], hl # cos256(128) == -1
-                            ld   [sincos0[192/4].sin + sincos], hl # sin256(192) == -1
-                            ret
+                                    ld   hl, 256
+                                    ld   [sincos0[0].cos + sincos], hl     # cos256(0) == 1
+                                    ld   [sincos0[64/4].sin + sincos], hl  # sin256(64) == 1
+                                    ld   h, -1
+                                    ld   [sincos0[128/4].cos + sincos], hl # cos256(128) == -1
+                                    ld   [sincos0[192/4].sin + sincos], hl # sin256(192) == -1
+                                    ret
 
-                put_cos     inc  hl
-                            inc  hl
-                put_sin     ex   af, af    # sin(a)
-                            ld   [hl], a   # lower sin256 byte
-                            inc  hl
-                            ex   af, af    # save sin
-                            sbc  a         # 0 or -1 depending on CF
-                            ld   [hl], a   # higher sin256 byte
-                            ret
-                to_sincos   sincos_from_angle sincos
-                            ret
+                        put_cos     inc  hl
+                                    inc  hl
+                        put_sin     ex   af, af    # sin(a)
+                                    ld   [hl], a   # lower sin256 byte
+                                    inc  hl
+                                    ex   af, af    # save sin
+                                    sbc  a         # 0 or -1 depending on CF
+                                    ld   [hl], a   # higher sin256 byte
+                                    ret
+                        to_sincos   sincos_from_angle sincos
+                                    ret
+                    end
+                end
+
             end
+            include Z80
         end
-
     end
-    include Z80
 end
+
+# DEPRECATED
+Z80SinCos = Z80::Utils::SinCos # :nodoc:
 
 if __FILE__ == $0
     require 'zxlib/gfx/draw'
@@ -225,12 +232,12 @@ if __FILE__ == $0
         include Z80::TAP
         include ZXGfxDraw::Constants
 
-        SinCosTable = Z80SinCos::SinCosTable
-        SinCos      = Z80SinCos::SinCos
+        SinCosTable = Utils::SinCos::SinCosTable
+        SinCos      = Utils::SinCos::SinCos
 
         macro_import ZXGfxDraw
         macro_import MathInt
-        macro_import Z80SinCos
+        macro_import Utils::SinCos
         import       ZXSys, macros: true, code: false
 
         sincos      addr 0xFB00, SinCos
