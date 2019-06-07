@@ -5,14 +5,14 @@ class Float
     ##
     # Converts +Float+ to a ZX-Spectrum's real number encoded as a 5-byte binary string.
     #
-    # Suitable to be used with ZXMath::ZXReal struct for data.
+    # Suitable to be used with ZXLib::Math::ZXReal struct for data.
     #
     # +simplified_int+ indicates if integers in the range of -65535..65535
     # should be stored in a simplified integer form.
     #
     # Returns binary string.
     def to_z80bin(simplified_int=true)
-        ZXMath.pack_number self, simplified_int
+        ::ZXLib::Math.pack_number self, simplified_int
     end
 end
 ##
@@ -26,7 +26,7 @@ end
 #      include Z80
 #      include Z80::TAP
 #  
-#      ZXReal = ZXMath::ZXReal
+#      ZXReal = ZXLib::Math::ZXReal
 #  
 #      chan_open addr 0x1601
 #
@@ -39,141 +39,146 @@ end
 #
 #      pi          data ZXReal, Math::PI
 #
-#      import :math, ZXMath
+#      import :math, ZXLib::Math
 #    end
-class ZXMath
-    ##
-    # Converts +num+ to a ZX-Spectrum's real number encoded as a 5-byte binary string.
-    #
-    # +simplified_int+ indicates if the integers in the
-    # range of -65535..65535 should be stored in a simplified integer form.
-    #
-    # Returns binary string.
-    def ZXMath.pack_number(num, simplified_int=true)
-        sgn = num < 0
-        if simplified_int && num == num.truncate && -65535 <= num && num <= 65535
-            [0,
-             sgn ? -1 : 0,
-             num,
-             0].pack('CcvC')
-        else
-            m = (sgn ? -num : num).to_f
-            e = (Math.log2(m)+1.0).floor
-            raise "overflow error" if e > 127
-            if e < -127
-                [0].pack('C')*5
+module ZXLib
+    class Math
+        ##
+        # Converts +num+ to a ZX-Spectrum's real number encoded as a 5-byte binary string.
+        #
+        # +simplified_int+ indicates if the integers in the
+        # range of -65535..65535 should be stored in a simplified integer form.
+        #
+        # Returns binary string.
+        def self.pack_number(num, simplified_int=true)
+            sgn = num < 0
+            if simplified_int && num == num.truncate && -65535 <= num && num <= 65535
+                [0,
+                 sgn ? -1 : 0,
+                 num,
+                 0].pack('CcvC')
             else
-                # m = m*(2**-e)
-                if e < 0
-                    m = m*(1<< (-e))
+                m = (sgn ? -num : num).to_f
+                e = (::Math.log2(m)+1.0).floor
+                raise "overflow error" if e > 127
+                if e < -127
+                    [0].pack('C')*5
                 else
-                    m = m/(1<<e)
+                    # m = m*(2**-e)
+                    if e < 0
+                        m = m*(1<< (-e))
+                    else
+                        m = m/(1<<e)
+                    end
+                    [
+                        e + 128,
+                        sgn ? (m*(1<<32)).truncate : (m*(1<<32)).truncate ^ (1<<31)
+                    ].pack('CN')
                 end
-                [
-                    e + 128,
-                    sgn ? (m*(1<<32)).truncate : (m*(1<<32)).truncate ^ (1<<31)
-                ].pack('CN')
             end
         end
-    end
-    ##
-    # Converts a ZX-Spectrum's real number as a 5-byte binary string to +Numeric+ value.
-    #
-    # +simplified_int_as_fixnum+ indicates if the number encoded as a simple integer should be returned as a +Fixnum+.
-    #
-    # Returns +Float+ or +Fixnum+.
-    def ZXMath.unpack_number(bin, simplified_int_as_fixnum=true)
-        raise ArgumentError unless String === bin && bin.bytesize >= 5
-        e, m = bin.unpack('CN')
-        if e.zero?
-            sgn, val, z = bin.unpack('xcvC')
-            if z.zero?
-                val = case sgn
-                when 0 then val
-                when -1 then val-0x10000
-                else
-                    raise "simplified binary integer parse error"
+        ##
+        # Converts a ZX-Spectrum's real number as a 5-byte binary string to +Numeric+ value.
+        #
+        # +simplified_int_as_fixnum+ indicates if the number encoded as a simple integer should be returned as a +Fixnum+.
+        #
+        # Returns +Float+ or +Fixnum+.
+        def self.unpack_number(bin, simplified_int_as_fixnum=true)
+            raise ArgumentError unless String === bin && bin.bytesize >= 5
+            e, m = bin.unpack('CN')
+            if e.zero?
+                sgn, val, z = bin.unpack('xcvC')
+                if z.zero?
+                    val = case sgn
+                    when 0 then val
+                    when -1 then val-0x10000
+                    else
+                        raise "simplified binary integer parse error"
+                    end
+                    val = val.to_f unless simplified_int_as_fixnum
+                    return val
                 end
-                val = val.to_f unless simplified_int_as_fixnum
-                return val
             end
+            e -= 128
+            sgn = if (m & (1<<31)).zero?
+                m |= (1<<31)
+                false
+            else
+                true
+            end
+            val = m.to_f/(1<<32)
+            # m = m/(2**-e)
+            val = if e < 0
+                val/(1<< (-e))
+            else
+                val*(1<<e)
+            end
+            sgn ? -val : val
         end
-        e -= 128
-        sgn = if (m & (1<<31)).zero?
-            m |= (1<<31)
-            false
-        else
-            true
+
+        include Z80
+
+        ## ZX-Spectrum's float number epsilon
+        EPSILON = 1.0 / (1<<31)
+        ##
+        # A struct representing a ZX-Spectrum's FP calculator's real number data type.
+        #
+        # See:
+        # * http://www.worldofspectrum.org/ZXBasicManual/zxmanchap24.html
+        # * http://dac.escet.urjc.es/~csanchez/pfcs/zxspectrum/CompleteSpectrumROMDisassemblyThe.pdf
+        # * http://wos.meulie.net/pub/sinclair/games-info/z/Z80Toolkit2.pdf
+        class ZXReal < Label
+            exponent    byte
+            intsign     byte
+            intlsb      byte
+            intmsb      byte
+            intpad      byte
+            mantissa    intsign byte, 4
+            mantissabin intsign 4
         end
-        val = m.to_f/(1<<32)
-        # m = m/(2**-e)
-        val = if e < 0
-            val/(1<< (-e))
-        else
-            val*(1<<e)
+
+        label_import ZXSys
+
+        export print_fp_hl
+
+        ##
+        # :call-seq:
+        #   print_fp_hl
+        #
+        # Call +print_fp_hl+ with +hl+ pointing to the 1st byte of a +ZXReal+ number
+        # to print that number to the currently opened channel.
+        #
+        # After return the ZF flag can be inspected to check if the number was 0.
+        isolate :print_fp_hl, use: rom do
+                        ld a, [hl]      # get floating point from (hl)
+                        inc hl
+                        ld e, [hl]
+                        inc hl
+                        ld d, [hl]
+                        inc hl
+                        ld c, [hl]
+                        inc hl
+                        ld b, [hl]
+                        inc hl
+                        push hl         # save hl
+                        ld  l, a        # check if zero (return in Z flag)
+                        ora e
+                        ora d
+                        ora c
+                        ora b
+                        push af
+                        ld  a, l
+                        call rom.stk_store  # store number on the calculator's stack
+                        call rom.print_fp   # print number from the stack
+                        pop af
+                        pop hl
+                        ret
         end
-        sgn ? -val : val
-    end
-
-    include Z80
-
-    ## ZX-Spectrum's float number epsilon
-    EPSILON = 1.0 / (1<<31)
-    ##
-    # A struct representing a ZX-Spectrum's FP calculator's real number data type.
-    #
-    # See:
-    # * http://www.worldofspectrum.org/ZXBasicManual/zxmanchap24.html
-    # * http://dac.escet.urjc.es/~csanchez/pfcs/zxspectrum/CompleteSpectrumROMDisassemblyThe.pdf
-    # * http://wos.meulie.net/pub/sinclair/games-info/z/Z80Toolkit2.pdf
-    class ZXReal < Label
-        exponent    byte
-        intsign     byte
-        intlsb      byte
-        intmsb      byte
-        intpad      byte
-        mantissa    intsign byte, 4
-        mantissabin intsign 4
-    end
-
-    label_import ZXSys
-
-    export print_fp_hl
-
-    ##
-    # :call-seq:
-    #   print_fp_hl
-    #
-    # Call +print_fp_hl+ with +hl+ pointing to the 1st byte of a +ZXReal+ number
-    # to print that number to the currently opened channel.
-    #
-    # After return the ZF flag can be inspected to check if the number was 0.
-    isolate :print_fp_hl, use: rom do
-                    ld a, [hl]      # get floating point from (hl)
-                    inc hl
-                    ld e, [hl]
-                    inc hl
-                    ld d, [hl]
-                    inc hl
-                    ld c, [hl]
-                    inc hl
-                    ld b, [hl]
-                    inc hl
-                    push hl         # save hl
-                    ld  l, a        # check if zero (return in Z flag)
-                    ora e
-                    ora d
-                    ora c
-                    ora b
-                    push af
-                    ld  a, l
-                    call rom.stk_store  # store number on the calculator's stack
-                    call rom.print_fp   # print number from the stack
-                    pop af
-                    pop hl
-                    ret
     end
 end
+
+# DEPRECATED
+ZXMath = ZXLib::Math unless defined?(ZXMath) # :nodoc:
 
 if __FILE__ == $0
     # :stopdoc:
@@ -184,7 +189,7 @@ if __FILE__ == $0
         include Z80
         include Z80::TAP
 
-        ZXReal = ZXMath::ZXReal # :nodoc:
+        ZXReal = ZXLib::Math::ZXReal # :nodoc:
 
         label_import ZXSys
 
@@ -256,7 +261,7 @@ if __FILE__ == $0
                             8.5,                                                 # 27: 8.5
                             0.5,                                                 # 28: 0.5
                             0                                                    # 29: 0
-        import ZXMath, :math
+        import ZXLib::Math, :math
     end
     puts "Testing pack/unpack..."
     (-127..127).each do |e|
@@ -271,19 +276,19 @@ if __FILE__ == $0
                 assert_instance_of String, bin
                 assert_equal bin.bytesize, 5
                 assert_equal bin.encoding, Encoding::ASCII_8BIT
-                res = ZXMath.unpack_number bin, false
+                res = ZXLib::Math.unpack_number bin, false
                 assert_instance_of Float, res
-                assert_in_epsilon res, num, ZXMath::EPSILON
+                assert_in_epsilon res, num, ZXLib::Math::EPSILON
             end
         end
     end
 
     (-65535..65535).each do |i|
-        bin = ZXMath.pack_number i
+        bin = ZXLib::Math.pack_number i
         assert_instance_of String, bin
         assert_equal bin.bytesize, 5
         assert_equal bin.encoding, Encoding::ASCII_8BIT
-        res = ZXMath.unpack_number bin
+        res = ZXLib::Math.unpack_number bin
         assert_kind_of Integer, res
         assert_equal res, i
     end
@@ -298,7 +303,7 @@ if __FILE__ == $0
     puts program.to_source escape_keywords:true
     puts "="*32
     (testzxmath[:numbers]...testzxmath[:math]).step(5).each.with_index(1) do |addr, i|
-        n = ZXMath.unpack_number(testzxmath.code.byteslice(addr - testzxmath.org, 5))
+        n = ZXLib::Math.unpack_number(testzxmath.code.byteslice(addr - testzxmath.org, 5))
         fmtn = if n.zero? || n.abs >= 1e-8 && n.abs < 1e+8
             n.round(8).to_s
         else

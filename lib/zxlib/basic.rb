@@ -1,6 +1,6 @@
 # -*- coding: BINARY -*-
 require 'z80'
-require 'zxlib/math' unless defined?(ZXMath)
+require 'zxlib/math' unless defined?(ZXLib::Math)
 ##
 #  A module with ZX Spectrum's BASIC program utilities.
 #
@@ -269,7 +269,7 @@ module Basic
 							body << token.to_keyword_char
 							if token.keyword?('BIN')
 								arg = token.extract_binary_number_argument
-								body << arg << ?\x0E << ZXMath.pack_number(arg.gsub(Tokenizer::Patterns::SPACE_OR_CONTROL,'').to_i(2), true)
+								body << arg << ?\x0E << ZXLib::Math.pack_number(arg.gsub(Tokenizer::Patterns::SPACE_OR_CONTROL,'').to_i(2), true)
 							elsif token.keyword?('THEN')
 								raise SyntaxError, "unexpected THEN in line: #{line_index} at: #{token.index}" unless parentheses.zero?
 								body << parse_statement(tokenizer)
@@ -458,7 +458,7 @@ module Basic
 		#  mainly to ensure the proper sytax of strings, numbers and some specific expressions:
 		#
 		#  * All numbers outside of string literals are followed by a character code 14 and 5 bytes of their
-		#    internal representation in FP format (see ZXMath).
+		#    internal representation in FP format (see ZXLib::Math).
 		#  * After every argument of a DEF FN header list a character code 14 and 5 placeholder bytes
 		#    are being added.
 		#  * Literal strings are being tracked, ensuring they are properly closed.
@@ -1302,7 +1302,7 @@ module Basic
 			when VAR_STRING
 				Vars.string_to_program_text code
 			when VAR_NUMBER, VAR_NUMBER_EX, VAR_FOR_LOOP
-				ZXMath.unpack_number code
+				ZXLib::Math.unpack_number code
 			else
 				self.[]()
 			end
@@ -1311,14 +1311,14 @@ module Basic
 		#  Returns the FOR loop limit value.
 		def limit
 			if for_loop?
-				ZXMath.unpack_number data.byteslice(6, 5)
+				ZXLib::Math.unpack_number data.byteslice(6, 5)
 			end
 		end
 		##
 		#  Returns the FOR loop step value.
 		def step
 			if for_loop?
-				ZXMath.unpack_number data.byteslice(11, 5)
+				ZXLib::Math.unpack_number data.byteslice(11, 5)
 			end
 		end
 		##
@@ -1358,10 +1358,10 @@ module Basic
 			when VAR_NUMBER_ARRAY
 				if Range === at.last
 					0.step(data.bytesize - 1, 5).map do |offs|
-						ZXMath.unpack_number data.byteslice(offs, 5), false
+						ZXLib::Math.unpack_number data.byteslice(offs, 5), false
 					end
 				else
-					ZXMath.unpack_number data
+					ZXLib::Math.unpack_number data
 				end
 			when VAR_CHAR_ARRAY, VAR_STRING
 				Vars.string_to_program_text data
@@ -1458,7 +1458,7 @@ module Basic
 			unless Tokenizer::Patterns::VARNAME_MATCH_EXACT === name
 				raise ArgumentError, "name must be composed of a single alphabetic character followed by alphabetic or numeric ones"
 			end
-			value = ZXMath.pack_number num, simplified_int
+			value = ZXLib::Math.pack_number num, simplified_int
 			if name.length == 1
 				head = (VAR_NUMBER << 5)|(name.ord & 0b00011111)
 				Variable.new VAR_NUMBER, name, [head, value].pack('Ca5')
@@ -1493,7 +1493,7 @@ module Basic
 			unless Tokenizer::Patterns::ALPHA_MATCH_EXACT === name
 				raise ArgumentError, "name must be a single alphabetic character"
 			end
-			value, limit, step = [value, limit, step].map { |num| ZXMath.pack_number num }
+			value, limit, step = [value, limit, step].map { |num| ZXLib::Math.pack_number num }
 			head = (VAR_FOR_LOOP << 5)|(name.ord & 0b00011111)
 			Variable.new VAR_FOR_LOOP, name, [head, value, limit, step, line, statement].pack('Ca5a5a5vC')
 		end
@@ -1523,7 +1523,7 @@ module Basic
 				?\0 * (vsize * 5)
 			else
 				enumerate_deep_values(dims, values).inject('') do |buf, num|
-					buf << ZXMath.pack_number(num)
+					buf << ZXLib::Math.pack_number(num)
 				end
 			end
 			Variable.new VAR_NUMBER_ARRAY, name, [head, bsize, ndims, *dims, vpacked].pack("CvCv#{ndims}a*"), dims.freeze
