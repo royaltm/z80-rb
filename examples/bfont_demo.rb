@@ -51,6 +51,8 @@ class Bootstrap
   eop         label
 end
 
+include ZXLib
+
 bootstrap = Bootstrap.new Basic.parse_source('0 REM').code.bytesize - 1
 VARS_PROG = ZXSys.new['vars.prog']
 program = Basic.parse_source <<-END

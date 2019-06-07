@@ -168,6 +168,8 @@ class Program
 
 end
 
+include ZXLib
+
 dots = Program.new 0x8000
 puts dots.debug
 

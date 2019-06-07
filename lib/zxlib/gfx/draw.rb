@@ -8,6 +8,8 @@ require 'zxlib/gfx'
 #
 #    require 'zxlib/gfx/draw'
 #    require 'zxlib/basic'
+#
+#    include ZXLib
 #    
 #    class DrawLine
 #      include Z80
@@ -1463,6 +1465,8 @@ if __FILE__ == $0
                       jr   get_arg_u8.positive
         end
     end
+
+    include ZXLib
 
     testdraw = TestZXGfxDraw.new 0x8000
     coords = testdraw['coords']

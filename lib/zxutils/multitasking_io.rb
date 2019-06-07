@@ -1375,6 +1375,8 @@ if __FILE__ == $0
     buffer            bytes 255
   end
 
+  include ZXLib
+
   mtiokernel = MultitaskingIO.new_kernel
   puts mtiokernel.debug
   echo = Echo.new 0xA000

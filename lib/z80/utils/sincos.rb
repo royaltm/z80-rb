@@ -411,6 +411,8 @@ if __FILE__ == $0
         scale_y     mult_de_a + 1
     end
 
+    include ZXLib
+
     testsincos = TestSinCos.new 0xE000
     program = Basic.parse_source <<-END
        1 DEF FN s(h)=USR #{testsincos[:draw_sinus]}: DEF FN c(r)=USR #{testsincos[:draw_circle]}

@@ -293,6 +293,8 @@ if __FILE__ == $0
         assert_equal res, i
     end
 
+    include ZXLib
+
     testzxmath = TestMath.new 0x8000
     puts testzxmath.debug
     program = Basic.parse_source <<-END

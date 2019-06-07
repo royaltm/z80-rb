@@ -920,6 +920,8 @@ class Program
   room_data label
 end
 
+include ZXLib
+
 labyrinth = Program.new 0x8000
 
 puts labyrinth.debug

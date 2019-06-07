@@ -56,6 +56,8 @@ class Program
 
 end
 
+include ZXLib
+
 calc = Program.new 0x8000
 
 puts calc.debug

@@ -256,6 +256,8 @@ class Program
                     ret
 end
 
+include ZXLib
+
 mtiokernel = MultitaskingIO.new_kernel(override: Program::MT_OVERRIDES)
 puts mtiokernel.debug
 

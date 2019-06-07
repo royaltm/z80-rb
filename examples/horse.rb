@@ -237,6 +237,8 @@ class Program
 
 end
 
+include ZXLib
+
 horse = Program.new 0x8000
 puts horse.debug
 puts "size: #{horse.code.bytesize}"

@@ -799,6 +799,8 @@ class Program
 
 end
 
+include ZXLib
+
 rnd_test_bottom = 65536-168-12*4*256*2
 math = Program.new rnd_test_bottom - Program.code.bytesize
 puts math.debug

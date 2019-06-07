@@ -280,6 +280,8 @@ class Stars
   stars_end           union stars[256], Star
 end
 
+include ZXLib
+
 stars = Stars.new 0xf000
 program = Basic.parse_source <<-EOC
   10 RANDOMIZE USR #{stars[:start]}

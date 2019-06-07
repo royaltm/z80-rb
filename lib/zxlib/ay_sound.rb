@@ -651,6 +651,8 @@ if __FILE__ == $0
       notes           words NOTES
     end
 
+    include ZXLib
+
     aytest = AYTest.new 0x8000
     puts aytest.debug
 

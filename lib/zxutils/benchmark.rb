@@ -13,6 +13,8 @@ require 'zxlib/sys'
 #
 #     require 'zxutils/benchmark'
 #     require 'zxlib/basic'
+# 
+#     include ZXLib
 #     
 #     class BenchNeg16
 #         include Z80
@@ -419,6 +421,9 @@ if __FILE__ == $0
         get_result          calculate_benchmark_tstates(counter, tsframe, frames, idle, adjustment)
         estimate_tsframes   estimate_tstates_per_interrupt(vars.udg, interrup_vec, forward, tsframe, idle)
     end
+
+    include ZXLib
+
     benchmark = Bench.new 0x8000
     puts benchmark.debug
     tsframe = benchmark[:tsframe]

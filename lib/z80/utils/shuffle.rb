@@ -129,6 +129,8 @@ if __FILE__ == $0
         testarea    label
     end
 
+    include ZXLib
+
     testshuffle = TestShuffle.new 0xe000
     testarea = testshuffle[:testarea]
     mem_attrs = ZXSys.new['mem.attrs']
