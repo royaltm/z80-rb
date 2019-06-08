@@ -24,7 +24,8 @@ module ZXLib
       export  draw_sprite8
 
       ##
-      # Screen address used by the routines.
+      # Default screen address used by the routines.
+      # You may change this value by overriding label +sprite8_screen_address+ when importing code.
       SCREEN_ADDRESS = 0x4000
 
       ##
@@ -153,6 +154,9 @@ module ZXLib
         end
 
       end
+
+      sprite8_screen_address addr SCREEN_ADDRESS
+
       ##
       #  Draws a sprite using xor/or/clear/and+or with arbitrary height and width.
       #
@@ -192,10 +196,10 @@ module ZXLib
                 jr   Z, skipad      # sanity check
                 add  7              # negative vect
         skipad  ld   c, a           # C: negshift (0, 8..14)
-                ytoscr l, ah:h, al:l, t:b, scraddr:SCREEN_ADDRESS
+                ytoscr l, ah:h, al:l, t:b, scraddr:sprite8_screen_address
                 jp   skippos
                                     # HL: yx, HL: screen, C: shift (0..7), B: temp
-        skipneg xytoscr h, l, ah:h, al:l, s:c, t:b, scraddr:SCREEN_ADDRESS
+        skipneg xytoscr h, l, ah:h, al:l, s:c, t:b, scraddr:sprite8_screen_address
         skippos push hl             # screen addr
 
                 ld   b, 0
@@ -339,7 +343,7 @@ module ZXLib
                 ex   af, af   # bitmap
                 ora  c
                 ld   [hl], a
-                nextline h, l, quitf0, scraddr:SCREEN_ADDRESS
+                nextline h, l, quitf0, scraddr:sprite8_screen_address
                 exx
                 djnz copylp
                 jp   quitf1
@@ -364,7 +368,7 @@ module ZXLib
                 xor  d        # 4
                 ora  c        # 4
                 ld   [hl], a  # 7
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS #27 /49 /59
+                nextline h, l, quit0, scraddr:sprite8_screen_address #27 /49 /59
                 exx           # 4
                 djnz shftlp   # 13/8
                 pop  bc       # 10
@@ -392,7 +396,7 @@ module ZXLib
                 ora  d        # 4
                 ld   [hl], a  # 7
                 dec  l        # 4
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS #27 /49 /59
+                nextline h, l, quit0, scraddr:sprite8_screen_address #27 /49 /59
                 exx           # 4
                 djnz shftlp   # 13/8
                 pop  bc       # 10
@@ -408,7 +412,7 @@ module ZXLib
                 anda e
                 ora  c
                 ld   [hl], a
-                nextline h, l, quit1, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit1, scraddr:sprite8_screen_address
                 exx
                 djnz shftlp
                 jp   adjust1
@@ -453,7 +457,7 @@ module ZXLib
                 xor  d        # 4
                 ora  c        # 4
                 ld   [hl], a  # 7
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS #27 /49 /59
+                nextline h, l, quit0, scraddr:sprite8_screen_address #27 /49 /59
                 exx           # 4
                 djnz shftlp   # 13/8
                 pop  bc       # 10
@@ -481,7 +485,7 @@ module ZXLib
                 ora  d
                 ld   [hl], a
                 dec  l
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit0, scraddr:sprite8_screen_address
                 exx
                 djnz shftlp
                 pop  bc
@@ -497,7 +501,7 @@ module ZXLib
                 anda e
                 ora  c
                 ld   [hl], a
-                nextline h, l, quit1, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit1, scraddr:sprite8_screen_address
                 exx
                 dec  b
                 jp   NZ, shftlp
@@ -618,7 +622,7 @@ module ZXLib
                 exx           # 4
                 self.send type, [hl]
                 ld   [hl], a
-                nextline h, l, quitf0, scraddr:SCREEN_ADDRESS
+                nextline h, l, quitf0, scraddr:sprite8_screen_address
                 exx
                 djnz copylp
                 jp   quitf1
@@ -641,7 +645,7 @@ module ZXLib
                 xor  c
                 self.send type, [hl]
                 ld   [hl], a
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit0, scraddr:sprite8_screen_address
                 exx
                 djnz shftlp
                 pop  bc
@@ -665,7 +669,7 @@ module ZXLib
                 self.send type, [hl]
                 ld  [hl], a
                 dec  l
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit0, scraddr:sprite8_screen_address
                 exx
                 djnz shftlp
                 pop  bc
@@ -681,7 +685,7 @@ module ZXLib
                 anda e
                 self.send type, [hl]
                 ld   [hl], a
-                nextline h, l, quit1, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit1, scraddr:sprite8_screen_address
                 exx
                 djnz shftlp
                 jp   adjust1
@@ -722,7 +726,7 @@ module ZXLib
                 xor  c        # 4
                 self.send type, [hl]  # 7
                 ld   [hl], a  # 7
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS # 27
+                nextline h, l, quit0, scraddr:sprite8_screen_address # 27
                 exx           # 4
                 djnz shftlp   # 13/8
                 pop  bc       # 10
@@ -746,7 +750,7 @@ module ZXLib
                 self.send type, [hl]  # 7
                 ld  [hl], a   # 7
                 dec  l        # 4
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS # 27
+                nextline h, l, quit0, scraddr:sprite8_screen_address # 27
                 exx           # 4
                 djnz shftlp   # 13/8
                 pop  bc       # 10
@@ -762,7 +766,7 @@ module ZXLib
                 anda e
                 self.send type, [hl]
                 ld   [hl], a
-                nextline h, l, quit1, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit1, scraddr:sprite8_screen_address
                 exx
                 dec  b
                 jp   NZ, shftlp
@@ -827,7 +831,7 @@ module ZXLib
                 inc  hl       # 6
                 exx           # 4
                 ld   [hl], a
-                nextline h, l, quitf0, scraddr:SCREEN_ADDRESS
+                nextline h, l, quitf0, scraddr:sprite8_screen_address
                 exx
                 djnz copylp
                 jp   quitf1
@@ -853,7 +857,7 @@ module ZXLib
                 anda [hl]
                 ora  d
                 ld   [hl], a
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit0, scraddr:sprite8_screen_address
                 exx
                 djnz shftlp
                 pop  bc
@@ -882,7 +886,7 @@ module ZXLib
                 ora  b
                 ld   [hl], a
                 dec  l
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit0, scraddr:sprite8_screen_address
                 exx
                 djnz shftlp
                 pop  bc
@@ -902,7 +906,7 @@ module ZXLib
                 anda [hl]
                 ora  b
                 ld   [hl], a
-                nextline h, l, quit1, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit1, scraddr:sprite8_screen_address
                 exx
                 djnz shftlp
                 jp   adjust1
@@ -947,7 +951,7 @@ module ZXLib
                 anda [hl]
                 ora  d
                 ld   [hl], a
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit0, scraddr:sprite8_screen_address
                 exx
                 djnz shftlp
                 pop  bc
@@ -976,7 +980,7 @@ module ZXLib
                 ora  b
                 ld   [hl], a
                 dec  l
-                nextline h, l, quit0, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit0, scraddr:sprite8_screen_address
                 exx
                 djnz shftlp
                 pop  bc
@@ -996,7 +1000,7 @@ module ZXLib
                 anda [hl]
                 ora  b
                 ld   [hl], a
-                nextline h, l, quit1, scraddr:SCREEN_ADDRESS
+                nextline h, l, quit1, scraddr:sprite8_screen_address
                 exx
                 dec  b
                 jp   NZ, shftlp
