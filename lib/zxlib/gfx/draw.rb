@@ -1292,7 +1292,7 @@ if __FILE__ == $0
         macro_import ZXLib::Gfx::Draw
         import       ZXLib::Sys, macros: true, code: false
 
-        import       ZXBenchmark, :benchmark, code: true, labels: true, macros: true
+        import       ZXUtils::Benchmark, :benchmark, code: true, labels: true, macros: true
 
         get_bench_result    calculate_benchmark_tstates(benchmark.counter, benchmark.tsframe, benchmark.frames, benchmark.idle, benchmark.adjustment)
         estimate_tsframes   estimate_tstates_per_interrupt(vars.udg, benchmark.interrup_vec, benchmark.forward, benchmark.tsframe, benchmark.idle)
