@@ -11,6 +11,8 @@ require 'zxutils/multitasking_io'
 class Program
   include Z80
   include Z80::TAP
+  include ZXLib
+  include ZXUtils
 
   CHAN_NAME = "F"
 
@@ -30,8 +32,8 @@ class Program
 
   macro_import  Stdlib
   macro_import  MathInt
-  macro_import  ZXLib::Gfx
-  import        ZXLib::Sys, macros: true
+  macro_import  Gfx
+  import        Sys, macros: true
   import        MultitaskingIO, :mtio, code: false, macros: true, labels: MultitaskingIO.kernel_org, override: MT_OVERRIDES
 
   mmtvars       addr mem.mmaps, Multitasking::TaskVars
@@ -257,6 +259,7 @@ class Program
 end
 
 include ZXLib
+include ZXUtils
 
 mtiokernel = MultitaskingIO.new_kernel(override: Program::MT_OVERRIDES)
 puts mtiokernel.debug
