@@ -14,7 +14,7 @@ class Bootstrap
   macro_import      Stdlib
   import            ZXLib::Sys, macros: true, code: false
 
-  big_font_start    addr 0x10000 - 21*8 - BigFont.code.bytesize
+  big_font_start    addr 0x10000 - 21*8 - ZXUtils::BigFont.code.bytesize
 
   ns :start, use: :big_font_start do |eoc|
               # create_chan_and_open output: big_font_start + BigFont.new[:print_char], chan_name: 'B'
@@ -47,7 +47,7 @@ class Bootstrap
               memcpy big_font_start, hl, +bfont
               ret                     # exit via code in the :start routine in temporary space
 
-  import      BigFont, :bfont, code: big_font_start, labels: big_font_start
+  import      ZXUtils::BigFont, :bfont, code: big_font_start, labels: big_font_start
   eop         label
 end
 
