@@ -45,6 +45,7 @@ task :examples do
 end
 
 UTIL_TESTS = %w[
+  z80/stdlib.rb
   z80/utils/shuffle.rb
   z80/utils/sincos.rb
   zxlib/math.rb
