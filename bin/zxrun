@@ -34,20 +34,20 @@ def normalize_file(filepath, extension, exit_on_missing = true)
   end
 end
 
-program_tap = normalize_file(program, '.tap', false)
-program_tzx = normalize_file(program, '.tzx', false)
-
-unless (tapfile = [program_tap, program_tzx].compact.find{ |program| File.exist?(program) })
-    $stderr.puts "ZXRUN: No such TAP/TZX file: #{program}"
-    exit 1
-end
-
 sources = sources.map {|source| normalize_file(source, '.rb') }
 
 unless sources.all? {|source| system RUBY, source }
   code = $?
   $stderr.puts "ZXRUN: compiling #{source.inspect} returned with a non-zero exit code: #{code}"
   exit code
+end
+
+program_tap = normalize_file(program, '.tap', false)
+program_tzx = normalize_file(program, '.tzx', false)
+
+unless (tapfile = [program_tap, program_tzx].compact.find{ |program| File.exist?(program) })
+    $stderr.puts "ZXRUN: No such TAP/TZX file: #{program}"
+    exit 1
 end
 
 require 'zxutils/emu'
