@@ -12,7 +12,11 @@ module Z80
 
     def initialize(program, *args, address:nil, codesize:nil, &test) # :nodoc:
       raise ArgumentError, "At least one condition argument is needed in selection" if args.empty?
-      raise ArgumentError, "Selection arguments must be labels or label expressions" unless args.all?{|a| a.respond_to?(:to_alloc)}
+      args = args.map do |arg|
+        arg = Label.new arg, 1 if Integer === arg
+        raise ArgumentError, "Selection arguments must be labels or label expressions" unless arg.respond_to?(:to_alloc)
+        arg
+      end
       raise ArgumentError, "Selection needs a condition test block provided" unless block_given?
       @program = program
       @address = address || program.code.bytesize
