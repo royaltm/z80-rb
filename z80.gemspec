@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.name = "z80"
   s.version = Z80::Program::VERSION
   s.required_ruby_version = ">= 2.1.0"
-  s.executables = ['zxconv']
+  s.executables = %w[zxconv zxrun]
   s.summary = "Z80 CPU and ZX Spectrum programming tools"
   s.homepage = "https://royaltm.github.io/z80-rb/"
   s.license = "LGPL-3.0"

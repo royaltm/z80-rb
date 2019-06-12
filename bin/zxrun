@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+# -*- coding: BINARY -*-
+ZXRUN_VERSION = '0.1'
+HELP = <<_EOH_
+ZXRUN #{ZXRUN_VERSION}: Run ZX Spectrum programs in an emulator.
+Usage:
+#{File.basename($0)} [sources] program
+
+  sources: should be one or more paths to z80rb sources that are being compiled
+           prior to loading ZX Spectrum emulator
+           (the .rb extension is optional),
+  program: a path to a TAP/TZX file to be run in an emulator
+           (the .tap/.tzx extension is optional)
+_EOH_
+
+require 'rbconfig'
+
+RUBY = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name']).sub(/.*\s.*/m, '"\&"')
+
+*sources, program = ARGV
+
+if program.nil?
+  puts HELP; exit
+end
+
+def normalize_file(filepath, extension, exit_on_missing = true)
+  dir, base = File.dirname(filepath), File.basename(filepath, extension)
+  normpath = File.join(dir, base + extension)
+  if File.exist?(normpath)
+    normpath
+  elsif exit_on_missing
+    $stderr.puts "ZXRUN: No such a source: #{filepath}"
+    exit 1
+  end
+end
+
+program_tap = normalize_file(program, '.tap', false)
+program_tzx = normalize_file(program, '.tzx', false)
+
+unless (tapfile = [program_tap, program_tzx].compact.find{ |program| File.exist?(program) })
+    $stderr.puts "ZXRUN: No such TAP/TZX file: #{program}"
+    exit 1
+end
+
+sources = sources.map {|source| normalize_file(source, '.rb') }
+
+unless sources.all? {|source| system RUBY, source }
+  code = $?
+  $stderr.puts "ZXRUN: compiling #{source.inspect} returned with a non-zero exit code: #{code}"
+  exit code
+end
+
+require 'zxutils/emu'
+
+ZXUtils::Emu.run tapfile
