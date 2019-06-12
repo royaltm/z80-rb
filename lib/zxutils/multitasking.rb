@@ -858,6 +858,10 @@ module ZXUtils
 end
 
 if __FILE__ == $0
+  require 'test/unit/assertions'
+  require 'digest/sha1'
+
+  include Test::Unit::Assertions
   # :stopdoc:
   mtkernel = ZXUtils::Multitasking.new_kernel
 
@@ -887,6 +891,8 @@ if __FILE__ == $0
   puts "\n Task API:"
   puts "Yield: call #{mtkernel[:task_yield]}"
   puts "Kill:  jp   #{mtkernel['terminate']}"
+
+  assert_equal Digest::SHA256.base64digest(mtkernel.code), '4tLG44B2QHVvmIG+dNG3g5dAVqrc6MxA49HciodTTgw='
 
   mtkernel.save_tap 'mtkernel'
   Z80::TAP.parse_file('mtkernel.tap') do |hb|
