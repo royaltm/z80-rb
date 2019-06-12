@@ -11,9 +11,12 @@ task :gem do
   sh "gem build z80.gemspec"
 end
 
+desc "Update the local gem library with the current z80rb sources"
+task :update => [:uninstall, :clean, :gem, :install]
+
 desc "Install the library at local machnie"
 task :install => :gem do 
-  sh "gem install z80 -l"
+  sh "gem install z80-*.gem"
 end
 
 desc "Uninstall the library from local machnie"
