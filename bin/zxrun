@@ -34,12 +34,12 @@ def normalize_file(filepath, extension, exit_on_missing = true)
   end
 end
 
-sources = sources.map {|source| normalize_file(source, '.rb') }
-
-unless sources.all? {|source| system RUBY, source }
-  code = $?
-  $stderr.puts "ZXRUN: compiling #{source.inspect} returned with a non-zero exit code: #{code}"
-  exit code
+sources.map {|source| normalize_file(source, '.rb') }.each do |source|
+  unless system RUBY, source
+    code = $?
+    $stderr.puts "ZXRUN: compiling #{source.inspect} returned with a non-zero exit code: #{code.exitstatus}"
+    exit code.exitstatus
+  end
 end
 
 program_tap = normalize_file(program, '.tap', false)
