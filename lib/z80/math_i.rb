@@ -316,7 +316,7 @@ module Z80
             # * +clrhl+:: if the result should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
             def mul8_c(mh=h, ml=l, m=a, tt:de, clrhl:true)
                 th, tl = tt.split
-                raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !m.is_a?(Register)
+                raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !register?(m)
                 isolate do |eoc|
                             ld   tl, ml unless ml == tl
                             ld   th, mh unless mh == th
@@ -350,7 +350,7 @@ module Z80
             # * +double+:: +true+ if the result should be double (+mh+|+ml+ * 2).
             def mul8(mh=h, ml=l, m=a, tt:de, clrhl:true, double:false)
                 th, tl = tt.split
-                raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !m.is_a?(Register)
+                raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !register?(m)
                 isolate do |eoc|
                             ld   tl, ml unless ml == tl
                             ld   th, mh unless mh == th
@@ -380,7 +380,7 @@ module Z80
             def mul8_24(mh=h, ml=l, m=b, t:c, tt:de, clrahl:true)
                 th, tl = tt.split
                 raise ArgumentError if tt == hl or [a,th,tl,t].include?(m) or [a,th,tl,m].include?(t) or
-                                                             tl == mh or th == ml or !m.is_a?(Register) or !t.is_a?(Register)
+                                                             tl == mh or th == ml or !register?(m) or !register?(t)
                 isolate do |eoc|
                                 ld  tl, ml unless ml == tl
                                 ld  th, mh unless mh == th
@@ -1053,6 +1053,8 @@ module Z80
             # T-states: ~ 601.7 (46 for seed=65535, 247 for seed<=872, max: 655)
             #
             # Expects a seed (s0) in +hl+ and produces the result (s1) in +hl+.
+            #
+            # Modifies: +af+, +bc+, +de+, +hl+.
             def rnd
                 isolate do |eoc|
                                     inc hl          # seed + 1
@@ -1097,22 +1099,29 @@ module Z80
                 end
             end
             ##
-            # Convert a 8-bit unsigned integer to a BCD string.
-            # Allows arbitrary integer sizes.
+            # Converts an 8-bit unsigned integer to a BCD string.
             #
-            # Used by +utobcd+.
+            # Used by Macros.utobcd.
             #
-            # Uses: +a+, +b+, +r+, +t+, +hl+
+            # +bufend+:: A direct address of the byte immediately following an end of the BCD memory area
+            #            as an integer or a label.
+            # +r+:: An 8-bit register holding the integer during conversion: +c+, +d+ or +e+.
+            # +buflen+:: The current byte size of the BCD buffer as an integer, a label or +t+.
+            # +t+:: The register holding the current byte size of the BCD buffer: +c+, +d+ or +e+.
+            # +r_in_a+:: +true+ if the integer to convert is provided in +accumulator+ instead of in +r+.
+            #
+            # Modifies: +af+, +b+, +r+, +t+, +hl+.
             def utobcd_step(bufend, r, buflen=1, t=c, r_in_a=false)
-                raise ArgumentError unless [c, d, e].include?(r) and [c, d, e].include?(t) and r != t and
-                                (!buflen.is_a?(Register) || buflen == t)
+                raise ArgumentError unless (address?(bufend) and !pointer?(bufend)) and
+                                           [c,d,e].include?(r) and [c,d,e].include?(t) and r != t and
+                                           ((address?(buflen) and !pointer?(buflen)) or buflen == t)
                 isolate do
                                     ld  a, r unless r_in_a
                                     ld  t, buflen unless buflen == t
                                     scf
                                     rla              # carry <- a <- 1
                                     ld  r, a
-                    buffmul         ld  hl, bufend-1 # multiply buffer[] * 2 + carry using BCD
+                    buffmul         ld  hl, bufend - 1 # multiply buffer[] * 2 + carry using BCD
                                     ld  b, t
                     nextadd         ld  a, [hl]
                                     adc a
@@ -1122,50 +1131,61 @@ module Z80
                                     djnz nextadd
                                     jp  NC, nbufext  # no carry
                                     inc t            # extend buffer on carry
-                                    inc b            # b = 1
-                                    ld  [hl], b      # put 1 in new place
+                                    ld  [hl], 1      # put 1 in new place
                     nbufext         sla r            # carry <- r <- 0
                                     jp  NZ, buffmul
                 end
             end
             ##
-            # Converts an unsigned integer (LSB) of an arbitrary size to a BCD string.
+            # Converts an unsigned binary integer of an arbitrary size to a BCD string.
             #
-            # Uses: +a+, +b+, +rr+, +bc'+, +hl'+, +r'+.
+            # +bufend+:: A direct address of the byte immediately following an end of the BCD memory area
+            #            as an integer or a label.
+            # +input+:: An address of the binary integer being converted as an integer, a label, a pointer or +rr+.
             #
-            # After conversion +c'+ contains number of bytes used to store a BCD string.
-            # Subtract it from +bufend+ to reach the first byte.
+            # Provide a large enough BCD buffer. E.g. for a 32-bit integer, 5 bytes (10 digits) should be enough.
             #
-            # Place integer address in +input+ of +size+ bytes and +bufend+ should point to the address
-            # immediately following buffer end. Provide large enough buffer.
+            # Options:
+            # * +size+:: A byte size of the integer being converted as an integer, a label, a pointer or
+            #            an 8-bit register.
+            # * +r+:: A temporary register used in an alternative register set: +d+ or +e+.
+            # * +rr+:: A 16-bit register: +de+ or +hl+.
+            # * +endianness+:: The order of bytes in the integer being converted: +:lsb+ or +:msb+.
             #
-            # * +bufend+:: must be an address (or a label)
-            # * +input+:: may be an immediate address (or a label) or the same as +rr+, in this instance
-            #             it is expected that +rr'+ will already contain +input+ address.
-            # * +size+:: may be an integer or one of 8-bit registers.
-            # * +r+:: temporary register (d or e)
-            # * +rr'+:: temporary register (de or hl)
-            def utobcd(bufend, input, size: 4, r: d, rr: de)
-                raise ArgumentError unless (!input.is_a?(Register) or input == rr) and
-                                                        (size.is_a?(Integer) or (size.is_a?(Register) and size.bit8?)) and
-                                [de, hl].include?(rr) and [d, e].include?(r)
+            # Modifies: +af+, +af'+, +b+, +rr+, +bc'+, +hl'+, +r'+.
+            def utobcd(bufend, input=de, size: 4, r: d, rr: de, endianness: :lsb)
+                raise ArgumentError unless (address?(bufend) and !pointer?(bufend)) and
+                                           (address?(input) or input == rr) and
+                                           (address?(size) or (register?(size) and size.bit8?)) and
+                                           [de, hl].include?(rr) and [d, e].include?(r)
+                raise ArgumentError, "endianness should be :lsb or :msb" unless [:lsb, :msb].include?(endianness)
+
                 isolate do
-                        if !input.is_a?(Register) and !size.is_a?(Register)
-                            ld  b, size unless size == b
-                            ld  rr, input + size
-                        else
-                            ld  a, size unless size == a
-                            ld  b, a unless size == b
-                            ld  rr, input unless input == rr
-                            adda_to *rr.split
-                        end
-                            xor a
-                            ld  [bufend - 1], a
+                    if address?(size) and pointer?(size)
+                            ld   a, size
+                            ld   b, a
+                    elsif endianness == :lsb and (pointer?(input) or pointer?(size) or !address?(input) or !address?(size))
+                            ld   a, size unless size == a
+                            ld   b, a unless size == b
+                    else
+                            ld   b, size unless size == b
+                    end
+                    if endianness == :lsb and address?(input) and address?(size) and
+                                              !pointer?(input) and !pointer?(size)
+                            ld   rr, input + size
+                    else
+                            ld   rr, input unless input == rr
+                            adda_to *rr.split if endianness == :lsb
+                    end
+                            xor  a
+                            ld   [bufend - 1], a
                             exx
-                            ld  c, 1
+                            ld   c, 1
                             exx
-                loopi       dec  rr
-                            ld  a, [rr]
+                    loopi   label
+                            dec  rr if endianness == :lsb
+                            ld   a, [rr]
+                            inc  rr if endianness == :msb
                             exx
                             utobcd_step(bufend, r, c, c, true)
                             exx
@@ -1173,16 +1193,29 @@ module Z80
                 end
             end
             ##
-            # Reads each BCD digit in the register +a+, destroying content of a buffer in the process.
+            # Reads BCD digits into the accumulator from the memory buffer.
             #
-            # Uses: +a+, +hl+, +b+.
+            # As a side effect the buffer will be zeroed after execution of this routine unless
+            # +preserve_in+ is set.
             #
             # Provide a +block+ of code which will receive digits. The block will be inserted twice.
             # On the first digit CF=1, on subsequent CF=0. Alternatively set +skip_leading0:+ +true+.
             # In this instance CF will be always 0 and the block will not be evaluated if the first digit
-            # is 0.
+            # is 0. The +block+ should produce a relatively small code (< 60 bytes).
             #
-            # Block must not alter +hl+ or +b+ registers.
+            # +buffer+:: A memory address of the beginning of the BCD data as an integer, a label,
+            #            a pointer or +hl+.
+            # +size+:: The size in bytes of the BCD data as an integer, a label, a pointer or
+            #          an 8-bit register.
+            #
+            # Options:
+            # * +skip_leading0+:: If true the +block+ will not be executed on the first digit if it's 0.
+            # * +preserve_in+:: An optional register: +c+, +d+ or +e+ which will preserve the current
+            #                   value of the processed byte of the buffer.
+            #
+            # _NOTE_:: The code in +block+ must preserve +hl+, +b+ and +preserve_in+ registers.
+            #
+            # Modifies: +af+, +hl+, +b+ and optionally +preserve_in+.
             #
             # Example:
             #
@@ -1197,27 +1230,38 @@ module Z80
             #         add ?0.ord
             #         rst 0x10     # print a character
             #       end
-            def bcdtoa(buffer, size, skip_leading0:false, &block)
-                raise ArgumentError unless (!buffer.is_a?(Register) or buffer == hl)
+            def bcdtoa(buffer=hl, size=b, skip_leading0:false, preserve_in:nil, &block)
+                raise ArgumentError unless (address?(buffer) or buffer == hl) and
+                                           (address?(size) or (register?(size) and size.bit8?)) and
+                                           (!preserve_in or [c,d,e].include?(preserve_in))
                 isolate do
-                            ld  b, size unless size == b
-                            ld  hl, buffer unless buffer == hl
-                            xor a
+                    if pointer?(size)
+                            ld   a, size
+                            ld   b, a
+                    elsif size != b
+                            ld   b, size
+                    end
+                            ld   hl, buffer unless buffer == hl
+                            xor  a
                     if skip_leading0
+                            ld   preserve_in, [hl] if preserve_in
                             rld
-                            jr  Z, skip0
-                            jr  noskip0
+                            jr   NZ, noskip0
+                            jr   skip0
                     else
                             scf
                     end
-                loopa       rld
+                loop_a      label
+                            ld   preserve_in, [hl] if preserve_in
+                            rld
                 noskip0     ns(&block)
-                            xor a
+                            xor  a
                 skip0       rld
                             ns(&block)
-                            inc hl
-                            xor a
-                            djnz loopa
+                            ld   [hl], preserve_in if preserve_in
+                            inc  hl
+                            xor  a
+                            djnz loop_a
                 end
             end
         end
