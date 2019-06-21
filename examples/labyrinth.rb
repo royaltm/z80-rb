@@ -161,7 +161,6 @@ class Program
 
   # Check if specified keys are down.
   # d: key_line_mask, e: key_mask
-  # return if none otherwise wait until key is released
   key_down?     key_pressed? d, e
                 ret
 
@@ -351,8 +350,7 @@ class Program
   # A maskable interrupt handler 1.
   # Redraws view, moves around viewport on cursor keys, suppress redrawing on space key.
   # Aborts on break.
-  ns :refresh_on_int1 do
-    with_saved :no_ixy, :ex_af, af, merge: true do |eoc|
+  with_saved :refresh_on_int1, :no_ixy, :ex_af, af, ret: :after_ei do |eoc|
                     ld   hl, int_counter
                     call cursor_key?
                     jr   Z, no_cursor_key
@@ -364,24 +362,20 @@ class Program
                     jr   Z, redraw0
                     ld   de, 0x7f01     # [SPACE]
                     call key_down?
-                    jr   Z, redraw1     # skip drawing if pressed
-                    ld   [hl], 5
-                    jr   eoc
+                    jr   Z, noredraw
+                    ld   [hl], 5        # set skip counter if pressed
+                    jr   noredraw
       redraw0       ld   [hl], 2
-      redraw1       call draw_labyrinth
-                    call rom.break_key
+                    call draw_labyrinth
+      noredraw      call rom.break_key
                     jr   NC, break_abort
-    end
-                    ei
-                    ret
   end
 
   # A maskable interrupt handler 2.
   # Redraws view, follows solving room in viewport, moves around viewport on cursor keys.
   # Refreshes attributes only if there are no viewport changes.
   # Aborts on break.
-  ns :refresh_on_int2 do
-    with_saved :no_ixy, :ex_af, af, merge: true do |eoc|
+  with_saved :refresh_on_int2, :no_ixy, :ex_af, af, ret: :after_ei do |eoc|
                     ld   a, c                      # check counter (in bc)
                     ora  b
                     jr   Z, in_viewport
@@ -402,9 +396,6 @@ class Program
                     call color_labyrinth_visited
                     call rom.break_key
                     jr   NC, break_abort
-    end
-                    ei
-                    ret
   end
 
   # Move viewport according to register A and labyrinth dimensions.
