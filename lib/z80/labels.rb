@@ -387,12 +387,71 @@ module Z80
 		#    data 2, [...]
 		def dw(*args); data(2, args); end
 		##
-		#  If no method +m+ is defined as a self class method, assume +m+ is a label name.
+		#  Defines a label with the given name in the current namespace's context.
 		#  Returns a named label.
-		#  +label+, if provided, may be an integer, unnamed label, or a lazy evaluated expression.
+		#
+		#  A +label+, if provided, may be an integer, an instance of an unnamed label, or a lazy evaluated expression.
 		#  If +label+ has already some other name an error will be raised.
 		#  
 		#  If +label+ argument is missing the "dummy" label is being created instead. See Label and Label.dummy?.
+		#
+		#  This method exists for ability to create an arbitrary named label without any constraint on its name.
+		#  However the way one should normally define labels is via method_missing.
+		#
+		#  Example:.
+		#    define_label :loop, label
+		#            # ... some code
+		#            djnz define_label :loop
+		#
+		#  See method_missing for more examples.
+		def define_label(name, label=nil)
+			raise "there is no context for a label" unless (ct = @contexts.last)
+			name = name.to_s
+			if label
+				label = if label.respond_to?(:to_label)
+					label.to_label self
+				else
+					Label.new label.to_i, 1
+				end
+				@dummies.delete_if do |n, lbl, *cts|
+					if n == name and cts.include? ct.object_id
+						lbl.reinitialize label
+						label.name = name
+						true
+					else
+						false
+					end
+				end
+				if ct.has_key? name
+					ct[name].reinitialize label
+					label.name = name
+				else
+					label.name = name
+					ct[name] = label
+				end
+				if @autoexport and @contexts.length == 1
+					export ct[name]
+				else
+					ct[name]
+				end
+			else
+				ct[name]||= Label.dummy(name).to_alloc
+			end.tap do |label|
+				label.name = name
+				@labels.delete name # move label to last position
+				@labels[name] = label
+			end
+		end
+		##
+		#  If no singleton method +m+ is defined, assume +m+ is a label name to define.
+		#  Returns a named label.
+		#
+		#  A +label+, if provided, may be an integer, an instance of an unnamed label, or a lazy evaluated expression.
+		#  If +label+ has already some other name an error will be raised.
+		#  
+		#  If +label+ argument is missing the "dummy" label is being created instead. See Label and Label.dummy?.
+		#
+		#  To create a label with the name of the existing singleton method or a ruby keyword, see define_label.
 		#
 		#  Example:.
 		#    mylabel 0x0123
@@ -406,43 +465,7 @@ module Z80
 		#            ret
 		#    skipret label
 		def method_missing(m, label = nil)
-			if ct = @contexts.last
-				name = m.to_s
-				if label
-					label = if label.respond_to?(:to_label)
-						label.to_label self
-					else
-						Label.new label.to_i, 1
-					end
-					@dummies.delete_if do |n, lbl, *cts|
-						if n == name and cts.include? ct.object_id
-							lbl.reinitialize label
-							label.name = name
-							true
-						else
-							false
-						end
-					end
-					if ct.has_key? name
-						ct[name].reinitialize label
-						label.name = name
-					else
-						label.name = name
-						ct[name] = label
-					end
-					if @autoexport and @contexts.length == 1
-						export ct[name]
-					else
-						ct[name]
-					end
-				else
-					ct[name]||= Label.dummy(name).to_alloc
-				end.tap do |label|
-					label.name = name
-					@labels.delete name # move label to last position
-					@labels[name] = label
-				end
-			end
+			define_label(m, label)
 		end
 	end
 	##
