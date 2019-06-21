@@ -177,6 +177,8 @@ module ZXLib
       # Creates a routine for expanding the note to tone period table to a higher number of octaves.
       #
       # * +notes+:: An address of the lowest octave of the notes to expand.
+      #
+      # Options:
       # * +octaves+:: How many octaves should be expanded to, must be between 2 and 8.
       # * +half_tones+:: How many half-tones in one actave.
       # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored. Otherwise
@@ -185,6 +187,8 @@ module ZXLib
       #                    only if you have already disabled the interrupts.
       # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
       #                   if you need to perform more uninterrupted actions.
+      #
+      # _NOTE_:: Restoring +sp+ register uses self-modifying code.
       #
       # Example:
       #
@@ -231,12 +235,14 @@ module ZXLib
       # * +io+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sublabels addressing the AY-891x I/O bus.
       def ay_io_load_const_reg_bc(io=self.io128)
         ay_reg_combined = ((io.ay_out ^ io.ay_sel) | (io.ay_inp ^ io.ay_sel))
-        select(ay_reg_combined & 0xFF00, &:zero?).then do |eoc|
-              ld   b, io.ay_sel >> 8
-        end.else_select(ay_reg_combined & 0x00FF, &:zero?).then do |eoc|
-              ld   c, io.ay_sel & 0x00FF
-        end.else do
-          raise ArgumentError, "ay_out, ay_inp and ay_sel should have different only 8-bit msb or lsb"
+        isolate do
+          select(ay_reg_combined & 0xFF00, &:zero?).then do |eoc|
+                ld   b, io.ay_sel >> 8
+          end.else_select(ay_reg_combined & 0x00FF, &:zero?).then do |eoc|
+                ld   c, io.ay_sel & 0x00FF
+          end.else do
+            raise ArgumentError, "ay_out, ay_inp and ay_sel should have different only 8-bit msb or lsb"
+          end
         end
       end
       ##
