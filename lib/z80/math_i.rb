@@ -467,7 +467,7 @@ module Z80
             # Performs a multiplication of a 16-bit integer (+hl+) by an unsigned 16-bit integer +mm+ (+bc+ or +de+)
             # and returns the 32-bit integer result in a +hl+|+hl'+.
             #
-            # Uses: +af+, +af'+, +hl+, +hl'+, +mm+, +tt'+
+            # Uses: +af+, +af'+, +hl+, +hl'+, +mm+, +tt'+.
             #
             # T-states: (+2 if +clrhlhl+ is an integer)
             #        optimize:  time   size
@@ -861,7 +861,7 @@ module Z80
             #
             # DEPRECATED:: use stacked divmod instead, it's faster and more versatile.
             #
-            # Uses: +af+, +af'+, +b+, +b'+, +hl+, +hl'+, +mt'+, preserves: +m+
+            # Uses: +af+, +af'+, +b+, +b'+, +hl+, +hl'+, +mt'+, preserves: +m+.
             #
             # * +m+:: a divisor (+c+, +d+ or +e+)
             # * +mt'+:: a temporary register (from the alternative set) (+c+, +d+ or +e+)

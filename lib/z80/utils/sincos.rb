@@ -112,7 +112,7 @@ module Z80
                 #
                 # T-states: 30.
                 #
-                # Mofifies: +af+, +th+, +tl+
+                # Mofifies: +af+, +th+, +tl+.
                 def sincos_from_angle(sincos, th=h, tl=l)
                     raise ArgumentError, "sincos must be a direct address" if pointer?(sincos)
                     if immediate?(sincos)
@@ -143,7 +143,7 @@ module Z80
                 # _NOTE_:: +sincos+ must be an address on a 256 byte boundary
                 #            (lower byte of +sincos+ address must be +0+); reserve 1024 bytes.
                 #
-                # Mofifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+
+                # Mofifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+.
                 def create_sincos_from_sintable(sincos, sintable:hl)
                     isolate do
                         sincos0     addr 0, SinCos

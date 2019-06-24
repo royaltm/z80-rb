@@ -18,7 +18,7 @@ module Z80
                 # After the shuffle is performed +hl+ points to the memory address immediately
                 # following the shuffled table.
                 #
-                # Modifies: +af+, +bc+, +de+, +hl+
+                # Modifies: +af+, +bc+, +de+, +hl+.
                 #
                 # +next_rng+:: Address of random number generator routine;
                 #              it should return a 8bit next random number in a +l+ register.
