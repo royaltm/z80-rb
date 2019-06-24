@@ -213,6 +213,7 @@ module Z80
                                            (Integer === chunk_size) and
                                            (address?(value) or value == tt) and
                                            [bc,de,hl].include?(tt)
+                raise ArgumentError, "can't enable interrupts without restoring the sp register first" if enable_intr and !save_sp
                 raise ArgumentError, "chunk_size must be a positive and even integer number" unless chunk_size.even? and chunk_size > 0
                 raise ArgumentError, "chunks_count must be between 1 and 256" if Integer === chunks_count and
                                                                                  !(1..256).include?(chunks_count)
