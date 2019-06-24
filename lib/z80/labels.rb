@@ -1004,7 +1004,7 @@ module Z80
 		def deep_clone_with_relocation(addr, absolute, override, prefix=''.freeze) # :nodoc:
 			if @name
 				if (override_label = override && override[prefix + @name])
-					return override_label
+					return override_label.to_alloc
 				end
 			end
 			lhs = @lhs.deep_clone_with_relocation(addr, absolute, override, prefix)
