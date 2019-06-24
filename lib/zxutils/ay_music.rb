@@ -1566,8 +1566,8 @@ if __FILE__ == $0
   require_relative '../../examples/test_music'
 
   class MusicTest
-    MusicSong = TestMusic.new
-    MusicData = MusicSong.to_program
+    MusicInstance = TestMusic.new
+    MusicData = MusicInstance.to_program
     include Z80
     include Z80::TAP
     include ZXUtils
@@ -1634,7 +1634,7 @@ if __FILE__ == $0
                         out  (io.ula), a
                         pop  iy
                         ld   de, [music_control.counter]
-                        cp16n d, e, MusicTest::MusicSong.channel_track(0).ticks_counter
+                        cp16n d, e, MusicTest::MusicInstance.channel_track(0).ticks_counter
                         jr   NC, quit
                         key_pressed?
                         jr   Z, forever
@@ -1665,7 +1665,7 @@ if __FILE__ == $0
     NOTES = ay_tone_periods(min_octave:0, max_octave:7, notes_hz:equal_tempered_scale_notes_hz, clock_hz:ZXLib::AYSound::CLOCK_HZ)
 
     (1...NOTES.length).each do |i|
-      puts "#{NOTES[i-1].to_s.rjust(4)}-#{NOTES[i].to_s.rjust(4)} #{NOTES[i-1]-NOTES[i]} #{(NOTES[i-1].to_f/NOTES[i])}"
+      puts "#{NOTES[i-1].to_s.rjust(4)}-#{NOTES[i].to_s.rjust(4)} delta: #{NOTES[i-1]-NOTES[i]} ratio: #{(NOTES[i-1].to_f/NOTES[i])}"
     end
                         dw NOTES[11]*2
                         dw NOTES[0...12]
@@ -1677,7 +1677,7 @@ if __FILE__ == $0
 
   music = MusicTest.new 0x8000
   puts music.debug
-  puts MusicTest::MusicSong.channel_tracks.map.with_index {|t,ch| "channel: #{ch} ticks: #{t.ticks_counter}" }
+  puts MusicTest::MusicInstance.channel_tracks.map.with_index {|t,ch| "channel: #{ch} ticks: #{t.ticks_counter}" }
   puts "music size: #{music[:music_end] - music[:music]}"
   puts "TRACK_STACK_TOTAL: #{AYMusic::TRACK_STACK_TOTAL}"
   puts "TRACK_STACK_SIZE : #{AYMusic::TRACK_STACK_SIZE}"

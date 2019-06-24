@@ -223,7 +223,6 @@ if __FILE__ == $0
   # io_ay = fuller_io
   # io_ay = ioT2k
 
-  # player = AYMusicPlayer.new 0xEF4F
   player = AYBasicPlayer.new 0xEEEE
   puts player.debug
   puts "AYMusic size: #{player[:music_end] - player[:music]}"
@@ -269,7 +268,7 @@ if __FILE__ == $0
   include ZXLib
   program = Basic.parse_source <<-EOC
      1 DEF FN m(a)=USR #{player[:init_music]}
-    10 CLS: PRINT "Insert tape with music module"'"and press any key": PAUSE 0
+    10 CLS: PRINT "Insert tape with a music module"'"and press any key": PAUSE 0
     20 LOAD ""CODE 32768
    100 REM initialize music
    110 RANDOMIZE FN m(32768)

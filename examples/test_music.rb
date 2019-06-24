@@ -82,7 +82,23 @@ end
 
 if __FILE__ == $0
   music = TestMusic.new
-  puts music.channel_tracks.map.with_index {|t, ch| "channel: #{ch} ticks: #{t.ticks_counter}" }
   puts music.to_program.new(0x8000).debug
+  puts music.channel_tracks.map.with_index {|t, ch| "channel: #{ch} ticks: #{t.ticks_counter}" }
+  puts "Unused items:"
+  music.unused_item_names.each do |category, names|
+    unless names.empty?
+      puts "  #{category}:"
+      puts names.map {|name| "   - :#{name}" }
+    end
+  end
+
+  puts "By type:"
+  music.to_module.index_items.sort_by {|item| item.type}.chunk {|item| item.type}.
+  each do |type, items|
+    puts " - #{type}s".to_s.ljust(15) + ": #{items.length.to_s.rjust(3)}"
+  end
   music.to_player_module.save_tap 'examples/test_music'
+  Z80::TAP.parse_file('examples/test_music.tap') do |hb|
+      puts hb.to_s
+  end
 end
