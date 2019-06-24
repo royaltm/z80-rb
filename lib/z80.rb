@@ -178,7 +178,7 @@ module Z80
 				klass.instance_variable_set n, v
 			end if klass.respond_to?(:new)
 			constants.each do |c|
-				klass.const_set c, const_get(c) unless c == :Macros
+				klass.const_set c, const_get(c) unless c == :Macros or c == :VERSION
 			end
 		end
 		##
