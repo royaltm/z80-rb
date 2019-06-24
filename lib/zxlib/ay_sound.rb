@@ -197,6 +197,8 @@ module ZXLib
       #
       #    notes  dw ay_tone_periods(min_octave:0, max_octave:0)
       #           words 7*12
+      #
+      # Modifies: +af+, +b+, +de+, +hl+ and optionally +sp+.
       def ay_extend_notes(notes=hl, octaves:8, half_tones:12, save_sp:true, disable_intr:true, enable_intr:true)
         raise ArgumentError, "can't enable interrupts without restoring the sp register first" if enable_intr and !save_sp
         raise ArgumentError, "octaves out of range: #{octaves} (2-8)" unless (2..8).include?(octaves)
@@ -234,6 +236,8 @@ module ZXLib
       # to get a full AY-891x I/O address of the specific chip function into +bc+ register pair.
       #
       # * +io128+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-891x I/O bus.
+      #
+      # Modifies: +b+ or +c+.
       def ay_io_load_const_reg_bc(io128=self.io128)
         ay_reg_combined = ((io128.ay_out ^ io128.ay_sel) | (io128.ay_inp ^ io128.ay_sel))
         isolate do
@@ -260,6 +264,8 @@ module ZXLib
       #          out  (c), a        # select VOLUME_A register
       #          ay_io_swap2out_bc
       #          out  (c), e        # set a value of the selected register
+      #
+      # Modifies: +b+ or +c+.
       def ay_io_swap2out_bc(io128=self.io128)
         ay_reg_combined = ((io128.ay_out ^ io128.ay_sel) | (io128.ay_inp ^ io128.ay_sel))
         select(ay_reg_combined & 0xFF00, &:zero?).then do |eoc|
@@ -284,6 +290,8 @@ module ZXLib
       #          out  (c), a        # select VOLUME_A register
       #          ay_io_swap2inp_bc
       #          inp  e, (c)        # get a value from the selected register
+      #
+      # Modifies: +b+ or +c+.
       def ay_io_swap2inp_bc(io128=self.io128)
         ay_reg_combined = ((io128.ay_out ^ io128.ay_sel) | (io128.ay_inp ^ io128.ay_sel))
         select(ay_reg_combined & 0xFF00, &:zero?).then do |eoc|
@@ -312,6 +320,8 @@ module ZXLib
       #          ora  0b00111000    # apply mask
       #          ay_io_swap2out_bc
       #          out  (c), a        # set a value of the selected register
+      #
+      # Modifies: +b+ or +c+.
       def ay_io_swap2sel_bc(io128=self.io128)
         ay_reg_combined = ((io128.ay_out ^ io128.ay_sel) | (io128.ay_inp ^ io128.ay_sel))
         select(ay_reg_combined & 0xFF00, &:zero?).then do |eoc|
@@ -331,6 +341,8 @@ module ZXLib
       # Options:
       # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
       # * +io128+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-891x I/O bus.
+      #
+      # Modifies: +af+, +bc+ and +regv+.
       def ay_get_register_value(regn=a, regv=e, bc_const_loaded:false, io128:self.io128)
         raise ArgumentError unless register?(regv)
         isolate do
@@ -370,6 +382,8 @@ module ZXLib
       # Options:
       # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
       # * +io128+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-891x I/O bus.
+      #
+      # Modifies: +af+, +bc+.
       def ay_set_register_value(regn=a, regv=e, bc_const_loaded:false, io128:self.io128)
         raise ArgumentError if [b,c].include?(regv) or (regv == a and regn != 0)
         isolate do |eoc|
@@ -414,6 +428,8 @@ module ZXLib
       # Options:
       # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
       # * +io128+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-891x I/O bus.
+      #
+      # Modifies: +af+, +bc+.
       def ay_init(bc_const_loaded:false, io128:self.io128)
         isolate do
                         ld   a, AYSound::VOLUME_C
@@ -447,6 +463,8 @@ module ZXLib
       #            jr   NZ, eoc
       #            ora  0b00000001
       #          end
+      #
+      # Modifies: +af+, +bc+ and +vinp+.
       def ay_get_set_mixer(vinp=a, vout=vinp, bc_const_loaded:false, io128:self.io128)
         isolate do |eoc|
                         ay_get_register_value(AYSound::MIXER, vinp, bc_const_loaded:bc_const_loaded, io128:io128)
@@ -467,6 +485,8 @@ module ZXLib
       # Options:
       # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
       # * +io128+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-891x I/O bus.
+      #
+      # Modifies: +af+, +bc+.
       def ay_set_tone_period(ch=a, tph:d, tpl:e, bc_const_loaded:false, io128:self.io128)
         isolate do
           if Integer === ch
@@ -494,6 +514,8 @@ module ZXLib
       # * +vol_8bit+:: True if the volume is in the range: 0..255. False if the volume is in the range: 0..15.
       # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
       # * +io128+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-891x I/O bus.
+      #
+      # Modifies: +af+, +bc+.
       def ay_set_volume(ch=a, vol=e, vol_8bit:false, bc_const_loaded:false, io128:self.io128)
         raise ArgumentError if [a,b,c].include?(vol)
         isolate do
@@ -534,6 +556,8 @@ module ZXLib
       # * +pitch_8bit+:: True if the pitch is in the range: 0..255. False if the pitch is in the range: 0..31.
       # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
       # * +io128+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-891x I/O bus.
+      #
+      # Modifies: +af+, +bc+.
       def ay_set_noise_pitch(pitch=e, pitch_8bit:false, bc_const_loaded:false, io128:self.io128)
         isolate do
           ay_set_register_value(AYSound::NOISE_PERIOD, pitch, bc_const_loaded:bc_const_loaded, io128:io128) do |_|
@@ -565,6 +589,8 @@ module ZXLib
       # Options:
       # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
       # * +io128+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-891x I/O bus.
+      #
+      # Modifies: +af+, +bc+.
       def ay_set_envelope_duration(dh=d, dl=e, bc_const_loaded:false, io128:self.io128)
         isolate do
                         ld   a, AYSound::ENV_PER_FINE
@@ -583,6 +609,8 @@ module ZXLib
       # Options:
       # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
       # * +io128+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-891x I/O bus.
+      #
+      # Modifies: +af+, +bc+ and +sinp+.
       def ay_get_set_env_shape(sinp=a, sout=sinp, bc_const_loaded:false, io128:self.io128)
         isolate do |eoc|
                         ay_get_register_value(AYSound::ENV_SHAPE, sinp, bc_const_loaded:bc_const_loaded, io128:io128)
