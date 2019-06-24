@@ -452,7 +452,7 @@ class Program
                 key_pressed?
                 jr   NZ, key_loop
                 di
-                setup_custom_interrupt_handler swap_int, enable_interrupts:false
+                setup_custom_interrupt_handler swap_int, enable_intr:false
                 ld   hl, [noise_ptr + 1]
                 ld   ixl, 4
                 exx

@@ -316,7 +316,7 @@ module ZXLib
             #
             # * handler:: One of the 16bit register pair or an address or a pointer to the address
             #             of the handler routine.
-            # * enable_interrupts:: If +true+ invoke +ei+ instruction at the end.
+            # * enable_intr:: If +true+ invoke +ei+ instruction at the end.
             #
             # This routine uses a mode 2 interrupt. In this mode the address
             # of the interrupt routine is formed in the following way:
@@ -340,7 +340,7 @@ module ZXLib
             #                   of the routine is found at 0x3BFF in most ZX Spectrum models.
             #
             # Modifies: +a+, +i+, +hl+ if +handler+ is not a register pair.
-            def setup_custom_interrupt_handler(handler, enable_interrupts:true, vector_page:0x3B)
+            def setup_custom_interrupt_handler(handler, enable_intr:true, vector_page:0x3B)
                 isolate do
                                 ld  a, 0x18          # 18H is jr
                                 ld  [0xFFFF], a
@@ -356,23 +356,23 @@ module ZXLib
                                 ld  a, vector_page   # Supported by ZX Spectrum 128, +2, +2A, +3 and probably most clones.
                                 ld  i, a             # load the accumulator with FF filled page in rom.
                                 im2
-                                ei if enable_interrupts
+                                ei if enable_intr
                 end
             end
             ##
             # Restore interrupt handler ZX Spectrum ROM's standard IM1 mode.
             #
-            # * enable_interrupts:: If +true+ invoke +ei+ instruction at the end.
+            # * enable_intr:: If +true+ invoke +ei+ instruction at the end.
             #
             # T-states: 28/24
             #
             # Modifies: +a+, +i+.
-            def restore_rom_interrupt_handler(enable_interrupts:true)
+            def restore_rom_interrupt_handler(enable_intr:true)
                 isolate do
                         im1
                         ld  a, 0x3F
                         ld  i, a
-                        ei if enable_interrupts
+                        ei if enable_intr
                 end
             end
             ##
@@ -384,7 +384,7 @@ module ZXLib
             #                The default is 0b11111 which means all keys in a half-line.
             #
             # Options:
-            # * +io+:: A label containing +ula+ sublabel addressing ULA I/O bus.
+            # * +io+:: A label containing +ula+ sub-label addressing ULA I/O bus.
             #
             #     line  key bits                     line  key bits
             #           b4,  b3,  b2,  b1,      b0         b4,  b3,  b2,   b1,      b0
@@ -415,7 +415,7 @@ module ZXLib
             #
             # Options:
             # * +t+:: A temporary 8-bit register.
-            # * +io+:: A label containing +ula+ sublabel addressing ULA I/O bus.
+            # * +io+:: A label containing +ula+ sub-label addressing ULA I/O bus.
             #
             # Modifies: +af+, +t+.
             #
@@ -894,17 +894,22 @@ module ZXLib
             end
             ##
             # Selects an upper memory bank (0-7) and/or a screen memory page (0-1) to be displayed.
-            #
-            # Modifies: +af+, +bc+, memory at 0x5B5C.
             # 
             # Options:
-            #
-            # * +screen+: 0 - Display screen from bank 5.
-            # * +screen+: 1 - Display screen from bank 7.
-            # * +bank+: 0..7 - Selects a memory bank available at 0xC000-0xFFFF.
-            # * +bank+: any of the 8-bit registers except +a+, or indirect memory address via a 16-bit register.
-            #           In this instance you should pass +true+ to the +screen:+ option if bit-4 of 
-            #           the +bank+ should select a screen to be displayed.
+            # * +bank+:: Selects a memory bank available at 0xC000-0xFFFF as an integer or
+            #            any of the 8-bit registers except +a+, or indirect memory address via a 16-bit register.
+            #            In this instance you should pass +true+ to the +screen:+ option if bit-4 of 
+            #            the +bank+ should select a screen to be displayed.
+            # * +screen+:: 0 - Display screen from bank 5. 1 - Display screen from bank 7.
+            #              +true+ to preserve screen bit-4 from the +bank+ register.
+            # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
+            #                    only if you have already disabled the interrupts.
+            # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
+            #                   if you need to perform more uninterrupted actions.
+            # * +mmu_port_in_bc+:: A boolean flag indicating if +bc+ registers already contain the +mmu_port+ I/O address.
+            #                      If not the +bc+ will be loaded with +sys128.mmu_port+ value.
+            # * +sys128+:: A label with +mmu_port+ sub-label addressing the 128k MMU I/O port (0x7FFD) and +mmu_value+
+            #              addressing memory where the 128k ROM is storing the last value output to MMU I/O port (0x5B5C).
             #
             #     0xFFFF                                       screen: 0         screen: 1
             #     +--------+--------+--------+--------+--------+--------+--------+--------+
@@ -916,7 +921,9 @@ module ZXLib
             #     0xC000
             #
             # Memory banks 1,3,5 and 7 are contended, which reduces the speed of memory access in these banks.
-            def mmu128_select_bank(bank:nil, screen:nil, disable_interrupts:true, enable_interrupts:true)
+            #
+            # Modifies: +af+, +bc+, memory at +sys128.mmu_value+ (0x5B5C).
+            def mmu128_select_bank(bank:nil, screen:nil, disable_intr:true, enable_intr:true, mmu_port_in_bc:false, sys128:self.sys128)
                 mask = 0b11111111
                 merg = 0b00000000
                 unless bank.nil?
@@ -933,34 +940,44 @@ module ZXLib
                         merg = merg | ((screen.to_i.zero? ? 0 : -1) & 0b00001000)
                     end
                 end
-                isolate use: :sys128 do
+                isolate do
+                          ld   bc, sys128.mmu_port unless mmu_port_in_bc
+                          di   if disable_intr
                           ld   a, [sys128.mmu_value] # previous value of port
                           anda mask
-                          ora  merg
-                          ld   bc, sys128.mmu_port
-                          di   if disable_interrupts
+                          ora  merg unless merg == 0
                           ld   [sys128.mmu_value],a
+                          ei   if enable_intr # directly after an EI, interrupts aren't accepted.
                           out  (c), a
-                          ei   if enable_interrupts
                 end
             end
             ##
             # Swap displayed screens.
             #
-            # Pass +true+ to the +:swap_bank+ option to additionally swap screen memory banks at 0xC000.
-            # For this to have a desired effect bank 5 or 7 should be previously selected.
+            # Options:
+            # * +swap_bank+:: A boolean flag indicating that the routine should additionally swap screen memory banks at 0xC000.
+            #                 For this to have a desired effect bank 5 or 7 should have been previously selected
+            #                 e.g. with Macros.mmu128_select_bank.
+            # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
+            #                    only if you have already disabled the interrupts.
+            # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
+            #                   if you need to perform more uninterrupted actions.
+            # * +mmu_port_in_bc+:: A boolean flag indicating if +bc+ registers already contain the +mmu_port+ I/O address.
+            #                      If not the +bc+ will be loaded with +sys128.mmu_port+ value.
+            # * +sys128+:: A label with +mmu_port+ sub-label addressing the 128k MMU I/O port (0x7FFD) and +mmu_value+
+            #              addressing memory where the 128k ROM is storing the last value output to MMU I/O port (0x5B5C).
             #
-            # Modifies: +af+, +bc+, memory at 0x5B5C.
-            def mmu128_swap_screens(swap_bank:false, disable_interrupts:true, enable_interrupts:true)
+            # Modifies: +af+, +bc+, memory at +sys128.mmu_value+ (0x5B5C).
+            def mmu128_swap_screens(swap_bank:false, disable_intr:true, enable_intr:true, mmu_port_in_bc:false, sys128:self.sys128)
                 swap_bits = if swap_bank then 0b00001010 else 0b00001000 end
-                isolate use: :sys128 do
+                isolate do
+                          ld   bc, sys128.mmu_port unless mmu_port_in_bc
+                          di   if disable_intr
                           ld   a, [sys128.mmu_value] # previous value of port
                           xor  swap_bits
-                          ld   bc, sys128.mmu_port
-                          di   if disable_interrupts
                           ld   [sys128.mmu_value],a
+                          ei   if enable_intr # directly after an EI, interrupts aren't accepted.
                           out  (c), a
-                          ei   if enable_interrupts
                 end
             end
         end
