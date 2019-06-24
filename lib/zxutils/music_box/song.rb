@@ -103,7 +103,7 @@ module ZXUtils
 
       attr_reader :item_table
 
-      def initialize()
+      def initialize
         @item_table = {}
         pargs = self.class.module_eval do
           { track_klasses:      @tracks,
@@ -114,6 +114,15 @@ module ZXUtils
             masks:              @masks }
         end
         super(Resolver.new @item_table, **pargs)
+      end
+
+      def unused_item_names
+        { multitracks: resolver.unused_multitrack_names,
+          tracks: resolver.unused_track_names,
+          instruments: resolver.unused_instrument_names,
+          envelopes: resolver.unused_envelope_names,
+          chords: resolver.unused_chord_names,
+          masks: resolver.unused_mask_names }
       end
 
       def to_player_module

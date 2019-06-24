@@ -92,6 +92,34 @@ module ZXUtils
         raise "Too many entries in a lookup table: #{name}" if index > 128
         index
       end
+
+      public
+
+      def unused_multitrack_names
+        @multitrack_klasses.keys.reject do |k|
+          (0..2).any? {|i| @tracks.has_key?(:"#{k}__#{CHANNEL_NAMES[i]}") }
+        end
+      end
+
+      def unused_track_names
+        @track_klasses.keys - @tracks.keys
+      end
+
+      def unused_instrument_names
+        @instrument_klasses.keys - @instruments.keys
+      end
+
+      def unused_envelope_names
+        @envelopes.reject {|n, o| @item_table.has_key?(o) }.keys
+      end
+
+      def unused_chord_names
+        @chords.reject {|n, o| @item_table.has_key?(o) }.keys
+      end
+
+      def unused_mask_names
+        @masks.reject {|n, o| @item_table.has_key?(o) }.keys
+      end
     end
   end
 end
