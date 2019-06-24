@@ -38,6 +38,7 @@ EXAMPLES = %w[
   mathi_test.rb
   multifill.rb
   stars.rb
+  test_music.rb
 ]
 
 desc "Compile examples"
@@ -55,6 +56,7 @@ UTIL_TESTS = %w[
   zxlib/gfx/draw.rb
   zxlib/ay_sound.rb
   zxutils/ay_music.rb
+  zxutils/ay_music_player.rb
   zxutils/benchmark.rb
   zxutils/multitasking.rb
   zxutils/multitasking_io.rb
