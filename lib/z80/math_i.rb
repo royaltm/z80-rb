@@ -166,6 +166,9 @@ module Z80
             # Although this method is often a more convenient way to add an 8-bit unsigned register +a+
             # to a 16-bit pair of registers, it does not set flags properly.
             #
+            # ZF: (hl + a) & 0xFF00 == 0
+            # CF: (((hl + a) & 0xFF) + (((hl + a) & 0xFF00) >> 8)) > 0xFF
+            #
             # T-states: 20
             #
             # * +h+:: MSB register.
@@ -174,6 +177,7 @@ module Z80
                 if h == l or [h,l].include?(a)
                     raise ArgumentError, "adda_to invalid arguments!"
                 end
+
                 ns do
                         add  l
                         ld   l, a
