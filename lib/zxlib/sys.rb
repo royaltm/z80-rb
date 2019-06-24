@@ -841,6 +841,9 @@ module ZXLib
             # * +not_found+:: if +subroutine+ is +false+ and +not_found+ is defined, the routine
             #                 will jump to this address when argument was not found,
             #                 otherwise success is signalled with ZF=1.
+            # * +not_found_blk+:: if +subroutine+ is +false+ and +not_found+ is +nil+, the routine
+            #                     produced by the block will be run. Make sure the routine doesn't
+            #                     fall through though.
             # * +cf_on_direct+:: if +true+ and DEFADD is not defined CF will be set.
             #
             # When +subroutine+ is +true+ or +not_found+ is +nil+, the success is signalled with +ZF+:
@@ -851,7 +854,7 @@ module ZXLib
             # +hl+ points to the argument value when found.
             #
             # Modifies: +af+, +hl+ and optionally +b+ unless +argnum+ == 1.
-            def find_def_fn_args(argnum=b, subroutine:true, not_found:nil, cf_on_direct:false)
+            def find_def_fn_args(argnum=b, subroutine:true, not_found:nil, cf_on_direct:false, &not_found_blk)
                 isolate use: :vars do |eoc|
                                 ld    b, argnum unless argnum == b or argnum == 1
                                 ld    hl, [vars.defadd]
@@ -882,6 +885,8 @@ module ZXLib
                                 ret
                     elsif not_found
                                 jp    not_found
+                    elsif block_given?
+                                ns(&not_found_blk)
                     else
                                 inc   a                 # ZF=0, not found
                                 jr    eoc if argnum != 1
