@@ -102,9 +102,11 @@ module ZXUtils
       def repeat(times=nil, mark:nil, &block)
         mark_cmd = MarkCommand.new(mark)
         @channels << mark_cmd
-        yield
-        unless @channels.last.equal? mark_cmd
-          loop_to mark_cmd.mark_name, times
+        if times != 0
+          yield
+          unless @channels.last.equal?(mark_cmd) or times == 1
+            loop_to mark_cmd.mark_name, times
+          end
         end
         @channels.length
       end

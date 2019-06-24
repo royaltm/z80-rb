@@ -61,9 +61,11 @@ module ZXUtils
       def repeat(times=nil, mark:nil, &block)
         mark_cmd = MarkCommand.new(mark)
         @commands << mark_cmd
-        yield
-        unless @commands.last.equal? mark_cmd
-          loop_to mark_cmd.mark_name, times
+        if times != 0
+          yield
+          unless @commands.last.equal?(mark_cmd) or times == 1
+            loop_to mark_cmd.mark_name, times
+          end
         end
         @commands.length
       end
@@ -156,7 +158,7 @@ module ZXUtils
       end
       alias_method :mn, :mask_noise
 
-      def mask_noise_off(mask_name)
+      def mask_noise_off
         mask_noise nil
       end
       alias_method :mno, :mask_noise_off
@@ -359,16 +361,16 @@ module ZXUtils
               @rational_counter -= @last_pause_delay
               @ticks_counter -= @last_pause_ticks
               delay_add = @last_pause_delay
-              pause_offset = @last_pause_range.begin
+              pause_range = @last_pause_range
             else
               delay_add = 0
-              pause_offset = @code.bytesize
+              pause_range = @code.bytesize..-1
             end
             data, ticks = cmd.compile(@rational_counter, delay_add)
-            @code[pause_offset] = data
+            @code[pause_range] = data
             @last_pause_delay = cmd.delay + delay_add
             @last_pause_ticks = ticks
-            @last_pause_range = pause_offset...@code.bytesize
+            @last_pause_range = pause_range.begin...@code.bytesize
             @rational_counter += @last_pause_delay
             @ticks_counter += @last_pause_ticks
           else
