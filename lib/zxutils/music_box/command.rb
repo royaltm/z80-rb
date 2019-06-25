@@ -138,6 +138,8 @@ module ZXUtils
     class LoopCommand < Command
       attr_reader :loop_mark_name, :counter
       def initialize(loop_mark_name, repeat=nil)
+        loop_mark_name = loop_mark_name.to_s if Symbol === loop_mark_name
+        raise ArgumentError, "loop_mark_name should be a string, a symbol or an integer" unless String === loop_mark_name or Integer === loop_mark_name
         raise ArgumentError, "repeat: 2 - 256 or nil" unless (2..256).include?(repeat) or repeat.nil?
         @loop_mark_name = loop_mark_name
         @counter = repeat.nil? ? 0 : repeat - 1
