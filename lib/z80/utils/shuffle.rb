@@ -20,19 +20,27 @@ module Z80
                 #
                 # Modifies: +af+, +bc+, +de+, +hl+.
                 #
-                # +next_rng+:: Address of random number generator routine;
-                #              it should return a 8bit next random number in a +l+ register.
-                # +target+:: An address or a pointer to a target array; may be +hl+.
-                # +length+:: A 8bit length of an array in the range of 1..256 (0 is 256); may be a register.
-                # +source+:: If +nil+ then <tt>source(i) = i</tt> is assumed, otherwise an address of a source routine
-                #            which should expect +i+ in register +c+ and <b>MUST PRESERVE</b> +hl+ and +de+ registers;
-                #            source routine should return value in the +a+ register.
-                def shuffle_bytes_source_max256(next_rng, target:hl, length:a, source:nil)
+                # +next_rng+:: An address of a random number generator routine. The routine should return
+                #              an 8bit random number in the +accumulator+. If +next_rng+ is +nil+
+                #              the block of code with the RNG routine is excpected instead.
+                #
+                # Options:
+                # * +target+:: An address of the target array as a label, a pointer or +hl+.
+                # * +length+:: An 8bit length of an array in the range of 1..256 (0 is 256) as a label,
+                #              pointer or a register.
+                # * +source+:: A +source+ function. If +nil+ then identity is assumed: <tt>(i) => i</tt>,
+                #              otherwise it should be an address of a source function routine which expects
+                #              an argument +i+ in the register +c+ and <b>MUST PRESERVE</b> registers: +hl+ and +de+.
+                #              Function is expected to return its result in the +accumulator+.
+                def shuffle_bytes_source_max256(next_rng=nil, target:hl, length:a, source:nil, &next_rng_blk)
                     unless source.nil? or (address?(source) and !pointer?(source))
                         raise ArgumentError, "source should be nil or an address" 
                     end
-                    unless address?(next_rng) and !pointer?(next_rng)
+                    unless next_rng.nil? or (address?(next_rng) and !pointer?(next_rng))
                         raise ArgumentError, "next_rng should be an address"
+                    end
+                    unless next_rng or block_given?
+                        raise ArgumentError, "next_rng is not specified and there is no block given"
                     end
                     i = d
                     mask = e
@@ -47,31 +55,38 @@ module Z80
                                     ora  i              # make mask from i
                                     ld   mask, a
                                     push hl
+
                         repeat_rand push i|mask
-                                    call next_rng
-                                    ld   a, l           # j = random
+                        if next_rng
+                                    call next_rng       # a = random
+                        else
+                                    ns(&next_rng_blk)
+                        end
                                     pop  i|mask         # i|mask
                                     anda mask
-                                    ld   j, a
+                                    ld   j, a           # j = random & mask
                                     ld   a, i
                                     sub  j              # i - j
                                     jr   C, repeat_rand # j > i
+
                                     pop  hl             # restore target
                                     push i|mask         # save i|mask
-                                    ld   t, i
-                                    ld16 de, hl
+
+                                    ld   t, i           # t = i
+
+                                    ld16 de, hl         # de: hl
                                     jr   Z, skip_mov    # j == i
                                     ld   j, a           # if j ≠ i
-                                    sub_from j, d, e
+                                    sub_from j, d, e    # de: hl - (i - j)
                                     ld   a, [de]        # target[j]
                                     ld   [hl], a        # target[i] = target[j]
                         skip_mov    label
                         if source.nil?
-                                    ld   [de], t        # target[j] = source[i]
+                                    ld   a, t
                         else
                                     call source
-                                    ld   [de], a
                         end
+                                    ld   [de], a        # target[j] = source[i]
                                     pop  i|mask         # restore i|mask
                                     pop  af             # length
                                     inc  hl             # target++
@@ -104,8 +119,7 @@ if __FILE__ == $0
 
         start       ld   hl, testarea
                     ld   a, 256
-                    ld   ix, identity
-                    call shuffle_it
+                    shuffle_bytes_source_max256 next_rng, target:hl, length:a, source:nil
                     ld   hl, mem.attrs
                     ld   a, 256
                     ld   ix, identity
@@ -119,11 +133,15 @@ if __FILE__ == $0
         next_rng    ld   hl, [vars.seed]
                     rnd
                     ld   [vars.seed], hl
+                    ld   a, l
                     ret
 
         forward_ix  jp   (ix)
 
-        shuffle_it  shuffle_bytes_source_max256 next_rng, target:hl, length:a, source:forward_ix
+        shuffle_it  label
+                    shuffle_bytes_source_max256 target:hl, length:a, source:forward_ix do
+                        call next_rng
+                    end
         shuffle_end ret
 
         testarea    label
