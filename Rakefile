@@ -2,7 +2,7 @@
 
 desc "Documentation"
 task :doc do
-  sh "rdoc --encoding=UTF-8 --title=ruby-Z80 --main=README.rdoc README.rdoc lib/z80.rb lib/z80/*.rb lib/z80/utils/*.rb lib/zxlib/*.rb lib/zxlib/*/*.rb lib/zxutils/*.rb"
+  sh "rdoc --encoding=UTF-8 --title=ruby-Z80 --main=README.rdoc README.rdoc lib/z80.rb lib/z80/*.rb lib/z80/utils/*.rb lib/zxlib/*.rb lib/zxlib/*/*.rb lib/zxutils/*.rb lib/zxutils/*/*.rb"
   sh "cp -v examples/*.{jpg,png} doc/examples/"
 end
 

@@ -9,6 +9,7 @@ module ZXUtils
   # ===AY music engine
   #
   # Low-level but highly configurable music player routines and Macros.
+  # See also: ZXUtils::AYMusicPlayer and ZXUtils::AYBasicPlayer.
   #
   # To play music with AYMusic you'll need:
   # * Some static tables.

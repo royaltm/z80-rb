@@ -71,28 +71,28 @@ module ZXUtils
         @envelopes[name.to_sym] = Envelope.new(*args)
       end
 
-      # def import_envelope(name, envelope)
-      #   raise ArgumentError unless envelope.is_a?(Envelope)
-      #   @envelopes[name.to_sym] = envelope
-      # end
+      def import_envelope(name, envelope)
+        raise ArgumentError unless envelope.is_a?(Envelope)
+        @envelopes[name.to_sym] = envelope
+      end
 
       def chord(name, *args)
         @chords[name.to_sym] = Chord.new(*args)
       end
 
-      # def import_chord(name, chord)
-      #   raise ArgumentError unless chord.is_a?(Chord)
-      #   @chords[name.to_sym] = chord
-      # end
+      def import_chord(name, chord)
+        raise ArgumentError unless chord.is_a?(Chord)
+        @chords[name.to_sym] = chord
+      end
 
       def mask(name, *args)
         @masks[name.to_sym] = Mask.new(*args)
       end
 
-      # def import_mask(name, mask)
-      #   raise ArgumentError unless mask.is_a?(Mask)
-      #   @masks[name.to_sym] = mask
-      # end
+      def import_mask(name, mask)
+        raise ArgumentError unless mask.is_a?(Mask)
+        @masks[name.to_sym] = mask
+      end
     end # SongCommands
 
     module Song
@@ -234,6 +234,8 @@ module ZXUtils
         @code = [loop_offset].concat(bytes).pack('c*')
       end
 
+      private
+
       def tuple_to_value(count, delta)
         raise ArgumentError, "Invalid counter argument: #{count}" unless (1..255).include?(count)
         step = (delta.to_f * 255.0 / count).round
@@ -243,6 +245,7 @@ module ZXUtils
     end
 
     class Chord < Envelope
+      private
       def tuple_to_value(count, delta)
         raise ArgumentError, "Counter: #{count} not in range: 1..7" unless (1..7).include?(count)
         raise ArgumentError, "Value: #{delta} not in range: 0..31" unless (0..31).include?(delta)
@@ -251,6 +254,7 @@ module ZXUtils
     end
 
     class Mask < Envelope
+      private
       def tuple_to_value(count, mask)
         raise ArgumentError, "Counter: #{count} not in range: 1..255" unless (1..255).include?(count)
         raise ArgumentError, "Value: mask excess 8 bits" unless (0..255).include?(mask)

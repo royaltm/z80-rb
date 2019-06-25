@@ -1,6 +1,73 @@
 require 'zxutils/ay_music'
 
 module ZXUtils
+  ##
+  # ===AY music player
+  #
+  # The music module player based on ZXUtils::AYMusic engine.
+  #
+  # The player expects a music module in the format produced by MusicBox::Song.to_player_module.
+  #
+  # ====The format of the music module
+  #
+  # The +delta+ is an address of the second (most significant) delta's byte subtracted from the addressed entry.
+  # When the +delta+ value will be added to the address of the 2nd delta's byte address it should resolve to
+  # the indicated entry address.
+  #
+  # +index_table+ can have 0 or more, up to 128, entries.
+  #
+  #    +---------------------------+
+  #    | track_a delta             | 2 bytes
+  #    +---------------------------+
+  #    | track_b delta             | 2 bytes
+  #    +---------------------------+
+  #    | track_c delta             | 2 bytes
+  #    +---------------------------+
+  #    | index_table entry 1 delta | 2 bytes
+  #    +---------------------------+
+  #                 ...
+  #    +---------------------------+
+  #    | index_table entry N delta | 2 bytes
+  #    +---------------------------+
+  #    |  AYMusic data for tracks, |
+  #    |  envelopes, masks, chords |
+  #    +---------------------------+
+  #
+  # ====Use player from your program
+  #
+  # 1. Call AYMusicPlayer.setup routine only once. It gets overwritten by the data it creates for the player.
+  # 2. Call AYMusicPlayer.init to initialize music module. This may be called unlimited times.
+  # 3. Call AYMusic.play on each tick to play the music.
+  # 4. Call AYMusicPlayer.mute_sound to silence the AY's sound.
+  #
+  #   require 'zxutils/ay_music_player'
+  #   class Program
+  #       include Z80
+  #       include Z80::TAP
+  #       include ZXUtils
+  #   
+  #       start         call player.setup
+  #                     ld   hl, music_module
+  #                     call player.init
+  #       forever       halt
+  #                     di
+  #                     push iy
+  #                     call player.play
+  #                     pop  iy
+  #                     ei
+  #                     jr   forever
+  #       music_module  import_file "examples/test_music.tap"
+  #                     import AYMusicPlayer, :player
+  #       # reserve memory here which will be used by the player
+  #       # the end of the reserved space is indicated by the player.sincos_end label
+  #       # there may be 0 or more bytes available between player.workspace_end and player.sincos
+  #       # depending on the code address as player.sincos must be aligned to 256 bytes.
+  #   end
+  #   
+  #   program = Program.new(0x8000)
+  #   puts program.debug
+  #   program.save_tap('miniplayer')
+  #
   class AYMusicPlayer
     include Z80
     include Z80::TAP
@@ -11,6 +78,7 @@ module ZXUtils
     export music
     export music_end
     export workspace_end
+    export play
     export sincos
     export sincos_end
 
@@ -23,12 +91,16 @@ module ZXUtils
     macro_import        ZXLib::AYSound
     macro_import        AYMusic
 
+    play          music.play
+
+    ## The struct of MusicTracks.tracks_info
     class TrackInfo < Label
       track_a     word
       track_b     word
       track_c     word
     end
 
+    ## The struct representing music module header.
     class MusicTracks < Label
       track_info        TrackInfo
       index_table       word, 128
@@ -36,12 +108,15 @@ module ZXUtils
 
     AY_MUSIC_OVERRIDE = { io128: io128,
                           index_table: index_table,
-                          sincos: sincos, sincos_end: sincos_end }
+                          sincos: sincos, sincos_end: sincos_end } # :nodoc:
 
     ##
-    # Initialize music track
+    # Initialize music module.
     #
-    # Relocates track's instrument table and sets track cursor to the track's offset.
+    # Relocates index table and sets the tracks' cursors to the initial positions.
+    # Module data is not being modified.
+    #
+    # _NOTE_:: This routine will disable and enable interrupts before it's finished.
     #
     # * +hl+:: should point to the MusicTracks data.
     ns :init do
@@ -58,7 +133,8 @@ module ZXUtils
                         ret
     end
 
-    ns :relocate16 do # hl - source, de - destination, a - entries
+    # hl - source, de - destination, a - entries 
+    ns :relocate16 do # :nodoc:
       rloop             ld   c, [hl]
                         inc  hl
                         ld   b, [hl]
@@ -87,8 +163,13 @@ module ZXUtils
     index_table         label 2
 
     ##
-    # Call setup once the player code has been loaded to create required tables for the music player.
-    # The following code gets overwritten once music has been loaded by the instrument table pointers.
+    # Sets up the player.
+    #
+    # Call this _ONCE_ the player code has been loaded to create required tables for the music player.
+    #
+    # _NOTE_:: The following code gets overwritten once it is being called.
+    #
+    # _NOTE_:: This routine will disable and enable interrupts before it's finished.
     #
     # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+, +ix+ and 1 stack entry.
     ns :setup do
@@ -131,6 +212,40 @@ module ZXUtils
     end_of_code         label
   end
 
+  ##
+  # ===AY Basic player
+  #
+  # This is a wrapper over AYMusicPlayer with interfaces suitable to be used directly from the ZX Spectrum's BASIC.
+  # 
+  #   require 'zxutils/ay_music_player'
+  #   require 'zxlib/basic'
+  #   include ZXLib
+  #   include ZXUtils
+  #
+  #   player = AYBasicPlayer.new 0xEEEE
+  #   puts player.debug
+  #   program = Basic.parse_source <<-EOC
+  #      1 DEF FN m(a)=USR #{player[:init_music]}
+  #     10 CLS: PRINT "Insert tape with a music module"
+  #     20 LOAD ""CODE 32768
+  #    100 REM initialize music
+  #    110 RANDOMIZE FN m(32768)
+  #    200 REM play in loop
+  #    210 PRINT USR #{player[:play_loop]}
+  #    299 STOP
+  #    300 REM play interval
+  #    310 LET ticks=USR #{player[:play_interval]}: PAUSE 1: GO TO 310
+  #    400 REM mute sound
+  #    410 RANDOMIZE USR #{player[:mute_sound]}
+  #    499 STOP
+  #    500 REM current counter
+  #    510 PRINT USR #{player[:get_counter]}
+  #   9998 STOP: RUN
+  #   9999 CLEAR 32767: LOAD "player"CODE: RANDOMIZE USR #{player[:init_music]}: RUN
+  #   EOC
+  #   puts program.to_source escape_keywords: true
+  #   program.save_tap "player", line: 9999
+  #   player.save_tap "player", append: true
   class AYBasicPlayer
     include Z80
     include Z80::TAP
@@ -149,7 +264,13 @@ module ZXUtils
     macro_import        AYMusic
 
     ##
-    # Initialize music track
+    # Initializes music track. Sets up the player.
+    #
+    # To setup the player (once):
+    #
+    #   RANDOMIZE USR #{player[:init_music]}
+    #
+    # To initialize a music module:
     #
     #   1 DEF FN m(a)=USR #{player[:init_music]}
     #   LOAD ""CODE 40000
@@ -191,6 +312,8 @@ module ZXUtils
 
     ##
     # Plays single music track tick. Call repeatedly on equal intervals to play music.
+    #
+    # Returns the current value of the music counter.
     ns :play_interval do
                         exx
                         push hl
@@ -205,7 +328,7 @@ module ZXUtils
     end
 
     ##
-    # 
+    # Returns the current value of the music counter.
     ns :get_counter do
                         ld   bc, [music.music_control.counter]
                         ret
@@ -216,12 +339,10 @@ module ZXUtils
   end
 end
 
+
 if __FILE__ == $0
   require 'zxlib/basic'
   include ZXUtils
-  # io_ay = io128
-  # io_ay = fuller_io
-  # io_ay = ioT2k
 
   player = AYBasicPlayer.new 0xEEEE
   puts player.debug

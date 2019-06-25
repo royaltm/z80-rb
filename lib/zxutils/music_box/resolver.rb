@@ -1,6 +1,7 @@
 # -*- coding: BINARY -*-
 module ZXUtils
   module MusicBox
+  # :stopdoc:
     class Resolver
       IndexItem = ::Struct.new :name, :index, :type
       CHANNEL_NAMES = [:a, :b, :c].freeze

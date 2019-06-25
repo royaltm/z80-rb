@@ -1,6 +1,7 @@
 # -*- coding: BINARY -*-
 module ZXUtils
   module MusicBox
+  # :stopdoc:
     class Command
       module Headers
         CMD_TERMINATE                =   0
