@@ -6,7 +6,7 @@ require 'zxlib/ay_sound'
 
 module ZXUtils
   ##
-  # ===AY music engine
+  # ===The AY-3-8910/8912 music engine
   #
   # Low-level but highly configurable music player routines and Macros.
   # See also: ZXUtils::AYMusicPlayer and ZXUtils::AYBasicPlayer.
@@ -16,6 +16,8 @@ module ZXUtils
   # * Some workspace memory.
   # * Music data.
   #
+  # ZXUtils::MusicBox provides a Ruby DSL for creating music for the AYMusic engine.
+  #
   # ====A memory map of the AYMusic's workspace.
   #
   # By default the workspace addresses follows immediately the static tables which are allocated after
@@ -24,7 +26,7 @@ module ZXUtils
   #                      
   #   <-  TRACK_STACK_TOTAL  ->                 <- +MusicControl ->      <- MINISTACK_SIZE ->
   #   +---------------------+-+                 +-----------------+      +------------------+
-  #   |  Tracks' loop/sub   |0|                 |  Music Control  |      | Player's machine |
+  #   |  Tracks' loop/yield |0|                 |  Music Control  |      | Player's machine |
   #   |        Stacks       | |                 |                 |      |    code stack    |
   #   +---------------------+-+                 +-----------------+      +------------------+
   #   ^                      ^ ^                ^                                            ^
@@ -39,20 +41,21 @@ module ZXUtils
   # * A 1kb Z80::Utils::SinCos::SinCosTable which must be aligned to 256 bytes (the address must be divisible by 256).
   #   Optionally override +sincos+ label to point to that table.
   #
-  # A "note to AY-3-891x tone pitch" table is a 96 words each representing a tone in a 12-notes, 8-octaves music scale.
-  # The values should be 12-bit tone period values as expected by AY-3-891x specification.
+  # The "note to AY-3-891x tone pitch" table is a 96 words each representing a tone in a 12-notes, 8-octaves music scale.
+  # The values should be 12-bit tone period values as expected by the AY-3-891x specification.
   # 
   # There are two ways to create such a table:
   #
   # * using ZXLib::AYSound::Macros.ay_tone_periods macro to create a full static table.
   # * using ZXLib::AYSound::Macros.ay_tone_periods macro to create a one octave and extrapolate it with
-  #   ZXLib::AYSound::Macros.ay_extend_notes routine.
+  #   ZXLib::AYSound::Macros.ay_expand_notes routine.
   #
-  # A "note to fine tones cursor" table may be created with AYMusic::Macros.ay_music_note_to_fine_tone_cursor_table_factory routine.
+  # The "note to fine tones cursor" table may be created with the Macros.ay_music_note_to_fine_tone_cursor_table_factory
+  # routine.
   #
-  # A "fine tones" table may be created with AYMusic::Macros.ay_music_tone_progress_table_factory routine.
+  # The "fine tones" table may be created with the Macros.ay_music_tone_progress_table_factory routine.
   #
-  # The SinCosTable can be created with Z80::Utils::SinCos::Macros.create_sincos_from_sintable routine.
+  # The SinCosTable can be created with the Z80::Utils::SinCos::Macros.create_sincos_from_sintable routine.
   #
   # ====Music data
   #
@@ -60,13 +63,20 @@ module ZXUtils
   # * Some delta envelopes, mask envelopes, chords.
   # * An index lookup table. Optionally override +index_table+ label to point to that table.
   #
-  # The index lookup table consists of words (2 bytes) containing addresses of tracks, envelopes and chords.
-  # Each entry is indexed from 1 (1st entry) to 128. The maximum number of entries supported currently is 128.
-  # However if your music uses fewer entries, the lookup table may be shorter.
+  # =====Index lookup table
   #
-  # Delta and mask envelopes and chords consist of a loop offset byte, followed by bytes describing an envelope,
+  # The index lookup table consists of words (2 bytes each) containing addresses of tracks, instruments, envelopes
+  # and chords. Each entry is indexed from 1 (1st entry) to 128. The maximum number of entries supported currently
+  # is 128. However if your music uses fewer entries, the lookup table may be shorter.
+  #
+  # Instruments are just like tracks, but some commands should not be used in them, e.g. playing notes.
+  # For each channel, the instrument track is being executed in parallel with the current track.
+  #
+  # =====Envelopes, Masks and Chords
+  #
+  # Delta envelopes, masks and chords consist of a loop offset byte, followed by bytes describing an envelope,
   # followed by 0. The loop offset should point to the argument's 1st byte (relative to the 1st argument) to which
-  # the envelope should loop when it's over.
+  # the envelope should loop when it's over. The loop offset = 0 means repeat the whole envelope.
   #
   # Each delta envelope argument consist of 2 bytes:
   # * A counter: from 1 up to 255.
@@ -83,7 +93,8 @@ module ZXUtils
   # * An 8-bit mask.
   #
   # The counter indicates for how many ticks the following bits should be applied in turn.
-  # Each bit is being applied for each tick. The bits are being rolled creating a virtually infinite bitmap.
+  # Each bit from the mask is being applied after each tick, starting from the most (leftmost)
+  # significant bit (7). The bits are being rolled left, creating a virtually infinite bitmap.
   #
   # Each chord argument consist of a single byte.
   # * A delay value on bits 7-5 (1..7).
@@ -91,8 +102,11 @@ module ZXUtils
   #
   # The delay indicates for how many ticks the following tone will be played. The delta is a half-tone delta up from the currently played note.
   #
+  # =====Tracks
+  # 
   # Tracks consist of commands. Each command consist of 1 or more bytes. Some commands have additional data embedded in the 1st byte.
-  # At the start each of the 3 AY-8912 tone channel has a single main track assigned. Each volume or tone related command on the assigned track is always tied to that channel.
+  # At the start each of the 3 AY-3-8912 tone channel has a single main track assigned. Each volume or tone related command on
+  # the assigned track is always tied to that channel.
   # Each of the 3 channels may have an instrument track attached which will be run in parallel to the main track on that channel.
   # Depending on the play mode the "Play note" command may reset the instrument track to its beginning.
   #
@@ -187,21 +201,32 @@ module ZXUtils
     # http://pages.mtu.edu/~suits/chords.html
 
     ##
-    # Maximum recursion depth for nested loops and sub-tracks.
+    # The maximum recursion depth for loops and sub-tracks yielding. 20 by default.
     #
-    # To re-adjust define:
-    #    class ZXUtils::AYMusic
-    #      TRACK_STACK_DEPTH = 30
+    # AYMusic uses the stack space ending at +track_stack_end+ label.
+    # Each stack entry has the size of TrackStackEntry.
+    # The last entry on the stack is a marker that is all 0.
+    # There are 6 stacks for each channel track and channel instrument.
+    # Both +yield+ and +loop+ commands use the same stack for their own purposes.
+    # The sum of the recusion of sub-track yields and loop nesting level must not exceed
+    # the value defined by TRACK_STACK_DEPTH.
+    #
+    # To change the default:
+    #    module ZXUtils
+    #      class AYMusic
+    #        TRACK_STACK_DEPTH = 30
+    #      end
     #    end
     #    require 'zxutils/ay_music'
     TRACK_STACK_DEPTH = 20 unless const_defined?(:TRACK_STACK_DEPTH)
-
     ##
-    # Set to true to create slightly slower but ROM applicaple code.
+    # Set to +true+ to create a slightly slower but ROM applicaple code.
     #
-    # To re-adjust define:
-    #    class ZXUtils::AYMusic
-    #      READ_ONLY_CODE = true
+    # To change the default:
+    #    module ZXUtils
+    #      class AYMusic
+    #        READ_ONLY_CODE = true
+    #      end
     #    end
     #    require 'zxutils/ay_music'
     READ_ONLY_CODE = false unless const_defined?(:READ_ONLY_CODE)
@@ -215,15 +240,16 @@ module ZXUtils
     ##
     # ====AYMusic engine utilities.
     #
-    # _NOTE_:: AYMusic::Macros require Z80::MathInt::Macros and some require ZXLib::AYSound::Macros.
+    # _NOTE_:: Some of the AYMusic Macros require Z80::MathInt::Macros and some require ZXLib::AYSound::Macros
+    #          to be imported.
     #
     #    require 'zxutils/ay_music'
     #
     #    class Program
     #      include Z80
+    #      macro_import    MathInt
     #      label_import    ZXLib::Sys
     #      macro_import    ZXLib::AYSound
-    #      macro_import    MathInt
     #      macro_import    ZXUtils::AYMusic
     #      ...
     #    end
@@ -279,14 +305,14 @@ module ZXUtils
       #
       # Options:
       # * +bc_const_loaded+:: If ZXLib::AYSound::Macros.ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
-      # * +io128+:: A label containing +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-3-891x output and select/input I/O bus.
+      # * +io_ay+:: A label containing +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-3-891x output and select/input I/O bus.
       #
-      # _NOTE_:: This macro requires ZXLib::AYSound::Macros.
+      # _NOTE_:: This macro requires ZXLib::AYSound::Macros to be also imported.
       #
       # Modifies: +af+, +bc+, +de+.
-      def ay_music_preserve_io_ports_state(music_control, play, bc_const_loaded:false, io128:self.io128)
+      def ay_music_preserve_io_ports_state(music_control, play, bc_const_loaded:false, io_ay:self.io_ay)
         isolate do
-                            ay_get_register_value(AYMusic::MIXER, a, bc_const_loaded:bc_const_loaded, io128:io128)
+                            ay_get_register_value(AYMusic::MIXER, a, bc_const_loaded:bc_const_loaded, io_ay:io_ay)
                             ld   de, music_control.ay_registers.mixer
                             ld   b, 0b00111111
                             call play.apply_mask_de
@@ -295,16 +321,18 @@ module ZXUtils
       ##
       # Creates a routine that builds a note-to-fine tones index table.
       #
-      # * +note_to_cursor+:: An address of the table to be built (192 bytes).
+      # * +note_to_cursor+:: An address of the table to be built (max 192 bytes).
       #
       # Options:
       # * +play+:: An optional label addressing the AYMusic player's iteration routine (code re-use optimisation).
       # * +num_notes+:: An optional number of notes to cover which is by default its maximum value: 96.
       # * +subroutine+:: Pass +true+ to use +ret+ instruction on finish.
       #
+      # _NOTE_:: This macro requires Z80::MathInt::Macros to be also imported if +play+ option is not provided.
+      #
       # Modifies: +af+, +bc+, +de+, +hl+ and 1 level of stack.
-      def ay_music_note_to_fine_tone_cursor_table_factory(note_to_cursor, play:nil, num_notes:8*12, subroutine:false)
-        raise ArgumentError, "num_notes should be between 1 and #{8*12}" unless (1..8*12).include?(num_notes)
+      def ay_music_note_to_fine_tone_cursor_table_factory(note_to_cursor, play:nil, num_notes:AYMusic::MAX_NOTES_COUNT, subroutine:false)
+        raise ArgumentError, "num_notes should be between 1 and #{AYMusic::MAX_NOTES_COUNT}" unless (1..AYMusic::MAX_NOTES_COUNT).include?(num_notes)
         isolate do |eoc|
                             ld   bc, (0<<8)|12
                             ld   hl, note_to_cursor
@@ -355,6 +383,8 @@ module ZXUtils
       # * +hz+:: base (middle) frequency in Hz.
       # * +clock_hz+:: AY-3-891x clock frequency in Hz.
       # * +subroutine+:: Pass +true+ to use +ret+ instruction on finish.
+      #
+      # _NOTE_:: This macro requires Z80::MathInt::Macros to be also imported.
       #
       # Modifies: +af+, +af'+, +hl+, +hl'+, +b+, +bc'+, +de+, +de'+.
       def ay_music_tone_progress_table_factory(fine_tones, hz: 440, clock_hz: ZXLib::AYSound::CLOCK_HZ, subroutine:false)
@@ -502,12 +532,13 @@ module ZXUtils
       envelope_shape    byte
     end
 
+    ## The data type of the track stack entry.
     class TrackStackEntry < Label
       counter           byte # 0: a sub or a terminator
       signature         word # a loop_to signature or a return cursor from sub track
     end
 
-    ## A music track control structure
+    ## The music track control structure
     class TrackControl < Label
       track_stack       word               # stack pointer for loops and subs: sp -> TrackStackEntry
       delay_lo          byte
@@ -518,7 +549,7 @@ module ZXUtils
       cursor            cursor_lo word     # cursor pointing to the current track instruction
     end
 
-    ## An instrument track control structure
+    ## The instrument track control structure
     class InstrumentControl < Label
       track             TrackControl
       start_lo          byte
@@ -529,7 +560,7 @@ module ZXUtils
       note_progress     byte               # 0 - ignore tone progress when playing notes, 1 and more tone progress counter
     end
 
-    ## A channel control structure
+    ## The channel control structure
     class ChannelControl < Label
       volume_envelope   EnvelopeControl
       tone_progress     ToneProgressControl
@@ -546,7 +577,7 @@ module ZXUtils
       instrument        InstrumentControl
     end
 
-    ## A main music control structure
+    ## The main music control structure
     class MusicControl < Label
       ay_registers      AYRegisterMirror
       counter_lo        byte # a counter tracks can synchronize to with the sync command
@@ -562,10 +593,10 @@ module ZXUtils
       end
     end
 
-    ## Maximum number of half-tones playable with the AY-3-891x.
-    MAX_NOTES_COUNT = 96
+    ## The maximum number of half-tones playable with the AY-3-891x.
+    MAX_NOTES_COUNT = 8*12
 
-    ## Single music track stack size calculated from TRACK_STACK_DEPTH.
+    ## The single music track stack size calculated from TRACK_STACK_DEPTH.
     TRACK_STACK_SIZE  = (TRACK_STACK_DEPTH + 1) * TrackStackEntry.to_i + 1
 
     ## All music tracks stack size calculated from TRACK_STACK_SIZE.
@@ -760,7 +791,7 @@ module ZXUtils
       if READ_ONLY_CODE
                         ld   [music_control.saved_sp], sp
       else
-                        ld   [restore_sp + 1], sp
+                        ld   [restore_sp_p], sp
       end
                         ld   sp, ministack
                         ay_io_load_const_reg_bc
@@ -854,6 +885,7 @@ module ZXUtils
                         ld   sp, [music_control.saved_sp]
       else
         restore_sp      ld   sp, 0
+        restore_sp_p    restore_sp + 1
       end
                         ret
 
@@ -1603,6 +1635,7 @@ if __FILE__ == $0
 
     import              ZXLib::Sys, macros: true, labels: true, code: false
     macro_import        MathInt
+    macro_import        Stdlib
     macro_import        Utils::SinCos
     macro_import        ZXLib::AYSound
     macro_import        AYMusic
@@ -1618,11 +1651,13 @@ if __FILE__ == $0
     note_to_cursor      addr sincos_end, 2 # max count 96
     # fine tones durations table
     fine_tones          addr note_to_cursor[96], 2 # count 256
-    track_stack_end     addr fine_tones[256] + AYMusic::TRACK_STACK_TOTAL, AYMusic::TrackStackEntry
+    track_stack_bottom  addr fine_tones[256], AYMusic::TrackStackEntry
+    track_stack_end     addr track_stack_bottom + AYMusic::TRACK_STACK_TOTAL, AYMusic::TrackStackEntry
     empty_instrument    addr track_stack_end[-1]
     music_control       addr track_stack_end[0], AYMusic::MusicControl
+    workspace_end       addr music_control[1]
 
-    AY_MUSIC_OVERRIDE = { io128: io_ay,
+    AY_MUSIC_OVERRIDE = { io_ay: io_ay,
                           index_table: index_table,
                           sincos: sincos,
                           note_to_cursor: note_to_cursor,
@@ -1637,7 +1672,11 @@ if __FILE__ == $0
                         call mute
                         call make_sincos
       ns :extend_notes do
-                        ay_extend_notes music.notes, octaves:8, save_sp:true, disable_intr:false, enable_intr:false
+        if AYMusic::READ_ONLY_CODE
+                        ay_expand_notes music.notes, octaves:8
+        else
+                        ay_expand_notes_faster music.notes, octaves:8, save_sp:true, disable_intr:false, enable_intr:false
+        end
       end
       ns :tone_progress_table_factory do
                         ay_music_tone_progress_table_factory music.fine_tones
@@ -1645,8 +1684,10 @@ if __FILE__ == $0
       ns :note_to_fine_tone_cursor_table_factory do
                         ay_music_note_to_fine_tone_cursor_table_factory music.note_to_cursor, play: music.play
       end
+                        # deliberately poison workspace
+                        clrmem track_stack_bottom, workspace_end-track_stack_bottom, 255
       ns :music_init do
-                        ay_music_init track_a, track_b, track_c, init:music.init, play:music.play, music_control:music.music_control, disable_intr:false, enable_intr:false
+                        ay_music_init track_a, track_b, track_c, index_table:index_table, init:music.init, play:music.play, music_control:music.music_control, disable_intr:false, enable_intr:false
       end
       forever           ei
                         halt
@@ -1654,7 +1695,7 @@ if __FILE__ == $0
                         push iy
                         xor  a
                         out  (io.ula), a
-                        ay_music_preserve_io_ports_state music.music_control, music.play, bc_const_loaded:false, io128:io_ay
+                        ay_music_preserve_io_ports_state music.music_control, music.play, bc_const_loaded:false, io_ay:io_ay
                         call music.play
                         ld   a, 6
                         out  (io.ula), a
@@ -1673,7 +1714,7 @@ if __FILE__ == $0
     end
 
     ns :mute do
-                        ay_init(io128:io_ay)
+                        ay_init(io_ay:io_ay)
                         ret
     end
 
