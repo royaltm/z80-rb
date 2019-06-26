@@ -235,7 +235,7 @@ module ZXUtils
       #
       # Options:
       # * +index_table+:: An address of the instrument table associated with tracks as an integer,
-      #                        a label, a pointer or +hl+.
+      #                   a label or a pointer. _Required_ if AYMusic::READ_ONLY_CODE is +true+.
       # * +init+:: A label addressing the AYMusic.init routine.
       # * +play+:: A label addressing the AYMusic.play routine.
       # * +music_control+:: A label of the type MusicControl addressing the data structure used by the AYMusic routines.
@@ -249,21 +249,22 @@ module ZXUtils
         raise ArgumentError unless address?(track_a) and !pointer?(track_a) and
                                    address?(track_b) and !pointer?(track_b) and
                                    address?(track_c) and !pointer?(track_c) and
-                                   (index_table.nil? or address?(index_table) or index_table == hl) and
+                                   (index_table.nil? or address?(index_table)) and
                                    label?(init) and label?(play) and label?(music_control)
+        raise ArgumentError, "index_table is required with READ_ONLY_CODE" if AYMusic::READ_ONLY_CODE and index_table.nil?
         isolate do
+                            di if disable_intr
+                            call init
+                            dw   track_a, track_b, track_c
+                            ei if enable_intr
           if index_table
                             ld   hl, index_table unless index_table == hl
-            if READ_ONLY_CODE
+            if AYMusic::READ_ONLY_CODE
                             ld   [music_control.index_table], hl
             else
                             ld   [play.index_table_p], hl
             end
           end
-                            di if disable_intr
-                            call init
-                            dw   track_a, track_b, track_c
-                            ei if enable_intr
         end
       end
       ##
