@@ -10,11 +10,19 @@ module ZXUtils
   # The music can be compiled to a ZXUtils::AYMusicPlayer module or a Z80::Program class
   # suitable for importing by another Z80 program.
   #
+  # * MusicBox::Song
+  # * MusicBox::Multitrack
+  # * MusicBox::Track
+  # * MusicBox::Instrument
+  # * MusicBox::Envelope
+  # * MusicBox::Chord
+  # * MusicBox::Mask
+  #
   # See also: ZXUtils::AYMusic, ZXUtils::AYMusicPlayer and ZXUtils::AYBasicPlayer.
   #
   #   require 'zxutils/music_box'
   #   
-  #   class Music
+  #   class MySong
   #     include ZXUtils::MusicBox::Song
   #   
   #     tempo 128
@@ -71,11 +79,11 @@ module ZXUtils
   #     end
   #   end
   #   
-  #   music = Music.new
-  #   music.to_player_module.save_tap 'musicbox'
+  #   mysong = MySong.new
+  #   mysong.to_player_module.save_tap 'mysong'
   #   
   #   require 'z80'
-  #   puts music.to_program.new(0x8000).debug
+  #   puts mysong.to_program.new(0x8000).debug
   module MusicBox
     # :stopdoc:
     class ROHash < Hash # :nodoc:
