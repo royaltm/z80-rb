@@ -258,6 +258,13 @@ module ZXLib
             ula     addr 0xFF # 0bMIColScr M - MMU 0=DOCK, 1=EX-ROM; I - Interrupts 1=DI, 0=EI; Col - colors for hi-res; Scr - screen modes: 000=screen 0, 001=screen 1, 010=hi-colour, 110=hi-res
         end
 
+        # Default AY-3-891x I/O ports
+        isolate :io_ay, use: :io128 do
+            ay_sel  addr io128.ay_sel
+            ay_inp  addr io128.ay_inp
+            ay_out  addr io128.ay_out
+        end
+
         isolate :sys128, use: :io128 do
             mmu_value    addr 0x5B5C    # 0b00DRSBnk
             mmu_port     addr io128.mmu # D - disable mmu, R - rom, S - screen, Bnk - bank
