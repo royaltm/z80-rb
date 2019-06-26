@@ -178,7 +178,7 @@ module ZXUtils
       #       envdur duration
       #       envd duration
       #
-      # Sets the AY-891x automatic volume envelope duration: 1 to 65535.
+      # Sets the AY-3-891x automatic volume envelope duration: 1 to 65535.
       def envelope_duration(duration)
         @commands << AYEnvelopeDurationCommand.new(duration)
         @commands.length
@@ -190,7 +190,7 @@ module ZXUtils
       #       envsh shape
       #       envs shape
       #
-      # Sets the shape of the AY-891x automatic volume envelope: 0 to 15.
+      # Sets the shape of the AY-3-891x automatic volume envelope: 0 to 15.
       # You may use ZXLib::AYSound::EnvelopeControl constants.
       def envelope_shape(shape)
         @commands << AYEnvelopeShapeCommand.new(shape)
@@ -262,7 +262,7 @@ module ZXUtils
       #       me
       #
       # Applies a mask defined by SongCommands.mask to the current channel's envelope bit
-      # controlling the AY-891x automatic volume envelope.
+      # controlling the AY-3-891x automatic volume envelope.
       # When the current mask bit has value 1: turns on the envelope. When 0: turns it off.
       def mask_ay_volume_envelope(mask_name)
         @commands << MaskCommand.new(:volume, mask_name)
@@ -433,7 +433,7 @@ module ZXUtils
       #       variable_volume
       #       vv
       #
-      # Enables the AY-891x automatic volume envelope control of the current channel.
+      # Enables the AY-3-891x automatic volume envelope control of the current channel.
       def enable_ay_volume_ctrl
         @commands << Command.new(Command::Headers::CMD_ENABLE_AY_VOLUME_CTRL)
         @commands.length
@@ -445,7 +445,7 @@ module ZXUtils
       #       fixed_volume
       #       fv
       #
-      # Turns off the AY-891x automatic volume envelope control of the current channel.
+      # Turns off the AY-3-891x automatic volume envelope control of the current channel.
       def disable_ay_volume_ctrl
         @commands << Command.new(Command::Headers::CMD_DISABLE_AY_VOLUME_CTRL)
         @commands.length
@@ -551,7 +551,7 @@ module ZXUtils
       #       play note_name, octave, *pause_lengths
       #       note_name octave, *pause_lengths
       #
-      # To play notes a series of commands has been created:
+      # To play notes on the use one of the commands:
       #
       #   note_name  corresponding note
       #   a          A
@@ -572,12 +572,12 @@ module ZXUtils
       #   g!         G#
       #   a_         Ab
       #
-      # +octave+:: must be a number: 0 to 7.
-      # +pause_lenghs+:: may be one or more pause lengths, see CommonInstrumentCommands.pause.
+      # +octave+:: A number: 0 to 7.
+      # +pause_lenghs+:: Optional one or more pause lengths as integers, see CommonInstrumentCommands.pause.
       #
       # E.g. to play a middle C# Half note:
       #
-      #   c! 3, 2
+      #   c! 4, 2
       #
       # _NOTE_:: To set the octave boundary please consult TrackConfigCommands.first_octave_note.
       #          By default an octave starts from A.
@@ -588,7 +588,7 @@ module ZXUtils
       #
       # The middle C# will be at:
       #
-      #   c! 4, 2
+      #   c! 5, 2
       def play(note_name, octave, *pause_lengths)
         @commands << NoteCommand.new(note_name, octave, @first_octave_note)
         pause(*pause_lengths) unless pause_lengths.empty?
@@ -605,11 +605,13 @@ module ZXUtils
       #       set_instrument instrument_name
       #       i instrument_name
       #
-      # Sets an instrument for the next notes played.
+      # Sets an instrument for the current channel.
       #
       # +instrument_name+:: A symbol or string with the instrument name to set.
       #
       # To turn off an instrument, set another one or use TrackCommands.set_empty_instrument.
+      # The previous instrument won't be immediately stopped until the next note is
+      # being played on this channel.
       def set_instrument(instrument_name)
         @commands << InstrumentCommand.new(instrument_name)
         @commands.length
@@ -619,8 +621,10 @@ module ZXUtils
       #       set_empty_instrument
       #       ei
       #
-      # Turns off any instrument previously set up with TrackCommands.set_instrument for the
-      # following played notes.
+      # Turns off any instrument previously set up with TrackCommands.set_instrument
+      # on the current channel.
+      # The current instrument won't be immediately stopped until the next note is
+      # being played on this channel.
       def set_empty_instrument
         set_instrument(nil)
       end
@@ -655,15 +659,22 @@ module ZXUtils
     #
     # Alternatively use MusicBox::SongCommands.track command to define tracks directly in the Song.
     #
+    # ====Commands
+    #
     # For the list of available commands see TrackCommands and CommonInstrumentCommands.
     module Track
+      ##
+      # Instances of this ruby struct are values of the markers hash.
+      # The properties present are:
+      # * +name+:: A marker's name.
+      # * +offset+:: A marker's position in the +code+.
       Marker = ::Struct.new :name, :offset
       def self.included(klass) # :nodoc:
         klass.extend TrackCommands if klass.respond_to?(:new)
       end
       ## A compiled track's body as a binary string.
       attr_reader :code
-      ## A hash containging the markers with the corresponding code offsets.
+      ## A hash containging the Marker instances as values and their names as keys.
       attr_reader :markers
       ## A resolver used by the compilation process.
       attr_reader :resolver
@@ -770,6 +781,8 @@ module ZXUtils
     # Such an instrument can be included with the MusicBox::SongCommands.import_instrument command of the Song.
     #
     # Alternatively use MusicBox::SongCommands.instrument command to define instruments directly in the Song.
+    #
+    # ====Commands
     #
     # For the list of available commands see InstrumentCommands and CommonInstrumentCommands.
     module Instrument

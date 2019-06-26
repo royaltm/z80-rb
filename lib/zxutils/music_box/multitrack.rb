@@ -242,7 +242,7 @@ module ZXUtils
     ##
     # ===MusicBox Multitrack
     #
-    # A multi-track consists of the three tracks, each one for each of the AY-891x channels.
+    # A multi-track consists of the three tracks, each one for each of the AY-3-891x channels.
     #
     # Each track of a multi-track is a MusicBox::Track class.
     #
@@ -261,6 +261,8 @@ module ZXUtils
     # Such a multi-track can be included with the MusicBox::SongCommands.import_multitrack command of the Song.
     #
     # Alternatively use MusicBox::SongCommands.multitrack command to define multi-tracks directly in the Song.
+    #
+    # ====Commands
     #
     # For the list of available commands see MultitrackCommands.
     module Multitrack

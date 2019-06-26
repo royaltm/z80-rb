@@ -5,7 +5,7 @@ module ZXUtils
   ##
   # ===MusicBox
   #
-  # MusicBox is a Ruby Domain Specific Language designed to create AY-3-891x music.
+  # MusicBox is a Ruby Domain Specific Language designed to create AY-3-8910/8912 music.
   #
   # The music can be compiled to a ZXUtils::AYMusicPlayer module or a Z80::Program class
   # suitable for importing by another Z80 program.

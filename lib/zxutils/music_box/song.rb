@@ -136,7 +136,7 @@ module ZXUtils
     # To create a custom song you need to include the Song module in your class.
     #
     #    class MySong
-    #        include ZXUtils::MusicBox::SOng
+    #        include ZXUtils::MusicBox::Song
     #        #... song commands follow
     #    end
     #
@@ -151,7 +151,9 @@ module ZXUtils
     # Or save as a player module:
     #   mysong.to_player_module.save_tap('mysong')
     #
-    # For the list of available commands see MultitrackCommands and SongCommands.
+    # ====Commands
+    #
+    # For the description of available commands see MultitrackCommands and SongCommands.
     module Song
       include Multitrack
       def self.included(klass) # :nodoc:
@@ -238,19 +240,20 @@ module ZXUtils
       #     macro_import        ZXLib::AYSound
       #     macro_import        AYMusic
       #   
-      #     with_saved :start, :exx, hl, ret: true do
+      #     with_saved :start, :exx, hl, ret: :after_ei do
       #                         call make_sincos
-      #                         ay_extend_notes( music.notes, octaves:8 )
+      #                         ay_expand_notes( music.notes, octaves:8 )
       #                         ay_music_tone_progress_table_factory( music.fine_tones )
       #                         ay_music_note_to_fine_tone_cursor_table_factory( music.note_to_cursor, play: music.play )
+      #                         di
       #                         call music.init
       #                         dw   track_a, track_b, track_c
-      #       forever           halt
+      #       forever           ei
+      #                         halt
       #                         di
       #                         push iy
       #                         call music.play
       #                         pop  iy
-      #                         ei
       #                         key_pressed?
       #                         jr   Z, forever
       #                         ay_init
@@ -286,9 +289,9 @@ module ZXUtils
       class SongModule
         ## A compiled song module body as a binary string.
         attr_reader :code
-        ## An array containing offset ranges determining the position within the body data of each of the three channel tracks.
+        ## An array containing offset ranges determining the position within the SongModule.code each of the three channel tracks.
         attr_reader :track_offsets
-        ## An array containing offset ranges determining the position within the body data of each of the indexed items.
+        ## An array containing offset ranges determining the position within the SongModule.code each of the indexed items.
         attr_reader :index_offsets
         ## An array containing descriptors of each of the indexed items.
         attr_reader :index_items
@@ -326,8 +329,8 @@ module ZXUtils
         # * envelope
         # * chord
         # * mask
-        # And each song's item is being sub-labeled in the accorsing namespaces, so you can
-        # identify them in the debug output or use it for some other purpose.
+        # And each song's item is being sub-labeled in the according namespaces, so you can
+        # identify them in the +debug+ output or use it for some other purpose.
         def to_program
           code = @code
           track_offsets = @track_offsets
@@ -360,13 +363,15 @@ module ZXUtils
       ##
       # ===MusicBox Song PlayerModule
       #
-      # Contains a compiled Song in the form suitable for the ZXUtils::AYMusicPlayer.
+      # A PlayerModule instance contains a compiled Song in the form suitable for the ZXUtils::AYMusicPlayer.
       #
       # An instance of this class can be created by calling Song.to_player_module instance method
       # of the compiled song or SongModule.to_player_module instance method.
+      #
+      # Use Z80::TAP.save_tap included method to save the module as a +.tap+ file.
       class PlayerModule
         include Z80::TAP
-        ## A compiled module body as a binary string suitable for ZXUtils::AYMusicPlayer.
+        ## A compiled song module body, including the relocation table, as a binary string suitable for the ZXUtils::AYMusicPlayer.
         attr_reader :code
         ## An address the module will be saved at when using one of the Z80::TAP methods.
         attr_accessor :org
@@ -385,12 +390,13 @@ module ZXUtils
     #
     # Instances of this class represent the envelopes applicable to the volume level or the noise pitch.
     class Envelope
+      # A compiled body of the evelope as a binary string.
       attr_reader :code
       ##:call-seq:
       #       Envelope.new [counter, delta], ...
       #       Envelope.new [counter, delta], ..., :loop, ..., [counter, delta]
       #
-      # Creates an instance of the envelope with the given tuples that shape it.
+      # Creates an instance of the Envelope with the given tuples shaping the envelope.
       #
       # +counter+:: How many ticks should pass to reach the desired +delta+: 1 to 255.
       # +delta+:: A floating point number in the range: from -1 to 1.
@@ -435,9 +441,9 @@ module ZXUtils
       #       Chord.new [counter, nhalftones], ...
       #       Chord.new [counter, nhalftones], ..., :loop, ..., [counter, nhalftones]
       #
-      # Creates an instance of the chord with the given tuples that shape it.
+      # Creates an instance of the Chord with the given tuples defining the chord.
       #
-      # +counter+:: For how many ticks the following +nhalftones+ should be applied: 1 to 7.
+      # +counter+:: For how many ticks the following +nhalftones+ should be added to the base note: 1 to 7.
       # +nhalftones+:: A number of half-tones added to the base note: 0 to 31.
       # +:loop+:: An indicator where to go back when the end of the chord is being reached.
       #           If not present the whole chord is being repeated.
@@ -454,14 +460,14 @@ module ZXUtils
     ##
     # ===MusicBox Mask
     #
-    # Instances of this class represent the bit masks applicable to the channel's mixer tone and noise
-    # control bits and the volume envelope control bit.
+    # Instances of this class represent the bit masks applicable to the channel's mixer tone or noise
+    # control bits or the volume envelope control bit.
     class Mask < Envelope
       ##:call-seq:
       #       Mask.new [counter, bitmask], ...
       #       Mask.new [counter, bitmask], ..., :loop, ..., [counter, bitmask]
       #
-      # Creates an instance of the mask with the given tuples that shape it.
+      # Creates an instance of the Mask with the given tuples defining bits for the mask.
       #
       # +counter+:: For how many ticks apply the bits of the following +bitmask+: 1 to 255.
       # +bitmask+:: An 8-bit integer representing the 8 mask values: 0b00000000 to 0b11111111.
