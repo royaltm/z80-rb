@@ -657,52 +657,74 @@ module ZXUtils
     #
     # 3 words of track addresses must follow:
     #
-    #          di
-    #          call music.init
-    #          dw   track1, track2, track3
-    #          ei
-    #          ...
+    #         di
+    #         call music.init
+    #         dw   track1, track2, track3
+    #         ei
+    #         ...
     #
     #   index_table       dw instrument1, instrument2, ... etc
     #   track1            data (track 1 data)
     #   track2            data (track 2 data)
     #   track3            data (track 3 data)
     #
-    # Alternatively use Macros.ay_music_init that additionally allows you to change the
-    # +index_table+ address run-time.
+    # _NOTE_:: When AYMusic::READ_ONLY_CODE is +true+ make sure to _always_ populate
+    #          +music_control.index_table+ entry _after_ calling +init+:
+    #   if AYMusic::READ_ONLY_CODE
+    #     ld   hl, index_table
+    #     ld   [music.music_control.index_table], hl
+    #   end
+    #
+    # Alternatively use Macros.ay_music_init which takes care of the above caveats.
     #
     # Modifies: +af+, +bc+, +de+, +hl+, +ix+.
     ns :init do
                         # clear control data
                         clrmem music_control, +music_control
                         # initialize pointers
-                        pop  hl             # 3 words must follow: A,B,C track.cursor addresses
+                        pop  de             # 3 words must follow: A,B,C track.cursor addresses
       if READ_ONLY_CODE
                         ld   [music_control.saved_sp], sp
       else
-                        ld   [restore_sp + 1], sp
+                        ld   [restore_sp_p], sp
       end
                         ld   ix, music_control.chan_a.instrument.flags
-                        ld   de, track_stack_end[-1]
-                        ld   a, 3
+
+                        ld   hl, track_stack_end
+                        ld   a, 3 # number of channels
       init_loop         ld   sp, ix         # instrument.flags
                         ld   bc, empty_instrument
                         push bc             # instrument.start
                         push bc             # instrument.track.cursor
+                        # mark end of stack with zeroes
+                        ld   b, +track_stack_end
+      mark_stack_end1   dec  hl
+                        ld   [hl], 0
+                        djnz mark_stack_end1
                         2.times { dec sp }  # instrument.track.delay
-                        push de             # instrument.track.track_stack
+                        push hl             # instrument.track.track_stack
+
+                        ex   de, hl
                         ld   c, [hl]
                         inc  hl
-                        ld   b, [hl]        # bc: cursor
+                        ld   b, [hl]        # bc: user supplied track_cursor
                         inc  hl
                         push bc             # track.cursor
-                        ld   bc, -track_stack_size
                         ex   de, hl
+
+                        ld   bc, -track_stack_size + (+track_stack_end)
                         add  hl, bc         # decrease stack pointer
+                        # mark end of stack with zeroes
+                        ld   b, +track_stack_end
+      mark_stack_end2   dec  hl
+                        ld   [hl], 0
+                        djnz mark_stack_end2
                         2.times { dec sp }  # track.delay
                         push hl             # track.track_stack
+
+                        ld   b, (-track_stack_size + (+track_stack_end)) >> 8
                         add  hl, bc         # decrease stack pointer
-                        ex   de, hl
+
                         ld   bc, +channel_control
                         add  ix, bc
                         dec  a
@@ -711,7 +733,9 @@ module ZXUtils
                         ld   sp, [music_control.saved_sp]
       else
         restore_sp      ld   sp, 0
+        restore_sp_p    restore_sp + 1
       end
+                        ex   de, hl
                         jp   (hl)
     end
     ##
