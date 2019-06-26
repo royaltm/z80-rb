@@ -2,9 +2,11 @@ require 'zxutils/ay_music'
 
 module ZXUtils
   ##
-  # ===AY music player
+  # ===AY-3-8910/8912 music player
   #
   # The music module player based on ZXUtils::AYMusic engine.
+  #
+  # ZXUtils::MusicBox provides a Ruby DSL for creating music modules for the AYMusic engine.
   #
   # The player expects a music module in the format produced by MusicBox::Song.to_player_module.
   #
@@ -106,7 +108,7 @@ module ZXUtils
       index_table       word, 128
     end
 
-    AY_MUSIC_OVERRIDE = { io128: io128,
+    AY_MUSIC_OVERRIDE = { io_ay: io_ay,
                           index_table: index_table,
                           sincos: sincos, sincos_end: sincos_end } # :nodoc:
 
@@ -119,6 +121,8 @@ module ZXUtils
     # _NOTE_:: This routine will disable and enable interrupts before it's finished.
     #
     # * +hl+:: should point to the MusicTracks data.
+    #
+    # Modifies: +af+, +bc+, +de+, +hl+, +ix+ and 1 stack entry.
     ns :init do
                         ld   de, track_info
                         ld   a, 3
@@ -130,6 +134,10 @@ module ZXUtils
                         call music.init
       track_info        data TrackInfo, 1
                         ei
+      if AYMusic::READ_ONLY_CODE
+                        ld   hl, index_table
+                        ld   [music.music_control.index_table], hl
+      end
                         ret
     end
 
@@ -155,8 +163,10 @@ module ZXUtils
 
     ##
     # Mutes sound.
+    #
+    # Modifies: +af+, +bc+.
     ns :mute_sound do
-                        ay_init(io128:io128)
+                        ay_init(io_ay:io_ay)
                         ret
     end
 
@@ -175,8 +185,8 @@ module ZXUtils
     ns :setup do
                         call setup_tone_progress
                         ay_music_note_to_fine_tone_cursor_table_factory(music.note_to_cursor, play:music.play)
-                        ay_extend_notes(music.notes, octaves:8, save_sp:true, disable_intr:true, enable_intr:true)
-                        create_sincos_from_sintable sincos, sintable:sintable
+                        ay_expand_notes(music.notes, octaves:8, half_tones:12)
+                        create_sincos_from_sintable(sincos, sintable:sintable)
       sintable          bytes neg_sintable256_pi_half_no_zero_lo
     end
 
@@ -200,7 +210,7 @@ module ZXUtils
     import              AYMusic, :music, override: AY_MUSIC_OVERRIDE
     music_end           label
 
-    NOTES = ay_tone_periods(min_octave:0, max_octave:0, notes_hz:equal_tempered_scale_notes_hz(hz: 440), clock_hz:ZXLib::AYSound::CLOCK_HZ)
+    NOTES = ay_tone_periods(min_octave:0, max_octave:0, notes_hz:equal_tempered_scale_notes_hz(hz: 440), clock_hz:ZXLib::AYSound::CLOCK_HZ) # :nodoc:
                         dw NOTES[11]*2
                         dw NOTES[0...12]
 
@@ -213,7 +223,7 @@ module ZXUtils
   end
 
   ##
-  # ===AY Basic player
+  # ===AY-3-8910/8912 Basic player
   #
   # This is a wrapper over AYMusicPlayer with interfaces suitable to be used directly from the ZX Spectrum's BASIC.
   # 
@@ -222,7 +232,7 @@ module ZXUtils
   #   include ZXLib
   #   include ZXUtils
   #
-  #   player = AYBasicPlayer.new 0xEEEE
+  #   player = AYBasicPlayer.new 0xEED3
   #   puts player.debug
   #   program = Basic.parse_source <<-EOC
   #      1 DEF FN m(a)=USR #{player[:init_music]}
@@ -319,7 +329,7 @@ module ZXUtils
                         push hl
                         di
                         push iy
-                        ay_music_preserve_io_ports_state(music.music_control, music.play, bc_const_loaded:false, io128:io128)
+                        ay_music_preserve_io_ports_state(music.music_control, music.play, bc_const_loaded:false, io_ay:io_ay)
                         call music.play
                         pop  iy
                         ei
@@ -334,7 +344,7 @@ module ZXUtils
                         ret
     end
 
-    import              AYMusicPlayer, override: { io128: io128 }
+    import              AYMusicPlayer, override: { io_ay: io_ay }
     end_of_code         label
   end
 end
@@ -344,7 +354,7 @@ if __FILE__ == $0
   require 'zxlib/basic'
   include ZXUtils
 
-  player = AYBasicPlayer.new 0xEEEE
+  player = AYBasicPlayer.new 0xEED3
   puts player.debug
   puts "AYMusic size: #{player[:music_end] - player[:music]}"
   puts "TRACK_STACK_DEPTH: #{AYMusic::TRACK_STACK_DEPTH}"
