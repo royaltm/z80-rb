@@ -1,8 +1,12 @@
 # -*- coding: BINARY -*-
+require 'digest'
 module ZXUtils
   module MusicBox
   # :stopdoc:
     class Resolver
+      def self.generate_unique_name(seed_str)
+        Digest::SHA1.base64digest(seed_str)
+      end
       attr_reader :tracks, :instruments
       IndexItem = ::Struct.new :name, :index, :type
       CHANNEL_NAMES = [:a, :b, :c].freeze
@@ -16,6 +20,9 @@ module ZXUtils
         @instrument_klasses = instrument_klasses
         @envelopes = envelopes
         @chords = chords
+        @chords_by_body = chords.map do |name, chord|
+          [chord.code, name]
+        end.to_h
         @masks = masks
       end
 
@@ -79,6 +86,16 @@ module ZXUtils
         track = @tracks[channel_track_name]
         raise "Sub track called recursively: #{name}" if track == :guard
         channel_track_name
+      end
+
+      def find_or_append_chord(chord)
+        unless (chord_name = @chords_by_body[chord.code])
+          chord_name = Resolver.generate_unique_name(chord.code).to_sym
+          raise "sanity error" if @chords.has_key?(chord_name)
+          @chords[chord_name] = chord
+          @chords_by_body[chord.code] = chord_name
+        end
+        chord_name
       end
 
       def get_item(index)

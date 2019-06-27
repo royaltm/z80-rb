@@ -152,6 +152,7 @@ module ZXUtils
         @counter = repeat.nil? ? 0 : repeat - 1
         super(CMD_LOOP)
       end
+
       def compile(loop_offset, code_offset)
         delta = loop_offset - code_offset
         raise ArgumentError, "can't create a forward loop" if delta > 0
@@ -169,6 +170,7 @@ module ZXUtils
         @delay = ticks
         super(CMD_WAIT)
       end
+
       def compile(rational_counter, delay_add=0)
         ticks = (rational_counter + delay + delay_add).round - rational_counter.round
         bytes = []
@@ -198,6 +200,7 @@ module ZXUtils
         @resolve_method = resolve_method
         super(head)
       end
+
       def compile(resolver)
         index = resolver.send(@resolve_method, @name)
         [@head, index].pack('CC')
@@ -318,7 +321,11 @@ module ZXUtils
 
     class NoteCommand < Command
       NOTES = %w[a a! b c c! d d! e f f! g g!].map(&:to_sym).each_with_index.to_h
-      def initialize(note, octave, first_octave_note=:a)
+      NOTES_IN_OCTAVE = NOTES.length
+      %w[b_ a!  d_ c!  e_ d!  g_ f!  a_ g!].map(&:to_sym).each_slice(2) do |a,b|
+        NOTES[a] = NOTES[b]
+      end
+      def self.note_octave_to_index(note, octave, first_octave_note)
         raise ArgumentError, "octave must be an integer" unless Integer === octave
         octave_index = NOTES[first_octave_note]
         raise ArgumentError, "first_octave_note should be one of the notes as a symbol" unless octave_index
@@ -326,8 +333,67 @@ module ZXUtils
         raise ArgumentError, "note should be one of the notes as a symbol" unless note_index
         octave -= 1 unless octave_index == 0 or note_index < octave_index
         raise ArgumentError, "octave not in range: 0 - 7" unless (0..7).include?(octave)
-        value = note_index + octave * NOTES.length
-        super(CMD_NOTE + value)
+        note_index + octave * NOTES_IN_OCTAVE
+      end
+
+      def initialize(note, octave, first_octave_note=:a)
+        index = NoteCommand.note_octave_to_index(note, octave, first_octave_note)
+        raise "sanity check" unless (0..95).include?(index)
+        super(CMD_NOTE + index)
+      end
+    end
+
+    class NoteChordCommand < Command
+      attr_reader :chord_notes
+      def initialize(first_octave_note, *args)
+        @chord_notes = []
+        note = nil
+        octave = nil
+        ticks = 1
+        next_note_feed = proc do
+          raise ArgumentError, "octave is expected" if octave.nil? 
+          note_index = NoteCommand.note_octave_to_index(note, octave, first_octave_note)
+          note = octave = nil
+          unless @chord_notes.empty? or @chord_notes.last[1] != note_index
+            raise ArgumentError, "two consecutive notes in a chord must not be the same"
+          end
+          @chord_notes << [ticks, note_index]
+          ticks = 1
+        end
+        iter = args.each
+        begin
+          loop do
+            element = iter.next
+            case element
+            when Symbol
+              unless note.nil?
+                next_note_feed.call
+              end
+              note = element
+            when Integer
+              if octave.nil?
+                octave = element
+              else
+                ticks = element
+              end
+            else
+              raise ArgumentError, "play chord command accepts arguments: note, octave[, tick=1], ..."
+            end
+          end
+        rescue StopIteration
+        end
+        next_note_feed.call unless note.nil?
+        raise ArgumentError, "at least two notes should be specified in a played chord" if @chord_notes.length <= 1
+        _, base_note_index = @chord_notes.min_by {|tn| tn[1]}
+        raise "sanity check" unless (0..95).include?(base_note_index)
+        @chord_notes.map! {|cnt, ni| [cnt, ni - base_note_index]}
+        super(CMD_NOTE + base_note_index)
+      end
+
+      def compile(resolver)
+        chord = MusicBox::Chord.new(*@chord_notes)
+        chord_name = resolver.find_or_append_chord(chord)
+        ChordCommand.new(chord_name).compile(resolver) << super
       end
     end
 

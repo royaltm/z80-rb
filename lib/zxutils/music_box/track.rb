@@ -593,14 +593,21 @@ module ZXUtils
         @commands << NoteCommand.new(note_name, octave, @first_octave_note)
         pause(*pause_lengths) unless pause_lengths.empty?
       end
-      %w[a a! b c c! d d! e f f! g g!].map(&:to_sym).each do |note_name|
+      NoteCommand::NOTES.each_key do |note_name|
         define_method(note_name) do |octave, *pause_lengths|
           play note_name, octave, *pause_lengths
         end
       end
-      %w[b_ a!  d_ c!  e_ d!  g_ f!  a_ g!].each_slice(2) do |a, b|
-        alias_method a, b
+      ##:call-seq:
+      #       play_chord note_name, octave, ticks=1, ...
+      #       pch note_name, octave, ticks=1, ...
+      #
+      # Plays a chord. At least two different notes should be specified.
+      def play_chord(*args)
+        @commands << NoteChordCommand.new(@first_octave_note, *args)
+        @commands.length
       end
+      alias_method :pch, :play_chord
       ##:call-seq:
       #       set_instrument instrument_name
       #       i instrument_name

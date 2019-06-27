@@ -42,7 +42,18 @@ class TestMusic
     all_channels { mode2; note_progress tempo/4 }
   end
 
-  all_channels { volume_envelope_off; vibrato_off; volume 0; note_progress 0 }
+  all_channels { volume_envelope_off; vibrato_off; note_progress 0 }
+
+  for_ch :a, :c do
+    volume 0
+  end
+
+  ch_b do
+    volume 15
+    sub :play_chords
+  end
+
+  all_channels { chord_off; volume 0 }
 
   wait 50
 
@@ -56,6 +67,16 @@ class TestMusic
     ch_c do
       a 6, 2; a! 6, 2; b 6, 2; c 6, 2; c! 6, 2; d 6, 2; d! 6, 2; e 6, 2; f 6, 2; f! 6, 2; g 6, 2; g! 6, 2;
     end
+  end
+
+  track :play_chords do
+    pch :c, 3, :d!, 3, :g, 3; p 1
+    pch :c, 3, :e , 3, :g, 3; p 1
+    pch :c, 3, 2,
+        :e, 3, 3,
+        :g, 3, 4
+    p 1
+    pch :c, 4, :d!, 4, :g, 4; p 1
   end
 
   instrument :instr1 do
@@ -83,6 +104,7 @@ end
 if __FILE__ == $0
   music = TestMusic.new
   puts music.to_program.new(0x8000).debug
+  puts music.validate_recursion_depth!
   puts music.channel_tracks.map.with_index {|t, ch| "channel: #{ch} ticks: #{t.ticks_counter}" }
   puts "Unused items:"
   music.unused_item_names.each do |category, names|
