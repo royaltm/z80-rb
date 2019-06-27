@@ -1,11 +1,23 @@
 =ruby-Z80
 
-==A Z80 assembler powered by ruby.
+===Gemfile
+  gem 'z80', git: 'https://github.com/royaltm/z80-rb.git'
+
+==A Z80 assembler powered by Ruby.
 
 Ruby[https://www.ruby-lang.org] is a powerfull meta language, so why not to leverage its meta powers to have the ultimate macro system, compiler and builder for the Z80 assembler?
 
-Now, to answer the question git clone this repo, set the +RUBYLIB+ environment variable to the cloned repo's directory
-and go to Ruby's +irb+ or your another REP of choice and snap'&'paste this:
+Now, to answer the question, you'll need:
+
+* a Ruby 2.1+
+* (optionally) a ZX Spectrum emulator
+
+then
+
+   gem install specific_install
+   gem specific_install royaltm/z80-rb
+
+go to Ruby's +irb+ or your REP of choice and snap'&'paste this:
 
   require 'z80'
 
@@ -138,13 +150,32 @@ link:examples/calculator.png
 * Z80::Program::Mnemonics
 * Z80::Label
 * Z80::TAP
-* Z80Lib::Macros
-* Z80MathInt
-* ZXSys
-* ZXGfx
-* ZXGfxSprite8
-* ZXMath
-* Basic
+
+====Z80 libraries
+* Z80::Stdlib::Macros
+* Z80::MathInt
+* Z80::Utils::Shuffle
+* Z80::Utils::SinCos
+
+====ZX Spectrum libraries
+* ZXLib::Basic
+* ZXLib::Sys
+* ZXLib::Math
+* ZXLib::Gfx
+* ZXLib::Gfx::Sprite8
+* ZXLib::Gfx::Draw
+* ZXLib::AYSound
+
+====ZX Spectrum utilities
+* ZXUtils::BigFont
+* ZXUtils::Emu
+* ZXUtils::Benchmark
+* ZXUtils::Multitasking
+* ZXUtils::MultitaskingIO
+* ZXUtils::AYMusic
+* ZXUtils::AYMusicPlayer
+* ZXUtils::AYBasicPlayer
+* ZXUtils::MusicBox
 
 ====See examples[examples] in +examples+ dir.
 
