@@ -80,6 +80,7 @@ module ZXUtils
   #   end
   #   
   #   mysong = MySong.new
+  #   mysong.validate_recursion_depth!
   #   mysong.to_player_module.save_tap 'mysong'
   #   
   #   require 'z80'

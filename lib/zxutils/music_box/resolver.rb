@@ -3,6 +3,7 @@ module ZXUtils
   module MusicBox
   # :stopdoc:
     class Resolver
+      attr_reader :tracks, :instruments
       IndexItem = ::Struct.new :name, :index, :type
       CHANNEL_NAMES = [:a, :b, :c].freeze
       def initialize(item_table, track_klasses:, multitrack_klasses:, instrument_klasses:, envelopes:, chords:, masks:)

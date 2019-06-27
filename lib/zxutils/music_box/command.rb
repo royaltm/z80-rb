@@ -71,27 +71,31 @@ module ZXUtils
 
       def sub_instrument?; false; end
 
-      def self.ticks_counter_from_code(code, resolver, start_offset:0, counter:0)
+      TrackCodeResults = ::Struct.new :max_recursion_depth, :counter
+
+      def self.analyze_track_code(code, resolver, start_offset:0, recursion_depth:0, counter:0)
         raise ArgumentError if start_offset < 0 or start_offset > code.bytesize
-        return counter if start_offset == code.bytesize
+        max_recursion_depth = recursion_depth
+        return TrackCodeResults.new(max_recursion_depth, counter) if start_offset == code.bytesize
         byte_iter = code.slice(start_offset..-1).each_byte.with_index
         loop do
           head, index = begin
             byte_iter.next
           rescue StopIteration
-            return counter
+            return TrackCodeResults.new(max_recursion_depth, counter)
           end
           offset = start_offset + index
           case head
           when CMD_TERMINATE
-            return counter
+            return TrackCodeResults.new(max_recursion_depth, counter)
           when CMD_LOOP
             loop_counter, _ = byte_iter.next
-            return nil if loop_counter.zero?
             loop_delta, _ = byte_iter.next
             loop_offset = offset + (-256|loop_delta)
-            counter_after_loop_iteration = ticks_counter_from_code(code.slice(0, offset), resolver, start_offset:loop_offset, counter:counter)
-            counter += loop_counter * (counter_after_loop_iteration - counter)
+            loop_recursion_depth, loop_iteration_ticks_counter = *analyze_track_code(code.slice(0, offset), resolver, start_offset:loop_offset, recursion_depth:recursion_depth+1)
+            max_recursion_depth = loop_recursion_depth if loop_recursion_depth > max_recursion_depth
+            return TrackCodeResults.new(max_recursion_depth) if loop_counter.zero?
+            counter += loop_counter * loop_iteration_ticks_counter
           when CMD_WAIT+1..CMD_WAIT+80
             ticks = head - CMD_WAIT
             counter += ticks
@@ -108,6 +112,8 @@ module ZXUtils
             track_index, _ = byte_iter.next
             track = resolver.get_item(track_index)
             unless track.nil?
+              sub_recursion_depth = recursion_depth + 1 + track.max_recursion_depth
+              max_recursion_depth = sub_recursion_depth if sub_recursion_depth > max_recursion_depth
               counter = track.ticks_counter(counter)
             end
           when CMD_SET_TONE_PROGRESS

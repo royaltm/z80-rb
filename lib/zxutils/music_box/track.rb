@@ -678,12 +678,15 @@ module ZXUtils
       attr_reader :markers
       ## A resolver used by the compilation process.
       attr_reader :resolver
+      ## A maximal recursion depth this track reaches at some point. This must not exceed ZXUtils::AYMusic::TRACK_STACK_DEPTH.
+      attr_reader :max_recursion_depth
       ##
       # Instances of the derived classes are being created internally by the MusicBox::Song compilation process.
       def initialize(resolver)
         @resolver = resolver
         @markers = ROHash.new
         @ticks_counter = 0
+        @max_recursion_depth = 0
         @rational_counter = Rational(0,1)
         @code = ''
         @last_pause_delay = Rational(0,1)
@@ -720,13 +723,14 @@ module ZXUtils
             unless (loop_marker = @markers[cmd.loop_mark_name])
               raise "marker not found: #{cmd.loop_mark_name.inspect}"
             end
+            loop_recursion_depth, delta_counter = *Command.analyze_track_code(@code, @resolver, start_offset:loop_marker.offset, recursion_depth:1)
+            if delta_counter == 0
+              raise "Can't create a loop to: #{loop_marker.name.inspect} without any pause in the loop body - it would dead-lock the player"
+            end
+            @max_recursion_depth = loop_recursion_depth if loop_recursion_depth > @max_recursion_depth
             if cmd.counter == 0
               @ticks_counter = nil
             else
-              delta_counter = Command.ticks_counter_from_code(@code, @resolver, start_offset:loop_marker.offset)
-              if delta_counter == 0
-                raise "Can't create a loop to: #{loop_marker.name.inspect} without any pause in the loop body - it would dead-lock the player"
-              end
               @ticks_counter += delta_counter * cmd.counter
             end
             @code << cmd.compile(loop_marker.offset, @code.bytesize)
@@ -754,6 +758,8 @@ module ZXUtils
               @resolver.get_item(@resolver.instrument_index(cmd.instrument_name))
             end
             unless track.nil?
+              sub_recursion_depth = 1 + track.max_recursion_depth
+              @max_recursion_depth = sub_recursion_depth if sub_recursion_depth > @max_recursion_depth
               @ticks_counter = track.ticks_counter(@ticks_counter)
             end
             @code << cmd.compile(@resolver)

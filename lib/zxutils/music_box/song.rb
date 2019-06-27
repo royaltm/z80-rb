@@ -143,6 +143,10 @@ module ZXUtils
     # To compile a song just instantiate it:
     #   mysong = MySong.new
     #   puts mysong.channel_tracks.map(&:ticks_counter)
+    #   puts mysong.channel_tracks.map(&:max_recursion_depth)
+    #
+    # To validate recursion depth of tracks and instruments do:
+    #   mysong.validate_recursion_depth!
     #
     # Convert to a program class:
     #   require 'z80'
@@ -175,6 +179,36 @@ module ZXUtils
             masks:              @masks }
         end
         super(Resolver.new @item_table, **pargs)
+      end
+      ##
+      # Checks if maximal recursion depth of tracks and instruments is not exceeding the given threshold.
+      #
+      # Provide the maximum allowed +track_stack_depth+. You may want to use ZXUtils::AYMusic::TRACK_STACK_DEPTH constant.
+      #
+      # Raises an error when recursion depth is exceeding +track_stack_depth+.
+      def validate_recursion_depth!(track_stack_depth=20)
+        max_recursion_depth = 0
+        check_level = proc do |track, &block|
+          max_recursion_depth = track.max_recursion_depth if track.max_recursion_depth > max_recursion_depth
+          block.call if max_recursion_depth > track_stack_depth
+        end
+        channel_tracks.each_with_index do |track, ch_num|
+          check_level.call(track) do
+            raise "too many recursions on track_#{Resolver::CHANNEL_NAMES[ch_num]} depth: #{max_recursion_depth} > #{track_stack_depth}"
+          end
+        end
+        instruments.each do |name, instrument|
+          check_level.call(instrument) do
+            raise "too many recursions on instrument :#{name} depth: #{max_recursion_depth} > #{track_stack_depth}"
+          end
+        end
+        max_recursion_depth
+      end
+      ##
+      # Returns a hash of instruments used in a song.
+      # Keys are instrument names and values are Instrument instances.
+      def instruments
+        resolver.instruments
       end
       ##
       # Returns a hash with unused item names in each of the item category.
