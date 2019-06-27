@@ -4,7 +4,13 @@ require 'z80/math_i'
 
 module Z80
     module Utils
+        ##
+        # =Z80::Utils::Shuffle
+        #
+        # A routine to efficiently shuffle bytes in Z80::Utils::Shuffle::Macros
         class Shuffle
+            ##
+            # =Z80::Utils::Shuffle Macros
             module Macros
                 ##
                 # Shuffles an array of bytes.
