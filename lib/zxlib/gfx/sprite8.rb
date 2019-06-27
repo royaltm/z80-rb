@@ -10,8 +10,12 @@ module ZXLib
     #  By default all drawing method routines are produced. To select only required routines
     #  define a ZXLib::Gfx::Sprite8::DRAW_METHODS constant before importing this file.
     #
-    #      class ZXLib::Gfx::Sprite8
-    #        DRAW_METHODS = [:xor]
+    #      module ZXLib
+    #        module Gfx
+    #          class Sprite8
+    #            DRAW_METHODS = [:xor]
+    #          end
+    #        end
     #      end
     #      require 'zxlib/gfx/sprite8'
     #
