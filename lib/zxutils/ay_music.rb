@@ -518,7 +518,7 @@ module ZXUtils
       amplitude     byte # amplitude in tone period, tp += sin(angle)*ampl
     end
 
-    ## AY-3-891x register mirror
+    ## The AY-3-891x register mirror.
     class AYRegisterMirror < Label
       tone_pitch_a      word
       tone_pitch_b      word
@@ -560,15 +560,15 @@ module ZXUtils
       note_progress     byte               # 0 - ignore tone progress when playing notes, 1 and more tone progress counter
     end
 
-    ## The channel control structure
+    ## The single channel control structure.
     class ChannelControl < Label
       volume_envelope   EnvelopeControl
       tone_progress     ToneProgressControl
       chord_progress    ChordControl
       current_note      byte
       vibrato_control   VibratoControl
-      mask_env_ctrl     MaskControl
-      ignore_volume     byte # 0: manual volume control, -1: ay envelope control
+      mask_ay_env_ctrl  MaskControl
+      ay_envelope_on    byte # 0: manual volume control, -1: ay envelope control
       mask_tone_ctrl    MaskControl
       tone_off          byte # 0: tone audible, -1: tone off
       mask_noise_ctrl   MaskControl
@@ -577,7 +577,28 @@ module ZXUtils
       instrument        InstrumentControl
     end
 
-    ## The main music control structure
+    ##
+    # The main music control structure.
+    #
+    # The most important is the +music_control.counter+ word entry which can be used to synchronize
+    # music with some external code.
+    #
+    # Other usefull entries to watch are:
+    #
+    # * +music_control.ay_registers+: a mirror of AY-3-891x registers (0 to 13).
+    # * +music_control.chan_a.current_note+: a currently played note index (0..95) on channel A
+    # * +music_control.chan_b.current_note+: a currently played note index (0..95) on channel B
+    # * +music_control.chan_c.current_note+: a currently played note index (0..95) on channel C
+    # * +music_control.chan_a.volume_envelope.current_value+: a current volume level (0..255) on channel A
+    # * +music_control.chan_b.volume_envelope.current_value+: a current volume level (0..255) on channel B
+    # * +music_control.chan_c.volume_envelope.current_value+: a current volume level (0..255) on channel C
+    # * +music_control.noise_envelope.current_value+: a current noise pitch (0..255)
+    # * +music_control.chan_a.chord_progress.counter: == 0 - no chord on channel A, <> 0 chord active on channel A
+    # * +music_control.chan_a.chord_progress.current_offs: if chord is active, half-tone delta of currently played note (0..31) on channel A
+    # * +music_control.chan_b.chord_progress.counter: == 0 - no chord on channel B, <> 0 chord active on channel B
+    # * +music_control.chan_b.chord_progress.current_offs: if chord is active, half-tone delta of currently played note (0..31) on channel B
+    # * +music_control.chan_c.chord_progress.counter: == 0 - no chord on channel C, <> 0 chord active on channel C
+    # * +music_control.chan_c.chord_progress.current_offs: if chord is active, half-tone delta of currently played note (0..31) on channel C
     class MusicControl < Label
       ay_registers      AYRegisterMirror
       counter_lo        byte # a counter tracks can synchronize to with the sync command
@@ -623,7 +644,7 @@ module ZXUtils
     ##########
 
     # sub-tracks, chords and envelopes index table
-    # this can be overridden run-time by changing 2 bytes at +play.index_table_p+
+    # this can be overridden run-time (if READ_ONLY_CODE==false) by changing 2 bytes at +play.index_table_p+
     # see Macros.ay_music_init
     index_table         addr 0xC000, 2
 
@@ -863,7 +884,7 @@ module ZXUtils
                         ld   [hl], b                 # tone_pitch
                         inc  hl                      # next tone pitch
                         exx
-                        call mask_progress           # mask_env_ctrl
+                        call mask_progress           # mask_ay_env_ctrl
                         exx
                         ld   b, 0b11101111           # env mask
                         call apply_mask_de           # volume
@@ -1090,12 +1111,12 @@ module ZXUtils
                         data :pc,  disable_vibrato
                         data :pc,  set_note_progress
                         data :pc,  set_tone_progress
-                        data :pc,  set_ignore_volume
-                        data :pc,  set_ignore_volume
-                        data :pc,  set_tone_off
-                        data :pc,  set_tone_off
-                        data :pc,  set_noise_off
-                        data :pc,  set_noise_off
+                        data :pc,  set_ay_envelope_ctrl_on_off
+                        data :pc,  set_ay_envelope_ctrl_on_off
+                        data :pc,  set_tone_off_on
+                        data :pc,  set_tone_off_on
+                        data :pc,  set_noise_off_on
+                        data :pc,  set_noise_off_on
                         data :pc,  sub_track
                         data :pc,  loop_next
                         # data :pc,  reserved0
@@ -1207,7 +1228,7 @@ module ZXUtils
       end
 
       ns :set_mask_env_index do
-                        ld   hl, channel_control.mask_env_ctrl
+                        ld   hl, channel_control.mask_ay_env_ctrl
                         jr   set_chord_index.init_ctrl
       end
 
@@ -1303,21 +1324,21 @@ module ZXUtils
                         ret
       end
 
-      ns :set_ignore_volume do # a: head
+      ns :set_ay_envelope_ctrl_on_off do # a: head
                         rrca
                         sbc  a, a
-                        ld   [ix + channel_control.ignore_volume], a
+                        ld   [ix + channel_control.ay_envelope_on], a
                         ret
       end
 
-      ns :set_tone_off do # a: head
+      ns :set_tone_off_on do # a: head
                         rrca
                         sbc  a, a
                         ld   [ix + channel_control.tone_off], a
                         ret
       end
 
-      ns :set_noise_off do # a: head
+      ns :set_noise_off_on do # a: head
                         rrca
                         sbc  a, a
                         ld   [ix + channel_control.noise_off], a
@@ -1469,10 +1490,10 @@ module ZXUtils
                         add  a, [hl]          # -> current + delta
                         bit  7, [hl]          # check delta sign
                         jr   NZ, minus_delta
-                        jr   C, min_max_value
+                        jr   C, clip_value
                         scf
         minus_delta     jr   C, set_value
-        min_max_value   sbc  a, a
+        clip_value      sbc  a, a
         set_value       ld   b, a             # new value
         no_change       push bc               # set counter and value, move sp to beginning
                         ld   hl, +EnvelopeControl
@@ -1492,7 +1513,7 @@ module ZXUtils
                         jr   get_cursor
       end
 
-      # inp hl: tone chord control (moves hl past it)
+      # inp hl: tone chord control (moves hl past ChordControl)
       # a: current note offset
       ns :chord_progress do
                         ld   a, [hl]
@@ -1503,7 +1524,7 @@ module ZXUtils
                         inc  hl
                         ld   a, [hl]      # current_offs
                         dec  hl
-        adjust_exit     ld   bc, 6
+        adjust_exit     ld   bc, +ChordControl
                         add  hl, bc
                         ret
         cursor_next     ld   sp, hl
@@ -1529,11 +1550,12 @@ module ZXUtils
                         jr   restart
       end
 
-      # inp hl: envelope control (moves hl past it on CF:1)
+      # inp hl: envelope control (moves hl past VibratoControl)
       # CF:1 out bc: current tone period delta
       ns :vibrato_progress do
                         ld   a, [hl]
                         anda a
+        raise "sanity: chord control size differs from vibrato control size" unless ChordControl.to_i == VibratoControl.to_i
                         jr   Z, chord_progress.adjust_exit
                         inc  hl
                         ld   sp, hl
@@ -1560,7 +1582,7 @@ module ZXUtils
                         ret
       end
 
-      # inp de: envelope control (preserves hl)
+      # inp hl: envelope control (moves hl past MaskControl and constant mask boolean value byte)
       # out a: current mask value 0|-1
       ns :mask_progress do
                         ld   a, [hl]
@@ -1580,7 +1602,7 @@ module ZXUtils
 
         adjust_exit     ld   bc, +MaskControl
                         add  hl, bc
-                        ld   a, [hl]          # get const mask instead
+                        ld   a, [hl]          # get constant mask value instead
                         inc  hl
                         ret
 
