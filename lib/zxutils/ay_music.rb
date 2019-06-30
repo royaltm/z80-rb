@@ -1226,13 +1226,20 @@ module ZXUtils
                         ld   hl, channel_control.vibrato_control.step
         enable_set_vib  ld16 bc, ix
                         add  hl, bc
-                        ld   a, [de]
-                        inc  de
-                        ld   [hl], a
-                        inc  hl
-                        ld   a, [de]
-                        inc  de
-                        ld   [hl], a
+
+                        ex   de, hl
+                        ldi
+                        ldi
+                        ex   de, hl
+
+                        # ld   a, [de]
+                        # inc  de
+                        # ld   [hl], a
+                        # inc  hl
+                        # ld   a, [de]
+                        # inc  de
+                        # ld   [hl], a
+
         enable_vibrato  ld   [ix + channel_control.vibrato_control.enabled], -1
                         ret
       end
