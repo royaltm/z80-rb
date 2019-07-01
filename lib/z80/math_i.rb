@@ -173,7 +173,7 @@ module Z80
             #
             # * +h+:: MSB register.
             # * +l+:: LSB register.
-            def adda_to(h, l) # 20
+            def adda_to(h, l)
                 if h == l or [h,l].include?(a)
                     raise ArgumentError, "adda_to invalid arguments!"
                 end
