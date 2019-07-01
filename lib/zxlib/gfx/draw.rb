@@ -247,8 +247,8 @@ module ZXLib
         #
         # Expects registers:
         # * +hl+: the starting (+yx+) point.
-        # * +bc+: a sign in the +b+ and an absolute value of +dx+ in the +c+.
-        # * +de+: a sign in the +d+ and an absolute value of +dx+ in the +e+.
+        # * +bc+: a sign in +b+ and an absolute value of +dx+ in +c+.
+        # * +de+: a sign in +d+ and an absolute value of +dy+ in +e+.
         #
         # Arguments:
         # * +preshift_pixel+:: a label from the preshifted_pixel_mask_data called with a +:pixel+ or a +:inversed_pixel+ argument.
@@ -263,7 +263,7 @@ module ZXLib
         # * +check_oos+:: Checks if the line is about to be drawn out of the screen area and stops.
         # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or a label to jump to.
         #
-        # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+, +ix+.
+        # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+, +ix+, stack: max 2 bytes.
         #
         # The sign should be a boolean flag: 0 for a positive sign and anything else for a negative sign.
         # The +dx+ and +dy+ values must never be a 2'complement.
