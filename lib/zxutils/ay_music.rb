@@ -593,12 +593,12 @@ module ZXUtils
     # * +music_control.chan_b.volume_envelope.current_value+: a current volume level (0..255) on channel B
     # * +music_control.chan_c.volume_envelope.current_value+: a current volume level (0..255) on channel C
     # * +music_control.noise_envelope.current_value+: a current noise pitch (0..255)
-    # * +music_control.chan_a.chord_progress.counter: == 0 - no chord on channel A, <> 0 chord active on channel A
-    # * +music_control.chan_a.chord_progress.current_offs: if chord is active, half-tone delta of currently played note (0..31) on channel A
-    # * +music_control.chan_b.chord_progress.counter: == 0 - no chord on channel B, <> 0 chord active on channel B
-    # * +music_control.chan_b.chord_progress.current_offs: if chord is active, half-tone delta of currently played note (0..31) on channel B
-    # * +music_control.chan_c.chord_progress.counter: == 0 - no chord on channel C, <> 0 chord active on channel C
-    # * +music_control.chan_c.chord_progress.current_offs: if chord is active, half-tone delta of currently played note (0..31) on channel C
+    # * +music_control.chan_a.chord_progress.counter+: == 0 - no chord on channel A, <> 0 chord active on channel A
+    # * +music_control.chan_a.chord_progress.current_offs+: if chord is active, half-tone delta of currently played note (0..31) on channel A
+    # * +music_control.chan_b.chord_progress.counter+: == 0 - no chord on channel B, <> 0 chord active on channel B
+    # * +music_control.chan_b.chord_progress.current_offs+: if chord is active, half-tone delta of currently played note (0..31) on channel B
+    # * +music_control.chan_c.chord_progress.counter+: == 0 - no chord on channel C, <> 0 chord active on channel C
+    # * +music_control.chan_c.chord_progress.current_offs+: if chord is active, half-tone delta of currently played note (0..31) on channel C
     class MusicControl < Label
       ay_registers      AYRegisterMirror
       counter_lo        byte # a counter tracks can synchronize to with the sync command
