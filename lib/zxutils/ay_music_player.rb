@@ -77,10 +77,10 @@ module ZXUtils
     export setup
     export mute_sound
     export init
+    export play
     export music
     export music_end
     export workspace_end
-    export play
     export sincos
     export sincos_end
 
@@ -266,8 +266,13 @@ module ZXUtils
     export init
     export play_loop
     export play_interval
+    export check_key
+    export release_key
     export music
     export music_end
+    export workspace_end
+    export sincos
+    export sincos_end
 
     import              ZXLib::Sys, macros: true, code: false
     macro_import        ZXLib::AYSound
