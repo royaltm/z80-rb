@@ -162,10 +162,14 @@ module ZXLib
           isolate do
                         xytoscr y, x, ah:h, al:l, s:c, t:b, scraddr:scraddr
             preshift_a  ld   de, preshift
+            select(preshift & 7, &:zero?).then do |_|
                         ld   a, c
                         add  e
                         ld   e, a
                         ld   a, [de]
+            end.else do
+                raise ArgumentError, "preshift must be aligned to 8"
+            end
             case fx
             when Integer
             plot_fx     db   fx
@@ -376,10 +380,14 @@ module ZXLib
           dy = b
           isolate do |eoc|
             preshift_a    ld   de, preshift # 10000000 01000000 00100000 00010000 ... 00000001
+            select(preshift & 7, &:zero?).then do |_|
                           add  e
                           ld   e, a
                           ld   a, [de]      # a: pixel mask
                           ld   e, a         # e: pixel mask
+            end.else do
+                raise ArgumentError, "preshift must be aligned to 8"
+            end
                           ld   d, dy        # d: dy
                           ld   a, h         # calculate counter based on screen address modulo 8
             case direction
@@ -522,10 +530,14 @@ module ZXLib
           dx = c
           isolate do |eoc|
             preshift_a    ld   de, preshift # 10000000 01000000 00100000 00010000 ... 00000001
+            select(preshift & 7, &:zero?).then do |_|
                           add  e
                           ld   e, a
                           ld   a, [de]    # a: pixel mask
                           ld   e, a       # e: pixel mask
+            end.else do
+                raise ArgumentError, "preshift must be aligned to 8"
+            end
                           ld   a, dy
                           rra             # a: dy / 2
                           ex   af, af     # 'a: acc dx
@@ -751,9 +763,13 @@ module ZXLib
               false
             end
             preshift_a    ld   de, preshift   # 10000000 11000000 ... 11111000 ... 11111111
+            select(preshift & 7, &:zero?).then do |_|
                           add  e
                           ld   e, a
                           ld   a, [de]        # a: line mask
+            end.else do
+                raise ArgumentError, "preshift must be aligned to 8"
+            end
                           ld   yt, dy         # yt: dy
                           ex   af, af         # 'a: lmask
 
@@ -1066,10 +1082,14 @@ module ZXLib
                           ld   c8, 8
                           ld   tmp, 0xF8
                           ld   px, a             # px': sss -> x
+            select(preshift & 7, &:zero?).then do |_|
                           ld   hl, preshift
                           add  l
                           ld   l, a
                           ld   pmask, [hl]       # 11111111 01111111 ... 00001111 ... 00000001
+            end.else do
+                raise ArgumentError, "preshift must be aligned to 8"
+            end
                           ld   a, px if check_oos
                           exx
             if check_oos
