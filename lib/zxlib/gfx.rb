@@ -32,15 +32,20 @@ module ZXLib
           Integer === v && (v|(v-1))+1 == v << 1
       end
       ##
-      #  Calculate constant screen address from x, y pixel position
+      #  Calculate constant screen pixel line address from x, y pixel position
       def xy_to_pixel_addr(x, y, scraddr:0x4000)
-          scraddr + (
+          (
               (
                   (
                       ((y & 0x07) << 3) | ((y & 0b111000) >> 3) | ((y & 0xffc0))
                   ) << 5
               ) | ((x & 0xff) >> 3)
-          )
+          ) + scraddr
+      end
+      ##
+      #  Calculate constant screen attribute address from x, y pixel position
+      def xy_to_attr_addr(x, y, scraddr:0x4000)
+          ( ( (y >> 3) << 5 ) | (x >> 3) ) + scraddr + 0x1800
       end
       ##
       # Creates a rountine that advances to the next screen line address (down) using ah|al registers.
