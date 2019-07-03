@@ -85,16 +85,48 @@ module ZXLib
 
     ## Bit masks and bit numbers for the AY-3-891x envelope shape control register +Registers::ENV_SHAPE+.
     module EnvelopeControl
-      HOLD          = 1
-      HOLD_BIT      = 0
-      ALTERNATE     = 2
-      ALTERNATE_BIT = 1
-      ATTACK        = 4
-      ATTACK_BIT    = 2
-      CONTINUE      = 8
-      CONTINUE_BIT  = 3
+      HOLD             = 0b00000001
+      HOLD_BIT         = 0
+      ALTERNATE        = 0b00000010
+      ALTERNATE_BIT    = 1
+      ATTACK           = 0b00000100
+      ATTACK_BIT       = 2
+      CONTINUE         = 0b00001000
+      CONTINUE_BIT     = 3
     end
     include EnvelopeControl
+
+    ## Bit masks and bit numbers for the AY-3-891x volume registers: +VOLUME_A+, +VOLUME_B+, +VOLUME_C+.
+    module VolumeControl
+      VOLUME_MASK          = 0b00001111
+      ENVELOPE_CONTROL     = 0b00010000
+      ENVELOPE_CONTROL_BIT = 4
+    end
+    include VolumeControl
+
+    ## Bit masks and bit numbers for the AY-3-891x mixer register +Registers::MIXER+.
+    module Mixer
+      TONE_CONTROL_MASK   = 0b00000111
+      TONE_CONTROL_A      = 0b00000001
+      TONE_CONTROL_A_BIT  = 0
+      TONE_CONTROL_B      = 0b00000010
+      TONE_CONTROL_B_BIT  = 1
+      TONE_CONTROL_C      = 0b00000100
+      TONE_CONTROL_C_BIT  = 2
+      NOISE_CONTROL_MASK  = 0b00111000
+      NOISE_CONTROL_A     = 0b00001000
+      NOISE_CONTROL_A_BIT = 3
+      NOISE_CONTROL_B     = 0b00010000
+      NOISE_CONTROL_B_BIT = 4
+      NOISE_CONTROL_C     = 0b00100000
+      NOISE_CONTROL_C_BIT = 5
+      IO_CONTROL_MASK     = 0b11000000
+      IO_CONTROL_A        = 0b01000000
+      IO_CONTROL_A_BIT    = 6
+      IO_CONTROL_B        = 0b10000000
+      IO_CONTROL_B_BIT    = 7
+    end
+    include Mixer
 
     ## Constants with the names of the AY-3-8910 registers.
     module Registers
