@@ -32,7 +32,7 @@ module ZXLib
           Integer === v && (v|(v-1))+1 == v << 1
       end
       ##
-      #  Calculate constant screen pixel line address from x, y pixel position
+      # Calculate constant screen pixel line address from x, y pixel position
       def xy_to_pixel_addr(x, y, scraddr:0x4000)
           (
               (
@@ -43,15 +43,57 @@ module ZXLib
           ) + scraddr
       end
       ##
-      #  Calculate constant screen attribute address from x, y pixel position
+      # Calculate constant screen attribute address from x, y pixel position
       def xy_to_attr_addr(x, y, scraddr:0x4000)
           ( ( (y >> 3) << 5 ) | (x >> 3) ) + scraddr + 0x1800
       end
       ##
-      # Creates a rountine that advances to the next screen line address (down) using ah|al registers.
+      # Creates a routine that changes bit shift value and the pixel address one pixel to the left.
+      #
+      # Modifies: +af+, +al+, +s+.
+      #
+      # * +al+:: a register holding the least significant byte of the pixel address to move
+      # * +s+:: a register holding bit shift of the pixel in the range: 0..7
+      #
+      # T-states: 14/25
+      def prevpixel(al, s: a)
+        unless register?(al) and al.bit8? and register?(s) and s.bit8? and al != s
+          raise ArgumentError, "prevpixel: invalid arguments!"
+        end
+        isolate do |eoc|
+                      dec  s
+                      jp   P, eoc
+                      ld   s, 7
+                      dec  al
+        end
+      end
+      ##
+      # Creates a routine that changes bit shift value and the pixel address one pixel to the right.
+      #
+      # Modifies: +af+, +al+, +s+.
+      #
+      # * +al+:: a register holding the least significant byte of the pixel address to move
+      # * +s+:: a register holding bit shift of the pixel in the range: 0..7
+      #
+      # T-states: 23/22 (s ≠ a: 31/30)
+      def nextpixel(al, s: a)
+        unless register?(al) and al.bit8? and register?(s) and s.bit8? and al != s
+          raise ArgumentError, "nextpixel: invalid arguments!"
+        end
+        isolate do |eoc|
+                      inc  s
+                      ld   a, s unless s == a
+                      anda 7
+                      jr   NZ, eoc
+                      ld   s, a unless s == a
+                      inc  al
+        end
+      end
+      ##
+      # Creates a routine that advances to the next screen line address (down) using ah|al registers.
       # (optionally) returns from subroutine if address goes out of screen area.
       #
-      # Modifies: +af+, +ah+, +al+
+      # Modifies: +af+, +ah+, +al+.
       #
       # * +ah+:: input/output register: address high byte
       # * +al+:: input/output register: address low byte
@@ -64,7 +106,7 @@ module ZXLib
       #               this is being used to prevent overwriting out of screen memory area.
       #
       # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
-      # The code in the given block should not fall through and should end with a jump.
+      # The code in the given block should not fall through and should end with a jump or +ret+.
       #
       # T-states: 
       #
@@ -78,7 +120,7 @@ module ZXLib
                   (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
                   ![ah, al].all?{|r| register?(r) } or 
                   (bcheck and !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))))
-              raise ArgumentError, "nextline invalid arguments!"
+              raise ArgumentError, "nextline: invalid arguments!"
           end
           ns do |eoc|
                       inc  ah
@@ -112,10 +154,10 @@ module ZXLib
           end
       end
       ##
-      # Creates a rountine that moves up to the previous screen line address using ah|al registers.
+      # Creates a routine that moves up to the previous screen line address using ah|al registers.
       # (optionally) returns from subroutine if address goes out of screen area.
       #
-      # Modifies: +af+, +ah+, +al+
+      # Modifies: +af+, +ah+, +al+.
       #
       # * +ah+:: input/output register: address high byte
       # * +al+:: input/output register: address low byte
@@ -142,7 +184,7 @@ module ZXLib
                   (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
                   ![ah, al].all?{|r| register?(r) } or
                   (bcheck and !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))))
-              raise ArgumentError, "prevline invalid arguments!"
+              raise ArgumentError, "prevline: invalid arguments!"
           end
           ns do |eoc|
                       ld   a, ah
@@ -176,9 +218,9 @@ module ZXLib
           end
       end
       ##
-      # Creates a rountine that converts y,x coordinates to the screen byte address and bits shift.
+      # Creates a routine that converts y,x coordinates to the screen byte address and bits shift.
       #
-      # Modifies: +af+, +s+, +t+, +ah+, +al+
+      # Modifies: +af+, +s+, +t+, +ah+, +al+.
       #
       # * +y+:: input register: vertical-coordinate (the +a+ register or the same as: +h+, +l+, +s+ or +t+)
       # * +x+:: input register: horizontal-coordinate (may be same as: +l+)
@@ -196,7 +238,7 @@ module ZXLib
           if y == x or [x,ah,al,s,t].include?(a) or [ah,al,s,t].uniq.size != 4 or
                   ![y, x, ah, al, s, t].all?{|r| register?(r) } or
                   !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
-              raise ArgumentError, "xytoscr invalid arguments!"
+              raise ArgumentError, "xytoscr: invalid arguments!"
           end
           isolate do
               if y == a
@@ -250,9 +292,9 @@ module ZXLib
           end
       end
       ##
-      # Creates a rountine that converts 0,y coordinates to the screen byte address
+      # Creates a routine that converts 0,y coordinates to the screen byte address
       #
-      # Modifies: +af+, +y+, +h+, +l+, +t+
+      # Modifies: +af+, +y+, +h+, +l+, +t+.
       #
       # * +y+:: input register: vertical-coordinate (may be same as: +h+, +l+ or +a+)
       # * +ah+:: output register: address high
@@ -271,7 +313,7 @@ module ZXLib
                   (register?(col) and [y, ah, al, t, a].include?(col)) or
                   (!col.nil? and !register?(col)) or
                   !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
-              raise ArgumentError, "ytoscr invalid arguments!"
+              raise ArgumentError, "ytoscr: invalid arguments!"
           end
           isolate do
               if y == a
@@ -303,9 +345,9 @@ module ZXLib
           end
       end
       ##
-      # Creates a rountine that converts row,col text coordinates to screen byte address.
+      # Creates a routine that converts row,col text coordinates to screen byte address.
       #
-      # Modifies: +af+, +r+, +c+, +h+, +l+
+      # Modifies: +af+, +r+, +c+, +h+, +l+.
       #
       # * +r+:: input register: text row (may be same as: +l+)
       # * +c+:: input register or a integer: text column  (may be same as: +l+)
@@ -327,7 +369,7 @@ module ZXLib
         if r == ah or [r, c, ah, al].include?(a) or [r, c, ah].uniq.size != 3 or ah == al or
               ![r, ah, al].all?{|r| register?(r) } or
               !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
-          raise ArgumentError, "rctoscr invalid arguments!"
+          raise ArgumentError, "rctoscr: invalid arguments!"
         end
         isolate do
                       ld   a, r unless r_already_in_a
@@ -346,9 +388,9 @@ module ZXLib
         end
       end
       ##
-      # Creates a rountine that converts row, col text coordinates to attribute address.
+      # Creates a routine that converts row, col text coordinates to attribute address.
       #
-      # Modifies: +af+, +r+, +c+, +h+, +l+
+      # Modifies: +af+, +r+, +c+, +h+, +l+.
       #
       # * +r+:: input register: text row (may be same as: +l+)
       # * +c+:: input register or a integer: text column  (may be same as: +l+)
@@ -369,7 +411,7 @@ module ZXLib
         if r == ah or [r, c, ah, al].include?(a) or [r, c, ah].uniq.size != 3 or ah == al or
               ![r, ah, al].all?{|r| register?(r) } or
               !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
-          raise ArgumentError, "rctoattr invalid arguments!"
+          raise ArgumentError, "rctoattr: invalid arguments!"
         end
         attraddr = scraddr + 0x1800
         isolate do
@@ -386,10 +428,10 @@ module ZXLib
         end
       end
       ##
-      # Creates a rountine that advances to the next text line coordinate (down 8 lines) using ah|al registers.
+      # Creates a routine that advances to the next text line coordinate (down 8 lines) using ah|al registers.
       # (optionally) returns from subroutine if address goes out of screen area.
       #
-      # Modifies: +af+, +ah+, +al+
+      # Modifies: +af+, +ah+, +al+.
       #
       # * +ah+:: input/output register: address high byte
       # * +al+:: input/output register: address low byte
@@ -414,7 +456,7 @@ module ZXLib
                   (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
                   ![ah, al].all?{|r| register?(r) } or
                   !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
-            raise ArgumentError, "nextline invalid arguments!"
+            raise ArgumentError, "nextrow: invalid arguments!"
           end
           ns do |eoc|
                   ld   a, al
@@ -441,9 +483,9 @@ module ZXLib
           end
       end
       ##
-      # Creates a rountine that converts high byte screen address to an address of a relevant attribute.
+      # Creates a routine that converts high byte screen address to an address of a relevant attribute.
       #
-      # Modifies: +af+, +o+
+      # Modifies: +af+, +o+.
       #
       # * +s+: input register: hi byte screen address
       # * +o+: output register: hi byte attr address, may be same as +s+
@@ -461,7 +503,7 @@ module ZXLib
       def scrtoattr(s, o:s, scraddr:0x4000)
           unless [i, o].all?{|r| register?(r) } and
                  (label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
-            raise ArgumentError, "scrtoattr invalid arguments!" 
+            raise ArgumentError, "scrtoattr: invalid arguments!" 
           end
         attraddr = scraddr + 0x1800
         isolate do
@@ -475,7 +517,7 @@ module ZXLib
         end
       end
       ##
-      # Creates a rountine that clears a rectangle on an ink screen using unrolled push instructions.
+      # Creates a routine that clears a rectangle on an ink screen using unrolled push instructions.
       #
       # _NOTE_:: Interrupts must be disabled prior to calling this routine or the +disable_intr+
       #          option must be set to +true+.
@@ -495,7 +537,7 @@ module ZXLib
       #
       # _NOTE_:: Restoring +sp+ register uses self-modifying code.
       #
-      # Modifies: +af+, +af'+, +bc+, +de+, +hl+, optionally: +sp+
+      # Modifies: +af+, +af'+, +bc+, +de+, +hl+, optionally: +sp+.
       def clear_screen_region_fast(address=hl, rows=c, cols=2, disable_intr:true, enable_intr:true, save_sp:true)
         raise ArgumentError, "address should be a label or an integer or HL register pair" unless address == hl or address?(address)
         raise ArgumentError, "rows should be a label or an integer or a register" unless [a,b,c,d,e,h,l].include?(rows) or
