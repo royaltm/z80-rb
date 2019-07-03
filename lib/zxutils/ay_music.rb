@@ -1004,14 +1004,20 @@ module ZXUtils
 
       ns :set_volume do # a: volume + 160
                         sub  160
+                        ld   c, a
                         4.times { add a, a }
+                        ora  c
                         ld   [ix + channel_control.volume_envelope.current_value], a
                         ret
       end
 
       ns :set_noise do # a: pitch + 128
                         sub  128
-                        3.times { add a, a }
+                        ld   c, a
+                        3.times { add  a, a }
+                        srl  c
+                        srl  c
+                        ora  c
                         ld   [music_control.noise_envelope.current_value], a
                         ret
       end
