@@ -292,16 +292,17 @@ module ZXLib
           end
       end
       ##
-      # Creates a routine that converts 0,y coordinates to the screen byte address
+      # Creates a routine that converts 0,y coordinates to the screen byte address.
       #
       # Modifies: +af+, +y+, +h+, +l+, +t+.
       #
-      # * +y+:: input register: vertical-coordinate (may be same as: +h+, +l+ or +a+)
-      # * +ah+:: output register: address high
-      # * +al+:: output register: address low
-      # * +t+:: temporary register
-      # * +col+:: optional 8-bit column number (0-31) as a register (must not be same as other arguments)
-      # * +scraddr+:: screen memory address as an integer or a label, must be a multiple of 0x2000
+      # * +y+:: An input register: vertical-coordinate (may be same as: +ah+, +al+ or +a+).
+      # * +ah+:: An output register: address (MSB).
+      # * +al+:: An output register: address (LSB).
+      # * +t+:: A temporary 8-bit register.
+      # * +col+:: An optional 8-bit column number (0-31) as a register (must not be the same as other arguments)
+      #           or an integer or a label.
+      # * +scraddr+:: A screen memory address page as an integer or a label, must be a multiple of 0x2000.
       #
       # T-states: 73/81 if +col+ is not nil
       #
@@ -311,7 +312,7 @@ module ZXLib
           if [ah,al,t].include?(a) or [ah,al,t].uniq.size != 3 or t == y or
                   ![y, ah, al, t].all?{|r| register?(r) } or
                   (register?(col) and [y, ah, al, t, a].include?(col)) or
-                  (!col.nil? and !register?(col)) or
+                  (!col.nil? and !register?(col) and !address?(col)) or pointer?(col) or
                   !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
               raise ArgumentError, "ytoscr: invalid arguments!"
           end
@@ -330,7 +331,7 @@ module ZXLib
               end                       # a= H H h h h 0 0 0
                       rlca              # a= H h h h 0 0 0 H
                       rlca              # a= h h h 0 0 0 H H
-                      ld   ah, a        # b= h h h 0 0 0 H H
+                      ld   ah, a        # h= h h h 0 0 0 H H
                       anda 0b11100000   # a= h h h 0 0 0 0 0
                       add  col if col
                       ld   al, a        # l= h h h c c c c c
