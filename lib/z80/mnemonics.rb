@@ -205,6 +205,7 @@ module Z80
 						raise Syntax, "Invalid parameter for #{n}: #{rr}"
 					else
 						(v + 0x46).chr + if rr.respond_to?(:to_label)
+							raise Syntax, "Invalid #{n} with a pointer label: #{rr}." if rr.pointer?
 							tt, *tta = "%02xH", 1, :byte
 							Z80::add_reloc self, rr, 1, 1, 0
 						else
@@ -249,6 +250,7 @@ module Z80
 							raise Syntax, "Invalid parameter for #{n}: #{bb}."
 						else
 							(v + 0x46).chr + if bb.respond_to?(:to_label)
+								raise Syntax, "Invalid #{n} with a pointer label: #{bb}." if bb.pointer?
 								tt, *tta = "%02xH", 1, :byte
 								Z80::add_reloc self, bb, 1, 1, 0
 							else
