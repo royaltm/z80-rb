@@ -336,35 +336,49 @@ module Z80
                 end
             end
             ##
-            # Performs a multiplication of a 16-bit integer +mh+|+ml+ * 8bit unsigned +m+.
+            # Creates a routine that performs a multiplication of a 16-bit integer +mh+|+ml+ * 8bit unsigned +m+.
             # Returns the result as a 16-bit integer in +hl+.
+            #
             # Optionally the result in the +hl+ is being accumulated.
-            # Optionally multiplies the result by 2.
+            #
+            # Optionally multiplies the result by 2 if +double+ option is +true+.
             #
             # As a side-effect +m+ is always cleared to 0 and +ml+ and +mh+ are left unmodified
-            # if they are not one of a: +th+ nor +tl+.
+            # if they are not part of +tt+.
             #
             # Uses: +f+, +hl+, +m+, +mh+, +ml+, +tt+.
             #
-            # * +mh+::    most significant part of the multiplicant as an immediate value or an 8-bit register.
-            # * +ml+::    least significant part of the multiplicant as an immediate value or an 8-bit register.
-            # * +m+::     a multiplicator register, must not be a part of the +tt+.
-            # * +tt+::    a 16-bit temporary register (+de+ or +bc+).
-            # * +clrhl+:: if the result should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
-            # * +double+:: +true+ if the result should be double (+mh+|+ml+ * 2).
-            def mul8(mh=h, ml=l, m=a, tt:de, clrhl:true, double:false)
+            # * +mh+::    The MSB part of the multiplicant as an immediate value or an 8-bit register.
+            # * +ml+::    The LSB part of the multiplicant as an immediate value or an 8-bit register.
+            # * +m+::     An 8-bit multiplicator register, must not be a part of the +tt+.
+            # Options:
+            # * +tt+::    A 16-bit temporary register (+de+ or +bc+).
+            # * +clrhl+:: If the result should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
+            # * +double+:: +true+ if the result should be multiplied by 2 (+mh+|+ml+ * 2).
+            # * +optimize+:: What is more important: +:time+ or +:size+? Applies only if +double+ is +false+.
+            def mul8(mh=h, ml=l, m=a, tt:de, clrhl:true, double:false, optimize: :time)
                 th, tl = tt.split
                 raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !register?(m)
                 isolate do |eoc|
                             ld   tl, ml unless ml == tl
                             ld   th, mh unless mh == th
                             ld   hl, 0 if clrhl
-                            jp   muls1 unless double
+                    unless double
+                        if optimize == :size
+                            jr   muls1
+                        elsif optimize == :time
+                            srl  m
+                            jr   C, doadd
+                            jr   Z, eoc
+                        else
+                            raise ArgumentError, "optimize should be :time or :size"
+                        end
+                    end
                     loop1   sla  tl
                             rl   th
                     muls1   srl  m
                             jr   NC, noadd
-                            add  hl, tt
+                    doadd   add  hl, tt
                     noadd   jr   NZ, loop1
                 end
             end
