@@ -813,7 +813,9 @@ module Z80
                                         ora d
                                         jp  NZ, div16strt
                         if quick8
-                                        divmod8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo
+                                        divmod h, e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo, optimize: :time
+                                        divmod l, e, clrrem:false
+                                        anda a if check0
                                         ld  c, a
                             if check0 == eoc
                             qcheck0     label
