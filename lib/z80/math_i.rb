@@ -43,10 +43,24 @@ module Z80
     #     bcdbufend     label
     #   end
     class MathInt
-        # :nodoc:
-        module Integers # :nodoc: all
-            # Other integers are created ad-hoc
-            class Int32 < Z80::Label
+        ##
+        # =Z80::MathInt Integers
+        #
+        # This module holds integer data types created on the fly by the Macros.int macro.
+        # The types differ only in byte size. The fields of each of the type are:
+        #
+        # * +bytes+:: This field provides access to individual bytes of the binary integer.
+        # * +words+:: This field provides access to individual words of the binary integer, it's
+        #             being defined only when the bit size of the type is a multiple of 16.
+        #
+        # E.g.:
+        #                 ld   hl, [somebigint.words[1]]
+        #                 ld   de, [somebigint.words[0]]
+        #                 # hl|de now holds a 32-bit integer
+        #                 # ...
+        #    somebigint   int  32, -1
+        module Integers
+            class Int32 < Z80::Label # :nodoc:
                 value  byte 4
                 bytes  value byte, 4
                 words  value word, 2
@@ -57,11 +71,14 @@ module Z80
         module Macros
             ##
             # Packs an integer of an arbitrary size and adds it to the Program.code at Program.pc.
-            # Returns an unnamed relative label.
+            # Returns an unnamed relative label. The label's type is one of the structures created
+            # in the Integers module. The type depends on the +bitsize+ provided.
             #
             # Provided +bitsize+ must be a multiple of 8.
-            # Integer data is being packed in a least significant byte first order.
-            def int(bitsize, value)
+            # Integer data is being packed in the least significant byte first order, unless
+            # +byteorder:+ +:msb+ option is given. In this instance it is being packed in
+            # the most significant byte first order.
+            def int(bitsize, value, byteorder: :lsb)
                 raise ArgumentError, "int bitsize must be > 0" unless bitsize.is_a?(Integer) and bitsize > 0
                 raise ArgumentError, "int bitsize must be multiple of 8" unless (bitsize & 7).zero?
                 bytesize = bitsize >> 3
@@ -76,12 +93,17 @@ module Z80
                     end
                     Z80::MathInt::Integers.const_set klass_name, klass
                 end
-                blob = ''
+                bytes = []
                 bytesize.times do
-                        blob << [value].pack('c')
-                        value >>= 8
+                    case byteorder
+                    when :lsb then bytes.push(value & 0xFF)
+                    when :msb then bytes.unshift(value & 0xFF)
+                    else
+                        raise ArgumentError, "byteorder must be :lsb or :msb"
+                    end
+                    value >>= 8
                 end
-                        data int_klass, blob
+                data int_klass, bytes.pack('c*'.freeze)
             end
             ##
             # Creates a routine that changes the sign of a twos complement 16-bit integer depending on
@@ -1242,32 +1264,32 @@ module Z80
             #            an 8-bit register.
             # * +r+:: A temporary register used in an alternative register set: +d+ or +e+.
             # * +rr+:: A 16-bit register: +de+ or +hl+.
-            # * +endianness+:: The order of bytes in the integer being converted: +:lsb+ or +:msb+.
+            # * +byteorder+:: The order of bytes in the integer being converted: +:lsb+ or +:msb+.
             #
             # Modifies: +af+, +af'+, +b+, +rr+, +bc'+, +hl'+, +r'+.
-            def utobcd(bufend, input=de, size: 4, r: d, rr: de, endianness: :lsb)
+            def utobcd(bufend, input=de, size: 4, r: d, rr: de, byteorder: :lsb)
                 raise ArgumentError unless (address?(bufend) and !pointer?(bufend)) and
                                            (address?(input) or input == rr) and
                                            (address?(size) or (register?(size) and size.bit8?)) and
                                            [de, hl].include?(rr) and [d, e].include?(r)
-                raise ArgumentError, "endianness should be :lsb or :msb" unless [:lsb, :msb].include?(endianness)
+                raise ArgumentError, "byteorder should be :lsb or :msb" unless [:lsb, :msb].include?(byteorder)
 
                 isolate do
                     if address?(size) and pointer?(size)
                             ld   a, size
                             ld   b, a
-                    elsif endianness == :lsb and (pointer?(input) or pointer?(size) or !address?(input) or !address?(size))
+                    elsif byteorder == :lsb and (pointer?(input) or pointer?(size) or !address?(input) or !address?(size))
                             ld   a, size unless size == a
                             ld   b, a unless size == b
                     else
                             ld   b, size unless size == b
                     end
-                    if endianness == :lsb and address?(input) and address?(size) and
+                    if byteorder == :lsb and address?(input) and address?(size) and
                                               !pointer?(input) and !pointer?(size)
                             ld   rr, input + size
                     else
                             ld   rr, input unless input == rr
-                            adda_to *rr.split if endianness == :lsb
+                            adda_to *rr.split if byteorder == :lsb
                     end
                             xor  a
                             ld   [bufend - 1], a
@@ -1275,9 +1297,9 @@ module Z80
                             ld   c, 1
                             exx
                     loopi   label
-                            dec  rr if endianness == :lsb
+                            dec  rr if byteorder == :lsb
                             ld   a, [rr]
-                            inc  rr if endianness == :msb
+                            inc  rr if byteorder == :msb
                             exx
                             utobcd_step(bufend, r, c, c, true)
                             exx

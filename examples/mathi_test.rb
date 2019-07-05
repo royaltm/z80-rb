@@ -52,7 +52,7 @@ class Program
     bytesize = bitsize >> 3
                 memcpy target, source, bytesize
                 jp  (hl)
-    source      int bitsize, value
+    source      int bitsize, value, byteorder: :lsb
   end
 
   class << self
@@ -592,7 +592,7 @@ class Program
                 ld de, somebigint
   # print number pointed at by de register with the number of bytes in c register
   # after the number a +terminator+ character is being printed out
-  prnum         utobcd bcdbufend, de, size: c
+  prnum         utobcd bcdbufend, de, size: c, byteorder: :lsb
                 exx
                 ld  hl, bcdbufend
                 sub_from c, h, l
