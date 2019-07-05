@@ -805,7 +805,8 @@ module Z80
             # Creates a routine that performs an euclidean division of unsigned: +hl+ / +m+.
             # Returns a quotient in +hl+ and a remainder in +a+.
             #
-            # _DEPRECATED_:: Use faster and more versatile Macros.divmod instead.
+            # _NOTE_:: A stacked Macros.divmod presents a faster (up to 12%) but a significantly
+            #          larger (x1.5) alternative.
             #
             # Uses: +af+, +b+, +hl+, preserves: +m+.
             #
@@ -866,8 +867,9 @@ module Z80
             #              +CF+ should be ignored if +check0+ is +false+.
             # * +check1+:: Checks if a divisor is 1, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
-            # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance
-            #              uses a different, optimized code.
+            # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance uses a different,
+            #              optimized for 8-bit division code. It can also be set to +:divmod8+ to use
+            #              Macros.divmod8 (smaller code) instead of stacked Macros.divmod for an 8-bit division.
             def divmod16(x=ixl, check0:true, check1:true, modulo:false, quick8:true)
                 raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
                 isolate do |eoc|
@@ -878,9 +880,13 @@ module Z80
                                         ora d
                                         jp  NZ, div16strt
                         if quick8
+                            if quick8 == :divmod8
+                                        divmod8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo
+                            else
                                         divmod h, e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo, optimize: :time
-                                        divmod l, e, clrrem:false
+                                        divmod l, e, clrrem:false, optimize: :time
                                         anda a if check0
+                            end
                                         ld  c, a
                             if check0 == eoc
                             qcheck0     label
@@ -940,7 +946,8 @@ module Z80
             # Creates a routine that performs an euclidean division of unsigned 32-bit: +hl+|+hl'+ / +m+.
             # Returns a quotient in +hl+|+hl'+ and a remainder in +a+.
             #
-            # _DEPRECATED_:: Use faster and more versatile Macros.divmod instead.
+            # _NOTE_:: A stacked Macros.divmod presents a faster (9-16%) but a significantly
+            #          larger (x2) alternative.
             #
             # Uses: +af+, +af'+, +b+, +b'+, +hl+, +hl'+, +mt'+, preserves: +m+.
             #
