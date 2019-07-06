@@ -6,6 +6,72 @@ class TestMusic
   include ZXLib::AYSound::EnvelopeControl
   tempo 128
 
+  all_channels { tone_off; noise_off; volume 0 }
+
+  mark :noise_test1
+
+  ch_a do
+    noise 31; noise_on; volume 15; p 2; noise_off; volume 0
+  end
+
+  mark :noise_test2
+
+  ch_c do
+    noise_on; volume 15; p 2; noise_off; volume 0
+  end
+
+  mark :noise_test3
+
+  ch_b do
+    noise_on; volume 15; p 2; noise_off; volume 0
+  end
+
+  mark :noise_test4
+
+  ch_a do
+    noise 0
+    noise_on; volume 15; p 1; noise_off; volume 0
+  end
+  ch_b do
+    p 4; noise_on; volume 15; p 1; noise_off; volume 0
+  end
+  ch_c do
+    p 2; noise_on; volume 15; p 1; noise_off; volume 0
+  end
+
+  mark :noise_test5
+
+  ch_a do
+    start_noise_envelope :wave1
+    noise_on; volume 0; start_volume_envelope :wave2
+  end
+  ch_b do
+    p 2; noise_on; volume 0; start_volume_envelope :wave2
+  end
+  ch_c do
+    p 1; noise_on; volume 0; start_volume_envelope :wave2
+  end
+
+  p 1, 1, 2
+
+  ch_a do
+    start_volume_envelope :decay3
+  end
+  ch_b do
+    p 2; start_volume_envelope :decay3
+  end
+  ch_c do
+    p 4; start_volume_envelope :decay3
+  end
+
+  p 1
+
+  ch_a { noise_envelope_off; noise 0 }
+
+  all_channels { noise_off; volume_envelope_off; volume 0; }
+
+  mark :scale_test
+
   all_channels { tone_on; noise_off; volume 15 }
 
   sub :play_scale
@@ -97,6 +163,9 @@ class TestMusic
 
   envelope :decay1, [1, 0.49], [64, -1.0], :loop, [255, 0.0]
   envelope :decay2, [4, 0.5], [32, -0.75], :loop, [8, 0.5], [8, -0.5]
+  envelope :decay3, [32, 1.0], [255, -1.0]
+  envelope :wave1, [128, 1.0], [128, -1.0]
+  envelope :wave2, [16, 1.0], :loop, [16, -0.7], [16, 0.7]
   chord :chord1, [2, 0], :loop, [1, 4], [1, 7]
   mask :alter1, [8, 0b11110000], [8, 0b11001100], :loop, [8, 0b10101010]
 end
