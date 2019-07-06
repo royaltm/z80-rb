@@ -523,11 +523,13 @@ module ZXUtils
       tone_pitch_a      word
       tone_pitch_b      word
       tone_pitch_c      word
+      tone_pitch        tone_pitch_a word, 3
       noise_pitch       byte
       mixer             byte
       volume_a          byte
       volume_b          byte
       volume_c          byte
+      volume            volume_a byte, 3
       envelope_duration word
       envelope_shape    byte
     end
@@ -608,6 +610,7 @@ module ZXUtils
       chan_a            ChannelControl
       chan_b            ChannelControl
       chan_c            ChannelControl
+      chans             chan_a ChannelControl, 3
       if READ_ONLY_CODE
         saved_sp        word
         index_table     word
