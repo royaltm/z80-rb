@@ -266,6 +266,7 @@ module ZXUtils
     export init
     export play_loop
     export play_interval
+    export get_counter
     export check_key
     export release_key
     export music
