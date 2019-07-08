@@ -24,17 +24,14 @@ module Z80
 		#
 		#  * use +im0+, +im01+, +im1+, +im2+  instead of +im+ +n+.
 		#  * do not use [ ] around +out+ and +inp+ instructions' arguments e.g.:
-		#      out c, a    # ok
-		#      out (c), a  # () are ok, ruby doesn't care much about them
-		#    <i>however ruby emits warning: (...) interpreted as grouped expression</i>
-		#      # only Integers are allowed here; no labels!
+		#      out c, a        # ok
+		#      out (c), a      # () are ok here
 		#      inp a, (0xfe)
+		#      inp a, (io.ula)
 		#
 		#  * do not use [ ] around JP (HL/IX/IY) e.g.:
 		#      jp  hl     # ok
-		#      jp  (hl)   # () are ok, ruby doesn't care much about them
-		#    <i>however ruby emits warning: (...) interpreted as grouped expression</i>
-		#
+		#      jp  (hl)   # () are ok
 		#
 		#  ===Undocumented (by Zilog) Z80 instructions
 		#  See: http://www.z80.info/z80undoc.htm
@@ -57,15 +54,14 @@ module Z80
 		#      ld ixh, iyh # invalid
 		#      ld h, iyh   # invalid
 		#
-		#  * and the less usefull but included for completeness:
+		#  * and some less usefull but included for completeness:
 		#      out (c), 0
-		#      inp (c)
-		#    the last one only adjust Z80 flags but the result goes to +/dev/null+ (figuratively speaking).
+		#      inp (c)    # sets flags, but drops the value
 		#  
 		#  ==Mnemonic list
-	    #  <code>adc add anda bit call ccf cp cpd cpdr cpi cpir cpl daa dec di djnz ei ex exx
+	  #  <code>adc add anda bit call ccf cp cpd cpdr cpi cpir cpl daa dec di djnz ei ex exx
 		#  halt hlt im0 im01 im1 im2 inc ind indr ini inir inp jp jr ld ldd lddr ldi ldir neg
-        #  nop ora otdr otir out outd outi pop push res ret reti retn rl rla rlc rlca rld rr
+    #  nop ora otdr otir out outd outi pop push res ret reti retn rl rla rlc rlca rld rr
 		#  rra rrc rrca rrd rst sbc scf set sl1 sla sll sra srl sub xor</code>
 		#
 		module Mnemonics

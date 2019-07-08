@@ -146,7 +146,7 @@ module Z80
 
   module Program
     ##
-    #  Creates a conditional block that evaluates alternative code
+    #  Creates a conditional block that creates alternative code
     #  based on the lazy evaluated boolean condition.
     #
     #  Returns an instance of ConditionalBlock.
@@ -167,7 +167,6 @@ module Z80
     #      end.else do
     #        raise ArgumentError, "ay_out and ay_sel should differ only on either 8-bit lsb or msb"
     #      end
-    #          
     def select(*args, &test)
       ConditionalBlock.new(self, *args, &test).tap {|cndblk| @conditional_blocks << cndblk }
     end

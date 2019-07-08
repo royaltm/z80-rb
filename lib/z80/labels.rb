@@ -12,8 +12,12 @@ class Symbol
 end
 module Z80
 	module Program
-		##
-		#  Marks +label+ as exportable. Programs may import labels from another programs with Program.import.
+		## call-seq:
+		#       export label_name
+		#       export :auto
+		#       export :noauto
+		#
+		#  Marks +label_name+ as exportable. Programs may import labels from another programs with Program.import.
 		#  Only exportable labels will be imported into the parent program.
 		#  Imported labels retain all their members.
 		#
@@ -125,7 +129,7 @@ module Z80
 			end
 		end
 		##
-		#  A convenient method for macros to check if argument is non-register value or a pointer.
+		#  A convenient method for macros to check if argument is a non-register value or a pointer.
 		#
 		#  Returns +true+ for:
 		#    0x1234, foo, :foo, [0x1234], [foo], foo[10], [:foo], [foo + 10]
@@ -148,7 +152,7 @@ module Z80
 			end
 		end
 		##
-		#  A convenient method for macros to check if argument is an immediate label or an integer
+		#  A convenient method for macros to check if argument is an immediate label or an integer.
 		#
 		#  Returns +true+ for:
 		#    foo addr 0x1234
@@ -158,12 +162,13 @@ module Z80
 			label_immediate?(arg) or arg.is_a?(Integer)
 		end
 		##
-		#  Returns an unnamed, relocatable label at Program.pc of (optional) +type+.
+		#  Returns an unnamed, relative label at Program.pc of the optional +type+.
+		#
 		#  +type+ can be an integer or a data structure (a class derived from Label).
 		#
 		#  Options:
 		#
-		#  * +:align+:: Additionally aligns a label to the nearest multiple of +:align+ bytes
+		#  * +:align+:: Additionally lazily aligns a label to the nearest multiple of +:align+ bytes
 		#               applying a lazy evaluated expression to a label.
 		#  * +:offset+:: Added to a label after alignment.
 		#
@@ -185,7 +190,7 @@ module Z80
 			lbl
 		end
 		##
-		#  Returns an unnamed, immediate label at an absolute +address+ of (optional) +type+
+		#  Returns an unnamed, immediate label at an absolute +address+ of the optional +type+.
 		#
 		#  +type+ can be an integer or a data structure (a class derived from Label).
 		#  The +address+ may be a number or another label or an immediate expression.
@@ -244,16 +249,15 @@ module Z80
 		end
 		## call-seq:
 		#       data(type = 1)
-		#       data(type, size = 1)
+		#       data(type, size = nil)
 		#       data(type, size, *data)
 		#       data(type, *data)
 		#       data(str[, size = str.bytesize])
 		#
-		#  Returns an unnamed, relocatable label and adds provided data to the Program.code at Program.pc.
-		#  The size of each data item will be of +type.to_i+ multiplied by +size+.
+		#  Returns an unnamed, relative label and adds provided data to the Program.code at Program.pc.
 		#
 		#  The +type+ argument may be a number +1+ to indicate bytes or +2+ to indicate words.
-		#  For larger integers please consult Z80::MathInt::Macros.int.
+		#  To store larger integers please consult Z80::MathInt::Macros.int.
 		#
 		#  +type+ may also be a class derived from Label, which represents a data structure
 		#  with named fields. In this instance each +data+ argument must be an Array or a Hash
@@ -300,7 +304,7 @@ module Z80
 		#    # Creates "hello" label which addresses the following string and +hello resolves to its length
 		#    # which is 12 in this instance.
 		#    hello data "Hello World!"
-		#  See also: Label for additional examples on how to use labels.
+		#  See also: Label for additional examples on how to use labels in a more advanced way.
 		def data(type = 1, size = nil, *args)
 			res = ''
 			from = 0
@@ -355,48 +359,53 @@ module Z80
 			Z80::add_code(self, res.force_encoding(Encoding::ASCII_8BIT), type)
 		end
 		## call-seq:
-		#       bytes(count, *data)
+		#       bytes count
+		#       bytes count, byte_integer, ...
+		#       bytes count, [byte_integer, ...]
+		#       bytes [byte_integer, ...]
 		#
 		#  Returns an unnamed label and allocates +count+ bytes with Program.data.
+		#  Optionally you can provide values for the allocated bytes.
 		#
-		#  Sugar for:
-		#    data 1, ...
+		#  See: Program.data.
 		def bytes(*args); data(1, *args); end
 		## call-seq:
-		#       db(*byte_integers)
+		#       db *byte_integers
 		#
 		#  Returns an unnamed label and adds the provided integers to Program.code as bytes.
 		#
-		#  Sugar for:
-		#    data 1, [...]
+		#  See: Program.data.
 		def db(*args); data(1, args); end
 		## call-seq:
-		#       words(count = 1, *data)
+		#       words count
+		#       words count, word_integer, ...
+		#       words count, [word_integer, ...]
+		#       words [word_integer, ...]
 		#
 		#  Returns an unnamed label and allocates +count+ words with Program.data.
+		#  Optionally you can provide values for the allocated words.
 		#
-		#  Sugar for:
-		#    data 2, ...
+		#  See: Program.data.
 		def words(*args); data(2, *args); end
 		## call-seq:
-		#       dw(*word_integers)
+		#       dw *word_integers
 		#
 		#  Returns an unnamed label and adds the provided integers to Program.code as words.
 		#
-		#  Sugar for:
-		#    data 2, [...]
+		#  See: Program.data.
 		def dw(*args); data(2, args); end
 		##
 		#  Defines a label with the given name in the current namespace's context.
 		#  Returns a named label.
 		#
 		#  A +label+, if provided, may be an integer, an instance of an unnamed label, or a lazy evaluated expression.
-		#  If +label+ has already some other name an error will be raised.
+		#  If +label+ has already some different name an error will be raised.
 		#  
-		#  If +label+ argument is missing the "dummy" label is being created instead. See Label and Label.dummy?.
+		#  If +label+ argument is missing the "dummy" label (a label that is being referenced before being given
+		#  value and type) is being created instead. See Label and Label.dummy?.
 		#
 		#  This method exists for ability to create an arbitrary named label without any constraint on its name.
-		#  However the way one should normally define labels is via method_missing.
+		#  However the way one should normally define labels is via: method_missing
 		#
 		#  Example:.
 		#    define_label :loop, label
@@ -451,11 +460,11 @@ module Z80
 		#  
 		#  If +label+ argument is missing the "dummy" label is being created instead. See Label and Label.dummy?.
 		#
-		#  To create a label with the name of the existing singleton method or a ruby keyword, see define_label.
+		#  To create a label with the name of the existing singleton method or a ruby keyword, see: define_label
 		#
 		#  Example:.
 		#    mylabel 0x0123
-		#    mylabel addr 0x0123
+		#    mylabel addr 0x0123, 2
 		#  This example gives a name "mylabel" to a label produced by an +ld+ instruction and later references it:
 		#    mylabel ld  a, [hl]
 		#            inc hl
@@ -664,7 +673,7 @@ module Z80
 		def expression?; false; end
 		## Checks if a label is a named sub-label access expression.
 		def sublabel_access_expression?; false; end
-		## Checks if a label is defined and absolute (+true+) or relocatable or dummy (+false+). Prefer using Program.immediate? instead.
+		## Checks if a label is defined and absolute: +true+ or not (relative or dummy): (+false+). Prefer using Program.immediate? instead.
 		def immediate?
 			!dummy? and !@reloc
 		end
@@ -672,7 +681,7 @@ module Z80
 		def sublabel?
 			@reloc == :parent
 		end
-		## Checks if a label is not yet defined (in-the-future a.k.a. a +dummy+ label).
+		## Checks if a label is not yet given value and type (in-the-future a.k.a. a +dummy+ label).
 		def dummy?
 			@type.nil?
 		end

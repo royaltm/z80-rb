@@ -60,14 +60,14 @@ module Z80
 				define_singleton_method(name.to_sym, &m)
 			end
 			##
-			# Pushes specified registers on a machine stack, evaluates block inside a namespace
-			# and pops registers in reverse order.
+			# Adds a code that pushes specified registers on a machine stack, code from +block+ within
+			# a namespace and code that pops registers in reverse order.
 			# Returns a label pointing to the beginning of the pushes. You may optionally pass a +name+
 			# for the returned label to be named.
 			#
 			# +registers+ should be one of:
 			#
-			# * a 16bit register to push on a stack and pop after your code, except +sp+ obviously,
+			# * a 16bit register to push on the stack and pop after code from +block+, except +sp+ obviously,
 			# * +:exx+ symbol to evaluate +exx+ instruction,
 			# * +:ex_af+ symbol to evaluate <code>ex af, af</code> instruction,
 			# * +:all+ symbol evaluates to: +af+, +bc+, +de+, +hl+, +ix+, +iy+
@@ -86,7 +86,7 @@ module Z80
 			# * +:after_ei+: the +ei+ instruction will be added before +ret+.
 			# * +:ei_reti+: the +ei+ instruction will be added before +reti+.
 			#
-			# Evaluates your +block+ inside Program.ns. All other +opts+ are being passed along to Program.ns.
+			# Evaluates your +block+ with Program.ns. All other +opts+ are being passed along to Program.ns.
 			#
 			# Examples:
 			#   with_saved af, de do |eoc|

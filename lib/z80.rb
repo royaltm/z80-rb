@@ -150,8 +150,8 @@ module Z80
 	##
 	#  This module defines methods that become your program's class methods when you include
 	#  the Z80 module.
-	#  Includes all of Program::Macros and Program::Mnemonics methods as well as Macros module
-	#  defined in the including class.
+	#  This includes all of Program::Macros and Program::Mnemonics methods as well as Macros
+	#  module defined in the including class.
 	#
 	#  Use these methods to build your Z80 assembler program or macros.
 	module Program
@@ -270,7 +270,9 @@ module Z80
 			end
 			prog
 		end
-		## Returns current byte offset from the beginning of the Program.code (a program counter relative to 0).
+		##
+		#  Returns the current byte offset from the beginning of the Program.code (a program counter relative to 0).
+		#  To create a label at +pc+ use Program.label instead.
 		def pc
 			@code.bytesize
 		end
@@ -298,10 +300,15 @@ module Z80
 			raise Syntax, "The current code pointer is exceeding 64k address range: #{address.to_i.to_s 16} " if address > 0x10000
 			Z80::add_code self, [pad].pack('c')*(address - pc)
 		end
-		##
-		#  Returns a relative label as an isolated namespace for relative labels defined inside the code created within +block+.
+		## call-seq:
+		#       isolate **opts {|eoc| ... }
+		#       isolate name, **opts {|eoc| ... }
 		#
-		#  A code in an isolated namespace can't reference labels defined outside of it.
+		#  Returns a relative label, as an isolated namespace, holding labels defined by the code created
+		#  with +block+ as sub-labels. Appends the created code to the Program.code.
+		#
+		#  In an isolated namespace you can't reference labels defined outside of it unless explicitly
+		#  indicated with the +:use+ option.
 		#
 		#  See: Program#ns.
 		def isolate(name = nil, **opts, &block)
@@ -311,42 +318,50 @@ module Z80
 		#       ns **opts {|eoc| ... }
 		#       ns name, **opts {|eoc| ... }
 		#
-		#  Returns a relative label as a namespace for relative labels defined inside the code created within +block+.
+		#  Returns a relative label, as a namespace, holding labels defined by the code created with +block+
+		#  as sub-labels. Appends the created code to the Program.code.
 		#
 		#  This function requires a block which may generate Z80 code containing labels or possibly other
-		#  namespaces (namespaces can be nested). Every label defined within this block will become a member label.
+		#  namespaces (namespaces can be nested). Every label defined within this block will become a member
+		#  of the created namespace.
 		#
 		#  An optional +name+ may be provided, as a string or a symbol. In this instance the returned label
 		#  will already have a name. Otherwise an unnamed label is being returned.
 		#
 		#  Options:
 		#
-		#  * +:inherit+:: If +true+ namespace inherits absolute labels from parent namespaces
-		#                 if a name, label or an Array of names - only specified labels are inherited;
-		#                 +false+ by default.
-		#  * +:inherit_absolute+:: An alias of +:inherit+.
-		#  * +:inherit_labels+:: An alias of +:inherit+.
-		#  * +:use+:: An alias of +:inherit+.
-		#  * +:isolate+:: If +true+ creates an isolated namespace :see: Program#isolate.
+		#  * +:use+:: If +true+ namespace can inherit absolute labels from parent namespaces;
+		#             if a name, label or an Array of names is given - only specified labels
+		#             are being inherited; +false+ by default.
+		#  * +:inherit+:: An alias of +:inherit+.
+		#  * +:isolate+:: If +true+ creates an isolated namespace; see: Program#isolate.
 		#  * +:merge+:: If +true+ merges labels from within a namespace with the current context;
-		#               usefull if you only want to pass an +eoc+ label to some block of code.
+		#               usefull if you want to pass an +eoc+ label to some block of code and
+		#               don't need a namespace.
 		#
-		#  Given +block+ receives one variable: +eoc+ which is a "dummy" label that will relatively
-		#  address the end of the namespaced code and may be referenced from within the +block+.
+		#  Given +block+ receives one argument: +eoc+ which is a relative label that will address
+		#  the end of the namespaced code and may be referenced from within the +block+.
 		#
-		#  If +:inherit+ option is +false+ but +:isolate+ is also +false+ it's possible to
-		#  reference absolute labels defined outside of the namespace, but it would be impossible
-		#  to coerce such a label to an integer.
+		#  Labels created within the +block+ has higher priority than labels with the same
+		#  name created outside of it, when referenced from within the +block+.
+		#
+		#  All labels created outside of the namespace scope and not indicated with +:use+ can only
+		#  be referenced lazily. If you really need to gain an immediate access to absolute labels
+		#  (e.g. coerce its address or size to an integer), provide +:use+ option with their names
+		#  or +true+ for all absolute labels.
+		#
+		#  If +:isolate+ option is +true+ no label created outside of the +block+ can be
+		#  referenced unless explicitly indicated with +:use+.
 		#
 		#  Example:
 		#    ns :foo do |eoc|
-		#      loop1 add a
-		#            jr C, eoc
-		#            inc b
-		#            jr NZ, loop1
+		#      loop1 	add  a, a
+		#            	jr   C, eoc
+		#           	djnz loop1
 		#    end
 		#
-		#  Returns an (optionally named) +label+ that points to the beginning of a namespaced code.
+		#  Returns a label that points to the beginning of the +block+ of code and its size is equal
+		#  to the created code size.
 		def ns(name = nil, **opts)
 			raise ArgumentError, "no block given to ns" unless block_given?
 			# Save parent labels
@@ -463,30 +478,36 @@ module Z80
 			top
 		end
 		##
-		#  Imports macros from another +program+.
+		#  Imports macros from another +program+ class.
 		#
 		#  A sugar for:
 		#
 		#     import program, code: false, macros: true, labels: false
 		#
+		#  See: Program.import.
 		def macro_import(program)
 			import program, code: false, macros: true, labels: false
 		end
 		##
-		#  Imports labels from another +program+.
+		#  Imports labels from another +program+ class. Optionally imports macros.
 		#
 		#  A sugar for:
 		#
-		#     import program, code: false, macros: false, labels: true
+		#     import program, code: false, labels: true, macros: false
 		#
-		def label_import(program, name = nil, labels:true)
-			import program, name, code: false, macros: false, labels: labels
+		#  See: Program.import.
+		#
+		#  Options:
+		#  * +:labels+:: +true/false+ or an absolute address (default: +true+).
+		#  * +:macros+:: +true/false+ (default: +false+).
+		def label_import(program, name = nil, labels:true, macros:false)
+			import program, name, code: false, labels: labels, macros: macros
 		end
 		##
-		#  Imports code, labels or macros from another +program+.
-		#  Give (optional) +name+ to create a namespace for imported labels.
-		#  Without +name+ labels from +program+ will be defined in the current context.
-		#  Pass +program+ class (not an instance!).
+		#  Imports code, labels or macros from another +program+ class.
+		#  Give an optional +name+ to create a namespace for the imported labels.
+		#  With no +name+ given, imported labels will be defined in the current context.
+		#  Pass a class of a program (not an instance!).
 		#
 		#  Options to choose what to import:
 		#  * +:labels+:: +true/false+ or an absolute address (default: +true+).
@@ -494,17 +515,23 @@ module Z80
 		#  * +:macros+:: +true/false+ (default: +false+).
 		#  * +:override+:: A flat hash containing names with labels to be replaced.
 		#  * +:args+:: Initialize arguments for an imported program.
-		#  
+		#
+		#  Only labels marked with Program.export are being imported.
 		#  If +:labels+ is an address, all relative labels being imported will be converted to absolute
-		#  and will be offset by the given value.
+		#  labels and will be offset by the given value.
 		#
-		#  If +:code+ is an address, the imported code will be always compiled at this absolute address.
+		#  If +:code+ is an address, the imported code will be always compiled at the given address.
 		#
-		#  To be able to import *macros* create a module named +Macros+
-		#  inside +program+ class and put methods there. They will be imported as macros.
-		#  <b>In such methods remember to wrap your code with Program.ns.</b>
+		#  To be able to import *macros*, create a module named +Macros+ inside your Program class
+		#  and put macro methods there.
+		#  
+		#  _NOTE_:: When creating macro methods remember to wrap the generated code in a namespace
+		#           with Program.ns or better yet with Program.isolate. The best practice is to return
+		#           such a namespace, so it can be named later by the code invoking the macro.
 		#
-		#  Returns an (optionally named) label that points to the beginning of the imported code.
+		#  Returns a label that points to the beginning of the imported code and its size is equal
+		#  to the imported code size.
+		#  If the name is given, the returned label will hold all the imported labels as sublabels.
 		def import(program, name=nil, labels:true, code:true, macros:false, override:{}, args:[])
 			if program.is_a?(Symbol)
 				program, name = name, program
@@ -546,7 +573,7 @@ module Z80
 				}]
 			end
 
-			type = code ? program.code.bytesize : 1
+			type = code ? program.code.bytesize : 0
 
 			if name
 				plabel = Label.new(addr, type, :code, members)
@@ -576,8 +603,8 @@ module Z80
 		#
 		#  Options:
 		#  * +pipe+:: A +proc+ to postprocess binary data with (e.g. compress it).
-		#  * +check_size+:: A byte size to check the size of the imported data against
-		#    (before pipe). If the sizes don't match a CompileError will be raised.
+		#  * +check_size+:: A byte size to check the size (before pipe) of the imported data.
+		#                   If the sizes don't match a CompileError will be raised.
 		#  * +data_type+:: A returned label's type.
 		#
 		#  Any additional options are being passed to +read_data+ method of the format handler.
