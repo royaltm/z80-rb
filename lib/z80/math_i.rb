@@ -5,36 +5,37 @@ module Z80
     #
     # in Z80::MathInt::Macros
     #
-    # Example:
     #   require 'z80'
-    #
+    #   
     #   class Program
     #     include Z80
-    #
-    #     macro_import  MathInt
-    #
-    #                   ld  hl, [dividend.words[0]]
+    #     include Z80::TAP
+    #                   macro_import  MathInt
+    #   
+    #                   ld   hl, [dividend.words[0]]
     #                   exx
-    #                   ld  hl, [dividend.words[1]]
-    #                   ld  de, [divisor]
+    #                   push hl
+    #                   ld   hl, [dividend.words[1]]
+    #                   ld   de, [divisor]
     #                   divmod32_16
-    #                   ld  [result.words[1]], hl
+    #                   ld   [result.words[1]], hl
     #                   exx
-    #                   ld  [result.words[0]], hl
-    #                   ld  [remainder], de
+    #                   ld   [result.words[0]], hl
+    #                   ld   [remainder], de
     #                   # convert integer to bcd
     #                   utobcd bcdbufend, result, size: 4
     #                   exx
-    #                   ld  hl, bcdbufend
+    #                   ld   hl, bcdbufend
     #                   sub_from c, h, l
     #                   # print integer
-    #                   bcdtoa hl, c do |eoc|
-    #                     jr  NC, pr1  # skip check if not first
-    #                     jr  Z, eoc   # skip if 0
-    #               pr1   add '0'.ord
-    #                     rst 0x10
+    #                   bcdtoa hl, c, skip_leading0: true do
+    #                     add ?0.ord
+    #                     rst 0x10     # print a character
     #                   end
-    #
+    #                   pop  hl
+    #                   exx
+    #                   ret
+    #   
     #     dividend      int 32, 0xdeadbaca
     #     divisor       int 16, 0xbaba
     #     result        int 32, 0
