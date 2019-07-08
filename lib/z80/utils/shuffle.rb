@@ -53,8 +53,14 @@ module Z80
                     j = b
                     t = c
                     isolate do
-                                    ld   hl, target unless hl == target
-                                    ld   a, length unless a == length
+                                    ld   hl, target unless target == hl
+                        unless length == a
+                            if immediate?(length) && (length.to_i & 0xFF).zero?
+                                    xor  a
+                            else
+                                    ld   a, length
+                            end
+                        end
                                     ld   i|mask, 0
                         loop0       push af             # save length
                                     ld   a, mask
