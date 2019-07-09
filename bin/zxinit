@@ -1,0 +1,122 @@
+#!/usr/bin/env ruby
+# -*- coding: BINARY -*-
+ZXINIT_VERSION = '0.1'
+HELP = <<_EOH_
+ZXINIT #{ZXINIT_VERSION}: Bootstrap Z80 programs.
+Usage:
+#{File.basename($0)} target [class]
+
+  target: the path to new program file to create
+          (the .rb extension is optional)
+  class: custom class name of the program, by default the class name
+         is the capitalized target file name
+_EOH_
+
+target, klass_name = ARGV[0,2]
+
+if target.nil?
+  puts HELP; exit
+end
+
+def normalize_file(filepath, extension)
+  dir, base = File.dirname(filepath), File.basename(filepath, extension)
+  [File.join(dir, base + extension), base]
+end
+
+target, target_base = normalize_file(target, '.rb')
+
+klass_name ||= target_base
+klass_name = klass_name.split(/[_-]/).collect(&:capitalize).join
+target_tap = 
+
+if File.exist?(target)
+    $stderr.puts "ZXINIT: file already exists: #{target}"
+    exit 1
+end
+
+puts "ZXINIT: initializing #{klass_name} at #{target}"
+
+BOOTSTRAP=<<_EOB_
+# -*- coding: BINARY -*-
+require 'z80'
+# require 'z80/math_i'
+# require 'z80/stdlib'
+# require 'z80/utils/shuffle'
+# require 'z80/utils/sincos'
+require 'zxlib/sys'
+# require 'zxlib/gfx'
+# require 'zxlib/gfx/draw'
+# module ZXLib
+#   module Gfx
+#     class Sprite8
+#       DRAW_METHODS = [:xor, :or, :set, :mask_or]
+#     end
+#   end
+# end
+# require 'zxlib/gfx/sprite8'
+
+class #{klass_name}
+  include Z80
+  include Z80::TAP
+
+  export start
+
+  # macro_import MathInt
+  # macro_import Stdlib
+  # macro_import Utils::Shuffle
+  # macro_import Utils::SinCos
+  label_import ZXLib::Sys, macros: true
+  # macro_import ZXLib::Gfx
+  # macro_import ZXLib::Gfx::Draw
+  # macro_import ZXLib::Gfx::Sprite8
+
+  macro :print_text do |eoc, text|
+                        ld   de, text_data
+                        ld   bc, +text_data
+                        call rom.pr_string
+                        jr   eoc
+    text_data           data text
+  end
+
+  ns :start do
+                        ld   a, 2
+                        call rom.chan_open
+                        print_text "Hello world!\r"
+                        ret
+  end
+end
+
+if __FILE__ == $0
+  require 'zxlib/basic'
+
+  class #{klass_name}Test
+    include Z80
+    include Z80::TAP
+
+    with_saved :start_test, :exx, hl, ret: true do
+                        call start
+    end
+
+    import              #{klass_name}
+  end
+
+  program_code = #{klass_name}Test.new 0x8000
+  puts program_code.debug
+  program = ZXLib::Basic.parse_source <<-EOB
+  10 RANDOMIZE USR \#{program_code[:start_test]}
+9998 STOP: GO TO 10
+9999 CLEAR \#{program_code.org-1}: LOAD ""CODE : RUN
+EOB
+  program.save_tap(#{target_base.inspect}, line: 9999)
+  program_code.save_tap(#{target_base.inspect}, append: true)
+  Z80::TAP.parse_file(#{(target_base + '.tap').inspect}) { |hb| puts hb.to_s }
+end
+_EOB_
+
+File.open(target, File::CREAT|File::EXCL|File::WRONLY|File::TRUNC, encoding: 'BINARY') do |fd|
+  fd.write BOOTSTRAP
+end
+puts "ZXINIT: ready"
+puts "ZXINIT: compile and run #{klass_name} with:"
+puts
+puts "  zxrun #{target.inspect} #{(target_base + '.tap').inspect}"
