@@ -187,13 +187,16 @@ module Z80
 		#
 		#  * +:override+:: A flat hash containing names of labels with addresses to be overwritten.
 		def new(start = 0x0000, *args, override:{})
-			unless @dummies.empty? and !@contexts.last.any? {|_,v| v.dummy?}
-				dummies = @dummies.map {|d| d[0..1]} + @contexts.last.select {|_,v| v.dummy?}.map {|d| d[0..1]}
-				raise CompileError, "Labels referenced but not defined: #{dummies.inspect}"
-			end
-
 			raise ArgumentError, "override should be a map of override names to labels" unless override.respond_to?(:to_h)
 			override = Alloc.compile(override, 0, include_sizes:false)
+
+			unless @dummies.empty? and !@contexts.last.any? {|_,v| v.dummy?}
+				dummies = @dummies.map {|d| d[0..1]} + @contexts.last.select {|_,v| v.dummy?}.map {|d| d[0..1]}
+				dummies.reject! {|n,_| override.has_key?(n) }
+				unless dummies.empty?
+					raise CompileError, "Labels referenced but not defined in #{self}: #{dummies.inspect}"
+				end
+			end
 
 			prog = super(*args)
 			code = @code.dup

@@ -1269,33 +1269,40 @@ module Z80
 				label = @lhs
 				raise CompileError, "can't calculate an address of a directly addressed sublabel: #{label}" if label.sublabel?
 				addr = label.to_i(start, rel_to_label, override:override, prefix:prefix)
-				@index.each do |idx|
-					case idx
-					when String
-						raise CompileError, "Unknown member: #{idx} of label #{label}." unless sublabel = label ** idx
-						subprefix = prefix + label.to_name + '.'.freeze
-						# a member of struct
-						if sublabel.sublabel?
-							addr += sublabel.to_i
-						elsif label.sublabel?
-							raise CompileError, "Non struct member as a member of a struct label: #{subprefix}#{sublabel.to_name}"
-						# a label
-						else
-							if label.immediate? and !sublabel.immediate?
-								raise CompileError, "Relative member #{subprefix}#{sublabel.to_name} of an absolute label #{label}!"
-							end
-							addr = sublabel.to_i(start, rel_to_label, override:override, prefix:subprefix)
-						end
-						prefix = subprefix
-						label = sublabel
-					else
-						addr+= arg_to_i.call(idx, nil) * label.to_i(size_of:true)
-					end
-				end
-				if size_of
-					label.to_i(size_of:true)
+				# allow overrides of simple nested sublabels that only exist when overridden
+				if !size_of and rel_to_label.nil? and !@index.empty? and label.to_name and
+					 @index.all?{|idx| idx.is_a?(String)} and
+					 (override_value = override && override[prefix + label.to_name + '.'.freeze + @index.join('.'.freeze)])
+					 override_value - rel_to.to_i
 				else
-					addr
+					@index.each do |idx|
+						case idx
+						when String
+							raise CompileError, "Unknown member: #{idx} of label #{label}." unless sublabel = label ** idx
+							subprefix = prefix + label.to_name + '.'.freeze
+							# a member of struct
+							if sublabel.sublabel?
+								addr += sublabel.to_i
+							elsif label.sublabel?
+								raise CompileError, "Non struct member as a member of a struct label: #{subprefix}#{sublabel.to_name}"
+							# a label
+							else
+								if label.immediate? and !sublabel.immediate?
+									raise CompileError, "Relative member #{subprefix}#{sublabel.to_name} of an absolute label #{label}!"
+								end
+								addr = sublabel.to_i(start, rel_to_label, override:override, prefix:subprefix)
+							end
+							prefix = subprefix
+							label = sublabel
+						else
+							addr+= arg_to_i.call(idx, nil) * label.to_i(size_of:true)
+						end
+					end
+					if size_of
+						label.to_i(size_of:true)
+					else
+						addr
+					end
 				end
 			else
 				raise CompileError, "Can't get a size from an expression: #{self.inspect}" if size_of
