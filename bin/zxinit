@@ -1,18 +1,43 @@
 #!/usr/bin/env ruby
 # -*- coding: BINARY -*-
-ZXINIT_VERSION = '0.1'
+ZXINIT_VERSION = '0.2'
 HELP = <<_EOH_
 ZXINIT #{ZXINIT_VERSION}: Bootstrap Z80 programs.
 Usage:
-#{File.basename($0)} target [class]
+#{File.basename($0)} [options] target [class]
 
   target: the path to new program file to create
           (the .rb extension is optional)
   class: custom class name of the program, by default the class name
          is the capitalized target file name
+  options:
+    -p, --program: choose the template for Z80 programs (default)
+    -s, --song: choose the template for music box songs instead
 _EOH_
 
-target, klass_name = ARGV[0,2]
+template = :program
+
+args = []
+
+while arg = ARGV.shift
+  case arg
+  when /^-s$/, /^--song$/
+    template = :song
+  when /^-p$/, /^--program$/
+    template = :program
+  when /^-/
+    $stderr.puts "ZXINIT: unknown option: #{arg}"
+    exit 2
+  else
+    if args.length == 2
+      $stderr.puts "ZXINIT: too many arguments!"
+      exit 3
+    end
+    args << arg
+  end
+end
+
+target, klass_name = args
 
 if target.nil?
   puts HELP; exit
@@ -34,9 +59,11 @@ if File.exist?(target)
     exit 1
 end
 
-puts "ZXINIT: initializing #{klass_name} at #{target}"
+puts "ZXINIT: initializing #{template} #{klass_name} at #{target}"
 
-BOOTSTRAP=<<_EOB_
+BOOTSTRAP = {}
+
+BOOTSTRAP[:program]=<<_EOB_
 # -*- coding: BINARY -*-
 require 'z80'
 # require 'z80/math_i'
@@ -86,6 +113,7 @@ class #{klass_name}
   end
 end
 
+
 if __FILE__ == $0
   require 'zxlib/basic'
 
@@ -113,8 +141,65 @@ EOB
 end
 _EOB_
 
+BOOTSTRAP[:song]=<<_EOB_
+require 'zxutils/music_box'
+
+class #{klass_name}
+  include ZXUtils::MusicBox::Song
+
+  tempo 128
+  first_octave_note :c
+
+  all_channels { noise_off; tone_off; volume 0 }
+
+  ch_a do
+    tone_on; set_instrument :instr1
+    c  4, 8; c! 4, 8; d  4, 8; d! 4, 8; e  4, 8
+  end
+
+  all_channels do
+    vibrato_off;
+    mask_noise_off; mask_ay_volume_envelope_off; mask_tone_off
+    volume_envelope_off; noise_envelope_off
+    chord_off
+    disable_ay_volume_ctrl
+    noise_off; tone_off; volume 0;
+  end
+
+  envelope :decay1, [2, 0.5], :loop, [64, -1.0]
+
+  instrument :instr1 do
+    volume 12; ve :decay1
+  end
+end
+
+
+if __FILE__ == $0
+  require 'z80'
+  song = #{klass_name}.new
+  puts song.to_program.new(0x8000).debug
+  puts "\\nRecursion depth max: \#{song.validate_recursion_depth!}"
+  unless (unused_items = song.unused_item_names).empty?
+    puts "Unused:"
+    unused_items.each do |category, names|
+      unless names.empty?
+        puts "  \#{category}:"
+        puts names.map {|name| "   - :\#{name}" }
+      end
+    end
+  end
+  puts "Summary:"
+  song.to_module.index_items.sort_by(&:type).chunk(&:type).each do |type, items|
+    puts " - \#{type}s".to_s.ljust(15) + ": \#{items.length.to_s.rjust(3)}"
+  end
+  puts song.channel_tracks.zip(%w[A B C]).map {|t, ch| "channel \#{ch} ticks: \#{t.ticks_counter}" }
+  song.to_player_module.save_tap #{target_base.inspect}
+  Z80::TAP.parse_file(#{(target_base + '.tap').inspect}) { |hb| puts hb.to_s }
+end
+_EOB_
+
 File.open(target, File::CREAT|File::EXCL|File::WRONLY|File::TRUNC, encoding: 'BINARY') do |fd|
-  fd.write BOOTSTRAP
+  fd.write BOOTSTRAP[template]
 end
 puts "ZXINIT: ready"
 puts "ZXINIT: compile and run #{klass_name} with:"
