@@ -255,12 +255,12 @@ module ZXUtils
     #    end
     module Macros
       ##
-      # Creates a rountine that initializes music tracks and optionally the instrument lookup table.
+      # Creates a routine that initializes music tracks and optionally the index lookup table.
       #
       # Provide addresses of the main tracks as +track_a+, +track_b+ and +track_c+.
       #
       # Options:
-      # * +index_table+:: An address of the instrument table associated with tracks as an integer,
+      # * +index_table+:: An address of the index lookup table associated with tracks as an integer,
       #                   a label or a pointer. _Required_ if AYMusic::READ_ONLY_CODE is +true+.
       # * +init+:: A label addressing the AYMusic.init routine.
       # * +play+:: A label addressing the AYMusic.play routine.
