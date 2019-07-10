@@ -108,7 +108,7 @@ class #{klass_name}
   ns :start do
                         ld   a, 2
                         call rom.chan_open
-                        print_text "Hello world!\r"
+                        print_text "Hello world!\\r"
                         ret
   end
 end
@@ -179,7 +179,7 @@ if __FILE__ == $0
   song = #{klass_name}.new
   puts song.to_program.new(0x8000).debug
   puts "\\nRecursion depth max: \#{song.validate_recursion_depth!}"
-  unless (unused_items = song.unused_item_names).empty?
+  unless (unused_items = song.unused_item_names).all?{|_,n| n.empty?}
     puts "Unused:"
     unused_items.each do |category, names|
       unless names.empty?
