@@ -448,6 +448,28 @@ module ZXUtils
                             jr   mloop
         end
       end
+      ##
+      # Creates a routine that detects if the currently playing tracks has ended.
+      #
+      # +ZF+ is 1 if all of the tracks has reached the end.
+      #
+      # * +music_control+:: A label of the type MusicControl addressing the data structure.
+      #
+      # Modifies: +af+, +hl+.
+      def ay_music_finished?(music_control)
+        isolate do |eoc|
+          (0..2).each do |ch|
+                            xor  a
+                            ld   hl, [music_control.chans[ch].track.cursor]
+                            cp   [hl]
+                            jr   NZ, eoc
+                            ld   hl, [music_control.chans[ch].track.delay]
+                            ld   a, l
+                            ora  h
+                            jr   NZ, eoc
+          end
+        end
+      end
     end
 
     ###########
