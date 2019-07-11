@@ -41,7 +41,7 @@ module ZXLib
 			attr_accessor :lines
 			# The optional starting line of a Basic program as an integer.
 			attr_accessor :start
-			# A Basic::Vars instance with a program's run-time variables.
+			# An instance of Basic::Vars containing program's run-time variables.
 			attr_reader :vars
 
 			def initialize(lines, vars = nil, start = nil)
@@ -88,7 +88,7 @@ module ZXLib
 			#  an escape sequence using whitespaces or commas as separators, e.g.: `0xff, 201, 0b01010001` stands for 3 bytes.
 			#  Any ruby number literal is accepted: decimal, hexadecimal, octal, binary.
 			#
-			#  Color and cursor position control condes are multi-byte. There are special control escape sequences for them:
+			#  Color and cursor position control codes are multi-byte. There are special control escape sequences for them:
 			#
 			#      code seq. count  special escape sequence format
 			#      `16 n`    2      `INK n`
@@ -1094,7 +1094,12 @@ module ZXLib
 			VAR_FOR_LOOP     = 0b111
 		end
 		##
-		#  A container class for keeping and inspecting ZX Basic program variables.
+		#  A container class for collecting and inspecting ZX-Spectrum's Basic program variables.
+		#
+		#  Variables can be created for Basic programs and saved together with them without the need
+		#  to ever initialize those variables from Basic program itself. Very large strings or arrays
+		#  can be created this way that would normaly not fit in both program's memory and variable
+		#  area memory when being used by the program.
 		#
 		#  Example:
 		#
@@ -1106,24 +1111,30 @@ module ZXLib
 		#         LOAD ""DATA m$()
 		#         GO SUB 1000
 		#     999 STOP
-		#    1000 INPUT "month number: ", mn
+		#    1000 REM notice m$ is never initialized in the program itself
+		#         INPUT "month number: ", mn
 		#         IF INT mn>=1 AND INT mn<=12 THEN PRINT m$(INT mn): GO TO 1000
 		#         RETURN
 		#    END
 		#    program.start = 1
+		#    # let's create m$ variable containing abbreviated month names and append it to the program
+		#    # this is equivalent to basic command DIM m$(12,3) and LET m$(..) = "..."
 		#    program.vars << Basic::Variable.new_char_array('m$', [12, 3], Date::ABBR_MONTHNAMES[1..12])
+		#    # let's save the program together with the m$ variable
 		#    program.save_tap 'askmonth.tap'
-		#    
+		#    # now let's create m$ variable containing full month names
 		#    monthnames = Date::MONTHNAMES[1..12]
 		#    maxlen = monthnames.max_by(&:length).length
 		#    mnames_var = Basic::Variable.new_char_array('m$', [12, maxlen], monthnames)
+		#    # we'll save it to a character array TAP file appending it to the file created above
 		#    mnames_var.save_tap 'askmonth.tap', append: true, name: 'longmonths'
 		#    
 		class Vars
+			## A binary string representing variables as an image of ZX-Spectrum's VARS memory area.
 			attr_accessor :data
 			alias_method :code, :data
 			##
-			#  Creates an instance of Basic::Vars
+			#  Creates an instance of Basic::Vars.
 			#
 			#  Optionally provide VARS data as a binary string.
 			def initialize(data='')
@@ -1132,7 +1143,7 @@ module ZXLib
 				@data = data.force_encoding(Encoding::BINARY)
 			end
 			##
-			#  Clear all variables
+			#  Clears all variables.
 			def clear!
 				@data = ''
 			end
@@ -1165,7 +1176,7 @@ module ZXLib
 				each_var.to_a
 			end
 			##
-			#  Returns a first Basic::Variable if found by its name.
+			#  Returns the first Basic::Variable if found by the given name.
 			def get(name)
 				each_var.find{|v| v.name.casecmp(name).zero? }
 			end
@@ -1184,12 +1195,35 @@ module ZXLib
 				each_var.map(&:to_s).join("\n")
 			end
 			##
-			#  Converts a ZX-Basic's string variable body to a UTF-8 Basic program text.
+			#  Converts a ZX-Spectrum's string variable data to a source UTF-8 text with special
+			#  and control characters encoded in a way explained here: Program.to_source.
+			#
+			#  This is the opposite operation of Vars.program_text_to_string.
+			#
+			#  Passing +:ascii_only+ as +true+ will render escape sequences instead of non-ascii characters.
+			#
+			#  Example:
+			#    Basic::Vars.string_to_program_text("foo\"\x16\x05\x02\x7F")
+			#    => "foo\"\"`AT 5,2`©"
+			#    Basic::Vars.string_to_program_text("foo\"\x16\x05\x02\x7F", ascii_only: true)
+			#    => "foo\"\"`AT 5,2``(c)`"
 			def Vars.string_to_program_text(data, ascii_only:false)
 				Tokenizer.program_data_to_text(data, true, true, ascii_only)
 			end
 			##
-			#  Converts a UTF-8 Basic program string to a ZX-Basic string variable body.
+			#  Converts a UTF-8 text string to a binary string encoded in a form suitable for ZX-Spectrum's
+			#  Basic variables or other ROM routines that print or otherwise handle strings.
+			#
+			#  The +text+ string may contain special characters and escape sequences as explained
+			#  here: Program.to_source. The quotes (") must be duplicated.
+			#
+			#  This is the opposite operation of Vars.string_to_program_text.
+			#
+			#  Example:
+			#    Basic::Vars.program_text_to_string('foo""`AT 5,2`©')
+			#    => "foo\"\x16\x05\x02\x7F"
+			#    Basic::Vars.program_text_to_string('foo""`AT 5,2``(c)`')
+			#    => "foo\"\x16\x05\x02\x7F"
 			def Vars.program_text_to_string(text)
 				buffer = ''
 				tokenizer = Tokenizer.new text
@@ -1207,7 +1241,8 @@ module ZXLib
 			end
 		end # Vars
 		##
-		#  Represents a ZX Spectrum's Basic variable with various methods to inspect its content.
+		#  Represents a ZX Spectrum's Basic variable with various methods to create new variables,
+		#  inspect their content or save as TAP files.
 		class Variable
 	  	include VariableTypes
 			include Z80::TAP
@@ -1242,14 +1277,14 @@ module ZXLib
 
 			## The type of a variable; one of VariableTypes.
 			attr_reader :type
-			## The original name of a variable.
+			## The variable's original name.
 			attr_reader :name
-			## The variable data in its original format.
+			## The variable's data in its original format.
 			attr_reader :data
 			## The dimension sizes as an array of integers. Only for array variables.
 			attr_reader :dims
 
-			def initialize(type, name, data, dims=nil)
+			def initialize(type, name, data, dims=nil) # :nodoc:
 				@type = type
 				@name = name
 				@data = data
