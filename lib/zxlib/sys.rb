@@ -338,8 +338,8 @@ module ZXLib
             #   and the following one, both contain 255.
             # * The RAM memory between 65524 and 65535 will not be used for other purposes.
             #
-            # _NOTE_:: The assumptions are true for most ZX Spectrum models and clones including Pentagon machines and
-            #          Timex TC2048. However they are not true on Timex TC2068 or TS2068 machines.
+            # _NOTE_:: The assumptions are true for most ZX Spectrum models and clones including Pentagon
+            #          machines and Timex TC2048. However they are not true for Timex TC2068 or TS2068.
             #
             # Options:
             # * +vector_page+:: A most significant byte of the interrupt vector table address
