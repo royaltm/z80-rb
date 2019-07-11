@@ -23,7 +23,7 @@ module ZXUtils
   # By default the workspace addresses follows immediately the static tables which are allocated after
   # the end of the AYMusic code.
   # All of the workspace and static tables' labels can be overridden to better fit your program's memory layout.
-  #                      
+  #
   #   <-  TRACK_STACK_TOTAL  ->                 <- +MusicControl ->      <- MINISTACK_SIZE ->
   #   +---------------------+-+                 +-----------------+      +------------------+
   #   |  Tracks' loop/yield |0|                 |  Music Control  |      | Player's machine |
