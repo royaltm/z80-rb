@@ -118,9 +118,12 @@ module ZXUtils
     # Relocates index table and sets the tracks' cursors to the initial positions.
     # Module data is not being modified.
     #
-    # _NOTE_:: This routine will disable and enable interrupts before it's finished.
-    #
     # * +hl+:: should point to the MusicTracks data.
+    #
+    # You may also call the +init.restart+ entry to reset tracks to the beginning
+    # of the last initialized module.
+    #
+    # _NOTE_:: This routine will disable and enable interrupts before it's finished.
     #
     # Modifies: +af+, +bc+, +de+, +hl+, +ix+ and 1 stack entry.
     ns :init do
@@ -130,7 +133,7 @@ module ZXUtils
                         ld   a, 128
                         ld   de, index_table
                         call relocate16
-                        di
+      restart           di
                         call music.init
       track_info        data TrackInfo, 1
                         ei
