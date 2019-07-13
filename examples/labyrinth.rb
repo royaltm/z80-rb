@@ -32,6 +32,36 @@ class Program
   # MAIN #
   ########
 
+  ROOM_UP_WALL_BIT    = 0
+  ROOM_UP_WALL_MASK   = 0b00000001
+  ROOM_LEFT_WALL_BIT  = 1
+  ROOM_LEFT_WALL_MASK = 0b00000010
+  ROOM_VISIT_BIT      = 5
+  ROOM_VISIT_MASK     = 0b00100000
+  ROOM_MARK_BIT       = 6
+  ROOM_MARK_MASK      = 0b01000000
+  ROOM_BORDER_BIT     = 7
+  ROOM_BORDER_MASK    = 0b10000000
+
+  ##
+  # A labyrinth descriptor.
+  #
+  # The memory layout of the labyrinth data:
+  #
+  # * Each byte represent a room: +r+ (left and up wall).
+  # * There are also border bytes that mark end of a row or a column: +b+.
+  #
+  #                |---width---|
+  #   room_data:   bbbbbbbbbbbbbb
+  #   room_00:     rrrrrrrrrrrrrb -
+  #                rrrrrrrrrrrrrb |
+  #                rrrrrrrrrrrrrb height
+  #                rrrrrrrrrrrrrb |
+  #                rrrrrrrrrrrrrb -
+  #                bbbbbbbbbbbbb
+  #
+  #   nrooms: width * height
+  #   bsize:  (width + 1) * height
   class Labyrinth < Label
     height      byte
     width       byte
@@ -41,8 +71,8 @@ class Program
     skip_rooms  word  # how many rooms skip while carving
                       # Calculated by init_labyrinth:
     nrooms      word  # number of rooms: width * height
-    room_00     word  # pointer to inner rooms array (past the top boundary)
-    bsize       word  # inner size with boundaries: (width + 1) * height
+    room_00     word  # pointer to inner rooms array (past the top border)
+    bsize       word  # inner size with right border: (width + 1) * height
   end
 
   class Viewport < Label
@@ -156,7 +186,7 @@ class Program
   # Set border taken from an attribute in register A.
   set_border    anda 0b00111000
                 3.times { rrca }
-                out  (254), a
+                out  (io.ula), a
                 ret
 
   # Check if specified keys are down.
@@ -228,31 +258,39 @@ class Program
   end
 
   macro :mark_room do |_, room=hl|
-          set  6, [room]
+          set  ROOM_MARK_BIT, [room]
   end
 
   macro :visit_room do |_, room=hl|
-          set  5, [room]
+          set  ROOM_VISIT_BIT, [room]
   end
 
-  macro :is_marked do |_, room=hl|
-          bit  6, [room]
+  macro :open_up_wall do |_, room=hl|
+          set  ROOM_UP_WALL_BIT, [room]
   end
 
-  macro :is_visited do |_, room=hl|
-          bit  5, [room]
+  macro :open_left_wall do |_, room=hl|
+          set  ROOM_LEFT_WALL_BIT, [room]
   end
 
-  macro :is_up_opened do |_, room=hl|
-          bit  0, [room]
+  macro :room_marked? do |_, room=hl|
+          bit  ROOM_MARK_BIT, [room]
   end
 
-  macro :is_left_opened do |_, room=hl|
-          bit  1, [room]
+  macro :room_visited? do |_, room=hl|
+          bit  ROOM_VISIT_BIT, [room]
   end
 
-  macro :is_boundary do |_, room=hl|
-          bit  7, [room]
+  macro :wall_up_open? do |_, room=hl|
+          bit  ROOM_UP_WALL_BIT, [room]
+  end
+
+  macro :wall_left_open? do |_, room=hl|
+          bit  ROOM_LEFT_WALL_BIT, [room]
+  end
+
+  macro :border_room? do |_, room=hl|
+          bit  ROOM_BORDER_BIT, [room]
   end
 
   macro :move_room do |eoc, width:e, mov:d|
@@ -285,44 +323,44 @@ class Program
   # * CF=1 if data doesn't fit in memory,
   # * ZF=1 if invalid dimensions (width==0 or height==0).
   ns :init_labyrinth do
-                ld   bc, [labyrinth.dimensions] # C: height, B: width
+                ld   bc, [labyrinth.dimensions]    # C: height, B: width
                 ld   a, c
                 ora  a
-                ret  Z                          # height == 0
+                ret  Z                             # height == 0
                 ld   a, b
                 ora  a
-                ret  Z                          # width == 0
+                ret  Z                             # width == 0
                 ld   hl, [labyrinth.room_data]
                 mul8_c 0, c, b, tt:de, clrhl:false # room_data += height * width
-                ret  C                          # overflow
-                add  hl, bc                     # room_data += height
-                ret  C                          # overflow
+                ret  C                             # overflow
+                add  hl, bc                        # room_data += height
+                ret  C                             # overflow
 
                 push bc
                 push hl
                 ld   a, [labyrinth.width]
                 add  a
                 ld   c, a
-                rl   b                          # BC: 2*width
-                inc  bc                         # BC: 2*width + 1
-                add  hl, bc                     # room_data += 2*width + 1 (up and bottom boundary)
+                rl   b                             # BC: 2*width
+                inc  bc                            # BC: 2*width + 1
+                add  hl, bc                        # room_data += 2*width + 1 (up and bottom border)
                 jr   C, no_test12
                 ld   bc, 12
-                add  hl, bc                     # room_data += 12 (interrupt routine handler)
+                add  hl, bc                        # room_data += 12 (interrupt routine handler)
     no_test12   pop  hl
                 pop  bc
-                ret  C                          # overflow
+                ret  C                             # overflow
 
                 ld   de, [labyrinth.room_data]
-                sbc  hl, de                     # bsize = room_data + height * width + height - room_data
+                sbc  hl, de                        # bsize = room_data + height * width + height - room_data
                 ld   [labyrinth.bsize], hl
-                sbc  hl, bc                     # nrooms = bsize - height
+                sbc  hl, bc                        # nrooms = bsize - height
                 ld   [labyrinth.nrooms], hl
                 ld   a, [labyrinth.width]
                 adda_to d, e
                 inc  de
-                ld   [labyrinth.room_00], de    # room_00 = room_data + width + 1
-                ora  a                          # ZF = 0, CF = 0
+                ld   [labyrinth.room_00], de       # room_00 = room_data + width + 1
+                ora  a                             # ZF = 0, CF = 0
                 ret
   end
 
@@ -331,15 +369,15 @@ class Program
   ns :clear_labyrinth do
                 ld   hl, [labyrinth.room_data]
                 ld   de, [labyrinth.dimensions]
-                ld   b, d                       # width
-                inc  b                          # width + 1
-                clrmem8 hl, b, 0xC0             # mark upper boundary row
-    clr_loop    clrmem8 hl, d, 0                # clear row
-                ld   [hl], 0xC0                 # mark right boundary room
+                ld   b, d                                      # width
+                inc  b                                         # width + 1
+                clrmem8 hl, b, ROOM_MARK_MASK|ROOM_BORDER_MASK # mark upper border row
+    clr_loop    clrmem8 hl, d, 0                               # clear row
+                ld   [hl], ROOM_MARK_MASK|ROOM_BORDER_MASK     # mark right border room
                 inc  hl
-                dec  e                          # decrease height
+                dec  e                                         # decrease height
                 jr   NZ, clr_loop
-                clrmem8 hl, d, 0xC0             # mark bottom boundary
+                clrmem8 hl, d, ROOM_MARK_MASK|ROOM_BORDER_MASK # mark bottom border
                 ret
   end
 
@@ -462,17 +500,17 @@ class Program
   # Convert room address in HL, to coordinates H: x, L: y
   # Prior to calling this function labyrinth variables must be successfully
   # initialized by calling +init_labyrinth+.
-  # WARNING: no boundary check.
+  # WARNING: no border check.
   ns :room_to_xy do
                 ld   de, [labyrinth.room_00]          # start 0,0
                 ora  a                                # CF=0
                 sbc  hl, de                           # relative room address (index)
                 ld   a, [labyrinth.width]
-                inc  a                                # width + 1 (boundary)
+                inc  a                                # width + 1 (border)
                 jr   Z, div_by_256                    # width + 1 == 256
                 ld   c, a
                 divmod8 c, check0:false, check1:false # index / (width + 1) == y
-    assign_x    ld   h, a                             # x
+    assign_x    ld   h, a                             # index % (width + 1) == x
                 ret
     div_by_256  ld   a, l                             # x
                 ld   l, h                             # y
@@ -482,7 +520,7 @@ class Program
   # Check if coordinates are visible.
   # Input in H: x, L: y
   # Output CF=1 not in viewport !(x >= vx && y>= vy && x < vx + 32 && y < vx + 24)
-  # WARNING: no boundary check and no viewport validation.
+  # WARNING: no border check and no viewport validation.
   ns :xy_in_viewport? do
                 ld   bc, [viewport]              # B: vx, C: vy
                 ld   a, l                        # y
@@ -542,7 +580,7 @@ class Program
   # Returns room address in HL from viewport.
   # Prior to calling this function labyrinth variables must be successfully
   # initialized by calling +init_labyrinth+.
-  # WARNING: no boundary check
+  # WARNING: no border check
   ns :viewport_to_room do
                 ld   de, [viewport]              # D: x, E: y
                 ld   hl, [labyrinth.room_00]     # start 0,0
@@ -556,7 +594,7 @@ class Program
                 ret
   end
 
-  # Returns randomized room address that is not a boundary room.
+  # Returns randomized room address that is not a border room.
   # Prior to calling this function labyrinth variables must be successfully
   # initialized by calling +init_labyrinth+.
   # Input: H'L': rng seed.
@@ -571,8 +609,8 @@ class Program
                 divmod16  check0:false, check1:false, modulo:true, quick8:true
                 ld   hl, [labyrinth.room_00]  # BC: RND * 65536 % bsize
                 add  hl, bc                   # random room address
-                is_boundary
-                ret  Z                        # return when not a boundary room
+                border_room?
+                ret  Z                        # return when not a border room
                 jp   try_again
   end
 
@@ -621,7 +659,7 @@ class Program
     hunt_next   ld   b, 4                 # hunt unmarked adjacent room
     another_dir push hl                   # save room address
                 move_room width:e, mov:d  # move to adjacent room by D & 0b11: 0 - up, 1 - right, 2 - down, 3 - left
-                is_marked                 # adjacent room already marked?
+                room_marked?              # adjacent room already marked?
                 jr   Z, open_room         # no, then open a wall to the adjacent room
                 pop  hl                   # restore room address
                 turn_cw mov:d             # try another direction (turn direction clockwise)
@@ -629,7 +667,7 @@ class Program
 
                 push de                   # save mov and width
     seek_marked call random_start         # seek random marked room
-                is_marked
+                room_marked?
                 jr   Z, seek_marked       # randomize room until marked found
                 pop  de                   # restore mov and width
                 jr   hunt_next            # hunt
@@ -639,21 +677,21 @@ class Program
                 anda 0b11                 # mov
                 jr   NZ, ck_open_1        # mov <> 0
                 ex   [sp], hl             # exchange new with the previous room
-                set  0, [hl]              # open upper wall from previous room
+                open_up_wall              # open upper wall from previous room
                 pop  hl                   # pop new room
                 jr   eoc
       ck_open_1 xor  0b11
                 jr   NZ, ck_open_2        # mov <> 3
                 ex   [sp], hl             # exchange new with the previous room
-                set  1, [hl]              # open left wall from previous room
+                open_left_wall            # open left wall from previous room
                 pop  hl                   # pop new room
                 jr   eoc
       ck_open_2 pop  bc                   # discard previous room
                 dec  a
                 jr   NZ, ck_open_3        # mov <> 2
-                set  0, [hl]              # open up (down from previous room)
+                open_up_wall              # open up (down from previous room)
                 jr   eoc
-      ck_open_3 set  1, [hl]              # open left (right from previous room)
+      ck_open_3 open_left_wall            # open left (right from previous room)
     end
                 mark_room                 # mark new room
                 pop  bc                   # restore rooms to go
@@ -681,14 +719,14 @@ class Program
                 jr   NC, skip0
                 ld   b, a
     skip0       ex   af, af           # restore attribute
-    loop0       is_visited
+    loop0       room_visited?
                 inc  hl
                 jr   Z, skip_color
                 ld   [de], a          # color visited
     skip_color  inc  de               # next attribute address
                 djnz loop0            # repeat min(width, 32) times
                 ex   af, af           # save attribute
-                inc  hl               # skip boundary room
+                inc  hl               # skip border room
                 pop  bc               # restore dimensions
                 ld   a, 32
                 sub  b                # 32 - width
@@ -715,7 +753,7 @@ class Program
                 ora  0b01000000       # apply bright bit
                 ex   af, af           # save attribute
 
-                inc  c                # C: height with boundary
+                inc  c                # C: height with border
 
                 ld   a, 32            # B: min(width, 32)
                 cp   b
@@ -726,7 +764,7 @@ class Program
                 push de               # save screen address
                 push bc               # save min(width, 32), (height + 1)
     hloop       ld   a, 0x80          # draw upper walls
-                is_up_opened
+                wall_up_open?
                 jr   NZ, is_openup
                 ld   a, 0xFF          # closed wall
     is_openup   ld   [de], a
@@ -740,7 +778,7 @@ class Program
                 cp   32               # width - 32
                 jr   NC, no_line_tr   # width >= 32
                 ex   de, hl           # HL: screen address
-                ld   [hl], 0x80       # right boundary pixel
+                ld   [hl], 0x80       # right border pixel
     no_line_tr  pop  de               # restore screen address
                 dec  c                # height -= 1
                 jr   NZ, skip_ret     # height > 0
@@ -757,11 +795,11 @@ class Program
                 ld   c, a             # attr_p | bright
                 ex   af, af           # save attribute
     attrloop    ld   a, c             # update row of screen attributes
-                is_visited
+                room_visited?
                 jr   Z, not_visited
                 xor  0b00111111       # inverse attribute for visited room
                 jr   skip_markck
-    not_visited is_marked
+    not_visited room_marked?
                 jr   NZ, skip_markck
                 anda 0b00111111       # clear bright bit for unmarked room
     skip_markck ld   [de], a
@@ -779,7 +817,7 @@ class Program
                 inc  c                # C: min(width, 31) + 1
     vloop       push de               # save screen address
                 xor  a
-                is_left_opened
+                wall_left_open?
                 inc  hl               # next room
                 jr   NZ, is_openleft
                 ld   a, 0x80          # pixel for closed left wall
@@ -804,7 +842,7 @@ class Program
                 sub  32               # width - 32
                 jr   C, main_loop     # width < 32
                 inc  a
-                adda_to h, l          # skip remaining rooms + boundary
+                adda_to h, l          # skip remaining rooms + border
                 ld   b, 32            # B: min(width, 32)
                 jp   main_loop
   end
@@ -821,7 +859,7 @@ class Program
                 ld   hl, [vars.frames]
                 exx
     seek_marked call random_start     # HL: room address
-                is_marked
+                room_marked?
                 jr   Z, seek_marked   # randomize until marked room found
                 ld   bc, 0            # reset "rooms left to visit" counter
                 ei                    # enable interrupts
@@ -829,36 +867,36 @@ class Program
                 ld   e, a
                 ld   d, 0             # DE: labyrinth.width
     visit_loop  visit_room            # mark room as visited
-                is_up_opened
+                wall_up_open?
                 jr   Z, skip_up1
                 push hl               # save current room
                 scf
                 sbc  hl, de           # go up
-                is_visited            # check if already visited
+                room_visited?         # check if already visited
                 jr   NZ, skip_up0     # yes
                 ex   [sp], hl         # no, so exchange up room with the current room on the stack
                 inc  bc               # increase "rooms left" counter
                 jr   skip_up1
     skip_up0    pop  hl               # restore current room if not visiting up room
-    skip_up1    is_left_opened
+    skip_up1    wall_left_open?
                 jr   Z, skip_left1
                 dec  hl               # go left
-                is_visited            # check if already visited
+                room_visited?         # check if already visited
                 jr   NZ, skip_left0   # yes
                 push hl               # no, so push left room on the stack
                 inc  bc               # increase "rooms left" counter
     skip_left0  inc  hl               # go back
     skip_left1  inc  hl               # go right
                 ld   a, [hl]          # get room data  
-                anda 0b00100010       # visited | left 
-                xor  0b00000010       # left
+                anda ROOM_VISIT_MASK|ROOM_LEFT_WALL_MASK
+                xor  ROOM_LEFT_WALL_MASK
                 jr   NZ, skip_right   # left is closed or already visited
                 push hl               # otherwise push right room on the stack
                 inc  bc               # increase "rooms left" counter
     skip_right  add  hl, de           # go down
                 ld   a, [hl]          # get room data
-                anda 0b00100001       # visited | up
-                xor  0b00000001       # up
+                anda ROOM_VISIT_MASK|ROOM_UP_WALL_MASK
+                xor  ROOM_UP_WALL_MASK
                 jr   NZ, skip_down    # up is closed or already visited
                 push hl               # otherwise push down room on the stack
                 inc  bc               # increase "rooms left" counter
@@ -902,12 +940,6 @@ class Program
   # Data #
   ########
 
-  # Rooms:
-  #   bit 7 - boundary (1=boundary)
-  #   bit 6 - mark (1=marked)
-  #   bit 5 - visit (1=visited)
-  #   bit 1 - left (1=open)
-  #   bit 0 - up   (1=open)
   room_data label
 end
 
