@@ -107,7 +107,7 @@ module Z80
                 #
                 # For each angle: a <= llllllhh; th =>  MSB SinCos address + 000000hh, tl => llllll00
                 # 
-                # +sincos+:: Address of SinCos table, must be on a 256 byte boundary.
+                # +sincos+:: Address of SinCos table, must be aligned to 256 bytes.
                 #            (LSB of +sincos+ address must be +0+).
                 #
                 # T-states: 30.
@@ -117,7 +117,7 @@ module Z80
                     raise ArgumentError, "sincos must be a direct address" if pointer?(sincos)
                     if immediate?(sincos)
                         sincos = sincos.to_i
-                        raise ArgumentError, "sincos must be on a 256 byte boundary" unless (sincos & 0x00FF).zero?
+                        raise ArgumentError, "sincos address must be aligned to 256 bytes" unless (sincos & 0x00FF).zero?
                     end
                     isolate do
                         select(sincos & 0x00FF, &:zero?).then do |_|
@@ -128,7 +128,7 @@ module Z80
                                 add  sincos >> 8
                                 ld   th, a
                         end.else do
-                            raise ArgumentError, "sincos must be on a 256 byte boundary"
+                            raise ArgumentError, "sincos address must be aligned to 256 bytes"
                         end
                     end
                 end
