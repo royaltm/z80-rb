@@ -229,9 +229,10 @@ module Z80
 			#
 			# Modifies: +af+.
 			def cp16r(th, tl, sh, sl, jr_msb_c: nil, jr_msb_nz: :eoc)
+				raise ArgumentError, "only th can be the accumulator" if [tl, sh, sl].include?(a)
 				isolate do |eoc|
 					jr_msb_nz = eoc if jr_msb_nz == :eoc
-						ld   a, th
+						ld   a, th unless th == a
 						cp   sh
 						case jr_msb_c
 						when :ret
