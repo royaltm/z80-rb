@@ -180,7 +180,9 @@ module Z80
 				end
 			end
 			##
-			# Compares a register pair +th+|+th+ with a 16-bit +value+.
+			# Compares a pair of registers +th+|+tl+ with a +value+ as unsigned 16-bit integers.
+			#
+			# Provide +value+ as an integer or a label.
 			#
 			#   CF, ZF = (th|tl - value)
 			#
@@ -189,37 +191,23 @@ module Z80
 			#   ZF = 0 if th|tl <> value
 			#   ZF = 1 if th|tl == value
 			#
+			# Options:
 			# * +jr_msb_c+: provide a label if you want to jump immediately after +th+ < (value >> 8)
 			#   or +:ret+ symbol to return from a subroutine.
 			# * +jr_msb_nz+: provide a label if you want to jump immediately after +th+ <> (value >> 8)
 			#   or +:ret+ symbol to return from a subroutine. By default jumps to +eoc+ of the +cp16n+ code,
 			#   so flags can be examined later.
+			#
 			# Example:
 			#   cp16n  h,l, foo, jr_msb_c: less_than_foo
 			#   jr C, less_than_foo
+			#
+			# Modifies: +af+.
 			def cp16n(th, tl, value, jr_msb_c: nil, jr_msb_nz: :eoc)
-				isolate do |eoc|
-					jr_msb_nz = eoc if jr_msb_nz == :eoc
-						ld   a, th
-						cp   value>>8
-						case jr_msb_c
-						when :ret
-							ret  C
-						else
-							jr   C, jr_msb_c
-						end unless jr_msb_c.nil?
-						case jr_msb_nz
-						when :ret
-							ret  NZ
-						else
-							jr   NZ, jr_msb_nz
-						end
-						ld   a, tl
-						cp   value
-				 end
+				cp16r(th, tl, value>>8, value, jr_msb_c:jr_msb_c, jr_msb_nz:jr_msb_nz)
 			end
 			##
-			# Compares a register pair +th+|+th+ with another register pair +sh+|+sl+.
+			# Compares a pair of registers +th+|+tl+ with another pair +sh+|+sl+ as unsigned 16-bit integers.
 			#
 			#   CF, ZF = (th|tl - +sh+|+sl+)
 			#
@@ -228,6 +216,7 @@ module Z80
 			#   ZF = 0 if th|tl <> sh|sl
 			#   ZF = 1 if th|tl == sh|sl
 			#
+			# Options:
 			# * +jr_msb_c+: provide a label if you want to jump immediately after +th+ < +sh+
 			#   or +:ret+ symbol to return from a subroutine.
 			# * +jr_msb_nz+: provide a label if you want to jump immediately after +th+ <> +sh+
@@ -237,6 +226,8 @@ module Z80
 			# Example:
 			#   cp16n  h,l, d,e, jr_msb_nz: not_equal
 			#   jr NZ, not_equal
+			#
+			# Modifies: +af+.
 			def cp16r(th, tl, sh, sl, jr_msb_c: nil, jr_msb_nz: :eoc)
 				isolate do |eoc|
 					jr_msb_nz = eoc if jr_msb_nz == :eoc
@@ -258,6 +249,115 @@ module Z80
 						cp   sl
 				end
 			end
+			##
+			# Compares +va+ with +vb+ as twos complement signed 8-bit integers.
+			#
+			# Provide +va+ and +vb+ as an 8-bit registers, integers or labels.
+			#
+			# Options:
+			# * +lt+: provide a label to jump to when +va+ < +vb+.
+			# * +gt+: provide a label to jump to when +va+ > +vb+.
+			# * +eq+: provide a label to jump to when +va+ = +vb+.
+			# * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
+			#
+			# _NOTE_:: At least +lt+ or +gt+ must be provided.
+			#          Only two of: +lt+, +gt+ and +eq+ may be specified.
+			#
+			# Modifies: +af+.
+			def cmp_i8(va, vb, lt:nil, gt:nil, eq:nil, jump_rel:false)
+		    raise ArgumentError, "lt, gt or eq should be labels if specified" unless (lt.nil? or (address?(lt) and !pointer?(lt))) and
+		                                                                             (gt.nil? or (address?(gt) and !pointer?(gt))) and
+		                                                                             (eq.nil? or (address?(eq) and !pointer?(eq)))
+		    raise ArgumentError, "specify at least one of: lt or gt" if lt == gt or (!lt and !gt)
+		    raise ArgumentError, "specify at most two of: lt, gt or eq" if lt and gt and eq
+				isolate do |eoc|
+														ld   a, va unless va == a
+		                        sub  vb
+		      if jump_rel
+		                        jr   Z, eq || eoc
+		      else
+		                        jp   Z, eq || eoc
+		      end
+		                        jp   PO, skip_xor       # VF: 0, no XORing
+		                        xor  0x80               # SF: SF ^ VF
+		    	skip_xor          label
+		                        jp   M, lt if lt
+		                        jp   P, gt if gt
+		    end
+			end
+			##
+			# Compares a pair of registers +th+|+tl+ with a +value+ as twos complement signed 16-bit integers.
+			#
+			# Provide +value+ as an integer or a label.
+			#
+			# Options:
+			# * +lt+: provide a label to jump to when +th+|+tl+ < +value+.
+			# * +gt+: provide a label to jump to when +th+|+tl+ > +value+.
+			# * +eq+: provide a label to jump to when +th+|+tl+ = +value+.
+			# * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
+			#
+			# _NOTE_:: At least +lt+ or +gt+ must be provided.
+			#          Only two of: +lt+, +gt+ and +eq+ may be specified.
+			#
+			# Modifies: +af+.
+			def cmp_i16n(th, tl, value, lt:nil, gt:nil, eq:nil, jump_rel:false)
+				cmp_i16r(th, tl, value>>8, value, lt:lt, gt:gt, eq:eq, jump_rel:jump_rel)
+			end
+			##
+			# Compares a pair of registers +th+|+tl+ with another pair +sh+|+sl+ as twos complement signed 16-bit integers.
+			#
+			# Options:
+			# * +lt+: provide a label to jump to when +th+|+tl+ < +sh+|+sl+.
+			# * +gt+: provide a label to jump to when +th+|+tl+ > +sh+|+sl+.
+			# * +eq+: provide a label to jump to when +th+|+tl+ = +sh+|+sl+.
+			# * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
+			#
+			# _NOTE_:: At least +lt+ or +gt+ must be provided.
+			#          Only two of: +lt+, +gt+ and +eq+ may be specified.
+			#
+			# Modifies: +af+.
+		  def cmp_i16r(th, tl, sh, sl, lt:nil, gt:nil, eq:nil, jump_rel:false)
+		    raise ArgumentError, "lt, gt or eq should be labels if specified" unless (lt.nil? or (address?(lt) and !pointer?(lt))) and
+		                                                                             (gt.nil? or (address?(gt) and !pointer?(gt))) and
+		                                                                             (eq.nil? or (address?(eq) and !pointer?(eq)))
+		    raise ArgumentError, "specify at least one of: lt or gt" if lt == gt or (!lt and !gt)
+		    raise ArgumentError, "specify at most two of: lt, gt or eq" if lt and gt and eq
+		    gte = gt if gt == eq
+		    jump = proc do |cond, target|
+		      if jump_rel
+		                        jr   cond, target
+		      else
+		                        jp   cond, target
+		      end
+		    end
+				isolate do |eoc|
+		                        ld   a, th
+		                        sub  sh
+		                        jump.call Z, equal_msb
+		                        jp   PO, skip_xor       # VF: 0, no XORing
+		                        xor  0x80               # SF: SF ^ VF
+		    	skip_xor          label
+		                        jp   M, lt if lt
+		                        jp   P, gt if gt
+		                        jump.call nil, eoc if !lt or !gt
+		    	equal_msb         ld   a, tl
+		                        cp   sl
+		    	if gte
+		                        jump.call NC, gte
+		    	elsif gt
+		      	if lt
+		                        jump.call C, lt
+		                        jump.call NZ, gt
+		      	else
+		                        jump.call Z, eq || eoc
+		                        jump.call NC, gt
+		      	end
+		    	else
+		                        jump.call Z, eq if eq
+		                        jump.call C, lt
+		    	end
+		    end
+		  end
 		end
 		include Macros
 	end
