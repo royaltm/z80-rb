@@ -98,6 +98,9 @@ module Z80
 					else
 						raise Syntax, "Invalid condition for jr: #{cc}" if cc.to_i > 0x18
 					end
+				when nil
+					tt = nil
+					0x18
 				else
 					dd, tt = cc, nil
 					0x18
@@ -125,6 +128,9 @@ module Z80
 					end
 					op = cc.prefix + op if cc.prefix
 					return Z80::add_code self, op, 1, "jp   (#{cc})"
+				when nil
+					tt = nil
+					"\xC3"
 				else
 					nn, tt = cc, nil
 					"\xC3"
