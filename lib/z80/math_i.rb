@@ -107,6 +107,123 @@ module Z80
                 data int_klass, bytes.pack('c*'.freeze)
             end
             ##
+            # Compares +va+ with +vb+ as twos complement signed 8-bit integers.
+            #
+            # Provide +va+ and +vb+ as an 8-bit registers, integers or labels.
+            #
+            # Options:
+            # * +lt+: provide a label to jump to when +va+ < +vb+.
+            # * +gt+: provide a label to jump to when +va+ > +vb+.
+            # * +eq+: provide a label to jump to when +va+ = +vb+.
+            # * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
+            #
+            # _NOTE_:: At least +lt+ or +gt+ must be provided.
+            #          Only two of: +lt+, +gt+ and +eq+ may be specified.
+            #
+            # Modifies: +af+.
+            def cmp_i8(va, vb, lt:nil, gt:nil, eq:nil, jump_rel:false)
+                raise ArgumentError, "only va can be the accumulator" if vb == a
+                raise ArgumentError, "lt, gt or eq should be labels if specified" unless (lt.nil? or (address?(lt) and !pointer?(lt))) and
+                                                                                         (gt.nil? or (address?(gt) and !pointer?(gt))) and
+                                                                                         (eq.nil? or (address?(eq) and !pointer?(eq)))
+                raise ArgumentError, "specify at least one of: lt or gt" if lt == gt or (!lt and !gt)
+                raise ArgumentError, "specify at most two of: lt, gt or eq" if lt and gt and eq
+                isolate do |eoc|
+                                ld   a, va unless va == a
+                                sub  vb
+                    if jump_rel
+                                jr   Z, eq || eoc
+                    else
+                                jp   Z, eq || eoc
+                    end
+                                jp   PO, skip_xor       # VF: 0, no XORing
+                                xor  0x80               # SF: SF ^ VF
+                    skip_xor        label
+                                jp   M, lt if lt
+                                jp   P, gt if gt
+                end
+            end
+            ##
+            # Compares a bitwise concatenated pair of 8-bit values +th+|+tl+ with a +value+ as twos complement signed 16-bit integers.
+            #
+            # Provide +value+ as an integer or a label.
+            #
+            # Options:
+            # * +lt+: provide a label to jump to when +th+|+tl+ < +value+.
+            # * +gt+: provide a label to jump to when +th+|+tl+ > +value+.
+            # * +eq+: provide a label to jump to when +th+|+tl+ = +value+.
+            # * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
+            #
+            # _NOTE_:: At least +lt+ or +gt+ must be provided.
+            #          Only two of: +lt+, +gt+ and +eq+ may be specified.
+            #
+            # Modifies: +af+.
+            def cmp_i16n(th, tl, value, lt:nil, gt:nil, eq:nil, jump_rel:false)
+                cmp_i16r(th, tl, value>>8, value, lt:lt, gt:gt, eq:eq, jump_rel:jump_rel)
+            end
+            ##
+            # Compares a bitwise concatenated pair of 8-bit values +th+|+tl+ with another pair +sh+|+sl+ as twos complement signed 16-bit integers.
+            #
+            # Options:
+            # * +lt+: provide a label to jump to when +th+|+tl+ < +sh+|+sl+.
+            # * +gt+: provide a label to jump to when +th+|+tl+ > +sh+|+sl+.
+            # * +eq+: provide a label to jump to when +th+|+tl+ = +sh+|+sl+.
+            # * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
+            #
+            # _NOTE_:: At least +lt+ or +gt+ must be provided.
+            #          Only two of: +lt+, +gt+ and +eq+ may be specified.
+            #
+            # Modifies: +af+.
+            def cmp_i16r(th, tl, sh, sl, lt:nil, gt:nil, eq:nil, jump_rel:false)
+                raise ArgumentError, "only th can be the accumulator" if [tl, sh, sl].include?(a)
+                raise ArgumentError, "lt, gt or eq should be labels if specified" unless (lt.nil? or (address?(lt) and !pointer?(lt))) and
+                                                                                         (gt.nil? or (address?(gt) and !pointer?(gt))) and
+                                                                                         (eq.nil? or (address?(eq) and !pointer?(eq)))
+                raise ArgumentError, "specify at least one of: lt or gt" if lt == gt or (!lt and !gt)
+                raise ArgumentError, "specify at most two of: lt, gt or eq" if lt and gt and eq
+                gte = gt if gt == eq
+                jump = proc do |cond, target|
+                    if jump_rel
+                                jr   cond, target
+                    else
+                                jp   cond, target
+                    end
+                end
+                isolate do |eoc|
+                                ld   a, th unless th == a
+                    if sh == 0                          # 8bit optimization
+                                ora  a
+                    else
+                                sub  sh
+                    end
+                                jump.call Z, equal_msb
+                    unless sh == 0                      # 8bit optimization
+                                jp   PO, no_xor         # VF: 0, no XORing
+                                xor  0x80               # SF: SF ^ VF
+                        no_xor  label
+                    end
+                                jp   M, lt if lt
+                                jp   P, gt if gt
+                                jump.call nil, eoc if !lt or !gt
+                    equal_msb   ld   a, tl
+                                cp   sl
+                    if gte
+                                jump.call NC, gte
+                    elsif gt
+                        if lt
+                                jump.call C, lt
+                                jump.call NZ, gt
+                        else
+                                jump.call Z, eq || eoc
+                                jump.call NC, gt
+                        end
+                    else
+                                jump.call Z, eq if eq
+                                jump.call C, lt
+                    end
+                end
+            end
+            ##
             # Creates a routine that changes the sign of a twos complement 16-bit integer depending on
             # the content of the +sgn+.
             #

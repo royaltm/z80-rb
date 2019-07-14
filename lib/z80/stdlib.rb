@@ -328,8 +328,8 @@ module Z80
                     end
                 end
             end
-        end
 
+        end # Macros
         include Z80
     end
 end
