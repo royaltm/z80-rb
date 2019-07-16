@@ -112,9 +112,9 @@ module Z80
             # Provide +va+ and +vb+ as an 8-bit registers, integers or labels.
             #
             # Options:
-            # * +lt+: provide a label to jump to when +va+ < +vb+.
-            # * +gt+: provide a label to jump to when +va+ > +vb+.
-            # * +eq+: provide a label to jump to when +va+ = +vb+.
+            # * +lt+: provide a label to jump to or +:ret+ when +va+ < +vb+.
+            # * +gt+: provide a label to jump to or +:ret+ when +va+ > +vb+.
+            # * +eq+: provide a label to jump to or +:ret+ when +va+ = +vb+.
             # * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
             #
             # _NOTE_:: At least +lt+ or +gt+ must be provided.
@@ -123,24 +123,34 @@ module Z80
             # Modifies: +af+.
             def cmp_i8(va, vb, lt:nil, gt:nil, eq:nil, jump_rel:false)
                 raise ArgumentError, "only va can be the accumulator" if vb == a
-                raise ArgumentError, "lt, gt or eq should be labels if specified" unless (lt.nil? or (address?(lt) and !pointer?(lt))) and
-                                                                                         (gt.nil? or (address?(gt) and !pointer?(gt))) and
-                                                                                         (eq.nil? or (address?(eq) and !pointer?(eq)))
+                raise ArgumentError, "lt, gt or eq should be labels if specified" unless (lt.nil? or lt == :ret or (address?(lt) and !pointer?(lt))) and
+                                                                                         (gt.nil? or gt == :ret or (address?(gt) and !pointer?(gt))) and
+                                                                                         (eq.nil? or eq == :ret or (address?(eq) and !pointer?(eq)))
                 raise ArgumentError, "specify at least one of: lt or gt" if lt == gt or (!lt and !gt)
                 raise ArgumentError, "specify at most two of: lt, gt or eq" if lt and gt and eq
                 isolate do |eoc|
                                 ld   a, va unless va == a
                                 sub  vb
-                    if jump_rel
+                    if eq == :ret
+                                ret  Z
+                    elsif jump_rel
                                 jr   Z, eq || eoc
                     else
                                 jp   Z, eq || eoc
                     end
                                 jp   PO, skip_xor       # VF: 0, no XORing
                                 xor  0x80               # SF: SF ^ VF
-                    skip_xor        label
-                                jp   M, lt if lt
-                                jp   P, gt if gt
+                    skip_xor    label
+                    if lt == :ret
+                                ret  M
+                    elsif lt
+                                jp   M, lt
+                    end
+                    if gt == :ret
+                                ret  P
+                    elsif gt
+                                jp   P, gt
+                    end
                 end
             end
             ##
@@ -149,9 +159,9 @@ module Z80
             # Provide +value+ as an integer or a label.
             #
             # Options:
-            # * +lt+: provide a label to jump to when +th+|+tl+ < +value+.
-            # * +gt+: provide a label to jump to when +th+|+tl+ > +value+.
-            # * +eq+: provide a label to jump to when +th+|+tl+ = +value+.
+            # * +lt+: provide a label to jump to or +:ret+ when +th+|+tl+ < +value+.
+            # * +gt+: provide a label to jump to or +:ret+ when +th+|+tl+ > +value+.
+            # * +eq+: provide a label to jump to or +:ret+ when +th+|+tl+ = +value+.
             # * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
             #
             # _NOTE_:: At least +lt+ or +gt+ must be provided.
@@ -165,9 +175,9 @@ module Z80
             # Compares a bitwise concatenated pair of 8-bit values +th+|+tl+ with another pair +sh+|+sl+ as twos complement signed 16-bit integers.
             #
             # Options:
-            # * +lt+: provide a label to jump to when +th+|+tl+ < +sh+|+sl+.
-            # * +gt+: provide a label to jump to when +th+|+tl+ > +sh+|+sl+.
-            # * +eq+: provide a label to jump to when +th+|+tl+ = +sh+|+sl+.
+            # * +lt+: provide a label to jump to or +:ret+ when +th+|+tl+ < +sh+|+sl+.
+            # * +gt+: provide a label to jump to or +:ret+ when +th+|+tl+ > +sh+|+sl+.
+            # * +eq+: provide a label to jump to or +:ret+ when +th+|+tl+ = +sh+|+sl+.
             # * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
             #
             # _NOTE_:: At least +lt+ or +gt+ must be provided.
@@ -176,14 +186,16 @@ module Z80
             # Modifies: +af+.
             def cmp_i16r(th, tl, sh, sl, lt:nil, gt:nil, eq:nil, jump_rel:false)
                 raise ArgumentError, "only th can be the accumulator" if [tl, sh, sl].include?(a)
-                raise ArgumentError, "lt, gt or eq should be labels if specified" unless (lt.nil? or (address?(lt) and !pointer?(lt))) and
-                                                                                         (gt.nil? or (address?(gt) and !pointer?(gt))) and
-                                                                                         (eq.nil? or (address?(eq) and !pointer?(eq)))
+                raise ArgumentError, "lt, gt or eq should be labels if specified" unless (lt.nil? or lt == :ret or (address?(lt) and !pointer?(lt))) and
+                                                                                         (gt.nil? or gt == :ret or (address?(gt) and !pointer?(gt))) and
+                                                                                         (eq.nil? or eq == :ret or (address?(eq) and !pointer?(eq)))
                 raise ArgumentError, "specify at least one of: lt or gt" if lt == gt or (!lt and !gt)
                 raise ArgumentError, "specify at most two of: lt, gt or eq" if lt and gt and eq
                 gte = gt if gt == eq
                 jump = proc do |cond, target|
-                    if jump_rel
+                    if target == :ret
+                                ret  cond
+                    elsif jump_rel && (cond.nil? || cond.jr_ok?)
                                 jr   cond, target
                     else
                                 jp   cond, target
@@ -202,8 +214,8 @@ module Z80
                                 xor  0x80               # SF: SF ^ VF
                         no_xor  label
                     end
-                                jp   M, lt if lt
-                                jp   P, gt if gt
+                                jump.call M, lt if lt
+                                jump.call P, gt if gt
                                 jump.call nil, eoc if !lt or !gt
                     equal_msb   ld   a, tl
                                 cp   sl
