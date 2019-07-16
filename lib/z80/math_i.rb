@@ -1095,6 +1095,37 @@ module Z80
                 end
             end
             ##
+            # Creates a routine that performs an euclidean division of unsigned 24-bit: +kh+|+km+|+kl+ / 8-bit +m+.
+            # Returns a quotient in +kh+|+km+|+kl+ and a remainder in +accumulator+.
+            #
+            # This routine utilizes a stacked up Macros.divmod routines.
+            #
+            # Uses: +af+, +b+, +kh+, +km+, +kl+, preserves: +m+.
+            #
+            # * +kh+, +km+, +kl+:: A dividend as three unique 8-bit registers except: +a+, +b+.
+            # * +m+:: A divisor as an 8-bit register except: +a+, +b+ and none of +kh+, +km+, +kl+.
+            #
+            # Options:
+            # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
+            #              and nothing except the +accumulator+ is being altered.
+            #              +CF+ should be ignored if +check0+ is +false+. It may also be a label
+            #              (within the relative jump range) to indicate where to jump if +m+ equals 0.
+            # * +check1+:: Checks if a divisor equals 1, a hot path optimization. It may also be a label
+            #              to indicate where to jump if +m+ equals 1.
+            # * +modulo+:: Calculates a remainder only.
+            # * +optimize+:: What is more important: +:time+ or +:size+?
+            def divmod24_8(kh, km, kl, m, check0:true, check1:true, modulo:false, optimize: :time)
+                raise ArgumentError unless [kh, km, kl, m].uniq.size == 4
+                isolate do |eoc|
+                    check0 = eoc if check0 == true
+                    check1 = eoc if check1 == true
+                    divmod kh, m, check0:check0, check1:check1, modulo:modulo, optimize:optimize
+                    divmod km, m, clrrem:false, modulo:modulo, optimize:optimize
+                    divmod kl, m, clrrem:false, modulo:modulo, optimize:optimize
+                    anda a if check0 # clear CF
+                end
+            end
+            ##
             # Creates a routine that performs an euclidean division of unsigned 32-bit: +hl+|+hl'+ / +m+.
             # Returns a quotient in +hl+|+hl'+ and a remainder in +a+.
             #
