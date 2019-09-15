@@ -160,6 +160,8 @@ module Z80
 		##
 		#  Creates +jr/jp/ret/call+ conditions as constants:
 		#    NZ Z NC C PO PE P M
+		#
+		#  Additionally NV = PO and V = PE conditions are aliased.
 		#  You must not use this class directly. Use predefined constants instead.
 		class Condition
 			@@names = %w[NZ Z NC C PO PE P M]
@@ -187,6 +189,10 @@ module Z80
 			alias_method :to_str, :name
 			alias_method :to_s, :name
 			@@conditions = @@names.each_with_index.map {|r, i| new r, i << 3 }
+			@@names.concat(%w[NV V])
+			@@conditions.concat(%w[NV V].zip(%w[PO PE]).map {|newname, oldname|
+				new(newname, @@conditions[@@names.index(oldname)].to_i)
+			})
 		end
 		Register.names.each_with_index do |r, i|
 			module_eval "def #{r}; Register[#{i}]; end"

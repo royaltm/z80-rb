@@ -138,7 +138,7 @@ module Z80
                     else
                                 jp   Z, eq || eoc
                     end
-                                jp   PO, skip_xor       # VF: 0, no XORing
+                                jp   NV, skip_xor       # VF: 0, no XORing
                                 xor  0x80               # SF: SF ^ VF
                     skip_xor    label
                     if lt == :ret
@@ -210,7 +210,7 @@ module Z80
                     end
                                 jump.call Z, equal_msb
                     unless sh == 0                      # 8bit optimization
-                                jp   PO, no_xor         # VF: 0, no XORing
+                                jp   NV, no_xor         # VF: 0, no XORing
                                 xor  0x80               # SF: SF ^ VF
                         no_xor  label
                     end
