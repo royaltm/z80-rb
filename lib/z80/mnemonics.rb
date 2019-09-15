@@ -55,7 +55,7 @@ module Z80
 		#      ld h, iyh   # invalid
 		#
 		#  * and some less usefull but included for completeness:
-		#      out (c), 0
+		#      out (c)    # output to (BC) port 0 or 255 depending on the CPU manufacturer
 		#      inp (c)    # sets flags, but drops the value
 		#  
 		#  ==Mnemonic list
@@ -504,13 +504,13 @@ module Z80
 				end
 				Z80::add_code self, op, 1, "ex   #{tt}"
 			end
-			def out(oo, rr)
+			def out(oo, rr=nil)
 				rr = self[rr] if rr.is_a?(Array)
 				op = case oo
 				when c
 					tta = []
-					if rr == 0
-						tt = "(c), 0"
+					if rr.nil?
+						tt = "(c)"
 						"\xED\x71"
 					else
 						raise Syntax, "Invalid register argument for out (c)." unless rr.is_a?(Register) and rr.one_of? %w[a b c d e h l]

@@ -519,7 +519,7 @@ module ZXLib
         raise ArgumentError unless register?(regv)
         isolate do
           if Integer === regn || [a,b,c].include?(regn)
-                        ld   a, regn unless [0, a].include?(regn)
+                        ld   a, regn unless regn == a
           end
           if bc_const_loaded
                         ay_io_swap2sel_bc(io_ay)
@@ -527,11 +527,7 @@ module ZXLib
                         ld   bc, io_ay.ay_sel
           end
           if Integer === regn || [a,b,c].include?(regn)
-            if regn == 0
-                        out (c), 0
-            else
                         out (c), a
-            end
           else
                         out (c), regn
           end
@@ -560,7 +556,7 @@ module ZXLib
         raise ArgumentError if [b,c].include?(regv) or (regv == a and regn != 0)
         isolate do |eoc|
           if Integer === regn || [a,b,c].include?(regn)
-                        ld   a, regn unless [0, a].include?(regn)
+                        ld   a, regn unless regn == a
           end
           if bc_const_loaded
                         ay_io_swap2sel_bc(io_ay)
@@ -568,11 +564,7 @@ module ZXLib
                         ld   bc, io_ay.ay_sel
           end
           if Integer === regn || [a,b,c].include?(regn)
-            if regn == 0
-                        out (c), 0
-            else
                         out (c), a
-            end
           else
                         out (c), regn
           end
@@ -580,12 +572,8 @@ module ZXLib
           if block_given?
                         yield eoc
           elsif Integer === regv
-            if regv.zero?
-                        out (c), 0
-            else
                         ld   a, regv
                         out (c), a
-            end
           else
                         out (c), regv
           end
@@ -699,14 +687,10 @@ module ZXLib
           end
           ay_set_register_value(a, vol, bc_const_loaded:bc_const_loaded, io_ay:io_ay) do |_|
             if Integer === vol
-              if vol.zero?
-                        out  (c), 0
-              else
-                if vol_8bit
+              if vol_8bit
                         ld   a, (vol>>4) & 0x0F
-                else
+              else
                         ld   a, vol & 0x0F
-                end
               end
             else
                         ld   a, vol
