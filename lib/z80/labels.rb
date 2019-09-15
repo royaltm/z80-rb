@@ -30,7 +30,7 @@ module Z80
 			case label
 			when :auto
 				@autoexport = true
-			when :noauto
+			when :noauto, :no_auto
 				@autoexport = false
 			else
 				name = label.to_name
