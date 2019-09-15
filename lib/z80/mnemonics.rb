@@ -19,10 +19,6 @@ module Z80
 		#  * use +ora+  instead of +or+
 		#  * use +inp+  instead of +in+
 		#  * use <code>ex af,af</code> instead of <code>ex af,af'</code> (no apostrophe after +af+')
-		#
-		#  The ones below are due to my lazyness:
-		#
-		#  * use +im0+, +im01+, +im1+, +im2+  instead of +im+ +n+.
 		#  * do not use [ ] around +out+ and +inp+ instructions' arguments e.g.:
 		#      out c, a        # ok
 		#      out (c), a      # () are ok here
@@ -561,6 +557,19 @@ module Z80
 				end
 				Z80::add_code self, op, 1, "in   #{tt}", *tta
 			end
+			def im(n)
+				op = "\xED" + case n
+				when 0 then "\x46"
+				when 1 then "\x56"
+				when 2 then "\x5E"
+				else
+					raise Syntax, "Invalid im n argument"
+				end
+				Z80::add_code self, op, 1, "im   #{n}"
+			end
+			def im0; im(0); end
+			def im1; im(1); end
+			def im2; im(2); end
 			['nop', "\x00",
 			'rlca', "\x07",
 			'rrca', "\x0F",
@@ -580,10 +589,7 @@ module Z80
 			'neg',  "\xED\x44",
 			'reti', "\xED\x4D",
 			'retn', "\xED\x45",
-			'im0',  "\xED\x46",
 			'im01', "\xED\x4E",
-			'im1',  "\xED\x56",
-			'im2',  "\xED\x5E",
 			'cpi',  "\xED\xA1",
 			'cpd',  "\xED\xA9",
 			'cpir', "\xED\xB1",
