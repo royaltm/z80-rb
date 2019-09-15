@@ -28,7 +28,7 @@ module Z80
                 #
                 # +next_rng+:: An address of a random number generator routine. The routine should return
                 #              an 8bit random number in the +accumulator+. If +next_rng+ is +nil+
-                #              the block of code with the RNG routine is excpected instead.
+                #              the block of code with the RNG routine is expected instead.
                 #
                 # Options:
                 # * +target+:: An address of the target array as a label, a pointer or +hl+.
