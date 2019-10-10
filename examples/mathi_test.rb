@@ -594,8 +594,6 @@ class Program
   # after the number a +terminator+ character is being printed out
   prnum         utobcd bcdbufend, de, size: c, byteorder: :lsb
                 exx
-                ld  hl, bcdbufend
-                sub_from c, h, l
                 bcdtoa hl, c, skip_leading0:true do |eoc|
                   add '0'.ord
                   rst 0x10

@@ -25,8 +25,6 @@ module Z80
     #                   # convert integer to bcd
     #                   utobcd bcdbufend, result, size: 4
     #                   exx
-    #                   ld   hl, bcdbufend
-    #                   sub_from c, h, l
     #                   # print integer
     #                   bcdtoa hl, c, skip_leading0: true do
     #                     add ?0.ord
@@ -1379,7 +1377,7 @@ module Z80
             # Used by Macros.utobcd.
             #
             # +bufend+:: A direct address of the byte immediately following an end of the BCD memory area
-            #            as an integer or a label.
+            #            as an integer or a label or a pointer to the memory address holding the +bufend+ value.
             # +r+:: An 8-bit register holding the integer during conversion: +c+, +d+ or +e+.
             # +buflen+:: The current byte size of the BCD buffer as an integer, a label or +t+.
             # +t+:: The register holding the current byte size of the BCD buffer: +c+, +d+ or +e+.
@@ -1387,7 +1385,7 @@ module Z80
             #
             # Modifies: +af+, +b+, +r+, +t+, +hl+.
             def utobcd_step(bufend, r, buflen=1, t=c, r_in_a=false)
-                raise ArgumentError unless (address?(bufend) and !pointer?(bufend)) and
+                raise ArgumentError unless address?(bufend) and
                                            [c,d,e].include?(r) and [c,d,e].include?(t) and r != t and
                                            ((address?(buflen) and !pointer?(buflen)) or buflen == t)
                 isolate do
@@ -1396,16 +1394,17 @@ module Z80
                                     scf
                                     rla              # carry <- a <- 1
                                     ld  r, a
-                    buffmul         ld  hl, bufend - 1 # multiply buffer[] * 2 + carry using BCD
+                    buffmul         ld  hl, bufend   # multiply buffer[] * 2 + carry using BCD
                                     ld  b, t
-                    nextadd         ld  a, [hl]
+                    nextadd         dec hl
+                                    ld  a, [hl]
                                     adc a
                                     daa
                                     ld  [hl], a
-                                    dec hl
                                     djnz nextadd
-                                    jp  NC, nbufext  # no carry
+                                    jr  NC, nbufext  # no carry
                                     inc t            # extend buffer on carry
+                                    dec hl
                                     ld  [hl], 1      # put 1 in new place
                     nbufext         sla r            # carry <- r <- 0
                                     jp  NZ, buffmul
@@ -1415,8 +1414,11 @@ module Z80
             # Creates a routine that converts an unsigned binary integer of an arbitrary size to a BCD string.
             #
             # +bufend+:: A direct address of the byte immediately following an end of the BCD memory area
-            #            as an integer or a label.
+            #            as an integer or a label or a pointer to the memory address holding the +bufend+ value.
             # +input+:: An address of the binary integer being converted as an integer, a label, a pointer or +rr+.
+            #
+            # After the conversion is done the +c'+ register will hold the number of bytes written to the buffer
+            # and +hl'+ will hold the address of the first byte of the result.
             #
             # Provide a large enough BCD buffer. E.g. for a 32-bit integer, 5 bytes (10 digits) should be enough.
             #
@@ -1427,9 +1429,9 @@ module Z80
             # * +rr+:: A 16-bit register: +de+ or +hl+.
             # * +byteorder+:: The order of bytes in the integer being converted: +:lsb+ or +:msb+.
             #
-            # Modifies: +af+, +af'+, +b+, +rr+, +bc'+, +hl'+, +r'+.
+            # Modifies: +af+, +b+, +rr+, +bc'+, +hl'+, +r'+.
             def utobcd(bufend, input=de, size: 4, r: d, rr: de, byteorder: :lsb)
-                raise ArgumentError unless (address?(bufend) and !pointer?(bufend)) and
+                raise ArgumentError unless address?(bufend) and
                                            (address?(input) or input == rr) and
                                            (address?(size) or (register?(size) and size.bit8?)) and
                                            [de, hl].include?(rr) and [d, e].include?(r)
@@ -1452,9 +1454,16 @@ module Z80
                             ld   rr, input unless input == rr
                             adda_to *rr.split if byteorder == :lsb
                     end
+                    unless pointer?(bufend)
                             xor  a
                             ld   [bufend - 1], a
+                    end
                             exx
+                    if pointer?(bufend)
+                            ld   hl, bufend
+                            dec  hl
+                            ld   [hl], 0
+                    end
                             ld   c, 1
                             exx
                     loopi   label
