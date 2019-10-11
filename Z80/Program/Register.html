@@ -252,7 +252,7 @@
 
           
           <div class="method-source-code" id="5B-5D-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 43</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 43</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">index</span>)
         <span class="ruby-identifier">@@registers</span>[<span class="ruby-identifier">index</span>]
 <span class="ruby-keyword">end</span></pre>
@@ -285,7 +285,7 @@
 
           
           <div class="method-source-code" id="names-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 46</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 46</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">names</span>
         <span class="ruby-identifier">@@names8</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@namesi8</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@names_index8</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@names_bcdep8</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@names16</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@names_index16</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">@@names_other</span>
 <span class="ruby-keyword">end</span></pre>
@@ -318,7 +318,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 51</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 51</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">opc</span>)
         <span class="ruby-ivar">@name</span> = <span class="ruby-identifier">name</span>
         <span class="ruby-ivar">@index</span> = <span class="ruby-value">0</span>
@@ -366,9 +366,9 @@
 
           
           <div class="method-source-code" id="2B-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 122</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 126</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">+</span>(<span class="ruby-identifier">other</span>)
-        <span class="ruby-keyword">self</span>[<span class="ruby-identifier">other</span>]
+        <span class="ruby-keyword">self</span>[<span class="ruby-identifier">other</span>, <span class="ruby-value">:+</span>]
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -402,9 +402,9 @@
 
           
           <div class="method-source-code" id="2D-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 128</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 132</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">-</span>(<span class="ruby-identifier">other</span>)
-        <span class="ruby-keyword">self</span>[<span class="ruby-operator">-</span><span class="ruby-identifier">other</span>.<span class="ruby-identifier">to_i</span>]
+        <span class="ruby-keyword">self</span>[<span class="ruby-identifier">other</span>, <span class="ruby-value">:-</span>]
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -420,7 +420,7 @@
         
         <div class="method-heading">
           <span class="method-name">[]</span><span
-            class="method-args">(index = 0)</span>
+            class="method-args">(index = 0, sgn = :+)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -439,20 +439,24 @@
 
           
           <div class="method-source-code" id="5B-5D-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 99</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">index</span> = <span class="ruby-value">0</span>)
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 99</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">index</span> = <span class="ruby-value">0</span>, <span class="ruby-identifier">sgn</span> = <span class="ruby-value">:+</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;sgn must be :+ or :- only&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">sgn</span> <span class="ruby-operator">==</span> <span class="ruby-value">:+</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">sgn</span> <span class="ruby-operator">==</span> <span class="ruby-value">:-</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">2</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">pointer?</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">index</span> <span class="ruby-operator">!=</span> <span class="ruby-value">0</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">name</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">!=</span> <span class="ruby-value">?i</span>
-                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only ix,iy registers may be indexed pointers.&quot;</span>
-                <span class="ruby-keyword">elsif</span> <span class="ruby-operator">!</span><span class="ruby-identifier">index</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_alloc</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span>(<span class="ruby-value">-128</span><span class="ruby-operator">..</span><span class="ruby-value">127</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">index</span>)
-                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Pointer index out of range.&quot;</span>
+                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only ix and iy registers may be pointers with an index.&quot;</span>
+                <span class="ruby-keyword">elsif</span> <span class="ruby-operator">!</span><span class="ruby-identifier">index</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_alloc</span>)
+                        <span class="ruby-identifier">sindex</span> = <span class="ruby-identifier">sgn</span> <span class="ruby-operator">==</span> <span class="ruby-value">:+</span> <span class="ruby-operator">?</span> <span class="ruby-identifier">index</span>.<span class="ruby-identifier">to_i</span> <span class="ruby-operator">:</span> <span class="ruby-operator">-</span><span class="ruby-identifier">index</span>.<span class="ruby-identifier">to_i</span>
+                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Pointer index out of range.&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-value">-128</span><span class="ruby-operator">..</span><span class="ruby-value">127</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">sindex</span>)
                 <span class="ruby-keyword">end</span>
                 <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-node">&quot;Register #{name} can not be a pointer.&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">r</span> = <span class="ruby-identifier">@@regindex</span>[<span class="ruby-identifier">name</span> <span class="ruby-operator">+</span> <span class="ruby-string">&#39;_&#39;</span>] <span class="ruby-keyword">or</span> (<span class="ruby-identifier">pointer?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">r</span> = <span class="ruby-keyword">self</span>)
                 <span class="ruby-identifier">r</span> = <span class="ruby-identifier">r</span>.<span class="ruby-identifier">dup</span>
-                <span class="ruby-keyword">if</span> <span class="ruby-identifier">index</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_alloc</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_alloc</span>)
-                        <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span> = <span class="ruby-identifier">index</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span>
-                <span class="ruby-keyword">else</span>
-                        <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span> = <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">index</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
+                        <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span> = <span class="ruby-identifier">sgn</span> <span class="ruby-operator">==</span> <span class="ruby-value">:-</span> <span class="ruby-operator">?</span> <span class="ruby-operator">-</span><span class="ruby-identifier">index</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">index</span>
+                <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">index</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_alloc</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_alloc</span>)
+                        <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span> = <span class="ruby-identifier">index</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">sgn</span>, <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span>)
+                <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">index</span> <span class="ruby-operator">!=</span> <span class="ruby-value">0</span>
+                        <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span> = <span class="ruby-identifier">r</span>.<span class="ruby-identifier">index</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">sgn</span>, <span class="ruby-identifier">index</span>)
                 <span class="ruby-keyword">end</span>
                 <span class="ruby-identifier">r</span>
         <span class="ruby-keyword">else</span>
@@ -488,7 +492,7 @@
 
           
           <div class="method-source-code" id="bit8-3F-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 141</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 145</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bit8?</span>; <span class="ruby-ivar">@bit8</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -519,7 +523,7 @@
 
           
           <div class="method-source-code" id="match16-3F-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 66</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 66</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">match16?</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-identifier">other</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Register</span>) <span class="ruby-keyword">and</span> <span class="ruby-node">%w[bc de hl ixhixl iyhiyl]</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">name</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">other</span>.<span class="ruby-identifier">name</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -552,7 +556,7 @@
 
           
           <div class="method-source-code" id="one_of-3F-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 142</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 146</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">one_of?</span>(<span class="ruby-identifier">ary</span>); <span class="ruby-identifier">ary</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">name</span>); <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -583,7 +587,7 @@
 
           
           <div class="method-source-code" id="pointer-3F-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 61</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 61</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">pointer?</span>
         <span class="ruby-identifier">name</span>[<span class="ruby-value">-1</span>] <span class="ruby-operator">==</span> <span class="ruby-string">&#39;_&#39;</span>
 <span class="ruby-keyword">end</span></pre>
@@ -616,7 +620,7 @@
 
           
           <div class="method-source-code" id="size-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 58</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 58</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">size</span>
         <span class="ruby-identifier">name</span>.<span class="ruby-identifier">size</span>
 <span class="ruby-keyword">end</span></pre>
@@ -651,7 +655,7 @@
 
           
           <div class="method-source-code" id="split-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 73</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 73</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">split</span>
         <span class="ruby-keyword">case</span> <span class="ruby-identifier">name</span>
         <span class="ruby-keyword">when</span> <span class="ruby-string">&#39;bc&#39;</span>, <span class="ruby-string">&#39;de&#39;</span>, <span class="ruby-string">&#39;hl&#39;</span>
@@ -691,11 +695,11 @@
 
           
           <div class="method-source-code" id="to_debug-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 131</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 135</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_debug</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">pointer?</span>
                 <span class="ruby-node">&quot;(#{name[0,2]}&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">prefix</span>
-                        <span class="ruby-string">&#39;+%02xH&#39;</span>
+                        <span class="ruby-string">&#39;%.1s%02xH&#39;</span>
                 <span class="ruby-keyword">end</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-string">&#39;)&#39;</span>
         <span class="ruby-keyword">else</span>
                 <span class="ruby-identifier">name</span>
@@ -730,7 +734,7 @@
 
           
           <div class="method-source-code" id="to_i-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 140</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 144</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_i</span>; <span class="ruby-ivar">@opc</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -763,7 +767,7 @@
 
           
           <div class="method-source-code" id="7C-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 87</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 87</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">|</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">match16?</span> <span class="ruby-identifier">other</span>
                 <span class="ruby-identifier">@@regindex</span>[<span class="ruby-identifier">name</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">other</span>.<span class="ruby-identifier">name</span>] <span class="ruby-operator">||</span> <span class="ruby-identifier">@@regindex</span>[<span class="ruby-identifier">name</span>[<span class="ruby-value">0</span>,<span class="ruby-value">2</span>]]

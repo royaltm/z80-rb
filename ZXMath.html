@@ -87,7 +87,7 @@
     
     <li ><a href="#method-c-unpack_number">::unpack_number</a>
     
-    <li ><a href="#method-i-unknown">#unknown</a>
+    <li ><a href="#method-i-print_fp_hl">#print_fp_hl</a>
     
   </ul>
 </div>
@@ -185,7 +185,7 @@
 
           
           <div class="method-source-code" id="pack_number-source">
-            <pre><span class="ruby-comment"># File zxlib/math.rb, line 51</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/math.rb, line 51</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier ruby-title">pack_number</span>(<span class="ruby-identifier">num</span>, <span class="ruby-identifier">simplified_int</span>=<span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">sgn</span> = <span class="ruby-identifier">num</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">0</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">simplified_int</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">num</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">num</span>.<span class="ruby-identifier">truncate</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-value">-65535</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">num</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">num</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-value">65535</span>
@@ -194,7 +194,7 @@
          <span class="ruby-identifier">num</span>,
          <span class="ruby-value">0</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;CcvC&#39;</span>)
     <span class="ruby-keyword">else</span>
-        <span class="ruby-identifier">m</span> = <span class="ruby-identifier">sgn</span> <span class="ruby-operator">?</span> <span class="ruby-operator">-</span><span class="ruby-identifier">num</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">num</span>
+        <span class="ruby-identifier">m</span> = (<span class="ruby-identifier">sgn</span> <span class="ruby-operator">?</span> <span class="ruby-operator">-</span><span class="ruby-identifier">num</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">num</span>).<span class="ruby-identifier">to_f</span>
         <span class="ruby-identifier">e</span> = (<span class="ruby-constant">Math</span>.<span class="ruby-identifier">log2</span>(<span class="ruby-identifier">m</span>)<span class="ruby-value">+1.0</span>).<span class="ruby-identifier">floor</span>
         <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;overflow error&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">e</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">127</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">e</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">-127</span>
@@ -208,7 +208,7 @@
             <span class="ruby-keyword">end</span>
             [
                 <span class="ruby-identifier">e</span> <span class="ruby-operator">+</span> <span class="ruby-value">128</span>,
-                <span class="ruby-identifier">sgn</span> <span class="ruby-operator">?</span> (<span class="ruby-identifier">m</span><span class="ruby-operator">*</span>(<span class="ruby-value">1</span><span class="ruby-operator">&lt;&lt;</span><span class="ruby-value">32</span>)).<span class="ruby-identifier">round</span> <span class="ruby-operator">:</span> (<span class="ruby-identifier">m</span><span class="ruby-operator">*</span>(<span class="ruby-value">1</span><span class="ruby-operator">&lt;&lt;</span><span class="ruby-value">32</span>)).<span class="ruby-identifier">round</span> <span class="ruby-operator">^</span> (<span class="ruby-value">1</span><span class="ruby-operator">&lt;&lt;</span><span class="ruby-value">31</span>)
+                <span class="ruby-identifier">sgn</span> <span class="ruby-operator">?</span> (<span class="ruby-identifier">m</span><span class="ruby-operator">*</span>(<span class="ruby-value">1</span><span class="ruby-operator">&lt;&lt;</span><span class="ruby-value">32</span>)).<span class="ruby-identifier">truncate</span> <span class="ruby-operator">:</span> (<span class="ruby-identifier">m</span><span class="ruby-operator">*</span>(<span class="ruby-value">1</span><span class="ruby-operator">&lt;&lt;</span><span class="ruby-value">32</span>)).<span class="ruby-identifier">truncate</span> <span class="ruby-operator">^</span> (<span class="ruby-value">1</span><span class="ruby-operator">&lt;&lt;</span><span class="ruby-value">31</span>)
             ].<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;CN&#39;</span>)
         <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">end</span>
@@ -246,7 +246,7 @@
 
           
           <div class="method-source-code" id="unpack_number-source">
-            <pre><span class="ruby-comment"># File zxlib/math.rb, line 84</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/math.rb, line 84</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier ruby-title">unpack_number</span>(<span class="ruby-identifier">bin</span>, <span class="ruby-identifier">simplified_int_as_fixnum</span>=<span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">bin</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">bin</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">5</span>
     <span class="ruby-identifier">e</span>, <span class="ruby-identifier">m</span> = <span class="ruby-identifier">bin</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;CN&#39;</span>)
@@ -297,7 +297,7 @@
        </header>
 
     
-      <div id="method-i-unknown" class="method-detail ">
+      <div id="method-i-print_fp_hl" class="method-detail ">
         
         
         <div class="method-heading">
@@ -320,11 +320,33 @@
           
 
           
-          <div class="method-source-code" id="unknown-source">
-            <pre><span class="ruby-comment"># File zxlib/math.rb, line 150</span>
-<span class="ruby-identifier">print_fp_hl</span>     <span class="ruby-identifier">ld</span> <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]      <span class="ruby-comment"># get floating point from (hl)</span>
+          <div class="method-source-code" id="print_fp_hl-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/math.rb, line 150</span>
+<span class="ruby-identifier">isolate</span> <span class="ruby-value">:print_fp_hl</span>, <span class="ruby-value">use:</span> <span class="ruby-identifier">rom</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">ld</span> <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]      <span class="ruby-comment"># get floating point from (hl)</span>
                 <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span>
-</pre>
+                <span class="ruby-identifier">ld</span> <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]
+                <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">ld</span> <span class="ruby-identifier">d</span>, [<span class="ruby-identifier">hl</span>]
+                <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">ld</span> <span class="ruby-identifier">c</span>, [<span class="ruby-identifier">hl</span>]
+                <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">ld</span> <span class="ruby-identifier">b</span>, [<span class="ruby-identifier">hl</span>]
+                <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>         <span class="ruby-comment"># save hl</span>
+                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># check if zero (return in Z flag)</span>
+                <span class="ruby-identifier">ora</span> <span class="ruby-identifier">e</span>
+                <span class="ruby-identifier">ora</span> <span class="ruby-identifier">d</span>
+                <span class="ruby-identifier">ora</span> <span class="ruby-identifier">c</span>
+                <span class="ruby-identifier">ora</span> <span class="ruby-identifier">b</span>
+                <span class="ruby-identifier">push</span> <span class="ruby-identifier">af</span>
+                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+                <span class="ruby-identifier">call</span> <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">stk_store</span>  <span class="ruby-comment"># store number on the calculator&#39;s stack</span>
+                <span class="ruby-identifier">call</span> <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">print_fp</span>   <span class="ruby-comment"># print number from the stack</span>
+                <span class="ruby-identifier">pop</span> <span class="ruby-identifier">af</span>
+                <span class="ruby-identifier">pop</span> <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">ret</span>
+<span class="ruby-keyword">end</span></pre>
           </div>
           
         </div>

@@ -182,7 +182,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 213</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 214</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">line_no</span>, <span class="ruby-identifier">body</span>)
         <span class="ruby-ivar">@line_no</span> = <span class="ruby-identifier">line_no</span>
         <span class="ruby-ivar">@body</span> = <span class="ruby-identifier">body</span>
@@ -218,7 +218,7 @@
 
           
           <div class="method-source-code" id="parse_source_line-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 239</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 240</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_source_line</span>(<span class="ruby-identifier">line_text</span>, <span class="ruby-identifier">last_line_no</span>=<span class="ruby-value">0</span>, <span class="ruby-identifier">line_index</span>=<span class="ruby-value">0</span>)
         <span class="ruby-identifier">offset</span> = <span class="ruby-value">0</span>
         <span class="ruby-identifier">line_no</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> = <span class="ruby-constant">Tokenizer</span><span class="ruby-operator">::</span><span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">SPACES_OR_LINE_NO</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">line_text</span>)
@@ -234,7 +234,7 @@
         <span class="ruby-keyword">else</span>
                 <span class="ruby-identifier">last_line_no</span>.<span class="ruby-identifier">succ</span>
         <span class="ruby-keyword">end</span>
-        <span class="ruby-keyword">if</span> <span class="ruby-identifier">line_no</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">last_line_no</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">line_no</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">last_line_no</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">line_no</span>.<span class="ruby-identifier">zero?</span>
                 <span class="ruby-identifier">raise</span> <span class="ruby-constant">SyntaxError</span>, <span class="ruby-node">&quot;line numbers must ascending, in line: #{line_index} no: #{line_no} previous: #{last_line_no}&quot;</span>
         <span class="ruby-keyword">end</span>
 
@@ -249,12 +249,8 @@
                         <span class="ruby-keyword">if</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">keyword_fn?</span>
                                 <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">to_keyword_char</span>
                                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">keyword?</span>(<span class="ruby-string">&#39;BIN&#39;</span>)
-                                        <span class="ruby-identifier">arg</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">tokenizer</span>.<span class="ruby-identifier">peek_token</span>.<span class="ruby-identifier">binary_number?</span>
-                                                <span class="ruby-identifier">tokenizer</span>.<span class="ruby-identifier">next_token</span>.<span class="ruby-identifier">to_chars</span>
-                                        <span class="ruby-keyword">else</span>
-                                                <span class="ruby-string">&#39;&#39;</span>
-                                        <span class="ruby-keyword">end</span>
-                                        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">arg</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">?\x0E</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">pack_number</span>(<span class="ruby-identifier">arg</span>.<span class="ruby-identifier">to_i</span>(<span class="ruby-value">2</span>), <span class="ruby-keyword">true</span>)
+                                        <span class="ruby-identifier">arg</span> = <span class="ruby-identifier">token</span>.<span class="ruby-identifier">extract_binary_number_argument</span>
+                                        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">arg</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">?\x0E</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">pack_number</span>(<span class="ruby-identifier">arg</span>.<span class="ruby-identifier">gsub</span>(<span class="ruby-constant">Tokenizer</span><span class="ruby-operator">::</span><span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">SPACE_OR_CONTROL</span>,<span class="ruby-string">&#39;&#39;</span>).<span class="ruby-identifier">to_i</span>(<span class="ruby-value">2</span>), <span class="ruby-keyword">true</span>)
                                 <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">keyword?</span>(<span class="ruby-string">&#39;THEN&#39;</span>)
                                         <span class="ruby-identifier">raise</span> <span class="ruby-constant">SyntaxError</span>, <span class="ruby-node">&quot;unexpected THEN in line: #{line_index} at: #{token.index}&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">parentheses</span>.<span class="ruby-identifier">zero?</span>
                                         <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">parse_statement</span>(<span class="ruby-identifier">tokenizer</span>)
@@ -264,7 +260,7 @@
                         <span class="ruby-keyword">end</span>
                 <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">number?</span>
                         <span class="ruby-identifier">numstr</span> = <span class="ruby-identifier">token</span>.<span class="ruby-identifier">to_chars</span>
-                        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">numstr</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">?\x0E</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">numstr</span>.<span class="ruby-identifier">to_f</span>.<span class="ruby-identifier">to_z80bin</span>
+                        <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">numstr</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">?\x0E</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">numstr</span>.<span class="ruby-identifier">gsub</span>(<span class="ruby-constant">Tokenizer</span><span class="ruby-operator">::</span><span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">SPACE_OR_CONTROL</span>,<span class="ruby-string">&#39;&#39;</span>).<span class="ruby-identifier">to_f</span>.<span class="ruby-identifier">to_z80bin</span>
                 <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">quote?</span>
                         <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">to_chars</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">parse_string_body</span>(<span class="ruby-identifier">tokenizer</span>)
                 <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">colon?</span>
@@ -322,7 +318,7 @@
 
           
           <div class="method-source-code" id="text-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 222</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 223</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">text</span>(<span class="ruby-value">escape_keywords:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ascii_only:</span><span class="ruby-keyword">false</span>)
         <span class="ruby-constant">Tokenizer</span>.<span class="ruby-identifier">program_data_to_text</span>(<span class="ruby-identifier">body</span>, <span class="ruby-identifier">escape_keywords</span>, <span class="ruby-keyword">false</span>, <span class="ruby-identifier">ascii_only</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -357,7 +353,7 @@
 
           
           <div class="method-source-code" id="to_s-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 230</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 231</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_s</span>(<span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-node">&quot;#{line_no.to_s.rjust(4)} #{text(**opts)}&quot;</span>
 <span class="ruby-keyword">end</span></pre>

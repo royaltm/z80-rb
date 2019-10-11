@@ -65,9 +65,11 @@
 
   <ul class="link-list" role="directory">
     
+    <li ><a href="#method-i-task-3F">#task?</a>
+    
     <li ><a href="#method-i-task_id">#task_id</a>
     
-    <li ><a href="#method-i-task_stack_free_bytes">#task_stack_free_bytes</a>
+    <li ><a href="#method-i-task_stack_bytes_free">#task_stack_bytes_free</a>
     
   </ul>
 </div>
@@ -103,11 +105,11 @@
        </header>
 
     
-      <div id="method-i-task_id" class="method-detail ">
+      <div id="method-i-task-3F" class="method-detail ">
         
         <div class="method-heading">
-          <span class="method-name">task_id</span><span
-            class="method-args">(oh, ol, tt:hl)</span>
+          <span class="method-name">task?</span><span
+            class="method-args">(tt:hl, mtvars:self.mtvars)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -116,44 +118,39 @@
 
         <div class="method-description">
           
-          <p>Retrieves current task&#39;s id.</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>oh</code>, <code>ol</code>
+          <p>Checks if the code is being run as a task. ZF flag will be set (Z) if not a task.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>tt</code>
 <dd>
-<p>Hi and lo byte register for output.</p>
+<p>A temporary 16bit register, may be one of: <code>hl</code>, <code>bc</code>, <code>de</code>, <code>ix</code> or <code>iy</code>.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>mtvars</code>
 <dd>
-<p>Temporary 16bit register, may be <code>ix</code>, <code>iy</code> or <code>hl</code>.</p>
+<p>should contain an address of the task variables.</p>
 </dd></dl>
 </li></ul>
 
-<p>T-states depending on <code>tt</code> used:</p>
+<p>T-States depending on <code>tt</code> used:</p>
 <ul><li>
-<p><code>ix</code>, <code>iy</code>: 58</p>
+<p><code>ix</code>, <code>iy</code>: 36</p>
 </li><li>
-<p><code>hl</code>: 54</p>
+<p><code>hl</code>: 24</p>
+</li><li>
+<p><code>bc</code>, <code>de</code>: 28</p>
 </li></ul>
+
+<p>Modifies: <code>af</code>, <code>tt</code>.</p>
           
           
 
           
-          <div class="method-source-code" id="task_id-source">
-            <pre><span class="ruby-comment"># File utils/multitasking.rb, line 184</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">task_id</span>(<span class="ruby-identifier">oh</span>, <span class="ruby-identifier">ol</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">hl</span>)
-  <span class="ruby-identifier">isolate</span> <span class="ruby-value">use:</span> <span class="ruby-value">:mtvars</span> <span class="ruby-keyword">do</span>
-    <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>)
+          <div class="method-source-code" id="task-3F-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking.rb, line 230</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">task?</span>(<span class="ruby-value">tt:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">mtvars:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">mtvars</span>)
+  <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">mtvars</span>.<span class="ruby-identifier">current_task</span>]
-                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, [<span class="ruby-identifier">tt</span> <span class="ruby-operator">-</span> <span class="ruby-value">3</span>]
-                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ol</span>, [<span class="ruby-identifier">tt</span> <span class="ruby-operator">-</span> <span class="ruby-value">4</span>]
-    <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
-                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">mtvars</span>.<span class="ruby-identifier">current_task</span>]
-                  <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span> <span class="ruby-identifier">tt</span> }
-                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, [<span class="ruby-identifier">tt</span>]
-                  <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">tt</span>
-                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ol</span>, [<span class="ruby-identifier">tt</span>]
-    <span class="ruby-keyword">else</span>
-      <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;tt may be only: hl, ix or iy&quot;</span>
-    <span class="ruby-keyword">end</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">tl</span>
+                  <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">th</span>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -166,11 +163,134 @@
       </div>
 
     
-      <div id="method-i-task_stack_free_bytes" class="method-detail ">
+      <div id="method-i-task_id" class="method-detail ">
         
         <div class="method-heading">
-          <span class="method-name">task_stack_free_bytes</span><span
-            class="method-args">(tt:hl, positive_size:true, disable_intr:true, enable_intr:true)</span>
+          <span class="method-name">task_id</span><span
+            class="method-args">(oh, ol, tt:hl, check_if_system:false, disable_intr:true, enable_intr:true, mtvars:self.mtvars)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Retrieves current task&#39;s id.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>oh</code>, <code>ol</code>
+<dd>
+<p>MSB and LSB 8-bit registers for output. Together oh|ol form a task id.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>A temporary 16bit register, may be one of: <code>hl</code>, <code>bc</code>, <code>de</code>, <code>ix</code> or <code>iy</code>.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>check_if_system</code>
+<dd>
+<p>If truish the routine will check if the execution context is of a system or a task. In this instance the ZF=1 (Z) will indicate that the code is being executed in a system&#39;s context and none of <code>oh</code>,<code>ol</code> registers will be modified.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>disable_intr</code>
+<dd>
+<p><code>true</code> will disable interrupts before probing; the interrupts must be disabled for this routine to work and <code>disable_intr=false</code> assumes the interrupts are already disabled.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>enable_intr</code>
+<dd>
+<p><code>true</code> will enable interrupts after probing.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>mtvars</code>
+<dd>
+<p>should contain an address of the task variables.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>tt</code>, <code>oh</code>, <code>ol</code>, optionally <code>af</code> if <code>oh</code>, <code>ol</code> is one of the <code>tt</code> sub-registers.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="task_id-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking.rb, line 252</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">task_id</span>(<span class="ruby-identifier">oh</span>, <span class="ruby-identifier">ol</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">check_if_system:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mtvars:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">mtvars</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;tt must be one of: hl, bc, de, ix or iy&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">hl</span>,<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>,<span class="ruby-identifier">ix</span>,<span class="ruby-identifier">iy</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;oh and ol must be different 8-bit registers&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">oh</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">ol</span>) <span class="ruby-keyword">and</span>
+                                                                            <span class="ruby-identifier">oh</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">ol</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">oh</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">ol</span>.<span class="ruby-identifier">bit8?</span>
+  <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                  <span class="ruby-identifier">di</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">disable_intr</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">check_if_system</span>
+                  <span class="ruby-identifier">task?</span>(<span class="ruby-value">tt:</span><span class="ruby-identifier">tt</span>, <span class="ruby-value">mtvars:</span><span class="ruby-identifier">mtvars</span>)
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">eop</span>
+    <span class="ruby-keyword">else</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">mtvars</span>.<span class="ruby-identifier">current_task</span>]
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>)
+      <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">oh</span>)
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">tt</span> <span class="ruby-operator">-</span> <span class="ruby-value">3</span>]
+        <span class="ruby-keyword">if</span> [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">oh</span>)
+          <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;ol must not be accumulator if tt is ix or iy and oh is one of: tt sub-registers&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">ol</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+        <span class="ruby-keyword">else</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, <span class="ruby-identifier">a</span>
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">else</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, [<span class="ruby-identifier">tt</span> <span class="ruby-operator">-</span> <span class="ruby-value">3</span>]
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ol</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;oh must not be accumulator or a sub-register of tt if tt is ix or iy and ol is one of: ix or iy sub-registers&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">a</span>,<span class="ruby-identifier">th</span>,<span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">oh</span>)
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">tt</span> <span class="ruby-operator">-</span> <span class="ruby-value">4</span>]
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ol</span>, <span class="ruby-identifier">a</span>
+      <span class="ruby-keyword">else</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ol</span>, [<span class="ruby-identifier">tt</span> <span class="ruby-operator">-</span> <span class="ruby-value">4</span>]
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, <span class="ruby-identifier">a</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">oh</span>)
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+                  <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span> <span class="ruby-identifier">tt</span> }
+      <span class="ruby-keyword">if</span> [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">oh</span>)
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">tt</span>]
+        <span class="ruby-keyword">if</span> [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">oh</span>)
+          <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;ol must not be accumulator if tt is hl and oh is one of: tt sub-registers&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">ol</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+        <span class="ruby-keyword">else</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, <span class="ruby-identifier">a</span>
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">else</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, [<span class="ruby-identifier">tt</span>]
+      <span class="ruby-keyword">end</span>
+                  <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">tt</span>
+      <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">ol</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;oh must not be accumulator or a sub-register of tt if tt is hl and ol is one of: ix or iy sub-registers&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">a</span>,<span class="ruby-identifier">th</span>,<span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">oh</span>)
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">tt</span>]
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ol</span>, <span class="ruby-identifier">a</span>
+      <span class="ruby-keyword">else</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ol</span>, [<span class="ruby-identifier">tt</span>]
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, <span class="ruby-identifier">a</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">oh</span>)
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">elsif</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>)
+      <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;oh must not be accumulator or a sub-register of tt if tt is bc or de&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">a</span>,<span class="ruby-identifier">th</span>,<span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">oh</span>)
+                  <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span> <span class="ruby-identifier">tt</span> }
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">tt</span>]
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, <span class="ruby-identifier">a</span>
+                  <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">tt</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">tt</span>]
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ol</span>, <span class="ruby-identifier">a</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">ol</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">eop</span>           <span class="ruby-identifier">label</span>
+                  <span class="ruby-identifier">ei</span>   <span class="ruby-keyword">if</span> <span class="ruby-identifier">enable_intr</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-task_stack_bytes_free" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">task_stack_bytes_free</span><span
+            class="method-args">(tt:hl, positive_size:true, disable_intr:true, enable_intr:true, mtvars:self.mtvars)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -184,17 +304,21 @@
 <dd>
 <p>Temporary 16bit register, may be <code>ix</code>, <code>iy</code> or <code>hl</code>.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>positive_size
+</li><li><dl class="rdoc-list note-list"><dt><code>positive_size</code>
 <dd>
 <p>If <code>false</code>, will output <code>-stack_free - 1</code> instead.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>disable_intr
+</li><li><dl class="rdoc-list note-list"><dt><code>disable_intr</code>
 <dd>
-<p>If <code>true</code> will disable interrupts before probing; the interrupts must be disabled for this routine to work and <code>disable_intr=false</code> assumes the interrupts are already disabled.</p>
+<p><code>true</code> will disable interrupts before probing; the interrupts must be disabled for this routine to work and <code>disable_intr=false</code> assumes the interrupts are already disabled.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>enable_intr
+</li><li><dl class="rdoc-list note-list"><dt><code>enable_intr</code>
 <dd>
-<p>If <code>false</code> will enable interrupts after probing.</p>
+<p><code>true</code> will enable interrupts after probing.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>mtvars</code>
+<dd>
+<p>should contain an address of the task variables.</p>
 </dd></dl>
 </li></ul>
 
@@ -203,7 +327,7 @@
 <p>Output:</p>
 <dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
-<p>number of bytes available on stack.</p>
+<p>how many bytes are available on the stack.</p>
 </dd><dt><code>CF</code>
 <dd>
 <p>should be 1 on succees; if CF=0, SP already exceeded its designated space and the multitasking will be terminated on the next task switching iteration.</p>
@@ -220,10 +344,10 @@ ix,iy           true       101    105    109
           
 
           
-          <div class="method-source-code" id="task_stack_free_bytes-source">
-            <pre><span class="ruby-comment"># File utils/multitasking.rb, line 226</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">task_stack_free_bytes</span>(<span class="ruby-value">tt:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">positive_size:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>)
-  <span class="ruby-identifier">isolate</span> <span class="ruby-value">use:</span> <span class="ruby-value">:mtvars</span> <span class="ruby-keyword">do</span>
+          <div class="method-source-code" id="task_stack_bytes_free-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking.rb, line 342</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">task_stack_bytes_free</span>(<span class="ruby-value">tt:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">positive_size:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mtvars:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">mtvars</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                   <span class="ruby-identifier">di</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">disable_intr</span>
     <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-comment"># 58</span>
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">mtvars</span>.<span class="ruby-identifier">current_task</span>]

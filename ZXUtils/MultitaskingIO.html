@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class ZXUtils::MultitaskingIO - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+<div class="nav-section">
+  <h3>Table of Contents</h3>
+
+  <ul class="link-list" role="directory">
+    <li><a href="#class-ZXUtils::MultitaskingIO-label-ZXUtils-3A-3AMultitaskingIO">ZXUtils::MultitaskingIO</a>
+    <li><a href="#class-ZXUtils::MultitaskingIO-label-Memory+map-3A">Memory map:</a>
+    <li><a href="#class-ZXUtils::MultitaskingIO-label-Multitasking+Api">Multitasking Api</a>
+    <li><a href="#class-ZXUtils::MultitaskingIO-label-ZX+Basic+API">ZX Basic API</a>
+    <li><a href="#class-ZXUtils::MultitaskingIO-label-Task+API">Task API</a>
+  </ul>
+</div>
+
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="../Object.html">Object</a>
+  
+</div>
+
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="../Z80.html">Z80</a>
+  
+  
+  
+    <li><a class="include" href="../Z80/TAP.html">Z80::TAP</a>
+  
+  
+  </ul>
+</div>
+
+    <div id="extends-section" class="nav-section">
+  <h3>Extended With Modules</h3>
+
+  <ul class="link-list">
+    
+  
+    <li><a class="extend" href="MultitaskingIO/Macros.html">ZXUtils::MultitaskingIO::Macros</a>
+  
+  
+  </ul>
+</div>
+
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-kernel_org">::kernel_org</a>
+    
+    <li ><a href="#method-c-new_kernel">::new_kernel</a>
+    
+    <li ><a href="#method-i-find_channel">#find_channel</a>
+    
+    <li ><a href="#method-i-find_channel_arg">#find_channel_arg</a>
+    
+    <li ><a href="#method-i-find_input_handle">#find_input_handle</a>
+    
+    <li ><a href="#method-i-find_io_handles">#find_io_handles</a>
+    
+    <li ><a href="#method-i-find_output_handle">#find_output_handle</a>
+    
+    <li ><a href="#method-i-get_int8_norm_arg">#get_int8_norm_arg</a>
+    
+    <li ><a href="#method-i-get_stream_arg">#get_stream_arg</a>
+    
+    <li ><a href="#method-i-initialize_io">#initialize_io</a>
+    
+    <li ><a href="#method-i-open_io">#open_io</a>
+    
+    <li ><a href="#method-i-wait_io">#wait_io</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-ZXUtils::MultitaskingIO">
+  <h1 id="class-ZXUtils::MultitaskingIO" class="class">
+    class ZXUtils::MultitaskingIO
+  </h1>
+
+  <section class="description">
+    
+<h1 id="class-ZXUtils::MultitaskingIO-label-ZXUtils-3A-3AMultitaskingIO"><a href="MultitaskingIO.html"><code>ZXUtils::MultitaskingIO</code></a><span><a href="#class-ZXUtils::MultitaskingIO-label-ZXUtils-3A-3AMultitaskingIO">&para;</a> <a href="#top">&uarr;</a></span></h1>
+
+<p>Asynchronous communication channels between tasks running in parallel with ZX Spectrum&#39;s Basic programs.</p>
+
+<p>See <a href="Multitasking.html"><code>Multitasking</code></a> for more information on tasks.</p>
+
+<p>This class contains <a href="MultitaskingIO/Macros.html"><code>Macros</code></a> and kernel labels for tasks and the kernel code.</p>
+
+<pre>                             +----------- find_io_handles ------------+
+                   CHANS     v                                        |
++----------+       +----------+  output  +------------+  input handle |
+| PRINT #n | ----&gt; | User     | -------&gt; | I/O Buffer | &lt;------&gt; +-------+
+| ZX Basic |       | Channel  |          +------------+          | Tasks |
+| INKEY$#n | &lt;---- |   Record | &lt;------- | I/O Buffer | &lt;------&gt; +-------+
++----------+       +----------+  input   +------------+  output handle</pre>
+
+<p>The ZX Spectrum&#39;s I/O channels are indentified by single upper-case letters. There are four system channels: “K”, “S”, “R” and “P”. Channels in order to be used must be “opened” by associating a channel with streams # 0-15. By default streams 0-3 are occupied by the system channels. In ZX Spectrum&#39;s Basic there are dedicated <code>OPEN #</code> and <code>CLOSE #</code> statements to associate channels with streams. Unfortunately their usage is limited only to the system channels.</p>
+
+<p><a href="MultitaskingIO.html"><code>MultitaskingIO</code></a> provides API to create its own channels and associate them with user streams. Each <a href="MultitaskingIO.html"><code>MultitaskingIO</code></a> channel represents a pair of I/O Buffers, one for writing and one for reading  from the system (full-duplex). The tasks can read or write data to any of the buffers. The most common use-case however is that the system&#39;s output provides the input for tasks and vice-versa.</p>
+
+<p>To speed up things tasks are not using streams but rather acquire a direct handle to an I/O Buffer and operate on its data directly by the routines provided by <a href="MultitaskingIO/Macros.html"><code>MultitaskingIO::Macros</code></a>.</p>
+
+<h3 id="class-ZXUtils::MultitaskingIO-label-Memory+map-3A">Memory map:<span><a href="#class-ZXUtils::MultitaskingIO-label-Memory+map-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<pre>                           TaskVarsIO                    | I/O user channel records
+ +---------+-------------+-------------+-----------+----------+---+-----------+-------------+--
+ | BASIC   | Display and | ZX Printer  | System    | Channel  |$80| ZX Basic  | Tasks&#39; Code |  
+ |  ROM    |  Attributes |      Buffer | Variables |     Info |   | Workspace |    and Data |  
+ +---------+-------------+-------------+-----------+----------+---+-----------+-------------+--
+ ^         ^             ^             ^           ^              ^           ^             ^  
+ $0000     $4000         $5B00         $5C00       $5CB6 = CHANS  PROG        RAMTOP  mtio_buffers_bot
+                         mtiovars
+
+   |            &lt;-|
+ --+--------------+--------------+---------------+--------+--------------+
+   | Reserved for | I/O Buffers  | Multitasking  | I/O    | Multitasking |
+   |  I/O Buffers |   Data Space |   Stack Space | Kernel |       Kernel |
+ --+--------------+--------------+---------------+--------+--------------+
+   ^              ^              ^               ^                       ^
+mtio_buffers_bot  |              |               |                  P_RAMT
+                  buffers_top    tv.stack_bot    tv.stack_end</pre>
+
+<h3 id="class-ZXUtils::MultitaskingIO-label-Multitasking+Api"><a href="Multitasking.html"><code>Multitasking</code></a> Api<span><a href="#class-ZXUtils::MultitaskingIO-label-Multitasking+Api">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p>All of the labels and macros exported by the <a href="Multitasking.html"><code>Multitasking</code></a> kernel are being re-exported by the <a href="MultitaskingIO.html"><code>MultitaskingIO</code></a> module.</p>
+
+<p>Programs compiled for the <a href="Multitasking.html"><code>Multitasking</code></a> kernel without the <a href="MultitaskingIO.html"><code>MultitaskingIO</code></a> will work fine, as the addresses of the <a href="Multitasking.html"><code>Multitasking</code></a> functions don&#39;t change.</p>
+
+<h3 id="class-ZXUtils::MultitaskingIO-label-ZX+Basic+API">ZX Basic API<span><a href="#class-ZXUtils::MultitaskingIO-label-ZX+Basic+API">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<pre>REM Setup:
+REM Initializes multitasking and I/O task variables, makes space for channels.
+REM Returns the number of bytes available for new tasks&#39; stacks.
+PRINT USR open_io
+
+REM Reset:
+REM Returns the number of bytes available for new tasks&#39; stacks.
+PRINT USR api
+
+REM Spawns a task:
+1 DEF FN m(a,s) = USR api
+
+LET tid = FN m(address,stacksize)
+
+REM Terminates a task:
+2 DEF FN t(t) = USR api
+
+REM Returns the number of bytes available for new tasks&#39; stacks after the task is terminated.
+PRINT FN t(tid)
+
+REM Returns the number of bytes available for new tasks&#39; stacks.
+3 DEF FN f() = USR api
+
+PRINT FN f()
+
+REM Opens or creates a MultitaskingIO channel and assigns a stream # to it:
+4 DEF FN o(s,c$)=USR open_io
+
+REM Initializes channel Q and allocates buffers if called for the first time with that letter.
+REM Opens channel Q and assigns stream #7 to that channel. Returns previously assigned channel identifier.
+PRINT CHR$ FN o(7,&quot;Q&quot;)
+
+REM Closes stream #7. Returns previously assigned channel identifier.
+PRINT CHR$ FN o(7,&quot;&quot;)
+
+REM Wait for I/O data availability.
+5 DEF FN w(s,n)=USR wait_io
+
+REM Blocks an execution of a program until at least 3 characters are available to be read from an I/O buffer at stream #7.
+LET ReadCharsNo=FN w(7,3): REM ReadCharsNo &gt;= 3
+
+REM Reads 3 characters from I/O channel #7.
+LET a$=INKEY$#7+INKEY$#7+INKEY$#7
+
+REM Blocks an execution of a program until at least 5 characters can be written to an I/O buffer at stream #7.
+LET WriteCharsNo=FN w(7,-5): REM WriteCharsNo &gt;= 5
+
+REM Sends 5 characters into I/O channel #7.
+PRINT #7;&quot;hello&quot;;</pre>
+<dl class="rdoc-list note-list"><dt><code>address</code>
+<dd>
+<p>Must be a task&#39;s machine code entry point address.</p>
+</dd><dt><code>stacksize</code>
+<dd>
+<p>Must be an even number of bytes, at least 42.</p>
+</dd><dt><code>tid</code>
+<dd>
+<p>Must be a number returned from a call to <code>FN m(a,s)</code>.</p>
+</dd></dl>
+
+<p><code>Setup</code> must be invoked once before any other function is used.</p>
+
+<p><code>Reset</code> can be called to terminate all tasks.</p>
+
+<p><code>Spawn</code> will report a “4 Out of memory” error if there is not enough room for a task info entry or stack space.</p>
+
+<p><code>Open</code> will report a “4 Out of memory” error if there is not enough room for I/O buffer data.</p>
+
+<p>“A Invalid argument”, “B Integer out of range”, “F Invalid file name”, “O Invalid stream”, “Q Parameter error” errors may also be reported when arguments are incorrect.</p>
+
+<p>Printing to the stream with the I/O buffer full will report “8 End of file” error.</p>
+
+<p>When reading a stream without any data available an INKEY$# function will return an empty string.</p>
+
+<h3 id="class-ZXUtils::MultitaskingIO-label-Task+API">Task API<span><a href="#class-ZXUtils::MultitaskingIO-label-Task+API">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p>To communicate with the <a href="MultitaskingIO.html"><code>MultitaskingIO</code></a> api tasks should obtain a direct handle to the I/O buffer. This is done via one of the kernel functions:</p>
+<ul><li>
+<p><a href="MultitaskingIO.html#method-i-find_io_handles"><code>find_io_handles</code></a></p>
+</li><li>
+<p><a href="MultitaskingIO.html#method-i-find_input_handle"><code>find_input_handle</code></a></p>
+</li><li>
+<p><a href="MultitaskingIO.html#method-i-find_output_handle"><code>find_output_handle</code></a></p>
+</li></ul>
+
+<p><em>Example</em>:</p>
+
+<pre>              # import kernel macros and labels from MultitaskingIO into the &quot;mtio&quot; namespace
+import        ZXUtils::MultitaskingIO, :mtio, code: false, macros: true, labels: ZXUtils::MultitaskingIO.kernel_org
+
+              # ...
+              # instead of invoking halt, call mtio.task_yield
+              call mtio.task_yield
+
+              # to terminate:
+              jp   mtio.terminate
+              # or when a stack is depleted just:
+              ret
+
+              # wait for the channel Q being available
+wait_loop     ld   a, &quot;Q&quot;.ord
+              call mtio.find_io_handles
+              jr   Z, got_handles # HL: input handle, DE: output handle
+              call mtio.task_yield
+              jr   wait_loop
+
+              # read a character, assume HL contains an address of the input handle
+              mtio_getc(a, not_ready: :eoc, subroutine: false, mtyield: mtio.task_yield)
+              jr   C, got_the_character
+
+              # write a @ character, assume HL contains an address of the output handle
+              ld   a, &quot;@&quot;.ord
+              mtio_putc(a, not_ready: :eoc, subroutine: false, mtyield: mtio.task_yield)
+              jr   C, character_was_written
+
+              # read a character, block a task if not available, assume HL contains an address of the input handle
+              mtio_getc(a, not_ready: :wait, subroutine: false, mtyield: mtio.task_yield)
+              # do something with a character in accumulator
+
+              # wait for data, assume HL contains an address of the input handle
+              ld   c, 5 # at least 5 characters
+              mtio_wait(:read, c, mtyield: mtio.task_yield)
+
+              # write a small string up to 255 characters, assume HL contains an address of the output handle
+              ld   de, hello_world
+              ld   a, +hello_world
+              mtio_puts(a, subroutine:false, mtyield: mtio.task_yield)
+              cp   +hello_world
+              jr   Z, written_all_characters
+              ...
+hello_world   data &quot;Hello world!&quot;</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <section class="constants-list">
+      <header>
+        <h3>Constants</h3>
+      </header>
+      <dl>
+      
+        <dt id="MTIO_BUFFER_CHANNELS">MTIO_BUFFER_CHANNELS
+        
+        <dd><p>Defines how many I/O buffer channels may be allocated. May be changed to a higher number. More buffers equals less memory but more independent channels. Each channel costs 527 bytes (2 * <a href="MultitaskingIO/BufferIO.html"><code>BufferIO</code></a> + 5 bytes for a channel record).</p>
+        
+      
+        <dt id="MTIO_CLEAR_TV_FLAG_ON_INPUT">MTIO_CLEAR_TV_FLAG_ON_INPUT
+        
+        <dd><p>When using INPUT # with an I/O channel other than “K” and then the error report is being printed in channel “K”, a cursor is shown after a reported message expecting further user input, e.g.:</p>
+
+<pre class="ruby"><span class="ruby-constant">INPUT</span> <span class="ruby-comment">#2;a</span>
+</pre>
+
+<p>will report the: “J Invalid I/O device” error, but the flashing [K] will be visible at the end of the message.</p>
+
+<p>The expected behaviour is that the cursor is not visible until the next key is being pressed. Pressing the key then should clear the error message first, before printing anything else.</p>
+
+<p>When <a href="MultitaskingIO.html#MTIO_CLEAR_TV_FLAG_ON_INPUT"><code>MTIO_CLEAR_TV_FLAG_ON_INPUT</code></a> is <code>true</code> on each character input the TV_FLAG system variable is being cleared to prevent bogus cursor behaviour.</p>
+
+<p>This is the default. Set to <code>false</code> to disable this countermeasure.</p>
+
+<p>This happens because INPUT uses WAIT-KEY ($15D4) procedure which in turn sets the bit 3 of TV_FLAG signalling to reprint the edit area. When using channel “K” after each accepted key a procedure ED-COPY ($111D) at $2162 is being called which reprints the edit area and clears the bit 3. However when another channel is in use this part is being skipped at $2168. When the program execution ends, the editor starts reading user input from channel “K” (at KEY-INPUT: $10A8). But the bit 3 of TV_FLAG is still set. This in turn makes the ED-COPY being called immediately and the cursor appears. ED-COPY prevents the error message to be cleared, so the further user input will be echoed after the message.</p>
+        
+      
+        <dt id="MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO">MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO
+        
+        <dd><p>If the I/O operation blocks program while waiting for data or free buffer space, pressing BREAK will stop the program execution with “8 End of file” error report. Define <a href="MultitaskingIO.html#MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO"><code>MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO</code></a> = <code>false</code> to disable this.</p>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-kernel_org" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">kernel_org</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The <a href="MultitaskingIO.html"><code>MultitaskingIO</code></a> kernel code start address.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="kernel_org-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 259</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">kernel_org</span>
+  <span class="ruby-value">0x10000</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-new_kernel" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new_kernel</span><span
+            class="method-args">(*args, **opts)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Instantiate <a href="MultitaskingIO.html"><code>MultitaskingIO</code></a> kernel with the proper code address.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="new_kernel-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 249</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">new_kernel</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
+  <span class="ruby-identifier">new</span>(<span class="ruby-identifier">kernel_org</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>).<span class="ruby-identifier">tap</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">kernel</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">mtio_buffers_bot</span> = <span class="ruby-identifier">kernel</span>[<span class="ruby-value">:initial_stack_bot</span>] <span class="ruby-operator">-</span> <span class="ruby-identifier">kernel</span>[<span class="ruby-value">:mtio_buffer_chans</span>]<span class="ruby-operator">*</span><span class="ruby-value">2</span><span class="ruby-operator">*</span><span class="ruby-constant">MultitaskingIO</span><span class="ruby-operator">::</span><span class="ruby-constant">BufferIO</span>.<span class="ruby-identifier">to_i</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">kernel</span>[<span class="ruby-value">:mtio_buffers_bot</span>] <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">mtio_buffers_bot</span>
+      <span class="ruby-identifier">raise</span> <span class="ruby-constant">CompileError</span>, <span class="ruby-node">&quot;mtio_buffers_bot may be at most: #{mtio_buffers_bot}&quot;</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-find_channel" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            call find_channel
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        
+
+        <div class="method-description">
+          
+          <p>Looks for a channel name.</p>
+
+<p>Input:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>a</code>
+<dd>
+<p>A channel name as an upper-case letter code.</p>
+</dd></dl>
+</li></ul>
+
+<p>On success returns channel&#39;s record address + 4 in <code>hl</code> (pointing to the channel name) and the ZF flag is being set (Z). If ZF flag is clear (NZ) indicates that the channel could not be found. <code>bc</code> will always contain 0xFFFB (0x10000 - 5) so it&#39;s easy to move <code>hl</code> back to the beginning of the channel record.</p>
+
+<p>e.g.:</p>
+
+<pre class="ruby"><span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-string">&quot;Q&quot;</span>.<span class="ruby-identifier">ord</span>
+<span class="ruby-identifier">call</span> <span class="ruby-identifier">find_channel</span>
+<span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">not_found</span>
+<span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span> <span class="ruby-comment"># -5</span>
+<span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>     <span class="ruby-comment"># hl points to the beginning of the channel&#39;s record</span>
+</pre>
+
+<p>Each channel record has the following format:</p>
+<ul><li>
+<p>two-byte address of the output routine,</p>
+</li><li>
+<p>two-byte address of the input routine,</p>
+</li><li>
+<p>one-byte channel code letter (a channel name).</p>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="find_channel-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1135</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:find_channel</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vars</span>.<span class="ruby-identifier">prog</span>]
+                    <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span> }
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-value">-5</span>
+                    <span class="ruby-identifier">cp</span>   [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, [<span class="ruby-identifier">vars</span>.<span class="ruby-identifier">chans</span>]
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+  <span class="ruby-identifier">search_loop</span>       <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                    <span class="ruby-identifier">cp</span>   [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                    <span class="ruby-identifier">cp16r</span> <span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>, <span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-identifier">search_loop</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-identifier">not_found</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">search_loop</span>
+  <span class="ruby-identifier">not_found</span>         <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                    <span class="ruby-identifier">ret</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-find_channel_arg" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            call find_channel_arg
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        
+
+        <div class="method-description">
+          
+          <p>Looks for a channel name from a FN string argument.</p>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>This routine must never be called from a task!</p>
+</dd></dl>
+
+<p>Input:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>hl</code>
+<dd>
+<p>An address of the DEF FN argument&#39;s FP-value (as a string).</p>
+</dd></dl>
+</li></ul>
+
+<p>Reads a string and validates channel&#39;s name by checking string&#39;s length and converting the 1st letter to the upper-case. Also checks if the channel name is valid and it&#39;s not the one of system&#39;s channel names: “K”, “S”, “R” nor “P”. If the validation fails reports error: “F Invalid file name”.</p>
+
+<p>If the string is empty returns with the ZF flag set but with 0 in the accumulator. On success the ZF flag is being set and the accumulator holds the channel code letter, <code>hl</code> holds the channel&#39;s record address + 4 and <code>bc</code> 0xFFFB (twos complement: -5).</p>
+
+<p>See <a href="MultitaskingIO.html#method-i-find_channel"><code>find_channel</code></a> for more information.</p>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="find_channel_arg-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1088</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:find_channel_arg</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">read_arg_string</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>)
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">error_f</span>.<span class="ruby-identifier">err</span> <span class="ruby-comment"># b&lt;&gt;0</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>               <span class="ruby-comment"># empty string</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">c</span>               <span class="ruby-comment"># is 1-character string?</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">error_f</span>.<span class="ruby-identifier">err</span> <span class="ruby-comment"># LEN c$ &gt; 1</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]         <span class="ruby-comment"># get channel name</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0xDF</span>            <span class="ruby-comment"># make uppercase</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-value">?A</span>.<span class="ruby-identifier">ord</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">error_f</span>.<span class="ruby-identifier">err</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-value">?Z</span>.<span class="ruby-identifier">ord</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">error_f</span>.<span class="ruby-identifier">err</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">system_chan_names</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-operator">+</span><span class="ruby-identifier">system_chan_names</span> <span class="ruby-comment"># b: 0</span>
+                    <span class="ruby-identifier">cpir</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">error_f</span>.<span class="ruby-identifier">err</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-find_input_handle" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            call find_input_handle
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        
+
+        <div class="method-description">
+          
+          <p>Looks for an input handle for tasks.</p>
+
+<p>Provide a channel name as an upper-case letter code in accumulator.</p>
+
+<p>On success returns I/O buffer handle address in <code>hl</code> and sets the ZF flag (Z). ZF flag is clear (NZ) when a channel with the requested name could not be found.</p>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="find_input_handle-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1196</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:find_input_handle</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">find_channel</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>   <span class="ruby-comment"># hl+= -5</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]  <span class="ruby-comment"># system output routine (is input for tasks)</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>       <span class="ruby-comment"># input handle for tasks</span>
+                    <span class="ruby-identifier">ret</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-find_io_handles" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            call find_io_handles
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        
+
+        <div class="method-description">
+          
+          <p>Looks for I/O handles.</p>
+
+<p>Provide a channel name as an upper-case letter code in accumulator.</p>
+
+<p>On success returns I/O buffer handle addresses in <code>hl</code> (task input) and <code>de</code> (task output) and sets the ZF flag (Z). ZF flag is clear (NZ) when a channel with the requested name could not be found.</p>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="find_io_handles-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1167</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:find_io_handles</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">find_channel</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, [<span class="ruby-identifier">hl</span>]  <span class="ruby-comment"># system input routine (is output for tasks)</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">de</span>       <span class="ruby-comment"># output handle for tasks</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]  <span class="ruby-comment"># system output routine (is input for tasks)</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>       <span class="ruby-comment"># input handle for tasks</span>
+                    <span class="ruby-identifier">ret</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-find_output_handle" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            call find_output_handle
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        
+
+        <div class="method-description">
+          
+          <p>Looks for an output handle for tasks.</p>
+
+<p>Provide a channel name as an upper-case letter code in accumulator.</p>
+
+<p>On success returns I/O buffer handle address in <code>hl</code> and sets the ZF flag (Z). ZF flag is clear (NZ) when a channel with the requested name could not be found.</p>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="find_output_handle-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1221</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:find_output_handle</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">find_channel</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]  <span class="ruby-comment"># system input routine (is output for tasks)</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>       <span class="ruby-comment"># output handle for tasks</span>
+                    <span class="ruby-identifier">ret</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-get_int8_norm_arg" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            call get_int8_norm_arg
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        
+
+        <div class="method-description">
+          
+          <p>Attempts to read an integer in the range -255..255 from a FN argument.</p>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>This routine must never be called from a task!</p>
+</dd></dl>
+
+<p>Input:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>hl</code>
+<dd>
+<p>an address of a FP-value.</p>
+</dd></dl>
+</li></ul>
+
+<p>On success register <code>e</code> holds a positive number: 0..255 and register <code>c</code> a sign (0 or -1). <code>hl</code> will be incremented past the last FP-value&#39;s byte. On failure reports either “A Invalid argument” or “B Integer out of range” error.</p>
+
+<p>Modifies: <code>af</code>, <code>de</code>, <code>hl</code>, <code>c</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="get_int8_norm_arg-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1249</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:get_int8_norm_arg</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">cp</span>   [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">error_a</span>.<span class="ruby-identifier">err</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">int_fetch</span> <span class="ruby-comment"># de: sign normalized integer, c: sign</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-get_stream_arg" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            call get_stream_arg
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        
+
+        <div class="method-description">
+          
+          <p>Attempts to read a stream number from a FP-value addressed by <code>hl</code>.</p>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>This routine must never be called from a task!</p>
+</dd></dl>
+
+<p>Input:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>hl</code>
+<dd>
+<p>an address of a FP-value.</p>
+</dd></dl>
+</li></ul>
+
+<p>On success accumulator holds a stream number: 0..15 and <code>hl</code> will be incremented past the last FP-value&#39;s byte. On failure reports “O Invalid stream” error.</p>
+
+<p>Modifies: <code>af</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="get_stream_arg-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 948</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:get_stream_arg</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_uint_arg</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">error_o</span>.<span class="ruby-identifier">err</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-value">16</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-initialize_io" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            call initialize_io
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        
+
+        <div class="method-description">
+          
+          <p>Initializes I/O and multitasking.</p>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>This routine must never be called from a task!</p>
+</dd></dl>
+
+<p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>i</code>, <code>IFF</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="initialize_io-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 842</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:initialize_io</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">mtiovars</span>.<span class="ruby-identifier">buffers_top</span>]
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">h</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>              <span class="ruby-comment"># initialize only once</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vars</span>.<span class="ruby-identifier">prog</span>] <span class="ruby-comment"># make room for new channels below PROG</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">mtio_buffer_chans</span><span class="ruby-operator">*</span><span class="ruby-value">5</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">make_room</span>   <span class="ruby-comment"># make space  HL-&gt;p nnnn DE-&gt;n ooooo</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">mtio_buffer_chans</span><span class="ruby-operator">*</span><span class="ruby-value">5</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">de</span>
+                    <span class="ruby-identifier">lddr</span>                 <span class="ruby-comment"># clear new chan space</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">init_multitasking</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">mtiovars</span>.<span class="ruby-identifier">tv</span>.<span class="ruby-identifier">stack_bot</span>]
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">mtiovars</span>.<span class="ruby-identifier">buffers_top</span>], <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ret</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-open_io" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            USR open_io
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            DEF FN o(s,c$)=USR open_io
+          </span>
+          
+        </div>
+        
+        
+
+        <div class="method-description">
+          
+          <p>ZX Basic API</p>
+
+<p>This endpoint should be invoked from the ZX Basic directly via USR or indirectly via FN.</p>
+
+<pre>LET stackFreeBytes=USR open_io: REM Initializes multitasking and I/O task variables, makes space for channels.
+
+1 DEF FN o(s,c$)=USR open_io: REM Opens or creates a MultitaskingIO channel and assigns a stream # to it.
+
+REM Initializes channel Q and allocates buffers if called for the first time with that letter.
+REM Opens channel Q and assigns stream #7 to that channel. Returns previously assigned channel identifier.
+LET prevChan=CHR$ FN o(7,&quot;Q&quot;)
+
+REM Closes stream #7. Returns previously assigned channel identifier.
+LET prevChan=CHR$ FN o(7,&quot;&quot;)</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="open_io-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 808</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:open_io</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">find_def_fn_arg</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">initialize_io</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">error_q</span>.<span class="ruby-identifier">err</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_stream_arg</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">af</span>              <span class="ruby-comment"># save stream #</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">find_def_fn_arg</span>.<span class="ruby-identifier">seek_next</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">error_q</span>.<span class="ruby-identifier">err</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">find_channel_arg</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">create_channel</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>               <span class="ruby-comment"># was empty string?</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">close_stream</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">open_stream_stacked</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-wait_io" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            DEF FN w(s,n)=USR wait_io
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        
+
+        <div class="method-description">
+          
+          <p>ZX Basic API</p>
+
+<p>This endpoint should be invoked from the ZX Basic indirectly via FN.</p>
+
+<pre>2 DEF FN w(s,n)=USR wait_io: REM Wait for I/O data availability.
+
+REM Blocks an execution of a program until at least 3 characters are available to be read from an I/O buffer at stream #7.
+LET ReadCharsNo=FN w(7,3): REM ReadCharsNo &gt;= 3
+
+REM Blocks an execution of a program until at least 5 characters can be written to an I/O buffer at stream #7.
+LET WriteCharsNo=FN w(7,-5): REM WriteCharsNo &gt;= 5</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="wait_io-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 877</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:wait_io</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">find_def_fn_arg</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">error_q</span>.<span class="ruby-identifier">err</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_stream_arg</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>             <span class="ruby-comment"># save stream #</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">find_def_fn_arg</span>.<span class="ruby-identifier">seek_next</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">error_q</span>.<span class="ruby-identifier">err</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_int8_norm_arg</span>  <span class="ruby-comment"># e: int, c: sign</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>             <span class="ruby-comment"># a: stream #, f&#39;: ZF: sign</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">stream_channel_data</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">error_o</span>.<span class="ruby-identifier">err</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>             <span class="ruby-comment"># f: ZF: sign</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">wait_write</span>
+
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">mtiobuf_inp_handle</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO</span>
+    <span class="ruby-identifier">check_read</span>      <span class="ruby-identifier">mtio_ready?</span>(<span class="ruby-value">:read</span>, <span class="ruby-value">nchars:</span><span class="ruby-identifier">e</span>)
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">read_not_ready</span>
+    <span class="ruby-identifier">quit_bc</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">ret</span>
+    <span class="ruby-identifier">read_not_ready</span>  <span class="ruby-identifier">call</span> <span class="ruby-identifier">cheeki_breeki</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">check_read</span>
+  <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">mtio_wait</span>(<span class="ruby-value">:read</span>, <span class="ruby-identifier">e</span>)
+    <span class="ruby-identifier">quit_bc</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">wait_write</span>        <span class="ruby-identifier">call</span> <span class="ruby-identifier">mtiobuf_out_handle</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO</span>
+    <span class="ruby-identifier">check_write</span>     <span class="ruby-identifier">mtio_ready?</span>(<span class="ruby-value">:write</span>, <span class="ruby-value">nchars:</span><span class="ruby-identifier">e</span>)
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">write_not_ready</span>
+                    <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">cpl</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">quit_bc</span>
+    <span class="ruby-identifier">write_not_ready</span> <span class="ruby-identifier">call</span> <span class="ruby-identifier">cheeki_breeki</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">check_write</span>
+  <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">mtio_wait</span>(<span class="ruby-value">:write</span>, <span class="ruby-identifier">e</span>)
+                    <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">cpl</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">quit_bc</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

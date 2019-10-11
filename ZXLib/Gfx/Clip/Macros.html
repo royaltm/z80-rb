@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module ZXLib::Gfx::Clip::Macros - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../../";
+  var index_rel_prefix = "../../../";
+</script>
+
+<script src="../../../js/jquery.js"></script>
+<script src="../../../js/darkfish.js"></script>
+
+<link href="../../../css/fonts.css" rel="stylesheet">
+<link href="../../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../../table_of_contents.html#pages">Pages</a>
+    <a href="../../../table_of_contents.html#classes">Classes</a>
+    <a href="../../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="../../../Z80/MathInt/Macros.html">Z80::MathInt::Macros</a>
+  
+  
+  </ul>
+</div>
+
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-gfx_clip_calculate_8bit_dx_dy_exx">#gfx_clip_calculate_8bit_dx_dy_exx</a>
+    
+    <li ><a href="#method-i-gfx_clip_compute_outcode">#gfx_clip_compute_outcode</a>
+    
+    <li ><a href="#method-i-gfx_clip_coords_to_draw_line_args">#gfx_clip_coords_to_draw_line_args</a>
+    
+    <li ><a href="#method-i-gfx_clip_dimension">#gfx_clip_dimension</a>
+    
+    <li ><a href="#method-i-gfx_clip_line">#gfx_clip_line</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-ZXLib::Gfx::Clip::Macros">
+  <h1 id="module-ZXLib::Gfx::Clip::Macros" class="module">
+    module ZXLib::Gfx::Clip::Macros
+  </h1>
+
+  <section class="description">
+    
+<h2 id="module-ZXLib::Gfx::Clip::Macros-label-ZXLib-3A-3AGfx-3A-3AClip+Macros+for+clipping+lines+to+viewport+rectangles."><a href="../Clip.html"><code>ZXLib::Gfx::Clip</code></a> <a href="Macros.html"><code>Macros</code></a> for clipping lines to viewport rectangles.<span><a href="#module-ZXLib::Gfx::Clip::Macros-label-ZXLib-3A-3AGfx-3A-3AClip+Macros+for+clipping+lines+to+viewport+rectangles.">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<ul><li>
+<p><a href="Macros.html#method-i-gfx_clip_line"><code>Macros.gfx_clip_line</code></a>.</p>
+</li><li>
+<p><a href="Macros.html#method-i-gfx_clip_coords_to_draw_line_args"><code>Macros.gfx_clip_coords_to_draw_line_args</code></a>.</p>
+</li></ul>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-gfx_clip_calculate_8bit_dx_dy_exx" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">gfx_clip_calculate_8bit_dx_dy_exx</span><span
+            class="method-args">(xx=bc, yy=de, full_range_delta:true)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that calculates <code>dx</code> and <code>dy</code>. Used by: <a href="Macros.html#method-i-gfx_clip_line"><code>Macros.gfx_clip_line</code></a>.</p>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>Swaps <code>bc</code>, <code>de</code>, <code>hl</code> registers with their alternative counterparts (EXX).</p>
+</dd></dl>
+
+<p>The routine expects (before EXX):</p>
+<ul><li>
+<p><code>x0</code> in <code>xx&#39;</code>,</p>
+</li><li>
+<p><code>y0</code> in <code>yy&#39;</code>,</p>
+</li><li>
+<p><code>x1</code> in <code>xx</code>,</p>
+</li><li>
+<p><code>y1</code> in <code>yy</code>.</p>
+</li></ul>
+
+<p>The routine returns (after EXX):</p>
+
+<pre>h  = abs(x1 - x0) / k
+l  = abs(y1 - y0) / k
+a&#39; = sgn(x1 - x0) XOR sgn(y1 - y0)</pre>
+
+<p>Finds such <code>k</code> that <code>h</code> and <code>l</code> does not overflow 8 bits.</p>
+
+<p><code>sgn</code> is a boolean: 0x00 for positive and 0xFF for negative.</p>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code> and 2 levels of the stack, swaps registers: <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="gfx_clip_calculate_8bit_dx_dy_exx-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/clip.rb, line 160</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_clip_calculate_8bit_dx_dy_exx</span>(<span class="ruby-identifier">xx</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">yy</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">full_range_delta:</span><span class="ruby-keyword">true</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">xx</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">yy</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">xx</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">yy</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">push</span> <span class="ruby-identifier">yy</span>           <span class="ruby-comment"># y1</span>
+                        <span class="ruby-identifier">push</span> <span class="ruby-identifier">xx</span>           <span class="ruby-comment"># x1</span>
+                        <span class="ruby-identifier">exx</span>
+                        <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>           <span class="ruby-comment"># x1</span>
+                        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>            <span class="ruby-comment"># a: 0, CF: 0</span>
+                        <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">xx</span>       <span class="ruby-comment"># hl: dx = x1 - x0</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">full_range_delta</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">PO</span>, <span class="ruby-identifier">dx_fits_range</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">M</span>, <span class="ruby-identifier">dx_positive</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">dx_negative</span>
+      <span class="ruby-identifier">dx_fits_range</span>     <span class="ruby-identifier">label</span>
+    <span class="ruby-keyword">end</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">P</span>, <span class="ruby-identifier">dx_positive</span>
+
+    <span class="ruby-identifier">dx_negative</span>         <span class="ruby-identifier">cpl</span>               <span class="ruby-comment"># a: -sgn</span>
+                        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>        <span class="ruby-comment"># dx = -dx</span>
+                        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+
+    <span class="ruby-identifier">dx_positive</span>         <span class="ruby-identifier">ex</span>   [<span class="ruby-identifier">sp</span>], <span class="ruby-identifier">hl</span>     <span class="ruby-comment"># hl: y1, sp -&gt; dx</span>
+                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>            <span class="ruby-comment"># CF: 0</span>
+                        <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">yy</span>       <span class="ruby-comment"># hl: dy = y1 - y0</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">full_range_delta</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">PO</span>, <span class="ruby-identifier">dy_fits_range</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">M</span>, <span class="ruby-identifier">dy_positive</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">dy_negative</span>
+      <span class="ruby-identifier">dy_fits_range</span>     <span class="ruby-identifier">label</span>
+    <span class="ruby-keyword">end</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">P</span>, <span class="ruby-identifier">dy_positive</span>
+
+    <span class="ruby-identifier">dy_negative</span>         <span class="ruby-identifier">cpl</span>               <span class="ruby-comment"># a: -sgn</span>
+                        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>        <span class="ruby-comment"># dy = -dy</span>
+                        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+
+    <span class="ruby-identifier">dy_positive</span>         <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>       <span class="ruby-comment"># hl: xx or yy, de: dy</span>
+                        <span class="ruby-identifier">ex</span>   [<span class="ruby-identifier">sp</span>], <span class="ruby-identifier">hl</span>     <span class="ruby-comment"># hl: dx, sp -&gt; xx or yy</span>
+                        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>       <span class="ruby-comment"># a&#39;: sgn</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">h</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">fits</span>      <span class="ruby-comment"># bit8 fit</span>
+    <span class="ruby-identifier">fitloop</span>             <span class="ruby-identifier">srl</span>  <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">rr</span>   <span class="ruby-identifier">e</span>            <span class="ruby-comment"># dy = dy / 2</span>
+                        <span class="ruby-identifier">srl</span>  <span class="ruby-identifier">h</span>
+                        <span class="ruby-identifier">rr</span>   <span class="ruby-identifier">l</span>            <span class="ruby-comment"># dx = dx / 2</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">h</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">fitloop</span>
+    <span class="ruby-identifier">fits</span>                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">e</span>         <span class="ruby-comment"># h: dy, l: dx</span>
+                        <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">de</span>           <span class="ruby-comment"># xx or yy</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-gfx_clip_compute_outcode" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">gfx_clip_compute_outcode</span><span
+            class="method-args">(outcode, xx=bc, yy=de, xmax:ixh, xmin:ixl, ymax:iyh, ymin:iyl, jump_rel:true, subroutine:false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that computes the <a href="Outcode.html"><code>Outcode</code></a> bits for the xx, yy point and the clipping region. Stores result in <code>outcode</code>. Used by: <a href="Macros.html#method-i-gfx_clip_line"><code>Macros.gfx_clip_line</code></a>.</p>
+
+<p>Modifies: <code>af</code>, <code>outcode</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="gfx_clip_compute_outcode-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/clip.rb, line 104</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_clip_compute_outcode</span>(<span class="ruby-identifier">outcode</span>, <span class="ruby-identifier">xx</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">yy</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">xmax:</span><span class="ruby-identifier">ixh</span>, <span class="ruby-value">xmin:</span><span class="ruby-identifier">ixl</span>, <span class="ruby-value">ymax:</span><span class="ruby-identifier">iyh</span>, <span class="ruby-value">ymin:</span><span class="ruby-identifier">iyl</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>,<span class="ruby-identifier">hl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">xx</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>,<span class="ruby-identifier">hl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">yy</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">xx</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">yy</span>
+  <span class="ruby-identifier">xh</span>, <span class="ruby-identifier">xl</span> = <span class="ruby-identifier">xx</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">yh</span>, <span class="ruby-identifier">yl</span> = <span class="ruby-identifier">yy</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">xmin</span>, <span class="ruby-identifier">xmax</span>, <span class="ruby-identifier">ymin</span>, <span class="ruby-identifier">ymax</span>, <span class="ruby-identifier">outcode</span>].<span class="ruby-identifier">any?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">mm</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">xh</span>,<span class="ruby-identifier">xl</span>,<span class="ruby-identifier">yh</span>,<span class="ruby-identifier">yl</span>,<span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">mm</span>) }
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                        <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">outcode</span>, <span class="ruby-constant">Outcode</span><span class="ruby-operator">::</span><span class="ruby-constant">INSIDE</span>
+                        <span class="ruby-identifier">cmp_i16r</span> <span class="ruby-identifier">xh</span>, <span class="ruby-identifier">xl</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">xmin</span>, <span class="ruby-value">gt:</span> <span class="ruby-identifier">x_fits_xmin</span>, <span class="ruby-value">eq:</span> <span class="ruby-identifier">x_fits_xmin</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-identifier">jump_rel</span>
+                        <span class="ruby-identifier">set</span> <span class="ruby-constant">Outcode</span><span class="ruby-operator">::</span><span class="ruby-constant">LEFT_BIT</span>, <span class="ruby-identifier">outcode</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">jump_rel</span>
+                        <span class="ruby-identifier">jr</span>  <span class="ruby-identifier">x_fits_xmax</span>
+      <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">jp</span>  <span class="ruby-identifier">x_fits_xmax</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-identifier">x_fits_xmin</span>       <span class="ruby-identifier">cmp_i16r</span> <span class="ruby-identifier">xh</span>, <span class="ruby-identifier">xl</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">xmax</span>, <span class="ruby-value">lt:</span> <span class="ruby-identifier">x_fits_xmax</span>, <span class="ruby-value">eq:</span> <span class="ruby-identifier">x_fits_xmax</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-identifier">jump_rel</span>
+                        <span class="ruby-identifier">set</span> <span class="ruby-constant">Outcode</span><span class="ruby-operator">::</span><span class="ruby-constant">RIGHT_BIT</span>, <span class="ruby-identifier">outcode</span>
+      <span class="ruby-identifier">x_fits_xmax</span>       <span class="ruby-identifier">cmp_i16r</span> <span class="ruby-identifier">yh</span>, <span class="ruby-identifier">yl</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">ymin</span>, <span class="ruby-value">gt:</span> <span class="ruby-identifier">y_fits_ymin</span>, <span class="ruby-value">eq:</span> <span class="ruby-identifier">y_fits_ymin</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-identifier">jump_rel</span>
+                        <span class="ruby-identifier">set</span> <span class="ruby-constant">Outcode</span><span class="ruby-operator">::</span><span class="ruby-constant">BOTTOM_BIT</span>, <span class="ruby-identifier">outcode</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+                        <span class="ruby-identifier">ret</span>
+      <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">jump_rel</span>
+                        <span class="ruby-identifier">jr</span>  <span class="ruby-identifier">eoc</span>
+      <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">jp</span>  <span class="ruby-identifier">eoc</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-identifier">y_fits_ymin</span>       <span class="ruby-identifier">label</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+                        <span class="ruby-identifier">cmp_i16r</span> <span class="ruby-identifier">yh</span>, <span class="ruby-identifier">yl</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">ymax</span>, <span class="ruby-value">lt:</span> <span class="ruby-value">:ret</span>, <span class="ruby-value">eq:</span> <span class="ruby-value">:ret</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-identifier">jump_rel</span>
+      <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">cmp_i16r</span> <span class="ruby-identifier">yh</span>, <span class="ruby-identifier">yl</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">ymax</span>, <span class="ruby-value">lt:</span> <span class="ruby-identifier">eoc</span>, <span class="ruby-value">eq:</span> <span class="ruby-identifier">eoc</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-identifier">jump_rel</span>
+      <span class="ruby-keyword">end</span>
+                        <span class="ruby-identifier">set</span> <span class="ruby-constant">Outcode</span><span class="ruby-operator">::</span><span class="ruby-constant">TOP_BIT</span>, <span class="ruby-identifier">outcode</span>
+                        <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-gfx_clip_coords_to_draw_line_args" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">gfx_clip_coords_to_draw_line_args</span><span
+            class="method-args">(xx=bc, yy=de, args_type: :zxlib)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Converts clipped 16-bit coordinates to the “draw line” routine arguments.</p>
+
+<p>The line endpoints are 16-bit signed integers: <code>x0</code>, <code>y0</code> and <code>x1</code>, <code>y1</code>.</p>
+
+<p>This routine should be used after clipping the coordinates e.g. with <a href="Macros.html#method-i-gfx_clip_line"><code>Macros.gfx_clip_line</code></a>.</p>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>This routine expects the line endpoints to be clipped (each in the range: 0..255).</p>
+</dd><dt><code>xx</code>
+<dd>
+<p>the 16-bit register pair that holds <code>x1</code> in the main and <code>x0</code> in the alternative set: <code>bc</code> or <code>de</code>.</p>
+</dd><dt><code>yy</code>
+<dd>
+<p>the 16-bit register pair that holds <code>y1</code> in the main and <code>y0</code> in the alternative  set: <code>de</code> or <code>bc</code>.</p>
+</dd></dl>
+
+<p>When routine is over the alternative and main registers will be swapped.</p>
+
+<p>Option <code>args_type</code> can be one of:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>:zxlib</code>
+<dd>
+<p>Prepares arguments for the <a href="../Draw/Macros.html#method-i-draw_line"><code>Gfx::Draw::Macros.draw_line</code></a> routine (default).</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>:rom</code>
+<dd>
+<p>Prepares arguments for the <code>rom.draw_line_1</code> routine (at 0x24BA):</p>
+
+<pre>h|l: the starting y|x point - should be put into vars.coords
+b|c: abs(dy)|abs(dx) - absolute distances from the starting point
+d|e: sgn(dy)|sgn(dx) - the directions (-1 or 1) of the distances</pre>
+</dd></dl>
+</li></ul>
+
+<p>T-states: 24 + ( <code>zxlib</code>: 60 or <code>rom</code>: ~65 [54/65/65/76] )</p>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, swaps registers: <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="gfx_clip_coords_to_draw_line_args-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/clip.rb, line 53</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_clip_coords_to_draw_line_args</span>(<span class="ruby-identifier">xx</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">yy</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">args_type:</span> <span class="ruby-value">:zxlib</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">xx</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">yy</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">xx</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">yy</span>
+  <span class="ruby-identifier">_</span>, <span class="ruby-identifier">xl</span> = <span class="ruby-identifier">xx</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">_</span>, <span class="ruby-identifier">yl</span> = <span class="ruby-identifier">yy</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>                    <span class="ruby-comment"># xx: x1, yy: y1</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">xl</span>    <span class="ruby-comment"># x1</span>
+                        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">yl</span>    <span class="ruby-comment"># y1</span>
+                        <span class="ruby-identifier">exx</span>           <span class="ruby-comment"># xx: x0, yy: y0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">yl</span>    <span class="ruby-comment"># y0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">xl</span>    <span class="ruby-comment"># x0</span>
+    <span class="ruby-keyword">case</span> <span class="ruby-identifier">args_type</span>
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:zxlib</span>
+                        <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">h</span>        <span class="ruby-comment"># y1 - y0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>     <span class="ruby-comment"># dy</span>
+                        <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, <span class="ruby-identifier">a</span>     <span class="ruby-comment"># d: sgn(dy)</span>
+                        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">e</span>
+                        <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">d</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>     <span class="ruby-comment"># e: abs(dy)</span>
+                        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>   <span class="ruby-comment"># x1</span>
+                        <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">l</span>        <span class="ruby-comment"># x1 - x0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>     <span class="ruby-comment"># dx</span>
+                        <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>     <span class="ruby-comment"># b: sgn(dx)</span>
+                        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">c</span>
+                        <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">b</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>     <span class="ruby-comment"># c: abs(dx)</span>
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:rom</span>
+                        <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">h</span>        <span class="ruby-comment"># y1 - y0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-value">0x0101</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">dy_pos</span>
+                        <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">d</span> }
+                        <span class="ruby-identifier">neg</span>
+      <span class="ruby-identifier">dy_pos</span>            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>     <span class="ruby-comment"># abs(dy)</span>
+                        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">l</span>        <span class="ruby-comment"># x1 - x0</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">dx_pos</span>
+                        <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">e</span> }
+                        <span class="ruby-identifier">neg</span>
+      <span class="ruby-identifier">dx_pos</span>            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>     <span class="ruby-comment"># abs(dx)</span>
+    <span class="ruby-keyword">else</span>
+      <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;args_type must be :zxlib or :rom&quot;</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-gfx_clip_dimension" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">gfx_clip_dimension</span><span
+            class="method-args">(a0:bc, b0:de, d1:l, d2:h, full_range_delta:true)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a subroutine that clips a single dimension. Used by: <a href="Macros.html#method-i-gfx_clip_line"><code>Macros.gfx_clip_line</code></a>.</p>
+
+<pre class="ruby"><span class="ruby-identifier">hl</span> = <span class="ruby-identifier">a0</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">sign</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">d1</span> <span class="ruby-operator">*</span> (<span class="ruby-identifier">minmax</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">b0</span>) <span class="ruby-operator">/</span> <span class="ruby-identifier">d2</span>
+</pre>
+
+<p>Expects:</p>
+<ul><li>
+<p><code>minmax</code> in <code>a</code>,</p>
+</li><li>
+<p><code>sign</code> in <code>a&#39;</code> as a boolean: 0x00 for positive and 0xFF for negative.</p>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code> and 3 levels of the machine stack.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="gfx_clip_dimension-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/clip.rb, line 226</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_clip_dimension</span>(<span class="ruby-value">a0:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">b0:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">d1:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">d2:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">full_range_delta:</span><span class="ruby-keyword">true</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a0</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">b0</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">a0</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">b0</span>
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">d1</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">d2</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">d1</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">d2</span>
+  <span class="ruby-identifier">a0h</span>, <span class="ruby-identifier">a0l</span> = <span class="ruby-identifier">a0</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">b0h</span>, <span class="ruby-identifier">b0l</span> = <span class="ruby-identifier">b0</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">minmax</span> = <span class="ruby-identifier">a</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">push</span> <span class="ruby-identifier">a0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a0h</span>, <span class="ruby-identifier">d1</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a0l</span>, <span class="ruby-identifier">d2</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">minmax</span>
+                        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">b0</span>
+                        <span class="ruby-identifier">push</span> <span class="ruby-identifier">b0</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">full_range_delta</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">PO</span>, <span class="ruby-identifier">arg_fits_range</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">M</span>, <span class="ruby-identifier">positive_arg</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">negative_arg</span>
+      <span class="ruby-identifier">arg_fits_range</span>    <span class="ruby-identifier">label</span>
+    <span class="ruby-keyword">end</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">P</span>, <span class="ruby-identifier">positive_arg</span>
+    <span class="ruby-identifier">negative_arg</span>        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">cpl</span>                   <span class="ruby-comment"># a: -sgn</span>
+                        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                        <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>
+    <span class="ruby-identifier">positive_arg</span>        <span class="ruby-identifier">push</span> <span class="ruby-identifier">a0</span>
+                        <span class="ruby-identifier">mul8_24</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a0h</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">a0l</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">b0</span>, <span class="ruby-value">clrahl:</span><span class="ruby-keyword">true</span>  <span class="ruby-comment"># a|hl = d1 * (minmax - b0)</span>
+                        <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">a0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b0l</span>, <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">divmod24_8</span> <span class="ruby-identifier">b0l</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a0l</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">false</span> <span class="ruby-comment"># divide (a|hl) / d2</span>
+                        <span class="ruby-comment"># TODO check CF, check a0h</span>
+                        <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># a: sgn</span>
+                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">positive_result</span>
+                        <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>
+    <span class="ruby-identifier">positive_result</span>     <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">b0</span>
+                        <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">a0</span>
+                        <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">a0</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-gfx_clip_line" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">gfx_clip_line</span><span
+            class="method-args">(xx=bc, yy=de, xmax:ixh, xmin:ixl, ymax:iyh, ymin:iyl, full_range_delta:true, compact:true)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a subroutine for clipping lines to the rectangle viewport area using Cohen–Sutherland algorithm.</p>
+
+<p>The line endpoints are 16-bit signed integers: <code>x0</code>, <code>y0</code> and <code>x1</code>, <code>y1</code>. The viewport area is determined by four 8-bit unsigned integers: <code>xmax</code>, <code>xmin</code>, <code>ymax</code>, <code>ymin</code>.</p>
+
+<p>The routine verifies if any part of the line crosses the viewport area. If it does the <code>Z</code> flag is being set to 1. <code>ZF</code> will be 0 if the line does not cross the viewport region. The line endpoints will not be modified if both of them are already in the viewport region.</p>
+
+<p>On input the beginning coordinates: <code>x0</code>, <code>y0</code> are expected to be held in main <a href="../../../Z80.html"><code>Z80</code></a> registers, the end coordinates: <code>x1</code>, <code>y1</code> are expected to be held in the alternative register set (swapped out).</p>
+
+<p>When routine is over the alternative and main registers will be swapped (<code>x1</code>, <code>y1</code> will be in the main).</p>
+<dl class="rdoc-list note-list"><dt><code>xx</code>
+<dd>
+<p>the 16-bit register pair that initially holds <code>x0</code> in the main and <code>x1</code> in the alternative  set: <code>bc</code> or <code>de</code>.</p>
+</dd><dt><code>yy</code>
+<dd>
+<p>the 16-bit register pair that initially holds <code>y0</code> in the main and <code>y1</code> in the alternative  set: <code>de</code> or <code>bc</code>.</p>
+</dd></dl>
+
+<p>Each of the viewport options: <code>xmax</code>, <code>xmin</code>, <code>ymax</code> and <code>ymin</code> can be either an 8-bit half of index register: <code>ix</code>, <code>iy</code> (dynamic viewports) or a constant, as an 8-bit integer or a label.</p>
+<ul><li>
+<p><code>full_range_delta</code> can be set to <code>false</code> for a smaller and slightly faster code if you don&#39;t</p>
+</li></ul>
+
+<p>expect values of |x1 - x0| or |y1 - y0| to be exceeding 32767.</p>
+<ul><li>
+<p><code>compact</code> can be set to <code>false</code> to create larger (~143) but slightly faster code.</p>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>hl&#39;</code>, <code>bc</code>, <code>bc&#39;</code>, <code>de</code>, <code>de&#39;</code> and the machine stack.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="gfx_clip_line-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/clip.rb, line 295</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_clip_line</span>(<span class="ruby-identifier">xx</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">yy</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">xmax:</span><span class="ruby-identifier">ixh</span>, <span class="ruby-value">xmin:</span><span class="ruby-identifier">ixl</span>, <span class="ruby-value">ymax:</span><span class="ruby-identifier">iyh</span>, <span class="ruby-value">ymin:</span><span class="ruby-identifier">iyl</span>, <span class="ruby-value">full_range_delta:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">compact:</span><span class="ruby-keyword">true</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">xx</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>,<span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">yy</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">xx</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">yy</span>
+  <span class="ruby-identifier">xh</span>, <span class="ruby-identifier">xl</span> = <span class="ruby-identifier">xx</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">yh</span>, <span class="ruby-identifier">yl</span> = <span class="ruby-identifier">yy</span>.<span class="ruby-identifier">split</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
+                        <span class="ruby-identifier">call</span> <span class="ruby-identifier">compute_outcode</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+    <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">gfx_clip_compute_outcode</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">xx</span>, <span class="ruby-identifier">yy</span>, <span class="ruby-value">xmin:</span><span class="ruby-identifier">xmin</span>, <span class="ruby-value">xmax:</span><span class="ruby-identifier">xmax</span>, <span class="ruby-value">ymin:</span><span class="ruby-identifier">ymin</span>, <span class="ruby-value">ymax:</span><span class="ruby-identifier">ymax</span> <span class="ruby-comment"># h: outcode0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>                 <span class="ruby-comment"># outcode0</span>
+    <span class="ruby-keyword">end</span>
+                        <span class="ruby-identifier">exx</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>                 <span class="ruby-comment"># outcode0</span>
+    <span class="ruby-identifier">clip_loop1</span>          <span class="ruby-identifier">label</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
+                        <span class="ruby-identifier">call</span> <span class="ruby-identifier">compute_outcode</span>
+    <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">gfx_clip_compute_outcode</span> <span class="ruby-identifier">l</span>, <span class="ruby-identifier">xx</span>, <span class="ruby-identifier">yy</span>, <span class="ruby-value">xmin:</span><span class="ruby-identifier">xmin</span>, <span class="ruby-value">xmax:</span><span class="ruby-identifier">xmax</span>, <span class="ruby-value">ymin:</span><span class="ruby-identifier">ymin</span>, <span class="ruby-value">ymax:</span><span class="ruby-identifier">ymax</span> <span class="ruby-comment"># l: outcode1</span>
+    <span class="ruby-keyword">end</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>                 <span class="ruby-comment"># outcode0</span>
+    <span class="ruby-identifier">clip_loop0</span>          <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">l</span>                    <span class="ruby-comment"># outcode0 | outcode1</span>
+                        <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>                    <span class="ruby-comment"># ZF:1 ready, bc:x1, de:y1, bc&#39;:x0, de&#39;:y0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>                 <span class="ruby-comment"># outcode0</span>
+                        <span class="ruby-identifier">anda</span> <span class="ruby-identifier">l</span>                    <span class="ruby-comment"># outcode0 &amp; outcode1</span>
+                        <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>                   <span class="ruby-comment"># ZF: 0 nothing to draw, move on</span>
+                        <span class="ruby-comment"># xx: x1, yy: y1, xx&#39;: x0, yy&#39;: y0, h: outcode0, l: outcode1</span>
+                        <span class="ruby-identifier">gfx_clip_calculate_8bit_dx_dy_exx</span> <span class="ruby-identifier">xx</span>, <span class="ruby-identifier">yy</span>, <span class="ruby-value">full_range_delta:</span><span class="ruby-identifier">full_range_delta</span>
+                        <span class="ruby-comment"># xx: x0, yy: y0, xx&#39;: x1, yy&#39;: y1, h&#39;: outcode0, l&#39;: outcode1, h: dy, l: dx, a&#39;: sgn(dx)^sgn(dy)</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>
+                        <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">l</span>                    <span class="ruby-comment"># dy - dx &gt;= 0</span>
+                        <span class="ruby-identifier">exx</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">left_right0</span>       <span class="ruby-comment"># dx &gt; dy</span>
+    <span class="ruby-comment"># TOP and BOTTOM outcode has priority</span>
+    <span class="ruby-identifier">top_bottom0</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>                 <span class="ruby-comment"># outcode0</span>
+                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">top_bottom1</span>
+                        <span class="ruby-identifier">exx</span>
+                        <span class="ruby-identifier">rlca</span>                      <span class="ruby-comment"># CF: Outcode::TOP_BIT</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">clip_area0</span>.<span class="ruby-identifier">top</span>
+                        <span class="ruby-identifier">rlca</span>                      <span class="ruby-comment"># CF: Outcode::BOTTOM_BIT</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">clip_area0</span>.<span class="ruby-identifier">bottom</span>
+                        <span class="ruby-identifier">anda</span> <span class="ruby-constant">Outcode</span><span class="ruby-operator">::</span><span class="ruby-constant">LEFT_MASK</span><span class="ruby-operator">&lt;&lt;</span><span class="ruby-value">2</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">clip_area0</span>.<span class="ruby-identifier">left</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">clip_area0</span>.<span class="ruby-identifier">right</span>
+    <span class="ruby-comment"># LEFT and RIGHT outcode has priority</span>
+    <span class="ruby-identifier">left_right0</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>                 <span class="ruby-comment"># outcode0</span>
+                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">left_right1</span>
+                        <span class="ruby-identifier">exx</span>
+                        <span class="ruby-identifier">rrca</span>                      <span class="ruby-comment"># CF: Outcode::LEFT_BIT</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">clip_area0</span>.<span class="ruby-identifier">left</span>
+                        <span class="ruby-identifier">rrca</span>                      <span class="ruby-comment"># CF: Outcode::RIGHT_BIT</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">clip_area0</span>.<span class="ruby-identifier">right</span>
+                        <span class="ruby-identifier">anda</span> <span class="ruby-constant">Outcode</span><span class="ruby-operator">::</span><span class="ruby-constant">TOP_MASK</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">2</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">clip_area0</span>.<span class="ruby-identifier">top</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">clip_area0</span>.<span class="ruby-identifier">bottom</span>
+
+    <span class="ruby-identifier">ns</span> <span class="ruby-value">:clip_area0</span> <span class="ruby-keyword">do</span>
+      {<span class="ruby-value">top:</span><span class="ruby-identifier">ymax</span>, <span class="ruby-value">bottom:</span><span class="ruby-identifier">ymin</span>}.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">sublabel</span>, <span class="ruby-identifier">yminmax</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">ns</span> <span class="ruby-identifier">sublabel</span> <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">yminmax</span>
+                        <span class="ruby-identifier">call</span> <span class="ruby-identifier">clip_x_dimension</span>
+                        <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">xx</span>, <span class="ruby-identifier">hl</span>           <span class="ruby-comment"># x0 = x0 + sgn * dx * (yminmax - y0) / dy</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">yh</span>, <span class="ruby-value">0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">yl</span>, <span class="ruby-identifier">yminmax</span>      <span class="ruby-comment"># y0 = yminmax</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">recomputecode0</span>
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">end</span>
+      {<span class="ruby-value">left:</span><span class="ruby-identifier">xmin</span>, <span class="ruby-value">right:</span><span class="ruby-identifier">xmax</span>}.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">sublabel</span>, <span class="ruby-identifier">xminmax</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">ns</span> <span class="ruby-identifier">sublabel</span> <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">xminmax</span>
+                        <span class="ruby-identifier">call</span> <span class="ruby-identifier">clip_y_dimension</span>
+                        <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">yy</span>, <span class="ruby-identifier">hl</span>           <span class="ruby-comment"># y0 = y0 + sgn * dy * (xminmax - x0) / dx</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">xh</span>, <span class="ruby-value">0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">xl</span>, <span class="ruby-identifier">xminmax</span>      <span class="ruby-comment"># x0 = xminmax</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">recomputecode0</span>
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+
+    <span class="ruby-comment"># TOP and BOTTOM outcode has priority</span>
+    <span class="ruby-identifier">top_bottom1</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>                 <span class="ruby-comment"># outcode1</span>
+                        <span class="ruby-identifier">exx</span>
+                        <span class="ruby-identifier">rlca</span>                      <span class="ruby-comment"># CF: Outcode::TOP_BIT</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">clip_area1</span>.<span class="ruby-identifier">top</span>
+                        <span class="ruby-identifier">rlca</span>                      <span class="ruby-comment"># CF: Outcode::BOTTOM_BIT</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">clip_area1</span>.<span class="ruby-identifier">bottom</span>
+                        <span class="ruby-identifier">anda</span> <span class="ruby-constant">Outcode</span><span class="ruby-operator">::</span><span class="ruby-constant">LEFT_MASK</span><span class="ruby-operator">&lt;&lt;</span><span class="ruby-value">2</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">clip_area1</span>.<span class="ruby-identifier">left</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">clip_area1</span>.<span class="ruby-identifier">right</span>
+    <span class="ruby-comment"># LEFT and RIGHT outcode has priority</span>
+    <span class="ruby-identifier">left_right1</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>                 <span class="ruby-comment"># outcode1</span>
+                        <span class="ruby-identifier">exx</span>
+                        <span class="ruby-identifier">rrca</span>                      <span class="ruby-comment"># CF: Outcode::LEFT_BIT</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">clip_area1</span>.<span class="ruby-identifier">left</span>
+                        <span class="ruby-identifier">rrca</span>                      <span class="ruby-comment"># CF: Outcode::RIGHT_BIT</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">clip_area1</span>.<span class="ruby-identifier">right</span>
+                        <span class="ruby-identifier">anda</span> <span class="ruby-constant">Outcode</span><span class="ruby-operator">::</span><span class="ruby-constant">TOP_MASK</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">2</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">clip_area1</span>.<span class="ruby-identifier">top</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">clip_area1</span>.<span class="ruby-identifier">bottom</span>
+
+    <span class="ruby-identifier">ns</span> <span class="ruby-value">:clip_area1</span> <span class="ruby-keyword">do</span>
+      {<span class="ruby-value">top:</span><span class="ruby-identifier">ymax</span>, <span class="ruby-value">bottom:</span><span class="ruby-identifier">ymin</span>}.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">sublabel</span>, <span class="ruby-identifier">yminmax</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">ns</span> <span class="ruby-identifier">sublabel</span> <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">yminmax</span>
+                        <span class="ruby-identifier">call</span> <span class="ruby-identifier">clip_x_dimension</span>
+                        <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">exx</span>
+                        <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">xx</span>               <span class="ruby-comment"># x1 = x0 + sgn * dx * (yminmax - y0) / dy</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">yh</span>, <span class="ruby-value">0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">yl</span>, <span class="ruby-identifier">yminmax</span>      <span class="ruby-comment"># y1 = yminmax</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">clip_loop1</span>
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">end</span>
+      {<span class="ruby-value">left:</span><span class="ruby-identifier">xmin</span>, <span class="ruby-value">right:</span><span class="ruby-identifier">xmax</span>}.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">sublabel</span>, <span class="ruby-identifier">xminmax</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">ns</span> <span class="ruby-identifier">sublabel</span> <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">xminmax</span>
+                        <span class="ruby-identifier">call</span> <span class="ruby-identifier">clip_y_dimension</span>
+                        <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>
+                        <span class="ruby-identifier">exx</span>
+                        <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">yy</span>               <span class="ruby-comment"># y1 = y0 + sgn * dy * (xminmax - x0) / dx</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">xh</span>, <span class="ruby-value">0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">xl</span>, <span class="ruby-identifier">xminmax</span>      <span class="ruby-comment"># x1 = xminmax</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">clip_loop1</span>
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+
+    <span class="ruby-identifier">ns</span> <span class="ruby-value">:recomputecode0</span> <span class="ruby-keyword">do</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
+                        <span class="ruby-identifier">call</span> <span class="ruby-identifier">compute_outcode</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+      <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">gfx_clip_compute_outcode</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">xx</span>, <span class="ruby-identifier">yy</span>, <span class="ruby-value">xmin:</span><span class="ruby-identifier">xmin</span>, <span class="ruby-value">xmax:</span><span class="ruby-identifier">xmax</span>, <span class="ruby-value">ymin:</span><span class="ruby-identifier">ymin</span>, <span class="ruby-value">ymax:</span><span class="ruby-identifier">ymax</span> <span class="ruby-comment"># h: outcode0</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>             <span class="ruby-comment"># outcode0</span>
+      <span class="ruby-keyword">end</span>
+                        <span class="ruby-identifier">exx</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>             <span class="ruby-comment"># outcode0</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">clip_loop0</span>
+    <span class="ruby-keyword">end</span>
+
+    <span class="ruby-comment"># hl = x0 + a&#39; * dx * (a - y0) / dy</span>
+    <span class="ruby-identifier">clip_x_dimension</span>    <span class="ruby-identifier">gfx_clip_dimension</span> <span class="ruby-value">a0:</span><span class="ruby-identifier">xx</span>, <span class="ruby-value">b0:</span><span class="ruby-identifier">yy</span>, <span class="ruby-value">d1:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">d2:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">full_range_delta:</span><span class="ruby-identifier">full_range_delta</span>
+                        <span class="ruby-identifier">ret</span>
+    <span class="ruby-comment"># hl = y0 + a&#39; * dy * (a - x0) / dx</span>
+    <span class="ruby-identifier">clip_y_dimension</span>    <span class="ruby-identifier">gfx_clip_dimension</span> <span class="ruby-value">a0:</span><span class="ruby-identifier">yy</span>, <span class="ruby-value">b0:</span><span class="ruby-identifier">xx</span>, <span class="ruby-value">d1:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">d2:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">full_range_delta:</span><span class="ruby-identifier">full_range_delta</span>
+                        <span class="ruby-identifier">ret</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
+      <span class="ruby-identifier">compute_outcode</span>   <span class="ruby-identifier">gfx_clip_compute_outcode</span> <span class="ruby-identifier">l</span>, <span class="ruby-identifier">xx</span>, <span class="ruby-identifier">yy</span>, <span class="ruby-value">xmin:</span><span class="ruby-identifier">xmin</span>, <span class="ruby-value">xmax:</span><span class="ruby-identifier">xmax</span>, <span class="ruby-value">ymin:</span><span class="ruby-identifier">ymin</span>, <span class="ruby-value">ymax:</span><span class="ruby-identifier">ymax</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

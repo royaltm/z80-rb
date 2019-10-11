@@ -102,7 +102,7 @@
 <pre class="ruby"><span class="ruby-constant">NZ</span> <span class="ruby-constant">Z</span> <span class="ruby-constant">NC</span> <span class="ruby-constant">C</span> <span class="ruby-constant">PO</span> <span class="ruby-constant">PE</span> <span class="ruby-constant">P</span> <span class="ruby-constant">M</span>
 </pre>
 
-<p>You must not use this class directly. Use predefined constants instead.</p>
+<p>Additionally NV = PO and V = PE conditions are aliased. You must not use this class directly. Use predefined constants instead.</p>
 
   </section>
 
@@ -189,7 +189,7 @@
 
           
           <div class="method-source-code" id="5B-5D-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 163</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 169</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">index</span>)
         <span class="ruby-identifier">@@conditions</span>[<span class="ruby-identifier">index</span>]
 <span class="ruby-keyword">end</span></pre>
@@ -222,7 +222,7 @@
 
           
           <div class="method-source-code" id="names-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 166</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 172</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">names</span>
         <span class="ruby-identifier">@@names</span>.<span class="ruby-identifier">dup</span>
 <span class="ruby-keyword">end</span></pre>
@@ -255,7 +255,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 171</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 177</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">opc</span>)
         <span class="ruby-ivar">@name</span> = <span class="ruby-identifier">name</span>
         <span class="ruby-ivar">@opc</span> = <span class="ruby-identifier">opc</span>
@@ -297,7 +297,7 @@
 
           
           <div class="method-source-code" id="jr_ok-3F-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 179</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 185</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">jr_ok?</span>
         <span class="ruby-identifier">one_of?</span>(<span class="ruby-identifier">@@names</span>[<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">3</span>])
 <span class="ruby-keyword">end</span></pre>
@@ -330,7 +330,7 @@
 
           
           <div class="method-source-code" id="one_of-3F-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 178</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 184</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">one_of?</span>(<span class="ruby-identifier">ary</span>); <span class="ruby-identifier">ary</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">name</span>); <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -361,7 +361,7 @@
 
           
           <div class="method-source-code" id="to_i-source">
-            <pre><span class="ruby-comment"># File z80/registers.rb, line 175</span>
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 181</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_i</span>
         <span class="ruby-ivar">@opc</span>
 <span class="ruby-keyword">end</span></pre>

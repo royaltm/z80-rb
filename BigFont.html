@@ -109,7 +109,7 @@
 
   <section class="description">
     
-<p><a href="Z80.html"><code>Z80</code></a> <a href="BigFont/Macros.html"><code>Macros</code></a> producing routines to create and display a 16x15 pixel characters from a 8x8 pixel font (e.g: a default ROM font) applying a simple anti-aliasing algorithm.</p>
+<p><a href="Z80.html"><code>Z80</code></a> <a href="BigFont/Macros.html"><code>Macros</code></a> producing routines to create and display 16x15 characters from a 8x8 font (e.g: a default ROM font) applying a simple anti-aliasing algorithm.</p>
 
 <pre>original character  character with widened pixels       final result of the algorithm
 
@@ -174,9 +174,11 @@
 
           
           <div class="method-source-code" id="print_char-source">
-            <pre><span class="ruby-comment"># File utils/bigfont.rb, line 299</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/bigfont.rb, line 309</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:print_char</span> <span class="ruby-keyword">do</span>
-  <span class="ruby-identifier">with_saved</span> <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">:exx</span>, <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">merge:</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">do</span>
+  <span class="ruby-comment"># The routine may modify the registers AF, AF&#39;, BC, DE, HL, IX. We should only preserve an alternative set</span>
+  <span class="ruby-comment"># which is a regular set for the system. Modifying IY is not a good idea without disabling interrupts first.</span>
+  <span class="ruby-identifier">with_saved</span> <span class="ruby-value">:exx</span>, <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">merge:</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">do</span>
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, [<span class="ruby-identifier">cursor</span>]
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">flags</span>
                   <span class="ruby-identifier">bit</span>  <span class="ruby-value">0</span>, [<span class="ruby-identifier">hl</span>]

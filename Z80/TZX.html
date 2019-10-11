@@ -99,7 +99,10 @@
 <pre>puts Z80::TAP.parse_file(&quot;examples/calculator.tap&quot;).to_a
 
 Program: &quot;calculator&quot; LINE 10 (226/226)
-Bytes: &quot;calculator&quot; CODE 32768,61</pre>
+Bytes: &quot;calculator&quot; CODE 32768,61
+
+# convert a TZX file to a TAP file (may not work for custom loaders)
+Z80::TAP.parse_file(&#39;foobar.tzx&#39;) {|t| t.save_tap(&#39;foobar&#39;, append:true) }</pre>
 
 <p><a href="Program.html#method-i-import_file"><code>Program.import_file</code></a> will make use of <a href="TAP.html#method-c-read_data"><code>Z80::TAP.read_data</code></a>. Pass additional <code>:index</code> =&gt; <code>n</code> argument to <a href="Program.html#method-i-import_file"><code>Program.import_file</code></a> to choose n&#39;th chunk from a tap file.</p>
 
@@ -259,7 +262,7 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 
           
           <div class="method-source-code" id="parse_file-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 377</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 380</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_file</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         <span class="ruby-identifier">tap</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-string">&#39;rb&#39;</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">read</span> }
         <span class="ruby-constant">TAP</span>.<span class="ruby-identifier">parse_tap</span>(<span class="ruby-identifier">tap</span>, <span class="ruby-identifier">filename</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -295,7 +298,7 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 
           
           <div class="method-source-code" id="parse_tap-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 389</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 392</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_tap</span>(<span class="ruby-identifier">tap</span>, <span class="ruby-identifier">file</span>=<span class="ruby-string">&#39;-&#39;</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         <span class="ruby-identifier">tap</span>, <span class="ruby-identifier">is_tzx</span> = <span class="ruby-constant">TAP</span>.<span class="ruby-identifier">unpack_from_tzx_header</span> <span class="ruby-identifier">tap</span>, <span class="ruby-identifier">file</span>
         <span class="ruby-identifier">enu</span> = <span class="ruby-operator">::</span><span class="ruby-constant">Enumerator</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">y</span><span class="ruby-operator">|</span>
@@ -365,7 +368,7 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 
           
           <div class="method-source-code" id="read_chunk-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 356</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 359</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_chunk</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">name:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">index:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-identifier">parser</span> = <span class="ruby-identifier">parse_file</span>(<span class="ruby-identifier">filename</span>)
         <span class="ruby-identifier">chunk</span>, = <span class="ruby-keyword">if</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">nil?</span>
@@ -414,7 +417,7 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 
           
           <div class="method-source-code" id="read_data-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 336</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 339</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_data</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-constant">TAP</span>.<span class="ruby-identifier">read_chunk</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">chunk</span><span class="ruby-operator">|</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">header</span>
@@ -476,7 +479,7 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 
           
           <div class="method-source-code" id="save_tap-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 74</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 77</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">save_tap</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">append:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">name:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-identifier">name</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-string">&#39;.tap&#39;</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">name</span>
         <span class="ruby-identifier">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>).<span class="ruby-identifier">save_tap</span> <span class="ruby-identifier">filename</span>, <span class="ruby-value">append:</span><span class="ruby-identifier">append</span>
@@ -514,7 +517,7 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 
           
           <div class="method-source-code" id="to_tap-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 85</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 88</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-identifier">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>).<span class="ruby-identifier">to_tap</span>
 <span class="ruby-keyword">end</span></pre>
@@ -553,7 +556,7 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 
           
           <div class="method-source-code" id="to_tap_chunk-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 97</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 100</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-value">org:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new_code</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">org</span><span class="ruby-operator">||</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">org</span>)
 <span class="ruby-keyword">end</span></pre>

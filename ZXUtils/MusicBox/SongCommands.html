@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module ZXUtils::MusicBox::SongCommands - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../";
+  var index_rel_prefix = "../../";
+</script>
+
+<script src="../../js/jquery.js"></script>
+<script src="../../js/darkfish.js"></script>
+
+<link href="../../css/fonts.css" rel="stylesheet">
+<link href="../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../table_of_contents.html#pages">Pages</a>
+    <a href="../../table_of_contents.html#classes">Classes</a>
+    <a href="../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="MultitrackCommands.html">ZXUtils::MusicBox::MultitrackCommands</a>
+  
+  
+  
+    <li><a class="include" href="Track.html">ZXUtils::MusicBox::Track</a>
+  
+  
+  
+    <li><a class="include" href="Instrument.html">ZXUtils::MusicBox::Instrument</a>
+  
+  
+  
+    <li><a class="include" href="Multitrack.html">ZXUtils::MusicBox::Multitrack</a>
+  
+  
+  </ul>
+</div>
+
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-chord">#chord</a>
+    
+    <li ><a href="#method-i-envelope">#envelope</a>
+    
+    <li ><a href="#method-i-import_chord">#import_chord</a>
+    
+    <li ><a href="#method-i-import_envelope">#import_envelope</a>
+    
+    <li ><a href="#method-i-import_instrument">#import_instrument</a>
+    
+    <li ><a href="#method-i-import_mask">#import_mask</a>
+    
+    <li ><a href="#method-i-import_multitrack">#import_multitrack</a>
+    
+    <li ><a href="#method-i-import_track">#import_track</a>
+    
+    <li ><a href="#method-i-instrument">#instrument</a>
+    
+    <li ><a href="#method-i-mask">#mask</a>
+    
+    <li ><a href="#method-i-multitrack">#multitrack</a>
+    
+    <li ><a href="#method-i-track">#track</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-ZXUtils::MusicBox::SongCommands">
+  <h1 id="module-ZXUtils::MusicBox::SongCommands" class="module">
+    module ZXUtils::MusicBox::SongCommands
+  </h1>
+
+  <section class="description">
+    
+<h3 id="module-ZXUtils::MusicBox::SongCommands-label-MusicBox+SongCommands"><a href="../MusicBox.html"><code>MusicBox</code></a> <a href="SongCommands.html"><code>SongCommands</code></a><span><a href="#module-ZXUtils::MusicBox::SongCommands-label-MusicBox+SongCommands">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p>Commands for a <a href="Song.html"><code>Song</code></a>.</p>
+
+<p>For the other available commands see: <a href="MultitrackCommands.html"><code>MultitrackCommands</code></a> and <a href="TrackConfigCommands.html"><code>TrackConfigCommands</code></a>.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-chord" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">chord</span><span
+            class="method-args">(name, *args)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a chord with the given <code>name</code> as a symbol or a string. Provide <code>args</code> for the <a href="Chord.html#method-c-new"><code>MusicBox::Chord.new</code></a>.</p>
+
+<p>See <a href="Chord.html"><code>MusicBox::Chord</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="chord-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 105</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">chord</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+  <span class="ruby-ivar">@chords</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Chord</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-envelope" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">envelope</span><span
+            class="method-args">(name, *args)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates an envelope with the given <code>name</code> as a symbol or a string. Provide <code>args</code> for the <a href="Envelope.html#method-c-new"><code>MusicBox::Envelope.new</code></a>.</p>
+
+<p>See <a href="Envelope.html"><code>MusicBox::Envelope</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="envelope-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 91</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">envelope</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+  <span class="ruby-ivar">@envelopes</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Envelope</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-import_chord" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">import_chord</span><span
+            class="method-args">(name, chord)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Imports a <a href="Chord.html"><code>MusicBox::Chord</code></a> instance with the given <code>name</code> as a symbol or a string.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="import_chord-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 110</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_chord</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">chord</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">chord</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Chord</span>)
+  <span class="ruby-ivar">@chords</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">chord</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-import_envelope" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">import_envelope</span><span
+            class="method-args">(name, envelope)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Imports a <a href="Envelope.html"><code>MusicBox::Envelope</code></a> instance with the given <code>name</code> as a symbol or a string.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="import_envelope-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 96</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_envelope</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">envelope</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">envelope</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Envelope</span>)
+  <span class="ruby-ivar">@envelopes</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">envelope</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-import_instrument" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">import_instrument</span><span
+            class="method-args">(name, track)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Imports a <a href="Instrument.html"><code>MusicBox::Instrument</code></a> class with the given <code>name</code> as a symbol or a string.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="import_instrument-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 62</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_instrument</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">track</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Class</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-constant">Instrument</span>)
+  <span class="ruby-ivar">@instruments</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">track</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-import_mask" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">import_mask</span><span
+            class="method-args">(name, mask)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Imports a <a href="Mask.html"><code>MusicBox::Mask</code></a> instance with the given <code>name</code> as a symbol or a string.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="import_mask-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 124</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_mask</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">mask</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">mask</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Mask</span>)
+  <span class="ruby-ivar">@masks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">mask</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-import_multitrack" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">import_multitrack</span><span
+            class="method-args">(name, multitrack)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Imports a <a href="Multitrack.html"><code>MusicBox::Multitrack</code></a> class with the given <code>name</code> as a symbol or a string.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="import_multitrack-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 82</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_multitrack</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">multitrack</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">multitrack</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Class</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">multitrack</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-constant">Multitrack</span>)
+  <span class="ruby-ivar">@multitracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">multitrack</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-import_track" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">import_track</span><span
+            class="method-args">(name, track)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Imports a <a href="Track.html"><code>MusicBox::Track</code></a> class with the given <code>name</code> as a symbol or a string.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="import_track-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 43</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_track</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">track</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Class</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-constant">Track</span>)
+  <span class="ruby-ivar">@tracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">track</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-instrument" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">instrument</span><span
+            class="method-args">(name, &amp;block)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates an instrument with the given <code>name</code> as a symbol or a string.</p>
+
+<p>Give a block of code containing instrument commands. See <a href="Instrument.html"><code>MusicBox::Instrument</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="instrument-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 51</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">instrument</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
+  <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
+  <span class="ruby-ivar">@instruments</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">include</span> <span class="ruby-constant">Instrument</span>
+    <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
+    <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-mask" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">mask</span><span
+            class="method-args">(name, *args)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a mask with the given <code>name</code> as a symbol or a string. Provide <code>args</code> for the <a href="Mask.html#method-c-new"><code>MusicBox::Mask.new</code></a>.</p>
+
+<p>See <a href="Mask.html"><code>MusicBox::Mask</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="mask-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 119</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mask</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+  <span class="ruby-ivar">@masks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Mask</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-multitrack" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">multitrack</span><span
+            class="method-args">(name, &amp;block)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a multi-track with the given <code>name</code> as a symbol or a string.</p>
+
+<p>Give a block of code containing multi-track commands. See <a href="Multitrack.html"><code>MusicBox::Multitrack</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="multitrack-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 70</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">multitrack</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
+  <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
+  <span class="ruby-ivar">@multitracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">include</span> <span class="ruby-constant">Multitrack</span>
+    <span class="ruby-identifier">first_octave_note</span>(<span class="ruby-identifier">first_octave_note_</span>)
+    <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
+    <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-track" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">track</span><span
+            class="method-args">(name, &amp;block)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a track with the given <code>name</code> as a symbol or a string.</p>
+
+<p>Give a block of code containing track commands. See <a href="Track.html"><code>MusicBox::Track</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="track-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 31</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">track</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
+  <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
+  <span class="ruby-ivar">@tracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">include</span> <span class="ruby-constant">Track</span>
+    <span class="ruby-identifier">first_octave_note</span>(<span class="ruby-identifier">first_octave_note_</span>)
+    <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
+    <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

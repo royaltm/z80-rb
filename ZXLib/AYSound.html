@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class ZXLib::AYSound - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+<div class="nav-section">
+  <h3>Table of Contents</h3>
+
+  <ul class="link-list" role="directory">
+    <li><a href="#class-ZXLib::AYSound-label-ZXLib-3A-3AAYSound.">ZXLib::AYSound.</a>
+    <li><a href="#class-ZXLib::AYSound-label-Registers">Registers</a>
+    <li><a href="#class-ZXLib::AYSound-label-Envelope+shapes">Envelope shapes</a>
+  </ul>
+</div>
+
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="../Object.html">Object</a>
+  
+</div>
+
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="AYSound/EnvelopeControl.html">ZXLib::AYSound::EnvelopeControl</a>
+  
+  
+  
+    <li><a class="include" href="AYSound/VolumeControl.html">ZXLib::AYSound::VolumeControl</a>
+  
+  
+  
+    <li><a class="include" href="AYSound/Mixer.html">ZXLib::AYSound::Mixer</a>
+  
+  
+  
+    <li><a class="include" href="AYSound/Registers.html">ZXLib::AYSound::Registers</a>
+  
+  
+  
+    <li><a class="include" href="../Z80.html">Z80</a>
+  
+  
+  </ul>
+</div>
+
+    
+    
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-ZXLib::AYSound">
+  <h1 id="class-ZXLib::AYSound" class="class">
+    class ZXLib::AYSound
+  </h1>
+
+  <section class="description">
+    
+<h2 id="class-ZXLib::AYSound-label-ZXLib-3A-3AAYSound."><a href="AYSound.html"><code>ZXLib::AYSound</code></a>.<span><a href="#class-ZXLib::AYSound-label-ZXLib-3A-3AAYSound.">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p><a href="AYSound/Macros.html"><code>Macros</code></a> to help program the AY-3-8910/8912 sound chipsets.</p>
+<dl class="rdoc-list note-list"><dt><em>Sources</em>
+<dd></dd></dl>
+<ul><li>
+<p><a href="http://www.armory.com/~rstevew/Public/SoundSynth/Novelty/AY3-8910/start.html">www.armory.com/~rstevew/Public/SoundSynth/Novelty/AY3-8910/start.html</a></p>
+</li><li>
+<p><a href="https://faqwiki.zxnet.co.uk/wiki/AY-3-8912">faqwiki.zxnet.co.uk/wiki/AY-3-8912</a></p>
+</li></ul>
+
+<h3 id="class-ZXLib::AYSound-label-Registers"><a href="AYSound/Registers.html"><code>Registers</code></a><span><a href="#class-ZXLib::AYSound-label-Registers">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p>The AY-3-8910/8912 contains 16 internal registers as follows: </p>
+
+<pre>Register        Function                        Range
+
+ 0              Channel A fine pitch            8-bit (0-255)
+ 1              Channel A coarse pitch          4-bit (0-15)
+ 2              Channel B fine pitch            8-bit (0-255)
+ 3              Channel B coarse pitch          4-bit (0-15)
+ 4              Channel C fine pitch            8-bit (0-255)
+ 5              Channel C coarse pitch          4-bit (0-15)
+ 6              Noise pitch                     5-bit (0-31)
+ 7              Mixer                           8-bit (see below)
+ 8              Channel A volume                4-bit (0-15, see below)
+ 9              Channel B volume                4-bit (0-15, see below)
+10              Channel C volume                4-bit (0-15, see below)
+11              Envelope fine duration          8-bit (0-255)
+12              Envelope coarse duration        8-bit (0-255)
+13              Envelope shape                  4-bit (0-15)
+14              I/O port A                      8-bit (0-255)
+15              I/O port B                      8-bit (0-255)</pre>
+<dl class="rdoc-list note-list"><dt>Notes
+<dd>
+<p>The AY-3-8912 does not contain register 15.</p>
+</dd></dl>
+
+<p>The volume registers (8, 9 and 10) contain a 4-bit setting but if bit 5 is set then that channel uses the envelope defined by register 13 and ignores its volume setting.</p>
+
+<p>The mixer (register 7) is made up of the following bits (low = enabled): </p>
+
+<pre>Bit: 7        6        5        4        3        2        1        0
+   _         _
+   I/O       I/O   Noise    Noise    Noise     Tone     Tone     Tone
+     B        A        C        B        A        C        B        A</pre>
+
+<p>The AY-3-8912 ignores bit 7 of this register.</p>
+
+<h3 id="class-ZXLib::AYSound-label-Envelope+shapes">Envelope shapes<span><a href="#class-ZXLib::AYSound-label-Envelope+shapes">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p>The AY-3-8910/8912 contains the following preset envelopes or waveforms (set using control register 13). Note that these affect volume only and not the pitch: </p>
+
+<pre> 0      \__________     single decay then off
+
+ 4      /|_________     single attack then off
+
+ 8      \|\|\|\|\|\     repeated decay
+
+ 9      \__________     single decay then off
+
+10      \/\/\/\/\/\     repeated decay-attack
+          _________
+11      \|              single decay then hold
+
+12      /|/|/|/|/|/     repeated attack
+         __________
+13      /               single attack then hold
+
+14      /\/\/\/\/\/     repeated attack-decay
+
+15      /|_________     single attack then off</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <section class="constants-list">
+      <header>
+        <h3>Constants</h3>
+      </header>
+      <dl>
+      
+        <dt id="CLOCK_HZ">CLOCK_HZ
+        
+        <dd><p>Default AY-3-891x frequency</p>
+        
+      
+        <dt id="CLOCK_HZ_128">CLOCK_HZ_128
+        
+        <dd><p>ZX Spectrum 128k AY-3-891x frequency</p>
+        
+      
+        <dt id="CLOCK_HZ_48">CLOCK_HZ_48
+        
+        <dd><p>ZX Spectrum 48k AY-3-891x frequency</p>
+        
+      
+        <dt id="CLOCK_HZ_TIMEX">CLOCK_HZ_TIMEX
+        
+        <dd><p>Timex 2068 AY-3-891x frequency <a href="https://www.worldofspectrum.org/faq/reference/tmxreference.htm">www.worldofspectrum.org/faq/reference/tmxreference.htm</a></p>
+        
+      
+        <dt id="NOTE_SYMBOLS">NOTE_SYMBOLS
+        
+        <dd><p>An array of musical notes as strings.</p>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+
+    
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

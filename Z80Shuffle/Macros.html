@@ -141,7 +141,7 @@
 
           
           <div class="method-source-code" id="shuffle_bytes_source_max256-source">
-            <pre><span class="ruby-comment"># File utils/shuffle.rb, line 28</span>
+            <pre><span class="ruby-comment"># File lib/z80/utils/shuffle.rb, line 27</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">shuffle_bytes_source_max256</span>(<span class="ruby-identifier">next_rng</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">length:</span><span class="ruby-identifier">a</span>, <span class="ruby-value">source:</span><span class="ruby-keyword">nil</span>)
     <span class="ruby-keyword">unless</span> <span class="ruby-identifier">source</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">source</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">source</span>))
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;source should be nil or an address&quot;</span> 

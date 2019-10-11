@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class ZXUtils::AYMusic - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+<div class="nav-section">
+  <h3>Table of Contents</h3>
+
+  <ul class="link-list" role="directory">
+    <li><a href="#class-ZXUtils::AYMusic-label-The+AY-3-8910-2F8912+music+engine">The AY-3-8910/8912 music engine</a>
+    <li><a href="#class-ZXUtils::AYMusic-label-A+memory+map+of+the+AYMusic-27s+workspace.">A memory map of the AYMusic&#39;s workspace.</a>
+    <li><a href="#class-ZXUtils::AYMusic-label-Static+tables">Static tables</a>
+    <li><a href="#class-ZXUtils::AYMusic-label-Music+data">Music data</a>
+    <li><a href="#class-ZXUtils::AYMusic-label-Index+lookup+table">Index lookup table</a>
+    <li><a href="#class-ZXUtils::AYMusic-label-Envelopes-2C+Masks+and+Chords">Envelopes, Masks and Chords</a>
+    <li><a href="#class-ZXUtils::AYMusic-label-Tracks">Tracks</a>
+  </ul>
+</div>
+
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="../Object.html">Object</a>
+  
+</div>
+
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="../Z80.html">Z80</a>
+  
+  
+  
+    <li><a class="include" href="../ZXLib/AYSound/Registers.html">ZXLib::AYSound::Registers</a>
+  
+  
+  
+    <li><a class="include" href="../ZXLib/AYSound/EnvelopeControl.html">ZXLib::AYSound::EnvelopeControl</a>
+  
+  
+  </ul>
+</div>
+
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-init">#init</a>
+    
+    <li ><a href="#method-i-play">#play</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-ZXUtils::AYMusic">
+  <h1 id="class-ZXUtils::AYMusic" class="class">
+    class ZXUtils::AYMusic
+  </h1>
+
+  <section class="description">
+    
+<h3 id="class-ZXUtils::AYMusic-label-The+AY-3-8910-2F8912+music+engine">The AY-3-8910/8912 music engine<span><a href="#class-ZXUtils::AYMusic-label-The+AY-3-8910-2F8912+music+engine">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p>Low-level but highly configurable music player routines and <a href="AYMusic/Macros.html"><code>Macros</code></a>. See also: <a href="AYMusicPlayer.html"><code>ZXUtils::AYMusicPlayer</code></a> and <a href="AYBasicPlayer.html"><code>ZXUtils::AYBasicPlayer</code></a>.</p>
+
+<p>To play music with <a href="AYMusic.html"><code>AYMusic</code></a> you&#39;ll need:</p>
+<ul><li>
+<p>Some static tables.</p>
+</li><li>
+<p>Some workspace memory.</p>
+</li><li>
+<p>Music data.</p>
+</li></ul>
+
+<p><a href="MusicBox.html"><code>ZXUtils::MusicBox</code></a> provides a Ruby DSL for creating music for the <a href="AYMusic.html"><code>AYMusic</code></a> engine.</p>
+
+<h4 id="class-ZXUtils::AYMusic-label-A+memory+map+of+the+AYMusic-27s+workspace.">A memory map of the AYMusic&#39;s workspace.<span><a href="#class-ZXUtils::AYMusic-label-A+memory+map+of+the+AYMusic-27s+workspace.">&para;</a> <a href="#top">&uarr;</a></span></h4>
+
+<p>By default the workspace addresses follows immediately the static tables which are allocated after the end of the <a href="AYMusic.html"><code>AYMusic</code></a> code. All of the workspace and static tables&#39; labels can be overridden to better fit your program&#39;s memory layout.</p>
+
+<pre>&lt;-  TRACK_STACK_TOTAL  -&gt;                 &lt;- +MusicControl -&gt;      &lt;- MINISTACK_SIZE -&gt;
++---------------------+-+                 +-----------------+      +------------------+
+|  Tracks&#39; loop/yield |0|                 |  Music Control  |      | Player&#39;s machine |
+|        Stacks       | |                 |                 |      |    code stack    |
++---------------------+-+                 +-----------------+      +------------------+
+^                      ^ ^                ^                                            ^
+workspace              | track_stack_end  music_control                        ministack
+      empty_instrument-+                                                   workspace_end</pre>
+
+<h4 id="class-ZXUtils::AYMusic-label-Static+tables">Static tables<span><a href="#class-ZXUtils::AYMusic-label-Static+tables">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<ul><li>
+<p>A note to AY-3-891x tone pitch table. Optionally override <code>notes</code> label to point to that table.</p>
+</li><li>
+<p>A note to fine tones cursor table. Optionally override <code>note_to_cursor</code> label to point to that table.</p>
+</li><li>
+<p>A fine tones table for tone progression. Optionally override <code>fine_tones</code> label to point to that table.</p>
+</li><li>
+<p>A 1kb <a href="../Z80/Utils/SinCos/SinCosTable.html"><code>Z80::Utils::SinCos::SinCosTable</code></a> which must be aligned to 256 bytes (the address must be divisible by 256). Optionally override <code>sincos</code> label to point to that table.</p>
+</li></ul>
+
+<p>The “note to AY-3-891x tone pitch” table is a 96 words each representing a tone in a 12-notes, 8-octaves music scale. The values should be 12-bit tone period values as expected by the AY-3-891x specification.</p>
+
+<p>There are two ways to create such a table:</p>
+<ul><li>
+<p>using <a href="../ZXLib/AYSound/Macros.html#method-i-ay_tone_periods"><code>ZXLib::AYSound::Macros.ay_tone_periods</code></a> macro to create a full static table.</p>
+</li><li>
+<p>using <a href="../ZXLib/AYSound/Macros.html#method-i-ay_tone_periods"><code>ZXLib::AYSound::Macros.ay_tone_periods</code></a> macro to create a one octave and extrapolate it with <a href="../ZXLib/AYSound/Macros.html#method-i-ay_expand_notes"><code>ZXLib::AYSound::Macros.ay_expand_notes</code></a> routine.</p>
+</li></ul>
+
+<p>The “note to fine tones cursor” table may be created with the <a href="AYMusic/Macros.html#method-i-ay_music_note_to_fine_tone_cursor_table_factory"><code>Macros.ay_music_note_to_fine_tone_cursor_table_factory</code></a> routine.</p>
+
+<p>The “fine tones” table may be created with the <a href="AYMusic/Macros.html#method-i-ay_music_tone_progress_table_factory"><code>Macros.ay_music_tone_progress_table_factory</code></a> routine.</p>
+
+<p>The <a href="AYMusic.html#SinCosTable"><code>SinCosTable</code></a> can be created with the <a href="../Z80/Utils/SinCos/Macros.html#method-i-create_sincos_from_sintable"><code>Z80::Utils::SinCos::Macros.create_sincos_from_sintable</code></a> routine.</p>
+
+<h4 id="class-ZXUtils::AYMusic-label-Music+data">Music data<span><a href="#class-ZXUtils::AYMusic-label-Music+data">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<ul><li>
+<p>Some tracks, at least 3. See <a href="AYMusic.html#method-i-init"><code>AYMusic.init</code></a> how to initialize tracks.</p>
+</li><li>
+<p>Some delta envelopes, mask envelopes, chords.</p>
+</li><li>
+<p>An index lookup table. Optionally override <code>index_table</code> label to point to that table.</p>
+</li></ul>
+
+<h5 id="class-ZXUtils::AYMusic-label-Index+lookup+table">Index lookup table<span><a href="#class-ZXUtils::AYMusic-label-Index+lookup+table">&para;</a> <a href="#top">&uarr;</a></span></h5>
+
+<p>The index lookup table consists of words (2 bytes each) containing addresses of tracks, instruments, envelopes and chords. Each entry is indexed from 1 (1st entry) to 128. The maximum number of entries supported currently is 128. However if your music uses fewer entries, the lookup table may be shorter.</p>
+
+<p>Instruments are just like tracks, but some commands should not be used in them, e.g. playing notes. For each channel, the instrument track is being executed in parallel with the current track.</p>
+
+<h5 id="class-ZXUtils::AYMusic-label-Envelopes-2C+Masks+and+Chords">Envelopes, Masks and Chords<span><a href="#class-ZXUtils::AYMusic-label-Envelopes-2C+Masks+and+Chords">&para;</a> <a href="#top">&uarr;</a></span></h5>
+
+<p>Delta envelopes, masks and chords consist of a loop offset byte, followed by bytes describing an envelope, followed by 0. The loop offset should point to the argument&#39;s 1st byte (relative to the 1st argument) to which the envelope should loop when it&#39;s over. The loop offset = 0 means repeat the whole envelope.</p>
+
+<p>Each delta envelope argument consist of 2 bytes:</p>
+<ul><li>
+<p>A counter: from 1 up to 255.</p>
+</li><li>
+<p>A delta as a twos complement byte. </p>
+</li></ul>
+
+<p>The counter indicates for how many ticks the following delta should be applied. The delta is being added to the current envelope value in the range: 0..255. If the value exceeds 255 it&#39;s being clipped to 255. If the value drops below 0 it&#39;s being clipped to 0.</p>
+
+<p>If the delta envelope is being applied to a volume, the current highest 4 bits of the envelope value is being applied to a AY-3-891x&#39;s channels&#39; volume. If the delta envelope is being applied to a noise pitch, the current highest 5 bits of the envelope value is being applied to a AY-3-891x&#39;s channels&#39; volume.</p>
+
+<p>Each mask envelope argument consist of 2 bytes:</p>
+<ul><li>
+<p>A counter: from 1 up to 255.</p>
+</li><li>
+<p>An 8-bit mask.</p>
+</li></ul>
+
+<p>The counter indicates for how many ticks the following bits should be applied in turn. Each bit from the mask is being applied after each tick, starting from the most (leftmost) significant bit (7). The bits are being rolled left, creating a virtually infinite bitmap.</p>
+
+<p>Each chord argument consist of a single byte.</p>
+<ul><li>
+<p>A delay value on bits 7-5 (1..7).</p>
+</li><li>
+<p>A half-tone delta value on bits 4-0 (0..31).</p>
+</li></ul>
+
+<p>The delay indicates for how many ticks the following tone will be played. The delta is a half-tone delta up from the currently played note.</p>
+
+<h5 id="class-ZXUtils::AYMusic-label-Tracks">Tracks<span><a href="#class-ZXUtils::AYMusic-label-Tracks">&para;</a> <a href="#top">&uarr;</a></span></h5>
+
+<p>Tracks consist of commands. Each command consist of 1 or more bytes. Some commands have additional data embedded in the 1st byte. At the start each of the 3 AY-3-8912 tone channel has a single main track assigned. Each volume or tone related command on the assigned track is always tied to that channel. Each of the 3 channels may have an instrument track attached which will be run in parallel to the main track on that channel. Depending on the play mode the “Play note” command may reset the instrument track to its beginning.</p>
+
+<p>The list of commands:</p>
+
+<pre>Head    Data                Description
+  0     -                   Terminate a track.
+                            After this command a track is considered finished. If the control was delegated to 
+                            this track from another track the control is being given back to the yielding track.
+                            For instrument tracks it just freezes the track, but in play mode 1 the track will
+                            be restarted on each &quot;Play a note&quot; command.
+  1- 96 -                   Play a note.
+                            A note: 1: a0, 2: a#0, 3: b0, 4: c0, 5: c#0, 6: d0, 7: d#0, 8: e0, 9: f0, 10: f#0,
+                                    11: g0, 12: g#0, 13: a1, ... , 96: g#8
+128-159 -                   Set noise pitch: (head - 128) translates to pitch: 0..31.
+160-175 -                   Set volume level: (head - 160) translates to volume: 0..15.
+176-255 -                   Wait ticks: (head - 175) translates to delay: 1..80 ticks.
+ 97     index:1             Set instrument. Sets indicated track as an instrument.
+                            Followed by a 1 byte lookup index (0: set empty instrument, 1-128: from the lookup table).
+                            The instrument begins to play on next played note in mode 1.
+ 98     args:1|2            Wait more ticks (between 81 and 20736). Followed by 1 or 2 bytes.
+                            If delay is in the range: 81..256 ticks only one byte argument follows: ticks - 1 [80..255].
+                            If delay is in the range: 257..20736 ticks the first argument byte is: ((ticks - 1) &gt;&gt; 8) - 1 [0..79]
+                            and the second argument byte is: (ticks - 1) &amp; 255 [0..255].
+ 99     -                   Sets play mode 1. In this mode &quot;play note&quot; command resets instrument&#39;s track cursor
+                            to its beginning. Instrument track plays in parallel to the main track.
+100     -                   Sets play mode 2. In this mode &quot;play note&quot; only changes the frequency of the note.
+                            Instrument track continues to play in parallel.
+101     duration:2          Sets AY-3-891x envelope duration. 2 byte duration follows (LSB/fine first).
+102     shape:1             Sets AY-3-891x envelope shape. A 1 byte shape follows. See ZXLib::AYSound for envelope shapes.
+103     index:1             Start a volume envelope.
+                            Followed by a 1 byte lookup index (0: disable envelope, 1-128: from the lookup table).
+104     index:1             Start a noise envelope.
+                            Followed by a 1 byte lookup index (0: disable envelope, 1-128: from the lookup table).
+105     index:1             Start a chord.
+                            Followed by a 1 byte lookup index (0: disable chord, 1-128: from the lookup table).
+106     index:1             Start and apply mask envelope to a AY-3-891x envelope volume control.
+                            Bit = 1 is envelope, 0 is volume.
+                            Followed by a 1 byte lookup index (0: disable mask, 1-128: from the lookup table).
+107     index:1             Start and apply mask envelope to a channel&#39;s tone on/off control.
+                            Bit = 1 is off, 0 is on.
+                            Followed by a 1 byte lookup index (0: disable mask, 1-128: from the lookup table).
+108     index:1             Start and apply mask envelope to a channel&#39;s noise control.
+                            Bit = 1 is off, 0 is on.
+                            Followed by a 1 byte lookup index (0: disable mask, 1-128: from the lookup table).
+109     step:2              Set vibrato step. Followed by 2 bytes (LSB first) of a step value multiplied.
+                            An argument value 0..65536 translates to delta angle: 0..360 degrees.
+110     angle:2             Set vibrato angle. Followed by 2 bytes (LSB first) of a angle value.
+                            An argument value 0..65536 translates to: 0..360 degrees.
+111     amplitude:1         Set vibrato amplitude. Followed by a 1 byte follows multiplied by 255.
+                            An argument value 0..255 translates to an amplitude: 0.0..1.0
+112     -                   Disables vibrato.
+113     ticks:1             Set note progress period. Subsequent &quot;play note&quot; commands will change the tone gradually.
+                            Followed by a 1 byte ticks value.
+                            0 - ignores tone progress (fast): no internal tone progress variables are being updated
+                            on following &quot;play notes&quot;,
+                            1 - immediate tone change, ... 255 - slowest tone change (during 255 ticks).
+                            Before using a higher than 1 tone progress first set it to 1 and &quot;play a note&quot;
+                            to update the &quot;from tone&quot; progress variables.
+114     delta:2, counter:2  Set tone progress variables directly.
+                            Followed by 2 bytes delta (LSB first) and 2 bytes repeat counter (LSB first).
+                            As a side effect this command sets &quot;note progress period&quot; value to 0.
+                            One may play notes safely after that, but until the progress is finished the note
+                            frequency will be ignored.
+                            After the progress is finished the frequency of the last played note will be played.
+                            The value of delta is twos complement 16-bit (-32768..32767) value. The tone progress
+                            cursor ranges from 0..65535 and translates from the linear value to geometric
+                            progression from the lowest playable frequency to the highest.
+                            Tone progress delta from half-tones delta:
+                              delta = (delta_halftones * 256.0 * 32.0 / 12.0) &amp; 0xffff
+115     -                   Enables AY-3-891x envelope volume control.
+                            Disables direct volume control including AYMusic&#39;s controlled envelope.
+116     -                   Disables AY-3-891x envelope volume control.
+                            Enables direct volume control including AYMusic&#39;s controlled envelope.
+117     -                   Disables tone output.
+118     -                   Enables tone output.
+119     -                   Disables noise output.
+120     -                   Enables noise output.
+121     index:1             Yields temporary control to another track (like a go sub) until it&#39;s finished.
+                            Followed by a 1 byte lookup index (0: no-op, 1-128: from the lookup table).
+122     counter:1, offset:1 A loop. Moves track cursor back back counter times to the given offset.
+                            Followed by a 1 byte counter (counter = 0 is loop forever) and a 1 byte LSB 8-bit
+                            of a 16-bit twos complement negative byte offset relative to the beginning of
+                            the command. (0..255) is (-256..-1)
+123-127                     Reserved (DO NOT USE! the results would be unexpected and most probably &#39;ll crash
+                            program execution).</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <section class="constants-list">
+      <header>
+        <h3>Constants</h3>
+      </header>
+      <dl>
+      
+        <dt id="MAX_NOTES_COUNT">MAX_NOTES_COUNT
+        
+        <dd><p>The maximum number of half-tones playable with the AY-3-891x.</p>
+        
+      
+        <dt id="MINISTACK_DEPTH">MINISTACK_DEPTH
+        
+        <dd><p>The depth of the player&#39;s machine code stack.</p>
+        
+      
+        <dt id="MINISTACK_SIZE">MINISTACK_SIZE
+        
+        <dd><p>The byte size required for the player&#39;s machine code stack.</p>
+        
+      
+        <dt id="READ_ONLY_CODE">READ_ONLY_CODE
+        
+        <dd><p>Set to <code>true</code> to create a slightly slower but ROM applicaple code.</p>
+
+<p>To change the default:</p>
+
+<pre class="ruby"><span class="ruby-keyword">module</span> <span class="ruby-constant">ZXUtils</span>
+  <span class="ruby-keyword">class</span> <span class="ruby-constant">AYMusic</span>
+    <span class="ruby-constant">READ_ONLY_CODE</span> = <span class="ruby-keyword">true</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span>
+<span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxutils/ay_music&#39;</span>
+</pre>
+        
+      
+        <dt id="SinCos">SinCos
+        
+        <dd><p>Re-exported <a href="../Z80/Utils/SinCos/SinCos.html"><code>Z80::Utils::SinCos::SinCos</code></a></p>
+        
+      
+        <dt id="SinCosTable">SinCosTable
+        
+        <dd><p>Re-exported <a href="../Z80/Utils/SinCos/SinCosTable.html"><code>Z80::Utils::SinCos::SinCosTable</code></a></p>
+        
+      
+        <dt id="TRACK_STACK_DEPTH">TRACK_STACK_DEPTH
+        
+        <dd><p>The maximum recursion depth for loops and sub-tracks yielding. 20 by default.</p>
+
+<p><a href="AYMusic.html"><code>AYMusic</code></a> uses the stack space ending at <code>track_stack_end</code> label. Each stack entry has the size of <a href="AYMusic/TrackStackEntry.html"><code>TrackStackEntry</code></a>. The last entry on the stack is a marker that is all 0. There are 6 stacks for each channel track and channel instrument. Both <code>yield</code> and <code>loop</code> commands use the same stack for their own purposes. The sum of the recusion of sub-track yields and loop nesting level must not exceed the value defined by <a href="AYMusic.html#TRACK_STACK_DEPTH"><code>TRACK_STACK_DEPTH</code></a>.</p>
+
+<p>To change the default:</p>
+
+<pre class="ruby"><span class="ruby-keyword">module</span> <span class="ruby-constant">ZXUtils</span>
+  <span class="ruby-keyword">class</span> <span class="ruby-constant">AYMusic</span>
+    <span class="ruby-constant">TRACK_STACK_DEPTH</span> = <span class="ruby-value">30</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span>
+<span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxutils/ay_music&#39;</span>
+</pre>
+        
+      
+        <dt id="TRACK_STACK_SIZE">TRACK_STACK_SIZE
+        
+        <dd><p>The single music track stack size calculated from <a href="AYMusic.html#TRACK_STACK_DEPTH"><code>TRACK_STACK_DEPTH</code></a>.</p>
+        
+      
+        <dt id="TRACK_STACK_TOTAL">TRACK_STACK_TOTAL
+        
+        <dd><p>All music tracks stack size calculated from <a href="AYMusic.html#TRACK_STACK_SIZE"><code>TRACK_STACK_SIZE</code></a>.</p>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-init" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">init</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Call to initialize music structures and reset counter, track and instrument cursors.</p>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>Stop interrupts (<code>di</code>) first before calling this routine.</p>
+</dd></dl>
+
+<p>3 words of track addresses must follow:</p>
+
+<pre>      di
+      call music.init
+      dw   track1, track2, track3
+      ei
+      ...
+
+index_table       dw instrument1, instrument2, ... etc
+track1            data (track 1 data)
+track2            data (track 2 data)
+track3            data (track 3 data)</pre>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>When AYMusic::READ_ONLY_CODE is <code>true</code> make sure to <em>always</em> populate <code>music_control.index_table</code> entry <em>after</em> calling <code>init</code>:</p>
+</dd></dl>
+
+<pre class="ruby"><span class="ruby-keyword">if</span> <span class="ruby-constant">AYMusic</span><span class="ruby-operator">::</span><span class="ruby-constant">READ_ONLY_CODE</span>
+  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">index_table</span>
+  <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">music</span>.<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">index_table</span>], <span class="ruby-identifier">hl</span>
+<span class="ruby-keyword">end</span>
+</pre>
+
+<p>Alternatively use <a href="AYMusic/Macros.html#method-i-ay_music_init"><code>Macros.ay_music_init</code></a> which takes care of the above caveats.</p>
+
+<p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>ix</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="init-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 759</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:init</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-comment"># clear control data</span>
+                    <span class="ruby-identifier">clrmem</span> <span class="ruby-identifier">music_control</span>, <span class="ruby-operator">+</span><span class="ruby-identifier">music_control</span>
+                    <span class="ruby-comment"># initialize pointers</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">de</span>             <span class="ruby-comment"># 3 words must follow: A,B,C track.cursor addresses</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">READ_ONLY_CODE</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">saved_sp</span>], <span class="ruby-identifier">sp</span>
+  <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">restore_sp_p</span>], <span class="ruby-identifier">sp</span>
+  <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chan_a</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">flags</span>
+
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">track_stack_end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-value">3</span> <span class="ruby-comment"># number of channels</span>
+  <span class="ruby-identifier">init_loop</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ix</span>         <span class="ruby-comment"># instrument.flags</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">empty_instrument</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>             <span class="ruby-comment"># instrument.start</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>             <span class="ruby-comment"># instrument.track.cursor</span>
+                    <span class="ruby-comment"># mark end of stack with zeroes</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-operator">+</span><span class="ruby-identifier">track_stack_end</span>
+  <span class="ruby-identifier">mark_stack_end1</span>   <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">mark_stack_end1</span>
+                    <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span> <span class="ruby-identifier">sp</span> }  <span class="ruby-comment"># instrument.track.delay</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># instrument.track.track_stack</span>
+
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, [<span class="ruby-identifier">hl</span>]        <span class="ruby-comment"># bc: user supplied track_cursor</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>             <span class="ruby-comment"># track.cursor</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-operator">-</span><span class="ruby-identifier">track_stack_size</span> <span class="ruby-operator">+</span> (<span class="ruby-operator">+</span><span class="ruby-identifier">track_stack_end</span>)
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>         <span class="ruby-comment"># decrease stack pointer</span>
+                    <span class="ruby-comment"># mark end of stack with zeroes</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-operator">+</span><span class="ruby-identifier">track_stack_end</span>
+  <span class="ruby-identifier">mark_stack_end2</span>   <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">mark_stack_end2</span>
+                    <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span> <span class="ruby-identifier">sp</span> }  <span class="ruby-comment"># track.delay</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># track.track_stack</span>
+
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, (<span class="ruby-operator">-</span><span class="ruby-identifier">track_stack_size</span> <span class="ruby-operator">+</span> (<span class="ruby-operator">+</span><span class="ruby-identifier">track_stack_end</span>)) <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>         <span class="ruby-comment"># decrease stack pointer</span>
+
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-operator">+</span><span class="ruby-identifier">channel_control</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">init_loop</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">READ_ONLY_CODE</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">saved_sp</span>]
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">restore_sp</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-value">0</span>
+    <span class="ruby-identifier">restore_sp_p</span>    <span class="ruby-identifier">restore_sp</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+  <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">jp</span>   (<span class="ruby-identifier">hl</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-play" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">play</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Call this routine, in turns, to play the music.</p>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>Stop interrupts (<code>di</code>) first before calling this routine. Because it modifies all of the available <a href="../Z80.html"><code>Z80</code></a> registers (except I and R), care must be taken to restore registers: IY and H&#39;L&#39; when calling from the ZX Spectrum&#39;s Basic.</p>
+</dd></dl>
+
+<p>Example:</p>
+
+<pre class="ruby"><span class="ruby-identifier">forever</span>           <span class="ruby-identifier">ei</span>
+                  <span class="ruby-identifier">halt</span>
+                  <span class="ruby-identifier">di</span>
+                  <span class="ruby-identifier">push</span> <span class="ruby-identifier">iy</span>
+                  <span class="ruby-identifier">call</span> <span class="ruby-identifier">music</span>.<span class="ruby-identifier">play</span>
+                  <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">iy</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">forever</span>
+</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="play-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 836</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:play</span> <span class="ruby-keyword">do</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">READ_ONLY_CODE</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">saved_sp</span>], <span class="ruby-identifier">sp</span>
+  <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">restore_sp_p</span>], <span class="ruby-identifier">sp</span>
+  <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ministack</span>
+                    <span class="ruby-identifier">ay_io_load_const_reg_bc</span>
+                    <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>                       <span class="ruby-comment"># a=0</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">ay_registers</span> <span class="ruby-comment"># output registers&#39; values</span>
+  <span class="ruby-identifier">rloop</span>             <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ay_set_register_value</span>(<span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">true</span>)
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-operator">+</span><span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">ay_registers</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">rloop</span>
+
+                    <span class="ruby-identifier">inc</span>  [<span class="ruby-identifier">hl</span>]                    <span class="ruby-comment"># update counter_lo</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">skip_high</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">inc</span>  [<span class="ruby-identifier">hl</span>]                    <span class="ruby-comment"># update counter_hi</span>
+  <span class="ruby-identifier">skip_high</span>         <span class="ruby-identifier">label</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chan_a</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">track_progress</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chan_b</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">track_progress</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chan_c</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">track_progress</span>
+
+  <span class="ruby-identifier">sound_progress</span>    <span class="ruby-identifier">label</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">noise_envelope</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">envelope_progress</span>       <span class="ruby-comment"># a: current value</span>
+                    <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0x1F</span>                    <span class="ruby-comment"># noise mask</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">skip_min_noise</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">a</span>                       <span class="ruby-comment"># min noise pitch=1</span>
+  <span class="ruby-identifier">skip_min_noise</span>    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">ay_registers</span>.<span class="ruby-identifier">tone_pitch_a</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">ay_registers</span>.<span class="ruby-identifier">noise_pitch</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">de</span>], <span class="ruby-identifier">a</span>                 <span class="ruby-comment"># noise_pitch</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>                      <span class="ruby-comment"># mixer</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>                      <span class="ruby-comment"># volume_a/next volume</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-value">0b00110110</span>           <span class="ruby-comment"># channel counter and mixer mask</span>
+  <span class="ruby-identifier">channel_prog_loop</span> <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>                  <span class="ruby-comment"># save counter and mixer mask</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">envelope_progress</span>       <span class="ruby-comment"># a: current value</span>
+                    <span class="ruby-value">4</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0xF0</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">apply_mask_de</span>           <span class="ruby-comment"># volume</span>
+                    <span class="ruby-identifier">exx</span>
+  <span class="ruby-identifier">tone_progress</span>     <span class="ruby-identifier">do_tone_progress</span>             <span class="ruby-comment"># if ZF:NZ then bc: tone period</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">skip_tone_progr</span>      <span class="ruby-comment"># it&#39;s no-op or at target</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-operator">+</span><span class="ruby-constant">ChordControl</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>                  <span class="ruby-comment"># skip chord_progress and current_note</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">vibrato_ctrl_ck</span>         <span class="ruby-comment"># bc: tone period</span>
+  <span class="ruby-identifier">skip_tone_progr</span>   <span class="ruby-identifier">call</span> <span class="ruby-identifier">chord_progress</span>          <span class="ruby-comment"># a: note offset</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># current_note + note offset</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_note_tone_period_bc</span> <span class="ruby-comment"># bc: tone period</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+  <span class="ruby-identifier">vibrato_ctrl_ck</span>   <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">de</span>, <span class="ruby-identifier">bc</span>                  <span class="ruby-comment"># save tone period</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">vibrato_progress</span>        <span class="ruby-comment"># bc: tone period delta</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">skip_vibr_progr</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>                  <span class="ruby-comment"># hl: tone period + delta</span>
+  <span class="ruby-identifier">skip_vibr_progr</span>   <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># save tone period</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">c</span>                 <span class="ruby-comment"># tone_pitch</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">b</span>                 <span class="ruby-comment"># tone_pitch</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># next tone pitch</span>
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">mask_progress</span>           <span class="ruby-comment"># mask_ay_env_ctrl</span>
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0b11101111</span>           <span class="ruby-comment"># env mask</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">apply_mask_de</span>           <span class="ruby-comment"># volume</span>
+                    <span class="ruby-identifier">exx</span>
+  <span class="ruby-identifier">skip_mask_env</span>     <span class="ruby-identifier">call</span> <span class="ruby-identifier">mask_progress</span>           <span class="ruby-comment"># mask_tone_ctrl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0b11111000</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">apply_mixer_mask</span>
+  <span class="ruby-identifier">skip_mask_tone</span>    <span class="ruby-identifier">call</span> <span class="ruby-identifier">mask_progress</span>           <span class="ruby-comment"># mask_noise_ctrl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0b11000111</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">apply_mixer_mask</span>
+  <span class="ruby-identifier">skip_mask_noise</span>   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">channel_control</span>[<span class="ruby-value">1</span>] <span class="ruby-operator">-</span> (<span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">track</span>)
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>                  <span class="ruby-comment"># skip track control</span>
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>                      <span class="ruby-comment"># next ay_register.volume_(a|b|c)</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                    <span class="ruby-identifier">sll</span>  <span class="ruby-identifier">a</span>                       <span class="ruby-comment"># rotate left mixer mask &lt;- 1</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">channel_prog_loop</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">READ_ONLY_CODE</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">saved_sp</span>]
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">restore_sp</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-value">0</span>
+    <span class="ruby-identifier">restore_sp_p</span>    <span class="ruby-identifier">restore_sp</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+  <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ret</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:track_progress</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">de</span>                  <span class="ruby-comment"># music_control.chan_X</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">track</span>.<span class="ruby-identifier">track_stack</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>                  <span class="ruby-comment"># music_control.chan_X.track.track_stack</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">track_item_proc</span>         <span class="ruby-comment"># hl -&gt; channel_control.track.track_stack</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># skip instrument.track.cursor_hi</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">track_item_proc</span>         <span class="ruby-comment"># hl -&gt; channel_control.instrument.track.track_stack</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:track_item_proc</span> <span class="ruby-keyword">do</span>                         <span class="ruby-comment"># ix: music_control.chan_X</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># hl: music_control.chan_X.track.track_stack</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">iy</span>                      <span class="ruby-comment"># iy -&gt; track_control.track_stack</span>
+                    <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span> }           <span class="ruby-comment"># hl -&gt; track_control.delay</span>
+    <span class="ruby-identifier">track_item_loop</span> <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># delay_lo</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># hl -&gt; track_control.delay_hi</span>
+                    <span class="ruby-identifier">ora</span>  [<span class="ruby-identifier">hl</span>]                    <span class="ruby-comment"># delay_hi</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">countdown</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># hl -&gt; track_control.cursor_lo</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># cursor_lo</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># hl -&gt; track_control.cursor_hi</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># de: cursor</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># hl -&gt; track_control.cursor_hi</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">process_item</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># hl -&gt; track_control.cursor_hi</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># hl -&gt; track_control.cursor_lo</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">e</span>
+                    <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span> <span class="ruby-identifier">hl</span> }           <span class="ruby-comment"># hl -&gt; track_control.delay</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">track_item_loop</span>
+
+    <span class="ruby-identifier">countdown</span>       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># track_control.delay_hi</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># track_control.delay_lo</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">bc</span>                      <span class="ruby-comment"># delay -= 1</span>
+    <span class="ruby-identifier">set_delay</span>       <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">c</span>                 <span class="ruby-comment"># track_control.delay_lo</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">b</span>                 <span class="ruby-comment"># track_control.delay_hi</span>
+                    <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span> }           <span class="ruby-comment"># hl -&gt; track_control.cursor_hi</span>
+                    <span class="ruby-identifier">ret</span>                          <span class="ruby-comment"># delay in process</span>
+
+    <span class="ruby-identifier">end_of_track</span>    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">iy</span>                  <span class="ruby-comment"># sp: track_control.track_stack</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># track return address pointer</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># skip over counter</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># de: return track cursor</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">d</span>                       <span class="ruby-comment"># is it though?</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">nowhere_to_go</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># put back track_control.track_stack</span>
+    <span class="ruby-identifier">nowhere_to_go</span>   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ministack</span>[<span class="ruby-value">-4</span>]
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>                      <span class="ruby-comment"># return from sub track</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># pop return address from process_item</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># pop track_control.cursor_hi</span>
+                    <span class="ruby-identifier">ret</span>                          <span class="ruby-comment"># return back from track_item_proc</span>
+
+    <span class="ruby-comment"># de: track cursor (arg/return)</span>
+    <span class="ruby-identifier">process_item</span>    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]                 <span class="ruby-comment"># a: track item</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">end_of_track</span>         <span class="ruby-comment"># end of track</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>                      <span class="ruby-comment"># advance track cursor</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-value">97</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">play_note</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-value">176</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">wait_some</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-value">160</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">set_volume</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-value">128</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">set_noise</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">cmd_table1</span> <span class="ruby-operator">-</span> <span class="ruby-value">97</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">jp</span>   (<span class="ruby-identifier">hl</span>)                    <span class="ruby-comment"># b: 0, de: track cursor</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment">############</span>
+  <span class="ruby-comment"># Commands #</span>
+  <span class="ruby-comment">############</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:wait_some</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># a: delay + 175</span>
+                    <span class="ruby-identifier">sub</span> <span class="ruby-value">175</span>
+                    <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span> <span class="ruby-identifier">hl</span> } <span class="ruby-comment"># delay_lo</span>
+                    <span class="ruby-identifier">ld</span>  [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_volume</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># a: volume + 160</span>
+                    <span class="ruby-identifier">sub</span>  <span class="ruby-value">160</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-value">4</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">add</span> <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span> }
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">volume_envelope</span>.<span class="ruby-identifier">current_value</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_noise</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># a: pitch + 128</span>
+                    <span class="ruby-identifier">sub</span>  <span class="ruby-value">128</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span> }
+                    <span class="ruby-identifier">srl</span>  <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">srl</span>  <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">noise_envelope</span>.<span class="ruby-identifier">current_value</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># current_tone_progress = (note*256*32/12)</span>
+  <span class="ruby-comment"># delta = (target - current) / counter</span>
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:play_note</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># a: note + 1</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">current_note</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">note_to_cursor</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_hl_table_entry_bc</span>   <span class="ruby-comment"># bc: target cursor</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">note_progress</span>]
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">skip_progress</span>             <span class="ruby-comment"># completely ignore progress</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">calc_progress</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">tone_progress</span>.<span class="ruby-identifier">current_lo</span>], <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">tone_progress</span>.<span class="ruby-identifier">current_hi</span>], <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">set_counter</span>                  <span class="ruby-comment"># just store current value and clear progress</span>
+    <span class="ruby-identifier">calc_progress</span>   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">tone_progress</span>.<span class="ruby-identifier">current_lo</span>]
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">tone_progress</span>.<span class="ruby-identifier">current_hi</span>]
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>                       <span class="ruby-comment"># current - target</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>                         <span class="ruby-comment"># counter (note_progress)</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">a</span>                            <span class="ruby-comment"># a: 0 if current &gt;= target, -1 if current &lt; target</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>                         <span class="ruby-comment"># e: sgn</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">complement16_hle</span>             <span class="ruby-comment"># hl: -hl if e == -1</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">cpl</span>                               <span class="ruby-comment"># a: -1 if current &gt;= target, 0 if current &lt; target</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>                         <span class="ruby-comment"># e: sgn</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">divmod_hl_c</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">complement16_hle</span>             <span class="ruby-comment"># hl: -hl if e == -1</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">tone_progress</span>.<span class="ruby-identifier">delta_lo</span>], <span class="ruby-identifier">l</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">tone_progress</span>.<span class="ruby-identifier">delta_hi</span>], <span class="ruby-identifier">h</span>
+    <span class="ruby-identifier">set_counter</span>     <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">tone_progress</span>.<span class="ruby-identifier">counter_lo</span>], <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">tone_progress</span>.<span class="ruby-identifier">counter_hi</span>], <span class="ruby-identifier">b</span> <span class="ruby-comment"># b: 0 after divmod_hl_c</span>
+    <span class="ruby-identifier">skip_progress</span>   <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">bit</span>  <span class="ruby-constant">InstrumentControl</span><span class="ruby-operator">::</span><span class="ruby-constant">NO_RESTART_ON_PLAY_NOTE_BIT</span>, [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">flags</span>]
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>                           <span class="ruby-comment"># don&#39;t reset instrument</span>
+
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ix</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">start_lo</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">sp</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>  <span class="ruby-comment"># ix + channel_control.instrument.start</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>  <span class="ruby-comment"># ix + channel_control.instrument.track.cursor</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>  <span class="ruby-comment"># ix + channel_control.instrument.track.delay</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ministack</span>[<span class="ruby-value">-4</span>]
+
+                    <span class="ruby-comment"># ld   a, [ix + channel_control.instrument.start_lo]</span>
+                    <span class="ruby-comment"># ld   [ix + channel_control.instrument.track.cursor_lo], a</span>
+                    <span class="ruby-comment"># ld   a, [ix + channel_control.instrument.start_hi]</span>
+                    <span class="ruby-comment"># ld   [ix + channel_control.instrument.track.cursor_hi], a</span>
+                    <span class="ruby-comment"># xor  a</span>
+                    <span class="ruby-comment"># ld   [ix + channel_control.instrument.track.delay_lo], a</span>
+                    <span class="ruby-comment"># ld   [ix + channel_control.instrument.track.delay_hi], a</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:wait_more_continue</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]        <span class="ruby-comment"># arg1</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-value">80</span>             <span class="ruby-comment"># a &gt;= 80</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">no_2nd_arg</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>           <span class="ruby-comment"># a &lt; 80</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">b</span>              <span class="ruby-comment"># (arg + 1) * 256</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]        <span class="ruby-comment"># arg2</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>
+    <span class="ruby-identifier">no_2nd_arg</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>           <span class="ruby-comment"># bc: 0|arg1 or (arg1+1)|arg2</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># pop return address from process_item</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># hl -&gt; track_control.cursor_hi</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">d</span>        <span class="ruby-comment"># cursor_hi</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># hl -&gt; track_control.cursor_lo</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">e</span>        <span class="ruby-comment"># cursor_lo</span>
+                    <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span> <span class="ruby-identifier">hl</span> }  <span class="ruby-comment"># hl -&gt; track_control.delay</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">track_item_proc</span>.<span class="ruby-identifier">set_delay</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">cmd_table1</span>        <span class="ruby-identifier">label</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_instrument</span>  <span class="ruby-comment"># track only</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">wait_more</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_play_mode_1</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_play_mode_2</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_envelope_duration</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_envelope_shape</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_volume_envelope_index</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_noise_envelope_index</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_chord_index</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_mask_env_index</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_mask_tone_index</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_mask_noise_index</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_vibrato_step</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_vibrato_angle</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_vibrato_amplitude</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">disable_vibrato</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_note_progress</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_tone_progress</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_ay_envelope_ctrl_on_off</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_ay_envelope_ctrl_on_off</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_tone_off_on</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_tone_off_on</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_noise_off_on</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">set_noise_off_on</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">sub_track</span>
+                    <span class="ruby-identifier">data</span> <span class="ruby-value">:pc</span>,  <span class="ruby-identifier">loop_next</span>
+                    <span class="ruby-comment"># data :pc,  reserved0</span>
+                    <span class="ruby-comment"># data :pc,  reserved1</span>
+                    <span class="ruby-comment"># data :pc,  reserved2</span>
+                    <span class="ruby-comment"># data :pc,  reserved3</span>
+                    <span class="ruby-comment"># data :pc,  reserved4</span>
+                    <span class="ruby-comment"># here be dragons</span>
+
+  <span class="ruby-comment"># track only</span>
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_instrument</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_index_table_entry_bc</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">skip_empty</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">empty_instrument</span>
+    <span class="ruby-identifier">skip_empty</span>      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">start_lo</span>], <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">start_hi</span>], <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># assert b == 0</span>
+  <span class="ruby-comment"># arg1: 0..79 -&gt; ticks = ((arg1 + 1)&lt;&lt;8)|arg2 [delay: 257..20736]</span>
+  <span class="ruby-comment"># arg1: 80..255 -&gt; ticks = arg1 (no arg2)     [delay: 81..256]</span>
+  <span class="ruby-comment"># doesn&#39;t decrease delay before returning from track_item_proc so virtually delay = ticks + 1</span>
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:wait_more</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">wait_more_continue</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># track only</span>
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_play_mode_1</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">res</span>  <span class="ruby-constant">InstrumentControl</span><span class="ruby-operator">::</span><span class="ruby-constant">NO_RESTART_ON_PLAY_NOTE_BIT</span>, [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">flags</span>]
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># track only</span>
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_play_mode_2</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">set</span>  <span class="ruby-constant">InstrumentControl</span><span class="ruby-operator">::</span><span class="ruby-constant">NO_RESTART_ON_PLAY_NOTE_BIT</span>, [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">flags</span>]
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_envelope_duration</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># envelope duration</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">ay_registers</span>.<span class="ruby-identifier">envelope_duration</span>], <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_envelope_shape</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># envelope shape</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">ay_registers</span>.<span class="ruby-identifier">envelope_shape</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_volume_envelope_index</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">ix</span> <span class="ruby-comment"># channel_control.volume_envelope</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">set_noise_envelope_index</span>.<span class="ruby-identifier">init_envelope</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_noise_envelope_index</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">noise_envelope</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>
+    <span class="ruby-identifier">init_envelope</span>   <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_index_table_entry_bc</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">disable_ctrl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">1</span> <span class="ruby-comment"># counter</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># current_value</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># cursor</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">c</span> <span class="ruby-comment"># cursor_lo</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">b</span> <span class="ruby-comment"># cursor_hi</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># loop_at</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">bc</span>] <span class="ruby-comment"># loop_offset</span>
+                    <span class="ruby-identifier">adda_to</span> <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span> <span class="ruby-comment"># cursor + loop_offset</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">bc</span>      <span class="ruby-comment"># cursor + loop_offset + 1</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">c</span> <span class="ruby-comment"># loop_at_lo</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">b</span> <span class="ruby-comment"># loop_at_hi</span>
+                    <span class="ruby-identifier">ret</span>
+    <span class="ruby-identifier">disable_ctrl</span>    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span> <span class="ruby-comment"># counter - disables ctrl, a==0</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_chord_index</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">chord_progress</span>
+    <span class="ruby-identifier">init_ctrl</span>       <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">ix</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_index_table_entry_bc</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">set_noise_envelope_index</span>.<span class="ruby-identifier">disable_ctrl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">1</span> <span class="ruby-comment"># counter</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># current_offs/current_mask</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># cursor</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">bc</span>] <span class="ruby-comment"># loop_offset</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">bc</span>      <span class="ruby-comment"># cursor += 1</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">c</span> <span class="ruby-comment"># cursor_lo</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">b</span> <span class="ruby-comment"># cursor_hi</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># loop_at</span>
+                    <span class="ruby-identifier">adda_to</span> <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span> <span class="ruby-comment"># cursor + loop_offset</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">c</span> <span class="ruby-comment"># loop_at_lo</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">b</span> <span class="ruby-comment"># loop_at_hi</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_mask_env_index</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">mask_ay_env_ctrl</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">set_chord_index</span>.<span class="ruby-identifier">init_ctrl</span>
+  <span class="ruby-keyword">end</span>
+
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_mask_tone_index</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">mask_tone_ctrl</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">set_chord_index</span>.<span class="ruby-identifier">init_ctrl</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_mask_noise_index</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">mask_noise_ctrl</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">set_chord_index</span>.<span class="ruby-identifier">init_ctrl</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_vibrato_step</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">vibrato_control</span>.<span class="ruby-identifier">step</span>
+    <span class="ruby-identifier">enable_set_vib</span>  <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">ix</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ldi</span>
+                    <span class="ruby-identifier">ldi</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+
+                    <span class="ruby-comment"># ld   a, [de]</span>
+                    <span class="ruby-comment"># inc  de</span>
+                    <span class="ruby-comment"># ld   [hl], a</span>
+                    <span class="ruby-comment"># inc  hl</span>
+                    <span class="ruby-comment"># ld   a, [de]</span>
+                    <span class="ruby-comment"># inc  de</span>
+                    <span class="ruby-comment"># ld   [hl], a</span>
+
+    <span class="ruby-identifier">enable_vibrato</span>  <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">vibrato_control</span>.<span class="ruby-identifier">enabled</span>], <span class="ruby-value">-1</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_vibrato_angle</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">vibrato_control</span>.<span class="ruby-identifier">angle</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">set_vibrato_step</span>.<span class="ruby-identifier">enable_set_vib</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_vibrato_amplitude</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">current_note</span>]
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_note_tone_period_bc</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>       <span class="ruby-comment"># CF: 0</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>  <span class="ruby-comment"># notes[note-1] - notes[note]</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>] <span class="ruby-comment"># amplitude</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>
+                    <span class="ruby-identifier">mul</span>  <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">vibrato_control</span>.<span class="ruby-identifier">amplitude</span>], <span class="ruby-identifier">h</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">set_vibrato_step</span>.<span class="ruby-identifier">enable_vibrato</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:disable_vibrato</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">vibrato_control</span>.<span class="ruby-identifier">enabled</span>], <span class="ruby-identifier">b</span> <span class="ruby-comment"># b: 0</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_note_progress</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">note_progress</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_tone_progress</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">note_progress</span>], <span class="ruby-identifier">b</span> <span class="ruby-comment"># b: 0</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">tone_progress</span>.<span class="ruby-identifier">delta</span>
+                    <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">ix</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-value">4</span>
+                    <span class="ruby-identifier">ldir</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-comment"># ld   a, [de]</span>
+                    <span class="ruby-comment"># inc  de</span>
+                    <span class="ruby-comment"># ld   [ix + channel_control.tone_progress.delta_lo], a</span>
+                    <span class="ruby-comment"># ld   a, [de]</span>
+                    <span class="ruby-comment"># inc  de</span>
+                    <span class="ruby-comment"># ld   [ix + channel_control.tone_progress.delta_hi], a</span>
+                    <span class="ruby-comment"># ld   a, [de]</span>
+                    <span class="ruby-comment"># inc  de</span>
+                    <span class="ruby-comment"># ld   [ix + channel_control.tone_progress.counter_lo], a</span>
+                    <span class="ruby-comment"># ld   a, [de]</span>
+                    <span class="ruby-comment"># inc  de</span>
+                    <span class="ruby-comment"># ld   [ix + channel_control.tone_progress.counter_hi], a</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_ay_envelope_ctrl_on_off</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># a: head</span>
+                    <span class="ruby-identifier">rrca</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">ay_envelope_on</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_tone_off_on</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># a: head</span>
+                    <span class="ruby-identifier">rrca</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">tone_off</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:set_noise_off_on</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># a: head</span>
+                    <span class="ruby-identifier">rrca</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">ix</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">noise_off</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:sub_track</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># index</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">sub_track_continue</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:loop_next</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># count(1), -jump_relative(1)</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">iy</span>                  <span class="ruby-comment"># track.track_stack</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># hl: loop stack address</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">hl</span>                  <span class="ruby-comment"># sp -&gt; track_stack.counter</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">sp</span>                      <span class="ruby-comment"># sp -&gt; track_stack.signature</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>                      <span class="ruby-comment"># bc: signature</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">add_level</span>           <span class="ruby-comment"># not our loop, add another one</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">add_level</span>           <span class="ruby-comment"># not our loop, add another one</span>
+                    <span class="ruby-identifier">dec</span>  [<span class="ruby-identifier">hl</span>]                    <span class="ruby-comment"># counter -= 1 on track_stack.counter</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">loop_over</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">hl</span>                  <span class="ruby-comment"># sp: track_stack.counter</span>
+    <span class="ruby-identifier">jump_to_addr</span>    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]                 <span class="ruby-comment"># rel_jump</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, <span class="ruby-value">-1</span>                   <span class="ruby-comment"># extend rel_jump as negative -256..-1</span>
+                    <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">dec</span> <span class="ruby-identifier">hl</span> }           <span class="ruby-comment"># relative to beggining of command</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>                  <span class="ruby-comment"># jump to current - rel_jump (extended twos complement negative value)</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>                  <span class="ruby-comment"># de -&gt; looped to instruction address</span>
+    <span class="ruby-identifier">loop_over_back</span>  <span class="ruby-identifier">label</span>                        <span class="ruby-comment"># ld   [iy], sp (iy: track.track_stack)</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-constant">READ_ONLY_CODE</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">sp</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">iy</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>
+    <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">store_sp</span> <span class="ruby-operator">+</span> <span class="ruby-value">2</span>], <span class="ruby-identifier">iy</span>      <span class="ruby-comment"># set target sp address (iy: track.track_stack)</span>
+      <span class="ruby-identifier">store_sp</span>      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">channel_control</span>.<span class="ruby-identifier">track</span>.<span class="ruby-identifier">track_stack</span>], <span class="ruby-identifier">sp</span>
+    <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ministack</span>[<span class="ruby-value">-4</span>]
+                    <span class="ruby-identifier">ret</span>
+    <span class="ruby-identifier">add_level</span>       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">hl</span>                  <span class="ruby-comment"># loop stack address</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]                 <span class="ruby-comment"># counter</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">jump_to_addr</span>         <span class="ruby-comment"># loop forever</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">de</span>                      <span class="ruby-comment"># signature</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">af</span>                      <span class="ruby-comment"># [sp] = a; sp-= 2</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">sp</span>                      <span class="ruby-comment"># sp += 1</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">jump_to_addr</span>
+    <span class="ruby-identifier">loop_over</span>       <span class="ruby-identifier">label</span>                        <span class="ruby-comment"># end loop</span>
+                    <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span> }          <span class="ruby-comment"># skip over counter, jump_rel</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">loop_over_back</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:sub_track_continue</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># index</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">get_index_table_entry_bc</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>                       <span class="ruby-comment"># sub 0 does nothing</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">iy</span>                  <span class="ruby-comment"># track.track_stack</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># hl: track stack address</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">e</span>                 <span class="ruby-comment"># save de as a return track pointer</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0</span>                 <span class="ruby-comment"># &quot;not a loop&quot; marker (loop.counter)</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>                      <span class="ruby-comment"># puts sub stack address back</span>
+                    <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">de</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ministack</span>[<span class="ruby-value">-4</span>]
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment">###############</span>
+  <span class="ruby-comment"># Subroutines #</span>
+  <span class="ruby-comment">###############</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:apply_mixer_mask</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># a: value, b: ~mask, a&#39;: channel ~mask 0b00110110</span>
+                      <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># save channel ~mask</span>
+                      <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">b</span>                       <span class="ruby-comment"># channel ~mask | ~mask</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># b: channel ~mask | ~mask</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>                    <span class="ruby-comment"># restore channel ~mask</span>
+                      <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">ay_registers</span>.<span class="ruby-identifier">mixer</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:apply_mask_de</span> <span class="ruby-keyword">do</span> <span class="ruby-comment"># de: target address, a: value, b: ~mask (bits = 0 - new value, 1 - preserve)</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>                    <span class="ruby-comment"># c: value to set</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]
+                      <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">c</span>                       <span class="ruby-comment"># original ^ value</span>
+                      <span class="ruby-identifier">anda</span> <span class="ruby-identifier">b</span>                       <span class="ruby-comment"># (original ^ value) &amp; ~mask</span>
+                      <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">c</span>                       <span class="ruby-comment"># ((original ^ value) &amp; ~mask) ^ value</span>
+                      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">de</span>], <span class="ruby-identifier">a</span>
+                      <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:get_index_table_entry_bc</span> <span class="ruby-keyword">do</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>] <span class="ruby-comment"># instrument index 0..128</span>
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>
+                      <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span> <span class="ruby-comment"># index is 0</span>
+                      <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span> <span class="ruby-comment"># assume HL is &gt;= 256, see below: adda_to h, l</span>
+                      <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">READ_ONLY_CODE</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">index_table</span>]
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">index_table_a</span>     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">index_table</span>
+    <span class="ruby-identifier">index_table_p</span>     <span class="ruby-identifier">index_table_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+  <span class="ruby-keyword">end</span>
+                      <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">get_hl_table_entry_bc</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:get_note_tone_period_bc</span> <span class="ruby-keyword">do</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">notes</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:get_hl_table_entry_bc</span> <span class="ruby-keyword">do</span>
+                      <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>
+                      <span class="ruby-identifier">adda_to</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span> <span class="ruby-comment"># ZF: 0 if (hl + a) &amp; 0xFF00 &lt;&gt; 0</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, [<span class="ruby-identifier">hl</span>]
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, [<span class="ruby-identifier">hl</span>]
+                      <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">complement16_hle</span>    <span class="ruby-identifier">twos_complement16_by_sgn</span>(<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">e</span>, <span class="ruby-value">th:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">tl:</span><span class="ruby-identifier">l</span>)
+                      <span class="ruby-identifier">ret</span>
+
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:divmod_hl_c</span> <span class="ruby-keyword">do</span>
+                      <span class="ruby-identifier">divmod</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:size</span>
+    <span class="ruby-identifier">divmod_rem_l_c</span>    <span class="ruby-identifier">divmod</span> <span class="ruby-identifier">l</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">clrrem:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:size</span>
+                      <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># inp hl: envelope control (moves hl past it, updates current value)</span>
+  <span class="ruby-comment"># out a: current value</span>
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:envelope_progress</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>               <span class="ruby-comment"># b: value, c: counter</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>                <span class="ruby-comment"># check counter</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>             <span class="ruby-comment"># current_value</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">no_change</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># cursor</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">c</span>                <span class="ruby-comment"># counter =- 1</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">cursor_next</span>
+    <span class="ruby-identifier">restart</span>         <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># cursor</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]          <span class="ruby-comment"># -&gt; current + delta</span>
+                    <span class="ruby-identifier">bit</span>  <span class="ruby-value">7</span>, [<span class="ruby-identifier">hl</span>]          <span class="ruby-comment"># check delta sign</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">minus_delta</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">clip_value</span>
+                    <span class="ruby-identifier">scf</span>
+    <span class="ruby-identifier">minus_delta</span>     <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">set_value</span>
+    <span class="ruby-identifier">clip_value</span>      <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>
+    <span class="ruby-identifier">set_value</span>       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>             <span class="ruby-comment"># new value</span>
+    <span class="ruby-identifier">no_change</span>       <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>               <span class="ruby-comment"># set counter and value, move sp to beginning</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-operator">+</span><span class="ruby-constant">EnvelopeControl</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">sp</span>           <span class="ruby-comment"># hl: sp + sizeof EnvelopeControl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ministack</span>[<span class="ruby-value">-1</span>]
+                    <span class="ruby-identifier">ret</span>
+    <span class="ruby-identifier">cursor_next</span>     <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># cursor+=1 -&gt; counter</span>
+    <span class="ruby-identifier">get_cursor</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]          <span class="ruby-comment"># -&gt; next counter</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">cursor_reset</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>             <span class="ruby-comment"># new counter</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>             <span class="ruby-comment"># current value</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># cursor+=1 -&gt; delta</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">restart</span>
+    <span class="ruby-identifier">cursor_reset</span>    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># loop_at</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># back at cursor</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">get_cursor</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># inp hl: tone chord control (moves hl past ChordControl)</span>
+  <span class="ruby-comment"># a: current note offset</span>
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:chord_progress</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">adjust_exit</span>
+    <span class="ruby-identifier">proceed</span>         <span class="ruby-identifier">dec</span>  [<span class="ruby-identifier">hl</span>]         <span class="ruby-comment"># counter</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">cursor_next</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]      <span class="ruby-comment"># current_offs</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>
+    <span class="ruby-identifier">adjust_exit</span>     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-operator">+</span><span class="ruby-constant">ChordControl</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ret</span>
+    <span class="ruby-identifier">cursor_next</span>     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">af</span>           <span class="ruby-comment"># move sp to cursor</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>           <span class="ruby-comment"># cursor</span>
+    <span class="ruby-identifier">restart</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">bc</span>]      <span class="ruby-comment"># delta&lt;&lt;5|note_offset</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">reset_cursor</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>           <span class="ruby-comment"># cursor</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0x1F</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># b: note offset</span>
+                    <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">c</span>            <span class="ruby-comment"># counter</span>
+                    <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rlca</span> }  <span class="ruby-comment"># reposition counter</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># c: counter</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>           <span class="ruby-comment"># note offset|counter</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>         <span class="ruby-comment"># a: note offset</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ministack</span>[<span class="ruby-value">-1</span>]
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">adjust_exit</span>
+    <span class="ruby-identifier">reset_cursor</span>    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>           <span class="ruby-comment"># loop_at</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>           <span class="ruby-comment"># back at loop_at</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">restart</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># inp hl: envelope control (moves hl past VibratoControl)</span>
+  <span class="ruby-comment"># CF:1 out bc: current tone period delta</span>
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:vibrato_progress</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;sanity: chord control size differs from vibrato control size&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">ChordControl</span>.<span class="ruby-identifier">to_i</span> <span class="ruby-operator">==</span> <span class="ruby-constant">VibratoControl</span>.<span class="ruby-identifier">to_i</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">chord_progress</span>.<span class="ruby-identifier">adjust_exit</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>                 <span class="ruby-comment"># step</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>                 <span class="ruby-comment"># angle</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>                 <span class="ruby-comment"># angle</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>               <span class="ruby-comment"># angle</span>
+                    <span class="ruby-identifier">sincos_from_angle</span>(<span class="ruby-identifier">sincos</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>)
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">l</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">sp</span>                 <span class="ruby-comment"># move sp past angle (next will pop hi angle byte and ampl)</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">af</span>                 <span class="ruby-comment"># a: ampl, f: ignore angle hi, sp: VibratoControl[1]</span>
+                    <span class="ruby-identifier">mul8</span> <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">double:</span><span class="ruby-keyword">false</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">h</span>
+                    <span class="ruby-identifier">sla</span>  <span class="ruby-identifier">h</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">sp</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ministack</span>[<span class="ruby-value">-1</span>]
+                    <span class="ruby-identifier">scf</span>
+                    <span class="ruby-identifier">ret</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># inp hl: envelope control (moves hl past MaskControl and constant mask boolean value byte)</span>
+  <span class="ruby-comment"># out a: current mask value 0|-1</span>
+  <span class="ruby-identifier">ns</span> <span class="ruby-value">:mask_progress</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">adjust_exit</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>               <span class="ruby-comment"># c: counter, b: current</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">c</span>                <span class="ruby-comment"># c: counter -= 1</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">cursor_next</span>
+    <span class="ruby-identifier">restart</span>         <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">b</span>                <span class="ruby-comment"># rotate mask left</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>             <span class="ruby-comment"># 0 or -1</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>               <span class="ruby-comment"># put c: counter + b: current</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-operator">+</span><span class="ruby-constant">MaskControl</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span> <span class="ruby-comment"># skip constant mask value</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">sp</span>           <span class="ruby-comment"># hl: sp + sizeof MaskControl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ministack</span>[<span class="ruby-value">-1</span>]
+                    <span class="ruby-identifier">ret</span>
+
+    <span class="ruby-identifier">adjust_exit</span>     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-operator">+</span><span class="ruby-constant">MaskControl</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]          <span class="ruby-comment"># get constant mask value instead</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ret</span>
+
+    <span class="ruby-identifier">cursor_next</span>     <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># cursor</span>
+    <span class="ruby-identifier">get_cursor</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]          <span class="ruby-comment"># -&gt; next counter</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">reset_cursor</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>             <span class="ruby-comment"># c: counter</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># cursor+=1</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, [<span class="ruby-identifier">hl</span>]          <span class="ruby-comment"># -&gt; next mask</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># cursor+=1</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># put back cursor</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">restart</span>
+    <span class="ruby-identifier">reset_cursor</span>    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># loop_at</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># back at cursor</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">get_cursor</span>
+  <span class="ruby-keyword">end</span>
+
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

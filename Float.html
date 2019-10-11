@@ -121,9 +121,9 @@
           
           <p>Converts <code>Float</code> to a ZX-Spectrum&#39;s real number encoded as a 5-byte binary string.</p>
 
-<p>Suitable to be used with <a href="ZXMath/ZXReal.html"><code>ZXMath::ZXReal</code></a> struct for data.</p>
+<p>Suitable to be used with <a href="ZXLib/Math/ZXReal.html"><code>ZXLib::Math::ZXReal</code></a> struct for data.</p>
 
-<p><code>simplified_int</code> indicates if the integers in the range of -65535..65535 should be stored in a simplified integer form.</p>
+<p><code>simplified_int</code> indicates if integers in the range of -65535..65535 should be stored in a simplified integer form.</p>
 
 <p>Returns binary string.</p>
           
@@ -131,9 +131,9 @@
 
           
           <div class="method-source-code" id="to_z80bin-source">
-            <pre><span class="ruby-comment"># File zxlib/math.rb, line 13</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/math.rb, line 13</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_z80bin</span>(<span class="ruby-identifier">simplified_int</span>=<span class="ruby-keyword">true</span>)
-    <span class="ruby-constant">ZXMath</span>.<span class="ruby-identifier">pack_number</span> <span class="ruby-keyword">self</span>, <span class="ruby-identifier">simplified_int</span>
+    <span class="ruby-operator">::</span><span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">Math</span>.<span class="ruby-identifier">pack_number</span> <span class="ruby-keyword">self</span>, <span class="ruby-identifier">simplified_int</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           

@@ -65,6 +65,10 @@
 
   <ul class="link-list" role="directory">
     
+    <li ><a href="#method-i-cp16n">#cp16n</a>
+    
+    <li ><a href="#method-i-cp16r">#cp16r</a>
+    
     <li ><a href="#method-i-ld16">#ld16</a>
     
     <li ><a href="#method-i-macro">#macro</a>
@@ -86,7 +90,7 @@
     
 <h2 id="module-Z80::Program::Macros-label-Z80+Macros"><a href="../../Z80.html"><code>Z80</code></a> <a href="Macros.html"><code>Macros</code></a><span><a href="#module-Z80::Program::Macros-label-Z80+Macros">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
-<p>Commonly used macros.</p>
+<p>A few handy macros.</p>
 
   </section>
 
@@ -107,6 +111,137 @@
        </header>
 
     
+      <div id="method-i-cp16n" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">cp16n</span><span
+            class="method-args">(th, tl, value, jr_msb_c: nil, jr_msb_nz: :eoc)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Compares a pair of registers <code>th</code>|<code>tl</code> with a <code>value</code> as unsigned 16-bit integers.</p>
+
+<p>Provide <code>value</code> as an integer or a label.</p>
+
+<pre>CF, ZF = (th|tl - value)
+
+CF = 1 if th|tl &lt;  value
+CF = 0 if th|tl &gt;= value
+ZF = 0 if th|tl &lt;&gt; value
+ZF = 1 if th|tl == value</pre>
+
+<p>Options:</p>
+<ul><li>
+<p><code>jr_msb_c</code>: provide a label if you want to jump immediately after <code>th</code> &lt; (value &gt;&gt; 8) or <code>:ret</code> symbol to return from a subroutine.</p>
+</li><li>
+<p><code>jr_msb_nz</code>: provide a label if you want to jump immediately after <code>th</code> &lt;&gt; (value &gt;&gt; 8) or <code>:ret</code> symbol to return from a subroutine. By default jumps to <code>eoc</code> of the <code>cp16n</code> code, so flags can be examined later.</p>
+</li></ul>
+
+<p>Example:</p>
+
+<pre class="ruby"><span class="ruby-identifier">cp16n</span>  <span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>, <span class="ruby-identifier">foo</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-identifier">less_than_foo</span>
+<span class="ruby-identifier">jr</span> <span class="ruby-constant">C</span>, <span class="ruby-identifier">less_than_foo</span>
+</pre>
+
+<p>Modifies: <code>af</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="cp16n-source">
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 205</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cp16n</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">value</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-value">:eoc</span>)
+        <span class="ruby-identifier">cp16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">value</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>, <span class="ruby-identifier">value</span>, <span class="ruby-value">jr_msb_c:</span><span class="ruby-identifier">jr_msb_c</span>, <span class="ruby-value">jr_msb_nz:</span><span class="ruby-identifier">jr_msb_nz</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-cp16r" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">cp16r</span><span
+            class="method-args">(th, tl, sh, sl, jr_msb_c: nil, jr_msb_nz: :eoc)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Compares a pair of registers <code>th</code>|<code>tl</code> with another pair <code>sh</code>|<code>sl</code> as unsigned 16-bit integers.</p>
+
+<pre>CF, ZF = (th|tl - +sh+|+sl+)
+
+CF = 1 if th|tl &lt;  sh|sl
+CF = 0 if th|tl &gt;= sh|sl
+ZF = 0 if th|tl &lt;&gt; sh|sl
+ZF = 1 if th|tl == sh|sl</pre>
+
+<p>Options:</p>
+<ul><li>
+<p><code>jr_msb_c</code>: provide a label if you want to jump immediately after <code>th</code> &lt; <code>sh</code> or <code>:ret</code> symbol to return from a subroutine.</p>
+</li><li>
+<p><code>jr_msb_nz</code>: provide a label if you want to jump immediately after <code>th</code> &lt;&gt; <code>sh</code> or <code>:ret</code> symbol to return from a subroutine. By default jumps to <code>eoc</code> of the <code>cp16r</code> code, so flags can be examined later.</p>
+</li></ul>
+
+<p>Example:</p>
+
+<pre class="ruby"><span class="ruby-identifier">cp16n</span>  <span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>, <span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-identifier">not_equal</span>
+<span class="ruby-identifier">jr</span> <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">not_equal</span>
+</pre>
+
+<p>Modifies: <code>af</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="cp16r-source">
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 230</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cp16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-value">:eoc</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;only th can be the accumulator&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
+        <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">jr_msb_nz</span> = <span class="ruby-identifier">eoc</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">jr_msb_nz</span> <span class="ruby-operator">==</span> <span class="ruby-value">:eoc</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">th</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sh</span>
+                        <span class="ruby-keyword">case</span> <span class="ruby-identifier">jr_msb_c</span>
+                        <span class="ruby-keyword">when</span> <span class="ruby-value">:ret</span>
+                                <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>
+                        <span class="ruby-keyword">else</span>
+                                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">jr_msb_c</span>
+                        <span class="ruby-keyword">end</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">jr_msb_c</span>.<span class="ruby-identifier">nil?</span>
+                        <span class="ruby-keyword">case</span> <span class="ruby-identifier">jr_msb_nz</span>
+                        <span class="ruby-keyword">when</span> <span class="ruby-value">:ret</span>
+                                <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                        <span class="ruby-keyword">else</span>
+                                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">jr_msb_nz</span>
+                        <span class="ruby-keyword">end</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">tl</span>
+                        <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sl</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-i-ld16" class="method-detail ">
         
         <div class="method-heading">
@@ -120,9 +255,9 @@
 
         <div class="method-description">
           
-          <p>Loads a content of the register <code>bb</code> into register <code>aa</code>.</p>
+          <p>Loads a content of the 16-bit register <code>bb</code> into the 16-bit register <code>aa</code>.</p>
 
-<p>A sugar for two 8bit ld instructions.</p>
+<p>A sugar for two 8-bit <code>ld</code> instructions.</p>
 
 <p>Example:</p>
 
@@ -133,7 +268,7 @@
 
           
           <div class="method-source-code" id="ld16-source">
-            <pre><span class="ruby-comment"># File z80/macros.rb, line 135</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 169</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ld16</span>(<span class="ruby-identifier">aa</span>, <span class="ruby-identifier">bb</span>)
         <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">aa</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">bb</span>)
                 <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;Use one of: bc de hl ix iy registers in ld16&quot;</span>
@@ -141,7 +276,7 @@
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;Registers must be different&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">aa</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">bb</span>
         <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span> = <span class="ruby-identifier">aa</span>.<span class="ruby-identifier">split</span>
         <span class="ruby-identifier">bh</span>, <span class="ruby-identifier">bl</span> = <span class="ruby-identifier">bb</span>.<span class="ruby-identifier">split</span>
-        <span class="ruby-identifier">ns</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">al</span>, <span class="ruby-identifier">bl</span>
                 <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">bh</span>
         <span class="ruby-keyword">end</span>
@@ -169,15 +304,19 @@
 
         <div class="method-description">
           
-          <p>Convenient method to create local macros.</p>
+          <p>A convenient method to create local macros.</p>
 
-<p>Give a <code>name</code> (Symbol) to your macro, (optional) list of <code>registers</code> to push before and pop after code and a block of code. See <a href="Macros.html#method-i-with_saved"><code>Macros.with_saved</code></a> for explanation of <code>registers</code> arguments. The block will receive <code>eoc</code> label (see <a href="../Program.html#method-i-ns"><code>Program.ns</code></a>) and any argument you pass when calling a macro.</p>
+<p>Give a <code>name</code> (Symbol) to your macro, an optional list of <code>registers</code> to push before and pop after code and a block of code. See <a href="Macros.html#method-i-with_saved"><code>Macros.with_saved</code></a> for explanation of <code>registers</code> arguments. The block will receive <code>eoc</code> label (see <a href="../Program.html#method-i-ns"><code>Program.ns</code></a>) and any argument you pass when calling a macro.</p>
 
-<p>If you want your macros being exportable, do not use this method. Instead create module `Macros&#39; inside your <strong>program</strong> class and define methods there.</p>
+<p>If you want your macros being exportable, do not use this method. Instead create module `Macros&#39; inside your <strong>program</strong> class and define methods there. Remember to wrap the code in <a href="../Program.html#method-i-ns"><code>Program.ns</code></a>, or better yet: <a href="../Program.html#method-i-isolate"><code>Program.isolate</code></a>.</p>
 
-<p><strong>Unlike labels, macros must be defined before being referenced.</strong></p>
+<p><strong>Macros and labels share the same namespace, however labels can be nested, but macros can&#39;t.</strong></p>
 
-<p><strong>Be carefull with <code>ret</code> instruction if you used <code>registers</code>.</strong></p>
+<p><strong>Unlike labels, macros must be defined before being used.</strong></p>
+<dl class="rdoc-list note-list"><dt><strong>Note</strong>
+<dd>
+<p>Be carefull with <code>ret</code> instruction if you used <code>registers</code>. You can use <code>ret: true</code> option instead, see: <a href="Macros.html#method-i-with_saved"><code>Macros.with_saved</code></a>.</p>
+</dd></dl>
 
 <p>Example:</p>
 
@@ -199,11 +338,12 @@
 
           
           <div class="method-source-code" id="macro-source">
-            <pre><span class="ruby-comment"># File z80/macros.rb, line 34</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 38</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">macro</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">registers</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">mblock</span>)
-        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Macro must have name&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Symbol</span>)
-        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Macro may be defined only in main program context.&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@contexts</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">1</span>
-        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-node">&quot;A label: #{name} is already allocated.&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@labels</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_s</span>)
+        <span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;A macro must have a name&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Symbol</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Macros may only be defined in the program context.&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@contexts</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">1</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-node">&quot;A label with the same name: \&quot;#{name}\&quot; exists.&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@labels</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_s</span>)
         <span class="ruby-identifier">m</span> = <span class="ruby-identifier">lambda</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span><span class="ruby-operator">|</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">args</span>.<span class="ruby-identifier">first</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Symbol</span>)
                         <span class="ruby-identifier">n</span> = <span class="ruby-identifier">args</span>.<span class="ruby-identifier">shift</span>
@@ -245,59 +385,79 @@
 
         <div class="method-description">
           
-          <p>Saves specified registers on a machine stack, evaluates block wrapped around a namespace and restores registers in reverse order. Returns a label pointing to the beginning of the pushes. You may optionally pass a <code>name</code> to it as first argument.</p>
+          <p>Adds a code that pushes specified registers on a machine stack, code from <code>block</code> within a namespace and code that pops registers in reverse order. Returns a label pointing to the beginning of the pushes. You may optionally pass a <code>name</code> for the returned label to be named.</p>
 
 <p><code>registers</code> should be one of:</p>
 <ul><li>
-<p>a 16bit register to push on a stack and pop after your code, except <code>sp</code> obviously,</p>
+<p>a 16bit register to push on the stack and pop after code from <code>block</code>, except <code>sp</code> obviously,</p>
 </li><li>
 <p><code>:exx</code> symbol to evaluate <code>exx</code> instruction,</p>
 </li><li>
 <p><code>:ex_af</code> symbol to evaluate <code>ex af, af</code> instruction,</p>
 </li><li>
-<p><code>:all</code> evaluates to: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>ix</code>, <code>iy</code></p>
+<p><code>:all</code> symbol evaluates to: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>ix</code>, <code>iy</code></p>
 </li><li>
-<p><code>:no_ixy</code> evaluates to: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code></p>
+<p><code>:all_but_ixiy</code> symbol evaluates to: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code></p>
 </li><li>
-<p><code>:ixy:</code> evaluates to: <code>ix</code>, <code>iy</code></p>
+<p><code>:ixiy</code> symbol evaluates to: <code>ix</code>, <code>iy</code></p>
 </li></ul>
 
-<p><code>opts</code> are passed to <a href="../Program.html#method-i-ns"><code>Program.ns</code></a> for a namespace around your code.</p>
+<p><code>opts</code> may be one of:</p>
+<ul><li>
+<p><code>:ret</code> if the <code>ret</code> instruction should be added after the registers have been restored. In this instance jumping to <code>eoc</code> will effectively return from the subroutine. If <code>:ret =&gt; :after_ei</code> the <code>ei</code> instruction will be added before <code>ret</code>.</p>
+</li></ul>
+
+<p>Other accepted values for <code>ret:</code> option are:</p>
+<ul><li>
+<p><code>:reti</code>: the <code>reti</code> instruction will be added instead of <code>ret</code>.</p>
+</li><li>
+<p><code>:retn</code>: the <code>retn</code> instruction will be added instead of <code>ret</code>.</p>
+</li><li>
+<p><code>:after_ei</code>: the <code>ei</code> instruction will be added before <code>ret</code>.</p>
+</li><li>
+<p><code>:ei_reti</code>: the <code>ei</code> instruction will be added before <code>reti</code>.</p>
+</li></ul>
+
+<p>Evaluates your <code>block</code> with <a href="../Program.html#method-i-ns"><code>Program.ns</code></a>. All other <code>opts</code> are being passed along to <a href="../Program.html#method-i-ns"><code>Program.ns</code></a>.</p>
 
 <p>Examples:</p>
 
-<pre class="ruby"><span class="ruby-identifier">with_saved</span> <span class="ruby-identifier">af</span>, <span class="ruby-identifier">de</span> <span class="ruby-keyword">do</span>
+<pre class="ruby"><span class="ruby-identifier">with_saved</span> <span class="ruby-identifier">af</span>, <span class="ruby-identifier">de</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
   <span class="ruby-comment"># ... do something with af and de</span>
 <span class="ruby-keyword">end</span>
 
-<span class="ruby-identifier">with_saved</span> <span class="ruby-identifier">af</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">:exx</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">:exx</span> <span class="ruby-keyword">do</span>
-  <span class="ruby-comment"># ... saves and restores af, hl, hl&#39; and swaps shadow registers back before here</span>
+<span class="ruby-identifier">with_saved</span> <span class="ruby-identifier">af</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">:exx</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">:exx</span>, <span class="ruby-value">ret:</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+  <span class="ruby-comment"># ... saves and restores af, hl, hl&#39; and swaps shadow registers back before</span>
+  <span class="ruby-comment"># adds `ret&#39; instruction after restoring all the registers</span>
 <span class="ruby-keyword">end</span>
 
-<span class="ruby-identifier">with_saved</span> <span class="ruby-value">:bar</span>, <span class="ruby-value">:all</span>, <span class="ruby-value">:exx</span>, <span class="ruby-value">:ex_af</span>, <span class="ruby-value">:no_ixy</span>, <span class="ruby-value">inherit:</span> <span class="ruby-identifier">foo</span>, <span class="ruby-value">isolate:</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">do</span>
+<span class="ruby-identifier">with_saved</span> <span class="ruby-value">:bar</span>, <span class="ruby-value">:all</span>, <span class="ruby-value">:exx</span>, <span class="ruby-value">:ex_af</span>, <span class="ruby-value">:all_but_ixiy</span>, <span class="ruby-value">inherit:</span> <span class="ruby-identifier">foo</span>, <span class="ruby-value">isolate:</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
   <span class="ruby-comment"># saves and restores: af, bc, de, hl, ix, iy, af&#39;, bc&#39;, de&#39;, hl&#39;</span>
-  <span class="ruby-comment"># creates isolated namespace with inherited foo immediate label around here</span>
-  <span class="ruby-comment"># creates bar label in the enclosing namespace to the beginning of the pushes</span>
+  <span class="ruby-comment"># creates an isolated namespace with inherited `foo&#39; label</span>
+  <span class="ruby-comment"># returns &quot;bar&quot; namespace label addressing beginning of the pushes</span>
 <span class="ruby-keyword">end</span>
 </pre>
 
-<p><strong>Be carefull with a <code>ret</code> instruction in your code block.</strong></p>
+<p><strong>Be carefull with <code>ret</code> instruction in a provided block. Remember to pop registers first or use <code>:ret</code> option instead.</strong></p>
           
           
 
           
           <div class="method-source-code" id="with_saved-source">
-            <pre><span class="ruby-comment"># File z80/macros.rb, line 89</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 107</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">with_saved</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">registers</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         <span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>
+        <span class="ruby-identifier">with_return</span> = <span class="ruby-identifier">opts</span>.<span class="ruby-identifier">delete</span> <span class="ruby-value">:ret</span>
         <span class="ruby-identifier">registers</span>.<span class="ruby-identifier">map!</span>.<span class="ruby-identifier">with_index</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">rr</span>, <span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
                 <span class="ruby-keyword">case</span> <span class="ruby-identifier">rr</span>
                 <span class="ruby-keyword">when</span> <span class="ruby-value">:all</span>
                         [<span class="ruby-identifier">af</span>, <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>]
-                <span class="ruby-keyword">when</span> <span class="ruby-value">:no_ixy</span>
+                <span class="ruby-keyword">when</span> <span class="ruby-value">:no_ixy</span>, <span class="ruby-value">:no_ixiy</span>, <span class="ruby-value">:all_but_ixy</span>, <span class="ruby-value">:all_but_ixiy</span>, <span class="ruby-value">:afbcdehl</span>
                         [<span class="ruby-identifier">af</span>, <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>]
-                <span class="ruby-keyword">when</span> <span class="ruby-value">:ixy</span>
+                <span class="ruby-keyword">when</span> <span class="ruby-value">:ixy</span>, <span class="ruby-value">:ixiy</span>
                         [<span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>]
+                <span class="ruby-keyword">when</span> <span class="ruby-value">:ex_af</span>, <span class="ruby-value">:ex_af_af</span>, <span class="ruby-value">:exx</span>
+                        <span class="ruby-identifier">rr</span>
                 <span class="ruby-keyword">when</span> <span class="ruby-constant">Symbol</span>, <span class="ruby-constant">String</span>
                         <span class="ruby-keyword">if</span> <span class="ruby-identifier">i</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
                                 <span class="ruby-identifier">name</span> = <span class="ruby-identifier">rr</span>
@@ -324,7 +484,20 @@
         <span class="ruby-identifier">ns</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>) <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">registers</span>.<span class="ruby-identifier">each</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">rr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">saver</span>[<span class="ruby-identifier">rr</span>, <span class="ruby-value">:push</span>]}
                 <span class="ruby-identifier">ns</span>(<span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-value">merge:</span> <span class="ruby-keyword">true</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-                <span class="ruby-identifier">registers</span>.<span class="ruby-identifier">reverse</span>.<span class="ruby-identifier">each</span>.<span class="ruby-identifier">each</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">rr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">saver</span>[<span class="ruby-identifier">rr</span>, <span class="ruby-value">:pop</span>]}
+                <span class="ruby-identifier">registers</span>.<span class="ruby-identifier">reverse_each</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">rr</span><span class="ruby-operator">|</span> <span class="ruby-identifier">saver</span>[<span class="ruby-identifier">rr</span>, <span class="ruby-value">:pop</span>]}
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">with_return</span>
+                        <span class="ruby-identifier">ei</span> <span class="ruby-keyword">if</span> [<span class="ruby-value">:after_ei</span>, <span class="ruby-value">:ei</span>, <span class="ruby-value">:ei_ret</span>, <span class="ruby-value">:ei_reti</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">with_return</span>)
+                        <span class="ruby-keyword">case</span> <span class="ruby-identifier">with_return</span>
+                        <span class="ruby-keyword">when</span> <span class="ruby-value">:reti</span>, <span class="ruby-value">:ei_reti</span>
+                                <span class="ruby-identifier">reti</span>
+                        <span class="ruby-keyword">when</span> <span class="ruby-value">:retn</span>
+                                <span class="ruby-identifier">retn</span>
+                        <span class="ruby-keyword">when</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">:after_ei</span>, <span class="ruby-value">:ei</span>, <span class="ruby-value">:ei_ret</span>, <span class="ruby-value">:ret</span>
+                                <span class="ruby-identifier">ret</span>
+                        <span class="ruby-keyword">else</span>
+                                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;unrecognized value of :ret option: #{with_return.inspect}&quot;</span>
+                        <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class ZXUtils::AYBasicPlayer - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+  var index_rel_prefix = "../";
+</script>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/darkfish.js"></script>
+
+<link href="../css/fonts.css" rel="stylesheet">
+<link href="../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../table_of_contents.html#pages">Pages</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="../Object.html">Object</a>
+  
+</div>
+
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="../Z80.html">Z80</a>
+  
+  
+  
+    <li><a class="include" href="../Z80/TAP.html">Z80::TAP</a>
+  
+  
+  </ul>
+</div>
+
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-get_counter">#get_counter</a>
+    
+    <li ><a href="#method-i-init_music">#init_music</a>
+    
+    <li ><a href="#method-i-play_interval">#play_interval</a>
+    
+    <li ><a href="#method-i-play_loop">#play_loop</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-ZXUtils::AYBasicPlayer">
+  <h1 id="class-ZXUtils::AYBasicPlayer" class="class">
+    class ZXUtils::AYBasicPlayer
+  </h1>
+
+  <section class="description">
+    
+<h3 id="class-ZXUtils::AYBasicPlayer-label-AY-3-8910-2F8912+Basic+player">AY-3-8910/8912 Basic player<span><a href="#class-ZXUtils::AYBasicPlayer-label-AY-3-8910-2F8912+Basic+player">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p>This is a wrapper over <a href="AYMusicPlayer.html"><code>AYMusicPlayer</code></a> with interfaces suitable to be used directly from the ZX Spectrum&#39;s BASIC.</p>
+
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxutils/ay_music_player&#39;</span>
+<span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxlib/basic&#39;</span>
+<span class="ruby-identifier">include</span> <span class="ruby-constant">ZXLib</span>
+<span class="ruby-identifier">include</span> <span class="ruby-constant">ZXUtils</span>
+
+<span class="ruby-identifier">player</span> = <span class="ruby-constant">AYBasicPlayer</span>.<span class="ruby-identifier">new</span> <span class="ruby-value">0xEED3</span>
+<span class="ruby-identifier">puts</span> <span class="ruby-identifier">player</span>.<span class="ruby-identifier">debug</span>
+<span class="ruby-identifier">program</span> = <span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-EOC</span>
+<span class="ruby-value">   1 DEF FN m(a)=USR #{player[:init_music]}
+  10 CLS: PRINT &quot;Insert tape with a music module&quot;
+  20 LOAD &quot;&quot;CODE 32768
+ 100 REM initialize music
+ 110 RANDOMIZE FN m(32768)
+ 200 REM play in loop
+ 210 PRINT USR #{player[:play_loop]}
+ 299 STOP
+ 300 REM play interval
+ 310 LET ticks=USR #{player[:play_interval]}: PAUSE 1: GO TO 310
+ 400 REM mute sound
+ 410 RANDOMIZE USR #{player[:mute_sound]}
+ 499 STOP
+ 500 REM current counter
+ 510 PRINT USR #{player[:get_counter]}
+9998 STOP: RUN
+9999 CLEAR 32767: LOAD &quot;player&quot;CODE: RANDOMIZE USR #{player[:init_music]}: RUN
+</span><span class="ruby-identifier">EOC</span>
+<span class="ruby-identifier">puts</span> <span class="ruby-identifier">program</span>.<span class="ruby-identifier">to_source</span> <span class="ruby-value">escape_keywords:</span> <span class="ruby-keyword">true</span>
+<span class="ruby-identifier">program</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&quot;player&quot;</span>, <span class="ruby-value">line:</span> <span class="ruby-value">9999</span>
+<span class="ruby-identifier">player</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&quot;player&quot;</span>, <span class="ruby-value">append:</span> <span class="ruby-keyword">true</span>
+</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-get_counter" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">get_counter</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the current value of the music counter.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="get_counter-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music_player.rb, line 351</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:get_counter</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, [<span class="ruby-identifier">music</span>.<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">counter</span>]
+                    <span class="ruby-identifier">ret</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-init_music" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">init_music</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Initializes music track. Sets up the player.</p>
+
+<p>To setup the player (once):</p>
+
+<pre class="ruby"><span class="ruby-constant">RANDOMIZE</span> <span class="ruby-constant">USR</span> <span class="ruby-comment">#{player[:init_music]}</span>
+</pre>
+
+<p>To initialize a music module:</p>
+
+<pre>1 DEF FN m(a)=USR #{player[:init_music]}
+LOAD &quot;&quot;CODE 40000
+PRINT FN m(40000)</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="init_music-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music_player.rb, line 297</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:init_music</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">find_def_fn_args</span> <span class="ruby-value">1</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">cf_on_direct:</span><span class="ruby-keyword">false</span> <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">with_saved</span> <span class="ruby-value">:once</span>, <span class="ruby-value">:exx</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">ret:</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">do</span>
+                          <span class="ruby-identifier">call</span>  <span class="ruby-identifier">setup</span>
+                          <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">hl</span>, <span class="ruby-value">0x19CF</span> <span class="ruby-comment"># 0xCF 0x19 : report_error &#39;Q Parameter error&#39;</span>
+                          <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">once</span>], <span class="ruby-identifier">hl</span>
+                        <span class="ruby-keyword">end</span>
+                    <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">read_positive_int_value</span> <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">init</span>
+                    <span class="ruby-identifier">report_error</span> <span class="ruby-string">&#39;A Invalid argument&#39;</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-play_interval" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">play_interval</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Plays single music track tick. Call repeatedly on equal intervals to play music.</p>
+
+<p>Returns the current value of the music counter.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="play_interval-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music_player.rb, line 336</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:play_interval</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">di</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">iy</span>
+                    <span class="ruby-identifier">ay_music_preserve_io_ports_state</span>(<span class="ruby-identifier">music</span>.<span class="ruby-identifier">music_control</span>, <span class="ruby-identifier">music</span>.<span class="ruby-identifier">play</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-identifier">io_ay</span>)
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">music</span>.<span class="ruby-identifier">play</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">iy</span>
+                    <span class="ruby-identifier">ei</span>
+                    <span class="ruby-identifier">pop</span> <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">exx</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-play_loop" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">play_loop</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Plays music track in a loop until any key has been pressed.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="play_loop-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music_player.rb, line 313</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:play_loop</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">release_key</span>
+  <span class="ruby-identifier">forever</span>           <span class="ruby-identifier">halt</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">play_interval</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">check_key</span>
+                    <span class="ruby-identifier">jr</span>  <span class="ruby-constant">Z</span>, <span class="ruby-identifier">forever</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">release_key</span>
+                    <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">call</span> <span class="ruby-identifier">mute_sound</span>
+                    <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ret</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

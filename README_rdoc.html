@@ -58,13 +58,17 @@
 
   <ul class="link-list" role="directory">
     <li><a href="#label-ruby-Z80">ruby-Z80</a>
-    <li><a href="#label-A+Z80+assembler+powered+by+ruby.">A Z80 assembler powered by ruby.</a>
+    <li><a href="#label-Gemfile">Gemfile</a>
+    <li><a href="#label-A+Z80+assembler+powered+by+Ruby.">A Z80 assembler powered by Ruby.</a>
     <li><a href="#label-More+study+at-3A">More study at:</a>
+    <li><a href="#label-Z80+libraries">Z80 libraries</a>
+    <li><a href="#label-ZX+Spectrum+libraries">ZX Spectrum libraries</a>
+    <li><a href="#label-ZX+Spectrum+utilities">ZX Spectrum utilities</a>
     <li><a href="#label-See+examples+in+examples+dir.">See <a href="examples">examples</a> in <code>examples</code> dir.</a>
     <li><a href="#label-Also+features-3A">Also features:</a>
     <li><a href="#label-Download">Download</a>
     <li><a href="#label-Requirements">Requirements</a>
-    <li><a href="#label-ruby+2.0.0+or+later">ruby 2.0.0 or later</a>
+    <li><a href="#label-ruby+2.1.0+or+later">ruby 2.1.0 or later</a>
   </ul>
 </div>
 
@@ -87,11 +91,29 @@
 
 <h1 id="label-ruby-Z80">ruby-Z80<span><a href="#label-ruby-Z80">&para;</a> <a href="#top">&uarr;</a></span></h1>
 
-<h2 id="label-A+Z80+assembler+powered+by+ruby.">A <a href="Z80.html"><code>Z80</code></a> assembler powered by ruby.<span><a href="#label-A+Z80+assembler+powered+by+ruby.">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<h3 id="label-Gemfile">Gemfile<span><a href="#label-Gemfile">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<pre class="ruby"><span class="ruby-identifier">gem</span> <span class="ruby-string">&#39;z80&#39;</span>, <span class="ruby-value">git:</span> <span class="ruby-string">&#39;https://github.com/royaltm/z80-rb.git&#39;</span>
+</pre>
+
+<h2 id="label-A+Z80+assembler+powered+by+Ruby.">A <a href="Z80.html"><code>Z80</code></a> assembler powered by Ruby.<span><a href="#label-A+Z80+assembler+powered+by+Ruby.">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
 <p><a href="https://www.ruby-lang.org">Ruby</a> is a powerfull meta language, so why not to leverage its meta powers to have the ultimate macro system, compiler and builder for the <a href="Z80.html"><code>Z80</code></a> assembler?</p>
 
-<p>Now, to answer the question git clone this repo, set the <code>RUBYLIB</code> environment variable to the cloned repo&#39;s directory and go to Ruby&#39;s <code>irb</code> or your another REP of choice and snap&#39;&amp;&#39;paste this:</p>
+<p>Now, to answer the question, you&#39;ll need:</p>
+<ul><li>
+<p>a Ruby 2.1+</p>
+</li><li>
+<p>(optionally) a ZX Spectrum emulator</p>
+</li></ul>
+
+<p>then</p>
+
+<pre class="ruby"><span class="ruby-identifier">gem</span> <span class="ruby-identifier">install</span> <span class="ruby-identifier">specific_install</span>
+<span class="ruby-identifier">gem</span> <span class="ruby-identifier">specific_install</span> <span class="ruby-identifier">royaltm</span><span class="ruby-operator">/</span><span class="ruby-identifier">z80</span><span class="ruby-operator">-</span><span class="ruby-identifier">rb</span>
+</pre>
+
+<p>go to Ruby&#39;s <code>irb</code> or your REP of choice and snap&#39;&amp;&#39;paste this:</p>
 
 <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;z80&#39;</span>
 
@@ -233,20 +255,55 @@
 <p><a href="Z80/Label.html"><code>Z80::Label</code></a></p>
 </li><li>
 <p><a href="Z80/TAP.html"><code>Z80::TAP</code></a></p>
+</li></ul>
+
+<h4 id="label-Z80+libraries"><a href="Z80.html"><code>Z80</code></a> libraries<span><a href="#label-Z80+libraries">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<ul><li>
+<p><a href="Z80/Stdlib/Macros.html"><code>Z80::Stdlib::Macros</code></a></p>
 </li><li>
-<p><a href="Z80Lib/Macros.html"><code>Z80Lib::Macros</code></a></p>
+<p><a href="Z80/MathInt.html"><code>Z80::MathInt</code></a></p>
 </li><li>
-<p><a href="Z80MathInt.html"><code>Z80MathInt</code></a></p>
+<p><a href="Z80/Utils/Shuffle.html"><code>Z80::Utils::Shuffle</code></a></p>
 </li><li>
-<p><a href="ZXSys.html"><code>ZXSys</code></a></p>
+<p><a href="Z80/Utils/SinCos.html"><code>Z80::Utils::SinCos</code></a></p>
+</li></ul>
+
+<h4 id="label-ZX+Spectrum+libraries">ZX Spectrum libraries<span><a href="#label-ZX+Spectrum+libraries">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<ul><li>
+<p><a href="ZXLib/Basic.html"><code>ZXLib::Basic</code></a></p>
 </li><li>
-<p><a href="ZXGfx.html"><code>ZXGfx</code></a></p>
+<p><a href="ZXLib/Sys.html"><code>ZXLib::Sys</code></a></p>
 </li><li>
-<p><a href="ZXGfxSprite8.html"><code>ZXGfxSprite8</code></a></p>
+<p><a href="ZXLib/Math.html"><code>ZXLib::Math</code></a></p>
 </li><li>
-<p><a href="ZXMath.html"><code>ZXMath</code></a></p>
+<p><a href="ZXLib/Gfx.html"><code>ZXLib::Gfx</code></a></p>
 </li><li>
-<p><a href="Basic.html"><code>Basic</code></a></p>
+<p><a href="ZXLib/Gfx/Sprite8.html"><code>ZXLib::Gfx::Sprite8</code></a></p>
+</li><li>
+<p><a href="ZXLib/Gfx/Draw.html"><code>ZXLib::Gfx::Draw</code></a></p>
+</li><li>
+<p><a href="ZXLib/AYSound.html"><code>ZXLib::AYSound</code></a></p>
+</li></ul>
+
+<h4 id="label-ZX+Spectrum+utilities">ZX Spectrum utilities<span><a href="#label-ZX+Spectrum+utilities">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<ul><li>
+<p><a href="ZXUtils/BigFont.html"><code>ZXUtils::BigFont</code></a></p>
+</li><li>
+<p><a href="ZXUtils/Emu.html"><code>ZXUtils::Emu</code></a></p>
+</li><li>
+<p><a href="ZXUtils/Benchmark.html"><code>ZXUtils::Benchmark</code></a></p>
+</li><li>
+<p><a href="ZXUtils/Multitasking.html"><code>ZXUtils::Multitasking</code></a></p>
+</li><li>
+<p><a href="ZXUtils/MultitaskingIO.html"><code>ZXUtils::MultitaskingIO</code></a></p>
+</li><li>
+<p><a href="ZXUtils/AYMusic.html"><code>ZXUtils::AYMusic</code></a></p>
+</li><li>
+<p><a href="ZXUtils/AYMusicPlayer.html"><code>ZXUtils::AYMusicPlayer</code></a></p>
+</li><li>
+<p><a href="ZXUtils/AYBasicPlayer.html"><code>ZXUtils::AYBasicPlayer</code></a></p>
+</li><li>
+<p><a href="ZXUtils/MusicBox.html"><code>ZXUtils::MusicBox</code></a></p>
 </li></ul>
 
 <h4 id="label-See+examples+in+examples+dir.">See <a href="examples">examples</a> in <code>examples</code> dir.<span><a href="#label-See+examples+in+examples+dir.">&para;</a> <a href="#top">&uarr;</a></span></h4>
@@ -278,6 +335,10 @@
 <dd>
 <p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap</a> (multitasking demo)</p>
 </dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>stars</code>
+<dd>
+<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/stars.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/stars.tap</a></p>
+</dd></dl>
 </li></ul>
 
 <h3 id="label-Also+features-3A">Also features:<span><a href="#label-Also+features-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
@@ -286,7 +347,7 @@
 
 <p>(requires RMagick <a href="http://rmagick.rubyforge.org">rmagick.rubyforge.org</a>/)</p>
 
-<pre>ZXCONV 0.2: Importing images to ZX Spectrum is fun!
+<pre>ZXCONV 0.4: Converting images to ZX Spectrum is fun!
 Usage:
 zxconv source destination [options]
   rendering options:
@@ -296,15 +357,20 @@ zxconv source destination [options]
           2: 8  bright colors
           3: 15 colors, bright colors have priority
           4: 15 colors, basic colors only on black backgrounds
-  -d, --dither n|r|f[n|r|f]     dithering mode phase1,phase2
+  -h, --hires n|c|p|i         high resolution mode
+          n: 256x192 pixels 8x8 color attributes (ZX Spectrum)
+          c: 256x192 pixels 8x1 color attributes (ULA+)
+          p: 512x192 pixels monochrome (ULA+)
+          i: 256x384 pixels interlaced (ZX Spectrum 128k/ULA+)
+  -d, --dither n|r|f[n|r|f]   dithering mode phase1,phase2
           n: none
           r: riemersma
           f: floyd-steinberg
   -c, --colors CCC....        list of allowed color indexes (0..7)
   -0..15, --bg N              background color (0..15)
   -r, --ratio N/N             bright/basic color level ratio
-  -l, --[no-]autolevel        apply auto level to source image
-  -g, --[no-]autogamma        apply auto gamma to source image
+  -l|L, --[no-]autolevel      apply auto level to source image
+  -g|G, --[no-]autogamma      apply auto gamma to source image
 
   destination format and content:
   -f, --format t|b|r|a        zx spectrum data file format
@@ -312,19 +378,31 @@ zxconv source destination [options]
           b: save as binary data; separate files for scr and bitamp
           r: save as ruby source
           a: save as assembler source
-  -s, --[no-]savescr          save data as zx screen (6912 bytes)
-  -b, --[no-]savebin          save b/w bitmap raw data
-  -a, --[no-]saveattr         save attributes raw data
-  -i, --[no-]saveimg          save as normal image
-                                 (format determined by destination ext.)
+  -s|S, --[no-]savescr        save ZX Spectrum screen data
+  -b|B, --[no-]savebin        save pixel bitmap (linear) data
+  -a|A, --[no-]saveattr       save color attributes (linear) data
+  -i|I, --[no-]saveimg        save image file
+                              (format determined by destination ext.)
+  -x|X, --[no-]x2-pixels      enlarge and normalize output image pixels
+                              (only applied for image file)
   default options are:
-  -m0 -dn -r4/3 -0 -ft -s -i</pre>
+  -m0 -hn -dn -r4/3 -0 -ft -s -i</pre>
 
 <p><img src="examples/horse.jpg" /></p>
 
-<pre>zxconv -m4 -l --no-savescr horse.jpg horse.png</pre>
+<pre>zxconv -m4 -l -x examples/horse.jpg horse.png</pre>
 
 <p><img src="examples/horse.png" /></p>
+
+<p>ULA+ modes are also supported:</p>
+
+<pre>zxconv -m4 -l -hc -x examples/horse.jpg horse_hicolor.png</pre>
+
+<p><img src="examples/horse_hicolor.png" /></p>
+
+<pre>zxconv -l -df -hp -x examples/horse.jpg horse_hires.png</pre>
+
+<p><img src="examples/horse_hires.png" /></p>
 
 <h2 id="label-Download">Download<span><a href="#label-Download">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
@@ -332,7 +410,7 @@ zxconv source destination [options]
 
 <h2 id="label-Requirements">Requirements<span><a href="#label-Requirements">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
-<h4 id="label-ruby+2.0.0+or+later">ruby 2.0.0 or later<span><a href="#label-ruby+2.0.0+or+later">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<h4 id="label-ruby+2.1.0+or+later">ruby 2.1.0 or later<span><a href="#label-ruby+2.1.0+or+later">&para;</a> <a href="#top">&uarr;</a></span></h4>
 <dl class="rdoc-list note-list"><dt>Author
 <dd>
 <p>Rafał Michalski</p>

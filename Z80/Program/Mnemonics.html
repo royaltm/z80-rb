@@ -108,31 +108,20 @@
 <p>use <code>inp</code>  instead of <code>in</code></p>
 </li><li>
 <p>use <code>ex af,af</code> instead of <code>ex af,af&#39;</code> (no apostrophe after <code>af</code>&#39;)</p>
-</li></ul>
-
-<p>The ones below are due to my lazyness:</p>
-<ul><li>
-<p>use <code>im0</code>, <code>im01</code>, <code>im1</code>, <code>im2</code>  instead of <code>im</code> <code>n</code>. It is so rarely used so i didn&#39;t care creating a single method for it.</p>
 </li><li>
 <p>do not use [ ] around <code>out</code> and <code>inp</code> instructions&#39; arguments e.g.:</p>
 
-<pre class="ruby"><span class="ruby-identifier">out</span> <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>    <span class="ruby-comment"># ok</span>
-<span class="ruby-identifier">out</span> (<span class="ruby-identifier">c</span>), <span class="ruby-identifier">a</span>  <span class="ruby-comment"># () are ok, ruby doesn&#39;t care much about them</span>
-</pre>
-
-<p><em>however ruby emits warning: (…) interpreted as grouped expression</em></p>
-
-<pre class="ruby"><span class="ruby-comment"># only Integers are allowed here; no labels!</span>
+<pre class="ruby"><span class="ruby-identifier">out</span> <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># ok</span>
+<span class="ruby-identifier">out</span> (<span class="ruby-identifier">c</span>), <span class="ruby-identifier">a</span>      <span class="ruby-comment"># () are ok here</span>
 <span class="ruby-identifier">inp</span> <span class="ruby-identifier">a</span>, (<span class="ruby-value">0xfe</span>)
+<span class="ruby-identifier">inp</span> <span class="ruby-identifier">a</span>, (<span class="ruby-identifier">io</span>.<span class="ruby-identifier">ula</span>)
 </pre>
 </li><li>
 <p>do not use [ ] around JP (HL/IX/IY) e.g.:</p>
 
 <pre class="ruby"><span class="ruby-identifier">jp</span>  <span class="ruby-identifier">hl</span>     <span class="ruby-comment"># ok</span>
-<span class="ruby-identifier">jp</span>  (<span class="ruby-identifier">hl</span>)   <span class="ruby-comment"># () are ok, ruby doesn&#39;t care much about them</span>
+<span class="ruby-identifier">jp</span>  (<span class="ruby-identifier">hl</span>)   <span class="ruby-comment"># () are ok</span>
 </pre>
-
-<p><em>however ruby emits warning: (…) interpreted as grouped expression</em></p>
 </li></ul>
 
 <h3 id="module-Z80::Program::Mnemonics-label-Undocumented+-28by+Zilog-29+Z80+instructions">Undocumented (by Zilog) <a href="../../Z80.html"><code>Z80</code></a> instructions<span><a href="#module-Z80::Program::Mnemonics-label-Undocumented+-28by+Zilog-29+Z80+instructions">&para;</a> <a href="#top">&uarr;</a></span></h3>
@@ -167,13 +156,11 @@
 <span class="ruby-identifier">ld</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">iyh</span>   <span class="ruby-comment"># invalid</span>
 </pre>
 </li><li>
-<p>and the less usefull but included for completeness:</p>
+<p>and some less usefull but included for completeness:</p>
 
-<pre class="ruby"><span class="ruby-identifier">out</span> (<span class="ruby-identifier">c</span>), <span class="ruby-value">0</span>
-<span class="ruby-identifier">inp</span> (<span class="ruby-identifier">c</span>)
+<pre class="ruby"><span class="ruby-identifier">out</span> (<span class="ruby-identifier">c</span>)    <span class="ruby-comment"># output to (BC) port 0 or 255 depending on the CPU manufacturer</span>
+<span class="ruby-identifier">inp</span> (<span class="ruby-identifier">c</span>)    <span class="ruby-comment"># sets flags, but drops the value</span>
 </pre>
-
-<p>the last one only adjust <a href="../../Z80.html"><code>Z80</code></a> flags but the result goes to <code>/dev/null</code> (figuratively speaking).</p>
 </li></ul>
 
 <h2 id="module-Z80::Program::Mnemonics-label-Mnemonic+list">Mnemonic list<span><a href="#module-Z80::Program::Mnemonics-label-Mnemonic+list">&para;</a> <a href="#top">&uarr;</a></span></h2>

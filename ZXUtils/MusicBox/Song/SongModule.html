@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class ZXUtils::MusicBox::Song::SongModule - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../../";
+  var index_rel_prefix = "../../../";
+</script>
+
+<script src="../../../js/jquery.js"></script>
+<script src="../../../js/darkfish.js"></script>
+
+<link href="../../../css/fonts.css" rel="stylesheet">
+<link href="../../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../../table_of_contents.html#pages">Pages</a>
+    <a href="../../../table_of_contents.html#classes">Classes</a>
+    <a href="../../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="../../../Object.html">Object</a>
+  
+</div>
+
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="../../../Z80.html">Z80</a>
+  
+  
+  
+    <li><a class="include" href="../../../Z80/TAP.html">Z80::TAP</a>
+  
+  
+  </ul>
+</div>
+
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-to_player_module">#to_player_module</a>
+    
+    <li ><a href="#method-i-to_program">#to_program</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-ZXUtils::MusicBox::Song::SongModule">
+  <h1 id="class-ZXUtils::MusicBox::Song::SongModule" class="class">
+    class ZXUtils::MusicBox::Song::SongModule
+  </h1>
+
+  <section class="description">
+    
+<h3 id="class-ZXUtils::MusicBox::Song::SongModule-label-MusicBox+Song+SongModule"><a href="../../MusicBox.html"><code>MusicBox</code></a> <a href="../Song.html"><code>Song</code></a> <a href="SongModule.html"><code>SongModule</code></a><span><a href="#class-ZXUtils::MusicBox::Song::SongModule-label-MusicBox+Song+SongModule">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p>An instance of this class can be created by calling <a href="../Song.html#method-i-to_module"><code>Song.to_module</code></a> instance method of the compiled song.</p>
+
+<p>The instance of this class can produce an instance of <a href="PlayerModule.html"><code>PlayerModule</code></a> or a <a href="../../../Z80/Program.html"><code>Z80::Program</code></a>.</p>
+
+<p>Example:</p>
+
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxutils/ay_music&#39;</span>
+<span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxlib/basic&#39;</span>
+<span class="ruby-identifier">require_relative</span> <span class="ruby-string">&#39;examples/test_music&#39;</span>
+
+<span class="ruby-keyword">class</span> <span class="ruby-constant">Music</span>
+  <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span>
+  <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>
+  <span class="ruby-identifier">include</span> <span class="ruby-constant">ZXUtils</span>
+
+  <span class="ruby-constant">MusicData</span> = <span class="ruby-constant">TestMusic</span>.<span class="ruby-identifier">new</span>.<span class="ruby-identifier">to_program</span>
+
+  <span class="ruby-identifier">macro_import</span>        <span class="ruby-constant">MathInt</span>
+  <span class="ruby-identifier">macro_import</span>        <span class="ruby-constant">Utils</span><span class="ruby-operator">::</span><span class="ruby-constant">SinCos</span>
+  <span class="ruby-identifier">import</span>              <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">Sys</span>, <span class="ruby-value">macros:</span> <span class="ruby-keyword">true</span>
+  <span class="ruby-identifier">macro_import</span>        <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">AYSound</span>
+  <span class="ruby-identifier">macro_import</span>        <span class="ruby-constant">AYMusic</span>
+
+  <span class="ruby-identifier">with_saved</span> <span class="ruby-value">:start</span>, <span class="ruby-value">:exx</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">ret:</span> <span class="ruby-value">:after_ei</span> <span class="ruby-keyword">do</span>
+                      <span class="ruby-identifier">call</span> <span class="ruby-identifier">make_sincos</span>
+                      <span class="ruby-identifier">ay_expand_notes</span>( <span class="ruby-identifier">music</span>.<span class="ruby-identifier">notes</span>, <span class="ruby-value">octaves:</span><span class="ruby-value">8</span> )
+                      <span class="ruby-identifier">ay_music_tone_progress_table_factory</span>( <span class="ruby-identifier">music</span>.<span class="ruby-identifier">fine_tones</span> )
+                      <span class="ruby-identifier">ay_music_note_to_fine_tone_cursor_table_factory</span>( <span class="ruby-identifier">music</span>.<span class="ruby-identifier">note_to_cursor</span>, <span class="ruby-value">play:</span> <span class="ruby-identifier">music</span>.<span class="ruby-identifier">play</span> )
+                      <span class="ruby-identifier">di</span>
+                      <span class="ruby-identifier">call</span> <span class="ruby-identifier">music</span>.<span class="ruby-identifier">init</span>
+                      <span class="ruby-identifier">dw</span>   <span class="ruby-identifier">track_a</span>, <span class="ruby-identifier">track_b</span>, <span class="ruby-identifier">track_c</span>
+    <span class="ruby-identifier">forever</span>           <span class="ruby-identifier">ei</span>
+                      <span class="ruby-identifier">halt</span>
+                      <span class="ruby-identifier">di</span>
+                      <span class="ruby-identifier">push</span> <span class="ruby-identifier">iy</span>
+                      <span class="ruby-identifier">call</span> <span class="ruby-identifier">music</span>.<span class="ruby-identifier">play</span>
+                      <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">iy</span>
+                      <span class="ruby-identifier">key_pressed?</span>
+                      <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">forever</span>
+                      <span class="ruby-identifier">ay_init</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">make_sincos</span>         <span class="ruby-identifier">create_sincos_from_sintable</span> <span class="ruby-identifier">music</span>.<span class="ruby-identifier">sincos</span>, <span class="ruby-value">sintable:</span><span class="ruby-identifier">sintable</span>
+  <span class="ruby-identifier">sintable</span>            <span class="ruby-identifier">bytes</span>   <span class="ruby-identifier">neg_sintable256_pi_half_no_zero_lo</span>
+
+  <span class="ruby-identifier">song</span>                <span class="ruby-identifier">import</span> <span class="ruby-constant">MusicData</span>
+  <span class="ruby-identifier">song_end</span>            <span class="ruby-identifier">label</span>
+
+  <span class="ruby-identifier">import</span>              <span class="ruby-constant">AYMusic</span>, <span class="ruby-value">:music</span>, <span class="ruby-value">override:</span> { <span class="ruby-value">index_table:</span> <span class="ruby-identifier">index_table</span> }
+  <span class="ruby-identifier">music_end</span>           <span class="ruby-identifier">label</span>
+
+  <span class="ruby-constant">NOTES</span> = <span class="ruby-identifier">ay_tone_periods</span>(<span class="ruby-value">min_octave:</span><span class="ruby-value">0</span>, <span class="ruby-value">max_octave:</span><span class="ruby-value">0</span>)
+                      <span class="ruby-identifier">dw</span> <span class="ruby-constant">NOTES</span>[<span class="ruby-value">11</span>]<span class="ruby-operator">*</span><span class="ruby-value">2</span>
+  <span class="ruby-identifier">notes</span>               <span class="ruby-identifier">dw</span> <span class="ruby-constant">NOTES</span>
+<span class="ruby-keyword">end</span>
+
+<span class="ruby-identifier">music</span> = <span class="ruby-constant">Music</span>.<span class="ruby-identifier">new</span> <span class="ruby-value">0x8000</span>
+<span class="ruby-identifier">puts</span> <span class="ruby-identifier">music</span>.<span class="ruby-identifier">debug</span>
+<span class="ruby-identifier">program</span> = <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-EOC</span>
+<span class="ruby-value">  10 RANDOMIZE USR #{music[:start]}
+9998 STOP: GO TO 10
+9999 CLEAR #{music.org-1}: LOAD &quot;&quot;CODE: RUN
+</span><span class="ruby-identifier">EOC</span>
+<span class="ruby-identifier">puts</span> <span class="ruby-identifier">program</span>.<span class="ruby-identifier">to_source</span> <span class="ruby-value">escape_keywords:</span> <span class="ruby-keyword">true</span>
+<span class="ruby-identifier">program</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&quot;music&quot;</span>, <span class="ruby-value">line:</span> <span class="ruby-value">9999</span>
+<span class="ruby-identifier">music</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&quot;music&quot;</span>, <span class="ruby-value">append:</span> <span class="ruby-keyword">true</span>
+<span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>.<span class="ruby-identifier">parse_file</span>(<span class="ruby-string">&#39;music.tap&#39;</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">hb</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">puts</span> <span class="ruby-identifier">hb</span>.<span class="ruby-identifier">to_s</span>
+<span class="ruby-keyword">end</span>
+</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+    <section class="attribute-method-details" class="method-section">
+      <header>
+        <h3>Attributes</h3>
+      </header>
+
+      
+      <div id="attribute-i-code" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">code</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>A compiled song module body as a binary string.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-index_items" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">index_items</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>An array containing descriptors of each of the indexed items.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-index_offsets" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">index_offsets</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>An array containing offset ranges determining the position within the <a href="SongModule.html#attribute-i-code"><code>SongModule.code</code></a> each of the indexed items.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-track_offsets" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">track_offsets</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>An array containing offset ranges determining the position within the <a href="SongModule.html#attribute-i-code"><code>SongModule.code</code></a> each of the three channel tracks.</p>
+        
+        </div>
+      </div>
+      
+    </section>
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-to_player_module" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_player_module</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns an instance of the <a href="PlayerModule.html"><code>PlayerModule</code></a> from the compiled <a href="SongModule.html"><code>SongModule</code></a> instance.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_player_module-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 345</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_player_module</span>
+  <span class="ruby-constant">PlayerModule</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-ivar">@track_offsets</span>.<span class="ruby-identifier">map</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:first</span>), <span class="ruby-ivar">@index_offsets</span>.<span class="ruby-identifier">map</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:first</span>), <span class="ruby-ivar">@code</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_program" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_program</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns an ad-hoc <a href="../../../Z80/Program.html"><code>Z80::Program</code></a> class containing the compiled <a href="SongModule.html"><code>SongModule</code></a>.</p>
+
+<p>The returned program exports the following labels:</p>
+<ul><li>
+<p>track_a</p>
+</li><li>
+<p>track_b</p>
+</li><li>
+<p>track_c</p>
+</li><li>
+<p>index_table</p>
+</li></ul>
+
+<p>That can be passed to the the <a href="../../AYMusic.html"><code>ZXUtils::AYMusic</code></a> engine. For the complete example, see <a href="SongModule.html"><code>SongModule</code></a>.</p>
+
+<p>Additionally these label namespaces are also being exported:</p>
+<ul><li>
+<p>track</p>
+</li><li>
+<p>instrument</p>
+</li><li>
+<p>envelope</p>
+</li><li>
+<p>chord</p>
+</li><li>
+<p>mask</p>
+</li></ul>
+
+<p>And each song&#39;s item is being sub-labeled in the according namespaces, so you can identify them in the <code>debug</code> output or use it for some other purpose.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_program-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 367</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_program</span>
+  <span class="ruby-identifier">code</span> = <span class="ruby-ivar">@code</span>
+  <span class="ruby-identifier">track_offsets</span> = <span class="ruby-ivar">@track_offsets</span>
+  <span class="ruby-identifier">index_offsets</span> = <span class="ruby-ivar">@index_offsets</span>
+  <span class="ruby-identifier">index_items</span> = <span class="ruby-ivar">@index_items</span>
+  <span class="ruby-identifier">index_labels</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">index_offsets</span>.<span class="ruby-identifier">length</span>)
+  <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span>
+    <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span>
+    <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>
+
+    <span class="ruby-identifier">export</span> <span class="ruby-value">:auto</span>
+    <span class="ruby-identifier">track_a</span>       <span class="ruby-identifier">data</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">track_offsets</span>[<span class="ruby-value">0</span>])
+    <span class="ruby-identifier">track_b</span>       <span class="ruby-identifier">data</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">track_offsets</span>[<span class="ruby-value">1</span>])
+    <span class="ruby-identifier">track_c</span>       <span class="ruby-identifier">data</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">track_offsets</span>[<span class="ruby-value">2</span>])
+    <span class="ruby-identifier">index_items</span>.<span class="ruby-identifier">zip</span>(<span class="ruby-identifier">index_offsets</span>).
+    <span class="ruby-identifier">sort_by</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">item</span>, <span class="ruby-identifier">_</span><span class="ruby-operator">|</span> <span class="ruby-node">&quot;#{item.type}.#{item.name}&quot;</span>}.
+    <span class="ruby-identifier">chunk</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">item</span>, <span class="ruby-identifier">_</span><span class="ruby-operator">|</span> <span class="ruby-identifier">item</span>.<span class="ruby-identifier">type</span>}.
+    <span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">type</span>, <span class="ruby-identifier">items</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">isolate</span> <span class="ruby-identifier">type</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">items</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">item</span>, <span class="ruby-identifier">offsets</span><span class="ruby-operator">|</span>
+          <span class="ruby-identifier">index_labels</span>[<span class="ruby-identifier">item</span>.<span class="ruby-identifier">index</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>] = <span class="ruby-identifier">define_label</span> <span class="ruby-identifier">item</span>.<span class="ruby-identifier">name</span>, <span class="ruby-identifier">data</span>(<span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">offsets</span>))
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;sanity error&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">index_labels</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">index_offsets</span>.<span class="ruby-identifier">length</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">index_labels</span>.<span class="ruby-identifier">any?</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:nil?</span>)
+    <span class="ruby-identifier">index_table</span>   <span class="ruby-identifier">words</span> <span class="ruby-identifier">index_labels</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

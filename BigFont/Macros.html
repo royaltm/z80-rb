@@ -137,19 +137,21 @@
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
 <dd>
-<p>screen memory address as an integer, must be a multiple of 0x2000</p>
+<p>screen memory address as an integer, must be a multiple of 0x2000, this is being used to prevent overwriting out of screen memory area. Provide <code>nil</code> if you don&#39;t care.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>assume_chars_aligned</code>
 <dd>
-<p><code>true</code> if the character address in <code>hl</code> is aligned to the multiple of 8 (<code>hl</code> % 8 == 0)</p>
+<p><code>true</code> if every byte of a character resides on the same 256 byte size address page. This is true for e.g. an 8 pixels height character addressed at the multiple of 8.</p>
 </dd></dl>
 </li></ul>
+
+<p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>af&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, <code>hl&#39;</code></p>
           
           
 
           
           <div class="method-source-code" id="enlarge_char8_16-source">
-            <pre><span class="ruby-comment"># File utils/bigfont.rb, line 202</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/bigfont.rb, line 207</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">enlarge_char8_16</span>(<span class="ruby-value">compact:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">over:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">assume_chars_aligned:</span><span class="ruby-keyword">true</span>)
   <span class="ruby-identifier">combine</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">over</span>
   <span class="ruby-keyword">when</span> <span class="ruby-value">:xor</span>
@@ -160,6 +162,11 @@
     <span class="ruby-identifier">proc</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">ora</span> <span class="ruby-identifier">x</span> }
   <span class="ruby-keyword">end</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>         <span class="ruby-comment"># hl&#39; - screen adddress, c&#39; source height, hl - character address</span>
+    <span class="ruby-identifier">bcheck</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">scraddr</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span> <span class="ruby-keyword">then</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">else</span> <span class="ruby-identifier">eoc</span> <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">else</span>
+      <span class="ruby-keyword">false</span>
+    <span class="ruby-keyword">end</span>
               <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>] <span class="ruby-comment"># 1st line</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">assume_chars_aligned</span>
               <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">l</span>       <span class="ruby-comment"># assuming characters are aligned to 8 bytes</span>
@@ -185,7 +192,7 @@
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
               <span class="ruby-identifier">call</span> <span class="ruby-identifier">next_line</span>
     <span class="ruby-keyword">else</span>
-              <span class="ruby-identifier">nextline</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">eoc</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>
+              <span class="ruby-identifier">nextline</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">bcheck</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>
     <span class="ruby-keyword">end</span>
               <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">c</span>
               <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">eoc</span>  <span class="ruby-comment"># 15th line?</span>
@@ -221,14 +228,14 @@
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
               <span class="ruby-identifier">call</span> <span class="ruby-identifier">next_line</span>
     <span class="ruby-keyword">else</span>
-              <span class="ruby-identifier">nextline</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">eoc</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>
+              <span class="ruby-identifier">nextline</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">bcheck</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>
     <span class="ruby-keyword">end</span>
               <span class="ruby-identifier">exx</span>
               <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>    <span class="ruby-comment"># 2nd line</span>
               <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">mloop</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
     <span class="ruby-identifier">next_line</span> <span class="ruby-identifier">label</span>
-              <span class="ruby-identifier">nextline</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">do</span>
+              <span class="ruby-identifier">nextline</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">bcheck</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">pop</span> <span class="ruby-identifier">af</span>     <span class="ruby-comment"># discard return address</span>
                 <span class="ruby-identifier">jr</span>  <span class="ruby-identifier">eoc</span>
               <span class="ruby-keyword">end</span>
@@ -275,7 +282,7 @@ f1: FDB97531, f2: ECA86420 -&gt; a: FEDCBA98, 76543210</pre>
 
           
           <div class="method-source-code" id="interlace_pixels16-source">
-            <pre><span class="ruby-comment"># File utils/bigfont.rb, line 103</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/bigfont.rb, line 103</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">interlace_pixels16</span>(<span class="ruby-identifier">f1</span>, <span class="ruby-identifier">f2</span>, <span class="ruby-value">unroll:</span><span class="ruby-keyword">true</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-comment"># -&gt;(a, b) { 8.times.inject(0) {|c,i| c|(((b&gt;&gt;i)&amp;1)&lt;&lt;(i*2))|(((a&gt;&gt;i)&amp;1)&lt;&lt;(i*2+1)) } }</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -357,7 +364,7 @@ FEDCBA98 76543210 -&gt; o: FDB97531, a: ECA86420</pre>
 
           
           <div class="method-source-code" id="mix_lines8_16-source">
-            <pre><span class="ruby-comment"># File utils/bigfont.rb, line 156</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/bigfont.rb, line 156</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mix_lines8_16</span>(<span class="ruby-identifier">r</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">o:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">t1:</span><span class="ruby-identifier">d</span>, <span class="ruby-value">t2:</span><span class="ruby-identifier">e</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">a</span>, <span class="ruby-identifier">r</span>, <span class="ruby-identifier">o</span>, <span class="ruby-identifier">t1</span>, <span class="ruby-identifier">t2</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">5</span>
   <span class="ruby-comment"># -&gt;(a, r) {</span>
@@ -430,7 +437,7 @@ a: 76543210   -&gt; f1: 77665544, f2: 33221100</pre>
 
           
           <div class="method-source-code" id="widen_pixels8_16-source">
-            <pre><span class="ruby-comment"># File utils/bigfont.rb, line 62</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/bigfont.rb, line 62</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">widen_pixels8_16</span>(<span class="ruby-identifier">f1</span>, <span class="ruby-identifier">f2</span>, <span class="ruby-value">unroll:</span><span class="ruby-keyword">true</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">f1</span>, <span class="ruby-identifier">f2</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>)} <span class="ruby-keyword">and</span> <span class="ruby-identifier">f1</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">f2</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>

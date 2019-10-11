@@ -192,7 +192,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 114</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 117</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">header</span>, <span class="ruby-identifier">body</span>)
         <span class="ruby-ivar">@header</span> = <span class="ruby-identifier">header</span>
         <span class="ruby-ivar">@body</span> = <span class="ruby-identifier">body</span>
@@ -233,7 +233,7 @@
 
           
           <div class="method-source-code" id="new_code-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 173</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 176</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_code</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">org</span>)
         <span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new</span>(
                 <span class="ruby-constant">Header</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">TYPE_CODE</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-identifier">org</span>, <span class="ruby-value">0x8000</span>),
@@ -278,7 +278,7 @@
 
           
           <div class="method-source-code" id="new_program-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 186</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 189</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_program</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-value">line:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">prog_length:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new</span>(
                 <span class="ruby-constant">Header</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">TYPE_PROGRAM</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>, <span class="ruby-identifier">line</span> <span class="ruby-operator">||</span> <span class="ruby-value">32768</span>, <span class="ruby-identifier">prog_length</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>),
@@ -321,7 +321,7 @@
 
           
           <div class="method-source-code" id="new_var_array-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 199</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 202</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new_var_array</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">head</span>)
         <span class="ruby-identifier">type</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">head</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0b11100000</span>
         <span class="ruby-keyword">when</span> <span class="ruby-value">0b10000000</span>
@@ -374,7 +374,7 @@
 
           
           <div class="method-source-code" id="array-3F-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 148</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 151</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">array?</span>
         <span class="ruby-identifier">header</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">array?</span>
 <span class="ruby-keyword">end</span></pre>
@@ -407,7 +407,7 @@
 
           
           <div class="method-source-code" id="code-3F-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 158</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 161</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">code?</span>
         <span class="ruby-identifier">header</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">code?</span>
 <span class="ruby-keyword">end</span></pre>
@@ -440,7 +440,7 @@
 
           
           <div class="method-source-code" id="program-3F-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 153</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 156</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">program?</span>
         <span class="ruby-identifier">header</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">program?</span>
 <span class="ruby-keyword">end</span></pre>
@@ -477,7 +477,7 @@
 
           
           <div class="method-source-code" id="save_tap-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 134</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 137</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">save_tap</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">append:</span><span class="ruby-keyword">false</span>)
         <span class="ruby-identifier">filename</span><span class="ruby-operator">+=</span> <span class="ruby-string">&#39;.tap&#39;</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">extname</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">downcase</span> <span class="ruby-operator">==</span> <span class="ruby-string">&#39;.tap&#39;</span>
         <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">append</span> <span class="ruby-operator">?</span> <span class="ruby-string">&#39;ab&#39;</span> <span class="ruby-operator">:</span> <span class="ruby-string">&#39;wb&#39;</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">write</span> <span class="ruby-identifier">to_tap</span> }
@@ -511,7 +511,7 @@
 
           
           <div class="method-source-code" id="screen-3F-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 163</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 166</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">screen?</span>
         <span class="ruby-identifier">header</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">screen?</span>
 <span class="ruby-keyword">end</span></pre>
@@ -544,7 +544,7 @@
 
           
           <div class="method-source-code" id="to_s-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 120</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 123</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_s</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">nil?</span>
                 <span class="ruby-node">&quot;Bytes: ?????????? (#{body.data.bytesize})&quot;</span>
@@ -581,7 +581,7 @@
 
           
           <div class="method-source-code" id="to_tap-source">
-            <pre><span class="ruby-comment"># File z80/tap.rb, line 140</span>
+            <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 143</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap</span>
         <span class="ruby-identifier">res</span> = <span class="ruby-string">&#39;&#39;</span>
         <span class="ruby-identifier">res</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">to_tap</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">header</span>.<span class="ruby-identifier">nil?</span>

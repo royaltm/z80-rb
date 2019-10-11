@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class ZXLib::Basic::Program - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../";
+  var index_rel_prefix = "../../";
+</script>
+
+<script src="../../js/jquery.js"></script>
+<script src="../../js/darkfish.js"></script>
+
+<link href="../../css/fonts.css" rel="stylesheet">
+<link href="../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../table_of_contents.html#pages">Pages</a>
+    <a href="../../table_of_contents.html#classes">Classes</a>
+    <a href="../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="../../Object.html">Object</a>
+  
+</div>
+
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="../../Z80/TAP.html">Z80::TAP</a>
+  
+  
+  </ul>
+</div>
+
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-new">::new</a>
+    
+    <li ><a href="#method-i-5B-5D">#[]</a>
+    
+    <li ><a href="#method-i-code">#code</a>
+    
+    <li ><a href="#method-i-line_index">#line_index</a>
+    
+    <li ><a href="#method-i-list">#list</a>
+    
+    <li ><a href="#method-i-to_s">#to_s</a>
+    
+    <li ><a href="#method-i-to_source">#to_source</a>
+    
+    <li ><a href="#method-i-to_tap_chunk">#to_tap_chunk</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-ZXLib::Basic::Program">
+  <h1 id="class-ZXLib::Basic::Program" class="class">
+    class ZXLib::Basic::Program
+  </h1>
+
+  <section class="description">
+    
+<p>Represents a ZX <a href="../Basic.html"><code>Basic</code></a> program in a semi-parsed form.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+    <section class="attribute-method-details" class="method-section">
+      <header>
+        <h3>Attributes</h3>
+      </header>
+
+      
+      <div id="attribute-i-lines" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">lines</span><span
+            class="attribute-access-type">[RW]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>An array of <a href="Line.html"><code>Basic::Line</code></a> instances representing this <a href="../Basic.html"><code>Basic</code></a> program body.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-start" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">start</span><span
+            class="attribute-access-type">[RW]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>The optional starting line of a <a href="../Basic.html"><code>Basic</code></a> program as an integer.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-vars" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">vars</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>An instance of <a href="Vars.html"><code>Basic::Vars</code></a> containing program&#39;s run-time variables.</p>
+        
+        </div>
+      </div>
+      
+    </section>
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-new" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">new</span><span
+            class="method-args">(lines, vars = nil, start = nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="new-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 46</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">lines</span>, <span class="ruby-identifier">vars</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-identifier">start</span> = <span class="ruby-keyword">nil</span>)
+        <span class="ruby-ivar">@lines</span> = <span class="ruby-identifier">lines</span>
+        <span class="ruby-ivar">@vars</span> = <span class="ruby-constant">Vars</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">vars</span>)
+        <span class="ruby-ivar">@start</span> = <span class="ruby-identifier">start</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-5B-5D" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">[]</span><span
+            class="method-args">(index)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a <a href="Line.html"><code>Basic::Line</code></a> at <code>index</code> or an array of lines if <code>Range</code> is given.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="5B-5D-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 186</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">index</span>)
+        <span class="ruby-identifier">lines</span>[<span class="ruby-identifier">index</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-code" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">code</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the raw byte representation of the whole ZX <a href="../Basic.html"><code>Basic</code></a> program as a binary string.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="code-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 191</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">code</span>
+        <span class="ruby-identifier">res</span> = <span class="ruby-string">&#39;&#39;</span>
+        <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">body</span> = <span class="ruby-identifier">line</span>.<span class="ruby-identifier">body</span>
+                <span class="ruby-identifier">res</span> <span class="ruby-operator">&lt;&lt;</span> [<span class="ruby-identifier">line</span>.<span class="ruby-identifier">line_no</span>, <span class="ruby-identifier">body</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>, <span class="ruby-identifier">body</span>, <span class="ruby-value">13</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;S&gt;S&lt;a*C&#39;</span>)
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">res</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-line_index" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">line_index</span><span
+            class="method-args">(line_no)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns index in <code>lines</code> of a <a href="../Basic.html"><code>Basic</code></a> line number equal or greater than <code>line_no</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="line_index-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 164</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">line_index</span>(<span class="ruby-identifier">line_no</span>)
+        <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">index</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">line_no</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-identifier">line_no</span>}
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-list" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">list</span><span
+            class="method-args">(line_no)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a new <a href="Program.html"><code>Basic::Program</code></a> instance with the subset of its lines according to the <code>line_no</code> argument.</p>
+
+<p><code>line_no</code> may be an integer or a Range. The integer indicates the first line to be included. The Range selects a range of lines to be included. <code>line_no</code> relates to the <a href="../Basic.html"><code>Basic</code></a> line number.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="list-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 173</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">list</span>(<span class="ruby-identifier">line_no</span>)
+        <span class="ruby-keyword">if</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">line_no</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">index</span> = <span class="ruby-identifier">line_index</span>(<span class="ruby-identifier">line_no</span>)
+                        <span class="ruby-constant">Program</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">lines</span>[<span class="ruby-identifier">index</span><span class="ruby-operator">..</span><span class="ruby-value">-1</span>], <span class="ruby-identifier">vars</span>
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-constant">Program</span>.<span class="ruby-identifier">new</span> [], <span class="ruby-identifier">vars</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">line_no</span>.<span class="ruby-identifier">respond_to?</span> <span class="ruby-value">:===</span>
+                <span class="ruby-constant">Program</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">select</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">line_no</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">line_no</span>}, <span class="ruby-identifier">vars</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_s" class="method-detail method-alias">
+        
+        <div class="method-heading">
+          <span class="method-name">to_s</span><span
+            class="method-args">(escape_keywords:false, ascii_only:false)</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+        </div>
+
+        
+
+        
+        <div class="aliases">
+          Alias for: <a href="Program.html#method-i-to_source">to_source</a>
+        </div>
+        
+      </div>
+
+    
+      <div id="method-i-to_source" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_source</span><span
+            class="method-args">(escape_keywords:false, ascii_only:false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates the textual representation of a ZX <a href="Program.html"><code>Basic::Program</code></a>.</p>
+
+<p>Returns an UTF-8 encoded string.</p>
+
+<p>The conversion is done as follows:</p>
+<ul><li>
+<p>Each character in the ASCII printable range 32..126 except the £ (pound, code 96) is left unmodified.</p>
+</li><li>
+<p>The £ (pound, code 96) and the © (code 127) characters are converted to a U+00A3 and U+00A9 accordingly.</p>
+</li><li>
+<p>Raw FP numbers beginning with a character code 14 are being stripped outside of literal strings.</p>
+</li><li>
+<p>A comma control character (code 6) is encoded as \t (TABULATION U+0009) character.</p>
+</li><li>
+<p>Control characters 8..11 are encoded as Unicode ARROWS (see table below).</p>
+</li><li>
+<p>The remaining control characters in the code range 0..31 are encoded using escape sequences.</p>
+</li><li>
+<p>The block characters in the code range 128..143 are converted to Unicode BLOCK elements (see table below).</p>
+</li><li>
+<p>The characters in the UDG code range 144..164 are converted to CIRCLED LATIN CAPITAL LETTERs.</p>
+</li><li>
+<p>Keywords in the code range 165..255 are either encoded as escaped keywords (e.g. `PRINT`) when found inside literal strings or just as sequences of its constituent characters.</p>
+</li></ul>
+
+<h4 id="method-i-to_source-label-Note-3A">Note:<span><a href="#method-i-to_source-label-Note-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
+
+<p>The last rule may lead to some disambiguities. Consider a line:</p>
+
+<pre class="ruby"><span class="ruby-constant">PRINT</span> <span class="ruby-constant">RND</span>
+</pre>
+
+<p>The <code>RND</code> keyword in this case may be a variable name consisting of 3 capital letters R N D or a <code>RND</code> function. The ZX <a href="../Basic.html"><code>Basic</code></a> knows the difference because the keyword <code>RND</code> is encoded as a single code point: 165. However when presented as text you can&#39;t really tell the difference. This may lead to errors when trying to parse such a text back to the ZX Spectrum&#39;s binary program format.</p>
+
+<p>To desambiguate keywords from regular characters in strings they are being encoded as escape sequences, e.g. `GO SUB`, `RND`, `OPEN #`. Pass <code>true</code> to <code>:escape_keywords</code> option to enforce keywords to be always escaped.</p>
+
+<p>Escape sequences are using GRAVE ACCENT ` (U+0060, also known as a backtick) as enclosing character because it&#39;s absent in the ZX Spectrum&#39;s character set.</p>
+
+<p>The control characters are encoded as decimal code numbers, e.g: `12`. More codes can be put inside an escape sequence using whitespaces or commas as separators, e.g.: `0xff, 201, 0b01010001` stands for 3 bytes. Any ruby number literal is accepted: decimal, hexadecimal, octal, binary.</p>
+
+<p>Color and cursor position control codes are multi-byte. There are special control escape sequences for them:</p>
+
+<pre>code seq. count  special escape sequence format
+`16 n`    2      `INK n`
+`17 n`    2      `PAPER n`
+`18 n`    2      `FLASH n`
+`19 n`    2      `BRIGHT n`
+`20 n`    2      `INVERSE n`
+`21 n`    2      `OVER n`
+`22 y x`  3      `AT y,x`
+`23 x x`  3      `TAB x`</pre>
+
+<p>Where <code>n</code>, <code>x</code>, <code>y</code> are decimal numbers representing the following character code and at the same time special control arguments.</p>
+
+<p>Non-ASCII characters and alternative escape sequences:</p>
+
+<pre>code  escaped  unicode   description
+   8  `&lt;`      U+2190 ←  move left
+   9  `&gt;`      U+2192 →  move right
+  10  `v`      U+2193 ↓  move down
+  11  `^`      U+2191 ↑  move up
+  96  `&amp;`      U+00A3 £  a pound sign
+ 127  `(c)`    U+00A9 ©  a copyright sign
+ 128  `|8`     U+2591 ░  various block characters
+ 129  `|1`     U+259D ▝  
+ 130  `|2`     U+2598 ▘  
+ 131  `|3`     U+2580 ▀  
+ 132  `|4`     U+2597 ▗  
+ 133  `|5`     U+2590 ▐  
+ 134  `|6`     U+259A ▚  
+ 135  `|7`     U+259C ▜  
+ 136  `#7`     U+2596 ▖  
+ 137  `#6`     U+259E ▞  
+ 138  `#5`     U+258C ▌  
+ 139  `#4`     U+259B ▛  
+ 140  `#3`     U+2584 ▄  
+ 141  `#2`     U+259F ▟  
+ 142  `#1`     U+2599 ▙  
+ 143  `#8`     U+2588 █  
+ 144  `a`      U+24B6 Ⓐ  user defined graphics
+ 145  `b`      U+24B7 Ⓑ  
+ 146  `c`      U+24B8 Ⓒ  
+ 147  `d`      U+24B9 Ⓓ  
+ 148  `e`      U+24BA Ⓔ  
+ 149  `f`      U+24BB Ⓕ  
+ 150  `g`      U+24BC Ⓖ  
+ 151  `h`      U+24BD Ⓗ  
+ 152  `i`      U+24BE Ⓘ  
+ 153  `j`      U+24BF Ⓙ  
+ 154  `k`      U+24C0 Ⓚ  
+ 155  `l`      U+24C1 Ⓛ  
+ 156  `m`      U+24C2 Ⓜ  
+ 157  `n`      U+24C3 Ⓝ  
+ 158  `o`      U+24C4 Ⓞ  
+ 159  `p`      U+24C5 Ⓟ  
+ 160  `q`      U+24C6 Ⓠ  
+ 161  `r`      U+24C7 Ⓡ  
+ 162  `s`      U+24C8 Ⓢ  
+ 163  `t`      U+24C9 Ⓣ  
+ 164  `u`      U+24CA Ⓤ</pre>
+
+<p>The above escape sequences may be safely concatenated between a single pair of enclosing backticks, e.g.:</p>
+
+<pre>Unicode:    &quot;£©░█ⒶⒷⒸⓊ←→↑↓&quot;
+Ascii only: &quot;`&amp;(c)|8#8abcu&lt;&gt;^v`&quot;</pre>
+
+<p>Passing <code>:ascii_only</code> as <code>true</code> will render escape sequences instead of non-ascii characters.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_source-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 158</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_source</span>(<span class="ruby-value">escape_keywords:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ascii_only:</span><span class="ruby-keyword">false</span>)
+        <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span> <span class="ruby-identifier">line</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-value">escape_keywords:</span> <span class="ruby-identifier">escape_keywords</span>, <span class="ruby-value">ascii_only:</span> <span class="ruby-identifier">ascii_only</span> }.<span class="ruby-identifier">join</span>(<span class="ruby-string">&quot;\n&quot;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+        <div class="aliases">
+          Also aliased as: <a href="Program.html#method-i-to_s">to_s</a>
+        </div>
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_tap_chunk" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_tap_chunk</span><span
+            class="method-args">(name, line:nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a <a href="../../Z80/TAP/HeaderBody.html"><code>Z80::TAP::HeaderBody</code></a> instance from <a href="Program.html#method-i-code"><code>Basic::Program#code</code></a>.</p>
+
+<p>This method is provided for the included <a href="../../Z80/TAP.html#method-i-to_tap"><code>Z80::TAP#to_tap</code></a> and <a href="../../Z80/TAP.html#method-i-save_tap"><code>Z80::TAP#save_tap</code></a> methods.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_tap_chunk-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 203</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-value">line:</span><span class="ruby-keyword">nil</span>)
+        <span class="ruby-identifier">prog_length</span> = <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>
+        <span class="ruby-identifier">line</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">start</span>
+        <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span><span class="ruby-operator">::</span><span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new_program</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">vars</span>.<span class="ruby-identifier">code</span>, <span class="ruby-value">line:</span> <span class="ruby-identifier">line</span>, <span class="ruby-value">prog_length:</span> <span class="ruby-identifier">prog_length</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

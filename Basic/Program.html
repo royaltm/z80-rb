@@ -199,7 +199,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 43</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 43</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">lines</span>, <span class="ruby-identifier">vars</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-identifier">start</span> = <span class="ruby-keyword">nil</span>)
         <span class="ruby-ivar">@lines</span> = <span class="ruby-identifier">lines</span>
         <span class="ruby-ivar">@vars</span> = <span class="ruby-constant">Vars</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">vars</span>)
@@ -242,7 +242,7 @@
 
           
           <div class="method-source-code" id="5B-5D-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 182</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 183</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">index</span>)
         <span class="ruby-identifier">lines</span>[<span class="ruby-identifier">index</span>]
 <span class="ruby-keyword">end</span></pre>
@@ -275,7 +275,7 @@
 
           
           <div class="method-source-code" id="code-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 187</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 188</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">code</span>
         <span class="ruby-identifier">res</span> = <span class="ruby-string">&#39;&#39;</span>
         <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
@@ -313,7 +313,7 @@
 
           
           <div class="method-source-code" id="line_index-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 160</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 161</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">line_index</span>(<span class="ruby-identifier">line_no</span>)
         <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">index</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">line_no</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-identifier">line_no</span>}
 <span class="ruby-keyword">end</span></pre>
@@ -340,15 +340,15 @@
 
         <div class="method-description">
           
-          <p>Returns a new <a href="Program.html"><code>Basic::Program</code></a> instance with the subset of its lines according to <code>line_no</code> argument.</p>
+          <p>Returns a new <a href="Program.html"><code>Basic::Program</code></a> instance with the subset of its lines according to the <code>line_no</code> argument.</p>
 
-<p><code>line_no</code> may be an integer or a Range. The integer indicates the first line to be included. The Range selects a range of lines to be included. <code>line_no</code> relates to <a href="../Basic.html"><code>Basic</code></a> line numbers.</p>
+<p><code>line_no</code> may be an integer or a Range. The integer indicates the first line to be included. The Range selects a range of lines to be included. <code>line_no</code> relates to the <a href="../Basic.html"><code>Basic</code></a> line number.</p>
           
           
 
           
           <div class="method-source-code" id="list-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 169</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 170</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">list</span>(<span class="ruby-identifier">line_no</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">line_no</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">index</span> = <span class="ruby-identifier">line_index</span>(<span class="ruby-identifier">line_no</span>)
@@ -421,9 +421,9 @@
 </li><li>
 <p>The £ (pound, code 96) and the © (code 127) characters are converted to a U+00A3 and U+00A9 accordingly.</p>
 </li><li>
-<p>Raw FP numbers beginning with character code 14 are being stripped outside of literal strings.</p>
+<p>Raw FP numbers beginning with a character code 14 are being stripped outside of literal strings.</p>
 </li><li>
-<p>Control character comma (code 6) is encoded as \t (TABULATION U+0009) character.</p>
+<p>A comma control character (code 6) is encoded as \t (TABULATION U+0009) character.</p>
 </li><li>
 <p>Control characters 8..11 are encoded as Unicode ARROWS (see table below).</p>
 </li><li>
@@ -433,7 +433,7 @@
 </li><li>
 <p>The characters in the UDG code range 144..164 are converted to CIRCLED LATIN CAPITAL LETTERs.</p>
 </li><li>
-<p>Keywords in the code range 165..255 are either encoded as escaped keywords (e.g. `PRINT`) when found inside literal strings or just as sequences of its constituents characters.</p>
+<p>Keywords in the code range 165..255 are either encoded as escaped keywords (e.g. `PRINT`) when found inside literal strings or just as sequences of its constituent characters.</p>
 </li></ul>
 
 <h4 id="method-i-to_source-label-Note-3A">Note:<span><a href="#method-i-to_source-label-Note-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
@@ -443,17 +443,17 @@
 <pre class="ruby"><span class="ruby-constant">PRINT</span> <span class="ruby-constant">RND</span>
 </pre>
 
-<p>The <code>RND</code> keyword in this case may be a variable name consisting of 3 capital letters R N D or a <code>RND</code> function. The ZX <a href="../Basic.html"><code>Basic</code></a> knows the difference because keyword <code>RND</code> is encoded as a single code point: 165. However when presented as text you can&#39;t really tell the difference. This may lead to errors when trying to parse such a text back to the ZX Spectrum binary program format.</p>
+<p>The <code>RND</code> keyword in this case may be a variable name consisting of 3 capital letters R N D or a <code>RND</code> function. The ZX <a href="../Basic.html"><code>Basic</code></a> knows the difference because the keyword <code>RND</code> is encoded as a single code point: 165. However when presented as text you can&#39;t really tell the difference. This may lead to errors when trying to parse such a text back to the ZX Spectrum&#39;s binary program format.</p>
 
-<p>To desambiguate keywords can be encoded as escape sequences, e.g. `GO SUB`, `RND`, `OPEN #`. Pass <code>true</code> to <code>:escape_keywords</code> option to enforce keywords to be always escaped.</p>
+<p>To desambiguate keywords from regular characters in strings they are being encoded as escape sequences, e.g. `GO SUB`, `RND`, `OPEN #`. Pass <code>true</code> to <code>:escape_keywords</code> option to enforce keywords to be always escaped.</p>
 
-<p>Escape sequences are using GRAVE ACCENT ` (U+0060, also known as a backtick) as enclosing character because it&#39;s absent in ZX Spectrum&#39;s character set.</p>
+<p>Escape sequences are using GRAVE ACCENT ` (U+0060, also known as a backtick) as enclosing character because it&#39;s absent in the ZX Spectrum&#39;s character set.</p>
 
 <p>The control characters are encoded as decimal code numbers, e.g: `12`. More codes can be put inside an escape sequence using whitespaces or commas as separators, e.g.: `0xff, 201, 0b01010001` stands for 3 bytes. Any ruby number literal is accepted: decimal, hexadecimal, octal, binary.</p>
 
-<p>Special control escape sequences:</p>
+<p>Color and cursor position control condes are multi-byte. There are special control escape sequences for them:</p>
 
-<pre>code seq. count  escape sequence format
+<pre>code seq. count  special escape sequence format
 `16 n`    2      `INK n`
 `17 n`    2      `PAPER n`
 `18 n`    2      `FLASH n`
@@ -523,7 +523,7 @@ Ascii only: &quot;`&amp;(c)|8#8abcu&lt;&gt;^v`&quot;</pre>
 
           
           <div class="method-source-code" id="to_source-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 154</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 155</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_source</span>(<span class="ruby-value">escape_keywords:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ascii_only:</span><span class="ruby-keyword">false</span>)
         <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span> <span class="ruby-identifier">line</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-value">escape_keywords:</span> <span class="ruby-identifier">escape_keywords</span>, <span class="ruby-value">ascii_only:</span> <span class="ruby-identifier">ascii_only</span> }.<span class="ruby-identifier">join</span>(<span class="ruby-string">&quot;\n&quot;</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -562,7 +562,7 @@ Ascii only: &quot;`&amp;(c)|8#8abcu&lt;&gt;^v`&quot;</pre>
 
           
           <div class="method-source-code" id="to_tap_chunk-source">
-            <pre><span class="ruby-comment"># File zxlib/basic.rb, line 199</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 200</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-value">line:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-identifier">prog_length</span> = <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>
         <span class="ruby-identifier">line</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">start</span>

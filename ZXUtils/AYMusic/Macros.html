@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module ZXUtils::AYMusic::Macros - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../";
+  var index_rel_prefix = "../../";
+</script>
+
+<script src="../../js/jquery.js"></script>
+<script src="../../js/darkfish.js"></script>
+
+<link href="../../css/fonts.css" rel="stylesheet">
+<link href="../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../table_of_contents.html#pages">Pages</a>
+    <a href="../../table_of_contents.html#classes">Classes</a>
+    <a href="../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-ay_music_finished-3F">#ay_music_finished?</a>
+    
+    <li ><a href="#method-i-ay_music_init">#ay_music_init</a>
+    
+    <li ><a href="#method-i-ay_music_note_to_fine_tone_cursor_table_factory">#ay_music_note_to_fine_tone_cursor_table_factory</a>
+    
+    <li ><a href="#method-i-ay_music_preserve_io_ports_state">#ay_music_preserve_io_ports_state</a>
+    
+    <li ><a href="#method-i-ay_music_tone_progress_table_factory">#ay_music_tone_progress_table_factory</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-ZXUtils::AYMusic::Macros">
+  <h1 id="module-ZXUtils::AYMusic::Macros" class="module">
+    module ZXUtils::AYMusic::Macros
+  </h1>
+
+  <section class="description">
+    
+<h4 id="module-ZXUtils::AYMusic::Macros-label-AYMusic+engine+utilities."><a href="../AYMusic.html"><code>AYMusic</code></a> engine utilities.<span><a href="#module-ZXUtils::AYMusic::Macros-label-AYMusic+engine+utilities.">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>Some of the <a href="../AYMusic.html"><code>AYMusic</code></a> <a href="Macros.html"><code>Macros</code></a> require <a href="../../Z80/MathInt/Macros.html"><code>Z80::MathInt::Macros</code></a> and some require <a href="../../ZXLib/AYSound/Macros.html"><code>ZXLib::AYSound::Macros</code></a> to be imported.</p>
+</dd></dl>
+
+<pre>require &#39;zxutils/ay_music&#39;
+
+class Program
+  include Z80
+  macro_import    MathInt
+  label_import    ZXLib::Sys
+  macro_import    ZXLib::AYSound
+  macro_import    ZXUtils::AYMusic
+  ...
+end</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-ay_music_finished-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">ay_music_finished?</span><span
+            class="method-args">(music_control)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that detects if the currently playing tracks has ended.</p>
+
+<p><code>ZF</code> is 1 if all of the tracks has reached the end.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>music_control</code>
+<dd>
+<p>A label of the type <a href="MusicControl.html"><code>MusicControl</code></a> addressing the data structure.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="ay_music_finished-3F-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 459</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_finished?</span>(<span class="ruby-identifier">music_control</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+    (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">2</span>).<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span>
+                      <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chans</span>[<span class="ruby-identifier">ch</span>].<span class="ruby-identifier">track</span>.<span class="ruby-identifier">cursor</span>]
+                      <span class="ruby-identifier">cp</span>   [<span class="ruby-identifier">hl</span>]
+                      <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chans</span>[<span class="ruby-identifier">ch</span>].<span class="ruby-identifier">track</span>.<span class="ruby-identifier">delay</span>]
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+                      <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">h</span>
+                      <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-ay_music_init" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">ay_music_init</span><span
+            class="method-args">(track_a, track_b, track_c, index_table:nil, init:self.init, play:self.play, music_control:self.music_control, disable_intr:true, enable_intr:true)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that initializes music tracks and optionally the index lookup table.</p>
+
+<p>Provide addresses of the main tracks as <code>track_a</code>, <code>track_b</code> and <code>track_c</code>.</p>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>index_table</code>
+<dd>
+<p>An address of the index lookup table associated with tracks as an integer, a label or a pointer. <em>Required</em> if AYMusic::READ_ONLY_CODE is <code>true</code>.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>init</code>
+<dd>
+<p>A label addressing the <a href="../AYMusic.html#method-i-init"><code>AYMusic.init</code></a> routine.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>play</code>
+<dd>
+<p>A label addressing the <a href="../AYMusic.html#method-i-play"><code>AYMusic.play</code></a> routine.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>music_control</code>
+<dd>
+<p>A label of the type <a href="MusicControl.html"><code>MusicControl</code></a> addressing the data structure used by the <a href="../AYMusic.html"><code>AYMusic</code></a> routines.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>disable_intr</code>
+<dd>
+<p>A boolean flag indicating that the routine should disable interrupts. Provide <code>false</code> only if you have already disabled the interrupts.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>enable_intr</code>
+<dd>
+<p>A boolean flag indicating that the routine should enable interrupts. Provide <code>false</code> if you need to perform more uninterrupted actions.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>ix</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="ay_music_init-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 274</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_init</span>(<span class="ruby-identifier">track_a</span>, <span class="ruby-identifier">track_b</span>, <span class="ruby-identifier">track_c</span>, <span class="ruby-value">index_table:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">init:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">init</span>, <span class="ruby-value">play:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">play</span>, <span class="ruby-value">music_control:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">music_control</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">track_a</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">track_a</span>) <span class="ruby-keyword">and</span>
+                             <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">track_b</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">track_b</span>) <span class="ruby-keyword">and</span>
+                             <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">track_c</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">track_c</span>) <span class="ruby-keyword">and</span>
+                             (<span class="ruby-identifier">index_table</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">index_table</span>)) <span class="ruby-keyword">and</span>
+                             <span class="ruby-identifier">label?</span>(<span class="ruby-identifier">init</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">label?</span>(<span class="ruby-identifier">play</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">label?</span>(<span class="ruby-identifier">music_control</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;index_table is required with READ_ONLY_CODE&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-constant">AYMusic</span><span class="ruby-operator">::</span><span class="ruby-constant">READ_ONLY_CODE</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">index_table</span>.<span class="ruby-identifier">nil?</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                      <span class="ruby-identifier">di</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">disable_intr</span>
+                      <span class="ruby-identifier">call</span> <span class="ruby-identifier">init</span>
+                      <span class="ruby-identifier">dw</span>   <span class="ruby-identifier">track_a</span>, <span class="ruby-identifier">track_b</span>, <span class="ruby-identifier">track_c</span>
+                      <span class="ruby-identifier">ei</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">enable_intr</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">index_table</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">index_table</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">index_table</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-constant">AYMusic</span><span class="ruby-operator">::</span><span class="ruby-constant">READ_ONLY_CODE</span>
+                      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">index_table</span>], <span class="ruby-identifier">hl</span>
+      <span class="ruby-keyword">else</span>
+                      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">play</span>.<span class="ruby-identifier">index_table_p</span>], <span class="ruby-identifier">hl</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-ay_music_note_to_fine_tone_cursor_table_factory" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">ay_music_note_to_fine_tone_cursor_table_factory</span><span
+            class="method-args">(note_to_cursor, play:nil, num_notes:AYMusic::MAX_NOTES_COUNT, subroutine:false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that builds a note-to-fine tones index table.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>note_to_cursor</code>
+<dd>
+<p>An address of the table to be built (max 192 bytes).</p>
+</dd></dl>
+</li></ul>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>play</code>
+<dd>
+<p>An optional label addressing the <a href="../AYMusic.html"><code>AYMusic</code></a> player&#39;s iteration routine (code re-use optimisation).</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>num_notes</code>
+<dd>
+<p>An optional number of notes to cover which is by default its maximum value: 96.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
+<dd>
+<p>Pass <code>true</code> to use <code>ret</code> instruction on finish.</p>
+</dd></dl>
+</li></ul>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>This macro requires <a href="../../Z80/MathInt/Macros.html"><code>Z80::MathInt::Macros</code></a> to be also imported if <code>play</code> option is not provided.</p>
+</dd></dl>
+
+<p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code> and 1 level of stack.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="ay_music_note_to_fine_tone_cursor_table_factory-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 334</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_note_to_fine_tone_cursor_table_factory</span>(<span class="ruby-identifier">note_to_cursor</span>, <span class="ruby-value">play:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">num_notes:</span><span class="ruby-constant">AYMusic</span><span class="ruby-operator">::</span><span class="ruby-constant">MAX_NOTES_COUNT</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;num_notes should be between 1 and #{AYMusic::MAX_NOTES_COUNT}&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-constant">AYMusic</span><span class="ruby-operator">::</span><span class="ruby-constant">MAX_NOTES_COUNT</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">num_notes</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, (<span class="ruby-value">0</span><span class="ruby-operator">&lt;&lt;</span><span class="ruby-value">8</span>)<span class="ruby-operator">|</span><span class="ruby-value">12</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">note_to_cursor</span>
+    <span class="ruby-identifier">floop</span>             <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>         <span class="ruby-comment"># index = note * 256 * 32 / 12</span>
+                      <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">num_notes</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+                      <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NC</span>
+    <span class="ruby-keyword">else</span>
+                      <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">eoc</span>
+    <span class="ruby-keyword">end</span>
+                      <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>
+                      <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }  <span class="ruby-comment"># note * 32</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># 000ddddd eee00000</span>
+                      <span class="ruby-identifier">anda</span> <span class="ruby-value">0b11100000</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>
+                      <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">d</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, <span class="ruby-identifier">a</span>
+                      <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">play</span>.<span class="ruby-identifier">nil?</span>                        <span class="ruby-comment"># note * 32 / 12</span>
+                      <span class="ruby-identifier">divmod</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:size</span>
+                      <span class="ruby-identifier">divmod</span> <span class="ruby-identifier">l</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">clrrem:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:size</span>
+    <span class="ruby-keyword">else</span>
+                      <span class="ruby-identifier">call</span> <span class="ruby-identifier">play</span>.<span class="ruby-identifier">divmod_hl_c</span>
+    <span class="ruby-keyword">end</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>         <span class="ruby-comment"># note * 256 * 32 / 12</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-value">0</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">play</span>.<span class="ruby-identifier">nil?</span>
+                      <span class="ruby-identifier">divmod</span> <span class="ruby-identifier">l</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">clrrem:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:size</span>
+    <span class="ruby-keyword">else</span>
+                      <span class="ruby-identifier">call</span> <span class="ruby-identifier">play</span>.<span class="ruby-identifier">divmod_hl_c</span>.<span class="ruby-identifier">divmod_rem_l_c</span>
+    <span class="ruby-keyword">end</span>
+                      <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">e</span>
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">d</span>
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">b</span>
+                      <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">floop</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-ay_music_preserve_io_ports_state" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">ay_music_preserve_io_ports_state</span><span
+            class="method-args">(music_control, play, bc_const_loaded:false, io_ay:self.io_ay)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that reads a state of the I/O ports from the AY-3-891x chip and stores it into the player&#39;s register mirror.</p>
+
+<p>Execute this code before each play iteration if you care about preserving the AY general purpose I/O ports&#39; state.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>music_control</code>
+<dd>
+<p>A label of the type <a href="MusicControl.html"><code>MusicControl</code></a> addressing the data structure.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>play</code>
+<dd>
+<p>A label addressing the <a href="../AYMusic.html"><code>AYMusic</code></a> player&#39;s iteration routine.</p>
+</dd></dl>
+</li></ul>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>bc_const_loaded</code>
+<dd>
+<p>If <a href="../../ZXLib/AYSound/Macros.html#method-i-ay_io_load_const_reg_bc"><code>ZXLib::AYSound::Macros.ay_io_load_const_reg_bc</code></a> has been already run and the <code>bc</code> registers&#39; content is preserved since.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>io_ay</code>
+<dd>
+<p>A label containing <code>ay_sel</code>, <code>ay_inp</code> and <code>ay_out</code> sub-labels addressing the AY-3-891x output and select/input I/O bus.</p>
+</dd></dl>
+</li></ul>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>This macro requires <a href="../../ZXLib/AYSound/Macros.html"><code>ZXLib::AYSound::Macros</code></a> to be also imported.</p>
+</dd></dl>
+
+<p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="ay_music_preserve_io_ports_state-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 313</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_preserve_io_ports_state</span>(<span class="ruby-identifier">music_control</span>, <span class="ruby-identifier">play</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                      <span class="ruby-identifier">ay_get_register_value</span>(<span class="ruby-constant">AYMusic</span><span class="ruby-operator">::</span><span class="ruby-constant">MIXER</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-identifier">bc_const_loaded</span>, <span class="ruby-value">io_ay:</span><span class="ruby-identifier">io_ay</span>)
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">ay_registers</span>.<span class="ruby-identifier">mixer</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0b00111111</span>
+                      <span class="ruby-identifier">call</span> <span class="ruby-identifier">play</span>.<span class="ruby-identifier">apply_mask_de</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-ay_music_tone_progress_table_factory" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">ay_music_tone_progress_table_factory</span><span
+            class="method-args">(fine_tones, hz: 440, clock_hz: ZXLib::AYSound::CLOCK_HZ, subroutine:false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that builds a fine tones to AY-3-891x tone periods table.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>fine_tones</code>
+<dd>
+<p>An address of the fine tones table to be built (512 bytes).</p>
+</dd></dl>
+</li></ul>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>hz</code>
+<dd>
+<p>base (middle) frequency in Hz.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>clock_hz</code>
+<dd>
+<p>AY-3-891x clock frequency in Hz.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
+<dd>
+<p>Pass <code>true</code> to use <code>ret</code> instruction on finish.</p>
+</dd></dl>
+</li></ul>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>This macro requires <a href="../../Z80/MathInt/Macros.html"><code>Z80::MathInt::Macros</code></a> to be also imported.</p>
+</dd></dl>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>hl&#39;</code>, <code>b</code>, <code>bc&#39;</code>, <code>de</code>, <code>de&#39;</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="ay_music_tone_progress_table_factory-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 390</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_tone_progress_table_factory</span>(<span class="ruby-identifier">fine_tones</span>, <span class="ruby-value">hz:</span> <span class="ruby-value">440</span>, <span class="ruby-value">clock_hz:</span> <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">AYSound</span><span class="ruby-operator">::</span><span class="ruby-constant">CLOCK_HZ</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
+  <span class="ruby-comment"># CLOCK_HZ=3.5469/2 * 1_000_000</span>
+  <span class="ruby-comment"># STEPS=256</span>
+  <span class="ruby-comment"># aaa=-&gt;(notes, steps) {2**(notes.to_f/steps.to_f/12.0)}</span>
+  <span class="ruby-comment"># a=aaa[-12,STEPS]</span>
+  <span class="ruby-comment">#</span>
+  <span class="ruby-comment"># x0=(CLOCK_HZ / (16.0 * 440.0/STEPS.to_f)).round</span>
+  <span class="ruby-comment"># xf0=(CLOCK_HZ / (16.0 * 440.0/(STEPS.to_f/8)))</span>
+  <span class="ruby-comment"># fc=-&gt;(steps){[2**(-1.0/steps.to_f),(CLOCK_HZ/(16.0*440.0/steps.to_f)).round,(CLOCK_HZ/(16.0*440.0/(steps.to_f/8)))]}</span>
+  <span class="ruby-comment"># a,x0,xf0 = fc[STEPS]</span>
+  <span class="ruby-comment"># a0=(a*65536).round</span>
+  <span class="ruby-comment"># d1=-&gt;(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| puts &quot;#{i.to_s.rjust(4)}:#{x1=x&gt;&gt;3} #{x2=(xf0*a**i).round} #{delta+=(x2-x1).abs}&quot;; ((x*a0)+fi)&gt;&gt;16};delta}</span>
+  <span class="ruby-comment"># dd=-&gt;(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| x1=x&gt;&gt;3; x2=(xf0*a**i).round; delta+=(x2-x1).abs; ((x*a0)+fi)&gt;&gt;16}; delta }</span>
+  <span class="ruby-comment"># dd[16384+8192-673]</span>
+  <span class="ruby-comment"># (-1024..1024).map{|i| [i,dd[16384+8192+i]]}</span>
+  <span class="ruby-comment">#</span>
+  <span class="ruby-comment"># a=2**(1.0/steps.to_f)</span>
+  <span class="ruby-comment"># a0=((a-1.0)*65536).round</span>
+  <span class="ruby-comment"># x0=(CLOCK_HZ / (16.0 * 440.0/STEPS.to_f)/2.0).round</span>
+  <span class="ruby-comment"># xf0=(CLOCK_HZ / (16.0 * 440.0/(STEPS.to_f/8))/2.0)</span>
+  <span class="ruby-comment"># d1=-&gt;(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| puts &quot;#{i.to_s.rjust(4)}:#{x1=(x+4)&gt;&gt;3} #{x2=(xf0*a**i).round} #{delta+=(x2-x1).abs}&quot;; x+(((x*a0)+fi)&gt;&gt;16)};delta}</span>
+  <span class="ruby-comment"># dd=-&gt;(fi){delta=0;(STEPS+1).times.inject(x0){|x,i| x1=(x+4)&gt;&gt;3; x2=(xf0*a**i).round; delta+=(x2-x1).abs; x+(((x*a0)+fi)&gt;&gt;16)};delta}</span>
+  <span class="ruby-comment"># (0..1024).map{|i| [i,dd[16384+2048+i]]}</span>
+  <span class="ruby-comment"># d1[16384+2048+594]</span>
+  <span class="ruby-identifier">steps</span> = <span class="ruby-value">256</span>
+  <span class="ruby-identifier">af</span> = <span class="ruby-value">2</span><span class="ruby-operator">**</span>(<span class="ruby-value">-1.0</span><span class="ruby-operator">/</span><span class="ruby-identifier">steps</span>.<span class="ruby-identifier">to_f</span>)
+  <span class="ruby-identifier">a0</span> = (<span class="ruby-identifier">af</span><span class="ruby-operator">*</span><span class="ruby-value">65536</span>).<span class="ruby-identifier">round</span>
+  <span class="ruby-identifier">fi</span> = <span class="ruby-value">16384</span><span class="ruby-value">+8192</span><span class="ruby-value">-673</span> <span class="ruby-comment"># calculated numerically for given steps</span>
+  <span class="ruby-comment"># xf = (clock_hz/(16.0*hz.to_f/(steps.to_f/8.0)))</span>
+  <span class="ruby-identifier">x0</span> = (<span class="ruby-identifier">clock_hz</span><span class="ruby-operator">/</span>(<span class="ruby-value">16.0</span><span class="ruby-operator">*</span><span class="ruby-identifier">hz</span>.<span class="ruby-identifier">to_f</span><span class="ruby-operator">/</span><span class="ruby-identifier">steps</span>.<span class="ruby-identifier">to_f</span>)).<span class="ruby-identifier">round</span>
+  <span class="ruby-comment"># x=((x*a0)+fi)&gt;&gt;16; x&gt;&gt;3</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">steps</span>
+                      <span class="ruby-identifier">exx</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">fine_tones</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">x0</span>
+    <span class="ruby-identifier">mloop</span>             <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-value">3</span>
+    <span class="ruby-identifier">adjloop</span>           <span class="ruby-identifier">srl</span>  <span class="ruby-identifier">b</span>
+                      <span class="ruby-identifier">rr</span>   <span class="ruby-identifier">c</span>
+                      <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+                      <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">adjloop</span>
+                      <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">c</span>
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">b</span>
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">exx</span>
+                      <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">b</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+                      <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>
+    <span class="ruby-keyword">else</span>
+                      <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">eoc</span>
+    <span class="ruby-keyword">end</span>
+                      <span class="ruby-identifier">exx</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">a0</span>
+                      <span class="ruby-identifier">mul16_32</span> <span class="ruby-identifier">bc</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhlhl:</span><span class="ruby-identifier">fi</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:size</span>
+                      <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">mloop</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+
