@@ -586,15 +586,18 @@ module ZXLib
       # This effectively mutes all sound.
       #
       # Options:
+      # * +t+:: A temporary 8-bit register, one of: +d+, +e+, +h+ or +l+.
       # * +bc_const_loaded+:: If ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
       # * +io_ay+:: A label with +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-3-891x I/O bus.
       #
-      # Modifies: +af+, +bc+.
-      def ay_init(bc_const_loaded:false, io_ay:self.io_ay)
+      # Modifies: +af+, +t+, +bc+.
+      def ay_init(t:e, bc_const_loaded:false, io_ay:self.io_ay)
+        raise ArgumentError unless register?(t) and [d,e,h,l].include?(t)
         isolate do
                         ld   a, AYSound::VOLUME_C
                         ay_io_load_const_reg_bc(io_ay) unless bc_const_loaded
-          vol_res_loop  ay_set_register_value(a, 0, bc_const_loaded:true, io_ay:io_ay)
+                        ld   t, 0
+          vol_res_loop  ay_set_register_value(a, t, bc_const_loaded:true, io_ay:io_ay)
                         dec  a
                         cp   AYSound::MIXER
                         jr   NZ, vol_res_loop
