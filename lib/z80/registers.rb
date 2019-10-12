@@ -12,7 +12,7 @@ module Z80
 		#  There are also special registers internally used by the compiler which indicate indirect memory access:
 		#
 		#    bc_, de_, hl_, iy_, ix_, sp_ # do not use them in your programs
-    #
+		#
 		#  Instead for addressing values with registers in memory use one-element array wrapped
 		#  around a 16bit register:
 		#
