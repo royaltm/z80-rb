@@ -625,7 +625,7 @@ module Z80
 	#
 	#  Pro tip:: Use namespaces: Program.ns extensively in your program.
 	#
-	#  Be carefull, as +loop+ is a ruby statement.
+	#  Be carefull with loops, as +loop+ is a ruby statement.
 	#
 	class Label
 		# This method is being used internally when importing labels from other programs.
@@ -847,6 +847,17 @@ module Z80
 				klass.instance_variable_set '@struct_size', 0
 				klass.instance_variable_set '@members', []
 			end
+			##
+			# Returns a new Ruby +Struct+ from members defined in a data structure.
+			#
+			# Instances of such a +Struct+ are suitable for passing as arguments to Program.data
+			# instead of e.g. +Hash+ instances.
+			#
+			# Member aliases are being ignored when creating a +Struct+.
+			def to_struct
+				raise Syntax, "Label is not a data strucutre" unless defined?(@members)
+				::Struct.new *@members.reject {|_, m| m.alias}.map{|n, _| n.to_sym}
+			end
 			## A data structure's field type.
 			def byte(size = 1)
 				1*size
@@ -883,20 +894,24 @@ module Z80
 				end
 			end
 			## Used by Program.data. Do not use it directly in programs.
-			#  +data+ must be a +Hash+, +Array+, +String+ or a convertible +Object+ (with a +to_z80bin+ method).
+			#  +data+ must be a +Hash+, +Struct+, +Array+, +String+ or a convertible +Object+ (with a +to_z80bin+ method).
 			def to_data(prog, offset, data)
 				unless defined?(@struct_size) && defined?(@members)
 					raise Syntax, "Label is not a data strucutre"
 				end
+				data = data.to_h if data.is_a?(::Struct)
 				if data.is_a?(Hash)
 					res = "\x0"*@struct_size
 					@members.each do |n, m|
-						if data.key?(n.to_sym)
-							items = Array(data[n.to_sym])
+						n = n.to_sym
+						if data.key?(n)
+							item = data[n]
+							items = if item.is_a?(Hash) || item.is_a?(::Struct) then [item] else Array(item) end
 							item_offset = m.offset
 							m.count.times do |index|
 								s = member_item_to_data(prog, m, offset + item_offset, items[index])
-								res[item_offset, size=s.bytesize] = s
+								size = s.bytesize
+								res[item_offset, size] = s
 								item_offset += size
 							end
 						end
@@ -923,7 +938,7 @@ module Z80
 			private
 			def member_item_to_data(prog, m, offset, data)
 				len = m.type.to_i
-				if m.type.respond_to?(:to_data) && (data.respond_to?(:to_ary) || data.is_a?(Hash))
+				if m.type.respond_to?(:to_data) && (data.respond_to?(:to_ary) || data.is_a?(Hash) || data.is_a?(::Struct))
 					m.type.to_data(prog, offset, data)
 				elsif data.respond_to? :to_label
 					Z80::add_reloc(prog, data, len, offset, len == 1 ? :self : nil)
