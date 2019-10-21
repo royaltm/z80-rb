@@ -37,6 +37,7 @@ EXAMPLES = %w[
   labyrinth.rb
   mathi_test.rb
   multifill.rb
+  quat3d128.rb
   stars.rb
   test_music.rb
 ]
