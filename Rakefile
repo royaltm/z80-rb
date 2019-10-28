@@ -61,6 +61,7 @@ UTIL_TESTS = %w[
   zxutils/benchmark.rb
   zxutils/multitasking.rb
   zxutils/multitasking_io.rb
+  zxutils/vec_deque.rb
 ]
 
 desc "Compile utils' tests"
