@@ -340,9 +340,9 @@
 
 <h4 id="method-c-parse_source-label-Note-3A">Note:<span><a href="#method-c-parse_source-label-Note-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
 
-<p>This method doesn&#39;t interpret the BASIC program. A lot of nonsense will be accepted. However the program text is interpreted using a <a href="Basic/Tokenizer.html"><code>Basic::Tokenizer</code></a> and some simple heuristics, mainly to ensure the proper sytax of strings, numbers and some specific expressions:</p>
+<p>This method doesn&#39;t interpret the BASIC program. A lot of nonsense will be accepted. However the program text is interpreted using a <a href="Basic/Tokenizer.html"><code>Basic::Tokenizer</code></a> and some simple heuristics, mainly to ensure a proper syntax of strings, numbers and some specific expressions:</p>
 <ul><li>
-<p>All numbers outside of string literals are followed by a character code 14 and 5 bytes of their internal representation in FP format (see <a href="Math.html"><code>ZXLib::Math</code></a>).</p>
+<p>All numbers outside of string literals are followed by a character code 14 and 5 bytes of their internal representation in the FP format (see <a href="Math.html"><code>ZXLib::Math</code></a>).</p>
 </li><li>
 <p>After every argument of a DEF FN header list a character code 14 and 5 placeholder bytes are being added.</p>
 </li><li>
