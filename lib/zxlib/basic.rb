@@ -458,10 +458,10 @@ module ZXLib
 			#  ====Note:
 			#  This method doesn't interpret the BASIC program. A lot of nonsense will be accepted.
 			#  However the program text is interpreted using a Basic::Tokenizer and some simple heuristics,
-			#  mainly to ensure the proper sytax of strings, numbers and some specific expressions:
+			#  mainly to ensure a proper syntax of strings, numbers and some specific expressions:
 			#
 			#  * All numbers outside of string literals are followed by a character code 14 and 5 bytes of their
-			#    internal representation in FP format (see ZXLib::Math).
+			#    internal representation in the FP format (see ZXLib::Math).
 			#  * After every argument of a DEF FN header list a character code 14 and 5 placeholder bytes
 			#    are being added.
 			#  * Literal strings are being tracked, ensuring they are properly closed.

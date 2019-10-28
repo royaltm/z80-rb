@@ -241,7 +241,7 @@ module Z80
 		#
 		#  For a code:
 		#
-		#  * +address+, +addr+, +org+ return the original code address.
+		#  * +address+, +addr+ and +org+ returns the original code address.
 		#
 		#
 		Header = ::Struct.new :type, :name, :length, :p1, :p2 do
