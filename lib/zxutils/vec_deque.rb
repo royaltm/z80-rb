@@ -48,9 +48,9 @@ module ZXUtils
       ##
       # Creates a routine that checks if the queue is full.
       #
-      # In case +branch_not_full+ is +nil+ the +Z+ flag if set indicates the queue is full.
+      # In case +branch_not_full+ is +nil+ the +Z+ flag, if set, indicates the queue is full.
       #
-      # +vec_deque+:: A label of type VecDeque addressing the queue descriptor.
+      # +vec_deque+:: A label of a type VecDequeState addressing the queue descriptor.
       #
       # Options:
       # * +branch_not_full+:: A target address or a label where to jump to when the queue is NOT full.
@@ -87,9 +87,9 @@ module ZXUtils
       ##
       # Creates a routine that checks if the queue is empty.
       #
-      # In case +branch_not_full+ is +nil+ the +Z+ flag if set indicates the queue is empty.
+      # In case +branch_not_full+ is +nil+ the +Z+ flag, if set, indicates the queue is empty.
       #
-      # +vec_deque+:: A label of type VecDeque addressing the queue descriptor.
+      # +vec_deque+:: A label of a type VecDequeState addressing the queue descriptor.
       #
       # Options:
       # * +branch_not_empty+:: A target address or a label where to jump to when the queue is NOT empty.
@@ -126,7 +126,7 @@ module ZXUtils
       #
       # The length is made available as a 16-bit integer in the +hl+ register.
       #
-      # +vec_deque+:: A label of type VecDeque addressing the queue descriptor.
+      # +vec_deque+:: A label of a type VecDequeState addressing the queue descriptor.
       #
       # Options:
       # * +vec_deque_bot+:: An address or a pointer to memory holding an address of the first
