@@ -45,7 +45,7 @@ EXAMPLES = %w[
 desc "Compile examples"
 task :examples do
   EXAMPLES.each do |example|
-    sh "ruby #{File.join("examples", example)}"
+    sh "ruby -Ilib #{File.join("examples", example)}"
   end
 end
 
