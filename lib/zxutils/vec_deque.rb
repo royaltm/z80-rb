@@ -544,14 +544,12 @@ if __FILE__ == $0
       skip_pop          call random_turn
                         ld   a, d
                         call snake_push_front # color
-                        ex   af, af
                         ld   bc, [cursor]
+                        call paint
                         ld   a, b
                         call snake_push_front # y
                         ld   a, c
                         call snake_push_front # x
-                        ex   af, af
-                        call paint
                         call move
                         2.times { halt }
                         key_pressed?

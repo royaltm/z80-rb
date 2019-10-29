@@ -32,7 +32,7 @@ module ZXLib
           Integer === v && (v|(v-1))+1 == v << 1
       end
       ##
-      # Calculate constant screen pixel line address from x, y pixel position
+      # Calculates a constant screen pixel byte address from the pixel coordinates.
       def xy_to_pixel_addr(x, y, scraddr:0x4000)
           (
               (
@@ -43,19 +43,19 @@ module ZXLib
           ) + scraddr
       end
       ##
-      # Calculate constant screen attribute address from x, y pixel position
+      # Calculates a constant screen attribute address from the pixel coordinates.
       def xy_to_attr_addr(x, y, scraddr:0x4000)
           ( ( (y >> 3) << 5 ) | (x >> 3) ) + scraddr + 0x1800
       end
       ##
-      # Creates a routine that changes bit shift value and the pixel address one pixel to the left.
+      # Creates a routine that changes a bit shift and the pixel address for a one pixel to the left.
       #
       # Modifies: +af+, +al+, +s+.
       #
-      # * +al+:: a register holding the least significant byte of the pixel address to move
-      # * +s+:: a register holding bit shift of the pixel in the range: 0..7
+      # * +al+:: A register holding the least significant byte of the pixel address to move.
+      # * +s+:: A register holding a bit shift value of the pixel in the range: [0-7]
       #
-      # T-states: 14/25
+      # T-states: 14/25.
       def prevpixel(al, s: a)
         unless register?(al) and al.bit8? and register?(s) and s.bit8? and al != s
           raise ArgumentError, "prevpixel: invalid arguments!"
@@ -68,12 +68,12 @@ module ZXLib
         end
       end
       ##
-      # Creates a routine that changes bit shift value and the pixel address one pixel to the right.
+      # Creates a routine that changes a bit shift and the pixel address for a one pixel to the right.
       #
       # Modifies: +af+, +al+, +s+.
       #
-      # * +al+:: a register holding the least significant byte of the pixel address to move
-      # * +s+:: a register holding bit shift of the pixel in the range: 0..7
+      # * +al+:: A register holding the least significant byte of the pixel address to move.
+      # * +s+:: A register holding a bit shift value of the pixel in the range: [0-7]
       #
       # T-states: 23/22 (s ≠ a: 31/30)
       def nextpixel(al, s: a)
@@ -90,23 +90,23 @@ module ZXLib
         end
       end
       ##
-      # Creates a routine that advances to the next screen line address (down) using ah|al registers.
-      # (optionally) returns from subroutine if address goes out of screen area.
+      # Creates a routine that advances to the next line (down) a screen address using ah|al registers.
+      # Optionally returns from a subroutine if an address would advance beyond the screen area.
       #
       # Modifies: +af+, +ah+, +al+.
       #
-      # * +ah+:: input/output register: address high byte
-      # * +al+:: input/output register: address low byte
-      # * +bcheck+:: out of screen check flag:
+      # * +ah+:: A register holding a high byte of a screen address to advance.
+      # * +al+:: A register holding a low byte of a screen address to advance.
+      # * +bcheck+:: Out of screen check flag:
       #              +false+ = disable checking,
-      #              +true+  = issue +ret+ if out of screen (default)
+      #              +true+  = issue +ret+ if out of screen,
       #              +label+ = jump to a label if out of screen,
-      #              +hl+|+ix+|+iy+ = jump to an address in a register if out of screen
-      # * +scraddr+:: screen memory address as an integer or a label, must be a multiple of 0x2000,
-      #               this is being used to prevent overwriting out of screen memory area.
+      #              +hl+|+ix+|+iy+ = jump to an address in a register if out of screen.
+      # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label,
+      #               used only for an out of screen check.
       #
       # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
-      # The code in the given block should not fall through and should end with a jump or +ret+.
+      # The code in the given block should not fall through and should end with a jump or a +ret+.
       #
       # T-states: 
       #
@@ -154,23 +154,23 @@ module ZXLib
           end
       end
       ##
-      # Creates a routine that moves up to the previous screen line address using ah|al registers.
-      # (optionally) returns from subroutine if address goes out of screen area.
+      # Creates a routine that moves up to the previous line a screen address using ah|al registers.
+      # Optionally returns from a subroutine if an address would move out of the screen area.
       #
       # Modifies: +af+, +ah+, +al+.
       #
-      # * +ah+:: input/output register: address high byte
-      # * +al+:: input/output register: address low byte
-      # * +bcheck+:: out of screen check flag:
+      # * +ah+:: A register holding a high byte of a screen address to move.
+      # * +al+:: A register holding a low byte of a screen address to move.
+      # * +bcheck+:: Out of screen check flag:
       #              +false+ = disable checking,
-      #              +true+  = issue +ret+ if out of screen (default)
-      #              +label+ = jump to label if out of screen,
-      #              +hl+|+ix+|+iy+ = jump to address in a register if out of screen
-      # * +scraddr+:: screen memory address as an integer or a label, must be a multiple of 0x2000,
-      #               this is being used to prevent overwriting out of screen memory area.
+      #              +true+  = issue +ret+ if out of screen,
+      #              +label+ = jump to a label if out of screen,
+      #              +hl+|+ix+|+iy+ = jump to an address in a register if out of screen.
+      # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label,
+      #               used only for an out of screen check.
       #
-      # if block is given and +bcheck+ == +true+ evaluates namespaced block instead of +ret+.
-      # The code in the given block should not fall through and should end with a jump.
+      # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
+      # The code in the given block should not fall through and should end with a jump or a +ret+.
       #
       # T-states: 
       #
@@ -218,26 +218,30 @@ module ZXLib
           end
       end
       ##
-      # Creates a routine that converts y,x coordinates to the screen byte address and bits shift.
+      # Creates a routine that converts y,x coordinates to a screen byte address and a bits shift.
       #
       # Modifies: +af+, +s+, +t+, +ah+, +al+.
       #
-      # * +y+:: input register: vertical-coordinate (the +a+ register or the same as: +h+, +l+, +s+ or +t+)
-      # * +x+:: input register: horizontal-coordinate (may be same as: +l+)
-      # * +ah+:: output register: address high
-      # * +al+:: output register: address low
-      # * +s+:: output register: bits shift 0..7
-      # * +t+:: temporary register
-      # * +scraddr+:: screen memory address as an integer or a label, must be a multiple of 0x2000
+      # * +y+:: An 8-bit input register holding a vertical pixel coordinate.
+      #         It must not be the same as the +s+ output register.
+      # * +x+:: An 8-bit input register, except +accumulator+, holding a horizontal pixel coordinate.
+      #         It must not be the same as +ah+, +s+ or +t+.
       #
-      # T-states: 101/104 depending on scraddr (101 for 0x2000, 0x4000, 0x8000)
+      # Options:
+      # * +ah+:: A register holding a high byte of a resulting address.
+      # * +al+:: A register holding a low byte of a resulting address.
+      # * +s+:: A register holding a resulting bits shift: [0-7].
+      # * +t+:: An 8-bit register for temporary operations.
+      # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      #
+      # T-states: 101/104 depending on +scraddr+ (101 for 0x2000, 0x4000, 0x8000)
       #
       # y < a1 a2 h3 h2 h1 l3 l2 l1,  x < x5 x4 x3 x2 x1 s3 s2 s1,
       # h > S  S  S  a1 a2 l3 l2 l1,  l > h3 h2 h1 x5 x4 x3 x2 x1,  s > 0  0  0  0  0  s3 s2 s1
       def xytoscr(y, x, ah:h, al:l, s:b, t:c, scraddr:0x4000)
-          if y == x or [x,ah,al,s,t].include?(a) or [ah,al,s,t].uniq.size != 4 or
-                  ![y, x, ah, al, s, t].all?{|r| register?(r) } or
-                  !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
+          if y == x or y == s or [x,ah,al,s,t].include?(a) or [ah,al,s,t].uniq.size != 4 or
+                [ah, s, t].include?(x) or ![y, x, ah, al, s, t].all?{|r| register?(r) } or
+                !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
               raise ArgumentError, "xytoscr: invalid arguments!"
           end
           isolate do
@@ -292,19 +296,20 @@ module ZXLib
           end
       end
       ##
-      # Creates a routine that converts 0,y coordinates to the screen byte address.
+      # Creates a routine that converts a vertical pixel coordinate to a screen byte address.
       #
-      # Modifies: +af+, +y+, +h+, +l+, +t+.
+      # Modifies: +af+, +ah+, +al+, +t+.
       #
-      # * +y+:: An input register: vertical-coordinate (may be same as: +ah+, +al+ or +a+).
-      # * +ah+:: An output register: address (MSB).
-      # * +al+:: An output register: address (LSB).
-      # * +t+:: A temporary 8-bit register.
-      # * +col+:: An optional 8-bit column number (0-31) as a register (must not be the same as other arguments)
-      #           or an integer or a label.
-      # * +scraddr+:: A screen memory address page as an integer or a label, must be a multiple of 0x2000.
+      # * +y+:: An 8-bit input register holding a vertical pixel coordinate. It must not be the same as +t+.
       #
-      # T-states: 73/81 if +col+ is not nil
+      # Options:
+      # * +ah+:: A register holding a high byte of a resulting address.
+      # * +al+:: A register holding a low byte of a resulting address.
+      # * +col+:: An optional column number [0-31] as a unique 8-bit register or an integer or a label.
+      # * +t+:: An 8-bit register for temporary operations.
+      # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      #
+      # T-states: 73/81/87 if +col+ is: +nil+/+register+/+number+.
       #
       # y < a1 a2 h3 h2 h1 l3 l2 l1,
       # h > S  S  S  a1 a2 l3 l2 l1,  l > h3 h2 h1 0  0  0  0  0
@@ -346,41 +351,51 @@ module ZXLib
           end
       end
       ##
-      # Creates a routine that converts row,col text coordinates to screen byte address.
+      # Creates a routine that converts row and column coordinates to a byte address of a top 8-pixel line.
       #
-      # Modifies: +af+, +r+, +c+, +h+, +l+.
+      # Modifies: +af+, +ah+, +al+.
       #
-      # * +r+:: input register: text row (may be same as: +l+)
-      # * +c+:: input register or a integer: text column  (may be same as: +l+)
-      # * +ah+:: output register: address high
-      # * +al+:: output register: address low (may be same as: +c+, +r+)
-      # * +r_already_in_a+:: when +true+ there's no need to load +r+ to +a+
-      # * +scraddr+:: screen memory address as an integer or a label, must be a multiple of 0x2000
+      # * +row+:: An 8-bit register as a text row [0-23]. +row+ must not be the same as +ah+.
+      # * +col+:: An 8-bit register, except +accumulator+, as a text column [0-31] or an integer or a label.
+      #           If it's a register then it must not be the same as +ah+.
+      #           If +row+ is +accumulator+ then +col+ must not be the same as +al+.
+      #
+      # Options:
+      # * +ah+:: A register holding a high byte of a resulting address.
+      # * +al+:: A register holding a low byte of a resulting address.
+      # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
       #
       # T-states: 43
       #
-      # * T - 4: if +r+ already in +a+
-      # * T + 4: if +c+ is a register
-      # * T + 7: if +c+ is a non-zero integer
-      # * T + 6: if scraddr has more than one bit set
+      # * T + 4: if +col+ is a register.
+      # * T + 7: if +col+ is a non-zero integer.
+      # * T + 6: if +scraddr+ has more than one bit set.
       #
       # r < 0  0  0  5r 4r 3r 2r 1r,  c < 0  0  0  5c 4c 3c 2c 1c,
       # h > 0  1  0  5r 4r 0  0  0,   l < 3r 2r 1r 5c 4c 3c 2c 1c
-      def rctoscr(r, c, ah:h, al:l, r_already_in_a:false, scraddr:0x4000)
-        if r == ah or [r, c, ah, al].include?(a) or [r, c, ah].uniq.size != 3 or ah == al or
-              ![r, ah, al].all?{|r| register?(r) } or
-              !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
+      def rctoscr(row, col=0, ah:h, al:l, scraddr:0x4000)
+        unless register?(ah) and ah.bit8? and register?(al) and al.bit8? and ah != al and ![col, ah, al].include?(a) and
+               ((address?(col) and !pointer?(col)) or (register?(col) and col != ah and col != row and (col != al or row != a))) and
+               (label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
           raise ArgumentError, "rctoscr: invalid arguments!"
         end
         isolate do
-                      ld   a, r unless r_already_in_a
+          if row == a
+                      ld   al, a
+          else
+                      ld   a, row
+          end
                       anda 0b00011000 # a= 0  0  0  H  H  0  0  0
                       ora  (scraddr>>8) unless only_one_bit_set_or_zero?(scraddr)
                       ld   ah, a      # h= S  S  S  H  H  0  0  0
                       xor  (scraddr>>8) unless only_one_bit_set_or_zero?(scraddr)
-                      xor  r          # a= 0  0  0  0  0  r  r  r
+          if row == a
+                      xor  al         # a= 0  0  0  0  0  r  r  r
+          else
+                      xor  row        # a= 0  0  0  0  0  r  r  r
+          end
                       3.times {rrca}  # a= r  r  r  0  0  0  0  0
-                      ora  c unless c == 0
+                      ora  col unless col == 0
                       ld   al, a      # l= r  r  r  c  c  c  c  c
               if only_one_bit_set_or_zero?(scraddr)
                   nbit = Math.log2(scraddr>>8).to_i
@@ -389,61 +404,64 @@ module ZXLib
         end
       end
       ##
-      # Creates a routine that converts row, col text coordinates to attribute address.
+      # Creates a routine that converts row and column coordinates to an address of a color attribute.
       #
-      # Modifies: +af+, +r+, +c+, +h+, +l+.
+      # Modifies: +af+, +ah+, +al+.
       #
-      # * +r+:: input register: text row (may be same as: +l+)
-      # * +c+:: input register or a integer: text column  (may be same as: +l+)
-      # * +ah+:: output register: address high
-      # * +al+:: output register: address low (may be same as: +c+, +r+)
-      # * +r_already_in_a+:: when +true+ there's no need to load +r+ to +a+
-      # * +scraddr+:: screen memory address as an integer or a label, must be a multiple of 0x2000
+      # * +row+:: An 8-bit register as a text row [0-23].
+      # * +col+:: An 8-bit register, except +accumulator+, as a text column [0-31] or an integer or a label.
+      #           If it's a register then it must not be the same as +ah+.
       #
-      # T-states: 53
+      # Options:
+      # * +ah+:: A register holding a high byte of a resulting address.
+      # * +al+:: A register holding a low byte of a resulting address.
+      # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
       #
-      # * T - 4: if +r+ already in +a+
-      # * T + 4: if +c+ is a register
-      # * T + 7: if +c+ is a non-zero integer
+      # T-states: 46/54/57/60 for +col+: +0+/+register+/+al+/+number+, T-4 if +row+ is +accumulator+.
       #
       # r < 0  0  0  5r 4r 3r 2r 1r,  c < 0  0  0  5c 4c 3c 2c 1c,
       # h > 0  1  0  1  1  0  5r 4r,  l < 3r 2r 1r 5c 4c 3c 2c 1c
-      def rctoattr(r, c, ah:h, al:l, r_already_in_a:false, scraddr:0x4000)
-        if r == ah or [r, c, ah, al].include?(a) or [r, c, ah].uniq.size != 3 or ah == al or
-              ![r, ah, al].all?{|r| register?(r) } or
-              !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
+      def rctoattr(row, col=0, ah:h, al:l, scraddr:0x4000)
+        unless register?(ah) and ah.bit8? and register?(al) and al.bit8? and ah != al and ![col, ah, al].include?(a) and
+               ((address?(col) and !pointer?(col)) or (register?(col) and col != ah and col != row)) and
+               (label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
           raise ArgumentError, "rctoattr: invalid arguments!"
         end
         attraddr = scraddr + 0x1800
         isolate do
-              ld   a, r unless r_already_in_a
+              ld   a, row unless row == a
               3.times {rrca}
-              ld   r, a          # r= r r r 0 0 0 H H
-              anda 0b00000011
-              ora  (attraddr>>8)
-              ld   ah, a         # h= S S S 1 1 0 H H
-              xor  (attraddr>>8) # a= 0 0 0 0 0 0 H H
-              xor  r             # a= r r r 0 0 0 0 0
-              ora  c unless c == 0
-              ld   al, a         # l= r r r c c c c c
+              ld   ah, a               # h= L L L x x x H H
+              anda 0b11100000          # a= L L L 0 0 0 0 0
+              add  col unless col == 0 # a= L L L C C C C C
+              ld   al, a               # l= L L L C C C C C
+          if register?(col) && col != al
+              sub  col unless col == 0 # a= L L L 0 0 0 0 0
+              xor  ah                  # a= 0 0 0 x x x H H
+          else
+              ld   a, ah               # h= L L L x x x H H
+              anda 0b00000011          # h= 0 0 0 0 0 0 H H
+          end
+              ora  (attraddr>>8)       # a= S S S 1 1 x H H
+              ld   ah, a               # h= S S S 1 1 x H H
         end
       end
       ##
-      # Creates a routine that advances to the next text line coordinate (down 8 lines) using ah|al registers.
-      # (optionally) returns from subroutine if address goes out of screen area.
+      # Creates a routine that advances to the next text row (down 8 pixels) a screen address using ah|al registers.
+      # Optionally returns from a subroutine if an address would advance beyond the screen area.
       #
       # Modifies: +af+, +ah+, +al+.
       #
-      # * +ah+:: input/output register: address high byte
-      # * +al+:: input/output register: address low byte
-      # * +bcheck+:: boundary check flag:
+      # * +ah+:: A register holding a high byte of a screen address to advance.
+      # * +al+:: A register holding a low byte of a screen address to advance.
+      # * +bcheck+:: Out of screen check flag:
       #              +false+ = disable checking,
-      #              +true+  = issue +ret+ if out of screen (default)
+      #              +true+  = issue +ret+ if out of screen,
       #              +label+ = jump to label if out of screen,
-      #              +hl+|+ix+|+iy+ = jump to address in a register if out of screen
-      # * +scraddr+:: screen memory address as an integer or a label, must be a multiple of 0x2000
+      #              +hl+|+ix+|+iy+ = jump to an address in a register if out of screen.
+      # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
       #
-      # if block is given and +bcheck+ == +true+ evaluates namespaced block instead of +ret+.
+      # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
       #
       # T-states: 
       #
@@ -464,7 +482,7 @@ module ZXLib
                   add  0x20
                   ld   al, a
                   jr   NC, eoc
-          upperdn ld   a, ah
+                  ld   a, ah
                   add  0x08
                   ld   ah, a
               if bcheck
@@ -484,13 +502,15 @@ module ZXLib
           end
       end
       ##
-      # Creates a routine that converts high byte screen address to an address of a relevant attribute.
+      # Creates a routine that converts a high byte of a pixel address to a high byte of an address of a relevant attribute.
       #
       # Modifies: +af+, +o+.
       #
-      # * +s+: input register: hi byte screen address
-      # * +o+: output register: hi byte attr address, may be same as +s+
-      # * +scraddr+:: screen memory address as an integer or a label, must be a multiple of 0x2000
+      # * +s+:: A register holding a high byte of an address to convert.
+      #
+      # Options:
+      # * +o+:: A register holding a high byte of a resulting address. +o+ is the same as +s+ by default.
+      # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
       #
       # T-states: 
       #
@@ -518,7 +538,7 @@ module ZXLib
         end
       end
       ##
-      # Creates a routine that clears a rectangle on an ink screen using unrolled push instructions.
+      # Creates a routine that clears a rectangle on an ink/paper screen memory using unrolled push instructions.
       #
       # _NOTE_:: Interrupts must be disabled prior to calling this routine or the +disable_intr+
       #          option must be set to +true+.
@@ -548,9 +568,9 @@ module ZXLib
         raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
         raise ArgumentError, "cols must be greater than or equal to 2" if cols < 2
         isolate do |_|
+                        di if disable_intr
                         ld   [restore_sp + 1], sp if save_sp
                         ld   c, rows unless rows==c
-                        di if disable_intr
                         ld   hl, address unless address == hl
                         ld   de, 0
                         ld   a, h        # calculate counter based on screen address modulo 8

@@ -833,7 +833,7 @@ class Program
                 pop  bc               # B: width, C: height
 
                 dec  e                # go back to the last drawn screen column
-                nextrow d, e, true    # advance to the next screen line, return when out of screen
+                nextrow d, e, true    # advance to the next screen text row, return when out of screen
                 ld   a, e
                 anda 0b11100000
                 ld   e, a             # set screen column to 0
