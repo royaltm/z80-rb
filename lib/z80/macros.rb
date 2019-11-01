@@ -224,7 +224,7 @@ module Z80
 			#   so flags can be examined later.
 			#
 			# Example:
-			#   cp16n  h,l, d,e, jr_msb_nz: not_equal
+			#   cp16r  h,l, d,e, jr_msb_nz: not_equal
 			#   jr NZ, not_equal
 			#
 			# Modifies: +af+.
