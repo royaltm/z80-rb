@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module Z80::Utils::VecDeque::Macros - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../../";
+  var index_rel_prefix = "../../../";
+</script>
+
+<script src="../../../js/jquery.js"></script>
+<script src="../../../js/darkfish.js"></script>
+
+<link href="../../../css/fonts.css" rel="stylesheet">
+<link href="../../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../../table_of_contents.html#pages">Pages</a>
+    <a href="../../../table_of_contents.html#classes">Classes</a>
+    <a href="../../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-vec_deque_clear">#vec_deque_clear</a>
+    
+    <li ><a href="#method-i-vec_deque_empty-3F">#vec_deque_empty?</a>
+    
+    <li ><a href="#method-i-vec_deque_full-3F">#vec_deque_full?</a>
+    
+    <li ><a href="#method-i-vec_deque_length">#vec_deque_length</a>
+    
+    <li ><a href="#method-i-vec_deque_next_back">#vec_deque_next_back</a>
+    
+    <li ><a href="#method-i-vec_deque_next_front">#vec_deque_next_front</a>
+    
+    <li ><a href="#method-i-vec_deque_pop_back">#vec_deque_pop_back</a>
+    
+    <li ><a href="#method-i-vec_deque_pop_front">#vec_deque_pop_front</a>
+    
+    <li ><a href="#method-i-vec_deque_push_back">#vec_deque_push_back</a>
+    
+    <li ><a href="#method-i-vec_deque_push_front">#vec_deque_push_front</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-Z80::Utils::VecDeque::Macros">
+  <h1 id="module-Z80::Utils::VecDeque::Macros" class="module">
+    module Z80::Utils::VecDeque::Macros
+  </h1>
+
+  <section class="description">
+    
+<h1 id="module-Z80::Utils::VecDeque::Macros-label-Z80-3A-3AUtils-3A-3AVecDeque"><a href="../VecDeque.html"><code>Z80::Utils::VecDeque</code></a><span><a href="#module-Z80::Utils::VecDeque::Macros-label-Z80-3A-3AUtils-3A-3AVecDeque">&para;</a> <a href="#top">&uarr;</a></span></h1>
+
+<p><a href="Macros.html"><code>Macros</code></a> producing routines for working with double ended queues.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-vec_deque_clear" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">vec_deque_clear</span><span
+            class="method-args">(vec_deque, vec_deque_bot:)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that initializes or clears the queue.</p>
+<dl class="rdoc-list note-list"><dt><code>vec_deque</code>
+<dd>
+<p>A label of a type <a href="VecDequeState.html"><code>VecDequeState</code></a> addressing the queue descriptor.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>vec_deque_bot</code>
+<dd>
+<p>An address, a pointer to memory holding an address or <code>hl</code> register holding  an address of the first byte of memory holding the queue values.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="vec_deque_clear-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/vec_deque.rb, line 39</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vec_deque_clear</span>(<span class="ruby-identifier">vec_deque</span>, <span class="ruby-value">vec_deque_bot:</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span>
+                                (<span class="ruby-identifier">vec_deque_bot</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_bot</span>))
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque_bot</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">vec_deque_bot</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>], <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>], <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-vec_deque_empty-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">vec_deque_empty?</span><span
+            class="method-args">(vec_deque, branch_not_empty: nil, branch_relative: true, tt: de)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that checks if the queue is empty.</p>
+
+<p>In case <code>branch_not_full</code> is <code>nil</code> the <code>Z</code> flag, if set, indicates the queue is empty.</p>
+<dl class="rdoc-list note-list"><dt><code>vec_deque</code>
+<dd>
+<p>A label of a type <a href="VecDequeState.html"><code>VecDequeState</code></a> addressing the queue descriptor.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>branch_not_empty</code>
+<dd>
+<p>A target address or a label where to jump to when the queue is NOT empty.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_relative</code>
+<dd>
+<p>If <code>true</code> relative jumps are being used for branching.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>A temporary 16-bit register <code>bc</code> or <code>de</code>.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="vec_deque_empty-3F-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/vec_deque.rb, line 102</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vec_deque_empty?</span>(<span class="ruby-identifier">vec_deque</span>, <span class="ruby-value">branch_not_empty:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">branch_relative:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">tt:</span> <span class="ruby-identifier">de</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span>
+                                (<span class="ruby-identifier">branch_not_empty</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">branch_not_empty</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">branch_not_empty</span>)))
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>]
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>]
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_relative</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_not_empty</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">eoc</span>
+        <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_not_empty</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">eoc</span>
+        <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_not_empty</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_relative</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_not_empty</span>
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_not_empty</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-vec_deque_full-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">vec_deque_full?</span><span
+            class="method-args">(vec_deque, branch_not_full: nil, branch_relative: true, tt: de)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that checks if the queue is full.</p>
+
+<p>In case <code>branch_not_full</code> is <code>nil</code> the <code>Z</code> flag, if set, indicates the queue is full.</p>
+<dl class="rdoc-list note-list"><dt><code>vec_deque</code>
+<dd>
+<p>A label of a type <a href="VecDequeState.html"><code>VecDequeState</code></a> addressing the queue descriptor.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>branch_not_full</code>
+<dd>
+<p>A target address or a label where to jump to when the queue is NOT full.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_relative</code>
+<dd>
+<p>If true relative jumps are being used for branching.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>A temporary 16-bit register <code>bc</code> or <code>de</code>.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="vec_deque_full-3F-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/vec_deque.rb, line 63</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vec_deque_full?</span>(<span class="ruby-identifier">vec_deque</span>, <span class="ruby-value">branch_not_full:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">branch_relative:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">tt:</span> <span class="ruby-identifier">de</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span>
+                                (<span class="ruby-identifier">branch_not_full</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">branch_not_full</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">branch_not_full</span>)))
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>]
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>]
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_relative</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_not_full</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">eoc</span>
+        <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_not_full</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">eoc</span>
+        <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>]
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_not_full</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_relative</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">branch_not_full</span>
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">branch_not_full</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">xor</span>  <span class="ruby-value">-1</span>
+        <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-vec_deque_length" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">vec_deque_length</span><span
+            class="method-args">(vec_deque, vec_deque_bot:, vec_deque_top:, tt: de, subroutine: false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that calculates the current length of the queue.</p>
+
+<p>The length is made available as a 16-bit integer in the <code>hl</code> register.</p>
+<dl class="rdoc-list note-list"><dt><code>vec_deque</code>
+<dd>
+<p>A label of a type <a href="VecDequeState.html"><code>VecDequeState</code></a> addressing the queue descriptor.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>vec_deque_bot</code>
+<dd>
+<p>An address or a pointer to memory holding an address of the first byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vec_deque_top</code>
+<dd>
+<p>An address or a pointer to memory holding an address immediately succeeding the last byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>A temporary 16-bit register <code>bc</code> or <code>de</code>.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
+<dd>
+<p>Pass <code>true</code> for a subroutine.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="vec_deque_length-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/vec_deque.rb, line 142</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vec_deque_length</span>(<span class="ruby-identifier">vec_deque</span>, <span class="ruby-value">vec_deque_bot:</span>, <span class="ruby-value">vec_deque_top:</span>, <span class="ruby-value">tt:</span> <span class="ruby-identifier">de</span>, <span class="ruby-value">subroutine:</span> <span class="ruby-keyword">false</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span>
+                                <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_bot</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_top</span>)
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>]
+                            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>]
+                            <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                            <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">head_before_tail</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+                            <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+        <span class="ruby-keyword">else</span>
+                            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
+        <span class="ruby-keyword">end</span>
+                            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>]
+                            <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+                            <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>
+        <span class="ruby-keyword">else</span>
+                            <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">eoc</span>
+        <span class="ruby-keyword">end</span>
+                            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-value">0</span>
+        <span class="ruby-identifier">head_before_tail</span>    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, <span class="ruby-identifier">vec_deque_top</span>
+                            <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, <span class="ruby-identifier">vec_deque_bot</span>
+                            <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                            <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                            <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-vec_deque_next_back" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">vec_deque_next_back</span><span
+            class="method-args">(vec_deque=nil, vec_deque_bot:, vec_deque_top:, cursor: de, subroutine: false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that reads a byte element from the back of the queue advancing the cursor backwards.</p>
+
+<p>The removed element is provided in <code>accumulator</code>.</p>
+<dl class="rdoc-list note-list"><dt><code>vec_deque</code>
+<dd>
+<p>An optional label of a type <a href="VecDequeState.html"><code>VecDequeState</code></a> addressing the queue descriptor. If provided the cursor is set to the back of the queue first. In this instance it&#39;s possible to skip this part by jumping to <code>get_next</code> sublabel address of the routine being created.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>vec_deque_bot</code>
+<dd>
+<p>An address or a pointer to memory holding an address of the first byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vec_deque_top</code>
+<dd>
+<p>An address or a pointer to memory holding an address immediately succeeding the last byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>cursor</code>
+<dd>
+<p>A 16-bit register <code>bc</code> or <code>de</code> holding the cursor position.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
+<dd>
+<p>Pass <code>true</code> for a subroutine.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="vec_deque_next_back-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/vec_deque.rb, line 439</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vec_deque_next_back</span>(<span class="ruby-identifier">vec_deque</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">vec_deque_bot:</span>, <span class="ruby-value">vec_deque_top:</span>, <span class="ruby-value">cursor:</span> <span class="ruby-identifier">de</span>, <span class="ruby-value">subroutine:</span> <span class="ruby-keyword">false</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">vec_deque</span>))) <span class="ruby-keyword">and</span>
+                        <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_bot</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_top</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cursor</span>)
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">cursor</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>] <span class="ruby-keyword">unless</span> <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">nil?</span>
+        <span class="ruby-identifier">get_next</span>    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque_bot</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">cursor</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">skip_wrap</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">cursor</span>, <span class="ruby-identifier">vec_deque_top</span>
+        <span class="ruby-identifier">skip_wrap</span>   <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">cursor</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">cursor</span>]
+                    <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-vec_deque_next_front" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">vec_deque_next_front</span><span
+            class="method-args">(vec_deque=nil, vec_deque_bot:, vec_deque_top:, cursor: de, subroutine: false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that reads a byte element from the front of the queue advancing the cursor forward.</p>
+
+<p>The removed element is provided in <code>accumulator</code>.</p>
+<dl class="rdoc-list note-list"><dt><code>vec_deque</code>
+<dd>
+<p>An optional label of a type <a href="VecDequeState.html"><code>VecDequeState</code></a> addressing the queue descriptor. If provided the cursor is set to the front of the queue first. In this instance it&#39;s possible to skip this part by jumping to <code>get_next</code> sublabel address of the routine being created.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>vec_deque_bot</code>
+<dd>
+<p>An address or a pointer to memory holding an address of the first byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vec_deque_top</code>
+<dd>
+<p>An address or a pointer to memory holding an address immediately succeeding the last byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>cursor</code>
+<dd>
+<p>A 16-bit register <code>bc</code> or <code>de</code> holding the cursor position.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
+<dd>
+<p>Pass <code>true</code> for a subroutine.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="vec_deque_next_front-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/vec_deque.rb, line 401</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vec_deque_next_front</span>(<span class="ruby-identifier">vec_deque</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">vec_deque_bot:</span>, <span class="ruby-value">vec_deque_top:</span>, <span class="ruby-value">cursor:</span> <span class="ruby-identifier">de</span>, <span class="ruby-value">subroutine:</span> <span class="ruby-keyword">false</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">vec_deque</span>))) <span class="ruby-keyword">and</span>
+                        <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_bot</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_top</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cursor</span>)
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">cursor</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>] <span class="ruby-keyword">unless</span> <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">nil?</span>
+        <span class="ruby-identifier">get_next</span>    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">cursor</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">cursor</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque_top</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">cursor</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
+            <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">cursor</span>, <span class="ruby-identifier">vec_deque_bot</span>
+                    <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-vec_deque_pop_back" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">vec_deque_pop_back</span><span
+            class="method-args">(vec_deque, vec_deque_bot:, vec_deque_top:, branch_on_empty: nil, branch_relative: true, tt: de)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that removes a byte element from the back of the queue.</p>
+
+<p>The removed element is provided in <code>accumulator</code>.</p>
+<dl class="rdoc-list note-list"><dt><code>vec_deque</code>
+<dd>
+<p>A label of a type <a href="VecDequeState.html"><code>VecDequeState</code></a> addressing the queue descriptor.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>vec_deque_bot</code>
+<dd>
+<p>An address or a pointer to memory holding an address of the first byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vec_deque_top</code>
+<dd>
+<p>An address or a pointer to memory holding an address immediately succeeding the last byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_on_empty</code>
+<dd>
+<p>A target address or a label where to jump to when the queue IS empty.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_relative</code>
+<dd>
+<p>If <code>true</code> relative jumps are being used for branching.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>A temporary 16-bit register <code>bc</code> or <code>de</code>.</p>
+</dd></dl>
+</li></ul>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>If <code>branch_on_empty</code> is <code>nil</code> then the check is NOT being performed and the routine created assumes there is at least one element available in the queue.</p>
+</dd></dl>
+
+<p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="vec_deque_pop_back-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/vec_deque.rb, line 244</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vec_deque_pop_back</span>(<span class="ruby-identifier">vec_deque</span>, <span class="ruby-value">vec_deque_bot:</span>, <span class="ruby-value">vec_deque_top:</span>, <span class="ruby-value">branch_on_empty:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">branch_relative:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">tt:</span> <span class="ruby-identifier">de</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span>
+                                <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_bot</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_top</span>)
+    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">branch_on_empty</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">branch_on_empty</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">branch_on_empty</span>))
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;branch_on_empty should be an address&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>]
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_on_empty</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>]
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">pop_value</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>
+                    <span class="ruby-identifier">bit</span>  <span class="ruby-value">0</span>, [<span class="ruby-identifier">hl</span>]
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_relative</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">branch_on_empty</span>
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">branch_on_empty</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">pop_value</span>   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque_bot</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">skip_wrap</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, <span class="ruby-identifier">vec_deque_top</span>
+        <span class="ruby-identifier">skip_wrap</span>   <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">tt</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">tt</span>]
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>], <span class="ruby-identifier">tt</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-vec_deque_pop_front" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">vec_deque_pop_front</span><span
+            class="method-args">(vec_deque, vec_deque_bot:, vec_deque_top:, branch_on_empty: nil, branch_relative: true, tt: de)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that removes a byte element from the front of the queue.</p>
+
+<p>The removed element is provided in <code>accumulator</code>.</p>
+<dl class="rdoc-list note-list"><dt><code>vec_deque</code>
+<dd>
+<p>A label of a type <a href="VecDequeState.html"><code>VecDequeState</code></a> addressing the queue descriptor.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>vec_deque_bot</code>
+<dd>
+<p>An address or a pointer to memory holding an address of the first byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vec_deque_top</code>
+<dd>
+<p>An address or a pointer to memory holding an address immediately succeeding the last byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_on_empty</code>
+<dd>
+<p>A target address or a label where to jump to when the queue IS empty.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_relative</code>
+<dd>
+<p>If <code>true</code> relative jumps are being used for branching.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>A temporary 16-bit register <code>bc</code> or <code>de</code>.</p>
+</dd></dl>
+</li></ul>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>If <code>branch_on_empty</code> is <code>nil</code> then the check is NOT being performed and the routine created assumes there is at least one element available in the queue.</p>
+</dd></dl>
+
+<p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="vec_deque_pop_front-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/vec_deque.rb, line 349</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vec_deque_pop_front</span>(<span class="ruby-identifier">vec_deque</span>, <span class="ruby-value">vec_deque_bot:</span>, <span class="ruby-value">vec_deque_top:</span>, <span class="ruby-value">branch_on_empty:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">branch_relative:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">tt:</span> <span class="ruby-identifier">de</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span>
+                                <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_bot</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_top</span>)
+    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">branch_on_empty</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">branch_on_empty</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">branch_on_empty</span>))
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;branch_on_empty should be an address&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>]
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_on_empty</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>]
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">pop_value</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>
+                    <span class="ruby-identifier">bit</span>  <span class="ruby-value">0</span>, [<span class="ruby-identifier">hl</span>]
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_relative</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">branch_on_empty</span>
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">branch_on_empty</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">pop_value</span>   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">tt</span>]
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">tt</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque_top</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">skip_wrap</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, <span class="ruby-identifier">vec_deque_bot</span>
+        <span class="ruby-identifier">skip_wrap</span>   <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>], <span class="ruby-identifier">tt</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-vec_deque_push_back" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">vec_deque_push_back</span><span
+            class="method-args">(vec_deque, vec_deque_bot:, vec_deque_top:, branch_on_full: nil, branch_relative: true, tt: de)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that appends a byte element to the back of the queue.</p>
+<dl class="rdoc-list note-list"><dt><code>accumulator</code>
+<dd>
+<p>Should hold a value to be pushed to the queue.</p>
+</dd><dt><code>vec_deque</code>
+<dd>
+<p>A label of a type <a href="VecDequeState.html"><code>VecDequeState</code></a> addressing the queue descriptor.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>vec_deque_bot</code>
+<dd>
+<p>An address or a pointer to memory holding an address of the first byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vec_deque_top</code>
+<dd>
+<p>An address or a pointer to memory holding an address immediately succeeding the last byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_on_full</code>
+<dd>
+<p>A target address or a label where to jump to when the queue IS full.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_relative</code>
+<dd>
+<p>If <code>true</code> relative jumps are being used for branching.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>A temporary 16-bit register <code>bc</code> or <code>de</code>.</p>
+</dd></dl>
+</li></ul>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>If <code>branch_on_full</code> is <code>nil</code> then the check is NOT being performed and the routine created assumes there is enough space for another element in the queue.</p>
+</dd></dl>
+
+<p>Modifies: <code>f</code>, <code>hl</code>, <code>tt</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="vec_deque_push_back-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/vec_deque.rb, line 191</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vec_deque_push_back</span>(<span class="ruby-identifier">vec_deque</span>, <span class="ruby-value">vec_deque_bot:</span>, <span class="ruby-value">vec_deque_top:</span>, <span class="ruby-value">branch_on_full:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">branch_relative:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">tt:</span> <span class="ruby-identifier">de</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span>
+                                <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_bot</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_top</span>)
+    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">branch_on_full</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">branch_on_full</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">branch_on_full</span>))
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;branch_on_full should be a direct address&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>]
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_on_full</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>]
+                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">push_value</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>
+                        <span class="ruby-identifier">bit</span>  <span class="ruby-value">0</span>, [<span class="ruby-identifier">hl</span>]
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_relative</span>
+                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_on_full</span>
+            <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_on_full</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">push_value</span>      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">tt</span>], <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">tt</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque_top</span>
+                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                        <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">skip_wrap</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>
+                        <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">-1</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, <span class="ruby-identifier">vec_deque_bot</span>
+        <span class="ruby-identifier">skip_wrap</span>       <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>], <span class="ruby-identifier">tt</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-vec_deque_push_front" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">vec_deque_push_front</span><span
+            class="method-args">(vec_deque, vec_deque_bot:, vec_deque_top:, branch_on_full: nil, branch_relative: true, tt: de)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that appends a byte element to the front of the queue.</p>
+<dl class="rdoc-list note-list"><dt><code>accumulator</code>
+<dd>
+<p>Should hold a value to be pushed to the queue.</p>
+</dd><dt><code>vec_deque</code>
+<dd>
+<p>A label of a type <a href="VecDequeState.html"><code>VecDequeState</code></a> addressing the queue descriptor.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>vec_deque_bot</code>
+<dd>
+<p>An address or a pointer to memory holding an address of the first byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vec_deque_top</code>
+<dd>
+<p>An address or a pointer to memory holding an address immediately succeeding the last byte of memory holding the queue values.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_on_full</code>
+<dd>
+<p>A target address or a label where to jump to when the queue IS full.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_relative</code>
+<dd>
+<p>If <code>true</code> relative jumps are being used for branching.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>A temporary 16-bit register <code>bc</code> or <code>de</code>.</p>
+</dd></dl>
+</li></ul>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>If <code>branch_on_full</code> is <code>nil</code> then the check is NOT being performed and the routine created assumes there is enough space for another element in the queue.</p>
+</dd></dl>
+
+<p>Modifies: <code>f</code>, <code>hl</code>, <code>tt</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="vec_deque_push_front-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/vec_deque.rb, line 296</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vec_deque_push_front</span>(<span class="ruby-identifier">vec_deque</span>, <span class="ruby-value">vec_deque_bot:</span>, <span class="ruby-value">vec_deque_top:</span>, <span class="ruby-value">branch_on_full:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">branch_relative:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">tt:</span> <span class="ruby-identifier">de</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">vec_deque</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span>
+                                <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_bot</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">vec_deque_top</span>)
+    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">branch_on_full</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">branch_on_full</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">branch_on_full</span>))
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;branch_on_full should be a direct address&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>]
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_on_full</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head</span>]
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">push_value</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>
+                    <span class="ruby-identifier">bit</span>  <span class="ruby-value">0</span>, [<span class="ruby-identifier">hl</span>]
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">branch_relative</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_on_full</span>
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_on_full</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">push_value</span>  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque_bot</span>
+                    <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">skip_wrap</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">head_bf_tail</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-value">-1</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, <span class="ruby-identifier">vec_deque_top</span>
+        <span class="ruby-identifier">skip_wrap</span>   <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">tt</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">tt</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">vec_deque</span>.<span class="ruby-identifier">tail</span>], <span class="ruby-identifier">tt</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

@@ -140,7 +140,7 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that clears a rectangle on an ink screen using unrolled push instructions.</p>
+          <p>Creates a routine that clears a rectangle on an ink/paper screen memory using unrolled push instructions.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
 <p>Interrupts must be disabled prior to calling this routine or the <code>disable_intr</code> option must be set to <code>true</code>.</p>
@@ -184,7 +184,7 @@
 
           
           <div class="method-source-code" id="clear_screen_region_fast-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 542</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 562</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">clear_screen_region_fast</span>(<span class="ruby-identifier">address</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">rows</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">2</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;address should be a label or an integer or HL register pair&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">address</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rows should be a label or an integer or a register&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">a</span>,<span class="ruby-identifier">b</span>,<span class="ruby-identifier">c</span>,<span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>,<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">rows</span>) <span class="ruby-keyword">or</span>
@@ -194,9 +194,9 @@
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;cols must be less than or equal to 32&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">cols</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">32</span>
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;cols must be greater than or equal to 2&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">cols</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">2</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">_</span><span class="ruby-operator">|</span>
+                  <span class="ruby-identifier">di</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">disable_intr</span>
                   <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">restore_sp</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>], <span class="ruby-identifier">sp</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">save_sp</span>
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">rows</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">rows</span><span class="ruby-operator">==</span><span class="ruby-identifier">c</span>
-                  <span class="ruby-identifier">di</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">disable_intr</span>
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">address</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-value">0</span>
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>        <span class="ruby-comment"># calculate counter based on screen address modulo 8</span>
@@ -258,28 +258,28 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that advances to the next screen line address (down) using ah|al registers. (optionally) returns from subroutine if address goes out of screen area.</p>
+          <p>Creates a routine that advances to the next line (down) a screen address using ah|al registers. Optionally returns from a subroutine if an address would advance beyond the screen area.</p>
 
 <p>Modifies: <code>af</code>, <code>ah</code>, <code>al</code>.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>ah</code>
 <dd>
-<p>input/output register: address high byte</p>
+<p>A register holding a high byte of a screen address to advance.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
-<p>input/output register: address low byte</p>
+<p>A register holding a low byte of a screen address to advance.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>bcheck</code>
 <dd>
-<p>out of screen check flag: <code>false</code> = disable checking, <code>true</code>  = issue <code>ret</code> if out of screen (default) <code>label</code> = jump to a label if out of screen, <code>hl</code>|<code>ix</code>|<code>iy</code> = jump to an address in a register if out of screen</p>
+<p>Out of screen check flag: <code>false</code> = disable checking, <code>true</code>  = issue <code>ret</code> if out of screen, <code>label</code> = jump to a label if out of screen, <code>hl</code>|<code>ix</code>|<code>iy</code> = jump to an address in a register if out of screen.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
 <dd>
-<p>screen memory address as an integer or a label, must be a multiple of 0x2000, this is being used to prevent overwriting out of screen memory area.</p>
+<p>A screen memory address which must be a multiple of 0x2000 as an integer or a label, used only for an out of screen check.</p>
 </dd></dl>
 </li></ul>
 
-<p>If block is given and <code>bcheck</code> is <code>true</code> evaluates namespaced block instead of <code>ret</code>. The code in the given block should not fall through and should end with a jump or <code>ret</code>.</p>
+<p>If block is given and <code>bcheck</code> is <code>true</code> evaluates namespaced block instead of <code>ret</code>. The code in the given block should not fall through and should end with a jump or a <code>ret</code>.</p>
 
 <p>T-states: </p>
 <ul><li><dl class="rdoc-list note-list"><dt>when <code>bcheck</code> is <code>false</code>
@@ -361,16 +361,16 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that changes bit shift value and the pixel address one pixel to the right.</p>
+          <p>Creates a routine that changes a bit shift and the pixel address for a one pixel to the right.</p>
 
 <p>Modifies: <code>af</code>, <code>al</code>, <code>s</code>.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
-<p>a register holding the least significant byte of the pixel address to move</p>
+<p>A register holding the least significant byte of the pixel address to move.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>s</code>
 <dd>
-<p>a register holding bit shift of the pixel in the range: 0..7</p>
+<p>A register holding a bit shift value of the pixel in the range: [0-7]</p>
 </dd></dl>
 </li></ul>
 
@@ -417,28 +417,28 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that advances to the next text line coordinate (down 8 lines) using ah|al registers. (optionally) returns from subroutine if address goes out of screen area.</p>
+          <p>Creates a routine that advances to the next text row (down 8 pixels) a screen address using ah|al registers. Optionally returns from a subroutine if an address would advance beyond the screen area.</p>
 
 <p>Modifies: <code>af</code>, <code>ah</code>, <code>al</code>.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>ah</code>
 <dd>
-<p>input/output register: address high byte</p>
+<p>A register holding a high byte of a screen address to advance.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
-<p>input/output register: address low byte</p>
+<p>A register holding a low byte of a screen address to advance.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>bcheck</code>
 <dd>
-<p>boundary check flag: <code>false</code> = disable checking, <code>true</code>  = issue <code>ret</code> if out of screen (default) <code>label</code> = jump to label if out of screen, <code>hl</code>|<code>ix</code>|<code>iy</code> = jump to address in a register if out of screen</p>
+<p>Out of screen check flag: <code>false</code> = disable checking, <code>true</code>  = issue <code>ret</code> if out of screen, <code>label</code> = jump to label if out of screen, <code>hl</code>|<code>ix</code>|<code>iy</code> = jump to an address in a register if out of screen.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
 <dd>
-<p>screen memory address as an integer or a label, must be a multiple of 0x2000</p>
+<p>A screen memory address which must be a multiple of 0x2000 as an integer or a label.</p>
 </dd></dl>
 </li></ul>
 
-<p>if block is given and <code>bcheck</code> == <code>true</code> evaluates namespaced block instead of <code>ret</code>.</p>
+<p>If block is given and <code>bcheck</code> is <code>true</code> evaluates namespaced block instead of <code>ret</code>.</p>
 
 <p>T-states: </p>
 <ul><li><dl class="rdoc-list note-list"><dt>when <code>bcheck</code> is <code>false</code>
@@ -455,7 +455,7 @@
 
           
           <div class="method-source-code" id="nextrow-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 452</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 470</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">nextrow</span>(<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">bcheck</span> = <span class="ruby-keyword">true</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">ah</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span>
             (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">bcheck</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span>[<span class="ruby-identifier">hl_</span>, <span class="ruby-identifier">ix_</span>, <span class="ruby-identifier">iy_</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">bcheck</span>)) <span class="ruby-keyword">or</span>
@@ -471,7 +471,7 @@
             <span class="ruby-identifier">add</span>  <span class="ruby-value">0x20</span>
             <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>
             <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">eoc</span>
-    <span class="ruby-identifier">upperdn</span> <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
+            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>
             <span class="ruby-identifier">add</span>  <span class="ruby-value">0x08</span>
             <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">bcheck</span>
@@ -521,7 +521,7 @@
           <div class="method-source-code" id="only_one_bit_set_or_zero-3F-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 31</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">only_one_bit_set_or_zero?</span>(<span class="ruby-identifier">v</span>)
-    <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">v</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-identifier">v</span><span class="ruby-operator">|</span>(<span class="ruby-identifier">v</span><span class="ruby-value">-1</span>))<span class="ruby-value">+1</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">v</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">1</span>
+    <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">v</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-identifier">v</span> <span class="ruby-operator">&amp;</span> (<span class="ruby-identifier">v</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>)) <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -546,28 +546,28 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that moves up to the previous screen line address using ah|al registers. (optionally) returns from subroutine if address goes out of screen area.</p>
+          <p>Creates a routine that moves up to the previous line a screen address using ah|al registers. Optionally returns from a subroutine if an address would move out of the screen area.</p>
 
 <p>Modifies: <code>af</code>, <code>ah</code>, <code>al</code>.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>ah</code>
 <dd>
-<p>input/output register: address high byte</p>
+<p>A register holding a high byte of a screen address to move.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
-<p>input/output register: address low byte</p>
+<p>A register holding a low byte of a screen address to move.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>bcheck</code>
 <dd>
-<p>out of screen check flag: <code>false</code> = disable checking, <code>true</code>  = issue <code>ret</code> if out of screen (default) <code>label</code> = jump to label if out of screen, <code>hl</code>|<code>ix</code>|<code>iy</code> = jump to address in a register if out of screen</p>
+<p>Out of screen check flag: <code>false</code> = disable checking, <code>true</code>  = issue <code>ret</code> if out of screen, <code>label</code> = jump to a label if out of screen, <code>hl</code>|<code>ix</code>|<code>iy</code> = jump to an address in a register if out of screen.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
 <dd>
-<p>screen memory address as an integer or a label, must be a multiple of 0x2000, this is being used to prevent overwriting out of screen memory area.</p>
+<p>A screen memory address which must be a multiple of 0x2000 as an integer or a label, used only for an out of screen check.</p>
 </dd></dl>
 </li></ul>
 
-<p>if block is given and <code>bcheck</code> == <code>true</code> evaluates namespaced block instead of <code>ret</code>. The code in the given block should not fall through and should end with a jump.</p>
+<p>If block is given and <code>bcheck</code> is <code>true</code> evaluates namespaced block instead of <code>ret</code>. The code in the given block should not fall through and should end with a jump or a <code>ret</code>.</p>
 
 <p>T-states: </p>
 <ul><li><dl class="rdoc-list note-list"><dt>when <code>bcheck</code> is <code>false</code>
@@ -649,20 +649,20 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that changes bit shift value and the pixel address one pixel to the left.</p>
+          <p>Creates a routine that changes a bit shift and the pixel address for a one pixel to the left.</p>
 
 <p>Modifies: <code>af</code>, <code>al</code>, <code>s</code>.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
-<p>a register holding the least significant byte of the pixel address to move</p>
+<p>A register holding the least significant byte of the pixel address to move.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>s</code>
 <dd>
-<p>a register holding bit shift of the pixel in the range: 0..7</p>
+<p>A register holding a bit shift value of the pixel in the range: [0-7]</p>
 </dd></dl>
 </li></ul>
 
-<p>T-states: 14/25</p>
+<p>T-states: 14/25.</p>
           
           
 
@@ -694,7 +694,7 @@
         
         <div class="method-heading">
           <span class="method-name">rctoattr</span><span
-            class="method-args">(r, c, ah:h, al:l, r_already_in_a:false, scraddr:0x4000)</span>
+            class="method-args">(row, col=0, ah:h, al:l, scraddr:0x4000)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -703,43 +703,35 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that converts row, col text coordinates to attribute address.</p>
+          <p>Creates a routine that converts row and column coordinates to an address of a color attribute.</p>
 
-<p>Modifies: <code>af</code>, <code>r</code>, <code>c</code>, <code>h</code>, <code>l</code>.</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>r</code>
+<p>Modifies: <code>af</code>, <code>ah</code>, <code>al</code>.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>row</code>
 <dd>
-<p>input register: text row (may be same as: <code>l</code>)</p>
+<p>An 8-bit register as a text row [0-23].</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>c</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>col</code>
 <dd>
-<p>input register or a integer: text column  (may be same as: <code>l</code>)</p>
+<p>An 8-bit register, except <code>accumulator</code>, as a text column [0-31] or an integer or a label. If it&#39;s a register then it must not be the same as <code>ah</code>.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>ah</code>
+</li></ul>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>ah</code>
 <dd>
-<p>output register: address high</p>
+<p>A register holding a high byte of a resulting address.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
-<p>output register: address low (may be same as: <code>c</code>, <code>r</code>)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>r_already_in_a</code>
-<dd>
-<p>when <code>true</code> there&#39;s no need to load <code>r</code> to <code>a</code></p>
+<p>A register holding a low byte of a resulting address.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
 <dd>
-<p>screen memory address as an integer or a label, must be a multiple of 0x2000</p>
+<p>A screen memory address which must be a multiple of 0x2000 as an integer or a label.</p>
 </dd></dl>
 </li></ul>
 
-<p>T-states: 53</p>
-<ul><li>
-<p>T - 4: if <code>r</code> already in <code>a</code></p>
-</li><li>
-<p>T + 4: if <code>c</code> is a register</p>
-</li><li>
-<p>T + 7: if <code>c</code> is a non-zero integer</p>
-</li></ul>
+<p>T-states: 46/54/57/60 for <code>col</code>: <code>0</code>/<code>register</code>/<code>al</code>/<code>number</code>, T-4 if <code>row</code> is <code>accumulator</code>.</p>
 
 <p>r &lt; 0  0  0  5r 4r 3r 2r 1r,  c &lt; 0  0  0  5c 4c 3c 2c 1c, h &gt; 0  1  0  1  1  0  5r 4r,  l &lt; 3r 2r 1r 5c 4c 3c 2c 1c</p>
           
@@ -747,25 +739,30 @@
 
           
           <div class="method-source-code" id="rctoattr-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 411</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rctoattr</span>(<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">r_already_in_a:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
-  <span class="ruby-keyword">if</span> <span class="ruby-identifier">r</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">ah</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">ah</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">3</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">ah</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">or</span>
-        <span class="ruby-operator">!</span>[<span class="ruby-identifier">r</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) } <span class="ruby-keyword">or</span>
-        <span class="ruby-operator">!</span>(<span class="ruby-identifier">label?</span>(<span class="ruby-identifier">scraddr</span>) <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)))
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 424</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rctoattr</span>(<span class="ruby-identifier">row</span>, <span class="ruby-identifier">col</span>=<span class="ruby-value">0</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
+  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">ah</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">al</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">al</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">ah</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span>[<span class="ruby-identifier">col</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">and</span>
+         ((<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">col</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">col</span>)) <span class="ruby-keyword">or</span> (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">col</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">col</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">ah</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">col</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">row</span>)) <span class="ruby-keyword">and</span>
+         (<span class="ruby-identifier">label?</span>(<span class="ruby-identifier">scraddr</span>) <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)))
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rctoattr: invalid arguments!&quot;</span>
   <span class="ruby-keyword">end</span>
   <span class="ruby-identifier">attraddr</span> = <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">+</span> <span class="ruby-value">0x1800</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">r</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">r_already_in_a</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">row</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">row</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
         <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> {<span class="ruby-identifier">rrca</span>}
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">r</span>, <span class="ruby-identifier">a</span>          <span class="ruby-comment"># r= r r r 0 0 0 H H</span>
-        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000011</span>
-        <span class="ruby-identifier">ora</span>  (<span class="ruby-identifier">attraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>)
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># h= S S S 1 1 0 H H</span>
-        <span class="ruby-identifier">xor</span>  (<span class="ruby-identifier">attraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-comment"># a= 0 0 0 0 0 0 H H</span>
-        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">r</span>             <span class="ruby-comment"># a= r r r 0 0 0 0 0</span>
-        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">c</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">c</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># l= r r r c c c c c</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>               <span class="ruby-comment"># h= L L L x x x H H</span>
+        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b11100000</span>          <span class="ruby-comment"># a= L L L 0 0 0 0 0</span>
+        <span class="ruby-identifier">add</span>  <span class="ruby-identifier">col</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">col</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span> <span class="ruby-comment"># a= L L L C C C C C</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>               <span class="ruby-comment"># l= L L L C C C C C</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">col</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">col</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">al</span>
+        <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">col</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">col</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span> <span class="ruby-comment"># a= L L L 0 0 0 0 0</span>
+        <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">ah</span>                  <span class="ruby-comment"># a= 0 0 0 x x x H H</span>
+    <span class="ruby-keyword">else</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">ah</span>               <span class="ruby-comment"># h= L L L x x x H H</span>
+        <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000011</span>          <span class="ruby-comment"># h= 0 0 0 0 0 0 H H</span>
+    <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">ora</span>  (<span class="ruby-identifier">attraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>)       <span class="ruby-comment"># a= S S S 1 1 x H H</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>               <span class="ruby-comment"># h= S S S 1 1 x H H</span>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -782,7 +779,7 @@
         
         <div class="method-heading">
           <span class="method-name">rctoscr</span><span
-            class="method-args">(r, c, ah:h, al:l, r_already_in_a:false, scraddr:0x4000)</span>
+            class="method-args">(row, col=0, ah:h, al:l, scraddr:0x4000)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -791,44 +788,41 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that converts row,col text coordinates to screen byte address.</p>
+          <p>Creates a routine that converts row and column coordinates to a byte address of a top 8-pixel line.</p>
 
-<p>Modifies: <code>af</code>, <code>r</code>, <code>c</code>, <code>h</code>, <code>l</code>.</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>r</code>
+<p>Modifies: <code>af</code>, <code>ah</code>, <code>al</code>.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>row</code>
 <dd>
-<p>input register: text row (may be same as: <code>l</code>)</p>
+<p>An 8-bit register as a text row [0-23]. <code>row</code> must not be the same as <code>ah</code>.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>c</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>col</code>
 <dd>
-<p>input register or a integer: text column  (may be same as: <code>l</code>)</p>
+<p>An 8-bit register, except <code>accumulator</code>, as a text column [0-31] or an integer or a label. If it&#39;s a register then it must not be the same as <code>ah</code>. If <code>row</code> is <code>accumulator</code> then <code>col</code> must not be the same as <code>al</code>.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>ah</code>
+</li></ul>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>ah</code>
 <dd>
-<p>output register: address high</p>
+<p>A register holding a high byte of a resulting address.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>al</code>
 <dd>
-<p>output register: address low (may be same as: <code>c</code>, <code>r</code>)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>r_already_in_a</code>
-<dd>
-<p>when <code>true</code> there&#39;s no need to load <code>r</code> to <code>a</code></p>
+<p>A register holding a low byte of a resulting address.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
 <dd>
-<p>screen memory address as an integer or a label, must be a multiple of 0x2000</p>
+<p>A screen memory address which must be a multiple of 0x2000 as an integer or a label.</p>
 </dd></dl>
 </li></ul>
 
 <p>T-states: 43</p>
 <ul><li>
-<p>T - 4: if <code>r</code> already in <code>a</code></p>
+<p>T + 4: if <code>col</code> is a register.</p>
 </li><li>
-<p>T + 4: if <code>c</code> is a register</p>
+<p>T + 7: if <code>col</code> is a non-zero integer.</p>
 </li><li>
-<p>T + 7: if <code>c</code> is a non-zero integer</p>
-</li><li>
-<p>T + 6: if scraddr has more than one bit set</p>
+<p>T + 6: if <code>scraddr</code> has more than one bit set.</p>
 </li></ul>
 
 <p>r &lt; 0  0  0  5r 4r 3r 2r 1r,  c &lt; 0  0  0  5c 4c 3c 2c 1c, h &gt; 0  1  0  5r 4r 0  0  0,   l &lt; 3r 2r 1r 5c 4c 3c 2c 1c</p>
@@ -837,22 +831,30 @@
 
           
           <div class="method-source-code" id="rctoscr-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 369</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rctoscr</span>(<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">r_already_in_a:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
-  <span class="ruby-keyword">if</span> <span class="ruby-identifier">r</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">ah</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">r</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">ah</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">3</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">ah</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">or</span>
-        <span class="ruby-operator">!</span>[<span class="ruby-identifier">r</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) } <span class="ruby-keyword">or</span>
-        <span class="ruby-operator">!</span>(<span class="ruby-identifier">label?</span>(<span class="ruby-identifier">scraddr</span>) <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)))
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 376</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rctoscr</span>(<span class="ruby-identifier">row</span>, <span class="ruby-identifier">col</span>=<span class="ruby-value">0</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
+  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">ah</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">ah</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">al</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">al</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">ah</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span>[<span class="ruby-identifier">col</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">and</span>
+         ((<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">col</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">col</span>)) <span class="ruby-keyword">or</span> (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">col</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">col</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">ah</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">col</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">row</span> <span class="ruby-keyword">and</span> (<span class="ruby-identifier">col</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">al</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">row</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">a</span>))) <span class="ruby-keyword">and</span>
+         (<span class="ruby-identifier">label?</span>(<span class="ruby-identifier">scraddr</span>) <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)))
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rctoscr: invalid arguments!&quot;</span>
   <span class="ruby-keyword">end</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
-                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">r</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">r_already_in_a</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">row</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>
+    <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">row</span>
+    <span class="ruby-keyword">end</span>
                 <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00011000</span> <span class="ruby-comment"># a= 0  0  0  H  H  0  0  0</span>
                 <span class="ruby-identifier">ora</span>  (<span class="ruby-identifier">scraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">only_one_bit_set_or_zero?</span>(<span class="ruby-identifier">scraddr</span>)
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># h= S  S  S  H  H  0  0  0</span>
                 <span class="ruby-identifier">xor</span>  (<span class="ruby-identifier">scraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">only_one_bit_set_or_zero?</span>(<span class="ruby-identifier">scraddr</span>)
-                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">r</span>          <span class="ruby-comment"># a= 0  0  0  0  0  r  r  r</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">row</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">al</span>         <span class="ruby-comment"># a= 0  0  0  0  0  r  r  r</span>
+    <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">row</span>        <span class="ruby-comment"># a= 0  0  0  0  0  r  r  r</span>
+    <span class="ruby-keyword">end</span>
                 <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> {<span class="ruby-identifier">rrca</span>}  <span class="ruby-comment"># a= r  r  r  0  0  0  0  0</span>
-                <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">c</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">c</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
+                <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">col</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">col</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">al</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># l= r  r  r  c  c  c  c  c</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">only_one_bit_set_or_zero?</span>(<span class="ruby-identifier">scraddr</span>)
             <span class="ruby-identifier">nbit</span> = <span class="ruby-constant">Math</span>.<span class="ruby-identifier">log2</span>(<span class="ruby-identifier">scraddr</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>).<span class="ruby-identifier">to_i</span>
@@ -883,16 +885,23 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that converts high byte screen address to an address of a relevant attribute.</p>
+          <p>Creates a routine that converts a high byte of a pixel address to a high byte of an address of a relevant attribute.</p>
 
 <p>Modifies: <code>af</code>, <code>o</code>.</p>
-<ul><li>
-<p><code>s</code>: input register: hi byte screen address</p>
-</li><li>
-<p><code>o</code>: output register: hi byte attr address, may be same as <code>s</code></p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>s</code>
+<dd>
+<p>A register holding a high byte of an address to convert.</p>
+</dd></dl>
+</li></ul>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>o</code>
+<dd>
+<p>A register holding a high byte of a resulting address. <code>o</code> is the same as <code>s</code> by default.</p>
+</dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
 <dd>
-<p>screen memory address as an integer or a label, must be a multiple of 0x2000</p>
+<p>A screen memory address which must be a multiple of 0x2000 as an integer or a label.</p>
 </dd></dl>
 </li></ul>
 
@@ -913,7 +922,7 @@
 
           
           <div class="method-source-code" id="scrtoattr-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 504</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 524</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">scrtoattr</span>(<span class="ruby-identifier">s</span>, <span class="ruby-value">o:</span><span class="ruby-identifier">s</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
     <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">i</span>, <span class="ruby-identifier">o</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) } <span class="ruby-keyword">and</span>
            (<span class="ruby-identifier">label?</span>(<span class="ruby-identifier">scraddr</span>) <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)))
@@ -953,7 +962,7 @@
 
         <div class="method-description">
           
-          <p>Calculate constant screen attribute address from x, y pixel position</p>
+          <p>Calculates a constant screen attribute address from the pixel coordinates.</p>
           
           
 
@@ -986,7 +995,7 @@
 
         <div class="method-description">
           
-          <p>Calculate constant screen pixel line address from x, y pixel position</p>
+          <p>Calculates a constant screen pixel byte address from the pixel coordinates.</p>
           
           
 
@@ -1025,40 +1034,43 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that converts y,x coordinates to the screen byte address and bits shift.</p>
+          <p>Creates a routine that converts y,x coordinates to a screen byte address and a bits shift.</p>
 
 <p>Modifies: <code>af</code>, <code>s</code>, <code>t</code>, <code>ah</code>, <code>al</code>.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>y</code>
 <dd>
-<p>input register: vertical-coordinate (the <code>a</code> register or the same as: <code>h</code>, <code>l</code>, <code>s</code> or <code>t</code>)</p>
+<p>An 8-bit input register holding a vertical pixel coordinate. It must not be the same as the <code>s</code> output register.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>x</code>
 <dd>
-<p>input register: horizontal-coordinate (may be same as: <code>l</code>)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>ah</code>
-<dd>
-<p>output register: address high</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>al</code>
-<dd>
-<p>output register: address low</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>s</code>
-<dd>
-<p>output register: bits shift 0..7</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>t</code>
-<dd>
-<p>temporary register</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
-<dd>
-<p>screen memory address as an integer or a label, must be a multiple of 0x2000</p>
+<p>An 8-bit input register, except <code>accumulator</code>, holding a horizontal pixel coordinate. It must not be the same as <code>ah</code>, <code>s</code> or <code>t</code>.</p>
 </dd></dl>
 </li></ul>
 
-<p>T-states: 101/104 depending on scraddr (101 for 0x2000, 0x4000, 0x8000)</p>
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>ah</code>
+<dd>
+<p>A register holding a high byte of a resulting address.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>al</code>
+<dd>
+<p>A register holding a low byte of a resulting address.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>s</code>
+<dd>
+<p>A register holding a resulting bits shift: [0-7].</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>t</code>
+<dd>
+<p>An 8-bit register for temporary operations.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>A screen memory address which must be a multiple of 0x2000 as an integer or a label.</p>
+</dd></dl>
+</li></ul>
+
+<p>T-states: 101/104 depending on <code>scraddr</code> (101 for 0x2000, 0x4000, 0x8000)</p>
 
 <p>y &lt; a1 a2 h3 h2 h1 l3 l2 l1,  x &lt; x5 x4 x3 x2 x1 s3 s2 s1, h &gt; S  S  S  a1 a2 l3 l2 l1,  l &gt; h3 h2 h1 x5 x4 x3 x2 x1,  s &gt; 0  0  0  0  0  s3 s2 s1</p>
           
@@ -1066,11 +1078,11 @@
 
           
           <div class="method-source-code" id="xytoscr-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 237</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 241</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">xytoscr</span>(<span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">s:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">x</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">x</span>,<span class="ruby-identifier">ah</span>,<span class="ruby-identifier">al</span>,<span class="ruby-identifier">s</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ah</span>,<span class="ruby-identifier">al</span>,<span class="ruby-identifier">s</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">4</span> <span class="ruby-keyword">or</span>
-            <span class="ruby-operator">!</span>[<span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">s</span>, <span class="ruby-identifier">t</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) } <span class="ruby-keyword">or</span>
-            <span class="ruby-operator">!</span>(<span class="ruby-identifier">label?</span>(<span class="ruby-identifier">scraddr</span>) <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)))
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">x</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">s</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">x</span>,<span class="ruby-identifier">ah</span>,<span class="ruby-identifier">al</span>,<span class="ruby-identifier">s</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ah</span>,<span class="ruby-identifier">al</span>,<span class="ruby-identifier">s</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">4</span> <span class="ruby-keyword">or</span>
+          [<span class="ruby-identifier">ah</span>, <span class="ruby-identifier">s</span>, <span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">x</span>) <span class="ruby-keyword">or</span> <span class="ruby-operator">!</span>[<span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">s</span>, <span class="ruby-identifier">t</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) } <span class="ruby-keyword">or</span>
+          <span class="ruby-operator">!</span>(<span class="ruby-identifier">label?</span>(<span class="ruby-identifier">scraddr</span>) <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)))
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;xytoscr: invalid arguments!&quot;</span>
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -1147,36 +1159,39 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that converts 0,y coordinates to the screen byte address.</p>
+          <p>Creates a routine that converts a vertical pixel coordinate to a screen byte address.</p>
 
-<p>Modifies: <code>af</code>, <code>y</code>, <code>h</code>, <code>l</code>, <code>t</code>.</p>
+<p>Modifies: <code>af</code>, <code>ah</code>, <code>al</code>, <code>t</code>.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>y</code>
 <dd>
-<p>An input register: vertical-coordinate (may be same as: <code>ah</code>, <code>al</code> or <code>a</code>).</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>ah</code>
-<dd>
-<p>An output register: address (MSB).</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>al</code>
-<dd>
-<p>An output register: address (LSB).</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>t</code>
-<dd>
-<p>A temporary 8-bit register.</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>col</code>
-<dd>
-<p>An optional 8-bit column number (0-31) as a register (must not be the same as other arguments) or an integer or a label.</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
-<dd>
-<p>A screen memory address page as an integer or a label, must be a multiple of 0x2000.</p>
+<p>An 8-bit input register holding a vertical pixel coordinate. It must not be the same as <code>t</code>.</p>
 </dd></dl>
 </li></ul>
 
-<p>T-states: 73/81 if <code>col</code> is not nil</p>
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>ah</code>
+<dd>
+<p>A register holding a high byte of a resulting address.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>al</code>
+<dd>
+<p>A register holding a low byte of a resulting address.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>col</code>
+<dd>
+<p>An optional column number [0-31] as a unique 8-bit register or an integer or a label.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>t</code>
+<dd>
+<p>An 8-bit register for temporary operations.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>A screen memory address which must be a multiple of 0x2000 as an integer or a label.</p>
+</dd></dl>
+</li></ul>
+
+<p>T-states: 73/81/87 if <code>col</code> is: <code>nil</code>/<code>register</code>/<code>number</code>.</p>
 
 <p>y &lt; a1 a2 h3 h2 h1 l3 l2 l1, h &gt; S  S  S  a1 a2 l3 l2 l1,  l &gt; h3 h2 h1 0  0  0  0  0</p>
           
@@ -1184,7 +1199,7 @@
 
           
           <div class="method-source-code" id="ytoscr-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 311</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 316</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ytoscr</span>(<span class="ruby-identifier">y</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">col:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
     <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ah</span>,<span class="ruby-identifier">al</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">ah</span>,<span class="ruby-identifier">al</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">!=</span> <span class="ruby-value">3</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">y</span> <span class="ruby-keyword">or</span>
             <span class="ruby-operator">!</span>[<span class="ruby-identifier">y</span>, <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span>, <span class="ruby-identifier">t</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">r</span>) } <span class="ruby-keyword">or</span>
