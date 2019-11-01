@@ -469,7 +469,7 @@ module Z80
             # Creates a routine that performs a multiplication of an 8-bit integer +k+ * 8-bit unsigned +m+.
             # Returns the result as a 16-bit integer in +hl+.
             #
-            # Creates a fast, unrolled code so +m+ should be a constant value in the range: 0..255.
+            # Creates a fast, unrolled code so +m+ should be a constant value in the range: 0..256.
             #
             # Optionally the result in the +hl+ is being accumulated.
             #
@@ -478,30 +478,90 @@ module Z80
             # Uses: +f+, +hl+, +tt+, optionally preserves: +k+.
             #
             # * +k+::        A multiplicant as an immediate value or an 8-bit register.
-            # * +m+::        A multiplicator value as a constant 8-bit integer.
+            # * +m+::        A multiplicator value as a constant integer.
             # Options:
             # * +tt+::       A 16-bit temporary register (+de+ or +bc+).
             # * +clrhl+::    If the result should be set or accumulated, if +false+ acts like: +hl+ += +k+ * +m+.
             # * +signed_k+:: If the multiplicant (+k+) represents a twos complement signed integer (-128..127).
             def mul_const(k=d, m=0, tt:de, clrhl:true, signed_k:false)
+                raise ArgumentError unless tt != hl and m.is_a?(Integer) and (0..256).include?(m)
+                tt = hl if clrhl and (m & (m - 1)) == 0
                 th, tl = tt.split
-                raise ArgumentError unless tt != hl and m.is_a?(Integer) and (0..255).include?(m)
-                isolate do
-                            ld   th, k unless k == th
-                            ld   tl, 0
-                    if clrhl
-                            ld   h, tl
-                            ld   l, tl
+                rzeropad = 0
+                lzeropad = 0
+                if m == 0
+                    return isolate do
+                            ld   hl, 0 if clrhl
                     end
-                    begin
+                elsif m == 256
+                    lzeropad = -1
+                else
+                    tm = m
+                    while tm & 0x01 == 0
+                        rzeropad += 1
+                        tm >>= 1
+                    end
+                    tm = m
+                    while tm & 0x80 == 0
+                        lzeropad += 1
+                        tm = (tm << 1) & 0xFF
+                    end
+                    lzeropad -= 1 if signed_k
+                end
+                isolate do
+                    if lzeropad >= rzeropad or (clrhl and m == 16)
                         if signed_k
-                            sra  th
+                                ld   tl, k unless k == th
+                                ld   th, 0
+                                bit  7, tl
+                                jr   Z, sk_neg
+                                dec  th
+                        sk_neg  label
                         else
-                            srl  th
+                                ld   tl, k unless k == tl
+                                ld   th, 0
                         end
-                            rr   tl
-                            add  hl, tt if (m & 0x80) == 0x80
-                    end while (m = (m << 1) & 0xFF) != 0
+                        if tt == hl
+                            while (m >>= 1) != 0
+                                add  hl, tt
+                            end
+                        else
+                            while m != 0
+                                if (m & 0x01) != 0
+                                    if clrhl
+                                        clrhl = false
+                                        ld16 hl, tt
+                                    else
+                                        add  hl, tt
+                                    end
+                                end
+                                break if (m >>= 1) == 0
+                                sla  tl
+                                rl   th
+                            end
+                        end
+                    else
+                                ld   th, k unless k == th
+                                ld   tl, 0
+                        while m != 0
+                            if tt != hl && (m & 0x100) != 0
+                                if clrhl
+                                    clrhl = false
+                                    ld16 hl, tt
+                                else
+                                    add  hl, tt
+                                end
+                            end
+                            break if (m & 0xFF) == 0
+                            if signed_k
+                                sra  th
+                            else
+                                srl  th
+                            end
+                                rr   tl
+                            m <<= 1
+                        end
+                    end
                 end
             end
             ##
