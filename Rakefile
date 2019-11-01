@@ -53,6 +53,7 @@ UTIL_TESTS = %w[
   z80/stdlib.rb
   z80/utils/shuffle.rb
   z80/utils/sincos.rb
+  z80/utils/vec_deque.rb
   zxlib/math.rb
   zxlib/gfx/draw.rb
   zxlib/ay_sound.rb
@@ -61,7 +62,6 @@ UTIL_TESTS = %w[
   zxutils/benchmark.rb
   zxutils/multitasking.rb
   zxutils/multitasking_io.rb
-  zxutils/vec_deque.rb
 ]
 
 desc "Compile utils' tests"
