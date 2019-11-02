@@ -469,7 +469,7 @@ module Z80
             # Creates a routine that performs a multiplication of an 8-bit integer +k+ * 8-bit unsigned +m+.
             # Returns the result as a 16-bit integer in +hl+.
             #
-            # Creates a fast, unrolled code so +m+ should be a constant value in the range: 0..256.
+            # Creates an optimized, unrolled code so +m+ should be a constant value in the range: 0..256.
             #
             # Optionally the result in the +hl+ is being accumulated.
             #
@@ -487,55 +487,94 @@ module Z80
                 raise ArgumentError unless tt != hl and m.is_a?(Integer) and (0..256).include?(m)
                 tt = hl if clrhl and (m & (m - 1)) == 0
                 th, tl = tt.split
-                rzeropad = 0
-                lzeropad = 0
                 if m == 0
                     return isolate do
                             ld   hl, 0 if clrhl
                     end
-                elsif m == 256
-                    lzeropad = -1
-                else
-                    tm = m
-                    while tm & 0x01 == 0
-                        rzeropad += 1
-                        tm >>= 1
+                end
+                ml, tsl, clrhlt = m, 4+7, clrhl
+                tsl += 19.5 if signed_k
+                while (ml & 1) == 0
+                    tsl += 11
+                    ml >>= 1
+                end if clrhlt
+                just_cleared = false
+                while tt != hl
+                    if (ml & 1) != 0
+                        tsl += if clrhlt
+                            clrhlt = false
+                            just_cleared = true
+                            8
+                        else
+                            just_cleared = false
+                            11
+                        end
                     end
-                    tm = m
-                    while tm & 0x80 == 0
-                        lzeropad += 1
-                        tm = (tm << 1) & 0xFF
+                    break if (ml >>= 1) == 0
+                    if tt == de and ((ml & 1) == 0 or ml == 1)
+                        tsl += 4 unless just_cleared
+                        tsl += 11
+                        while (ml & 1) == 0
+                            tsl += 11
+                            ml >>= 1
+                        end
+                        tsl += 4 if ml != 1
+                    else
+                        tsl += 8
                     end
-                    lzeropad -= 1 if signed_k
+                end
+                mr, tsr, clrhlt = m, 4+7, clrhl
+                while mr != 0
+                    if tt != hl and (mr & 0x100) != 0
+                        tsr += if clrhlt
+                            clrhlt = false
+                            8
+                        else
+                            11
+                        end
+                    end
+                    break if (mr & 0xFF) == 0
+                    tsr += 16
+                    mr <<= 1
                 end
                 isolate do
-                    if lzeropad >= rzeropad or (clrhl and m == 16)
-                        if signed_k
-                                ld   tl, k unless k == th
+                    if tsl <= tsr
+                        th, tl = hl.split if clrhl
+                                ld   tl, k unless k == tl
                                 ld   th, 0
+                        if signed_k
                                 bit  7, tl
                                 jr   Z, sk_neg
                                 dec  th
                         sk_neg  label
-                        else
-                                ld   tl, k unless k == tl
-                                ld   th, 0
                         end
-                        if tt == hl
-                            while (m >>= 1) != 0
-                                add  hl, tt
-                            end
-                        else
-                            while m != 0
-                                if (m & 0x01) != 0
-                                    if clrhl
-                                        clrhl = false
-                                        ld16 hl, tt
-                                    else
-                                        add  hl, tt
-                                    end
+                        th, tl = tt.split if clrhl
+                        while (m & 1) == 0
+                            add  hl, hl
+                            m >>= 1
+                        end if clrhl
+                        just_cleared = false
+                        while tt != hl
+                            if (m & 1) != 0
+                                if clrhl
+                                    clrhl = false
+                                    just_cleared = true
+                                    ld16 tt, hl
+                                else
+                                    just_cleared = false
+                                    add  hl, tt
                                 end
-                                break if (m >>= 1) == 0
+                            end
+                            break if (m >>= 1) == 0
+                            if tt == de and ((m & 1) == 0 or m == 1 or just_cleared)
+                                ex   de, hl unless just_cleared
+                                add  hl, hl
+                                while (m & 1) == 0
+                                    add  hl, hl
+                                    m >>= 1
+                                end
+                                ex   de, hl if m != 1
+                            else
                                 sla  tl
                                 rl   th
                             end
@@ -544,7 +583,7 @@ module Z80
                                 ld   th, k unless k == th
                                 ld   tl, 0
                         while m != 0
-                            if tt != hl && (m & 0x100) != 0
+                            if tt != hl and (m & 0x100) != 0
                                 if clrhl
                                     clrhl = false
                                     ld16 hl, tt
