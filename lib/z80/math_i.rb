@@ -492,6 +492,7 @@ module Z80
                             ld   hl, 0 if clrhl
                     end
                 end
+
                 ml, tsl, clrhlt = m, 4+7, clrhl
                 tsl += 19.5 if signed_k
                 while (ml & 1) == 0
@@ -520,9 +521,10 @@ module Z80
                         end
                         tsl += 4 if ml != 1
                     else
-                        tsl += 8
+                        tsl += 16
                     end
                 end
+
                 mr, tsr, clrhlt = m, 4+7, clrhl
                 while mr != 0
                     if tt != hl and (mr & 0x100) != 0
@@ -537,6 +539,7 @@ module Z80
                     tsr += 16
                     mr <<= 1
                 end
+
                 isolate do
                     if tsl <= tsr
                         th, tl = hl.split if clrhl
