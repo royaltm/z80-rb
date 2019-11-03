@@ -876,6 +876,37 @@ module ZXLib
                 end
             end
             ##
+            # Creates a routine that returns to the calling ZX-Basic's USR function an FP value.
+            #
+            # When returning from a user code an integer from the +bc+ register is being used as
+            # a +USR+ function return value via STACK-BC routine.
+            #
+            # To return a floating point value use this routine instead of invoking +ret+.
+            #
+            # The FP value to be returned should be held in +a+, +e+, +d+, +c+, +b+ registers.
+            #
+            # Options:
+            # * +pop_ret_address+:: Set to +false+ if the STACK-BC return address was already fetched
+            #                       from the machine stack.
+            # * +rom+:: A namespace label containing the ROM routine addresses as sub-labels.
+            # * +restore_iy+:: A value to restore +iy+ register to. Set to +nil+ to not restore +iy+.
+            # * +restore_hl_alt+:: A value to restore +hl'+ register to. Set to +nil+ to not restore +hl'+.
+            def return_with_fp(pop_ret_address:true, rom:self.rom, restore_iy:self.vars_iy, restore_hl_alt:rom.end_calc)
+                isolate do
+                                pop   hl if pop_ret_address
+                                ld    iy, restore_iy if restore_iy
+                    if restore_hl_alt
+                                exx
+                                ld    hl, restore_hl_alt
+                                exx
+                    end
+                                call  rom.stk_store
+                                rst   rom.fp_calc
+                                db    0x38 # end-calc  make HL = STKEND-5
+                                ret
+                end
+            end
+            ##
             # Selects an upper memory bank (0-7) and/or a screen memory page (0-1) to be displayed.
             # 
             # Options:
