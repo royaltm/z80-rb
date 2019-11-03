@@ -19,6 +19,8 @@ module ZXLib
     ##
     # A module with the ZXReal struct definition and ZX-Spectrum FP helpers.
     #
+    # Macros can be used to convert 32-bit integers to and from floating point values.
+    #
     # Example:
     #
     #    require('zxlib/math')
@@ -114,6 +116,156 @@ module ZXLib
                 val*(1<<e)
             end
             sgn ? -val : val
+        end
+
+        ##
+        # ==ZXLib::Math Macros
+        #
+        # Macros require:
+        #
+        #    macro_import MathInt
+        #
+        module Macros
+            ##
+            # Creates a routine that converts a ZX Basic's floating point value to a 32-bit integer.
+            #
+            # +m3+|+m2+|+m1+|+m0+:: A 32-bit mantissa as four 8-bit registers, where +m3+ represents
+            #                       the most significant byte.
+            #
+            # Options:
+            # * +exp+:: The source of an 8-bit exponent as an 8-bit register, an address or a pointer.
+            #
+            # The resulting 32-bit integer is being stored in +m3+|+m2+|+m1+|+m0+ where +m3+ represents
+            # the most significant byte.
+            #
+            # The resulting flags:
+            # * CF=1 signals that the FP value is too big to fit into a 32-bit integer.
+            # * ZF=1 signals that the FP value is positive. In this instance the accumulator also contains +0+.
+            # * ZF=0 signals that the FP value is negative. In this instance the accumulator also contains +255+.
+            #
+            # If the value is negative the integer WON'T BE a twos complement number.
+            #
+            # Modifies: +af+, +af'+, +m3+, +m2+, +m1+, +m0+.
+            def fp_to_integer32(m3=e, m2=d, m1=c, m0=b, exp:a)
+                raise ArgumentError unless [m3, m2, m1, m0].uniq.size == 5 and
+                                           [m3, m2, m1, m0].all? {|t| [b,c,d,e,h,l].include?(t)}
+                isolate do |eoc|
+                                ld    a, exp unless exp == a
+                                ora   a
+                                jr    Z, small_int
+                                ex    af, af         # determine sign
+                                ld    a, m3
+                                add   a
+                                sbc   a
+                                ex    af, af         # a': sign
+                                sub   129
+                                jr    NC, fp_value   # exp >= 129
+                    less_than_1 ex    af, af         # a: sign
+                    if m1.match16?(m0)
+                                ld    m1|m0, 0
+                    elsif m0.match16?(m1)
+                                ld    m0|m1, 0
+                    else
+                                ld    m1, 0
+                                ld    m0, m1
+                    end
+                                jr    clear_hi
+                    small_int   twos_complement16_by_sgn(m1, m2, m3, th:m1, tl:m0)
+                                ld    a, m3          # sign
+                    clear_hi    label
+                    if m3.match16?(m2)
+                                ld    m3|m2, 0
+                    elsif m2.match16?(m3)
+                                ld    m2|m3, 0
+                    else
+                                ld    m3, 0
+                                ld    m2, m3
+                    end
+                                jr    cl_flags
+                    too_big     scf
+                                jr    eoc
+                    fp_value    sub   32
+                                jr    NC, too_big
+                                set   7, m3
+                                jr    chckswap8
+                    swap8       ld    m0, m1
+                                ld    m1, m2
+                                ld    m2, m3
+                                ld    m3, 0
+                    chckswap8   add   8
+                                jr    NC, swap8
+                                sub   7
+                                jr    Z, skipsh
+                    shloop      srl   m3
+                                rr    m2
+                                rr    m1
+                                rr    m0
+                                inc   a
+                                jr    NZ, shloop
+                    skipsh      ex    af, af         # a: sgn
+                    cl_flags    ora   a              # CF: 0, Z: 1 (+), Z: 0 (-)
+                end
+            end
+            ##
+            # Creates a routine that converts a 32-bit integer to a ZX Basic's floating point value.
+            #
+            # +m3+|+m2+|+m1+|+m0+:: A 32-bit integer as four 8-bit registers, where +m3+ represents
+            #                       the most significant byte.
+            #
+            # Options:
+            # * +sgn+:: The source of a sign as an 8-bit register, an address or a pointer. 
+            #           In this instance +0+ indicates a positive integer. A non-zero value indicates
+            #           a negative value. Alternatively +sgn+ can be one of the conditions: +C+, +NC+, +Z+, +NZ+.
+            #           In this instance the specified condition is being used to determine if the input integer
+            #           is negative. +sgn+ can also be set to +nil+. In this instance the integer is assumed
+            #           to be always positive.
+            #
+            # The resulting 32-bit FP mantissa is being stored in +m3+|+m2+|+m1+|+m0+ where +m3+ represents
+            # the most significant byte. The resulting FP exponent is returned in accumulator.
+            #
+            # If the input value is negative the integer MUST NOT BE a twos complement number.
+            #
+            # Modifies: +af+, +m3+, +m2+, +m1+, +m0+ and +af'+ only if +sgn+ is not +nil+.
+            def integer32_to_fp(m3=e, m2=d, m1=c, m0=b, sgn:a)
+                raise ArgumentError unless [sgn, m3, m2, m1, m0].uniq.size == 5 and
+                                           [m3, m2, m1, m0].all? {|t| [b,c,d,e,h,l].include?(t)}
+                isolate do |eoc|
+                                ex    af, af if sgn
+                                ld    a, 32
+                                jr    check8
+                    swap8       sub   8
+                                jr    Z, eoc
+                                ld    m3, m2
+                                ld    m2, m1
+                                ld    m1, m0
+                                ld    m0, 0
+                    check8      inc   m3
+                                dec   m3
+                                jr    Z, swap8
+                                jp    M, fits
+                    shloop      dec   a
+                                sla   m0
+                                rl    m1
+                                rl    m2
+                                rl    m3
+                                jp    P, shloop
+                    fits        label
+                    if sgn
+                                ex    af, af
+                        if sgn.respond_to?(:one_of?) and sgn.one_of?(%w[Z NZ C NC])
+                                    jr    sgn, negative
+                        else
+                                    ld    a, sgn unless sgn == a
+                                    ora   a
+                                    jr    NZ, negative
+                        end
+                    end
+                                res   7, m3
+                    negative    label
+                                ex    af, af if sgn
+                                add   128
+                end
+            end
         end
 
         include Z80

@@ -189,6 +189,7 @@ module ZXLib
             line_draw   addr 0x2477 # Handle DRAW x,y command
             draw_line   addr 0x24B7 # THE 'LINE DRAWING' ROUTINE
             draw_line_1 addr 0x24BA # THE 'LINE DRAWING' ROUTINE: C: abs(dx), B: abs(dy), E: dx < 0 ? -1 : 1, D: dy < 0 ? -1 : 1
+            end_calc    addr 0x2758 # H'L' register should point to this address when the USR routine terminates
             error_q     addr 0x288B # Parameter error
             stk_store   addr 0x2AB6 # Pushes five registers on the calculator stack: A, E, D, C, B if there is enough room
             stk_fetch   addr 0x2BF1 # Pops five registers from the calculator stack: A, E, D, C, B
@@ -288,8 +289,12 @@ module ZXLib
         end
 
         ##
-        #  ZXLib::Sys Macros require:
+        # ==ZXLib::Sys Macros
+        #
+        # Some of the macros require:
+        #
         #    macro_import MathInt
+        #    macro_import ::ZXLib::Math
         #
         module Macros
             ##
@@ -766,7 +771,7 @@ module ZXLib
                                            [th, tl].all? {|t| [bc, de].include?(t)}
                 t1, t0 = tl.split
                 t3, t2 = th.split
-                isolate do |eoc|
+                isolate do
                                 ld    a, [hl]
                                 inc   hl
                                 ld    t3, [hl]
@@ -776,44 +781,7 @@ module ZXLib
                                 ld    t1, [hl]
                                 inc   hl
                                 ld    t0, [hl]
-                                ora   a
-                                jr    Z, small_int
-                                ex    af, af         # determine sign
-                                ld    a, t3
-                                add   a
-                                sbc   a
-                                ex    af, af         # a': sign
-                                sub   129
-                                jr    NC, fp_value   # exp >= 129
-                    less_than_1 ex    af, af         # a: sign
-                                ld    tl, 0
-                                jr    clear_hi
-                    small_int   twos_complement16_by_sgn(t1, t2, t3, th:t1, tl:t0)
-                                ld    a, t3          # sign
-                    clear_hi    ld    th, 0
-                                jr    cl_flags
-                    too_big     scf
-                                jr    eoc
-                    fp_value    sub   32
-                                jr    NC, too_big
-                                set   7, t3
-                                jr    chckswap8
-                    swap8       ld    t0, t1
-                                ld    t1, t2
-                                ld    t2, t3
-                                ld    t3, 0
-                    chckswap8   add   8
-                                jr    NC, swap8
-                                sub   7
-                                jr    Z, skipsh
-                    shloop      srl   t3
-                                rr    t2
-                                rr    t1
-                                rr    t0
-                                inc   a
-                                jr    NZ, shloop
-                    skipsh      ex    af, af         # a: sgn
-                    cl_flags    ora   a              # CF: 0, Z: 1 (+), Z: 0 (-)
+                                fp_to_integer32 t3, t2, t1, t0, exp:a
                 end
             end
             ##
