@@ -512,7 +512,7 @@ module Z80
                         end
                     end
                     break if (ml >>= 1) == 0
-                    if tt == de and ((ml & 1) == 0 or ml == 1)
+                    if tt == de and ((ml & 1) == 0 or ml == 1 or just_cleared)
                         tsl += 4 unless just_cleared
                         tsl += 11
                         while (ml & 1) == 0
