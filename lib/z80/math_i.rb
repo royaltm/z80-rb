@@ -477,6 +477,10 @@ module Z80
             #
             # Uses: +f+, +hl+, +tt+, optionally preserves: +k+.
             #
+            # For those +m+ that has only one bit set or none, +tt+ is not being used.
+            # For some of +m+ when +tt+ is +de+ the code can be better optimized as we may leverage
+            # the usage of <tt>ex  de, hl</tt> instruction.
+            #
             # * +k+::        A multiplicant as an immediate value or an 8-bit register.
             # * +m+::        A multiplicator value as a constant integer.
             # Options:

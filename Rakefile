@@ -70,3 +70,14 @@ task :utils do
     sh "ruby -Ilib #{File.join("lib", path)}"
   end
 end
+
+TESTS = %w[
+  test.math_i.mul_const.rb
+]
+
+desc "Compile utils' tests"
+task :test do
+  TESTS.each do |path|
+    sh "ruby -Ilib #{File.join("tests", path)}"
+  end
+end
