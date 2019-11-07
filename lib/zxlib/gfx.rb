@@ -29,7 +29,7 @@ module ZXLib
       ##
       # Returns true if +v+ is a 0 or a positive integer with only one bit set in its binary representation.
       def only_one_bit_set_or_zero?(v)
-          Integer === v && (v|(v-1))+1 == v << 1
+          Integer === v && (v & (v - 1)) == 0
       end
       ##
       # Calculates a constant screen pixel byte address from the pixel coordinates.
