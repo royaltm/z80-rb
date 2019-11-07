@@ -224,7 +224,7 @@
 
           
           <div class="method-source-code" id="bench-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 256</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 258</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:bench</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">call</span> <span class="ruby-identifier">fn_argn</span>
                 <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">start</span>
@@ -265,7 +265,7 @@
 
           
           <div class="method-source-code" id="get_adjustment-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 375</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 377</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:get_adjustment</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, [<span class="ruby-identifier">adjustment</span>]
                 <span class="ruby-identifier">ret</span>
@@ -299,7 +299,7 @@
 
           
           <div class="method-source-code" id="get_frames-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 363</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 365</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:get_frames</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, [<span class="ruby-identifier">frames</span>]
                 <span class="ruby-identifier">ret</span>
@@ -333,7 +333,7 @@
 
           
           <div class="method-source-code" id="get_idle-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 369</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 371</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:get_idle</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, [<span class="ruby-identifier">idle</span>]
                 <span class="ruby-identifier">ret</span>
@@ -367,7 +367,7 @@
 
           
           <div class="method-source-code" id="getset_tsframe-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 346</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 348</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:getset_tsframe</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">call</span> <span class="ruby-identifier">fn_argn</span>
                 <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">only_get</span>
@@ -414,7 +414,7 @@
 
           
           <div class="method-source-code" id="start-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 271</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 273</span>
 <span class="ruby-identifier">with_saved</span> <span class="ruby-value">:start</span>, <span class="ruby-identifier">iy</span>, <span class="ruby-value">:exx</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">:exx</span>, <span class="ruby-value">ret:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">use:</span> <span class="ruby-identifier">vars</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">routine</span>]
                 <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">routine_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>], <span class="ruby-identifier">hl</span>

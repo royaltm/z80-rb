@@ -67,6 +67,10 @@
   
   
   
+    <li><a class="include" href="../../ZXLib/Math/Macros.html">ZXLib::Math::Macros</a>
+  
+  
+  
     <li><a class="include" href="../../ZXLib/Sys/Macros.html">ZXLib::Sys::Macros</a>
   
   
@@ -139,7 +143,7 @@
 
           
           <div class="method-source-code" id="calculate_benchmark_tstates-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 86</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 88</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">calculate_benchmark_tstates</span>(<span class="ruby-identifier">counter</span>, <span class="ruby-identifier">tsframe</span>, <span class="ruby-identifier">frames</span>, <span class="ruby-identifier">idle</span>, <span class="ruby-identifier">adjustment</span>)
     <span class="ruby-identifier">with_saved</span> <span class="ruby-value">:exx</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">:exx</span>, <span class="ruby-value">ret:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">isolate:</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-comment"># a|hl = tsframe-102</span>
@@ -250,7 +254,7 @@
 
           
           <div class="method-source-code" id="estimate_tstates_per_interrupt-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 169</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/benchmark.rb, line 171</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">estimate_tstates_per_interrupt</span>(<span class="ruby-identifier">stack_end</span>, <span class="ruby-identifier">interrup_vec</span>, <span class="ruby-identifier">forward</span>, <span class="ruby-identifier">tsframe</span>, <span class="ruby-identifier">idle</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                     <span class="ruby-identifier">di</span>

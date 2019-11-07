@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module ZXLib::Math::Macros - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../";
+  var index_rel_prefix = "../../";
+</script>
+
+<script src="../../js/jquery.js"></script>
+<script src="../../js/darkfish.js"></script>
+
+<link href="../../css/fonts.css" rel="stylesheet">
+<link href="../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../table_of_contents.html#pages">Pages</a>
+    <a href="../../table_of_contents.html#classes">Classes</a>
+    <a href="../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-fp_to_integer32">#fp_to_integer32</a>
+    
+    <li ><a href="#method-i-integer32_to_fp">#integer32_to_fp</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-ZXLib::Math::Macros">
+  <h1 id="module-ZXLib::Math::Macros" class="module">
+    module ZXLib::Math::Macros
+  </h1>
+
+  <section class="description">
+    
+<h2 id="module-ZXLib::Math::Macros-label-ZXLib-3A-3AMath+Macros"><a href="../Math.html"><code>ZXLib::Math</code></a> <a href="Macros.html"><code>Macros</code></a><span><a href="#module-ZXLib::Math::Macros-label-ZXLib-3A-3AMath+Macros">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p><a href="Macros.html"><code>Macros</code></a> require:</p>
+
+<pre class="ruby"><span class="ruby-identifier">macro_import</span> <span class="ruby-constant">MathInt</span>
+</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-fp_to_integer32" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">fp_to_integer32</span><span
+            class="method-args">(m3=e, m2=d, m1=c, m0=b, exp:a)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that converts a ZX Basic&#39;s floating point value to a 32-bit integer.</p>
+<dl class="rdoc-list note-list"><dt><code>m3</code>|<code>m2</code>|<code>m1</code>|<code>m0</code>
+<dd>
+<p>A 32-bit mantissa as four 8-bit registers, where <code>m3</code> represents the most significant byte.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>exp</code>
+<dd>
+<p>The source of an 8-bit exponent as an 8-bit register, an address or a pointer.</p>
+</dd></dl>
+</li></ul>
+
+<p>The resulting 32-bit integer is being stored in <code>m3</code>|<code>m2</code>|<code>m1</code>|<code>m0</code> where <code>m3</code> represents the most significant byte.</p>
+
+<p>The resulting flags:</p>
+<ul><li>
+<p>CF=1 signals that the FP value is too big to fit into a 32-bit integer.</p>
+</li><li>
+<p>ZF=1 signals that the FP value is positive. In this instance the accumulator also contains <code>0</code>.</p>
+</li><li>
+<p>ZF=0 signals that the FP value is negative. In this instance the accumulator also contains <code>255</code>.</p>
+</li></ul>
+
+<p>If the value is negative the integer WON&#39;T BE a twos complement number.</p>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>m3</code>, <code>m2</code>, <code>m1</code>, <code>m0</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="fp_to_integer32-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/math.rb, line 148</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">fp_to_integer32</span>(<span class="ruby-identifier">m3</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">m2</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m1</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">m0</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">exp:</span><span class="ruby-identifier">a</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">m3</span>, <span class="ruby-identifier">m2</span>, <span class="ruby-identifier">m1</span>, <span class="ruby-identifier">m0</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">4</span> <span class="ruby-keyword">and</span>
+                               [<span class="ruby-identifier">m3</span>, <span class="ruby-identifier">m2</span>, <span class="ruby-identifier">m1</span>, <span class="ruby-identifier">m0</span>].<span class="ruby-identifier">all?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">b</span>,<span class="ruby-identifier">c</span>,<span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>,<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">t</span>)}
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">exp</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">exp</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ora</span>   <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">small_int</span>
+                    <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>         <span class="ruby-comment"># determine sign</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">m3</span>
+                    <span class="ruby-identifier">add</span>   <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sbc</span>   <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>         <span class="ruby-comment"># a&#39;: sign</span>
+                    <span class="ruby-identifier">sub</span>   <span class="ruby-value">129</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">fp_value</span>   <span class="ruby-comment"># exp &gt;= 129</span>
+        <span class="ruby-identifier">less_than_1</span> <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>         <span class="ruby-comment"># a: sign</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">m1</span>.<span class="ruby-identifier">match16?</span>(<span class="ruby-identifier">m0</span>)
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m1</span><span class="ruby-operator">|</span><span class="ruby-identifier">m0</span>, <span class="ruby-value">0</span>
+        <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">m0</span>.<span class="ruby-identifier">match16?</span>(<span class="ruby-identifier">m1</span>)
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m0</span><span class="ruby-operator">|</span><span class="ruby-identifier">m1</span>, <span class="ruby-value">0</span>
+        <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m1</span>, <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m0</span>, <span class="ruby-identifier">m1</span>
+        <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">clear_hi</span>
+        <span class="ruby-identifier">small_int</span>   <span class="ruby-identifier">twos_complement16_by_sgn</span>(<span class="ruby-identifier">m1</span>, <span class="ruby-identifier">m2</span>, <span class="ruby-identifier">m3</span>, <span class="ruby-value">th:</span><span class="ruby-identifier">m1</span>, <span class="ruby-value">tl:</span><span class="ruby-identifier">m0</span>)
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">m3</span>          <span class="ruby-comment"># sign</span>
+        <span class="ruby-identifier">clear_hi</span>    <span class="ruby-identifier">label</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">m3</span>.<span class="ruby-identifier">match16?</span>(<span class="ruby-identifier">m2</span>)
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m3</span><span class="ruby-operator">|</span><span class="ruby-identifier">m2</span>, <span class="ruby-value">0</span>
+        <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">m2</span>.<span class="ruby-identifier">match16?</span>(<span class="ruby-identifier">m3</span>)
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m2</span><span class="ruby-operator">|</span><span class="ruby-identifier">m3</span>, <span class="ruby-value">0</span>
+        <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m3</span>, <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m2</span>, <span class="ruby-identifier">m3</span>
+        <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">cl_flags</span>
+        <span class="ruby-identifier">too_big</span>     <span class="ruby-identifier">scf</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">eoc</span>
+        <span class="ruby-identifier">fp_value</span>    <span class="ruby-identifier">sub</span>   <span class="ruby-value">32</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">too_big</span>
+                    <span class="ruby-identifier">set</span>   <span class="ruby-value">7</span>, <span class="ruby-identifier">m3</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">chckswap8</span>
+        <span class="ruby-identifier">swap8</span>       <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m0</span>, <span class="ruby-identifier">m1</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m1</span>, <span class="ruby-identifier">m2</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m2</span>, <span class="ruby-identifier">m3</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m3</span>, <span class="ruby-value">0</span>
+        <span class="ruby-identifier">chckswap8</span>   <span class="ruby-identifier">add</span>   <span class="ruby-value">8</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">swap8</span>
+                    <span class="ruby-identifier">sub</span>   <span class="ruby-value">7</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">skipsh</span>
+        <span class="ruby-identifier">shloop</span>      <span class="ruby-identifier">srl</span>   <span class="ruby-identifier">m3</span>
+                    <span class="ruby-identifier">rr</span>    <span class="ruby-identifier">m2</span>
+                    <span class="ruby-identifier">rr</span>    <span class="ruby-identifier">m1</span>
+                    <span class="ruby-identifier">rr</span>    <span class="ruby-identifier">m0</span>
+                    <span class="ruby-identifier">inc</span>   <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">shloop</span>
+        <span class="ruby-identifier">skipsh</span>      <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>         <span class="ruby-comment"># a: sgn</span>
+        <span class="ruby-identifier">cl_flags</span>    <span class="ruby-identifier">ora</span>   <span class="ruby-identifier">a</span>              <span class="ruby-comment"># CF: 0, Z: 1 (+), Z: 0 (-)</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-integer32_to_fp" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">integer32_to_fp</span><span
+            class="method-args">(m3=e, m2=d, m1=c, m0=b, sgn:a)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that converts a 32-bit integer to a ZX Basic&#39;s floating point value.</p>
+<dl class="rdoc-list note-list"><dt><code>m3</code>|<code>m2</code>|<code>m1</code>|<code>m0</code>
+<dd>
+<p>A 32-bit integer as four 8-bit registers, where <code>m3</code> represents the most significant byte.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>sgn</code>
+<dd>
+<p>The source of a sign as an 8-bit register, an address or a pointer.  In this instance <code>0</code> indicates a positive integer. A non-zero value indicates a negative value. Alternatively <code>sgn</code> can be one of the branching conditions. In this instance the specified condition is being used to determine if the input integer is negative. <code>sgn</code> can also be set to <code>nil</code>. In this instance the integer is assumed to be always positive.</p>
+</dd></dl>
+</li></ul>
+
+<p>The resulting 32-bit FP mantissa is being stored in <code>m3</code>|<code>m2</code>|<code>m1</code>|<code>m0</code> where <code>m3</code> represents the most significant byte. The resulting FP exponent is returned in accumulator.</p>
+
+<p>If the input value is negative the integer MUST NOT BE a twos complement number.</p>
+
+<p>Modifies: <code>af</code>, <code>m3</code>, <code>m2</code>, <code>m1</code>, <code>m0</code> and <code>af&#39;</code> only if <code>sgn</code> is not <code>nil</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="integer32_to_fp-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/math.rb, line 228</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">integer32_to_fp</span>(<span class="ruby-identifier">m3</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">m2</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m1</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">m0</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">sgn:</span><span class="ruby-identifier">a</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">sgn</span>, <span class="ruby-identifier">m3</span>, <span class="ruby-identifier">m2</span>, <span class="ruby-identifier">m1</span>, <span class="ruby-identifier">m0</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">5</span> <span class="ruby-keyword">and</span>
+                               [<span class="ruby-identifier">m3</span>, <span class="ruby-identifier">m2</span>, <span class="ruby-identifier">m1</span>, <span class="ruby-identifier">m0</span>].<span class="ruby-identifier">all?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">b</span>,<span class="ruby-identifier">c</span>,<span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>,<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">t</span>)}
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">sgn</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-value">32</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">check8</span>
+        <span class="ruby-identifier">swap8</span>       <span class="ruby-identifier">sub</span>   <span class="ruby-value">8</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">eoc</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m3</span>, <span class="ruby-identifier">m2</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m2</span>, <span class="ruby-identifier">m1</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m1</span>, <span class="ruby-identifier">m0</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">m0</span>, <span class="ruby-value">0</span>
+        <span class="ruby-identifier">check8</span>      <span class="ruby-identifier">inc</span>   <span class="ruby-identifier">m3</span>
+                    <span class="ruby-identifier">dec</span>   <span class="ruby-identifier">m3</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">swap8</span>
+                    <span class="ruby-identifier">jp</span>    <span class="ruby-constant">M</span>, <span class="ruby-identifier">fits</span>
+        <span class="ruby-identifier">shloop</span>      <span class="ruby-identifier">dec</span>   <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sla</span>   <span class="ruby-identifier">m0</span>
+                    <span class="ruby-identifier">rl</span>    <span class="ruby-identifier">m1</span>
+                    <span class="ruby-identifier">rl</span>    <span class="ruby-identifier">m2</span>
+                    <span class="ruby-identifier">rl</span>    <span class="ruby-identifier">m3</span>
+                    <span class="ruby-identifier">jp</span>    <span class="ruby-constant">P</span>, <span class="ruby-identifier">shloop</span>
+        <span class="ruby-identifier">fits</span>        <span class="ruby-identifier">label</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">sgn</span>
+                    <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">sgn</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:jr_ok?</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">sgn</span>.<span class="ruby-identifier">jr_ok?</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">sgn</span>, <span class="ruby-identifier">negative</span>
+            <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">sgn</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Condition</span>)
+                    <span class="ruby-identifier">jp</span>    <span class="ruby-identifier">sgn</span>, <span class="ruby-identifier">negative</span>
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">sgn</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">sgn</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ora</span>   <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">negative</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">res</span>   <span class="ruby-value">7</span>, <span class="ruby-identifier">m3</span>
+        <span class="ruby-identifier">negative</span>    <span class="ruby-identifier">label</span>
+                    <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">sgn</span>
+                    <span class="ruby-identifier">add</span>   <span class="ruby-value">128</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+
