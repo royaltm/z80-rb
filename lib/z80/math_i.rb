@@ -763,58 +763,201 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that performs a multiplication of an unsigned 16-bit +mh+|+ml+ * 8-bit unsigned +m+.
-            # Returns the result as a 24-bit unsigned integer in +a+|+hl+.
+            # Creates a routine that performs a multiplication of an 16-bit integer +kh+|+kl+ * 8-bit unsigned +m+.
+            # Returns the result as a 24-bit integer in +a+|+hl+.
             #
-            # Creates a fast, unrolled code so +m+ should be a constant value in the range: 0..255.
+            # Creates an optimized, unrolled code so +m+ should be a constant value in the range: 0..256.
             #
-            # Optionally accumulates the result in +a+|+hl+.
+            # Optionally the result in the +a+|+hl+ is being accumulated.
             #
-            # Sets flags: CF: 0 and ZF: 1 if the result fits in 16bits.
+            # If +signed_k+ is +false+ and +clrahl+ is +true+ the resulting flags: ZF=1 signals the result 
+            # fits in 16 bits.
+            # If +signed_k+ and +clrhl+ are +true+ the resulting flag: SF contains the sign of the result.
             #
-            # Uses: +af+, +t+, +tt+, +hl+.
+            # +kh+::     The MSB part of the multiplicant as an immediate value or an 8-bit register.
+            # +kl+::     The LSB part of the multiplicant as an immediate value or an 8-bit register.
+            # +m+::      A multiplicator value as a constant integer.
             #
-            # * +mh+::     The MSB part of the multiplicant as an immediate value or an 8-bit register.
-            # * +ml+::     The LSB part of the multiplicant as an immediate value or an 8-bit register.
-            # * +m+::      A multiplicator value as a constant 8-bit integer.
             # Options:
             # * +t+::      An 8-bit temporary register, it must not be the +accumulator+ or be a part of +tt+.
             # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
-            # * +clrahl+:: If +a+|+hl+  should be set or accumulated, if +false+ acts like: +a+|+hl+ += +mh+|+ml+ * +m+.
-            def mul_const8_24(mh=h, ml=l, m=0, t:c, tt:de, clrahl:true)
+            # * +clrahl+:: If +a+|+hl+  should be set or accumulated, if +false+ acts like: +a+|+hl+ += +kh+|+kl+ * +m+.
+            # * +signed_k+:: If the multiplicant (+kh+|+kl+) represents a twos complement signed integer (-32768..32767).
+            #
+            # Uses: +af+, +t+, +tt+, +hl+, optionally preserves: +kh+ and +kl+.
+            def mul_const8_24(kh=h, kl=l, m=0, t:c, tt:de, clrahl:true, signed_k:false)
                 th, tl = tt.split
-                throw ArgumentError unless m.is_a?(Integer) and (0..255).include?(m) and [bc, de].include?(tt) and
-                                                                     ![h, l, th, hl, a].include?(t) and
-                                                                     tl != mh and th != ml
-                isolate do |eoc|
-                                ld  tl, ml unless ml == tl
-                                ld  th, mh unless mh == th
-                    if clrahl
-                                xor a
-                                ld  t, a
-                        if (m & 1) == 1
-                                ld  l, tl  unless ml == l # hl = tt * 1
-                                ld  h, th  unless mh == h
-                        else
-                                ld  hl, 0
-                        end
-                    else
-                                ld  t, 0
-                        if (m & 1) == 1
-                                add hl, tt
-                                adc a, t
-                        elsif m == 0
-                                cp  a     # CF=0 and ZF=1 in case when m == 0
+                throw ArgumentError unless m.is_a?(Integer) and (0..256).include?(m) and [bc, de].include?(tt) and
+                                                                     ![h, l, th, tl, a].include?(t)
+                if clrahl and (m & (m - 1)) == 0
+                    t, tt = a, hl
+                    th, tl = tt.split
+                end
+                if m == 0
+                    return isolate do
+                        if clrahl
+                            xor  a
+                            ld   h, a
+                            ld   l, a
                         end
                     end
-                    while (m >>= 1) != 0
-                                sla tl
-                                rl  th
-                                rl  t
-                        if (m & 1) == 1
-                                add hl, tt
-                                adc a, t  # CF=0 and ZF=1 in case when result 16 bit
+                end
+
+                ml, tsl, clrahlt = m, 8, clrahl
+                if clrahlt
+                    tsl += if signed_k
+                        12
+                    else
+                        4
+                    end
+                else
+                    tsl += 7
+                    tsl += 19.5 if signed_k
+                end
+                while (ml & 1) == 0
+                    tsl += 15
+                    ml >>= 1
+                end if clrahlt
+                just_cleared = false
+                while tt != hl
+                    if (ml & 1) != 0
+                        if clrahlt
+                            clrahlt = false
+                            just_cleared = true
+                            tsl += 12
+                        else
+                            just_cleared = false
+                            tsl += 15
                         end
+                    end
+                    break if (ml >>= 1) == 0
+                    if tt == de and ((ml & 1) == 0 or ml == 1 or just_cleared)
+                        tsl += 4 unless just_cleared
+                        tsl += 19
+                        while (ml & 1) == 0
+                            tsl += 19
+                            ml >>= 1
+                        end
+                        tsl += 4 if ml != 1
+                    else
+                        tsl += 24
+                    end
+                end
+
+                mr, tsr, clrahlt = m, 8+7, clrahl
+                while mr != 0
+                    if tt != hl and (mr & 0x100) != 0
+                        if clrahlt
+                            clrahlt = false
+                            tsr += 12
+                        else
+                            tsr += 15
+                        end
+                    end
+                    break if (mr & 0xFF) == 0
+                        tsr += 24
+                    mr <<= 1
+                end
+                tsr += 4 if t == a
+
+                isolate do
+                    if tsl <= tsr
+                        th, tl = hl.split if clrahl
+                        if th == kl and tl != kh
+                                    ld   tl, kl
+                                    ld   th, kh unless th == kh
+                        elsif th != kl
+                                    ld   th, kh unless th == kh
+                                    ld   tl, kl unless tl == kl
+                        else
+                            throw ArgumentError, "mul_const8_24 condition violated: kh<>tl or kl<>th"
+                        end
+                        if clrahl
+                            if signed_k
+                                    ld   a, th
+                                    add  a, a
+                                    sbc  a
+                            else
+                                    xor  a
+                            end
+                        else
+                                    ld   t, 0
+                            if signed_k
+                                    bit  7, th
+                                    jr   Z, sk_neg
+                                    dec  t
+                            sk_neg  label
+                            end
+                        end
+                        th, tl = tt.split if clrahl
+                        while (m & 1) == 0
+                                    add  hl, hl
+                                    adc  a, a
+                            m >>= 1
+                        end if clrahl
+                        just_cleared = false
+                        while tt != hl
+                            if (m & 1) != 0
+                                if clrahl
+                                    clrahl = false
+                                    just_cleared = true
+                                    ld16 tt, hl
+                                    ld   t, a
+                                else
+                                    just_cleared = false
+                                    add  hl, tt
+                                    adc  a, t  # CF=0 and ZF=1 in case when result 16 bit
+                                end
+                            end
+                            break if (m >>= 1) == 0
+                            if tt == de and ((m & 1) == 0 or m == 1 or just_cleared)
+                                    ex   de, hl unless just_cleared
+                                    add  hl, hl
+                                while (m & 1) == 0
+                                    rl   t
+                                    add  hl, hl
+                                    m >>= 1
+                                end
+                                    ex   de, hl if m != 1
+                            else
+                                    sla  tl
+                                    rl   th
+                            end
+                                    rl   t
+                        end
+                    else
+                        if t == kl and th != kh
+                                    ld   th, kl
+                                    ld   t,  kh unless t == kh
+                        elsif t != kl
+                                    ld   t,  kh unless t == kh
+                                    ld   th, kl unless th == kl
+                        else
+                            throw ArgumentError, "mul_const8_24 condition violated: kh<>th or kl<>t"
+                        end
+                                    ld   tl, 0
+                        while m != 0
+                            if tt != hl and (m & 0x100) != 0
+                                if clrahl
+                                    clrahl = false
+                                    ld16 hl, tt
+                                    ld   a, t
+                                else
+                                    add  hl, tt
+                                    adc  a, t
+                                end
+                            end
+                            break if (m & 0xFF) == 0
+                            if signed_k
+                                    sra  t
+                            else
+                                    srl  t
+                            end
+                                    rr   th
+                                    rr   tl
+                            m <<= 1
+                        end
+                                    anda a if t == a # CF=0 and ZF=1, SF sign
                     end
                 end
             end
@@ -1478,7 +1621,7 @@ module Z80
                                     jr  eoc         # remainder = (borrow|hl = 0x1_0000) (seed - 1) == 65535
 
                                                     # a|hl = (seed + 1) * 75
-                    multi75         mul_const8_24(h, l, 75, t:c, tt:de, clrahl:true)
+                    multi75         mul_const8_24(h, l, 75, t:c, tt:de, clrahl:true, signed_k:false)
                                     jr  Z, fits     # a|hl < 0x1_0000: n mod 65537 == n
                                                     # a|hl never == 0x1_0000 after multiplication by 75
                                                     # so we can ignore some checks later
