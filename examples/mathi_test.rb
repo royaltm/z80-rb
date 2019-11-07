@@ -809,14 +809,14 @@ Program.exports.each_key {|k| puts " #{k.to_s.ljust(15)}:  0x#{'%04x'%math[k]} (
 
 program = Basic.parse_source <<-END
    1 DEF FN r()=USR #{math[:rnd_seed_fn]}
-  10 RANDOMIZE USR #{math[:tests]}
+     RANDOMIZE USR #{math[:tests]}
   99 STOP
- 100 REM: VERIFY RND routine comparing results with ZX-BASIC RND
- 110 FOR i=0 TO 65535
- 120 RANDOMIZE i
- 130 LET y=FN r(): LET x=RND*65536
- 140 IF x<>y THEN PRINT i;" ";x;"`<>`";y
- 150 NEXT i
+ 100 REM : VERIFY RND routine comparing results with ZX-BASIC RND
+     RANDOMIZE : LET s=FN r(): PRINT RND*65536
+ 110 LET y=FN r(): LET x=RND*65536
+     IF x<>y THEN PRINT i;" ";x;"`<>`";y
+     IF y<>s THEN GO TO 110
+9998 GO TO 10000
 9999 CLEAR #{math.org - 1}: LOAD "math"CODE: RUN
 END
 program.start = 9999
