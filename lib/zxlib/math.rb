@@ -230,7 +230,7 @@ module ZXLib
                 raise ArgumentError unless [sgn, m3, m2, m1, m0].uniq.size == 5 and
                                            [m3, m2, m1, m0].all? {|t| [b,c,d,e,h,l].include?(t)}
                 isolate do |eoc|
-                                ex    af, af if sgn
+                                ex    af, af if sgn.is_a?(Condition) || sgn == a
                                 ld    a, 32
                                 jr    check8
                     swap8       sub   8
