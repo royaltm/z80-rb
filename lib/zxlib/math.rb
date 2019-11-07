@@ -147,7 +147,7 @@ module ZXLib
             #
             # Modifies: +af+, +af'+, +m3+, +m2+, +m1+, +m0+.
             def fp_to_integer32(m3=e, m2=d, m1=c, m0=b, exp:a)
-                raise ArgumentError unless [m3, m2, m1, m0].uniq.size == 5 and
+                raise ArgumentError unless [m3, m2, m1, m0].uniq.size == 4 and
                                            [m3, m2, m1, m0].all? {|t| [b,c,d,e,h,l].include?(t)}
                 isolate do |eoc|
                                 ld    a, exp unless exp == a
