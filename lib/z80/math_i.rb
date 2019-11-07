@@ -738,7 +738,7 @@ module Z80
                                                              tl == kh or th == kl or !register?(m) or !register?(t)
                 isolate do |eoc|
                                 ld  tl, kl unless kl == tl
-                                ld  th, kh unless mh == th
+                                ld  th, kh unless kh == th
                     if clrahl
                                 ld  hl, 0
                                 xor a
