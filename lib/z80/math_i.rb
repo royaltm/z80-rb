@@ -237,21 +237,22 @@ module Z80
             # Creates a routine that changes the sign of a twos complement 16-bit integer depending on
             # the content of the +sgn+.
             #
-            # When +sgn+ equals 0 an integer is left unmodified: +th+|+tl+ = +sh+|+sl+.
-            # When +sgn+ equals -1 an integer's sign is being changed: +th+|+tl+ = 0 - +sh+|+sl+.
+            # +sh+:: An 8-bit register holding MSB of the input 16-bit integer.
+            # +sl+:: An 8-bit register holding LSB of the input 16-bit integer.
+            # +sgn+:: An 8-bit sign register which must hold 0 or -1 (0xFF).
+            #
+            # Options:
+            # * +th+:: An 8-bit MSB output register, may be the same as +sh+ or +sl+.
+            # * +tl+:: An 8-bit LSB output register, may be the same as +sl+.
+            #
+            # When +sgn+ equals to 0 an integer is left unmodified: +th+|+tl+ = +sh+|+sl+.
+            # When +sgn+ equals to -1 an integer's sign is being changed: +th+|+tl+ = 0 - +sh+|+sl+.
             #
             # _NOTE_:: Other values of +sgn+ will render unexpected results.
             #
             # Uses: +af+, +th+, +tl+, preserves: +sgn+ and optionally: +sh+, +sl+.
             #
             # T-states: 32
-            #
-            # * +sh+:: An 8-bit register holding MSB of the input 16-bit integer.
-            # * +sl+:: An 8-bit register holding LSB of the input 16-bit integer.
-            # * +sgn+:: An 8-bit sign register, must be 0 or -1 (0xFF).
-            # Options:
-            # * +th+:: An 8-bit MSB output register, may be the same as +sh+ or +sl+.
-            # * +tl+:: An 8-bit LSB output register, may be the same as +sl+.
             def twos_complement16_by_sgn(sh, sl, sgn, th:sh, tl:sl)
                 if [sh, sl, tl, sgn].include?(a) or sh == sl or th == tl or sh == tl or [sh, sl, th, tl].include?(sgn)
                     raise ArgumentError, "twos_complement16_by_sgn: invalid arguments!"
@@ -270,15 +271,16 @@ module Z80
             ##
             # Creates a routine that changes the sign of a twos complement 16-bit integer in +sh+|+sl+.
             #
-            # Uses: +af+, +th+, +tl+, preserves optionally: +sh+, +sl+.
+            # +sh+:: An 8-bit register holding MSB of the input 16-bit integer.
+            # +sl+:: An 8-bit register holding LSB of the input 16-bit integer.
             #
-            # T-states: 24
-            #
-            # * +sh+:: An 8-bit register holding MSB of the input 16-bit integer.
-            # * +sl+:: An 8-bit register holding LSB of the input 16-bit integer.
             # Options:
             # * +th+:: An 8-bit MSB output register, may be the same as +sh+ or +sl+.
             # * +tl+:: An 8-bit LSB output register, may be the same as +sl+.
+            #
+            # Uses: +af+, +th+, +tl+, preserves optionally: +sh+, +sl+.
+            #
+            # T-states: 24
             def neg16(sh, sl, th:sh, tl:sl)
                 if [sh, sl, tl].include?(a) or sh == sl or th == tl or sh == tl
                     raise ArgumentError, "neg16: invalid arguments!"
@@ -363,17 +365,17 @@ module Z80
             ##
             # Creates a routine that subtracts an 8-bit +s+ register value from a 16-bit +th+|+tl+ register pair.
             #
-            # Uses: +af+, +th+, +tl+, preserves: +s+.
+            # +s+:: A subtractor as an 8-bit register except the accumulator.
+            # +th+:: A target MSB 8-bit register.
+            # +tl+:: A target LSB 8-bit register.
             #
             # ====Note:
             # Although this method is often a more convenient way to subtract an 8-bit unsigned register value
             # from a 16-bit pair of registers, it does not set flags properly.
             #
-            # T-states: 24
+            # Uses: +af+, +th+, +tl+, preserves: +s+.
             #
-            # * +s+:: A subtractor as an 8-bit register except the accumulator.
-            # * +th+:: A target MSB 8-bit register.
-            # * +tl+:: A target LSB 8-bit register.
+            # T-states: 24
             def sub_from(s, th, tl)
                 if th == tl or [s,th,tl].include?(a)
                     raise ArgumentError, "sub_from: invalid arguments!"
@@ -391,16 +393,17 @@ module Z80
             # Creates a routine that adds a 16-bit integer in +tt+ to a 24-bit integer in +th8+|+tl16+.
             # Returns the result in +a+|+tl16+.
             #
+            # +th8+::  An 8-bit register holding the highest 8 bits of the value to be added to, must not be
+            #          the +accumulator+.
+            # +tl16+:: A 16-bit register holding the lowest 16 bits of the value to be added to (+hl+, +ix+ or +iy+).
+            # +tt+::   A 16-bit register holding the value to be added (+bc+, +de+ or +sp+).
+            #
+            # Options:
+            # * +signed+:: +true+ if the 16-bit value being added is a twos complement signed integer.
+            #
             # Modifies: +af+, +tl16+, preserves: +th8+.
             #
             # T-states: 27 signed / 19 unsigned
-            #
-            # * +th8+:: An 8-bit register holding the highest 8 bits of the value to be added to, must not be
-            #           the +accumulator+.
-            # * +tl16+:: A 16-bit register holding the lowest 16 bits of the value to be added to (+hl+, +ix+ or +iy+).
-            # * +tt+:: A 16-bit register holding the value to be added (+bc+, +de+ or +sp+).
-            # Options:
-            # * +signed+:: +true+ if the 16-bit value being added is a twos complement signed integer.
             def add24_16(th8=c, tl16=hl, tt=de, signed:true)
                 th, tl = tt.split
                 tlh, tll = tl16.split
@@ -449,14 +452,15 @@ module Z80
             # As a side-effect accumulator is always cleared to 0 and +m+ and +k+ are left unmodified
             # if they are not an: +accumulator+ nor part of +tt+.
             #
-            # Uses: +af+, +hl+, +tt+, optionally preserves: +k+, +m+.
+            # +k+::        A multiplicant as an immediate value or an 8-bit register.
+            # +m+::        A multiplicator as an immediate value or an 8-bit register.
             #
-            # * +k+::        A multiplicant as an immediate value or an 8-bit register.
-            # * +m+::        A multiplicator as an immediate value or an 8-bit register.
             # Options:
             # * +tt+::       A 16-bit temporary register (+de+ or +bc+).
             # * +clrhl+::    If the result should be set or accumulated, if +false+ acts like: +hl+ += +k+ * +m+.
             # * +signed_k+:: If the multiplicant (+k+) represents a twos complement signed integer (-128..127).
+            #
+            # Uses: +af+, +hl+, +tt+, optionally preserves: +k+, +m+.
             def mul(k=d, m=a, tt:de, clrhl:true, signed_k:false)
                 th, tl = tt.split
                 raise ArgumentError if tt == hl or m == th
@@ -490,18 +494,20 @@ module Z80
             #
             # As a side-effect +k+ is left unmodified if +k+ is not part of +tt+.
             #
-            # Uses: +f+, +hl+, +tt+, optionally preserves: +k+.
-            #
             # For those +m+ that has only one bit set or none, +tt+ is not being used.
             # For some of +m+ when +tt+ is +de+ the code can be better optimized as we may leverage
             # the usage of <tt>ex  de, hl</tt> instruction.
             #
-            # * +k+::        A multiplicant as an immediate value or an 8-bit register.
-            # * +m+::        A multiplicator value as a constant integer.
+            # +k+::        A multiplicant as an immediate value or an 8-bit register.
+            # +m+::        A multiplicator value as a constant integer.
+            #
             # Options:
             # * +tt+::       A 16-bit temporary register (+de+ or +bc+).
             # * +clrhl+::    If the result should be set or accumulated, if +false+ acts like: +hl+ += +k+ * +m+.
             # * +signed_k+:: If the multiplicant (+k+) represents a twos complement signed integer (-128..127).
+            # * +flags+::    
+            #
+            # Uses: +f+, +hl+, +tt+, optionally preserves: +k+.
             def mul_const(k=d, m=0, tt:de, clrhl:true, signed_k:false)
                 raise ArgumentError unless tt != hl and m.is_a?(Integer) and (0..256).include?(m)
                 tt = hl if clrhl and (m & (m - 1)) == 0
@@ -626,30 +632,31 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that performs a multiplication of an unsigned 16-bit integer +mh+|+ml+ * 8-bit unsigned +m+.
+            # Creates a routine that performs a multiplication of an unsigned 16-bit integer +kh+|+kl+ * 8-bit unsigned +m+.
             # Returns the result as a 16-bit unsigned integer in +hl+.
             #
             # Optionally accumulates the result in +hl+.
             #
             # Breaks on overflow with +CF+=1.
             # 
-            # As a side-effect +m+ is cleared to 0 when CF=0 and +ml+ and +mh+ are left unmodified
+            # As a side-effect +m+ is cleared to 0 when CF=0 and +kl+ and +kh+ are left unmodified
             # if they are not part of +tt+.
             #
-            # Uses: +f+, +hl+, +m+, +tt+, optionally preserves: +mh+, +ml+.
+            # +kh+::    The MSB part of the multiplicant as an immediate value or an 8-bit register.
+            # +kl+::    The LSB part of the multiplicant as an immediate value or an 8-bit register.
+            # +m+::     An 8-bit multiplicator register, must not be a part of the +tt+.
             #
-            # * +mh+::    The MSB part of the multiplicant as an immediate value or an 8-bit register.
-            # * +ml+::    The LSB part of the multiplicant as an immediate value or an 8-bit register.
-            # * +m+::     An 8-bit multiplicator register, must not be a part of the +tt+.
             # Options:
             # * +tt+::    A 16-bit temporary register (+de+ or +bc+).
-            # * +clrhl+:: If the result should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
-            def mul8_c(mh=h, ml=l, m=a, tt:de, clrhl:true)
+            # * +clrhl+:: If the result should be set or accumulated, if +false+ acts like: +hl+ += +kh+|+kl+ * +m+.
+            #
+            # Uses: +f+, +hl+, +m+, +tt+, optionally preserves: +kh+, +kl+.
+            def mul8_c(kh=h, kl=l, m=a, tt:de, clrhl:true)
                 th, tl = tt.split
-                raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !register?(m)
+                raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == kh or th == kl or !register?(m)
                 isolate do |eoc|
-                            ld   tl, ml unless ml == tl
-                            ld   th, mh unless mh == th
+                            ld   tl, kl unless kl == tl
+                            ld   th, kh unless kh == th
                             ld   hl, 0 if clrhl
                     loop1   srl  m
                             jr   NC, noadd
@@ -662,32 +669,33 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that performs a multiplication of a 16-bit integer +mh+|+ml+ * 8bit unsigned +m+.
+            # Creates a routine that performs a multiplication of a 16-bit integer +kh+|+kl+ * 8bit unsigned +m+.
             # Returns the result as a 16-bit integer in +hl+.
             #
             # Optionally the result in the +hl+ is being accumulated.
             #
             # Optionally multiplies the result by 2 if +double+ option is +true+.
             #
-            # As a side-effect +m+ is always cleared to 0 and +ml+ and +mh+ are left unmodified
+            # As a side-effect +m+ is always cleared to 0 and +kl+ and +kh+ are left unmodified
             # if they are not part of +tt+.
             #
-            # Uses: +f+, +hl+, +m+, +mh+, +ml+, +tt+.
+            # +kh+::    The MSB part of the multiplicant as an immediate value or an 8-bit register.
+            # +kl+::    The LSB part of the multiplicant as an immediate value or an 8-bit register.
+            # +m+::     An 8-bit multiplicator register, must not be a part of the +tt+.
             #
-            # * +mh+::    The MSB part of the multiplicant as an immediate value or an 8-bit register.
-            # * +ml+::    The LSB part of the multiplicant as an immediate value or an 8-bit register.
-            # * +m+::     An 8-bit multiplicator register, must not be a part of the +tt+.
             # Options:
             # * +tt+::    A 16-bit temporary register (+de+ or +bc+).
-            # * +clrhl+:: If the result should be set or accumulated, if +false+ acts like: +hl+ += +mh+|+ml+ * +m+.
-            # * +double+:: +true+ if the result should be multiplied by 2 (+mh+|+ml+ * 2).
+            # * +clrhl+:: If the result should be set or accumulated, if +false+ acts like: +hl+ += +kh+|+kl+ * +m+.
+            # * +double+:: +true+ if the result should be multiplied by 2 (+kh+|+kl+ * 2).
             # * +optimize+:: What is more important: +:time+ or +:size+? Applies only if +double+ is +false+.
-            def mul8(mh=h, ml=l, m=a, tt:de, clrhl:true, double:false, optimize: :time)
+            #
+            # Uses: +f+, +hl+, +m+, +kh+, +kl+, +tt+.
+            def mul8(kh=h, kl=l, m=a, tt:de, clrhl:true, double:false, optimize: :time)
                 th, tl = tt.split
-                raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == mh or th == ml or !register?(m)
+                raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == kh or th == kl or !register?(m)
                 isolate do |eoc|
-                            ld   tl, ml unless ml == tl
-                            ld   th, mh unless mh == th
+                            ld   tl, kl unless kl == tl
+                            ld   th, kh unless kh == th
                             ld   hl, 0 if clrhl
                     unless double
                         if optimize == :size
@@ -709,27 +717,28 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that performs a multiplication of an unsigned 16-bit integer +mh+|+ml+ * 8-bit unsigned +m+.
+            # Creates a routine that performs a multiplication of an unsigned 16-bit integer +kh+|+kl+ * 8-bit unsigned +m+.
             # Returns the result as a 24-bit unsigned integer in +a+|+hl+.
             #
             # Optionally accumulates the result in +a+|+hl+.
             #
-            # Uses: +af+, +bc+, +de+, +hl+.
+            # +kh+::     The MSB part of the multiplicant as an immediate value or an 8-bit register.
+            # +kl+::     The LSB part of the multiplicant as an immediate value or an 8-bit register.
+            # +m+::      A multiplicator register, it must not be the +accumulator+ or +t+ or be a part of +tt+.
             #
-            # * +mh+::     The MSB part of the multiplicant as an immediate value or an 8-bit register.
-            # * +ml+::     The LSB part of the multiplicant as an immediate value or an 8-bit register.
-            # * +m+::      A multiplicator register, it must not be the +accumulator+ or +t+ or be a part of +tt+.
             # Options:
             # * +t+::      An 8-bit temporary register, it must not be the +accumulator+ or +m+ or be a part of +tt+.
             # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
-            # * +clrahl+:: If +a+|+hl+ should be set or accumulated, if +false+ acts like: +a+|+hl+ += +mh+|+ml+ * +m+.
-            def mul8_24(mh=h, ml=l, m=b, t:c, tt:de, clrahl:true)
+            # * +clrahl+:: If +a+|+hl+ should be set or accumulated, if +false+ acts like: +a+|+hl+ += +kh+|+kl+ * +m+.
+            #
+            # Uses: +af+, +bc+, +de+, +hl+.
+            def mul8_24(kh=h, kl=l, m=b, t:c, tt:de, clrahl:true)
                 th, tl = tt.split
                 raise ArgumentError if tt == hl or [a,th,tl,t].include?(m) or [a,th,tl,m].include?(t) or
-                                                             tl == mh or th == ml or !register?(m) or !register?(t)
+                                                             tl == kh or th == kl or !register?(m) or !register?(t)
                 isolate do |eoc|
-                                ld  tl, ml unless ml == tl
-                                ld  th, mh unless mh == th
+                                ld  tl, kl unless kl == tl
+                                ld  th, kh unless mh == th
                     if clrahl
                                 ld  hl, 0
                                 xor a
@@ -813,6 +822,15 @@ module Z80
             # Creates a routine that performs a multiplication of a 16-bit integer (+hl+) by an unsigned 16-bit integer +mm+ (+bc+ or +de+).
             # Returns the 32-bit integer result in +hl+|+hl'+.
             #
+            # +mm+::        A 16bit multiplicator register (+bc+ or +de+).
+            #
+            # Options:
+            # * +tt+::      A 16bit tempoarary register (+bc'+ or +de'+) of the alternative set.
+            # * +clrhlhl+:: If +hl+|+hl'+ should be cleared, if +false+ acts like: +hl+|+hl'+ += +hl+ * +mm+;
+            #               also it may be a 32-bit constant, in this instance acts like: +hl+|+hl'+ = +clrhlhl+ + +hl+ * +mm+.
+            # * +signed_hl+:: If the multiplicant (+hl+) represents a twos complement signed integer (-32768..32767).
+            # * +optimize+::  What is more important: +:time+ (117 bytes) or +:size+ (51 bytes)?
+            #
             # Uses: +af+, +af'+, +hl+, +hl'+, +mm+, +tt'+.
             #
             # T-states: (+2 if +clrhlhl+ is an integer)
@@ -824,14 +842,6 @@ module Z80
             #   0xFFFF*1     :   604   1169
             #        1*0xFFFF:  1346   1674
             #   0xFFFF*0xAAAA:  1085   1410
-            #
-            # * +mm+::      A 16bit multiplicator register (+bc+ or +de+).
-            # * +tt'+::     A 16bit tempoarary register (+bc+ or +de+) of the alternative set.
-            # Options:
-            # * +clrhlhl+:: If +hl+|+hl'+ should be cleared, if +false+ acts like: +hl+|+hl'+ += +hl+ * +mm+;
-            #               also it may be a 32-bit constant, in this instance acts like: +hl+|+hl'+ = +clrhlhl+ + +hl+ * +mm+.
-            # * +signed_hl+:: If the multiplicant (+hl+) represents a twos complement signed integer (-32768..32767).
-            # * +optimize+:: What is more important: +:time+ (117 bytes) or +:size+ (51 bytes)?
             def mul16_32(mm=bc, tt:bc, clrhlhl:true, signed_hl:false, optimize: :time)
                 raise ArgumentError unless [bc, de].include?(mm) and [bc, de].include?(tt)
                 mh, ml = mm.split
@@ -1000,10 +1010,8 @@ module Z80
             #      anda a # clear CF
             #    end
             #
-            # Uses: +af+, +b+, +k+, preserves: +m+.
-            #
-            # * +k+:: A dividend as an 8-bit register except: +a+, +b+.
-            # * +m+:: A divisor as an 8-bit register except: +a+, +b+, +k+.
+            # +k+:: A dividend as an 8-bit register except: +a+, +b+.
+            # +m+:: A divisor as an 8-bit register except: +a+, +b+, +k+.
             #
             # Options:
             # * +clrrem+:: Clears a reminder (+accumulator+). If this is +false+, +check0+ and +check1+
@@ -1016,6 +1024,8 @@ module Z80
             #              to indicate where to jump if +m+ equals 1.
             # * +modulo+:: Calculates a remainder only.
             # * +optimize+:: What is more important: +:time+ or +:size+?
+            #
+            # Uses: +af+, +b+, +k+, preserves: +m+.
             def divmod(k, m, clrrem:true, check0:true, check1:true, modulo:false, optimize: :time)
                 unless clrrem
                     check0 = false
@@ -1076,18 +1086,19 @@ module Z80
             # Creates a routine that performs an euclidean division of unsigned: +hl+ / +m+.
             # Returns a quotient in +hl+ and a remainder in +a+.
             #
-            # _NOTE_:: A stacked Macros.divmod presents a faster (up to 12%) but a significantly
-            #          larger (x1.5) alternative.
+            # +m+:: A divisor, one of: +c+, +d+ or +e+.
             #
-            # Uses: +af+, +b+, +hl+, preserves: +m+.
-            #
-            # * +m+:: A divisor, one of: +c+, +d+ or +e+.
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the register +a+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+.
             # * +check1+:: Checks if a divisor is 1, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
+            #
+            # _NOTE_:: A stacked Macros.divmod presents a faster (up to 12%) but a significantly
+            #          larger (x1.5) alternative.
+            #
+            # Uses: +af+, +b+, +hl+, preserves: +m+.
             def divmod8(m=c, check0:true, check1:true, modulo:false)
                 raise ArgumentError unless [c, d, e].include?(m)
                 isolate do |eoc|
@@ -1129,9 +1140,8 @@ module Z80
             # Creates a routine that performs an euclidean division of unsigned 16-bit: +hl+ / +de+.
             # Returns a quotient in +hl+ and a remainder in +bc+.
             #
-            # Uses: +af+, +bc+, +hl+, +x+, preserves: +de+.
+            # +x+:: A temporary 8-bit register, one of: +ixh+, +ixl+, +iyh+ or +iyl+.
             #
-            # * +x+:: A temporary 8-bit register, one of: +ixh+, +ixl+, +iyh+ or +iyl+.
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the +accumulator+ is being altered. 
@@ -1141,6 +1151,8 @@ module Z80
             # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance uses a different,
             #              optimized for 8-bit division code. It can also be set to +:divmod8+ to use
             #              Macros.divmod8 (smaller code) instead of stacked Macros.divmod for an 8-bit division.
+            #
+            # Uses: +af+, +bc+, +hl+, +x+, preserves: +de+.
             def divmod16(x=ixl, check0:true, check1:true, modulo:false, quick8:true)
                 raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
                 isolate do |eoc|
@@ -1219,10 +1231,8 @@ module Z80
             #
             # This routine utilizes a stacked up Macros.divmod routines.
             #
-            # Uses: +af+, +b+, +kh+, +km+, +kl+, preserves: +m+.
-            #
-            # * +kh+, +km+, +kl+:: A dividend as three unique 8-bit registers except: +a+, +b+.
-            # * +m+:: A divisor as an 8-bit register except: +a+, +b+ and none of +kh+, +km+, +kl+.
+            # +kh+, +km+, +kl+:: A dividend as three unique 8-bit registers except: +a+, +b+.
+            # +m+:: A divisor as an 8-bit register except: +a+, +b+ and none of +kh+, +km+, +kl+.
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
@@ -1233,6 +1243,8 @@ module Z80
             #              to indicate where to jump if +m+ equals 1.
             # * +modulo+:: Calculates a remainder only.
             # * +optimize+:: What is more important: +:time+ or +:size+?
+            #
+            # Uses: +af+, +b+, +kh+, +km+, +kl+, preserves: +m+.
             def divmod24_8(kh, km, kl, m, check0:true, check1:true, modulo:false, optimize: :time)
                 raise ArgumentError unless [kh, km, kl, m].uniq.size == 4
                 isolate do |eoc|
@@ -1248,19 +1260,20 @@ module Z80
             # Creates a routine that performs an euclidean division of unsigned 32-bit: +hl+|+hl'+ / +m+.
             # Returns a quotient in +hl+|+hl'+ and a remainder in +a+.
             #
-            # _NOTE_:: A stacked Macros.divmod presents a faster (9-16%) but a significantly
-            #          larger (x2) alternative.
+            # +m+:: A divisor, one of: +c+, +d+ or +e+.
+            # +mt'+:: A temporary register from the alternative set: +c'+, +d'+ or +e'+.
             #
-            # Uses: +af+, +af'+, +b+, +b'+, +hl+, +hl'+, +mt'+, preserves: +m+.
-            #
-            # * +m+:: A divisor, one of: +c+, +d+ or +e+.
-            # * +mt'+:: A temporary register from the alternative set: +c+, +d+ or +e+.
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the register +a+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+.
             # * +check1+:: Checks if a divisor is 1, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
+            #
+            # _NOTE_:: A stacked Macros.divmod presents a faster (9-16%) but a significantly
+            #          larger (x2) alternative.
+            #
+            # Uses: +af+, +af'+, +b+, +b'+, +hl+, +hl'+, +mt'+, preserves: +m+.
             def divmod32_8(m=c, mt:c, check0:true, check1:true, modulo:false)
                 raise ArgumentError unless [c, d, e].include?(m)
                 isolate do |eoc|
@@ -1318,9 +1331,8 @@ module Z80
             # Creates a routine that performs an euclidean division of unsigned 32-bit: +hl+|+hl'+ / +de+.
             # Returns a quotient in +hl+|+hl'+ and a remainder in +bc+.
             #
-            # Uses: +af+, +af'+, +bc+, +bc'+, +hl+, +hl'+, +de'+, +x+, preserves: +de+.
+            # +x+:: A temporary 8-bit register, one of: +ixh+, +ixl+, +iyh+ or +iyl+.
             #
-            # * +x+:: A temporary 8-bit register, one of: +ixh+, +ixl+, +iyh+ or +iyl+.
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the register +a+ is being altered.
@@ -1329,6 +1341,8 @@ module Z80
             # * +modulo+:: Calculates a remainder only.
             # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance
             #              uses a different, optimized code.
+            #
+            # Uses: +af+, +af'+, +bc+, +bc'+, +hl+, +hl'+, +de'+, +x+, preserves: +de+.
             def divmod32_16(x:ixl, check0:true, check1:true, modulo:false, quick8:true)
                 raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
                 isolate do |eoc|
@@ -1442,13 +1456,11 @@ module Z80
             # 
             #    s1 = (s0 + 1) * 75 % 65537 - 1
             #
-            # Uses: +af+, +bc+, +de+, +hl+.
-            #
-            # T-states: ~ 601.7 (46 for seed=65535, 247 for seed<=872, max: 655)
-            #
             # Expects a seed (s0) in +hl+ and produces the result (s1) in +hl+.
             #
             # Modifies: +af+, +bc+, +de+, +hl+.
+            #
+            # T-states: ~ 601.7 (46 for seed=65535, 247 for seed<=872, max: 655)
             def rnd
                 isolate do |eoc|
                                     inc hl          # seed + 1
