@@ -2,6 +2,7 @@
 require 'z80'
 require 'z80/math_i'
 require 'zxlib/sys'
+require 'zxlib/math'
 
 module ZXUtils
     ##
@@ -78,6 +79,7 @@ module ZXUtils
         # =ZXUtils::Benchmark macros.
         module Macros
             include Z80::MathInt::Macros
+            include ZXLib::Math::Macros
             include ZXLib::Sys::Macros
             ## 
             # Returns the benchmark result.
