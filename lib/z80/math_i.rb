@@ -1603,7 +1603,7 @@ module Z80
             #
             # Modifies: +af+, +bc+, +de+, +hl+.
             #
-            # T-states: ~ 601.7 (46 for seed=65535, 247 for seed<=872, max: 655)
+            # T-states: ~ 587.7 (46 for seed=65535, 233 for seed<=872, max: 641)
             def rnd
                 isolate do |eoc|
                                     inc hl          # seed + 1

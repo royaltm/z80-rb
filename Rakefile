@@ -76,9 +76,20 @@ TESTS = %w[
   test.math_i.mul_const8_24.rb
 ]
 
-desc "Compile utils' tests"
+desc "Compile external tests"
 task :test do
   TESTS.each do |path|
+    sh "ruby -Ilib #{File.join("tests", path)}"
+  end
+end
+
+BENCHES = %w[
+  bench.rnd.rb
+]
+
+desc "Compile benchmarks"
+task :bench do
+  BENCHES.each do |path|
     sh "ruby -Ilib #{File.join("tests", path)}"
   end
 end
