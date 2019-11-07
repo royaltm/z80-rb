@@ -129,9 +129,7 @@
 <p>Address of a <a href="Macros.html#method-i-neg_sintable256_pi_half_no_zero_lo"><code>neg_sintable256_pi_half_no_zero_lo</code></a> sinus table. Can be a <code>label</code>, <code>hl</code> register or a <code>label</code> pointer.</p>
 </dd><dt><em>NOTE</em>
 <dd>
-<p><code>sincos</code> must be an address on a 256 byte boundary</p>
-
-<pre>(lower byte of +sincos+ address must be +0+); reserve 1024 bytes.</pre>
+<p><code>sincos</code> must be an address on a 256 byte boundary (lower byte of <code>sincos</code> address must be <code>0</code>); reserve 1024 bytes.</p>
 </dd></dl>
 
 <p>Mofifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>af&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, <code>hl&#39;</code>.</p>
