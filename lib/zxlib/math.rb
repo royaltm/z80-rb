@@ -215,7 +215,7 @@ module ZXLib
             # Options:
             # * +sgn+:: The source of a sign as an 8-bit register, an address or a pointer. 
             #           In this instance +0+ indicates a positive integer. A non-zero value indicates
-            #           a negative value. Alternatively +sgn+ can be one of the conditions: +C+, +NC+, +Z+, +NZ+.
+            #           a negative value. Alternatively +sgn+ can be one of the branching conditions.
             #           In this instance the specified condition is being used to determine if the input integer
             #           is negative. +sgn+ can also be set to +nil+. In this instance the integer is assumed
             #           to be always positive.
@@ -252,12 +252,14 @@ module ZXLib
                     fits        label
                     if sgn
                                 ex    af, af
-                        if sgn.respond_to?(:one_of?) and sgn.one_of?(%w[Z NZ C NC])
-                                    jr    sgn, negative
+                        if sgn.respond_to?(:jr_ok?) and sgn.jr_ok?
+                                jr    sgn, negative
+                        elsif sgn.is_a?(Condition)
+                                jp    sgn, negative
                         else
-                                    ld    a, sgn unless sgn == a
-                                    ora   a
-                                    jr    NZ, negative
+                                ld    a, sgn unless sgn == a
+                                ora   a
+                                jr    NZ, negative
                         end
                     end
                                 res   7, m3
