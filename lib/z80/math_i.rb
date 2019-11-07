@@ -293,34 +293,50 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that changes the sign of a twos complement 32-bit integer in +t3+|+t2+|+t1+|+t0+.
+            # Creates a routine that changes the sign of a twos complement integer held in any number of +regs+.
             #
-            # Uses: +af+, +t3+, +t2+, +t1+, +t0+.
+            # Pass any number of 8-bit registers, except the +accumulator+, as function arguments.
+            # A register passed as the first argument should hold the most significant byte of the negated integer.
             #
-            # T-states: 48
-            def neg32(t3, t2, t1, t0)
-                raise ArgumentError, "neg32 invalid arguments!" if [t3, t2, t1, t0].include?(a) or
-                                                                   [t3, t2, t1, t0].any?{|r| !register?(r) || !r.bit8? } or
-                                                                   [t3, t2, t1, t0].uniq.size != 4
-                ns do
-                        xor  a
-                        sub  t0
-                        ld   t0, a
-                        sbc  a, a
-                        sub  t1
-                        ld   t1, a
-                        sbc  a, a
-                        sub  t2
-                        ld   t2, a
-                        sbc  a, a
-                        sub  t3
-                        ld   t3, a
+            # Options:
+            # * +t+:: A temporary 8-bit register used when the number of argument registers is 3 or more to
+            #         slightly optimize the routine.
+            # * +t_is_zero+:: Assume the +t+ register already holds 0. If +false+ the content of the +t+ register
+            #                 will be set to 0.
+            #
+            # Integers are being processed starting from the least significant byte (the last argument).
+            #
+            # Modifies: +af+ and argument registers.
+            #
+            # T-states: (register count) 1: 12, 2: 24, 3: 36|40|42, 4: 48|52|57, 5: 60|64|72, 6: 87.
+            def neg_int(*regs, t:nil, t_is_zero:false)
+                raise ArgumentError, "neg_int invalid arguments!" if regs.empty? or regs.include?(a) or
+                                                                   regs.any?{|r| !register?(r) || !r.bit8? } or
+                                                                   regs.uniq.size != regs.size or
+                                                                   !(t.nil? or [b,c,d,e,h,l].include?(t))
+                t = 0 if t.nil? or regs.size < 3
+                isolate do
+                    regs.reverse_each.with_index do |reg, i|
+                        if i.zero?
+                            xor  a
+                            ld   t, a if !t_is_zero && register?(t)
+                            sub  reg
+                        elsif regs.size == 2
+                            sbc  a, a
+                            sub  reg
+                        else
+                            ld   a, t
+                            sbc  reg
+                        end
+                            ld   reg, a
+                    end
                 end
             end
             ##
             # Creates a routine that adds an 8-bit accumulator value to a 16-bit +th+|+tl+ register pair.
             #
-            # Uses: +af+, +th+, +tl+.
+            # +th+:: A target MSB 8-bit register.
+            # +tl+:: A target LSB 8-bit register.
             #
             # ====Note:
             # Although this method is often a more convenient way to add an 8-bit unsigned integer
@@ -329,10 +345,9 @@ module Z80
             #   ZF: (tt + a) & 0xFF00 == 0
             #   CF: (((tt + a) & 0xFF) + (((tt + a) & 0xFF00) >> 8)) > 0xFF
             #
-            # T-states: 20
+            # Uses: +af+, +th+, +tl+.
             #
-            # * +th+:: A target MSB 8-bit register.
-            # * +tl+:: A target LSB 8-bit register.
+            # T-states: 20
             def adda_to(th, tl)
                 if th == tl or [th,tl].include?(a)
                     raise ArgumentError, "adda_to: invalid arguments!"
