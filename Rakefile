@@ -73,6 +73,7 @@ end
 
 TESTS = %w[
   test.math_i.mul_const.rb
+  test.math_i.mul_const8_24.rb
 ]
 
 desc "Compile utils' tests"

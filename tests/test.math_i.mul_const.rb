@@ -18,62 +18,62 @@ class MTestFactory
 
             ns :test_pos do
                         call find_args
-                        report_error_unless Z, "Q Parameter error"
+                error_q report_error_unless Z, "Q Parameter error"
                         read_positive_int_value kh, kl
-                        report_error_unless Z, "A Invalid argument"
+                error_a report_error_unless Z, "A Invalid argument"
                         ld   a, kh
                         anda a
-                        report_error_unless Z, "B Integer out of range"
+                error_b report_error_unless Z, "B Integer out of range"
                         inc  hl
                         call find_args.seek_next
-                        report_error_unless Z, "Q Parameter error"
+                        jr   NZ, error_q.err
                         read_positive_int_value th, tl
-                        report_error_unless Z, "A Invalid argument"
+                        jr   NZ, error_a.err
                         cp16n th, tl, 257
-                        report_error_unless C, "B Integer out of range"
+                        jr   NC, error_b.err
                         inc  hl
                         call find_args.seek_next
                         jr   NZ, skip_3
                         push tt
                         read_positive_int_value th, tl
-                        report_error_unless Z, "A Invalid argument"
+                        jr   NZ, error_a
                         ld16 hl, tt
                         pop  tt
                         ld   ix, madd_table
-                        jr   skmul
+                        jr   mult
                 skip_3  ld   ix, mul_table
-                skmul   call multiply
+                mult    call multiply
                         ld16 bc, hl
                         ret
             end
 
             ns :test_sig do
                         call find_args
-                        report_error_unless Z, "Q Parameter error"
+                error_q report_error_unless Z, "Q Parameter error"
                         read_integer_value kh, kl, sgn
-                        report_error_unless Z, "A Invalid argument"
+                error_a report_error_unless Z, "A Invalid argument"
                         ld   a, kh
                         xor  sgn
-                        report_error_unless Z, "B Integer out of range"
+                error_b report_error_unless Z, "B Integer out of range"
                         inc  hl
                         call find_args.seek_next
-                        report_error_unless Z, "Q Parameter error"
+                        jr   NZ, error_q
                         read_positive_int_value th, tl
-                        report_error_unless Z, "A Invalid argument"
+                        jr   NZ, error_a
                         cp16n th, tl, 257
-                        report_error_unless C, "B Integer out of range"
+                        jr   NC, error_b
                         inc  hl
                         call find_args.seek_next
                         jr   NZ, skip_3
                         push tt
                         read_positive_int_value th, tl
-                        report_error_unless Z, "A Invalid argument"
+                        jr   NZ, error_a
                         ld16 hl, tt
                         pop  tt
                         ld   ix, maddsig_table
-                        jr   skmul
+                        jr   mult
                 skip_3  ld   ix, msig_table
-                skmul   call multiply
+                mult    call multiply
                         ld16 bc, hl
                         ret
             end
@@ -167,22 +167,22 @@ include ZXLib
        1 DEF FN n(x)=x-(65536 AND x>=32768): DEF FN m(a,b)=USR #{mtest[:test_pos]}: DEF FN s(a,b)=FN n(USR #{mtest[:test_sig]}): DEF FN a(a,b,c)=USR #{mtest[:test_pos]}: DEF FN q(a,b,c)=FN n(USR #{mtest[:test_sig]})
       10 RANDOMIZE
       20 FOR b=0 TO 256
-         LET a=INT (RND*256): LET r=FN m(a,b): PRINT AT 0,0;a;" * ";b;" = ";
+         LET a=INT (RND*256): PRINT AT 0,0;a;" * ";b;" = ";: LET r=FN m(a,b)
          IF r<>a*b THEN GO TO 1000
          PRINT r;"        "
-         LET c=INT (RND*256): LET r=FN a(a,b,c): PRINT AT 1,0;c;" + ";a;" * ";b;" = ";
+         LET c=INT (RND*256): PRINT AT 1,0;c;" + ";a;" * ";b;" = ";: LET r=FN a(a,b,c)
          IF r<>c+a*b THEN GO TO 2000
          PRINT r;"        "
-         LET a=a-128: LET r=FN s(a,b): PRINT AT 2,0;a;" * ";b;" = ";
+         LET a=a-128: PRINT AT 2,0;a;" * ";b;" = ";: LET r=FN s(a,b)
          IF r<>a*b THEN GO TO 1000
          PRINT r;"        "
-         LET r=FN q(a,b,c): PRINT AT 3,0;c;" + ";a;" * ";b;" = ";
+         PRINT AT 3,0;c;" + ";a;" * ";b;" = ";: LET r=FN q(a,b,c)
          IF r<>c+a*b THEN GO TO 2000
          PRINT r;"        "
          NEXT b
          GO TO 10
-    1000 PRINT '"assertion failed: ";r;"`<>`";a*b: GO TO 10000
-    2000 PRINT '"assertion failed: ";r;"`<>`";c+a*b: GO TO 10000
+    1000 PRINT "        "'"assertion failed: ";r;"`<>`";a*b: GO TO 10000
+    2000 PRINT "        "'"assertion failed: ";r;"`<>`";c+a*b: GO TO 10000
     9998 STOP: RUN
     9999 CLEAR #{mtest.org-1}: LOAD ""CODE: RUN
     END
