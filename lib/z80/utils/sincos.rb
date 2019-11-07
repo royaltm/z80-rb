@@ -141,7 +141,7 @@ module Z80
                 #              Can be a +label+, +hl+ register or a +label+ pointer.
                 #
                 # _NOTE_:: +sincos+ must be an address on a 256 byte boundary
-                #            (lower byte of +sincos+ address must be +0+); reserve 1024 bytes.
+                #          (lower byte of +sincos+ address must be +0+); reserve 1024 bytes.
                 #
                 # Mofifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+.
                 def create_sincos_from_sintable(sincos, sintable:hl)
