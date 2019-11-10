@@ -305,10 +305,10 @@ workspace              | track_stack_end  music_control                        m
 120     -                   Enables noise output.
 121     index:1             Yields temporary control to another track (like a go sub) until it&#39;s finished.
                             Followed by a 1 byte lookup index (0: no-op, 1-128: from the lookup table).
-122     counter:1, offset:1 A loop. Moves track cursor back back counter times to the given offset.
-                            Followed by a 1 byte counter (counter = 0 is loop forever) and a 1 byte LSB 8-bit
-                            of a 16-bit twos complement negative byte offset relative to the beginning of
-                            the command. (0..255) is (-256..-1)
+122     counter:1, offset:1 A loop. Moves the track cursor back by the given offset, counter times.
+                            Followed by a 1 byte counter (if counter = 0 loops forever) and the least significant
+                            byte of a 16-bit twos complement negative byte offset relative to the beginning of
+                            the command. (offset: 0..255 is -256..-1)
 123-127                     Reserved (DO NOT USE! the results would be unexpected and most probably &#39;ll crash
                             program execution).</pre>
 
@@ -457,7 +457,7 @@ track3            data (track 3 data)</pre>
 
           
           <div class="method-source-code" id="init-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 759</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 822</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:init</span> <span class="ruby-keyword">do</span>
                     <span class="ruby-comment"># clear control data</span>
                     <span class="ruby-identifier">clrmem</span> <span class="ruby-identifier">music_control</span>, <span class="ruby-operator">+</span><span class="ruby-identifier">music_control</span>
@@ -471,7 +471,7 @@ track3            data (track 3 data)</pre>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chan_a</span>.<span class="ruby-identifier">instrument</span>.<span class="ruby-identifier">flags</span>
 
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">track_stack_end</span>
-                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-value">3</span> <span class="ruby-comment"># number of channels</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-value">3</span>           <span class="ruby-comment"># number of channels</span>
   <span class="ruby-identifier">init_loop</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ix</span>         <span class="ruby-comment"># instrument.flags</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">empty_instrument</span>
                     <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>             <span class="ruby-comment"># instrument.start</span>
@@ -562,7 +562,7 @@ track3            data (track 3 data)</pre>
 
           
           <div class="method-source-code" id="play-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 836</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 899</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:play</span> <span class="ruby-keyword">do</span>
   <span class="ruby-keyword">if</span> <span class="ruby-constant">READ_ONLY_CODE</span>
                     <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">saved_sp</span>], <span class="ruby-identifier">sp</span>

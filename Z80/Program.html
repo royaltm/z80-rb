@@ -118,7 +118,7 @@
     
     <li ><a href="#method-i-macro_import">#macro_import</a>
     
-    <li ><a href="#method-i-method_missing">#method_missing</a>
+    <li class="calls-super" ><a href="#method-i-method_missing">#method_missing</a>
     
     <li class="calls-super" ><a href="#method-i-new">#new</a>
     
@@ -1474,12 +1474,21 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 </pre>
           
           
+            <div class="method-calls-super">
+              Calls superclass method
+              
+            </div>
+          
 
           
           <div class="method-source-code" id="method_missing-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 475</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 478</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">method_missing</span>(<span class="ruby-identifier">m</span>, <span class="ruby-identifier">label</span> = <span class="ruby-keyword">nil</span>)
-        <span class="ruby-identifier">define_label</span>(<span class="ruby-identifier">m</span>, <span class="ruby-identifier">label</span>)
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_ary</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_a</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_hash</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_h</span>
+                <span class="ruby-keyword">super</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">define_label</span>(<span class="ruby-identifier">m</span>, <span class="ruby-identifier">label</span>)
+        <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1544,7 +1553,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
                         <span class="ruby-identifier">prefix</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-string">&#39;.&#39;</span>.<span class="ruby-identifier">freeze</span>
                         <span class="ruby-identifier">merged_override</span>.<span class="ruby-identifier">merge!</span>(<span class="ruby-identifier">override</span>.
                                 <span class="ruby-identifier">select</span>{ <span class="ruby-operator">|</span><span class="ruby-identifier">k</span>,<span class="ruby-operator">|</span> <span class="ruby-identifier">k</span>.<span class="ruby-identifier">start_with?</span>(<span class="ruby-identifier">prefix</span>) }.
-                                <span class="ruby-identifier">map</span>{ <span class="ruby-operator">|</span><span class="ruby-identifier">k</span>,<span class="ruby-identifier">v</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">k</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">prefix</span>.<span class="ruby-identifier">length</span><span class="ruby-operator">..</span>), <span class="ruby-identifier">v</span>] }.
+                                <span class="ruby-identifier">map</span>{ <span class="ruby-operator">|</span><span class="ruby-identifier">k</span>,<span class="ruby-identifier">v</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">k</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">prefix</span>.<span class="ruby-identifier">length</span><span class="ruby-operator">..</span><span class="ruby-value">-1</span>), <span class="ruby-identifier">v</span>] }.
                                 <span class="ruby-identifier">to_h</span>)
                 <span class="ruby-keyword">end</span>
 

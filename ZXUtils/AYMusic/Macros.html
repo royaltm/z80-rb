@@ -128,7 +128,7 @@ end</pre>
         
         <div class="method-heading">
           <span class="method-name">ay_music_finished?</span><span
-            class="method-args">(music_control)</span>
+            class="method-args">(music_control, compact:false, subroutine:false, branch_not_finished: :eoc)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -137,34 +137,100 @@ end</pre>
 
         <div class="method-description">
           
-          <p>Creates a routine that detects if the currently playing tracks has ended.</p>
+          <p>Creates a routine that detects if the currently played music is finished.</p>
 
-<p><code>ZF</code> is 1 if all of the tracks has reached the end.</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>music_control</code>
+<p>As a result <code>ZF</code> is 1 if all of the main music track cursors has reached the end.</p>
+<dl class="rdoc-list note-list"><dt><code>music_control</code>
 <dd>
 <p>A label of the type <a href="MusicControl.html"><code>MusicControl</code></a> addressing the data structure.</p>
 </dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>compact</code>
+<dd>
+<p>Pass <code>true</code> for a more compact routine (36..39 vs 61..71 bytes), which is slower and using more registers.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
+<dd>
+<p>Pass <code>true</code> for a subroutine, where a final <code>ret</code> will be added and <code>branch_not_finished</code> option will default to <code>ret</code>.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>branch_not_finished</code>
+<dd>
+<p>Pass an optional address, possibly as a label, where to branch when music is not finished. Pass <code>:ret</code> to return from a subroutine in this instance.</p>
+</dd></dl>
 </li></ul>
 
-<p>Modifies: <code>af</code>, <code>hl</code>.</p>
+<p>Modifies: <code>af</code>, <code>hl</code>, (<code>b</code>, <code>de</code> if <code>compact</code> is <code>true</code>).</p>
           
           
 
           
           <div class="method-source-code" id="ay_music_finished-3F-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 459</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_finished?</span>(<span class="ruby-identifier">music_control</span>)
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 470</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_finished?</span>(<span class="ruby-identifier">music_control</span>, <span class="ruby-value">compact:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">branch_not_finished:</span> <span class="ruby-value">:eoc</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
-    (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">2</span>).<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">branch_not_finished</span> = <span class="ruby-value">:ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">branch_not_finished</span> <span class="ruby-operator">==</span> <span class="ruby-value">:eoc</span>
+    <span class="ruby-identifier">branch_not_fin</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">branch_not_finished</span>
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:eoc</span> <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span> { <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:ret</span> <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span> { <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span> }
+    <span class="ruby-keyword">else</span>
+                   <span class="ruby-operator">-&gt;</span> { <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">branch_not_finished</span> }
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">compact</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chan_a</span>.<span class="ruby-identifier">track</span>.<span class="ruby-identifier">cursor_hi</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">3</span>
+      <span class="ruby-identifier">ckloop</span>          <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, [<span class="ruby-identifier">hl</span>] <span class="ruby-comment"># cursor_hi</span>
+                      <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># -&gt; cursor_lo</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>] <span class="ruby-comment"># cursor_lo</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]
+                      <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                      <span class="ruby-identifier">branch_not_fin</span>[]
+                      <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># -&gt; delay_hi</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, [<span class="ruby-identifier">hl</span>] <span class="ruby-comment"># delay_hi</span>
+                      <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># -&gt; delay_lo</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>] <span class="ruby-comment"># delay_lo</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
+                      <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">d</span>
+                      <span class="ruby-identifier">branch_not_fin</span>[]
+                      <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># -&gt; track_stack_hi</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, [<span class="ruby-identifier">hl</span>] <span class="ruby-comment"># track_stack_hi</span>
+                      <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">hl</span>      <span class="ruby-comment"># -&gt; track_stack_lo</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>] <span class="ruby-comment"># track_stack_lo</span>
+                      <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ora</span>  [<span class="ruby-identifier">hl</span>]
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ora</span>  [<span class="ruby-identifier">hl</span>]
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ora</span>  [<span class="ruby-identifier">hl</span>]
+                      <span class="ruby-identifier">branch_not_fin</span>[]
+                      <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-operator">+</span><span class="ruby-constant">ChannelControl</span> <span class="ruby-operator">+</span> <span class="ruby-operator">+</span><span class="ruby-constant">TrackControl</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                      <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>
+                      <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">ckloop</span>
+    <span class="ruby-keyword">else</span>
                       <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
+      (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">2</span>).<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span>
                       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chans</span>[<span class="ruby-identifier">ch</span>].<span class="ruby-identifier">track</span>.<span class="ruby-identifier">cursor</span>]
                       <span class="ruby-identifier">cp</span>   [<span class="ruby-identifier">hl</span>]
-                      <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
+                      <span class="ruby-identifier">branch_not_fin</span>[]
+      <span class="ruby-keyword">end</span>
+      (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">2</span>).<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span>
                       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chans</span>[<span class="ruby-identifier">ch</span>].<span class="ruby-identifier">track</span>.<span class="ruby-identifier">delay</span>]
                       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
                       <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">h</span>
-                      <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
+                      <span class="ruby-identifier">branch_not_fin</span>[]
+      <span class="ruby-keyword">end</span>
+      (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">2</span>).<span class="ruby-identifier">each_with_index</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ch</span>, <span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
+                      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">chans</span>[<span class="ruby-identifier">ch</span>].<span class="ruby-identifier">track</span>.<span class="ruby-identifier">track_stack</span>]
+                      <span class="ruby-identifier">ora</span>  [<span class="ruby-identifier">hl</span>]
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ora</span>  [<span class="ruby-identifier">hl</span>]
+                      <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                      <span class="ruby-identifier">ora</span>  [<span class="ruby-identifier">hl</span>]
+                      <span class="ruby-identifier">branch_not_fin</span>[] <span class="ruby-keyword">unless</span> <span class="ruby-identifier">i</span> <span class="ruby-operator">==</span> <span class="ruby-value">2</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-identifier">branch_not_finished</span> <span class="ruby-operator">==</span> <span class="ruby-value">:eoc</span> <span class="ruby-operator">||</span> (<span class="ruby-identifier">branch_not_finished</span> <span class="ruby-operator">==</span> <span class="ruby-value">:ret</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">subroutine</span>))
+      <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">end</span>
+                      <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -274,11 +340,10 @@ end</pre>
         <div class="method-description">
           
           <p>Creates a routine that builds a note-to-fine tones index table.</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>note_to_cursor</code>
+<dl class="rdoc-list note-list"><dt><code>note_to_cursor</code>
 <dd>
 <p>An address of the table to be built (max 192 bytes).</p>
 </dd></dl>
-</li></ul>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>play</code>
@@ -305,7 +370,7 @@ end</pre>
 
           
           <div class="method-source-code" id="ay_music_note_to_fine_tone_cursor_table_factory-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 334</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 336</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_note_to_fine_tone_cursor_table_factory</span>(<span class="ruby-identifier">note_to_cursor</span>, <span class="ruby-value">play:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">num_notes:</span><span class="ruby-constant">AYMusic</span><span class="ruby-operator">::</span><span class="ruby-constant">MAX_NOTES_COUNT</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;num_notes should be between 1 and #{AYMusic::MAX_NOTES_COUNT}&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-constant">AYMusic</span><span class="ruby-operator">::</span><span class="ruby-constant">MAX_NOTES_COUNT</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">num_notes</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -375,15 +440,13 @@ end</pre>
           <p>Creates a routine that reads a state of the I/O ports from the AY-3-891x chip and stores it into the player&#39;s register mirror.</p>
 
 <p>Execute this code before each play iteration if you care about preserving the AY general purpose I/O ports&#39; state.</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>music_control</code>
+<dl class="rdoc-list note-list"><dt><code>music_control</code>
 <dd>
 <p>A label of the type <a href="MusicControl.html"><code>MusicControl</code></a> addressing the data structure.</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>play</code>
+</dd><dt><code>play</code>
 <dd>
 <p>A label addressing the <a href="../AYMusic.html"><code>AYMusic</code></a> player&#39;s iteration routine.</p>
 </dd></dl>
-</li></ul>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>bc_const_loaded</code>
@@ -392,7 +455,7 @@ end</pre>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>io_ay</code>
 <dd>
-<p>A label containing <code>ay_sel</code>, <code>ay_inp</code> and <code>ay_out</code> sub-labels addressing the AY-3-891x output and select/input I/O bus.</p>
+<p>A namespace label containing <code>ay_sel</code>, <code>ay_inp</code> and <code>ay_out</code> sub-labels addressing the AY-3-891x output and select/input I/O bus.</p>
 </dd></dl>
 </li></ul>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
@@ -406,7 +469,7 @@ end</pre>
 
           
           <div class="method-source-code" id="ay_music_preserve_io_ports_state-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 313</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 315</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_preserve_io_ports_state</span>(<span class="ruby-identifier">music_control</span>, <span class="ruby-identifier">play</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                       <span class="ruby-identifier">ay_get_register_value</span>(<span class="ruby-constant">AYMusic</span><span class="ruby-operator">::</span><span class="ruby-constant">MIXER</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-identifier">bc_const_loaded</span>, <span class="ruby-value">io_ay:</span><span class="ruby-identifier">io_ay</span>)
@@ -439,11 +502,10 @@ end</pre>
         <div class="method-description">
           
           <p>Creates a routine that builds a fine tones to AY-3-891x tone periods table.</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>fine_tones</code>
+<dl class="rdoc-list note-list"><dt><code>fine_tones</code>
 <dd>
 <p>An address of the fine tones table to be built (512 bytes).</p>
 </dd></dl>
-</li></ul>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>hz</code>
@@ -470,7 +532,7 @@ end</pre>
 
           
           <div class="method-source-code" id="ay_music_tone_progress_table_factory-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 390</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 392</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_tone_progress_table_factory</span>(<span class="ruby-identifier">fine_tones</span>, <span class="ruby-value">hz:</span> <span class="ruby-value">440</span>, <span class="ruby-value">clock_hz:</span> <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">AYSound</span><span class="ruby-operator">::</span><span class="ruby-constant">CLOCK_HZ</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-comment"># CLOCK_HZ=3.5469/2 * 1_000_000</span>
   <span class="ruby-comment"># STEPS=256</span>

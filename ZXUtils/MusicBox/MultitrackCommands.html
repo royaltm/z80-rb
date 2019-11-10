@@ -272,7 +272,7 @@
 
           
           <div class="method-source-code" id="all_channels-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 112</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 114</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">all_channels</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">2</span>).<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-identifier">channel</span>(<span class="ruby-identifier">ch</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>) }
 <span class="ruby-keyword">end</span></pre>
@@ -314,7 +314,7 @@
 
           
           <div class="method-source-code" id="ch_a-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 123</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 125</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ch_a</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-identifier">channel</span> <span class="ruby-value">0</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
 <span class="ruby-keyword">end</span></pre>
@@ -352,7 +352,7 @@
 
           
           <div class="method-source-code" id="ch_b-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 133</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 135</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ch_b</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-identifier">channel</span> <span class="ruby-value">1</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
 <span class="ruby-keyword">end</span></pre>
@@ -390,7 +390,7 @@
 
           
           <div class="method-source-code" id="ch_c-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 143</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 145</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ch_c</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-identifier">channel</span> <span class="ruby-value">2</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
 <span class="ruby-keyword">end</span></pre>
@@ -432,7 +432,7 @@
 
           
           <div class="method-source-code" id="channel-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 71</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 73</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">channel</span>(<span class="ruby-identifier">ch_name</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-identifier">ch_index</span> = <span class="ruby-constant">MultitrackCommands</span>.<span class="ruby-identifier">channel_name_to_index</span> <span class="ruby-identifier">ch_name</span>
   <span class="ruby-identifier">tracks</span> = <span class="ruby-keyword">if</span> (<span class="ruby-identifier">last_entry</span> = <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">last</span>) <span class="ruby-keyword">and</span> <span class="ruby-constant">TracksEntry</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">last_entry</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">last_entry</span>[<span class="ruby-identifier">ch_index</span>].<span class="ruby-identifier">nil?</span>
@@ -522,7 +522,7 @@
 
           
           <div class="method-source-code" id="for_channels-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 98</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 100</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">for_channels</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">chs</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-identifier">chs</span>.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-constant">MultitrackCommands</span>.<span class="ruby-identifier">channel_name_to_index</span> <span class="ruby-identifier">ch</span> }.
   <span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-identifier">channel</span>(<span class="ruby-identifier">ch</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>) }
@@ -572,7 +572,7 @@
 
           
           <div class="method-source-code" id="loop_to-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 214</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 216</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">loop_to</span>(<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">repeat</span>=<span class="ruby-keyword">nil</span>)
   <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">LoopCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">repeat</span>)
   <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
@@ -676,7 +676,7 @@
 
           
           <div class="method-source-code" id="mark-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 200</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 202</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mark</span>(<span class="ruby-identifier">name</span>)
   <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MarkCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">name</span>)
   <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
@@ -759,7 +759,7 @@
 
           
           <div class="method-source-code" id="pause-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 185</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 187</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">pause</span>(<span class="ruby-identifier">length</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">length_exts</span>)
   <span class="ruby-identifier">ticks</span> = <span class="ruby-constant">Rational</span>(<span class="ruby-ivar">@tempo</span>, <span class="ruby-identifier">length</span>)
   <span class="ruby-identifier">length_exts</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">len_ext</span><span class="ruby-operator">|</span>
@@ -812,7 +812,7 @@
 
           
           <div class="method-source-code" id="repeat-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 228</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 230</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">repeat</span>(<span class="ruby-identifier">times</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">mark:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-identifier">mark_cmd</span> = <span class="ruby-constant">MarkCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">mark</span>)
   <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">mark_cmd</span>
@@ -923,7 +923,7 @@
 
           
           <div class="method-source-code" id="sub_track-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 153</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 155</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sub_track</span>(<span class="ruby-identifier">multitrack_name</span>)
   <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">SubMultitrackEntry</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">multitrack_name</span>)
   <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
@@ -968,6 +968,10 @@
 </pre>
 
 <p>The above command will allow channel A to fall behind by no more than 10 ticks and will be synchronized only if it lags 2 or more ticks behind. It will also allow channel B to fall behind by any number of ticks and will always be synchronized. It will also restrict channel C to fall behind by a maximum 4 number of ticks and will never be synchronized.</p>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>For Ruby &lt; 2.6 (where endless range was introduced) instead of 0.. use 0…2**16.</p>
+</dd></dl>
 
 <p>By default a:0.., b:0.., c:0.. is set.</p>
           
@@ -975,7 +979,7 @@
 
           
           <div class="method-source-code" id="synchronize_channels-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 57</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 59</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">synchronize_channels</span>(<span class="ruby-value">a:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">b:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">c:</span><span class="ruby-keyword">nil</span>)
   <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">SynchronizeChannelsEntry</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>)
   <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
@@ -1049,7 +1053,7 @@
 
           
           <div class="method-source-code" id="wait-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 167</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 169</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">wait</span>(<span class="ruby-identifier">ticks</span>)
   <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">PauseCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">ticks</span>)
   <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
