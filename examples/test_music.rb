@@ -123,6 +123,10 @@ class TestMusic
 
   wait 50
 
+  ##############
+  # SUB TRACKS #
+  ##############
+
   multitrack :play_scale do
     ch_a do
       a 0, 2; a! 0, 2; b 0, 2; c 0, 2; c! 0, 2; d 0, 2; d! 0, 2; e 0, 2; f 0, 2; f! 0, 2; g 0, 2; g! 0, 2;
@@ -145,6 +149,10 @@ class TestMusic
     pch :c, 4, :d!, 4, :g, 4; p 1
   end
 
+  ###############
+  # INSTRUMENTS #
+  ###############
+
   instrument :instr1 do
     volume 10; start_volume_envelope :decay1
   end
@@ -160,6 +168,10 @@ class TestMusic
   instrument :instr_alter do
     mask_ay_volume_envelope :alter1
   end
+
+  #############
+  # ENVELOPES #
+  #############
 
   envelope :decay1, [1, 0.49], [64, -1.0], :loop, [255, 0.0]
   envelope :decay2, [4, 0.5], [32, -0.75], :loop, [8, 0.5], [8, -0.5]

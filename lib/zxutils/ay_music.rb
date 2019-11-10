@@ -187,10 +187,10 @@ module ZXUtils
   #   120     -                   Enables noise output.
   #   121     index:1             Yields temporary control to another track (like a go sub) until it's finished.
   #                               Followed by a 1 byte lookup index (0: no-op, 1-128: from the lookup table).
-  #   122     counter:1, offset:1 A loop. Moves track cursor back back counter times to the given offset.
-  #                               Followed by a 1 byte counter (counter = 0 is loop forever) and a 1 byte LSB 8-bit
-  #                               of a 16-bit twos complement negative byte offset relative to the beginning of
-  #                               the command. (0..255) is (-256..-1)
+  #   122     counter:1, offset:1 A loop. Moves the track cursor back by the given offset, counter times.
+  #                               Followed by a 1 byte counter (if counter = 0 loops forever) and the least significant
+  #                               byte of a 16-bit twos complement negative byte offset relative to the beginning of
+  #                               the command. (offset: 0..255 is -256..-1)
   #   123-127                     Reserved (DO NOT USE! the results would be unexpected and most probably 'll crash
   #                               program execution).
   class AYMusic
@@ -300,12 +300,14 @@ module ZXUtils
       # Execute this code before each play iteration if you care about preserving
       # the AY general purpose I/O ports' state.
       #
-      # * +music_control+:: A label of the type MusicControl addressing the data structure.
-      # * +play+:: A label addressing the AYMusic player's iteration routine.
+      # +music_control+:: A label of the type MusicControl addressing the data structure.
+      # +play+:: A label addressing the AYMusic player's iteration routine.
       #
       # Options:
-      # * +bc_const_loaded+:: If ZXLib::AYSound::Macros.ay_io_load_const_reg_bc has been already run and the +bc+ registers' content is preserved since.
-      # * +io_ay+:: A label containing +ay_sel+, +ay_inp+ and +ay_out+ sub-labels addressing the AY-3-891x output and select/input I/O bus.
+      # * +bc_const_loaded+:: If ZXLib::AYSound::Macros.ay_io_load_const_reg_bc has been
+      #                       already run and the +bc+ registers' content is preserved since.
+      # * +io_ay+:: A namespace label containing +ay_sel+, +ay_inp+ and +ay_out+ sub-labels
+      #             addressing the AY-3-891x output and select/input I/O bus.
       #
       # _NOTE_:: This macro requires ZXLib::AYSound::Macros to be also imported.
       #
@@ -321,7 +323,7 @@ module ZXUtils
       ##
       # Creates a routine that builds a note-to-fine tones index table.
       #
-      # * +note_to_cursor+:: An address of the table to be built (max 192 bytes).
+      # +note_to_cursor+:: An address of the table to be built (max 192 bytes).
       #
       # Options:
       # * +play+:: An optional label addressing the AYMusic player's iteration routine (code re-use optimisation).
@@ -377,7 +379,7 @@ module ZXUtils
       ##
       # Creates a routine that builds a fine tones to AY-3-891x tone periods table.
       #
-      # * +fine_tones+:: An address of the fine tones table to be built (512 bytes).
+      # +fine_tones+:: An address of the fine tones table to be built (512 bytes).
       #
       # Options:
       # * +hz+:: base (middle) frequency in Hz.
@@ -449,25 +451,86 @@ module ZXUtils
         end
       end
       ##
-      # Creates a routine that detects if the currently playing tracks has ended.
+      # Creates a routine that detects if the currently played music is finished.
       #
-      # +ZF+ is 1 if all of the tracks has reached the end.
+      # As a result +ZF+ is 1 if all of the main music track cursors has reached the end.
       #
-      # * +music_control+:: A label of the type MusicControl addressing the data structure.
+      # +music_control+:: A label of the type MusicControl addressing the data structure.
       #
-      # Modifies: +af+, +hl+.
-      def ay_music_finished?(music_control)
+      # Options:
+      # * +compact+:: Pass +true+ for a more compact routine (36..39 vs 61..71 bytes),
+      #               which is slower and using more registers.
+      # * +subroutine+:: Pass +true+ for a subroutine, where a final +ret+ will be added
+      #                  and +branch_not_finished+ option will default to +ret+.
+      # * +branch_not_finished+:: Pass an optional address, possibly as a label, where to
+      #                           branch when music is not finished.
+      #                           Pass +:ret+ to return from a subroutine in this instance.
+      #
+      # Modifies: +af+, +hl+, (+b+, +de+ if +compact+ is +true+).
+      def ay_music_finished?(music_control, compact:false, subroutine:false, branch_not_finished: :eoc)
         isolate do |eoc|
-          (0..2).each do |ch|
+          branch_not_finished = :ret if subroutine && branch_not_finished == :eoc
+          branch_not_fin = case branch_not_finished
+          when :eoc then -> { jr   NZ, eoc }
+          when :ret then -> { ret  NZ }
+          else
+                         -> { jr   NZ, branch_not_finished }
+          end
+          if compact
+                            ld   hl, music_control.chan_a.track.cursor_hi
+                            ld   b, 3
+            ckloop          ld   d, [hl] # cursor_hi
+                            dec  hl      # -> cursor_lo
+                            ld   e, [hl] # cursor_lo
+                            ld   a, [de]
+                            anda a
+                            branch_not_fin[]
+                            dec  hl      # -> delay_hi
+                            ld   d, [hl] # delay_hi
+                            dec  hl      # -> delay_lo
+                            ld   e, [hl] # delay_lo
+                            ld   a, e
+                            ora  d
+                            branch_not_fin[]
+                            dec  hl      # -> track_stack_hi
+                            ld   d, [hl] # track_stack_hi
+                            dec  hl      # -> track_stack_lo
+                            ld   e, [hl] # track_stack_lo
+                            ex   de, hl
+                            ora  [hl]
+                            inc  hl
+                            ora  [hl]
+                            inc  hl
+                            ora  [hl]
+                            branch_not_fin[]
+                            ex   de, hl
+                            ld   de, +ChannelControl + +TrackControl - 1
+                            add  hl, de
+                            djnz ckloop
+          else
                             xor  a
+            (0..2).each do |ch|
                             ld   hl, [music_control.chans[ch].track.cursor]
                             cp   [hl]
-                            jr   NZ, eoc
+                            branch_not_fin[]
+            end
+            (0..2).each do |ch|
                             ld   hl, [music_control.chans[ch].track.delay]
                             ld   a, l
                             ora  h
-                            jr   NZ, eoc
+                            branch_not_fin[]
+            end
+            (0..2).each_with_index do |ch, i|
+                            ld   hl, [music_control.chans[ch].track.track_stack]
+                            ora  [hl]
+                            inc  hl
+                            ora  [hl]
+                            inc  hl
+                            ora  [hl]
+                            branch_not_fin[] unless i == 2 && (branch_not_finished == :eoc || (branch_not_finished == :ret && subroutine))
+            end
           end
+                            ret if subroutine
         end
       end
     end
@@ -769,7 +832,7 @@ module ZXUtils
                         ld   ix, music_control.chan_a.instrument.flags
 
                         ld   hl, track_stack_end
-                        ld   a, 3 # number of channels
+                        ld   a, 3           # number of channels
       init_loop         ld   sp, ix         # instrument.flags
                         ld   bc, empty_instrument
                         push bc             # instrument.start
@@ -1690,6 +1753,8 @@ if __FILE__ == $0
     include Z80::TAP
     include ZXUtils
 
+    COMPACT_CHECK_FIN = false
+
     SinCos      = AYMusic::SinCos
     SinCosTable = AYMusic::SinCosTable
 
@@ -1760,21 +1825,22 @@ if __FILE__ == $0
                         ld   a, 6
                         out  (io.ula), a
                         pop  iy
-                        ld   de, [music_control.counter]
-                        cp16n d, e, MusicTest::MusicInstance.channel_track(0).ticks_counter
-                        jr   NC, quit
-                        key_pressed?
+                        call check_fin
+                        jr   Z, quit
+      check_key         key_pressed?
                         jr   Z, forever
       quit              call mute
-                        ld16 bc, de
+                        ld   bc, [music_control.counter]
                         ld   a, [vars.bordcr]
                         3.times { rrca }
                         anda 7
                         out  (io.ula), a
     end
 
+    check_fin           ay_music_finished?(music_control, compact: COMPACT_CHECK_FIN, subroutine: true)
+
     ns :mute do
-                        ay_init(io_ay:io_ay)
+                        ay_init(t:e, io_ay:io_ay)
                         ret
     end
 
@@ -1811,6 +1877,7 @@ if __FILE__ == $0
   puts "TRACK_STACK_DEPTH: #{AYMusic::TRACK_STACK_DEPTH}"
   %w[
     +demo.extend_notes +demo.tone_progress_table_factory +demo.note_to_fine_tone_cursor_table_factory +demo.music_init
+    check_fin +check_fin
     index_table
     music.notes
     ministack
@@ -1837,7 +1904,7 @@ if __FILE__ == $0
   ZX7.compress music.code[0, music[:make_sincos]-music.org]
   ZX7.compress music.code
   program = Basic.parse_source <<-EOC
-    10 PRINT USR #{music[:demo]}
+    10 PRINT "expected: ",#{MusicTest::MusicInstance.channel_tracks.map(&:ticks_counter).max}'"played: ",USR #{music[:demo]}
   9998 STOP: GO TO 10
   9999 CLEAR #{music.org-1}: LOAD ""CODE: RUN
   EOC
