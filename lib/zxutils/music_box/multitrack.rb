@@ -54,6 +54,8 @@ module ZXUtils
       # It will also allow channel B to fall behind by any number of ticks and will always be synchronized.
       # It will also restrict channel C to fall behind by a maximum 4 number of ticks and will never be synchronized.
       #
+      # _NOTE_:: For Ruby < 2.6 (where endless range was introduced) instead of 0.. use 0...2**16.
+      #
       # By default a:0.., b:0.., c:0.. is set.
       def synchronize_channels(a:nil, b:nil, c:nil)
         @channels << SynchronizeChannelsEntry.new(a, b, c)
@@ -278,7 +280,7 @@ module ZXUtils
       def initialize(resolver)
         @resolver = resolver
         @channel_tracks = Array.new(3) { |_| EmptyTrack.new(@resolver) }
-        @ticks_behind_channels = [0..,0..,0..]
+        @ticks_behind_channels = [0...2**16, 0...2**16, 0...2**16]
         self.class.instance_variable_get('@channels'.freeze).each { |e| self << e }
       end
       ##

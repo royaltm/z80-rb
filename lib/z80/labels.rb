@@ -451,6 +451,9 @@ module Z80
 				@labels[name] = label
 			end
 		end
+		def respond_to_missing?(m, include_private=false) # :nodoc:
+			m != :to_ary && m != :to_a && m != :to_hash && m != :to_h
+		end
 		##
 		#  If no singleton method +m+ is defined, assume +m+ is a label name to define.
 		#  Returns a named label.
@@ -474,7 +477,11 @@ module Z80
 		#            ret
 		#    skipret label
 		def method_missing(m, label = nil)
-			define_label(m, label)
+			if m == :to_ary || m == :to_a || m == :to_hash || m == :to_h
+				super
+			else
+				define_label(m, label)
+			end
 		end
 	end
 	##
@@ -870,8 +877,8 @@ module Z80
 				m != :to_ary && m != :to_a && m != :to_hash && m != :to_h && defined?(@struct_size) && defined?(@members)
 			end
 			## Any other method is being used as a label to a member of a data structure.
-			def method_missing(m, struct, count = 1)
-				if m == :to_ary || m == :to_a || m == :to_hash || m == :to_h || !defined?(@struct_size) || !defined?(@members)
+			def method_missing(m, struct=nil, count=1)
+				if struct.nil? || !defined?(@struct_size) || !defined?(@members)
 					super
 				else
 					n = m.to_s

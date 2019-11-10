@@ -209,7 +209,7 @@ module Z80
 					prefix = name.to_s + '.'.freeze
 					merged_override.merge!(override.
 						select{ |k,| k.start_with?(prefix) }.
-						map{ |k,v| [k.slice(prefix.length..), v] }.
+						map{ |k,v| [k.slice(prefix.length..-1), v] }.
 						to_h)
 				end
 
