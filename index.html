@@ -59,6 +59,8 @@
 
   <ul class="link-list">
   
+    <li><a href="./LICENSE_md.html">LICENSE</a>
+  
     <li><a href="./README_rdoc.html">README</a>
   
   </ul>
@@ -329,7 +331,7 @@
 <ul><li>
 <p>a Ruby 2.1+</p>
 </li><li>
-<p>(optionally) a ZX Spectrum emulator</p>
+<p>(optionally) a ZX Spectrum emulator.</p>
 </li></ul>
 
 <p>then</p>
@@ -436,7 +438,7 @@
 
 <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxlib/basic&#39;</span>
 
-<span class="ruby-identifier">prog</span> = <span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-END</span>
+<span class="ruby-identifier">prog</span> = <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-END</span>
 <span class="ruby-value">  10 CLEAR 32767
   20 LOAD &quot;multiply&quot;CODE
   30 INPUT &quot;Multiplicand: &quot;, x
@@ -469,7 +471,47 @@
 
 <p><img src="examples/calculator.png" /></p>
 
-<h3 id="label-More+study+at-3A">More study at:<span><a href="#label-More+study+at-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
+<h3 id="label-Bootstrap">Bootstrap<span><a href="#label-Bootstrap">&para;</a> <a href="#top">&uarr;</a></span></h3>
+
+<p>You may use the <code>zxinit</code> tool provided by this gem to bootstrap a new program.</p>
+
+<p>Provide a target file name and optionally a main class name.</p>
+
+<pre>$ zxinit hello_world
+ZXINIT: initializing program HelloWorld at ./hello_world.rb
+ZXINIT: ready
+ZXINIT: compile and run HelloWorld with:
+
+  zxrun &quot;./hello_world.rb&quot; &quot;hello_world.tap&quot;</pre>
+
+<p>Another tool: <code>zxrun</code> can be used to optionally compile ruby sources and run the emulator with the last argument provided.</p>
+
+<pre>$ zxrun hello_world.rb hello_world.tap
+8000:                                  :start_test
+8000: D9          exx
+8001: E5          push hl
+8002: CD0880      call 8008H           -&gt; start
+8005: E1          pop  hl
+8006: D9          exx
+8007: C9          ret
+============= HelloWorld =============
+8008:                                  :start
+8008: 3E02        ld   a, 02H
+800A: CD0116      call 1601H           -&gt; rom.chan_open
+800D:             --- begin ---
+800D: 111880      ld   de, 8018H       -&gt; text_data
+8010: 010D00      ld   bc, 000dH       -&gt; (+text_data)
+8013: CD3C20      call 203cH           -&gt; rom.pr_string
+8016: 180D        jr   8025H           -&gt; EOC
+8018: 48 65 6C 6C 6F 20 77 6F Hello wo :start.800d.text_data
+8020: 72 6C 64 21 0D          rld!.    :start.800d.text_data
+8025:             ---  end  ---        :start.800d.EOC
+8025: C9          ret
+^^^^^^^^^^^^^ HelloWorld ^^^^^^^^^^^^^
+Program: &quot;hello_worl&quot; LINE 9999 (58/58)
+Bytes: &quot;hello_worl&quot; CODE 32768,38</pre>
+
+<h3 id="label-DSL+API">DSL API<span><a href="#label-DSL+API">&para;</a> <a href="#top">&uarr;</a></span></h3>
 <ul><li>
 <p><a href="Z80.html"><code>Z80</code></a></p>
 </li><li>
@@ -491,6 +533,8 @@
 <p><a href="Z80/Utils/Shuffle.html"><code>Z80::Utils::Shuffle</code></a></p>
 </li><li>
 <p><a href="Z80/Utils/SinCos.html"><code>Z80::Utils::SinCos</code></a></p>
+</li><li>
+<p><a href="Z80/Utils/VecDeque.html"><code>Z80::Utils::VecDeque</code></a></p>
 </li></ul>
 
 <h4 id="label-ZX+Spectrum+libraries">ZX Spectrum libraries<span><a href="#label-ZX+Spectrum+libraries">&para;</a> <a href="#top">&uarr;</a></span></h4>
@@ -503,9 +547,11 @@
 </li><li>
 <p><a href="ZXLib/Gfx.html"><code>ZXLib::Gfx</code></a></p>
 </li><li>
-<p><a href="ZXLib/Gfx/Sprite8.html"><code>ZXLib::Gfx::Sprite8</code></a></p>
+<p><a href="ZXLib/Gfx/Clip.html"><code>ZXLib::Gfx::Clip</code></a></p>
 </li><li>
 <p><a href="ZXLib/Gfx/Draw.html"><code>ZXLib::Gfx::Draw</code></a></p>
+</li><li>
+<p><a href="ZXLib/Gfx/Sprite8.html"><code>ZXLib::Gfx::Sprite8</code></a></p>
 </li><li>
 <p><a href="ZXLib/AYSound.html"><code>ZXLib::AYSound</code></a></p>
 </li></ul>
@@ -529,9 +575,11 @@
 <p><a href="ZXUtils/AYBasicPlayer.html"><code>ZXUtils::AYBasicPlayer</code></a></p>
 </li><li>
 <p><a href="ZXUtils/MusicBox.html"><code>ZXUtils::MusicBox</code></a></p>
+</li><li>
+<p><a href="ZX7.html"><code>ZX7</code></a></p>
 </li></ul>
 
-<h4 id="label-See+examples+in+examples+dir.">See <a href="examples">examples</a> in <code>examples</code> dir.<span><a href="#label-See+examples+in+examples+dir.">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<h4 id="label-Examples-3A"><a href="https://github.com/royaltm/z80-rb/tree/master/examples">Examples</a>:<span><a href="#label-Examples-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
 <ul><li><dl class="rdoc-list note-list"><dt><code>bfont_demo</code>
 <dd>
 <p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/bfont_demo.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/bfont_demo.tap</a></p>
@@ -572,7 +620,7 @@
 
 <p>The YARTZ <a href="https://github.com/royaltm/zxspectrum-demo-yartz">demo</a> released at Speccy.pl/2019 was made entirely using this gem, including music.</p>
 
-<h3 id="label-Also+features-3A">Also features:<span><a href="#label-Also+features-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
+<h3 id="label-Features-3A">Features:<span><a href="#label-Features-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
 <p><code>bin/zxconv</code></p>
 
@@ -636,16 +684,29 @@ zxconv source destination [options]
 <p><img src="examples/horse_hires.png" /></p>
 
 <h2 id="label-Download">Download<span><a href="#label-Download">&para;</a> <a href="#top">&uarr;</a></span></h2>
-
+<ul><li>
 <p><a href="https://github.com/royaltm/z80-rb/archive/master.zip">here</a></p>
+</li><li>
+<p>source <a href="https://github.com/royaltm/z80-rb/">repository</a></p>
+</li></ul>
 
 <h2 id="label-Requirements">Requirements<span><a href="#label-Requirements">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
-<h4 id="label-ruby+2.1.0+or+later">ruby 2.1.0 or later<span><a href="#label-ruby+2.1.0+or+later">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<h4 id="label-Ruby+2.1.0+or+later.">Ruby 2.1.0 or later.<span><a href="#label-Ruby+2.1.0+or+later.">&para;</a> <a href="#top">&uarr;</a></span></h4>
+
+<p>If you want to use <em>Bundler</em>, then Ruby <strong>2.3.0</strong> will be required. The recommended Ruby version is <strong>2.6.0</strong>.</p>
 <dl class="rdoc-list note-list"><dt>Author
 <dd>
 <p>Rafał Michalski</p>
 </dd></dl>
+
+<h2 id="label-Licensing">Licensing<span><a href="#label-Licensing">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p>This package is free to use in open source under the terms of the <a href="LICENSE_md.html">Parity Public License</a>.</p>
+
+<p>Licenses for use in closed software are available via <a href="https://licensezero.com">licensezero.com</a>.</p>
+
+<p><a href="https://licensezero.com/projects/8cf4d060-fe19-427e-bad9-75d1fa3adb48"><img src="https://licensezero.com/projects/8cf4d060-fe19-427e-bad9-75d1fa3adb48/badge.svg"></a></p>
 
 
 </main>
