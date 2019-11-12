@@ -7,14 +7,14 @@ Gem::Specification.new do |s|
   s.executables = %w[zxconv zxinit zxrun]
   s.summary = "Z80 CPU and ZX Spectrum programming tools"
   s.homepage = "https://royaltm.github.io/z80-rb/"
-  s.license = "LGPL-3.0"
+  s.license = "Parity-7.0.0"
   s.require_path = "lib"
-  s.description = "Z80 assembler DSL in ruby, build system, ZX Spectrum basic parser and more"
+  s.description = "A powerfull Z80 Cpu macro assembler DSL and a build automation tool, a ZX Spectrum Basic parser and more."
   s.author = "Rafał Michalski"
-  s.email = "r-type@yeondir.com"
-  s.files = Dir["{lib}/**/*.rb", "bin/zxconv*", "LICENSE", "*.rdoc"]
+  s.email = "royaltm75@gmail.com"
+  s.files = Dir["{lib}/**/*.rb", "bin/zx*", "*.rdoc", "LICENSE.md", "licensezero.json"]
   s.rdoc_options << "--encoding" << "UTF-8" << 
-    "--title" << "ruby-Z80" << "--main" << "README.rdoc"
+    "--title" << "ruby-Z80" << "--main" << "README.rdoc" << "LICENSE.md"
   s.extra_rdoc_files = ["README.rdoc"]
   s.metadata = { "source_code_uri" => "https://github.com/royaltm/z80-rb" }
 end
