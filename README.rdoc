@@ -10,7 +10,7 @@ Ruby[https://www.ruby-lang.org] is a powerfull meta language, so why not to leve
 Now, to answer the question, you'll need:
 
 * a Ruby 2.1+
-* (optionally) a ZX Spectrum emulator
+* (optionally) a ZX Spectrum emulator.
 
 then
 
@@ -114,7 +114,7 @@ wait, there's more...
 
   require 'zxlib/basic'
 
-  prog = Basic.parse_source <<-END
+  prog = ZXLib::Basic.parse_source <<-END
     10 CLEAR 32767
     20 LOAD "multiply"CODE
     30 INPUT "Multiplicand: ", x
@@ -144,6 +144,49 @@ Enjoy!
 
 link:examples/calculator.png
 
+
+===Bootstrap
+
+You may use the +zxinit+ tool provided by this gem to bootstrap a new program.
+
+Provide a target file name and optionally a main class name.
+
+
+  $ zxinit hello_world
+  ZXINIT: initializing program HelloWorld at ./hello_world.rb
+  ZXINIT: ready
+  ZXINIT: compile and run HelloWorld with:
+
+    zxrun "./hello_world.rb" "hello_world.tap"
+
+Another tool: +zxrun+ can be used to optionally compile ruby sources and run the emulator with the last argument provided.
+
+  $ zxrun hello_world.rb hello_world.tap
+  8000:                                  :start_test
+  8000: D9          exx
+  8001: E5          push hl
+  8002: CD0880      call 8008H           -> start
+  8005: E1          pop  hl
+  8006: D9          exx
+  8007: C9          ret
+  ============= HelloWorld =============
+  8008:                                  :start
+  8008: 3E02        ld   a, 02H
+  800A: CD0116      call 1601H           -> rom.chan_open
+  800D:             --- begin ---
+  800D: 111880      ld   de, 8018H       -> text_data
+  8010: 010D00      ld   bc, 000dH       -> (+text_data)
+  8013: CD3C20      call 203cH           -> rom.pr_string
+  8016: 180D        jr   8025H           -> EOC
+  8018: 48 65 6C 6C 6F 20 77 6F Hello wo :start.800d.text_data
+  8020: 72 6C 64 21 0D          rld!.    :start.800d.text_data
+  8025:             ---  end  ---        :start.800d.EOC
+  8025: C9          ret
+  ^^^^^^^^^^^^^ HelloWorld ^^^^^^^^^^^^^
+  Program: "hello_worl" LINE 9999 (58/58)
+  Bytes: "hello_worl" CODE 32768,38
+
+
 ===More study at:
 * Z80
 * Z80::Program
@@ -156,14 +199,16 @@ link:examples/calculator.png
 * Z80::MathInt
 * Z80::Utils::Shuffle
 * Z80::Utils::SinCos
+* Z80::Utils::VecDeque
 
 ====ZX Spectrum libraries
 * ZXLib::Basic
 * ZXLib::Sys
 * ZXLib::Math
 * ZXLib::Gfx
-* ZXLib::Gfx::Sprite8
+* ZXLib::Gfx::Clip
 * ZXLib::Gfx::Draw
+* ZXLib::Gfx::Sprite8
 * ZXLib::AYSound
 
 ====ZX Spectrum utilities
@@ -176,8 +221,9 @@ link:examples/calculator.png
 * ZXUtils::AYMusicPlayer
 * ZXUtils::AYBasicPlayer
 * ZXUtils::MusicBox
+* ZX7
 
-====See examples[examples] in +examples+ dir.
+====Examples[https://github.com/royaltm/z80-rb/tree/master/examples]:
 
 * +bfont_demo+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/bfont_demo.tap
 * +calculator+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/calculator.tap
@@ -191,7 +237,7 @@ link:examples/calculator.png
 
 The YARTZ demo[https://github.com/royaltm/zxspectrum-demo-yartz] released at Speccy.pl/2019 was made entirely using this gem, including music.
 
-===Also features:
+===Features:
 
 +bin/zxconv+
 
@@ -256,9 +302,11 @@ link:examples/horse_hicolor.png
 link:examples/horse_hires.png
 
 ==Download
-here[https://github.com/royaltm/z80-rb/archive/master.zip]
+* here[https://github.com/royaltm/z80-rb/archive/master.zip]
+* source repository[https://github.com/royaltm/z80-rb/]
 
 ==Requirements
-====ruby 2.1.0 or later
+====Ruby 2.1.0 or later.
+If you want to use _Bundler_, then Ruby *2.3.0* will be required. The recommended Ruby version is *2.6.0*.
 
 Author::    Rafał Michalski

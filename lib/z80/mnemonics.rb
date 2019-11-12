@@ -54,7 +54,7 @@ module Z80
 		#      out (c)    # output to (BC) port 0 or 255 depending on the CPU manufacturer
 		#      inp (c)    # sets flags, but drops the value
 		#  
-		#  ==Mnemonic list
+		#  ==A list of Mnemonics
 	  #  <code>adc add anda bit call ccf cp cpd cpdr cpi cpir cpl daa dec di djnz ei ex exx
 		#  halt hlt im0 im01 im1 im2 inc ind indr ini inir inp jp jr ld ldd lddr ldi ldir neg
     #  nop ora otdr otir out outd outi pop push res ret reti retn rl rla rlc rlca rld rr

@@ -9,11 +9,11 @@ require 'z80/tap'
 # ==Include this module in your *program* class to turn it to a powerfull Z80 macro assembler.
 #
 # ---
-# <b>To fully use ruby-z80 powers (unlike austin powers)</b>
-# * use labels where applicable (see Z80::Label)
-# * use namespaces where appropriate (see Program.ns)
-# * use macros whenever you can
-# * modularize all just like in ruby :-)
+# <b>To fully benefit from z80rb powers:</b>
+# * use labels where applicable (see Z80::Label),
+# * use namespaces where appropriate (see Program.ns),
+# * use macros whenever you can,
+# * modularize all just like in ruby :-).
 # ---
 #
 module Z80

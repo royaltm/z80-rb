@@ -528,20 +528,21 @@ module Z80
 	#  * using [index] after a label name, see: Label#[], e.g.: <tt>foo[:bar][2]['baz']</tt>
 	#  * using an undefined method on a label, e.g.: <tt>foo.bar[2].baz</tt>
 	#
-	#  Indices as integers or expressions offset labels' address by its type size.
-	#  Indices as names access members.
+	#  Indices as integers or expressions offset labels' addresses by their type's size.
+	#  Indices as names access members or sub-labels.
 	#
 	#  A data structure is a ruby class inherited from Label.
 	#
 	#      # a data structure, also a new type: Sprite
 	#      class Sprite < Label
-	#      # name    type, count
+	#      # name    type[, count]
 	#        x       byte, 1
 	#        y       byte # , 1 is default
 	#        data_pl byte
 	#        data_ph byte
-	#        data_p  data_pl word
 	#        size    word
+  #      # alias   orig.   type
+	#        data_p  data_pl word
 	#      end
 	#
 	#      class SpritePool < Label
