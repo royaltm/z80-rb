@@ -230,7 +230,9 @@ module ZXLib
       # Options:
       # * +ah+:: A register holding a high byte of a resulting address.
       # * +al+:: A register holding a low byte of a resulting address.
-      # * +s+:: A register holding a resulting bits shift: [0-7].
+      # * +s+:: A register holding a resulting bits right shift: [0-7].
+      #         This indicates how many bits the most significant bit should be shifted to the right to match the
+      #         input coordinate x.
       # * +t+:: An 8-bit register for temporary operations.
       # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
       #
