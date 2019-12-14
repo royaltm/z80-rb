@@ -8,7 +8,7 @@ module ZXLib
     #  See also ZXLib::Gfx::Sprite8::Macros.
     #
     #  By default all drawing method routines are produced. To select only required routines
-    #  define a ZXLib::Gfx::Sprite8::DRAW_METHODS constant before importing this file.
+    #  define a ZXLib::Gfx::Sprite8::DRAW_METHODS constant before requiring this file.
     #
     #      module ZXLib
     #        module Gfx
@@ -28,8 +28,8 @@ module ZXLib
       export  draw_sprite8
 
       ##
-      # Default screen address used by the routines.
-      # You may change this value by overriding label +sprite8_screen_address+ when importing code.
+      # A default screen address used by the routines.
+      # You may change this value by overriding label +sprite8_screen_address+ when importing Sprite8 code.
       SCREEN_ADDRESS = 0x4000
 
       ##
@@ -42,43 +42,130 @@ module ZXLib
       DRAW_METHOD_MASK_OR = DRAW_METHODS.include?(:mask_or) unless const_defined?(:DRAW_METHOD_MASK_OR)
 
       ##
+      # Configures the method in which draw_sprite8 calculates the screen address from pixel coordinates.
+      #
+      # The routine is 60 bytes in size and can be set up in one of the following ways:
+      #
+      # * +:inline+:: The calculation is inline which is faster and backwards compatible but the calculation
+      #               routine can't be re-used by Macros.gfx_sprite8_draw macro.
+      # * +:subroutine+:: The calculation is set up as a subroutine, which can be reached via +draw_sprite8.calc_scr_addr+
+      #                   label. See also Macros.gfx_sprite8_calculate_screen_address.
+      # * +:external+:: The calculation routine is _NOT_ created. In this instance the only way to call +draw_sprite8+
+      #                 is via the Macros.gfx_sprite8_draw macro.
+      CALCULATE_SCREEN_ADDRESS = :inline unless const_defined?(:CALCULATE_SCREEN_ADDRESS)
+
+      ##
       # ==ZXLib::Gfx::Sprite8 Macros.
+      #
+      # Sprite8::Macros require:
+      #
+      #    macro_import MathInt
+      #    macro_import Gfx
       module Macros
         ##
-        #  Calculates coordinates and prepares registers for +draw_sprite8+
+        # Creates a routine that calculates the screen address for Sprite8.draw_sprite8.
         #
-        #  Uses:: +af+, +af'+, +bc+, +de+, +hl+
+        # The +h+ and +l+ registers should contain the pixel coordinates as described in Sprite8.draw_sprite8.
         #
-        #  Input:
+        # As a result of executing the routine the +hl+ registers will hold the calculated screen address
+        # and the +c+ register will hold the special bit right shift number.
         #
-        #  * +hl+:: sprite address
-        #  * +a+::  sprite height (1..192)
-        #  * +a'+:: sprite width in bytes (1..32)
-        #  * +bc+:: x - coordinate (-32768..32767) [screen area: 0-255]
-        #  * +de+:: y - coordinate (-32768..32767) [screen area: 0-191]
-        #  * +f+:: flags for mode
-        #  * +outofscreen+:: if no block is given then provide +label+, otherwise +ret+
+        # If the horizontal pixel coordinate (x) is positive the bit shift will be between 0 and 7.
+        # If the x coordinate is negative and x is between -7 and -1 the bit shift will be between 8 and 14.
         #
-        #  Flags howto:
+        # Options:
+        # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
+        # * +subroutine+:: Whether to create a subroutine.
+        def gfx_sprite8_calculate_screen_address(scraddr:SCREEN_ADDRESS, subroutine:false)
+          isolate do |eoc|
+                        ld   a, h
+                        cp   192
+                        jp   C, hvertical
+                        anda 7              # -7..-1 -> 1..7
+                        jr   Z, noadjust    # sanity check
+                        add  7              # 1..7 -> 8..14
+            noadjust    ld   c, a           # C: negshift (0, 8..14)
+                        ytoscr l, ah:h, al:l, t:b, scraddr:scraddr
+            if subroutine
+                        ret
+            else
+                        jr   eoc
+            end                           # HL<: yx, HL>: screen, C>: shift (0..7), B: temp
+            hvertical   xytoscr h, l, ah:h, al:l, s:c, t:b, scraddr:scraddr
+                        ret if subroutine
+          end
+        end
+        ##
+        # Creates a subroutine that calculates the screen address before jumping to Sprite8.draw_sprite8.
         #
-        #         CF:     0      1       0              1
-        #         ZF:     0      0       1              1
-        #       mode:    OR    SET     XOR  AND+OR (mask)
-        #      howto: ora 1  scf      cp a          cp  a
-        #                    sbc a                  scf
+        # This subroutine should be used if you want to access the calculated screen address just before
+        # executing +draw_sprite8+.
         #
-        #  When <tt>CF=ZF=1</tt> sprite address skip bytes from left margin calculations take mask into account.
+        # +draw_sprite8+:: A label addressing the Sprite8.draw_sprite8 subroutine.
+        # +block+:: A block that creates a code to execute when the screen address has been calculated.
+        #           The address is available in +hl+ registers. Additionally the +c+ register contains
+        #           the special bit shift number. See gfx_sprite8_calculate_screen_address for details.
+        #           The code must preserve the content of +c+, +de+ and +af'+ registers.
         #
-        #  Output:
+        # See Sprite8.draw_sprite8 for the description of input registers' content and usage.
         #
-        #  * +de+:: sprite address
-        #  * +h+::  vertical coordinate   (0..191)
-        #  * +l+::  horizontal coordinate (0..255)
-        #           except when h > 191 then l contains vertical coordinate and h | 0xf8 is a negative h-coordinate (from -1 to -7)
-        #  * +b+::  skip first sprite lines (for negative vertical coordinate y < 0, +h+ should be 0 and +b+ should be -y)
-        #  * +c+::  sprite byte width (1..32) (pixel width / 8)
-        #  * +a'+:: sprite height (1..192)
-        #  * +f'+:: flags for mode
+        # Options:
+        # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
+        # * +calculate+:: If this option is set to +:subroutine+ then the screen address calculation routine
+        #                 is being called (at +draw_sprite8.calc_scr_addr+) instead of inlining it.
+        #                 In this instance the Sprite8::CALCULATE_SCREEN_ADDRESS constant must be set to +:subroutine+
+        #                 before requiring the +sprite8+ module.
+        #
+        # Any other option is being passed over to the +block+ namespace.
+        def gfx_sprite8_draw(draw_sprite8=self.draw_sprite8, scraddr:SCREEN_ADDRESS, calculate:CALCULATE_SCREEN_ADDRESS, **nsopts, &block)
+          isolate do |eoc|
+                        push bc             # save width and skip
+            if calculate == :subroutine
+                        call draw_sprite8.calc_scr_addr
+            else
+                        gfx_sprite8_calculate_screen_address(scraddr:scraddr)
+            end
+                        push hl             # HL: screen addr, C: negshift (0..14)
+            if block_given?
+                        ns(**nsopts) do
+                          yield eoc
+                        end
+            end
+                        jp   draw_sprite8.addr_on_stack
+          end
+        end
+        ##
+        # Creates a routine that calculates coordinates and prepares registers for Sprite8.draw_sprite8.
+        #
+        # +hl+:: An address of sprite data.
+        # +a+::  A height of a sprite in pixel lines: [1, 192].
+        # +a'+:: A width of a sprite in bytes ((pixel width + 7) / 8): [1, 32].
+        # +bc+:: A horizontal (x) coordinate of a sprite's top-leftmost pixel as a 16-bit twos complement
+        #        signed integer: [-32768, 32767] where the screen area is between: [0, 255].
+        # +de+:: A vertical (y) coordinate of a sprite's top-leftmost pixel as a 16-bit twos complement
+        #        signed integer: [-32768..32767] where the screen area is between: [0, 191].
+        # +f+::  Flags specifying a drawing method (see below).
+        #
+        # Options:
+        # * +outofscreen+:: What to do if the whole sprite is out of the screen area - if no +block+ is given then provide
+        #                   a branching +label+, otherwise +ret+ is being executed.
+        # * +block+:: Should create code to execute when the whole sprite is out of the screen area. The +eoc+ label
+        #             provided to the +block+ points after the calculating routine. The code must not fall through!
+        #
+        # Any other option is being passed over to the +block+ namespace.
+        #
+        # Drawing methods:
+        #
+        #       mode:    OR    SET     XOR   AND+OR
+        #         CF:     0      1       0        1
+        #         ZF:     0      0       1        1
+        #     assuming accumulator contains the non-zero number of sprite lines
+        #     how to: ora a  ora a    cp a     cp a
+        #                      scf              scf
+        #
+        # See Sprite8.draw_sprite8 for the description of output registers' content.
+        #
+        # Uses:: +af+, +af'+, +bc+, +de+, +hl+, stack: max 4 bytes.
         def gfx_sprite8_calculate_coords(outofscreen: :ret, **nsopts, &block)
           isolate do |eoc|
                     ex   af, af       # store CF and sprite height
@@ -156,69 +243,149 @@ module ZXLib
                     ld   c, a         # sprite width
           end
         end
-
+        ##
+        # Creates a routine that flips sprite pixel data horizontally (mirrors sprites).
+        #
+        # +hl+:: An address immediately following the source sprite data (sprite data address + sprite data size).
+        # +de+:: A target address where the mirrored sprite data should be placed. The target memory area must not
+        #        overlap with the source.
+        # +c+::  A width of a sprite in bytes ((pixel width + 7) / 8) (0 is 256).
+        # +b+::  A height of a sprite in pixel lines (0 is 256).
+        #
+        # Options:
+        # * +subroutine+:: Whether to create a subroutine.
+        #
+        # After the routine finishes its operation:
+        #
+        # * +de+:: Will hold a memory address immediately following the flipped sprite data
+        #          (flipped sprite data address + sprite data size).
+        # * +hl+:: Will hold a memory address of the source sprite data.
+        # * +b+::  Will hold a provided sprite height in pixel lines.
+        # * +c+::  Will be 0.
+        #
+        # _NOTE_:: Sprite data must be laid out column-wise as expected by Sprite8.draw_sprite8.
+        #          If data include the sprite mask the provided height should be twice the sprite height.
+        #          In this instance the maximum sprite height to be mirrored is 128 pixel lines.
+        #
+        # Uses:: +af+, +bc+, +de+, +hl+, stack: 4 bytes.
+        def gfx_sprite8_flip_horizontally(subroutine:false)
+          isolate do
+            column_loop   push bc
+                          sub_from b, h, l
+                          push hl
+                          scf
+            row_loop      ld   c, [hl]
+                          inc  hl
+                          rl   c
+            bit_swap_loop rra
+                          sla  c
+                          jr   NZ, bit_swap_loop
+                          ld   [de], a
+                          inc  de
+                          djnz row_loop
+                          pop  hl
+                          pop  bc
+                          dec  c
+                          jr   NZ, column_loop
+                          ret if subroutine
+          end
+        end
       end
+
+      extend Macros
 
       sprite8_screen_address addr SCREEN_ADDRESS
 
       ##
-      #  Draws a sprite using xor/or/clear/and+or with arbitrary height and width.
+      # Draws a sprite using one of the selected drawing methods with an arbitrary pixel height and width.
       #
-      #  In <tt>and+or</tt> mode sprite bitmap bytes must be interwined with mask: b1 m1 b2 m2 b2 m2 ...
+      # Pixel data for sprites must be laid column-wise:
+      #   1st 8-pixel column bytes
+      #   2nd 8-pixel column bytes
+      #   ...
       #
-      #  The data for sprites is laid verticaly: first 8-pixel column bytes, second 8-pixel column bytes, ...
+      # Example:
       #
-      #  This routine is optimised for vertical sprites with height > width and small square ones (width < 24 pixels).
+      #   A sprite 16x2 pixels:
       #
-      #  Uses:: +af+, +af'+, +bc+, +de+, +hl+, +bc'+, +de'+, +hl'+, +ix+, +sp+ (stack depth: max 6 bytes),
-      #         in and+or mode also +iy+.
+      #    7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0
+      #   ░░░░████████░░░░██░░░░░░░░░░░░██ 0
+      #   ░░██░░░░░░░░██░░████████████████ 1
       #
-      #  Input:
+      #   db    0b00111100, # 1st column
+      #         0b01000010,
+      #         
+      #         0b10000001, # 2nd column
+      #         0b11111111
       #
-      #  * +de+:: sprite address
-      #  * +h+::  vertical coordinate   (0..191)
-      #  * +l+::  horizontal coordinate (0..255)
-      #           except when h > 191 then l contains vertical coordinate and h | 0xf8 is a negative h-coordinate (from -1 to -7)
-      #  * +b+::  skip first sprite lines (for negative vertical coordinate y < 0, +h+ should be 0 and +b+ should be -y)
-      #  * +c+::  sprite byte width (1..32) (pixel width / 8)
-      #  * +a'+:: sprite height (1..192)
-      #  * +f'+:: flags for mode
+      # In an <tt>AND+OR</tt> (a.k.a. +MASK_OR+) mode bytes representing shape of a sprite must be intertwined with sprite's mask bytes:
+      #   1st bitmap byte
+      #   1st mask byte
+      #   2nd bitmap byte
+      #   2nd mask byte
+      #   ...
       #
-      #  Flags howto:
+      # This routine is optimised for vertical sprites with pixel height > width and square ones with width <= 24 pixels.
       #
-      #         CF:     0      1       0              1
-      #         ZF:     0      0       1              1
-      #       mode:    OR    SET     XOR  AND+OR (mask)
-      #      howto: ora 1  scf      cp a          cp  a
-      #                    sbc a                  scf
+      # +de+:: An address of sprite data to be drawn.
+      # +h+::  A screen vertical (y) coordinate of a sprite's top-leftmost pixel: [0, 191].
+      # +l+::  A screen horizontal (x) coordinate of a sprite's top-leftmost pixel: [0, 255].
+      # +b+::  How many initial sprite pixel lines to skip.
+      # +c+::  A width of a sprite in bytes (columns) ((pixel width + 7) / 8): [1, 32].
+      # +a'+:: A height of a sprite in pixel lines: [1, 192].
+      # +f'+:: Flags specifying a drawing method (see below).
+      #
+      # To specify a negative vertical coordinate (y < 0) set +h+ (or +l+ see below) to +0+ and +b+ to
+      # an absolute value of y.
+      #
+      # To specify a negative horizontal coordinate (x < 0):
+      # * +de+ should point to the remaining visible sprite columns,
+      # * +c+ should contain the number of visible sprite columns,
+      # * if x modulo 8 is between -1 and -7 then +h+ should contain x modulo 8 as a twos complement negative number
+      #   and +l+ should contain a vertical coordinate (y) instead.
+      #
+      # Drawing methods:
+      #
+      #       mode:    OR    SET     XOR   AND+OR
+      #         CF:     0      1       0        1
+      #         ZF:     0      0       1        1
+      #     how to: ora 1    scf    cp a     cp a
+      #                    sbc a              scf
+      #
+      # Uses:: +af+, +af'+, +bc+, +de+, +hl+, +bc'+, +de'+, +hl'+, +ix+, stack: max 6 bytes,
+      #        in AND+OR mode also +iy+.
       ns :draw_sprite8 do
-                push bc             # save width and skip
-                ld   a, h
-                cp   192
-                jp   C, skipneg
-                anda 0x07
-                jr   Z, skipad      # sanity check
-                add  7              # negative vect
-        skipad  ld   c, a           # C: negshift (0, 8..14)
-                ytoscr l, ah:h, al:l, t:b, scraddr:sprite8_screen_address
-                jp   skippos
-                                    # HL: yx, HL: screen, C: shift (0..7), B: temp
-        skipneg xytoscr h, l, ah:h, al:l, s:c, t:b, scraddr:sprite8_screen_address
-        skippos push hl             # screen addr
+        unless CALCULATE_SCREEN_ADDRESS == :external
+                      push bc             # save width and skip
+          case CALCULATE_SCREEN_ADDRESS
+          when :subroutine
+                      call calc_scr_addr
+          else
+                      gfx_sprite8_calculate_screen_address(scraddr:sprite8_screen_address)
+          end
+          skip_addr   push hl             # HL: screen addr
+                                          # C: shift 0..14
+        end
+        addr_on_stack ld   hl, maskshift
 
-                ld   b, 0
-                ld   hl, maskshift
-                add  hl, bc         # HL: -> (maskshift + shift)
-                ld   a, [hl]        # A: rotate mask
+        select((maskshift + 14) & 0xFF){|m| m < 14 }.then do |_|
+                      ld   b, 0
+                      add  hl, bc         # HL: -> (maskshift + shift)
+        end.else do
+                      ld   a, c
+                      add  l
+                      ld   l, a           # HL: -> (maskshift + shift)
+        end
+                      ld   a, [hl]        # A: rotate mask
 
-                exx
-                ld   e, a           # E: rotate mask
-                pop  hl             # HL: screen addr
-                exx                 # E': rotate mask, H'L': screen addr
+                      exx
+                      ld   e, a           # E: rotate mask
+                      pop  hl             # HL: screen addr
+                      exx                 # E': rotate mask, H'L': screen addr
 
-                ex   af, af         # A: height + CZ
-                ld   b, a           # B: height
-                ld   a, c           # A: shift 0..14
+                      ex   af, af         # A: height + CZ
+                      ld   b, a           # B: height
+                      ld   a, c           # A: shift 0..14
 
         unless DRAW_METHOD_XOR or DRAW_METHOD_OR or DRAW_METHOD_SET or DRAW_METHOD_MASK_OR
           raise Syntax, "there must be at least one draw method selected"
@@ -226,86 +393,90 @@ module ZXLib
 
         if DRAW_METHOD_XOR or DRAW_METHOD_OR
           if DRAW_METHOD_SET or DRAW_METHOD_MASK_OR
-                  jr   C, aocskip
+                      jr   C, aocskip
           end
           if DRAW_METHOD_XOR and DRAW_METHOD_OR
-                  jr   NZ, orskip
+                      jr   NZ, orskip
           end
 
           if DRAW_METHOD_XOR
-                  add  a
-                  jr   Z, fastxor
-                  ld   hl, sprxor.start
-                  push hl             # jump addr
-                  ld   hl, jumpxor - 2
-                  jp   skipall
-          fastxor ld   hl, sprxor.fstcopy
-                  jp   skpfast
+                      add  a
+                      jr   Z, fastxor
+                      ld   hl, sprxor.start
+                      push hl             # jump addr
+                      ld   hl, jumpxor - 2
+                      jp   skipall
+            fastxor   ld   hl, sprxor.fstcopy
+                      jp   skpfast
           end
 
           if DRAW_METHOD_OR
-          orskip  add  a
-                  jr   Z, fastor
-                  ld   hl, spror.start
-                  push hl             # jump addr
-                  ld   hl, jumpor - 2
-                  jp   skipall
-          fastor  ld   hl, spror.fstcopy
-                  jp   skpfast
+            orskip    add  a
+                      jr   Z, fastor
+                      ld   hl, spror.start
+                      push hl             # jump addr
+                      ld   hl, jumpor - 2
+                      jp   skipall
+            fastor    ld   hl, spror.fstcopy
+                      jp   skpfast
           end
         end
 
         if DRAW_METHOD_SET and DRAW_METHOD_MASK_OR
-          aocskip jr   Z, andskip
+          aocskip     jr   Z, andskip
         elsif DRAW_METHOD_SET or DRAW_METHOD_MASK_OR
-          aocskip label
+          aocskip     label
         end
 
         if DRAW_METHOD_SET
-                add  a
-                jr   Z, fastclr
-                ld   hl, spclror.start
-                push hl             # jump addr
-                ld   hl, jumpclror - 2
-                jp   skipall
-        fastclr ld   hl, spclror.fstcopy
-                jp   skpfast
+                      add  a
+                      jr   Z, fastclr
+                      ld   hl, spclror.start
+                      push hl             # jump addr
+                      ld   hl, jumpclror - 2
+                      jp   skipall
+          fastclr     ld   hl, spclror.fstcopy
+                      jp   skpfast
         end
 
         if DRAW_METHOD_MASK_OR
-        andskip ld   hl, spandor.start
-                add  a
-                jr   Z, fastaor
-                push hl             # jump addr
-                ld   hl, jumpandor - 4
-                add  a
-                adda_to h, l
-                ld   a, [hl]
-                ld   iyl, a
-                inc  hl
-                ld   a, [hl]
-                ld   iyh, a
-                inc  hl
-                jp   skipal2
-        fastaor ld   hl, spandor.fstcopy
-                jp   skpfast
+          andskip     ld   hl, spandor.start
+                      add  a
+                      jr   Z, fastaor
+                      push hl             # jump addr
+                      ld   hl, jumpandor - 4
+                      add  a
+                      adda_to h, l
+                      ld   a, [hl]
+                      ld   iyl, a
+                      inc  hl
+                      ld   a, [hl]
+                      ld   iyh, a
+                      inc  hl
+                      jp   skipal2
+          fastaor     ld   hl, spandor.fstcopy
+                      jp   skpfast
         end
 
         if DRAW_METHOD_XOR or DRAW_METHOD_OR or DRAW_METHOD_SET
-          skipall adda_to h, l
+          skipall     adda_to h, l
         end
-        skipal2 ld   a, [hl]
-                ld   ixl, a
-                inc  hl
-                ld   a, [hl]
-                ld   ixh, a
-                pop  hl             # jump addr
-        skpfast ld   a, b           # height
-                pop  bc             # skip + width
-                sub  b              # height - skip first lines
-                ret  C              # return if skip first > height
-                ret  Z              # return if skip first == height
-                jp   (hl)
+        skipal2       ld   a, [hl]
+                      ld   ixl, a
+                      inc  hl
+                      ld   a, [hl]
+                      ld   ixh, a
+                      pop  hl             # jump addr
+        skpfast       ld   a, b           # height
+                      pop  bc             # skip + width
+                      sub  b              # height - skip first lines
+                      ret  C              # return if skip first > height
+                      ret  Z              # return if skip first == height
+                      jp   (hl)
+
+        if CALCULATE_SCREEN_ADDRESS == :subroutine
+          calc_scr_addr gfx_sprite8_calculate_screen_address(scraddr:sprite8_screen_address, subroutine:true)
+        end
       end
       
 
@@ -430,7 +601,7 @@ module ZXLib
         main0   push hl       # 11 save screen addr
                 add  0xe1     # 7  check if last screen column
                 jp   NC, skiplst # 7/12 not last column
-                ld   bc, (lastcol - shft4).to_i # 10
+                ld   bc, lastcol - shft4 # 10
                 add  iy, bc   # 15
         skiplst exx           # 4
                 push bc       # 11 height + width
@@ -1067,6 +1238,7 @@ module ZXLib
       end
 
       unless label_defined? :maskshift
+        export maskshift
         maskshift   bytes [0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE]
       end
     end
