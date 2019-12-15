@@ -575,7 +575,7 @@ module ZXLib
                         ld   c, rows unless rows==c
                         ld   hl, address unless address == hl
                         ld   de, 0
-                        ld   a, h        # calculate counter based on screen address modulo 8
+                        ld   a, h       # calculate counter based on screen address modulo 8
                         anda 0b11111000 # (h & 0b11111000)
                         sub  h          # (h & 0b11111000) - h % 8
                         add  8          # 8 - h % 8

@@ -162,7 +162,8 @@ module Z80
 		#    NZ Z NC C PO PE P M
 		#
 		#  Additionally NV = PO and V = PE conditions are aliased.
-		#  You must not use this class directly. Use predefined constants instead.
+		#
+		#  You must not instantiate this class directly. Use predefined constants instead.
 		class Condition
 			@@names = %w[NZ Z NC C PO PE P M]
 			attr_reader :name
