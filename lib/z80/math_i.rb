@@ -244,6 +244,7 @@ module Z80
             # Options:
             # * +th+:: An 8-bit MSB output register, may be the same as +sh+ or +sl+.
             # * +tl+:: An 8-bit LSB output register, may be the same as +sl+.
+            # * +t+:: An 8-bit temporary register, which is used when +sgn+ is accumulator.
             #
             # When +sgn+ equals to 0 an integer is left unmodified: +th+|+tl+ = +sh+|+sl+.
             # When +sgn+ equals to -1 an integer's sign is being changed: +th+|+tl+ = 0 - +sh+|+sl+.
@@ -253,12 +254,18 @@ module Z80
             # Uses: +af+, +th+, +tl+, preserves: +sgn+ and optionally: +sh+, +sl+.
             #
             # T-states: 32
-            def twos_complement16_by_sgn(sh, sl, sgn, th:sh, tl:sl)
-                if [sh, sl, tl, sgn].include?(a) or sh == sl or th == tl or sh == tl or [sh, sl, th, tl].include?(sgn)
+            def twos_complement16_by_sgn(sh, sl, sgn, th:sh, tl:sl, t:sgn)
+                if [sh, sl, tl, t].include?(a) or sh == sl or th == tl or sh == tl or
+                   [sh, sl, th, tl].include?(sgn) or [sh, sl, th, tl].include?(t)
                     raise ArgumentError, "twos_complement16_by_sgn: invalid arguments!"
                 end
                 ns do
+                    if sgn == a
+                        sgn = t
+                        ld    sgn, a
+                    else
                         ld    a, sgn
+                    end
                         xor   sl
                         sub   sgn
                         ld    tl, a
