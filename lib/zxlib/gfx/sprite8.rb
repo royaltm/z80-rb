@@ -54,6 +54,9 @@ module ZXLib
       #                 is via the Macros.gfx_sprite8_draw macro.
       CALCULATE_SCREEN_ADDRESS = :inline unless const_defined?(:CALCULATE_SCREEN_ADDRESS)
 
+      ## Controls if draw_sprite8 should check if the sprite pixel height is larger than "top lines to skip" parameter.
+      CHECK_HEIGHT_SANITY = true unless const_defined?(:CHECK_HEIGHT_SANITY)
+
       ##
       # ==ZXLib::Gfx::Sprite8 Macros.
       #
@@ -107,7 +110,7 @@ module ZXLib
         #           the special bit shift number. See gfx_sprite8_calculate_screen_address for details.
         #           The code must preserve the content of +c+, +de+ and +af'+ registers.
         #
-        # See Sprite8.draw_sprite8 for the description of input registers' content and usage.
+        # See Sprite8.draw_sprite8 for the description of input registers and usage.
         #
         # Options:
         # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
@@ -163,9 +166,13 @@ module ZXLib
         #     how to: ora a  ora a    cp a     cp a
         #                      scf              scf
         #
-        # See Sprite8.draw_sprite8 for the description of output registers' content.
+        # See Sprite8.draw_sprite8 for the description of output registers.
         #
-        # Uses:: +af+, +af'+, +bc+, +de+, +hl+, stack: max 4 bytes.
+        # _NOTE_:: The +outofscreen+ is invoked only when it would be impossible to formulate valid arguments
+        #          for Sprite8.draw_sprite8, which is exactly when
+        #          <tt>(x > 255) or (x + pixel width <= 0) or (y > 191) or (y < -255)</tt>.
+        #
+        # Uses: +af+, +af'+, +bc+, +de+, +hl+, stack: max 4 bytes.
         def gfx_sprite8_calculate_coords(outofscreen: :ret, **nsopts, &block)
           isolate do |eoc|
                     ex   af, af       # store CF and sprite height
@@ -267,7 +274,7 @@ module ZXLib
         #          If data include the sprite mask the provided height should be twice the sprite height.
         #          In this instance the maximum sprite height to be mirrored is 128 pixel lines.
         #
-        # Uses:: +af+, +bc+, +de+, +hl+, stack: 4 bytes.
+        # Uses: +af+, +bc+, +de+, +hl+, stack: 4 bytes.
         def gfx_sprite8_flip_horizontally(subroutine:false)
           isolate do
             column_loop   push bc
@@ -330,7 +337,7 @@ module ZXLib
       # +de+:: An address of sprite data to be drawn.
       # +h+::  A screen vertical (y) coordinate of a sprite's top-leftmost pixel: [0, 191].
       # +l+::  A screen horizontal (x) coordinate of a sprite's top-leftmost pixel: [0, 255].
-      # +b+::  How many initial sprite pixel lines to skip.
+      # +b+::  How many pixel lines to skip from the sprite's top.
       # +c+::  A width of a sprite in bytes (columns) ((pixel width + 7) / 8): [1, 32].
       # +a'+:: A height of a sprite in pixel lines: [1, 192].
       # +f'+:: Flags specifying a drawing method (see below).
@@ -469,9 +476,11 @@ module ZXLib
                       pop  hl             # jump addr
         skpfast       ld   a, b           # height
                       pop  bc             # skip + width
-                      sub  b              # height - skip first lines
-                      ret  C              # return if skip first > height
-                      ret  Z              # return if skip first == height
+                      sub  b              # height - skip top lines
+        if CHECK_HEIGHT_SANITY
+                      ret  C              # return if skip top > height
+                      ret  Z              # return if skip top == height
+        end
                       jp   (hl)
 
         if CALCULATE_SCREEN_ADDRESS == :subroutine
