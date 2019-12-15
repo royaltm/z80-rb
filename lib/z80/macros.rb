@@ -232,22 +232,26 @@ module Z80
 				raise ArgumentError, "only th can be the accumulator" if [tl, sh, sl].include?(a)
 				isolate do |eoc|
 					jr_msb_nz = eoc if jr_msb_nz == :eoc
-						ld   a, th unless th == a
-						cp   sh
-						case jr_msb_c
-						when :ret
-							ret  C
+									ld   a, th unless th == a
+						if sh == 0
+								ora  a
 						else
-							jr   C, jr_msb_c
-						end unless jr_msb_c.nil?
+								cp   sh
+							case jr_msb_c
+							when :ret
+								ret  C
+							else
+								jr   C, jr_msb_c
+							end unless jr_msb_c.nil?
+						end
 						case jr_msb_nz
 						when :ret
 							ret  NZ
 						else
 							jr   NZ, jr_msb_nz
 						end
-						ld   a, tl
-						cp   sl
+							ld   a, tl
+							cp   sl
 				end
 			end
 		end
