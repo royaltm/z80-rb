@@ -182,7 +182,7 @@ module ZXLib
                     jp   Z, vnext1    # 0 <= de < 256
                     inc  a            # d == 0xff
                     jr   NZ, quit1    # de < -256
-                    xor  a
+                    # xor  a          # a is already 0
                     sub  e
                     jr   Z, quit1     # de == -256
                     ld   d, a         # skip
