@@ -22,6 +22,16 @@ module ZXLib
   #              ld   [hl], a
   #              ret
   #    end
+  #
+  #  ===The coordinate system.
+  #
+  #  In all of the Gfx routines, including Draw and Sprite8, the screen pixel or cell coordinates are as follows:
+  #
+  #  * The coordinates (0,0) are at the top-left corner of the screen.
+  #  * The vertical axis (y) is reversed so y increases towards the bottom of the screen.
+  #    Hence e.g. 191 is the last visible pixel line and 23 is the last visible cell row.
+  #  * The horizontal axis (x) is normal so x increases towards the right edge of the screen.
+  #    Hence e.g. 255 is the last visible pixel column and 31 is the last visible cell column.
   module Gfx
     ##
     #  ==ZXLib::Gfx macros.
@@ -540,15 +550,17 @@ module ZXLib
         end
       end
       ##
-      # Creates a routine that clears a rectangle on an ink/paper screen memory using unrolled push instructions.
+      # Creates a routine that clears a rectangle on an ink/paper screen using unrolled push instructions.
       #
       # _NOTE_:: Interrupts must be disabled prior to calling this routine or the +disable_intr+
       #          option must be set to +true+.
       #
-      # * +address+:: An addres of memory area to be cleared as a label or an integer or +hl+.
+      # * +address+:: An addres of a memory area to be cleared as a label, pointer, an integer or +hl+.
+      #               The interpretation of the given address depends on the +addr_mode+ option.
       #               The starting address of the whole screen area must be a multiple of 0x2000.
-      # * +rows+:: A number of pixel rows to be cleared as an 8-bit register or a label or an integer.
-      # * +cols+:: An even number of 8 pixel columns to be cleared as an integer or an immediate label.
+      # * +lines+:: A number of pixel lines to be cleared as an 8-bit register or a label, pointer or an integer.
+      # * +cols+:: A constant even number of 8 pixel columns to be cleared as an integer.
+      # * +value+:: A pattern of 16 pixels to fill each line with as a label, pointer, an integer or +de+.
       #
       # Options:
       # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
@@ -556,58 +568,140 @@ module ZXLib
       # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
       #                   if you need to perform more uninterrupted actions.
       # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored. Otherwise
-      #               +sp+ will point to the beginning of the last cleared row.
+      #               +sp+ will point to the beginning of the last cleared line.
+      # * +addr_mode+:: Determines the interpretation of the given +address+.
+      # * +scraddr+:: An optional screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      #               If provided the routine breaks execution when the bottom of the screen has been reached.
+      #
+      # +addr_mode+ should be one of:
+      #
+      # * +:last+:: The +address+ should point to the last byte of the topmost line of the area to be cleared.
+      # * +:first+:: The +address+ should point to the first byte of the topmost line of the area to be cleared.
+      # * +:compat+:: The +address+ should point to next byte after the last byte of the topmost line of the area to be cleared.
       #
       # _NOTE_:: Restoring +sp+ register uses self-modifying code.
       #
       # Modifies: +af+, +af'+, +bc+, +de+, +hl+, optionally: +sp+.
-      def clear_screen_region_fast(address=hl, rows=c, cols=2, disable_intr:true, enable_intr:true, save_sp:true)
+      def clear_screen_region_fast(address=hl, lines=c, cols=2, value=0, disable_intr:true, enable_intr:true, save_sp:true, addr_mode: :compat, scraddr:nil)
+        raise ArgumentError, "invalid scraddr argument" unless scraddr.nil? or label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))
         raise ArgumentError, "address should be a label or an integer or HL register pair" unless address == hl or address?(address)
-        raise ArgumentError, "rows should be a label or an integer or a register" unless [a,b,c,d,e,h,l].include?(rows) or
-                                                                                         (address?(rows) && !pointer?(rows))
+        raise ArgumentError, "lines should be a label or a pointer or an integer or a register" unless (register?(lines) and lines.bit8?) or
+                                                                                                       address?(lines)
         cols = cols.to_i
         raise ArgumentError, "cols must be even" if cols.odd?
         raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
         raise ArgumentError, "cols must be greater than or equal to 2" if cols < 2
-        isolate do |_|
+        raise ArgumentError, "value should be a label or a pointer or an integer or DE register pair" unless value == de or address?(value)
+        fits_single_row = false
+        if address?(address) and !pointer?(address)
+          case addr_mode
+          when :first
+            address = address + cols - 1
+          when :last
+          else
+            address = address - 1
+          end
+          fits_single_row = Integer === address && Integer === lines && lines <= (8 - (address>>8) % 8)
+        end
+        const_addr_not_right_edge = Integer === address && (address & 31) != 31
+
+        isolate do
                         di if disable_intr
-                        ld   [restore_sp + 1], sp if save_sp
-                        ld   c, rows unless rows==c
+                        ld   [restore_sp_p], sp if save_sp
+                        ld   c, lines if register?(lines) && lines != c
+                        ld   de, value unless value == de
+
+          if address?(address) and !pointer?(address)
+            if const_addr_not_right_edge or fits_single_row
+                        ld   hl, address + 1
+            else
+                        ld   hl, address
+            end
+            if fits_single_row
+                        ld   b, lines
+            else
+                        ld   b, 8 - (address>>8) % 8
+            end
+          else
                         ld   hl, address unless address == hl
-                        ld   de, 0
+            if addr_mode == :first
+              if cols <= 4
+                (cols-1).times do
+                        inc  l
+                end
+              else
+                        ld   a, cols-1
+                        add  l
+                        ld   l, a
+              end
+            elsif addr_mode != :last
+                        dec  hl
+            end
                         ld   a, h       # calculate counter based on screen address modulo 8
                         anda 0b11111000 # (h & 0b11111000)
                         sub  h          # (h & 0b11111000) - h % 8
                         add  8          # 8 - h % 8
                         ld   b, a       # b: counter: 8 - h % 8
-                        ld   a, c       # a: rows
-                        dec  a          # a: rows - 1 (remaining rows)
-                        sub  b          # a: rows - 1 - counter
-                        jr   NC, loop1
+          end
+
+          unless fits_single_row
+            if register?(lines)
+                        ld   a, c       # a: lines
+                        dec  a          # a: lines - 1 (remaining lines)
+            elsif pointer?(lines)
+                        ld   a, lines
+                        ld   c, a
+                        dec  a          # a: lines - 1 (remaining lines)
+            else
+                        ld   a, lines - 1
+            end
+                        sub  b          # a: lines - 1 - counter
+            unless Integer === lines && lines > 8
+                        jr   NC, loop0
+              if register?(lines) || pointer?(lines)
                         ld   b, c       # b: counter = dy
+              else
+                        ld   b, lines
+              end
+            end
+          end
+
+          loop0         label
+                        inc  hl unless const_addr_not_right_edge or fits_single_row
           loop1         ld   sp, hl
                         inc  h
                         (cols>>1).times { push de }
                         djnz loop1
+          unless fits_single_row
                         jr   C, quit
-                        ex   af, af     # a': remaining rows
+                        dec  hl unless const_addr_not_right_edge
+                        ex   af, af     # a': remaining lines
                         ld   a, l
                         add  0x20
                         ld   l, a
-                        jr   C, skip_adj
+                        jr   C, skip_adj unless scraddr
                         ld   a, h
+                        jr   C, check_oos if scraddr
                         sub  0x08
                         ld   h, a
-          skip_adj      ex   af, af     # a: remaining rows
+            skip_adj    ex   af, af     # a: remaining lines
                         ld   b, 8
                         sub  b
-                        jr   NC, loop1
+                        jr   NC, loop0
                         add  b
                         ld   b, a
                         inc  b
-                        jp   loop1
-          quit          label
-          restore_sp    ld  sp, 0 if save_sp
+                        jp   loop0
+            if scraddr
+              check_oos cp   (scraddr >> 8)|0x18
+                        jr   C, skip_adj
+            end
+            quit        label
+          end
+          if save_sp
+          restore_sp    ld  sp, 0
+          restore_sp_p  restore_sp + 1
+          end
                         ei if enable_intr
         end
       end
