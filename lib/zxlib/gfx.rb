@@ -745,12 +745,9 @@ module ZXLib
         cols = cols.to_i
         raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
         raise ArgumentError, "cols must be greater than or equal to 1" if cols < 1
-        fits_single_row = false
-        if address?(address) and !pointer?(address)
-          fits_single_row = Integer === address && Integer === lines && lines <= (8 - (address>>8) % 8)
-        end
+        fits_single_row = Integer === address && Integer === lines && lines <= (8 - (address>>8) % 8)
         isolate do |eoc|
-                          ld   c, lines if register?(lines) && lines != c
+                          ld   c, lines if register?(lines) && lines != c          
           if address?(address) and !pointer?(address)
                           ld   de, address
             if fits_single_row
@@ -791,16 +788,17 @@ module ZXLib
             end
                           sub  b          # a: lines - 1 - counter
             unless Integer === lines && lines > 8
-                          jr   NC, copy_start
-              if register?(lines) || pointer?(lines)
+              ns do |eoc|
+                          jr   NC, eoc
+                if register?(lines) || pointer?(lines)
                           ld   b, c       # b: counter = dy
-              else
+                else
                           ld   b, lines
+                end
               end
-              copy_start  label
             end
+                          ex   af, af     # a': remaining rows - 1; CF': 1 == last batch
           end
-                          ex   af, af unless fits_single_row # a': remaining rows - 1; CF': 1 == last batch
                           ld   c, 255
           if only_one_bit_set_or_zero?(scrxor)
             scrbitdiff = Math.log2(scrxor>>8).to_i
@@ -818,9 +816,7 @@ module ZXLib
                           ld   a, e
           copy_loop       ld   e, a
           copy_loop1      ld   l, a
-                        (cols-1).times do
-                          ldi
-                        end
+                          (cols-1).times { ldi }
                           ld   l, [hl]
                           ex   de, hl
                           ld   [hl], e
@@ -829,7 +825,7 @@ module ZXLib
                           inc  h
                           djnz copy_loop
           if fits_single_row
-                          ret  if subroutine
+                          ret if subroutine
           else
                           ex   af, af     # a': lo; a: remaining rows - 1; CF: 1 == last batch
             if subroutine
@@ -864,6 +860,108 @@ module ZXLib
                           ret if subroutine
             end
           end
+        end
+      end
+      ##
+      # Creates a routine that copies a rectangle of screen attributes from or to a shadow screen using unrolled
+      # ldi instructions.
+      #
+      # * +address+:: An address of a top-left corner of the attributes memory area to be copied to as a label, pointer,
+      #               an integer or +de+.
+      # * +rows+:: A number of attribute rows to be copied as an 8-bit register or a label, pointer or an integer.
+      # * +cols+:: A constant number of attribute columns to be copied as an integer.
+      #
+      # Options:
+      # * +tgtaddr+:: A target screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      # * +srcaddr+:: A source screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      # * +check_edge+:: Ensures that the region does not transgress the right edge of the screen decreasing
+      #                  +address+ if necessary. Applies only if +address+ is not static.
+      # * +break_oos+:: Breaks execution when the bottom of the screen has been reached.
+      # * +size_limit_opt+:: If enabled, a small optimization is applied but the following condition must be met:
+      #                      <tt>rows*cols < 256</tt>
+      # * +subroutine+:: Whether to create a subroutine.
+      #
+      # Modifies: +af+, +bc+, +de+, +hl+.
+      def copy_shadow_attrs_region(address=de, rows=b, cols=32, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, size_limit_opt:false, subroutine:false)
+        raise ArgumentError, "invalid tgtaddr argument" unless label?(tgtaddr) or (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000))
+        raise ArgumentError, "invalid srcaddr argument" unless label?(srcaddr) or (Integer === srcaddr and srcaddr == (srcaddr & 0xE000))
+        scrdiff = (srcaddr - tgtaddr) & 0xffff
+        raise ArgumentError, "tgtaddr must be not be the same as srcaddr" if Integer === scrdiff and scrdiff == 0
+        scrxor = if Integer === srcaddr and Integer === tgtaddr
+          srcaddr ^ tgtaddr
+        end
+        raise ArgumentError, "address should be a label or an integer or DE register pair" unless address == de or address?(address)
+        raise ArgumentError, "rows should be a label or a pointer or an integer or a register" unless (register?(rows) and rows.bit8?) or
+                                                                                                       address?(rows)
+        cols = cols.to_i
+        raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
+        raise ArgumentError, "cols must be greater than or equal to 1" if cols < 1
+        fits_single_row = Integer === address && Integer === rows && rows == 1
+        isolate do |eoc|
+          unless fits_single_row
+            if pointer?(rows)
+                          ld   a, rows
+                          ld   b, a
+            else
+                          ld   b, rows unless rows == b
+            end
+                          ld   c, 255 if size_limit_opt
+          end
+                          ld   de, address unless address == de
+          if check_edge
+            ns do |eoc|
+                          ld   a, e
+                          ora  ~31
+                          add  cols
+                          jr   NC, eoc
+                          cpl
+                          adc  e
+                          ld   e, a
+            end
+          end
+          if only_one_bit_set_or_zero?(scrxor)
+            scrbitdiff = Math.log2(scrxor>>8).to_i
+                          ld   h, d
+            if tgtaddr < srcaddr
+                          set  scrbitdiff, h
+            else
+                          res  scrbitdiff, h
+            end
+            if cols == 32 or fits_single_row
+                          ld   l, e
+            else
+                          jr   start1
+            end
+          else
+                          ld   a, d
+            if cols == 32 or fits_single_row
+                          add  scrdiff>>8
+                          ld   h, a
+                          ld   l, e
+            else
+                          jr   start0
+            end
+          end
+          rowloop         label
+          unless cols == 32 or fits_single_row
+                          ld   a, 32-cols
+                          adda_to d, e
+            if break_oos
+                          cp   (tgtaddr>>8)|0x1B
+              if subroutine
+                          ret  NC
+              else
+                          jr   NC, eoc
+              end
+            end
+            start0        add  scrdiff>>8
+                          ld   h, a
+            start1        ld   l, e
+          end
+                          ld   c, 255 unless size_limit_opt || fits_single_row
+                          cols.times { ldi }
+                          djnz rowloop unless fits_single_row
+                          ret if subroutine
         end
       end
     end
