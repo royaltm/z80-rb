@@ -572,6 +572,7 @@ module ZXLib
       # * +addr_mode+:: Determines the interpretation of the given +address+.
       # * +scraddr+:: An optional screen memory address which must be a multiple of 0x2000 as an integer or a label.
       #               If provided the routine breaks execution when the bottom of the screen has been reached.
+      # * +subroutine+:: Whether to create a subroutine.
       #
       # +addr_mode+ should be one of:
       #
@@ -582,7 +583,7 @@ module ZXLib
       # _NOTE_:: Restoring +sp+ register uses self-modifying code.
       #
       # Modifies: +af+, +af'+, +bc+, +de+, +hl+, optionally: +sp+.
-      def clear_screen_region_fast(address=hl, lines=c, cols=2, value=0, disable_intr:true, enable_intr:true, save_sp:true, addr_mode: :compat, scraddr:nil)
+      def clear_screen_region_fast(address=hl, lines=c, cols=2, value=0, disable_intr:true, enable_intr:true, save_sp:true, addr_mode: :compat, scraddr:nil, subroutine:false)
         raise ArgumentError, "invalid scraddr argument" unless scraddr.nil? or label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))
         raise ArgumentError, "address should be a label or an integer or HL register pair" unless address == hl or address?(address)
         raise ArgumentError, "lines should be a label or a pointer or an integer or a register" unless (register?(lines) and lines.bit8?) or
@@ -606,8 +607,6 @@ module ZXLib
         const_addr_not_right_edge = Integer === address && (address & 31) != 31
 
         isolate do
-                        di if disable_intr
-                        ld   [restore_sp_p], sp if save_sp
                         ld   c, lines if register?(lines) && lines != c
                         ld   de, value unless value == de
 
@@ -626,9 +625,7 @@ module ZXLib
                         ld   hl, address unless address == hl
             if addr_mode == :first
               if cols <= 4
-                (cols-1).times do
-                        inc  l
-                end
+                        (cols-1).times { inc l }
               else
                         ld   a, cols-1
                         add  l
@@ -657,15 +654,18 @@ module ZXLib
             end
                         sub  b          # a: lines - 1 - counter
             unless Integer === lines && lines > 8
-                        jr   NC, loop0
-              if register?(lines) || pointer?(lines)
+              ns do |eoc|
+                        jr   NC, eoc
+                if register?(lines) || pointer?(lines)
                         ld   b, c       # b: counter = dy
-              else
+                else
                         ld   b, lines
+                end
               end
             end
           end
-
+                        di if disable_intr
+                        ld   [restore_sp_p], sp if save_sp
           loop0         label
                         inc  hl unless const_addr_not_right_edge or fits_single_row
           loop1         ld   sp, hl
@@ -673,7 +673,11 @@ module ZXLib
                         (cols>>1).times { push de }
                         djnz loop1
           unless fits_single_row
+            if subroutine && !enable_intr && !save_sp
+                        ret  C
+            else
                         jr   C, quit
+            end
                         dec  hl unless const_addr_not_right_edge
                         ex   af, af     # a': remaining lines
                         ld   a, l
@@ -695,6 +699,7 @@ module ZXLib
             if scraddr
               check_oos cp   (scraddr >> 8)|0x18
                         jr   C, skip_adj
+                        ret if subroutine && !enable_intr && !save_sp
             end
             quit        label
           end
@@ -703,13 +708,14 @@ module ZXLib
           restore_sp_p  restore_sp + 1
           end
                         ei if enable_intr
+                        ret if subroutine && (enable_intr || save_sp)
         end
       end
       ##
       # Creates a routine that copies a rectangle of an ink/paper screen from or to a shadow screen using unrolled
       # ldi instructions.
       #
-      # * +address+:: An addres of a top-left corner of the screen memory area to be copied to as a label, pointer,
+      # * +address+:: An address of a top-left corner of the screen memory area to be copied to as a label, pointer,
       #               an integer or +de+.
       # * +lines+:: A number of pixel lines to be copied as an 8-bit register or a label, pointer or an integer.
       # * +cols+:: A constant number of 8 pixel columns to be copied as an integer.
