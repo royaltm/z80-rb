@@ -550,7 +550,7 @@ module ZXLib
         end
       end
       ##
-      # Creates a routine that clears a rectangle on an ink/paper screen using unrolled push instructions.
+      # Creates a routine that clears a rectangle on an ink/paper screen using unrolled PUSH instructions.
       #
       # _NOTE_:: Interrupts must be disabled prior to calling this routine or the +disable_intr+
       #          option must be set to +true+.
@@ -712,8 +712,232 @@ module ZXLib
         end
       end
       ##
+      # Creates a routine that copies a rectangle of an ink/paper screen from or to a shadow screen.
+      #
+      # * +address+:: An address of a top-left corner of the screen memory area to be copied to as a label, pointer,
+      #               or +de+.
+      # * +lines+:: A number of pixel lines to be copied as an 8-bit register or a label or a pointer.
+      # * +cols+:: A number of 8 pixel columns to be copied as an 8-bit register or a label or a pointer.
+      #            If +cols+ is +a+ the +cols+ is taken from +a'+.
+      #
+      # _NOTE_:: Unless +cols+ is one of: +ixh+, +ixl+, +iyh+ or +iyl+ the routine uses self modifying code.
+      #
+      # Options:
+      # * +tgtaddr+:: A target screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      # * +srcaddr+:: A source screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      # * +check_edge+:: Ensures that the region does not transgress the right edge of the screen decreasing
+      #                  +address+ if necessary. Applies only if +address+ is not static.
+      # * +break_oos+:: Breaks execution when the bottom of the screen has been reached.
+      #                 +CF+ = 0 (NC) if the routine terminates prematurely due to reaching bottom of the screen.
+      #                 Otherwise +CF+ = 1 if the whole rectangle has been copied.
+      # * +subroutine+:: Whether to create a subroutine.
+      #
+      # Modifies: +af+, +af'+, +bc+, +bc'+, +de+, +hl+. Swaps registers unless out of screen.
+      def copy_shadow_screen_region(address=de, lines=a, cols=c, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, subroutine:false)
+        raise ArgumentError, "invalid tgtaddr argument" unless label?(tgtaddr) or (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000))
+        raise ArgumentError, "invalid srcaddr argument" unless label?(srcaddr) or (Integer === srcaddr and srcaddr == (srcaddr & 0xE000))
+        scrdiff = (srcaddr - tgtaddr) & 0xffff
+        raise ArgumentError, "tgtaddr must be not be the same as srcaddr" if Integer === scrdiff and scrdiff == 0
+        raise ArgumentError, "address should be a label or an integer or DE register pair" unless address == de or address?(address)
+        raise ArgumentError, "lines should be a label or a pointer or a register" unless (register?(lines) and lines.bit8?) or
+                                                                                        address?(lines)
+        raise ArgumentError, "cols should be a label or a pointer or a register" unless (register?(lines) and lines.bit8?) or
+                                                                                        address?(lines)
+        isolate do |eoc|
+                          ld   a, lines unless lines == a
+                          ex   af, af     # a': lines
+          unless [ixh,ixl,iyh,iyl].include?(cols)
+                          ld   a, cols unless cols == a
+                          ld   [cols_p], a
+                          ld   c, a if check_edge && cols != c
+          end
+                          ld   b, 0
+                          ld   de, address unless address == de
+          if address?(address) and !pointer?(address)
+                          ld   a, d
+                          add  scrdiff>>8
+                          ld   h, a
+                          ld   a, e
+                          exx
+                          ld   b, 8 - (address>>8) % 8
+          else
+            if check_edge
+              ns do |eoc|
+                          ld   a, e
+                          ora  ~31
+                if [ixh,ixl,iyh,iyl].include?(cols)
+                          add  cols
+                else
+                          add  c
+                end
+                          jr   NC, eoc
+                          cpl
+                          adc  e
+                          ld   e, a
+              end
+            end
+                          ld   a, d       # calculate counter based on screen address modulo 8
+                          add  scrdiff>>8
+                          ld   h, a
+                          anda 0b11111000 # (h & 0b11111000)
+                          sub  h          # (h & 0b11111000) - h % 8
+                          add  8          # 8 - h % 8
+                          exx
+                          ld   b, a       # b: counter: 8 - h % 8
+                          exx
+                          ld   a, e
+                          exx
+          end
+                          ex   af, af     # a: lines, a': lo
+                          ld   c, a       # c: lines
+                          dec  a          # a: lines - 1 (remaining lines)
+                          sub  b          # a: lines - 1 - counter
+                          jr   NC, start
+                          ld   b, c       # b: counter = c: lines
+
+          start           ex   af, af     # a': remaining rows - 1; CF': 1 == last batch, a: lo
+          rloop           exx
+          loop0           ld   e, a
+          loop1           ld   l, a
+          if [ixh,ixl,iyh,iyl].include?(cols)
+                          ld   c, cols
+          else
+            cols_a        ld   c, 0 # self-modified
+            cols_p        cols_a + 1
+          end
+                          ldir
+                          dec  de
+                          inc  d
+                          dec  hl
+                          inc  h
+                          exx
+                          djnz rloop
+                          ex   af, af     # a: remaining lines, a': lo
+          if subroutine
+                          ret  C
+          else
+                          jr   C, eoc
+          end
+                          ld   b, 8
+                          sub  b
+                          jr   NC, loop8
+                          add  b
+                          ld   b, a
+                          inc  b
+
+          loop8           exx
+                          ex   af, af     # a: lo, a': remaining lines
+                          add  0x20       # a: lo + 0x20
+                          jr   C, loop0 unless break_oos
+                          ld   e, a       # e: lo
+                          ld   a, d
+                          jr   C, check_ooscr if break_oos
+                          sub  0x08
+                          ld   d, a       # d: adjusted
+                          add  scrdiff>>8
+                          ld   h, a
+                          ld   a, e
+                          jp   loop1
+          if break_oos
+            check_ooscr   cp   (tgtaddr >> 8)|0x18
+                          ld   a, e
+                          jr   C, loop1
+                          ret if subroutine
+          end
+        end
+      end
+      ##
+      # Creates a routine that copies a rectangle of screen attributes from or to a shadow screen.
+      #
+      # * +address+:: An address of a top-left corner of the attributes memory area to be copied to as a label, pointer,
+      #               an integer or +de+.
+      # * +rows+:: A number of attribute rows to be copied as an 8-bit register or a label or a pointer.
+      # * +cols+:: A number of attribute columns to be copied as as an 8-bit register or a label or a pointer.
+      #            If +cols+ is +a+ the +cols+ is taken from +a'+.
+      #
+      # _NOTE_:: Unless +cols+ is one of: +ixh+, +ixl+, +iyh+ or +iyl+ the routine uses self modifying code.
+      #
+      # Options:
+      # * +tgtaddr+:: A target screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      # * +srcaddr+:: A source screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      # * +check_edge+:: Ensures that the region does not transgress the right edge of the screen decreasing
+      #                  +address+ if necessary. Applies only if +address+ is not static.
+      # * +break_oos+:: Breaks execution when the bottom of the screen has been reached.
+      # * +subroutine+:: Whether to create a subroutine.
+      #
+      # Modifies: +af+, +af'+, +bc'+, +bc+, +de+, +hl+. Swaps registers unless out of screen.
+      def copy_shadow_attrs_region(address=de, rows=a, cols=c, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, subroutine:false)
+        raise ArgumentError, "invalid tgtaddr argument" unless label?(tgtaddr) or (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000))
+        raise ArgumentError, "invalid srcaddr argument" unless label?(srcaddr) or (Integer === srcaddr and srcaddr == (srcaddr & 0xE000))
+        scrdiff = (srcaddr - tgtaddr) & 0xffff
+        raise ArgumentError, "tgtaddr must be not be the same as srcaddr" if Integer === scrdiff and scrdiff == 0
+        raise ArgumentError, "address should be a label or an integer or DE register pair" unless address == de or address?(address)
+        raise ArgumentError, "rows should be a label or a pointer or a register" unless (register?(rows) and rows.bit8?) or address?(rows)
+        raise ArgumentError, "cols should be a label or a pointer or a register" unless (register?(cols) and cols.bit8?) or address?(cols)
+        isolate do |eoc|
+                          ld   a, rows unless rows == a
+                          ex   af, af
+                          ld   a, cols unless cols == a
+          unless [ixh,ixl,iyh,iyl].include?(cols)
+                          ld   [cols_p], a
+                          ld   c, a if check_edge && cols != c
+          end
+                          exx
+                          cpl
+                          add  33
+                          ld   c, a       # 32 - cols
+                          ex   af, af     # a: rows
+                          ld   b, a
+                          exx
+                          ld   de, address unless address == de
+          if check_edge
+            ns do |eoc|
+                          ld   a, e
+                          ora  ~31
+              if [ixh,ixl,iyh,iyl].include?(cols)
+                          add  cols
+              else
+                          add  c
+              end
+                          jr   NC, eoc
+                          cpl
+                          adc  e
+                          ld   e, a
+            end
+          end
+                          ld   b, 0
+                          ld   a, d
+                          jr   start0
+
+          rowloop         ld   a, c # 32 - cols
+                          exx
+                          adda_to d, e
+          if break_oos
+                          cp   (tgtaddr>>8)|0x1B
+            if subroutine
+                          ret  NC
+            else
+                          jr   NC, eoc
+            end
+          end
+          start0          add  scrdiff>>8
+                          ld   h, a
+                          ld   l, e
+          if [ixh,ixl,iyh,iyl].include?(cols)
+                          ld   c, cols
+          else
+            cols_a        ld   c, 0 # self-modified
+            cols_p        cols_a + 1
+          end
+                          ldir
+                          exx
+                          djnz rowloop
+                          ret if subroutine
+        end
+      end
+      ##
       # Creates a routine that copies a rectangle of an ink/paper screen from or to a shadow screen using unrolled
-      # ldi instructions.
+      # LDI instructions.
       #
       # * +address+:: An address of a top-left corner of the screen memory area to be copied to as a label, pointer,
       #               an integer or +de+.
@@ -731,7 +955,7 @@ module ZXLib
       # * +subroutine+:: Whether to create a subroutine.
       #
       # Modifies: +af+, +af'+, +bc+, +de+, +hl+.
-      def copy_shadow_screen_region(address=de, lines=c, cols=32, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, size_limit_opt:false, subroutine:false)
+      def copy_shadow_screen_region_quick(address=de, lines=c, cols=32, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, size_limit_opt:false, subroutine:false)
         raise ArgumentError, "invalid tgtaddr argument" unless label?(tgtaddr) or (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000))
         raise ArgumentError, "invalid srcaddr argument" unless label?(srcaddr) or (Integer === srcaddr and srcaddr == (srcaddr & 0xE000))
         scrdiff = (srcaddr - tgtaddr) & 0xffff
@@ -750,6 +974,19 @@ module ZXLib
                           ld   c, lines if register?(lines) && lines != c          
           if address?(address) and !pointer?(address)
                           ld   de, address
+            if only_one_bit_set_or_zero?(scrxor)
+              scrbitdiff = Math.log2(scrxor>>8).to_i
+                          ld   h, d
+              if tgtaddr < srcaddr
+                          set  scrbitdiff, h
+              else
+                          res  scrbitdiff, h
+              end
+            else
+                          ld   a, d
+                          add  scrdiff>>8
+                          ld   h, a
+            end
             if fits_single_row
                           ld   b, lines
             else
@@ -769,8 +1006,10 @@ module ZXLib
               end
             end
                           ld   a, d       # calculate counter based on screen address modulo 8
+                          add  scrdiff>>8
+                          ld   h, a
                           anda 0b11111000 # (h & 0b11111000)
-                          sub  d          # (h & 0b11111000) - h % 8
+                          sub  h          # (h & 0b11111000) - h % 8
                           add  8          # 8 - h % 8
                           ld   b, a       # b: counter: 8 - h % 8
           end
@@ -799,23 +1038,11 @@ module ZXLib
             end
                           ex   af, af     # a': remaining rows - 1; CF': 1 == last batch
           end
-                          ld   c, 255
-          if only_one_bit_set_or_zero?(scrxor)
-            scrbitdiff = Math.log2(scrxor>>8).to_i
-                          ld   h, d
-            if tgtaddr < srcaddr
-                          set  scrbitdiff, h
-            else
-                          res  scrbitdiff, h
-            end
-          else
-                          ld   a, d
-                          add  scrdiff>>8
-                          ld   h, a
-          end
+                          ld   c, 255 if size_limit_opt
                           ld   a, e
           copy_loop       ld   e, a
           copy_loop1      ld   l, a
+                          ld   c, 255 unless size_limit_opt
                           (cols-1).times { ldi }
                           ld   l, [hl]
                           ex   de, hl
@@ -833,7 +1060,6 @@ module ZXLib
             else
                           jr   C, eoc
             end
-                          ld   c, 255 unless size_limit_opt
                           ld   b, 8
                           sub  b
                           jr   NC, copy_loop8
@@ -864,7 +1090,7 @@ module ZXLib
       end
       ##
       # Creates a routine that copies a rectangle of screen attributes from or to a shadow screen using unrolled
-      # ldi instructions.
+      # LDI instructions.
       #
       # * +address+:: An address of a top-left corner of the attributes memory area to be copied to as a label, pointer,
       #               an integer or +de+.
@@ -882,7 +1108,7 @@ module ZXLib
       # * +subroutine+:: Whether to create a subroutine.
       #
       # Modifies: +af+, +bc+, +de+, +hl+.
-      def copy_shadow_attrs_region(address=de, rows=b, cols=32, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, size_limit_opt:false, subroutine:false)
+      def copy_shadow_attrs_region_quick(address=de, rows=b, cols=32, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, size_limit_opt:false, subroutine:false)
         raise ArgumentError, "invalid tgtaddr argument" unless label?(tgtaddr) or (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000))
         raise ArgumentError, "invalid srcaddr argument" unless label?(srcaddr) or (Integer === srcaddr and srcaddr == (srcaddr & 0xE000))
         scrdiff = (srcaddr - tgtaddr) & 0xffff
