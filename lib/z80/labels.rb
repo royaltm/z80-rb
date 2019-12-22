@@ -95,7 +95,7 @@ module Z80
 				@labels.has_key? name.to_s
 		end
 		##
-		#  A convenient method for macros to check if argument is a Register.
+		#  A convenient method for macros to check if an argument is a Register.
 		#
 		#  Returns +true+ for:
 		#    hl, a, [hl], [iy + 6]
@@ -104,19 +104,27 @@ module Z80
 			arg.is_a?(Register)
 		end
 		##
-		#  A convenient method for macros to check if argument is label-like.
+		#  A convenient method for macros to check if an argument is label-like.
 		#
 		#  Returns +true+ for:
-		#    foo, :foo, [foo], [foo + 10], [:foo]
+		#    foo, :foo, foo[10], [foo], [foo + 10], [:foo], [foo[10]]
 		def label?(arg)
 			arg = arg.first while arg.is_a?(Array)
 			arg.respond_to?(:to_label)
 		end
 		##
-		#  A convenient method for macros to check if argument is pointer-like.
+		#  A convenient method for macros to check if an argument is a direct label (not a pointer).
 		#
 		#  Returns +true+ for:
-		#    [foo], [:foo], [foo + 10], [foo[10]], foo[], foo[10][], [0x1234], [hl], [ix + 6], ix[7]
+		#    foo, :foo, foo[10]
+		def direct_label?(arg)
+			arg.respond_to?(:to_label) and !pointer?(arg)
+		end
+		##
+		#  A convenient method for macros to check if an argument is pointer-like.
+		#
+		#  Returns +true+ for:
+		#    [foo], [:foo], [foo + 10], [foo[10]], foo[], foo[10][], [0x1234], [hl], [ix + 6], iy[7]
 		def pointer?(arg)
 			if arg.is_a?(Array)
 				true
@@ -129,7 +137,7 @@ module Z80
 			end
 		end
 		##
-		#  A convenient method for macros to check if argument is a non-register value or a pointer.
+		#  A convenient method for macros to check if an argument is a non-register address (direct or a pointer).
 		#
 		#  Returns +true+ for:
 		#    0x1234, foo, :foo, [0x1234], [foo], foo[10], [:foo], [foo + 10]
@@ -138,7 +146,15 @@ module Z80
 			arg.is_a?(Integer) or arg.respond_to?(:to_label)
 		end
 		##
-		#  A convenient method for macros to check if argument is an immediate label.
+		#  A convenient method for macros to check if an argument is a non-register direct address (not a pointer).
+		#
+		#  Returns +true+ for:
+		#    0x1234, foo, :foo, foo[10]
+		def direct_address?(arg)
+			arg.is_a?(Integer) or direct_label?(arg)
+		end
+		##
+		#  A convenient method for macros to check if an argument is an immediate label.
 		#
 		#  Returns +true+ for:
 		#    foo addr 0x1234
@@ -152,7 +168,7 @@ module Z80
 			end
 		end
 		##
-		#  A convenient method for macros to check if argument is an immediate label or an integer.
+		#  A convenient method for macros to check if an argument is an immediate label or an integer.
 		#
 		#  Returns +true+ for:
 		#    foo addr 0x1234

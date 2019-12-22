@@ -129,7 +129,7 @@ module ZXLib
                   (bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
                   (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
                   ![ah, al].all?{|r| register?(r) } or 
-                  (bcheck and !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))))
+                  (bcheck and !((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr)))
               raise ArgumentError, "nextline: invalid arguments!"
           end
           ns do |eoc|
@@ -193,7 +193,7 @@ module ZXLib
                   (bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
                   (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
                   ![ah, al].all?{|r| register?(r) } or
-                  (bcheck and !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))))
+                  (bcheck and !((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr)))
               raise ArgumentError, "prevline: invalid arguments!"
           end
           ns do |eoc|
@@ -251,9 +251,9 @@ module ZXLib
       # y < a1 a2 h3 h2 h1 l3 l2 l1,  x < x5 x4 x3 x2 x1 s3 s2 s1,
       # h > S  S  S  a1 a2 l3 l2 l1,  l > h3 h2 h1 x5 x4 x3 x2 x1,  s > 0  0  0  0  0  s3 s2 s1
       def xytoscr(y, x, ah:h, al:l, s:b, t:c, scraddr:0x4000)
-          if y == x or y == s or [x,ah,al,s,t].include?(a) or [ah,al,s,t].uniq.size != 4 or
+          if y == x or y == s or [x,ah,al,s,t].include?(a) or [ah,al,s].uniq.size != 3 or [ah, s].include?(t) or 
                 [ah, s, t].include?(x) or ![y, x, ah, al, s, t].all?{|r| register?(r) } or
-                !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
+                !((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
               raise ArgumentError, "xytoscr: invalid arguments!"
           end
           isolate do
@@ -330,7 +330,7 @@ module ZXLib
                   ![y, ah, al, t].all?{|r| register?(r) } or
                   (register?(col) and [y, ah, al, t, a].include?(col)) or
                   (!col.nil? and !register?(col) and !address?(col)) or pointer?(col) or
-                  !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
+                  !((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
               raise ArgumentError, "ytoscr: invalid arguments!"
           end
           isolate do
@@ -388,7 +388,7 @@ module ZXLib
       def rctoscr(row, col=0, ah:h, al:l, scraddr:0x4000)
         unless register?(ah) and ah.bit8? and register?(al) and al.bit8? and ah != al and ![col, ah, al].include?(a) and
                ((address?(col) and !pointer?(col)) or (register?(col) and col != ah and col != row and (col != al or row != a))) and
-               (label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
+               ((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
           raise ArgumentError, "rctoscr: invalid arguments!"
         end
         isolate do
@@ -436,7 +436,7 @@ module ZXLib
       def rctoattr(row, col=0, ah:h, al:l, scraddr:0x4000)
         unless register?(ah) and ah.bit8? and register?(al) and al.bit8? and ah != al and ![col, ah, al].include?(a) and
                ((address?(col) and !pointer?(col)) or (register?(col) and col != ah and col != row)) and
-               (label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
+               ((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
           raise ArgumentError, "rctoattr: invalid arguments!"
         end
         attraddr = scraddr + 0x1800
@@ -486,7 +486,7 @@ module ZXLib
                   (bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
                   (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
                   ![ah, al].all?{|r| register?(r) } or
-                  !(label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
+                  !((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
             raise ArgumentError, "nextrow: invalid arguments!"
           end
           ns do |eoc|
@@ -535,7 +535,7 @@ module ZXLib
       # o > 0  1  0  1  1  0  2a 1a
       def scrtoattr(s, o:s, scraddr:0x4000)
           unless [i, o].all?{|r| register?(r) } and
-                 (label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000)))
+                 ((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
             raise ArgumentError, "scrtoattr: invalid arguments!" 
           end
         attraddr = scraddr + 0x1800
@@ -584,17 +584,17 @@ module ZXLib
       #
       # Modifies: +af+, +af'+, +bc+, +de+, +hl+, optionally: +sp+.
       def clear_screen_region_fast(address=hl, lines=c, cols=2, value=0, disable_intr:true, enable_intr:true, save_sp:true, addr_mode: :compat, scraddr:nil, subroutine:false)
-        raise ArgumentError, "invalid scraddr argument" unless scraddr.nil? or label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))
-        raise ArgumentError, "address should be a label or an integer or HL register pair" unless address == hl or address?(address)
-        raise ArgumentError, "lines should be a label or a pointer or an integer or a register" unless (register?(lines) and lines.bit8?) or
+        raise ArgumentError, "invalid scraddr argument" unless scraddr.nil? or (Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr)
+        raise ArgumentError, "address should be an address or a pointer or hl" unless address == hl or address?(address)
+        raise ArgumentError, "lines should be an integer or a label or a pointer or a register" unless (register?(lines) and lines.bit8?) or
                                                                                                        address?(lines)
         cols = cols.to_i
         raise ArgumentError, "cols must be even" if cols.odd?
         raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
         raise ArgumentError, "cols must be greater than or equal to 2" if cols < 2
-        raise ArgumentError, "value should be a label or a pointer or an integer or DE register pair" unless value == de or address?(value)
+        raise ArgumentError, "value should be an integer or a label or a pointer or de" unless value == de or address?(value)
         fits_single_row = false
-        if address?(address) and !pointer?(address)
+        if direct_address?(address)
           case addr_mode
           when :first
             address = address + cols - 1
@@ -734,11 +734,11 @@ module ZXLib
       #
       # Modifies: +af+, +af'+, +bc+, +bc'+, +de+, +hl+. Swaps registers unless out of screen.
       def copy_shadow_screen_region(address=de, lines=a, cols=c, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, subroutine:false)
-        raise ArgumentError, "invalid tgtaddr argument" unless label?(tgtaddr) or (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000))
-        raise ArgumentError, "invalid srcaddr argument" unless label?(srcaddr) or (Integer === srcaddr and srcaddr == (srcaddr & 0xE000))
+        raise ArgumentError, "invalid tgtaddr argument" unless (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000)) or direct_label?(tgtaddr)
+        raise ArgumentError, "invalid srcaddr argument" unless (Integer === srcaddr and srcaddr == (srcaddr & 0xE000)) or direct_label?(srcaddr)
         scrdiff = (srcaddr - tgtaddr) & 0xffff
         raise ArgumentError, "tgtaddr must be not be the same as srcaddr" if Integer === scrdiff and scrdiff == 0
-        raise ArgumentError, "address should be a label or an integer or DE register pair" unless address == de or address?(address)
+        raise ArgumentError, "address should be an address or a pointer or de" unless address == de or address?(address)
         raise ArgumentError, "lines should be a label or a pointer or a register" unless (register?(lines) and lines.bit8?) or
                                                                                         address?(lines)
         raise ArgumentError, "cols should be a label or a pointer or a register" unless (register?(lines) and lines.bit8?) or
@@ -753,7 +753,7 @@ module ZXLib
           end
                           ld   b, 0
                           ld   de, address unless address == de
-          if address?(address) and !pointer?(address)
+          if direct_address?(address)
                           ld   a, d
                           add  scrdiff>>8
                           ld   h, a
@@ -867,11 +867,11 @@ module ZXLib
       #
       # Modifies: +af+, +af'+, +bc'+, +bc+, +de+, +hl+. Swaps registers unless out of screen.
       def copy_shadow_attrs_region(address=de, rows=a, cols=c, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, subroutine:false)
-        raise ArgumentError, "invalid tgtaddr argument" unless label?(tgtaddr) or (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000))
-        raise ArgumentError, "invalid srcaddr argument" unless label?(srcaddr) or (Integer === srcaddr and srcaddr == (srcaddr & 0xE000))
+        raise ArgumentError, "invalid tgtaddr argument" unless (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000)) or direct_label?(tgtaddr)
+        raise ArgumentError, "invalid srcaddr argument" unless (Integer === srcaddr and srcaddr == (srcaddr & 0xE000)) or direct_label?(srcaddr)
         scrdiff = (srcaddr - tgtaddr) & 0xffff
         raise ArgumentError, "tgtaddr must be not be the same as srcaddr" if Integer === scrdiff and scrdiff == 0
-        raise ArgumentError, "address should be a label or an integer or DE register pair" unless address == de or address?(address)
+        raise ArgumentError, "address should be an address or a pointer or de" unless address == de or address?(address)
         raise ArgumentError, "rows should be a label or a pointer or a register" unless (register?(rows) and rows.bit8?) or address?(rows)
         raise ArgumentError, "cols should be a label or a pointer or a register" unless (register?(cols) and cols.bit8?) or address?(cols)
         isolate do |eoc|
@@ -956,15 +956,15 @@ module ZXLib
       #
       # Modifies: +af+, +af'+, +bc+, +de+, +hl+.
       def copy_shadow_screen_region_quick(address=de, lines=c, cols=32, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, size_limit_opt:false, subroutine:false)
-        raise ArgumentError, "invalid tgtaddr argument" unless label?(tgtaddr) or (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000))
-        raise ArgumentError, "invalid srcaddr argument" unless label?(srcaddr) or (Integer === srcaddr and srcaddr == (srcaddr & 0xE000))
+        raise ArgumentError, "invalid tgtaddr argument" unless (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000)) or direct_label?(tgtaddr)
+        raise ArgumentError, "invalid srcaddr argument" unless (Integer === srcaddr and srcaddr == (srcaddr & 0xE000)) or direct_label?(srcaddr)
         scrdiff = (srcaddr - tgtaddr) & 0xffff
         raise ArgumentError, "tgtaddr must be not be the same as srcaddr" if Integer === scrdiff and scrdiff == 0
         scrxor = if Integer === srcaddr and Integer === tgtaddr
           srcaddr ^ tgtaddr
         end
-        raise ArgumentError, "address should be a label or an integer or DE register pair" unless address == de or address?(address)
-        raise ArgumentError, "lines should be a label or a pointer or an integer or a register" unless (register?(lines) and lines.bit8?) or
+        raise ArgumentError, "address should be an address or a pointer or de" unless address == de or address?(address)
+        raise ArgumentError, "lines should be an integer or a label or a pointer or a register" unless (register?(lines) and lines.bit8?) or
                                                                                                        address?(lines)
         cols = cols.to_i
         raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
@@ -972,7 +972,7 @@ module ZXLib
         fits_single_row = Integer === address && Integer === lines && lines <= (8 - (address>>8) % 8)
         isolate do |eoc|
                           ld   c, lines if register?(lines) && lines != c          
-          if address?(address) and !pointer?(address)
+          if direct_address?(address)
                           ld   de, address
             if only_one_bit_set_or_zero?(scrxor)
               scrbitdiff = Math.log2(scrxor>>8).to_i
@@ -1109,15 +1109,15 @@ module ZXLib
       #
       # Modifies: +af+, +bc+, +de+, +hl+.
       def copy_shadow_attrs_region_quick(address=de, rows=b, cols=32, tgtaddr:0x4000, srcaddr:0x6000, check_edge:true, break_oos:true, size_limit_opt:false, subroutine:false)
-        raise ArgumentError, "invalid tgtaddr argument" unless label?(tgtaddr) or (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000))
-        raise ArgumentError, "invalid srcaddr argument" unless label?(srcaddr) or (Integer === srcaddr and srcaddr == (srcaddr & 0xE000))
+        raise ArgumentError, "invalid tgtaddr argument" unless (Integer === tgtaddr and tgtaddr == (tgtaddr & 0xE000)) or direct_label?(tgtaddr)
+        raise ArgumentError, "invalid srcaddr argument" unless (Integer === srcaddr and srcaddr == (srcaddr & 0xE000)) or direct_label?(srcaddr)
         scrdiff = (srcaddr - tgtaddr) & 0xffff
         raise ArgumentError, "tgtaddr must be not be the same as srcaddr" if Integer === scrdiff and scrdiff == 0
         scrxor = if Integer === srcaddr and Integer === tgtaddr
           srcaddr ^ tgtaddr
         end
-        raise ArgumentError, "address should be a label or an integer or DE register pair" unless address == de or address?(address)
-        raise ArgumentError, "rows should be a label or a pointer or an integer or a register" unless (register?(rows) and rows.bit8?) or
+        raise ArgumentError, "address should be an address or a pointer or de" unless address == de or address?(address)
+        raise ArgumentError, "rows should be an integer or a label or a pointer or a register" unless (register?(rows) and rows.bit8?) or
                                                                                                        address?(rows)
         cols = cols.to_i
         raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
