@@ -19,12 +19,12 @@ module ZXLib
         # * +bitmap+:: An address of a bitmap to be copied from as a label, pointer, an integer or +hl+.
         # * +lines+:: A number of pixel lines to be copied as an 8-bit register or a label or a pointer.
         # * +cols+:: A number of 8 pixel columns to be copied as an 8-bit register or a label or a pointer.
-        # * +target+:: An address of a screen memory area to be copied to as a label, pointer, an integer or +de+.
-        #              The starting address of the whole screen area must be a multiple of 0x2000.
         #
         # _NOTE_:: Unless +cols+ is one of: +ixh+, +ixl+, +iyh+ or +iyl+ the routine uses self modifying code.
         #
         # Options:
+        # * +target+:: An address of a screen memory area to be copied to as a label, pointer, an integer or +de+.
+        #              The starting address of the whole screen area must be a multiple of 0x2000.
         # * +scraddr+:: An optional screen memory address which must be a multiple of 0x2000 as an integer or a label.
         #               If provided the routine breaks execution when the bottom of the screen has been reached.
         #               +CF+ = 0 (NC) if the routine terminates prematurely due to reaching bottom of the screen.
@@ -32,7 +32,7 @@ module ZXLib
         # * +subroutine+:: Whether to create a subroutine.
         #
         # Modifies: +af+, +af'+, +bc+, +bc'+, +de+, +hl+. Swaps registers unless out of screen.
-        def bobs_copy_pixels(bitmap=hl, lines=a, cols=c, target=de, scraddr:nil, subroutine:false)
+        def bobs_copy_pixels(bitmap=hl, lines=a, cols=c, target:de, scraddr:nil, subroutine:false)
           isolate do |eoc|
                             ld   a, lines unless lines == a
                             ex   af, af     # a': lines
@@ -118,12 +118,12 @@ module ZXLib
         # * +attrs+:: An address of attributes to be copied from as a label, pointer, an integer or +hl+.
         # * +rows+:: A number of attribute rows to be copied as an 8-bit register or a label or a pointer.
         # * +cols+:: A number of attribute columns to be copied as an 8-bit register or a label or a pointer.
-        # * +target+:: An address of screen attributes memory area to be copied to as a label, pointer, an integer or +de+.
-        #              The starting address of the whole screen area must be a multiple of 0x2000.
         #
         # _NOTE_:: Unless +cols+ is one of: +ixh+, +ixl+, +iyh+ or +iyl+ the routine uses self modifying code.
         #
         # Options:
+        # * +target+:: An address of screen attributes memory area to be copied to as a label, pointer, an integer or +de+.
+        #              The starting address of the whole screen area must be a multiple of 0x2000.
         # * +scraddr+:: An optional screen memory address which must be a multiple of 0x2000 as an integer or a label.
         #               If provided the routine breaks execution when the bottom of the screen has been reached.
         #               +CF+ = 0 (NC) if the routine terminates prematurely due to reaching bottom of the screen.
@@ -131,7 +131,7 @@ module ZXLib
         # * +subroutine+:: Whether to create a subroutine.
         #
         # Modifies: +af+, +af'+, +bc+, +bc'+, +de+, +hl+. Swaps registers unless out of screen.
-        def bobs_copy_attrs(attrs=hl, rows=a, cols=c, target=de, scraddr:nil, subroutine:false)
+        def bobs_copy_attrs(attrs=hl, rows=a, cols=c, target:de, scraddr:nil, subroutine:false)
           isolate do |eoc|
                             ld   a, rows unless rows == a
                             ex   af, af
@@ -183,14 +183,14 @@ module ZXLib
         # _NOTE_:: Interrupts must be disabled prior to calling this routine or the +disable_intr+
         #          option must be set to +true+.
         #
-        # * +bitmap+:: An address of a bitmap to be copied from as a label, pointer, an integer or one of the registers:
+        # * +bitmap+:: An address of a bitmap to be copied from as a label, a pointer, an integer or one of the registers:
         #              +ix+, +iy+ or +sp+.
         # * +lines+:: A number of pixel lines to be copied as an 8-bit register or a label, pointer or an integer.
         # * +cols+:: A constant number of 8 pixel columns to be copied as an integer.
-        # * +target+:: An address of a screen memory area to be copied to as a label, pointer, an integer or +hl+.
-        #              The starting address of the whole screen area must be a multiple of 0x2000.
         #
         # Options:
+        # * +target+:: An address of a screen memory area to be copied to as a label, pointer, an integer or +hl+.
+        #              The starting address of the whole screen area must be a multiple of 0x2000.
         # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
         #                    only if you have already disabled the interrupts.
         # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
@@ -204,7 +204,7 @@ module ZXLib
         # _NOTE_:: Restoring +sp+ register uses self-modifying code.
         #
         # Modifies: +af+, +af'+, +bc+, +de+, +hl+, optionally: +sp+.
-        def bobs_copy_pixels_fast(bitmap, lines=c, cols=32, target=hl, disable_intr:true, enable_intr:true, save_sp:true, scraddr:nil, subroutine:false)
+        def bobs_copy_pixels_fast(bitmap, lines=c, cols=32, target:hl, disable_intr:true, enable_intr:true, save_sp:true, scraddr:nil, subroutine:false)
           raise ArgumentError, "invalid scraddr argument" unless scraddr.nil? or direct_address?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))
           raise ArgumentError, "target should be an address or a pointer or hl" unless target == hl or address?(target)
           raise ArgumentError, "bitmap should be an address or a pointer or ix/iy/sp" unless [sp,ix,iy].include?(bitmap) or address?(bitmap)
@@ -367,10 +367,10 @@ module ZXLib
         #             +ix+, +iy+ or +sp+.
         # * +rows+:: A number of attribute rows to be copied as an 8-bit register or a label, pointer or an integer.
         # * +cols+:: A constant number of attribute columns to be copied as an integer.
-        # * +target+:: An address of screen attributes memory area to be copied to as a label, pointer, an integer or +hl+.
-        #              The starting address of the whole screen area must be a multiple of 0x2000.
         #
         # Options:
+        # * +target+:: An address of screen attributes memory area to be copied to as a label, pointer, an integer or +hl+.
+        #              The starting address of the whole screen area must be a multiple of 0x2000.
         # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
         #                    only if you have already disabled the interrupts.
         # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
@@ -383,7 +383,7 @@ module ZXLib
         # _NOTE_:: Restoring +sp+ register uses self-modifying code.
         #
         # Modifies: +af+, +bc+, +de+, +hl+, optionally: +sp+.
-        def bobs_copy_attrs_fast(attrs, rows=a, cols=32, target=hl, disable_intr:true, enable_intr:true, save_sp:true, check_oos:false, subroutine:false)
+        def bobs_copy_attrs_fast(attrs, rows=a, cols=32, target:hl, disable_intr:true, enable_intr:true, save_sp:true, check_oos:false, subroutine:false)
           isolate do |eoc|
             if check_oos
               if pointer?(rows)
@@ -484,9 +484,69 @@ module ZXLib
           end
         end
 
+        def bobs_rshift_bitmap_pixels_7times(bitmap=hl, lines=c, cols=a, target:de)
+          isolate do
+            if address?(lines) && pointer?(lines)
+                            ex   af, af if cols == a
+                            ld   a, lines
+                            ld   c, a
+                            ex   af, af if cols == a
+            else
+                            ld   c, lines unless lines == c
+            end
+                            ld   a, cols unless cols == a
+                            ld   hl, bitmap unless bitmap == hl
+                            ld   de, target unless target == de
+                            ld   b, 7
+                            scf
+            bitloop         push bc
+                            push de
+                            bobs_rshift_bitmap_pixels_once
+                            adc  a, 0
+                            pop  hl
+                            pop  bc
+                            djnz bitloop
+          end
+        end
+
+        def bobs_rshift_bitmap_pixels_once(bitmap=hl, lines=c, cols=a, target:de)
+          isolate do
+            if address?(lines) && pointer?(lines)
+                            ex   af, af if cols == a
+                            ld   a, lines
+                            ld   c, a
+                            ex   af, af if cols == a
+            else
+                            ld   c, lines unless lines == c
+            end
+                            ld   a, cols unless cols == a
+                            ld   hl, bitmap unless bitmap == hl
+                            ld   de, target unless target == de
+            line_start      ld   b, a
+                            ex   af, af        # a': cols, CF: 1 extend cols (right margin)
+                            ora  a             # CF: 0
+            line_loop       ld   a, [hl]
+                            inc  hl
+                            rra
+                            ld   [de], a
+                            inc  de
+                            djnz line_loop
+                            ex   af, af
+                            jr   NC, skip_last
+                            ex   af, af
+                            ld   a, 0
+                            rra
+                            ld   [de], a
+                            inc  de
+                            ex   af, af
+            skip_last       dec  c
+                            jr   NZ, line_start
+          end
+        end
+
         # TODO: dyn width skip; cols.odd?
         # mode = :copy, :set, :or, :xor, :and
-        def bobs_draw_pixels_fast(bitmap, lines=a, cols=2, target=hl, bshift=b, mode: :set, tx:ix, disable_intr:true, enable_intr:true, save_sp:true, scraddr:nil, subroutine:false)
+        def bobs_draw_pixels_fast(bitmap, lines=a, cols=2, target:hl, bshift:b, mode: :set, tx:ix, disable_intr:true, enable_intr:true, save_sp:true, scraddr:nil, subroutine:false)
           raise ArgumentError, "invalid scraddr argument" unless scraddr.nil? or direct_address?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))
           raise ArgumentError, "target should be an address or a pointer or hl" unless target == hl or address?(target)
           raise ArgumentError, "bitmap should be an address or a pointer or ix/iy/sp/hl'" unless [sp,ix,iy,hl].include?(bitmap) or address?(bitmap)
@@ -494,6 +554,7 @@ module ZXLib
                                                                                                          address?(lines)
           cols = cols.to_i
           raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
+          raise ArgumentError, "cols must be even" unless cols.even?
           raise ArgumentError, "cols must be greater than or equal to 1" if cols < 1
           raise ArgumentError, "save_sp makes no sense if bitmap = sp" if bitmap == sp and save_sp
           raise ArgumentError, "bshift should be one of: b, c, d or e" unless [b,c,d,e].include?(bshift)
