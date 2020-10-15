@@ -72,6 +72,7 @@ require 'z80'
 # require 'z80/utils/sincos'
 require 'zxlib/sys'
 # require 'zxlib/gfx'
+# require 'zxlib/gfx/bobs'
 # require 'zxlib/gfx/draw'
 # module ZXLib
 #   module Gfx
@@ -95,6 +96,7 @@ class #{klass_name}
   label_import ZXLib::Sys, macros: true
   # macro_import ZXLib::Gfx
   # macro_import ZXLib::Gfx::Draw
+  # macro_import ZXLib::Gfx::Bobs
   # macro_import ZXLib::Gfx::Sprite8
 
   macro :print_text do |eoc, text|
