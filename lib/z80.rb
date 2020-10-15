@@ -339,7 +339,7 @@ module Z80
 		#  * +:inherit+:: An alias of +:inherit+.
 		#  * +:isolate+:: If +true+ creates an isolated namespace; see: Program#isolate.
 		#  * +:merge+:: If +true+ merges labels from within a namespace with the current context;
-		#               usefull if you want to pass an +eoc+ label to some block of code and
+		#               useful if you want to pass an +eoc+ label to some block of code and
 		#               don't need a namespace.
 		#
 		#  Given +block+ receives one argument: +eoc+ which is a relative label that will address

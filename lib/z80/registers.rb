@@ -70,7 +70,7 @@ module Z80
 			##
 			#  Disjoins one of 16 bit registers: +bc+ +de+ +hl+ +ix+ or +iy+ to array of 8bit registers: [+hi+, +lo+].
 			#
-			#  Usefull when defining macros that may use registers passed by parameters.
+			#  Useful when defining macros that may use registers passed by parameters.
 			def split
 				case name
 				when 'bc', 'de', 'hl'
@@ -84,7 +84,7 @@ module Z80
 			##
 			#  Adjoins two 8 bit registers to form one 16 bit register.
 			#
-			#  Usefull when defining macros that may use registers passed by parameters.
+			#  Useful when defining macros that may use registers passed by parameters.
 			def |(other)
 				if match16? other
 					@@regindex[name + other.name] || @@regindex[name[0,2]]

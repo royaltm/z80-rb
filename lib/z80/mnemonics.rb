@@ -50,7 +50,7 @@ module Z80
 		#      ld ixh, iyh # invalid
 		#      ld h, iyh   # invalid
 		#
-		#  * and some less usefull but included for completeness:
+		#  * and some less useful but included for completeness:
 		#      out (c)    # output to (BC) port 0 or 255 depending on the CPU manufacturer
 		#      inp (c)    # sets flags, but drops the value
 		#  

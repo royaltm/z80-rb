@@ -670,7 +670,7 @@ module ZXUtils
     # The most important is the +music_control.counter+ word entry which can be used to synchronize
     # music with some external code.
     #
-    # Other usefull entries to watch are:
+    # Other useful entries to watch are:
     #
     # * +music_control.ay_registers+: a mirror of AY-3-891x registers (0 to 13).
     # * +music_control.chan_a.current_note+: a currently played note index (0..95) on channel A
