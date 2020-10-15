@@ -135,10 +135,162 @@ module ZXLib
             p_ramt  word    # 23732 Address of last byte of physical RAM.
         end
 
+        ##
+        # ZX Interface 1 variables.
+        class If1Vars < Label
+            flags3  byte      # 23734 $5CB6            IY+$7C - Flags
+            vector  word      # 23735 $5CB7            Address used to extend BASIC.
+            sbrt    byte, 10  # 23737 $5CB9            10 bytes of Z80 code to Page ROM.
+            baud    word      # 23747 $5CC3            BAUD=(3500000/(26*baud rate)) -2
+            ntstat  byte      # 23749 $5CC5            Own network station number.
+            iobord  byte      # 23750 $5CC6            Border colour during I/O
+            ser_fl  word      # 23751 $5CC7            2 byte workspace used by RS232
+            sector  word      # 23753 $5CC9            2 byte workspace used by Microdrive.
+            chadd_  word      # 23755 $5CCB            Temporary store for CH_ADD
+            ntresp  byte      # 23757 $5CCC            Store for network response code.
+                              # ----- -----            ---------------------------------
+            ntdest  byte      # 23758 $5CCD            Destination station number 0 - 64.
+            ntsrce  byte      # 23759 $5CCE            Source station number.
+            ntnumb  word      # 23760 $5CD0            Network block number 0 - 65535
+            nttype  byte      # 23762 $5CD2            Header type block.
+            ntlen   byte      # 23763 $5CD3            Data block length 0 - 255.
+            ntdcs   byte      # 23764 $5CD4            Data block checksum.
+            nthds   byte      # 23765 $5CD5            Header block checksum.
+                              # ----- -----            ---------------------------------
+            d_str1  word      # 23766 $5CD6            2 byte drive number 1 - 8.
+            s_str1  byte      # 23768 $5CD8            Stream number 1 - 15. [ also 0 ]
+            l_str1  byte      # 23769 $5CD9            Device type "M", "N", "T" or "B"
+            n_str1  word, 2   # 23770 $5CDA            Length of filename.
+                              # 23772 $5CDC (dynamic)  Address of filename.
+                              # ----- -----            ---------------------------------
+            d_str2  word      # 23774 $5CDE            2 byte drive   ; File type.
+                              # 23775 $5CDF            number.        ; Length of  
+            s_str2  byte      # 23776 $5CE0            Stream number. ; Data.
+            l_str2  byte      # 23777 $5CE1            Device type.   ; Start of        
+            n_str2  byte      # 23778 $5CE2            Length of      ; data.   \
+                    byte      # 23779 $5CE3            filename.      ; Program  \ 
+                    byte      # 23780 $5CE4 (dynamic)  Address of     ; length. ; Start of
+                    byte      # 23781 $5CE5 (dynamic)  filename       ;         ; data.
+                              # ----- -----            ---------------------------------
+            hd_00   byte      # 23782 $5CE6            File type .      _  
+            hd_0b   word      # 23783 $5CE7            Length of data.   /\
+            hd_0d   word      # 23785 $5CE9            Start of data.   /
+            hd_0f   word      # 23787 $5CEB            Program length. /
+            hd_11   word      # 23789 $5CED            Line number.
+                              # ----- -----            ---------------------------------
+            copies  byte      # 23791 $5CEF            Number of copies made by SAVE.
+            #
+            # Acknowledgements (IF1 disassembly)
+            # ----------------
+            # Dr Ian Logan          for main ROM labels ( and half on Interface 1)
+            # Dr Frank O'Hara       for main ROM labels.
+            # Gianluca Carri        for Interface 1 v1.2 labels
+        end
+
+        ##
+        # ZX Spectrum 128 variables.
+        class Vars128 < Label
+            wap     byte, 20  # 23296 $5B00 Swap paging subroutine.
+            younger byte,  9  # 23316 $5B14 Return paging subroutine.
+            onerr   byte, 18  # 23325 $5B1D Error handler paging subroutine.
+            pin     byte,  5  # 23343 $5B2F RS232 input pre-routine.
+            pout    byte, 22  # 23348 $5B34 RS232 token output pre-routine. This can be patched to bypass the control code filter.
+            pout2   byte, 14  # 23370 $5B4A RS232 character output pre-routine.
+            target  word      # 23384 $5B58 Address of subroutine to call in ROM 1.
+            retaddr word      # 23386 $5B5A Return address in ROM 0.
+            bank_m  byte      # 23388 $5B5C Copy of last byte output to I/O port $7FFD.
+            ramrst  byte      # 23389 $5B5D Stores instruction RST $08 and used to produce a standard ROM error.
+            ramerr  byte      # 23390 $5B5E Error number for use by RST $08 held in RAMRST.
+            baud    word      # 23391 $5B5F Baud rate timing constant for RS232 socket. Default value of 11. [Name clash with ZX Interface 1 system variable at $5CC3]
+            serfl   byte, 2   # 23393 $5B61 Second character received flag:
+                              #               Bit 0   : 1=Character in buffer.
+                              #               Bits 1-7: Not used (always hold 0).
+                              # 23394 $5B62 Received Character.
+            col     byte      # 23395 $5B63 Current column from 1 to WIDTH.
+            width   byte      # 23396 $5B64 Paper column width. Default value of 80. [Name clash with ZX Interface 1 Edition 2 system variable at $5CB1]
+            tvpars  byte      # 23397 $5B65 Number of inline parameters expected by RS232 (e.g. 2 for AT).
+            flags3  byte      # 23398 $5B66 Flags: [Name clashes with the ZX Interface 1 system variable at $5CB6]
+                              #               Bit 0: 1=BASIC/Calculator mode, 0=Editor/Menu mode.
+                              #               Bit 1: 1=Auto-run loaded BASIC program. [Set but never tested by the ROM]
+                              #               Bit 2: 1=Editing RAM disk catalogue.
+                              #               Bit 3: 1=Using RAM disk commands, 0=Using cassette commands.
+                              #               Bit 4: 1=Indicate LOAD.
+                              #               Bit 5: 1=Indicate SAVE.
+                              #               Bit 6: 1=Indicate MERGE.
+                              #               Bit 7: 1=Indicate VERIFY.
+            n_str1  byte, 10  # 23399 $5B67 Used by RAM disk to store a filename. [Name clash with ZX Interface 1 system variable at $5CDA]
+                              #             Used by the renumber routine to store the address of the BASIC line being examined.
+            hd_00   byte      # 23409 $5B71 Used by RAM disk to store file header information (see RAM disk Catalogue section below for details). [Name clash with ZX Interface 1 system variable at $5CE6]
+                              #             Used as column pixel counter in COPY routine.
+                              #             Used by FORMAT command to store specified baud rate.
+                              #             Used by renumber routine to store the number of digits in a pre-renumbered line number reference. [Name clash with ZX Interface 1 system variable at $5CE7]
+            hd_0b   word      # 23410 $5B72 Used by RAM disk to store header info - length of block.
+                              #             Used as half row counter in COPY routine.
+                              #             Used by renumber routine to generate ASCII representation of a new line number.
+            hd_0d   word      # 23412 $5B74 Used by RAM disk to store file header information (see RAM disk Catalogue section below for details). [Name clash with ZX Interface 1 system variable at $5CE9]
+            hd_0f   word      # 23414 $5B76 Used by RAM disk to store file header information (see RAM disk Catalogue section below for details). [Name clash with ZX Interface 1 system variable at $5CEB]
+                              #             Used by renumber routine to store the address of a referenced BASIC line.
+            hd_11   word      # 23416 $5B78 Used by RAM disk to store file header information (see RAM disk Catalogue section below for details). [Name clash with ZX Interface 1 system variable at $5CED]
+                              #             Used by renumber routine to store existing VARS address/current address within a line.
+            sc_00   byte      # 23418 $5B7A Used by RAM disk to store alternate file header information (see RAM disk Catalogue section below for details).
+            sc_0b   word      # 23419 $5B7B Used by RAM disk to store alternate file header information (see RAM disk Catalogue section below for details).
+            sc_0d   word      # 23421 $5B7D Used by RAM disk to store alternate file header information (see RAM disk Catalogue section below for details).
+            sc_0f   word      # 23423 $5B7F Used by RAM disk to store alternate file header information (see RAM disk Catalogue section below for details).
+            oldsp   word      # 23425 $5B81 Stores old stack pointer when TSTACK in use.
+            sfnext  word      # 23427 $5B83 End of RAM disk catalogue marker. Pointer to first empty catalogue entry.
+            sfspace byte, 3   # 23429 $5B85 Number of bytes free in RAM disk (3 bytes, 17 bit, LSB first).
+            row01   byte      # 23432 $5B88 Stores keypad data for row 3, and flags:
+                              #               Bit 0   : 1=Key '+' pressed.
+                              #               Bit 1   : 1=Key '6' pressed.
+                              #               Bit 2   : 1=Key '5' pressed.
+                              #               Bit 3   : 1=Key '4' pressed.
+                              #               Bits 4-5: Always 0.
+                              #               Bit 6   : 1=Indicates successful communications to the keypad.
+                              #               Bit 7   : 1=If communications to the keypad established.
+            row23   byte      # 23433 $5B89 Stores keypad key press data for rows 1 and 2:
+                              #               Bit 0: 1=Key ')' pressed.
+                              #               Bit 1: 1=Key '(' pressed.
+                              #               Bit 2: 1=Key '*' pressed.
+                              #               Bit 3: 1=Key '/' pressed.
+                              #               Bit 4: 1=Key '-' pressed.
+                              #               Bit 5: 1=Key '9' pressed.
+                              #               Bit 6: 1=Key '8' pressed.
+                              #               Bit 7: 1=Key '7' pressed.
+            row45   byte      # 23434 $5B8A Stores keypad key press data for rows 4 and 5:
+                              #               Bit 0: Always 0.
+                              #               Bit 1: 1=Key '.' pressed.
+                              #               Bit 2: Always 0.
+                              #               Bit 3: 1=Key '0' pressed.
+                              #               Bit 4: 1=Key 'ENTER' pressed.
+                              #               Bit 5: 1=Key '3' pressed.
+                              #               Bit 6: 1=Key '2' pressed.
+                              #               Bit 7: 1=Key '1' pressed.
+            synret  word      # 23435 $5B8B Return address for ONERR routine.
+            lastv   byte, 5   # 23437 $5B8D Last value printed by calculator.
+            rnline  word      # 23442 $5B92 Address of the length bytes in the line currently being renumbered.
+            rnfirst word      # 23444 $5B94 Starting line number when renumbering. Default value of 10.
+            rnstep  word      # 23446 $5B96 Step size when renumbering. Default value of 10.
+            strip1  byte, 32  # 23448 $5B98 Used as RAM disk transfer buffer (32 bytes to $5BB7).
+                              #             Used to hold Sinclair stripe character patterns (16 bytes to $5BA7).
+            tstbeg  byte, 71  # 23480 $5BB8 ...
+            tstack  byte      # 23551 $5BFF Temporary stack (grows downwards). The byte at $5BFF is not actually used.
+            #
+            # Acknowledgements (128k disassembly)
+            # ----------------
+            # Matthew Wilson  (www.matthew-wilson.net/spectrum/rom/)
+            # Andrew Owen     (cheveron-AT-gmail.com)
+            # Geoff Wearmouth (gwearmouth-AT-hotmail.com)
+            # Rui Tunes
+            # Paul Farrow     (www.fruitcake.plus.com)
+        end
+
         export :auto
 
+        vars128 addr 23296, Vars128
         vars    addr 23552, Vars
         vars_iy vars.err_nr
+
+        if1vars addr 23734, If1Vars
 
         isolate :rom do
             start       addr 0x0000 # THE 'START'
@@ -269,9 +421,9 @@ module ZXLib
             ay_out  addr io128.ay_out
         end
 
-        isolate :sys128, use: :io128 do
-            mmu_value    addr 0x5B5C    # 0b00DRSBnk
-            mmu_port     addr io128.mmu # D - disable mmu, R - rom, S - screen, Bnk - bank
+        isolate :sys128, use: [:io128, :vars128] do
+            mmu_value    addr vars128.bank_m # 0b00DRSBnk (0x5B5C)
+            mmu_port     addr io128.mmu      # D - disable mmu, R - rom, S - screen, Bnk - bank
         end
 
         isolate :mem128, use: :sys128 do
