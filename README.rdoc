@@ -5,7 +5,7 @@
 
 ==A Z80 assembler powered by Ruby.
 
-Ruby[https://www.ruby-lang.org] is a powerfull meta language, so why not to leverage its meta powers to have the ultimate macro system, compiler and builder for the Z80 assembler?
+Ruby[https://www.ruby-lang.org] is a powerful meta-language, so why not leverage its meta powers to have the ultimate macro system, compiler, and builder for the Z80 assembler?
 
 Now, to answer the question, you'll need:
 
@@ -134,7 +134,7 @@ Let's make a +.tap+ file now:
   prog.save_tap 'calculator', line: 10
   calc.save_tap 'calculator', append: true, name: 'multiply'
 
-go to ZX Spectrum or an emulator[http://torinak.com/qaop]:
+go to ZX Spectrum or an emulator[https://royaltm.github.io/spectrusty/web-zxspectrum/]:
 
   LOAD "calculator"
 
@@ -145,11 +145,26 @@ Enjoy!
 link:examples/calculator.png
 
 
+===Examples[https://github.com/royaltm/z80-rb/tree/master/examples]:
+
+* +bfont_demo+:: https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/bfont_demo.tap#fresh
+* +calculator+:: https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/calculator.tap#fresh
+* +dots+:: https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/dots.tap#fresh
+* +horse+:: https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/horse.tap#fresh
+* +labyrinth+:: https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/labyrinth.tap#fresh
+* +mathi_test+:: https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/mathi_test.tap#fresh  (integer math library tests)
+* +multifill+:: https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/multifill.tap#fresh (multitasking demo)
+* +stars+:: https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/stars.tap#fresh
+* +quat3d128+:: https://royaltm.github.io/spectrusty/web-zxspectrum/#m=128k#tap=/z80-rb/examples/quat3d128.tap#fresh
+
+The YARTZ demo[https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#ay=melodik#tap=https://yeondir.com/zxspectrum/files/demos/yartz.tap#fresh] released at Speccy.pl/2019 was made entirely using this gem[https://github.com/royaltm/zxspectrum-demo-yartz], including music.
+
+
 ===Bootstrap
 
 You may use the +zxinit+ tool provided by this gem to bootstrap a new program.
 
-Provide a target file name and optionally a main class name.
+Provide a target file name and optionally the main class name.
 
 
   $ zxinit hello_world
@@ -223,19 +238,6 @@ Another tool: +zxrun+ can be used to optionally compile ruby sources and run the
 * ZXUtils::MusicBox
 * ZX7
 
-====Examples[https://github.com/royaltm/z80-rb/tree/master/examples]:
-
-* +bfont_demo+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/bfont_demo.tap
-* +calculator+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/calculator.tap
-* +dots+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/dots.tap
-* +horse+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/horse.tap
-* +labyrinth+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/labyrinth.tap
-* +mathi_test+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap (integer math library tests)
-* +multifill+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap (multitasking demo)
-* +stars+:: http://torinak.com/qaop#l=http://z80.yeondir.com/examples/stars.tap
-* +quat3d128+:: http://torinak.com/qaop#128#l=http://z80.yeondir.com/examples/quat3d128.tap
-
-The YARTZ demo[https://github.com/royaltm/zxspectrum-demo-yartz] released at Speccy.pl/2019 was made entirely using this gem, including music.
 
 ===Features:
 
