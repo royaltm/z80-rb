@@ -1,7 +1,7 @@
 module ZXLib
   module Gfx
     ##
-    #  Bitmap objects related routines.
+    #  ==Bitmap objects related routines.
     #
     #  See also ZXLib::Gfx::Bobs::Macros.
     class Bobs
@@ -205,10 +205,10 @@ module ZXLib
         #
         # Modifies: +af+, +af'+, +bc+, +de+, +hl+, optionally: +sp+.
         def bobs_copy_pixels_fast(bitmap, lines=c, cols=32, target=hl, disable_intr:true, enable_intr:true, save_sp:true, scraddr:nil, subroutine:false)
-          raise ArgumentError, "invalid scraddr argument" unless scraddr.nil? or label?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))
-          raise ArgumentError, "target should be a label or an integer or HL register pair" unless target == hl or address?(target)
-          raise ArgumentError, "bitmap should be a label or an integer or IX/IY/SP register pair" unless [sp,ix,iy].include?(bitmap) or address?(bitmap)
-          raise ArgumentError, "lines should be a label or a pointer or an integer or a register" unless (register?(lines) and lines.bit8?) or
+          raise ArgumentError, "invalid scraddr argument" unless scraddr.nil? or direct_address?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))
+          raise ArgumentError, "target should be an address or a pointer or hl" unless target == hl or address?(target)
+          raise ArgumentError, "bitmap should be an address or a pointer or ix/iy/sp" unless [sp,ix,iy].include?(bitmap) or address?(bitmap)
+          raise ArgumentError, "lines should be an integer or a label or a pointer or a register" unless (register?(lines) and lines.bit8?) or
                                                                                                          address?(lines)
           cols = cols.to_i
           raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
@@ -484,6 +484,269 @@ module ZXLib
           end
         end
 
+        # TODO: dyn width skip; cols.odd?
+        # mode = :copy, :set, :or, :xor, :and
+        def bobs_draw_pixels_fast(bitmap, lines=a, cols=2, target=hl, bshift=b, mode: :set, tx:ix, disable_intr:true, enable_intr:true, save_sp:true, scraddr:nil, subroutine:false)
+          raise ArgumentError, "invalid scraddr argument" unless scraddr.nil? or direct_address?(scraddr) or (Integer === scraddr and scraddr == (scraddr & 0xE000))
+          raise ArgumentError, "target should be an address or a pointer or hl" unless target == hl or address?(target)
+          raise ArgumentError, "bitmap should be an address or a pointer or ix/iy/sp/hl'" unless [sp,ix,iy,hl].include?(bitmap) or address?(bitmap)
+          raise ArgumentError, "lines should be a label or a pointer or an integer or a register" unless (register?(lines) and lines.bit8?) or
+                                                                                                         address?(lines)
+          cols = cols.to_i
+          raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
+          raise ArgumentError, "cols must be greater than or equal to 1" if cols < 1
+          raise ArgumentError, "save_sp makes no sense if bitmap = sp" if bitmap == sp and save_sp
+          raise ArgumentError, "bshift should be one of: b, c, d or e" unless [b,c,d,e].include?(bshift)
+          raise ArgumentError, "tx should be one of: ix or iy" unless [ix, iy].include?(tx)
+          txh, txl = tx.split
+          t = b
+          m = c
+          fx = case mode
+            when :or then ->(tgt) { ora tgt }
+            when :xor then ->(tgt) { xor tgt }
+            when :and then ->(tgt) { anda tgt }
+            when :set, :copy then nil
+            else
+              raise ArgumentError, "mode should be one of: :or, :xor, :and, :set or :copy"
+          end
+          isolate do
+                            ld   a, lines unless lines == a
+                            ex   af, af     # a': lines
+
+                            ld   hl, target unless target == hl
+                            ld   a, l
+                            exx
+                            ld   c, a       # c: lo
+                            exx
+                            ld   a, h       # calculate counter based on screen address modulo 8
+                            anda 0b11111000 # (h & 0b11111000)
+                            sub  h          # (h & 0b11111000) - h % 8
+                            exx
+            if cols <= 2
+                            ld   d, 8
+                            add  d
+            else
+                            add  8          # 8 - h % 8
+            end
+                            ld   b, a       # b: counter: 8 - h % 8
+
+                            ex   af, af     # a: lines, a': lo
+            if cols <= 2
+                            ld   e, a       # e: lines
+                            dec  a          # a: lines - 1
+                            sub  b          # a: lines - 1 - counter
+                            jr   NC, more_rows
+                            ld   b, e       # b: counter = c: lines
+              more_rows     ex   af, af     # a: lines left - 1, CF: last row
+            else
+                            dec  a          # a: lines - 1 (remaining lines)
+                            ld   e, a       # lines - 1
+                            cp   b          # a: lines - 1 - counter
+                            jr   NC, more_rows
+                            ld   b, e       # b: counter = c: lines
+                            inc  b
+              more_rows     ld   d, b       # d: last counter
+            end
+
+            if [hl, sp, tx].include?(bitmap)
+                            di if disable_intr
+                            ld   [restore_sp_p], sp if save_sp
+                            ld   sp, bitmap unless bitmap == sp
+            end
+                            exx
+                            ld   a, bshift  # rshift
+                            add  a, a
+                            add  bshift     # * 3
+                            ld   de, jump_table
+                            add  e
+                            ld   e, a
+
+            if [hl, sp, tx].include?(bitmap)
+                            ld   a, [de]
+                            inc  e
+                            ld   txl, a
+                            ld   a, [de]
+                            inc  e
+                            ld   txh, a
+                            ld   a, [de] # mask
+                            ld   m, a
+            else
+                            ex   de, hl
+                            di if disable_intr
+                            ld   [restore_sp_p], sp if save_sp
+                            ld   sp, hl
+                            ex   de, hl
+                            pop  tx
+                            pop  t|m
+                            ld   sp, bitmap
+            end
+                            jp   (tx) # hl: screen, m: mask, b': counter, d': counter, e': lines left - 1, c': lo
+
+            jump_table      label
+            (0..7).each do |index|
+                            dw   define_label(:"line_rshift#{index}").loop0
+                            db   0xff >> index
+            end
+            ################################################
+            rotate_bits = ->(rshift) do
+              if (1..4).include?(rshift)
+                          rshift.times { rrca }
+              elsif (5..7).include?(rshift)
+                          (8-rshift).times { rlca }
+              end
+            end
+            ns :line_rshift0 do
+              rowloop       ld   a, c
+                            exx
+                            ld   l, a
+              loop0         label
+              (0...cols).step(2) do |col|
+                            pop  de
+                if fx.nil?
+                            ld   [hl], e
+                else
+                            ld   a, e
+                            fx.call [hl]
+                            ld   [hl], a
+                end
+                            inc  l
+                if fx.nil?
+                            ld   [hl], d
+                else
+                            ld   a, d
+                            fx.call [hl]
+                            ld   [hl], a
+                end
+                            inc  l unless col == cols-2
+              end
+                            inc  h
+                            exx
+                            djnz rowloop
+                            jp   next_row
+            end
+            [1,7,2,6,3,5,4].each do |rshift|
+              ns :"line_rshift#{rshift}" do
+                rowloop     ld   a, c
+                            exx
+                            ld   l, a
+                loop0       label
+                (0...cols).step(2) do |col|
+                            pop  de
+                            ld   a, e        # a: 76543210
+                            rotate_bits.call rshift
+                            ld   e, a        # e: 32107654
+                            anda m           # a: ....7654 b: mask 00001111
+                            ld   t, a unless mode == :copy && col == 0 # c: ....7654
+                  if col != 0
+                            ex   af, af
+                            ora  t
+                  elsif mode == :set
+                            ld   a, m        # b: mask 00001111
+                            cpl              # a: mask 11110000
+                            anda [hl]        # a: ssss0000
+                            ora  t           # a: ssss7654
+                  end
+                            fx.call [hl] unless fx.nil?
+                            ld   [hl], a
+                            inc  l
+                            ld   a, t unless mode == :copy && col == 0 # a: ....7654
+                            xor  e           # a: 3210....
+                            ld   e, a        # e: 3210....
+                            ld   a, d        # a: 76543210
+                            rotate_bits.call rshift
+                            ld   d, a        # d: 32107654
+                            anda m           # a: ....7654 b: mask 00001111
+                            ld   t, a        # c: ....7654
+                            ora  e           # a: 32107654
+                            fx.call [hl] unless fx.nil?
+                            ld   [hl], a
+                            inc  l
+                  if mode == :set and col == cols - 2
+                            ld   a, m        # b: mask 00001111
+                            anda [hl]        # a: ....ssss
+                            xor  t           # a: ....xxxx
+                            xor  d           # a: 3210ssss
+                            ld   [hl], a
+                  else
+                            ld   a, t        # a: ....7654
+                            xor  d           # d: 3210....
+                    if col == cols-2
+                            fx.call [hl] unless fx.nil?
+                            ld   [hl], a
+                    else
+                            ex   af, af      # a':3210....
+                    end
+                  end
+                end
+                            inc  h
+                            exx
+                            djnz rowloop
+                            jp   next_row unless rshift == 4
+              end
+            end
+            ################################################
+            if cols <= 2
+              next_row      ex   af, af
+              if subroutine && !enable_intr && !save_sp
+                            ret  C
+              else
+                            jr   C, quit
+              end
+                            ld   b, d       # 8
+                            sub  b
+                            jr   NC, not_last
+                            add  b
+                            ld   b, a
+                            inc  b
+              not_last      ex   af, af
+            else
+              next_row      ld   a, e       # lines left - 1
+                            sub  d          # last counter
+              if subroutine && !enable_intr && !save_sp
+                            ret  C
+              else
+                            jr   C, quit
+              end
+                            ld   e, a       # lines left
+                            ld   b, 8
+                            cp   b
+                            jr   NC, not_last
+                            ld   b, a
+                            inc  b
+              not_last      ld   d, b       # last counter
+            end
+
+                            ld   a, c       # a: lo
+                            add  0x20       # a: lo + 0x20
+                            ld   c, a
+                            exx
+                            ld   l, a       # l: lo
+                            jr   C, loop0fw unless scraddr
+                            ld   a, h
+                            jr   C, check_oos if scraddr
+                            sub  8          # 8
+                            ld   h, a       # h: adjusted
+                            ld   a, l
+            loop0fw         jp   (tx)
+            if scraddr
+              check_oos     cp   (scraddr >> 8)|0x18
+                            ld   a, l
+              if subroutine && !enable_intr && !save_sp
+                            ret  NC
+              else
+                            jr   NC, quit
+              end
+                            jp   (tx)
+            end
+            quit            label
+            if save_sp
+              restore_sp    ld  sp, 0
+              restore_sp_p  restore_sp + 1
+            end
+                            ei if enable_intr
+                            ret if subroutine && (enable_intr || save_sp)
+          end
+        end
       end
 
       include Z80
