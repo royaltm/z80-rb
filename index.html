@@ -11,8 +11,11 @@
   var index_rel_prefix = "./";
 </script>
 
-<script src="./js/jquery.js"></script>
-<script src="./js/darkfish.js"></script>
+<script src="./js/navigation.js" defer></script>
+<script src="./js/search.js" defer></script>
+<script src="./js/search_index.js" defer></script>
+<script src="./js/searcher.js" defer></script>
+<script src="./js/darkfish.js" defer></script>
 
 <link href="./css/fonts.css" rel="stylesheet">
 <link href="./css/rdoc.css" rel="stylesheet">
@@ -175,6 +178,10 @@
   
     <li><a href="./ZXLib/Gfx.html">ZXLib::Gfx</a>
   
+    <li><a href="./ZXLib/Gfx/Bobs.html">ZXLib::Gfx::Bobs</a>
+  
+    <li><a href="./ZXLib/Gfx/Bobs/Macros.html">ZXLib::Gfx::Bobs::Macros</a>
+  
     <li><a href="./ZXLib/Gfx/Clip.html">ZXLib::Gfx::Clip</a>
   
     <li><a href="./ZXLib/Gfx/Clip/Macros.html">ZXLib::Gfx::Clip::Macros</a>
@@ -205,11 +212,15 @@
   
     <li><a href="./ZXLib/Sys/Cursor.html">ZXLib::Sys::Cursor</a>
   
+    <li><a href="./ZXLib/Sys/If1Vars.html">ZXLib::Sys::If1Vars</a>
+  
     <li><a href="./ZXLib/Sys/Macros.html">ZXLib::Sys::Macros</a>
   
     <li><a href="./ZXLib/Sys/Strms.html">ZXLib::Sys::Strms</a>
   
     <li><a href="./ZXLib/Sys/Vars.html">ZXLib::Sys::Vars</a>
+  
+    <li><a href="./ZXLib/Sys/Vars128.html">ZXLib::Sys::Vars128</a>
   
     <li><a href="./ZXUtils.html">ZXUtils</a>
   
@@ -325,7 +336,7 @@
 
 <h2 id="label-A+Z80+assembler+powered+by+Ruby.">A <a href="Z80.html"><code>Z80</code></a> assembler powered by Ruby.<span><a href="#label-A+Z80+assembler+powered+by+Ruby.">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
-<p><a href="https://www.ruby-lang.org">Ruby</a> is a powerfull meta language, so why not to leverage its meta powers to have the ultimate macro system, compiler and builder for the <a href="Z80.html"><code>Z80</code></a> assembler?</p>
+<p><a href="https://www.ruby-lang.org">Ruby</a> is a powerful meta-language, so why not leverage its meta powers to have the ultimate macro system, compiler, and builder for the <a href="Z80.html"><code>Z80</code></a> assembler?</p>
 
 <p>Now, to answer the question, you&#39;ll need:</p>
 <ul><li>
@@ -460,7 +471,7 @@
 <span class="ruby-identifier">calc</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&#39;calculator&#39;</span>, <span class="ruby-value">append:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">name:</span> <span class="ruby-string">&#39;multiply&#39;</span>
 </pre>
 
-<p>go to ZX Spectrum or an <a href="http://torinak.com/qaop">emulator</a>:</p>
+<p>go to ZX Spectrum or an <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/">emulator</a>:</p>
 
 <pre class="ruby"><span class="ruby-constant">LOAD</span> <span class="ruby-string">&quot;calculator&quot;</span>
 </pre>
@@ -471,11 +482,52 @@
 
 <p><img src="examples/calculator.png" /></p>
 
+<h3 id="label-Examples-3A"><a href="https://github.com/royaltm/z80-rb/tree/master/examples">Examples</a>:<span><a href="#label-Examples-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
+<ul><li><dl class="rdoc-list note-list"><dt><code>bfont_demo</code>
+<dd>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/bfont_demo.tap#fresh">royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/bfont_demo.tap#fresh</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>calculator</code>
+<dd>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/calculator.tap#fresh">royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/calculator.tap#fresh</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>dots</code>
+<dd>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/dots.tap#fresh">royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/dots.tap#fresh</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>horse</code>
+<dd>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/horse.tap#fresh">royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/horse.tap#fresh</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>labyrinth</code>
+<dd>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/labyrinth.tap#fresh">royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/labyrinth.tap#fresh</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>mathi_test</code>
+<dd>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/mathi_test.tap#fresh">royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/mathi_test.tap#fresh</a>  (integer math library tests)</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>multifill</code>
+<dd>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/multifill.tap#fresh">royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/multifill.tap#fresh</a> (multitasking demo)</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>stars</code>
+<dd>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/stars.tap#fresh">royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/stars.tap#fresh</a></p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>quat3d128</code>
+<dd>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=128k#tap=/z80-rb/examples/quat3d128.tap#fresh">royaltm.github.io/spectrusty/web-zxspectrum/#m=128k#tap=/z80-rb/examples/quat3d128.tap#fresh</a></p>
+</dd></dl>
+</li></ul>
+
+<p>The YARTZ <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#ay=melodik#tap=https://yeondir.com/zxspectrum/files/demos/yartz.tap#fresh">demo</a> released at Speccy.pl/2019 was made entirely using this <a href="https://github.com/royaltm/zxspectrum-demo-yartz">gem</a>, including music.</p>
+
 <h3 id="label-Bootstrap">Bootstrap<span><a href="#label-Bootstrap">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
 <p>You may use the <code>zxinit</code> tool provided by this gem to bootstrap a new program.</p>
 
-<p>Provide a target file name and optionally a main class name.</p>
+<p>Provide a target file name and optionally the main class name.</p>
 
 <pre>$ zxinit hello_world
 ZXINIT: initializing program HelloWorld at ./hello_world.rb
@@ -579,47 +631,6 @@ Bytes: &quot;hello_worl&quot; CODE 32768,38</pre>
 <p><a href="ZX7.html"><code>ZX7</code></a></p>
 </li></ul>
 
-<h4 id="label-Examples-3A"><a href="https://github.com/royaltm/z80-rb/tree/master/examples">Examples</a>:<span><a href="#label-Examples-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
-<ul><li><dl class="rdoc-list note-list"><dt><code>bfont_demo</code>
-<dd>
-<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/bfont_demo.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/bfont_demo.tap</a></p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>calculator</code>
-<dd>
-<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/calculator.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/calculator.tap</a></p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>dots</code>
-<dd>
-<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/dots.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/dots.tap</a></p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>horse</code>
-<dd>
-<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/horse.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/horse.tap</a></p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>labyrinth</code>
-<dd>
-<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/labyrinth.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/labyrinth.tap</a></p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>mathi_test</code>
-<dd>
-<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/mathi_test.tap</a> (integer math library tests)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>multifill</code>
-<dd>
-<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/multifill.tap</a> (multitasking demo)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>stars</code>
-<dd>
-<p><a href="http://torinak.com/qaop#l=http://z80.yeondir.com/examples/stars.tap">torinak.com/qaop#l=http://z80.yeondir.com/examples/stars.tap</a></p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>quat3d128</code>
-<dd>
-<p><a href="http://torinak.com/qaop#128#l=http://z80.yeondir.com/examples/quat3d128.tap">torinak.com/qaop#128#l=http://z80.yeondir.com/examples/quat3d128.tap</a></p>
-</dd></dl>
-</li></ul>
-
-<p>The YARTZ <a href="https://github.com/royaltm/zxspectrum-demo-yartz">demo</a> released at Speccy.pl/2019 was made entirely using this gem, including music.</p>
-
 <h3 id="label-Features-3A">Features:<span><a href="#label-Features-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
 <p><code>bin/zxconv</code></p>
@@ -715,7 +726,9 @@ zxconv source destination [options]
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 
+<script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101270192);</script>
+<script async src="//static.getclicky.com/js"></script>

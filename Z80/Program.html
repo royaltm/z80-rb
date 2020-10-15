@@ -11,8 +11,11 @@
   var index_rel_prefix = "../";
 </script>
 
-<script src="../js/jquery.js"></script>
-<script src="../js/darkfish.js"></script>
+<script src="../js/navigation.js" defer></script>
+<script src="../js/search.js" defer></script>
+<script src="../js/search_index.js" defer></script>
+<script src="../js/searcher.js" defer></script>
+<script src="../js/darkfish.js" defer></script>
 
 <link href="../css/fonts.css" rel="stylesheet">
 <link href="../css/rdoc.css" rel="stylesheet">
@@ -93,6 +96,10 @@
     <li ><a href="#method-i-db">#db</a>
     
     <li ><a href="#method-i-define_label">#define_label</a>
+    
+    <li ><a href="#method-i-direct_address-3F">#direct_address?</a>
+    
+    <li ><a href="#method-i-direct_label-3F">#direct_label?</a>
     
     <li ><a href="#method-i-dw">#dw</a>
     
@@ -350,7 +357,7 @@
 
           
           <div class="method-source-code" id="addr-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 208</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 224</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">addr</span>(<span class="ruby-identifier">address</span>, <span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-value">align:</span> <span class="ruby-value">1</span>, <span class="ruby-value">offset:</span> <span class="ruby-value">0</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">address</span> <span class="ruby-operator">==</span> <span class="ruby-value">:next</span>
                 <span class="ruby-identifier">last_label</span> = <span class="ruby-ivar">@labels</span>.<span class="ruby-identifier">values</span>.<span class="ruby-identifier">last</span>
@@ -387,7 +394,7 @@
 
         <div class="method-description">
           
-          <p>A convenient method for macros to check if argument is a non-register value or a pointer.</p>
+          <p>A convenient method for macros to check if an argument is a non-register address (direct or a pointer).</p>
 
 <p>Returns <code>true</code> for:</p>
 
@@ -397,7 +404,7 @@
 
           
           <div class="method-source-code" id="address-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 135</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 143</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">address?</span>(<span class="ruby-identifier">arg</span>)
         <span class="ruby-identifier">arg</span> = <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">first</span> <span class="ruby-keyword">while</span> <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
         <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Integer</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_label</span>)
@@ -457,7 +464,7 @@
 
           
           <div class="method-source-code" id="bytes-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 370</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 386</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bytes</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-identifier">data</span>(<span class="ruby-value">1</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -574,7 +581,7 @@
 
           
           <div class="method-source-code" id="data-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 307</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 323</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">data</span>(<span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-identifier">size</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
         <span class="ruby-identifier">res</span> = <span class="ruby-string">&#39;&#39;</span>
         <span class="ruby-identifier">from</span> = <span class="ruby-value">0</span>
@@ -662,7 +669,7 @@
 
           
           <div class="method-source-code" id="db-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 377</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 393</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">db</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-identifier">data</span>(<span class="ruby-value">1</span>, <span class="ruby-identifier">args</span>); <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -708,7 +715,7 @@
 
           
           <div class="method-source-code" id="define_label-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 415</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 431</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">define_label</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">label</span>=<span class="ruby-keyword">nil</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;there is no context for a label&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">ct</span> = <span class="ruby-ivar">@contexts</span>.<span class="ruby-identifier">last</span>)
         <span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>
@@ -757,6 +764,80 @@
       </div>
 
     
+      <div id="method-i-direct_address-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">direct_address?</span><span
+            class="method-args">(arg)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>A convenient method for macros to check if an argument is a non-register direct address (not a pointer).</p>
+
+<p>Returns <code>true</code> for:</p>
+
+<pre>0x1234, foo, :foo, foo[10]</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="direct_address-3F-source">
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 152</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">direct_address?</span>(<span class="ruby-identifier">arg</span>)
+        <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Integer</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">arg</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-direct_label-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">direct_label?</span><span
+            class="method-args">(arg)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>A convenient method for macros to check if an argument is a direct label (not a pointer).</p>
+
+<p>Returns <code>true</code> for:</p>
+
+<pre>foo, :foo, foo[10]</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="direct_label-3F-source">
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 119</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">direct_label?</span>(<span class="ruby-identifier">arg</span>)
+        <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_label</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">arg</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-i-dw" class="method-detail ">
         
         
@@ -781,7 +862,7 @@
 
           
           <div class="method-source-code" id="dw-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 395</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 411</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dw</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-identifier">data</span>(<span class="ruby-value">2</span>, <span class="ruby-identifier">args</span>); <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -870,7 +951,7 @@
 
         <div class="method-description">
           
-          <p>A convenient method for macros to check if argument is an immediate label or an integer.</p>
+          <p>A convenient method for macros to check if an argument is an immediate label or an integer.</p>
 
 <p>Returns <code>true</code> for:</p>
 
@@ -881,7 +962,7 @@
 
           
           <div class="method-source-code" id="immediate-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 159</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 175</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">immediate?</span>(<span class="ruby-identifier">arg</span>)
         <span class="ruby-identifier">arg</span> = <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">first</span> <span class="ruby-keyword">while</span> <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
         <span class="ruby-identifier">label_immediate?</span>(<span class="ruby-identifier">arg</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Integer</span>)
@@ -1202,7 +1283,7 @@
 
           
           <div class="method-source-code" id="label-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 177</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 193</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">label</span>(<span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-value">align:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">offset:</span> <span class="ruby-value">0</span>)
         <span class="ruby-identifier">lbl</span> = <span class="ruby-constant">Label</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">pc</span>, <span class="ruby-identifier">type</span>, <span class="ruby-value">:code</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">align</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">offset</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
@@ -1240,11 +1321,11 @@
 
         <div class="method-description">
           
-          <p>A convenient method for macros to check if argument is label-like.</p>
+          <p>A convenient method for macros to check if an argument is label-like.</p>
 
 <p>Returns <code>true</code> for:</p>
 
-<pre>foo, :foo, [foo], [foo + 10], [:foo]</pre>
+<pre>foo, :foo, foo[10], [foo], [foo + 10], [:foo], [foo[10]]</pre>
           
           
 
@@ -1311,7 +1392,7 @@
 
         <div class="method-description">
           
-          <p>A convenient method for macros to check if argument is an immediate label.</p>
+          <p>A convenient method for macros to check if an argument is an immediate label.</p>
 
 <p>Returns <code>true</code> for:</p>
 
@@ -1322,7 +1403,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="label_immediate-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 145</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 161</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">label_immediate?</span>(<span class="ruby-identifier">arg</span>)
         <span class="ruby-identifier">arg</span> = <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">first</span> <span class="ruby-keyword">while</span> <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:immediate?</span>)
@@ -1482,7 +1563,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="method_missing-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 478</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 494</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">method_missing</span>(<span class="ruby-identifier">m</span>, <span class="ruby-identifier">label</span> = <span class="ruby-keyword">nil</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_ary</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_a</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_hash</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_h</span>
                 <span class="ruby-keyword">super</span>
@@ -1671,7 +1752,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>:merge</code>
 <dd>
-<p>If <code>true</code> merges labels from within a namespace with the current context; usefull if you want to pass an <code>eoc</code> label to some block of code and don&#39;t need a namespace.</p>
+<p>If <code>true</code> merges labels from within a namespace with the current context; useful if you want to pass an <code>eoc</code> label to some block of code and don&#39;t need a namespace.</p>
 </dd></dl>
 </li></ul>
 
@@ -1924,17 +2005,17 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
         <div class="method-description">
           
-          <p>A convenient method for macros to check if argument is pointer-like.</p>
+          <p>A convenient method for macros to check if an argument is pointer-like.</p>
 
 <p>Returns <code>true</code> for:</p>
 
-<pre>[foo], [:foo], [foo + 10], [foo[10]], foo[], foo[10][], [0x1234], [hl], [ix + 6], ix[7]</pre>
+<pre>[foo], [:foo], [foo + 10], [foo[10]], foo[], foo[10][], [0x1234], [hl], [ix + 6], iy[7]</pre>
           
           
 
           
           <div class="method-source-code" id="pointer-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 119</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 127</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">pointer?</span>(<span class="ruby-identifier">arg</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">arg</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
                 <span class="ruby-keyword">true</span>
@@ -1969,7 +2050,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
         <div class="method-description">
           
-          <p>A convenient method for macros to check if argument is a <a href="Program/Register.html"><code>Register</code></a>.</p>
+          <p>A convenient method for macros to check if an argument is a <a href="Program/Register.html"><code>Register</code></a>.</p>
 
 <p>Returns <code>true</code> for:</p>
 
@@ -2082,7 +2163,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="union-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 236</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 252</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">union</span>(<span class="ruby-identifier">label</span>, <span class="ruby-identifier">type</span>, <span class="ruby-value">align:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">offset:</span> <span class="ruby-value">0</span>)
         <span class="ruby-keyword">unless</span> <span class="ruby-identifier">label</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_label</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">label</span>.<span class="ruby-identifier">sublabel?</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">label</span>.<span class="ruby-identifier">dummy?</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">type</span>.<span class="ruby-identifier">nil?</span>
                 <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid union argument.&quot;</span>
@@ -2202,7 +2283,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="words-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 388</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 404</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">words</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-identifier">data</span>(<span class="ruby-value">2</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2223,7 +2304,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

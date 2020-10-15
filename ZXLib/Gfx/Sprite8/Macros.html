@@ -11,8 +11,11 @@
   var index_rel_prefix = "../../../";
 </script>
 
-<script src="../../../js/jquery.js"></script>
-<script src="../../../js/darkfish.js"></script>
+<script src="../../../js/navigation.js" defer></script>
+<script src="../../../js/search.js" defer></script>
+<script src="../../../js/search_index.js" defer></script>
+<script src="../../../js/searcher.js" defer></script>
+<script src="../../../js/darkfish.js" defer></script>
 
 <link href="../../../css/fonts.css" rel="stylesheet">
 <link href="../../../css/rdoc.css" rel="stylesheet">
@@ -67,6 +70,12 @@
     
     <li ><a href="#method-i-gfx_sprite8_calculate_coords">#gfx_sprite8_calculate_coords</a>
     
+    <li ><a href="#method-i-gfx_sprite8_calculate_screen_address">#gfx_sprite8_calculate_screen_address</a>
+    
+    <li ><a href="#method-i-gfx_sprite8_draw">#gfx_sprite8_draw</a>
+    
+    <li ><a href="#method-i-gfx_sprite8_flip_horizontally">#gfx_sprite8_flip_horizontally</a>
+    
   </ul>
 </div>
 
@@ -81,6 +90,12 @@
   <section class="description">
     
 <h2 id="module-ZXLib::Gfx::Sprite8::Macros-label-ZXLib-3A-3AGfx-3A-3ASprite8+Macros."><a href="../Sprite8.html"><code>ZXLib::Gfx::Sprite8</code></a> <a href="Macros.html"><code>Macros</code></a>.<span><a href="#module-ZXLib::Gfx::Sprite8::Macros-label-ZXLib-3A-3AGfx-3A-3ASprite8+Macros.">&para;</a> <a href="#top">&uarr;</a></span></h2>
+
+<p><a href="Macros.html"><code>Sprite8::Macros</code></a> require:</p>
+
+<pre class="ruby"><span class="ruby-identifier">macro_import</span> <span class="ruby-constant">MathInt</span>
+<span class="ruby-identifier">macro_import</span> <span class="ruby-constant">Gfx</span>
+</pre>
 
   </section>
 
@@ -114,89 +129,62 @@
 
         <div class="method-description">
           
-          <p>Calculates coordinates and prepares registers for <code>draw_sprite8</code></p>
-<dl class="rdoc-list note-list"><dt>Uses
+          <p>Creates a routine that calculates coordinates and prepares registers for <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a>.</p>
+<dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
-<p><code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code></p>
+<p>An address of sprite data.</p>
+</dd><dt><code>a</code>
+<dd>
+<p>A height of a sprite in pixel lines: [1, 192].</p>
+</dd><dt><code>a&#39;</code>
+<dd>
+<p>A width of a sprite in bytes ((pixel width + 7) / 8): [1, 32].</p>
+</dd><dt><code>bc</code>
+<dd>
+<p>A horizontal (x) coordinate of a sprite&#39;s top-leftmost pixel as a 16-bit twos complement signed integer: [-32768, 32767] where the screen area is between: [0, 255].</p>
+</dd><dt><code>de</code>
+<dd>
+<p>A vertical (y) coordinate of a sprite&#39;s top-leftmost pixel as a 16-bit twos complement signed integer: [-32768..32767] where the screen area is between: [0, 191].</p>
+</dd><dt><code>f</code>
+<dd>
+<p>Flags specifying a drawing method (see below).</p>
 </dd></dl>
 
-<p>Input:</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>hl</code>
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>outofscreen</code>
 <dd>
-<p>sprite address</p>
+<p>What to do if the whole sprite is out of the screen area - if no <code>block</code> is given then provide a branching <code>label</code>, otherwise <code>ret</code> is being executed.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>a</code>
+</li><li><dl class="rdoc-list note-list"><dt><code>block</code>
 <dd>
-<p>sprite height (1..192)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>a&#39;</code>
-<dd>
-<p>sprite width in bytes (1..32)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>bc</code>
-<dd>
-<p>x - coordinate (-32768..32767) [screen area: 0-255]</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>de</code>
-<dd>
-<p>y - coordinate (-32768..32767) [screen area: 0-191]</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>f</code>
-<dd>
-<p>flags for mode</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>outofscreen</code>
-<dd>
-<p>if no block is given then provide <code>label</code>, otherwise <code>ret</code></p>
+<p>Should create code to execute when the whole sprite is out of the screen area. The <code>eoc</code> label provided to the <code>block</code> points after the calculating routine. The code must not fall through!</p>
 </dd></dl>
 </li></ul>
 
-<p>Flags howto:</p>
+<p>Any other option is being passed over to the <code>block</code> namespace.</p>
 
-<pre>   CF:     0      1       0              1
-   ZF:     0      0       1              1
- mode:    OR    SET     XOR  AND+OR (mask)
-howto: ora 1  scf      cp a          cp  a
-              sbc a                  scf</pre>
+<p>Drawing methods:</p>
 
-<p>When <code>CF=ZF=1</code> sprite address skip bytes from left margin calculations take mask into account.</p>
+<pre>  mode:    OR    SET     XOR   AND+OR
+    CF:     0      1       0        1
+    ZF:     0      0       1        1
+assuming accumulator contains the non-zero number of sprite lines
+how to: ora a  ora a    cp a     cp a
+                 scf              scf</pre>
 
-<p>Output:</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>de</code>
+<p>See <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a> for the description of output registers.</p>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
-<p>sprite address</p>
+<p>The <code>outofscreen</code> is invoked only when it would be impossible to formulate valid arguments for <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a>, which is exactly when <code>(x &gt; 255) or (x + pixel width &lt;= 0) or (y &gt; 191) or (y &lt; -255)</code>.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>h</code>
-<dd>
-<p>vertical coordinate   (0..191)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>l</code>
-<dd>
-<p>horizontal coordinate (0..255) except when h &gt; 191 then l contains vertical coordinate and h | 0xf8 is a negative h-coordinate (from -1 to -7)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>b</code>
-<dd>
-<p>skip first sprite lines (for negative vertical coordinate y &lt; 0, <code>h</code> should be 0 and <code>b</code> should be -y)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>c</code>
-<dd>
-<p>sprite byte width (1..32) (pixel width / 8)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>a&#39;</code>
-<dd>
-<p>sprite height (1..192)</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>f&#39;</code>
-<dd>
-<p>flags for mode</p>
-</dd></dl>
-</li></ul>
+
+<p>Uses: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, stack: max 4 bytes.</p>
           
           
 
           
           <div class="method-source-code" id="gfx_sprite8_calculate_coords-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/sprite8.rb, line 82</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/sprite8.rb, line 176</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_sprite8_calculate_coords</span>(<span class="ruby-value">outofscreen:</span> <span class="ruby-value">:ret</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
             <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>       <span class="ruby-comment"># store CF and sprite height</span>
@@ -206,7 +194,7 @@ howto: ora 1  scf      cp a          cp  a
             <span class="ruby-identifier">jp</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">vnext1</span>    <span class="ruby-comment"># 0 &lt;= de &lt; 256</span>
             <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">a</span>            <span class="ruby-comment"># d == 0xff</span>
             <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">quit1</span>    <span class="ruby-comment"># de &lt; -256</span>
-            <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
+            <span class="ruby-comment"># xor  a          # a is already 0</span>
             <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">e</span>
             <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">quit1</span>     <span class="ruby-comment"># de == -256</span>
             <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># skip</span>
@@ -284,6 +272,240 @@ howto: ora 1  scf      cp a          cp  a
       </div>
 
     
+      <div id="method-i-gfx_sprite8_calculate_screen_address" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">gfx_sprite8_calculate_screen_address</span><span
+            class="method-args">(scraddr:SCREEN_ADDRESS, subroutine:false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that calculates the screen address for <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a>.</p>
+
+<p>The <code>h</code> and <code>l</code> registers should contain the pixel coordinates as described in <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a>.</p>
+
+<p>As a result of executing the routine the <code>hl</code> registers will hold the calculated screen address and the <code>c</code> register will hold the special bit right shift number.</p>
+
+<p>If the horizontal pixel coordinate (x) is positive the bit shift will be between 0 and 7. If the x coordinate is negative and x is between -7 and -1 the bit shift will be between 8 and 14.</p>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>A screen memory address which must be a multiple of 0x2000 as an integer or a label.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
+<dd>
+<p>Whether to create a subroutine.</p>
+</dd></dl>
+</li></ul>
+          
+          
+
+          
+          <div class="method-source-code" id="gfx_sprite8_calculate_screen_address-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/sprite8.rb, line 82</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_sprite8_calculate_screen_address</span>(<span class="ruby-value">scraddr:</span><span class="ruby-constant">SCREEN_ADDRESS</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>
+                <span class="ruby-identifier">cp</span>   <span class="ruby-value">192</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">hvertical</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-value">7</span>              <span class="ruby-comment"># -7..-1 -&gt; 1..7</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">noadjust</span>    <span class="ruby-comment"># sanity check</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-value">7</span>              <span class="ruby-comment"># 1..7 -&gt; 8..14</span>
+    <span class="ruby-identifier">noadjust</span>    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>           <span class="ruby-comment"># C: negshift (0, 8..14)</span>
+                <span class="ruby-identifier">ytoscr</span> <span class="ruby-identifier">l</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+                <span class="ruby-identifier">ret</span>
+    <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">eoc</span>
+    <span class="ruby-keyword">end</span>                           <span class="ruby-comment"># HL&lt;: yx, HL&gt;: screen, C&gt;: shift (0..7), B: temp</span>
+    <span class="ruby-identifier">hvertical</span>   <span class="ruby-identifier">xytoscr</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">s:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>
+                <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-gfx_sprite8_draw" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">gfx_sprite8_draw</span><span
+            class="method-args">(draw_sprite8=self.draw_sprite8, scraddr:SCREEN_ADDRESS, calculate:CALCULATE_SCREEN_ADDRESS, **nsopts) { |eoc| ... }</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a subroutine that calculates the screen address before jumping to <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a>.</p>
+
+<p>This subroutine should be used if you want to access the calculated screen address just before executing <code>draw_sprite8</code>.</p>
+<dl class="rdoc-list note-list"><dt><code>draw_sprite8</code>
+<dd>
+<p>A label addressing the <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a> subroutine.</p>
+</dd><dt><code>block</code>
+<dd>
+<p>A block that creates a code to execute when the screen address has been calculated. The address is available in <code>hl</code> registers. Additionally the <code>c</code> register contains the special bit shift number. See <a href="Macros.html#method-i-gfx_sprite8_calculate_screen_address"><code>gfx_sprite8_calculate_screen_address</code></a> for details. The code must preserve the content of <code>c</code>, <code>de</code> and <code>af&#39;</code> registers.</p>
+</dd></dl>
+
+<p>See <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a> for the description of input registers and usage.</p>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>A screen memory address which must be a multiple of 0x2000 as an integer or a label.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>calculate</code>
+<dd>
+<p>If this option is set to <code>:subroutine</code> then the screen address calculation routine is being called (at <code>draw_sprite8.calc_scr_addr</code>) instead of inlining it. In this instance the Sprite8::CALCULATE_SCREEN_ADDRESS constant must be set to <code>:subroutine</code> before requiring the <code>sprite8</code> module.</p>
+</dd></dl>
+</li></ul>
+
+<p>Any other option is being passed over to the <code>block</code> namespace.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="gfx_sprite8_draw-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/sprite8.rb, line 123</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_sprite8_draw</span>(<span class="ruby-identifier">draw_sprite8</span>=<span class="ruby-keyword">self</span>.<span class="ruby-identifier">draw_sprite8</span>, <span class="ruby-value">scraddr:</span><span class="ruby-constant">SCREEN_ADDRESS</span>, <span class="ruby-value">calculate:</span><span class="ruby-constant">CALCULATE_SCREEN_ADDRESS</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>             <span class="ruby-comment"># save width and skip</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">calculate</span> <span class="ruby-operator">==</span> <span class="ruby-value">:subroutine</span>
+                <span class="ruby-identifier">call</span> <span class="ruby-identifier">draw_sprite8</span>.<span class="ruby-identifier">calc_scr_addr</span>
+    <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">gfx_sprite8_calculate_screen_address</span>(<span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>)
+    <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>             <span class="ruby-comment"># HL: screen addr, C: negshift (0..14)</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">block_given?</span>
+                <span class="ruby-identifier">ns</span>(<span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>) <span class="ruby-keyword">do</span>
+                  <span class="ruby-keyword">yield</span> <span class="ruby-identifier">eoc</span>
+                <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">draw_sprite8</span>.<span class="ruby-identifier">addr_on_stack</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-gfx_sprite8_flip_horizontally" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">gfx_sprite8_flip_horizontally</span><span
+            class="method-args">(subroutine:false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that flips sprite pixel data horizontally (mirrors sprites).</p>
+<dl class="rdoc-list note-list"><dt><code>hl</code>
+<dd>
+<p>An address immediately following the source sprite data (sprite data address + sprite data size).</p>
+</dd><dt><code>de</code>
+<dd>
+<p>A target address where the mirrored sprite data should be placed. The target memory area must not overlap with the source.</p>
+</dd><dt><code>c</code>
+<dd>
+<p>A width of a sprite in bytes ((pixel width + 7) / 8) (0 is 256).</p>
+</dd><dt><code>b</code>
+<dd>
+<p>A height of a sprite in pixel lines (0 is 256).</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
+<dd>
+<p>Whether to create a subroutine.</p>
+</dd></dl>
+</li></ul>
+
+<p>After the routine finishes its operation:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>de</code>
+<dd>
+<p>Will hold a memory address immediately following the flipped sprite data (flipped sprite data address + sprite data size).</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>hl</code>
+<dd>
+<p>Will hold a memory address of the source sprite data.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>b</code>
+<dd>
+<p>Will hold a provided sprite height in pixel lines.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>c</code>
+<dd>
+<p>Will be 0.</p>
+</dd></dl>
+</li></ul>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>Sprite data must be laid out column-wise as expected by <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a>. If data include the sprite mask the provided height should be twice the sprite height. In this instance the maximum sprite height to be mirrored is 128 pixel lines.</p>
+</dd></dl>
+
+<p>Uses: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, stack: 4 bytes.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="gfx_sprite8_flip_horizontally-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/sprite8.rb, line 278</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_sprite8_flip_horizontally</span>(<span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+    <span class="ruby-identifier">column_loop</span>   <span class="ruby-identifier">push</span> <span class="ruby-identifier">bc</span>
+                  <span class="ruby-identifier">sub_from</span> <span class="ruby-identifier">b</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>
+                  <span class="ruby-identifier">push</span> <span class="ruby-identifier">hl</span>
+                  <span class="ruby-identifier">scf</span>
+    <span class="ruby-identifier">row_loop</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, [<span class="ruby-identifier">hl</span>]
+                  <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                  <span class="ruby-identifier">rl</span>   <span class="ruby-identifier">c</span>
+    <span class="ruby-identifier">bit_swap_loop</span> <span class="ruby-identifier">rra</span>
+                  <span class="ruby-identifier">sla</span>  <span class="ruby-identifier">c</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">bit_swap_loop</span>
+                  <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">de</span>], <span class="ruby-identifier">a</span>
+                  <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">de</span>
+                  <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">row_loop</span>
+                  <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">hl</span>
+                  <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>
+                  <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">c</span>
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">column_loop</span>
+                  <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
     </section>
   
   </section>
@@ -293,7 +515,7 @@ howto: ora 1  scf      cp a          cp  a
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

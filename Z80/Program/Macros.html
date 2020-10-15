@@ -11,8 +11,11 @@
   var index_rel_prefix = "../../";
 </script>
 
-<script src="../../js/jquery.js"></script>
-<script src="../../js/darkfish.js"></script>
+<script src="../../js/navigation.js" defer></script>
+<script src="../../js/search.js" defer></script>
+<script src="../../js/search_index.js" defer></script>
+<script src="../../js/searcher.js" defer></script>
+<script src="../../js/darkfish.js" defer></script>
 
 <link href="../../css/fonts.css" rel="stylesheet">
 <link href="../../css/rdoc.css" rel="stylesheet">
@@ -214,22 +217,26 @@ ZF = 1 if th|tl == sh|sl</pre>
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;only th can be the accumulator&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
         <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                 <span class="ruby-identifier">jr_msb_nz</span> = <span class="ruby-identifier">eoc</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">jr_msb_nz</span> <span class="ruby-operator">==</span> <span class="ruby-value">:eoc</span>
-                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">th</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
-                        <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sh</span>
-                        <span class="ruby-keyword">case</span> <span class="ruby-identifier">jr_msb_c</span>
-                        <span class="ruby-keyword">when</span> <span class="ruby-value">:ret</span>
-                                <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>
+                                                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">th</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">sh</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
+                                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
                         <span class="ruby-keyword">else</span>
-                                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">jr_msb_c</span>
-                        <span class="ruby-keyword">end</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">jr_msb_c</span>.<span class="ruby-identifier">nil?</span>
+                                        <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sh</span>
+                                <span class="ruby-keyword">case</span> <span class="ruby-identifier">jr_msb_c</span>
+                                <span class="ruby-keyword">when</span> <span class="ruby-value">:ret</span>
+                                        <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>
+                                <span class="ruby-keyword">else</span>
+                                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">jr_msb_c</span>
+                                <span class="ruby-keyword">end</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">jr_msb_c</span>.<span class="ruby-identifier">nil?</span>
+                        <span class="ruby-keyword">end</span>
                         <span class="ruby-keyword">case</span> <span class="ruby-identifier">jr_msb_nz</span>
                         <span class="ruby-keyword">when</span> <span class="ruby-value">:ret</span>
                                 <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
                         <span class="ruby-keyword">else</span>
                                 <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">jr_msb_nz</span>
                         <span class="ruby-keyword">end</span>
-                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">tl</span>
-                        <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sl</span>
+                                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">tl</span>
+                                <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sl</span>
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -306,7 +313,7 @@ ZF = 1 if th|tl == sh|sl</pre>
           
           <p>A convenient method to create local macros.</p>
 
-<p>Give a <code>name</code> (Symbol) to your macro, an optional list of <code>registers</code> to push before and pop after code and a block of code. See <a href="Macros.html#method-i-with_saved"><code>Macros.with_saved</code></a> for explanation of <code>registers</code> arguments. The block will receive <code>eoc</code> label (see <a href="../Program.html#method-i-ns"><code>Program.ns</code></a>) and any argument you pass when calling a macro.</p>
+<p>Give a <code>name</code> (<a href="../../Symbol.html"><code>Symbol</code></a>) to your macro, an optional list of <code>registers</code> to push before and pop after code and a block of code. See <a href="Macros.html#method-i-with_saved"><code>Macros.with_saved</code></a> for explanation of <code>registers</code> arguments. The block will receive <code>eoc</code> label (see <a href="../Program.html#method-i-ns"><code>Program.ns</code></a>) and any argument you pass when calling a macro.</p>
 
 <p>If you want your macros being exportable, do not use this method. Instead create module `Macros&#39; inside your <strong>program</strong> class and define methods there. Remember to wrap the code in <a href="../Program.html#method-i-ns"><code>Program.ns</code></a>, or better yet: <a href="../Program.html#method-i-isolate"><code>Program.isolate</code></a>.</p>
 
@@ -519,7 +526,7 @@ ZF = 1 if th|tl == sh|sl</pre>
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

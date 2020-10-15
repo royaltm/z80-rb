@@ -11,8 +11,11 @@
   var index_rel_prefix = "../";
 </script>
 
-<script src="../js/jquery.js"></script>
-<script src="../js/darkfish.js"></script>
+<script src="../js/navigation.js" defer></script>
+<script src="../js/search.js" defer></script>
+<script src="../js/search_index.js" defer></script>
+<script src="../js/searcher.js" defer></script>
+<script src="../js/darkfish.js" defer></script>
 
 <link href="../css/fonts.css" rel="stylesheet">
 <link href="../css/rdoc.css" rel="stylesheet">
@@ -195,7 +198,7 @@
 
           
           <div class="method-source-code" id="include-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1027</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1043</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier ruby-title">include?</span>(<span class="ruby-identifier">alloc</span>, <span class="ruby-identifier">label</span>)
         <span class="ruby-keyword">return</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">alloc</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">label</span>
         <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">alloc</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Alloc</span>)
@@ -232,7 +235,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1071</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1087</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">lhs</span>, <span class="ruby-identifier">oper</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-identifier">rhs</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-identifier">index</span>=[])
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;lhs is not a Label or an Alloc&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">lhs</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Label</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">lhs</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Alloc</span>)
         <span class="ruby-identifier">rhs</span> = <span class="ruby-identifier">rhs</span>.<span class="ruby-identifier">to_alloc</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">rhs</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Label</span>)
@@ -290,7 +293,7 @@
 
           
           <div class="method-source-code" id="25-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1149</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1165</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">%</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:%</span>, <span class="ruby-identifier">other</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -323,7 +326,7 @@
 
           
           <div class="method-source-code" id="26-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1177</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1193</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">&amp;</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:&amp;</span>, <span class="ruby-identifier">other</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -356,7 +359,7 @@
 
           
           <div class="method-source-code" id="2A-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1141</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1157</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">*</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:*</span>, <span class="ruby-identifier">other</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -389,7 +392,7 @@
 
           
           <div class="method-source-code" id="2A-2A-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1115</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1131</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">**</span>(<span class="ruby-identifier">m</span>)
         <span class="ruby-identifier">label</span> = <span class="ruby-keyword">self</span>
         <span class="ruby-keyword">begin</span>
@@ -436,7 +439,7 @@
 
           
           <div class="method-source-code" id="2B-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1133</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1149</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">+</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:+</span>, <span class="ruby-identifier">other</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -469,7 +472,7 @@
 
           
           <div class="method-source-code" id="2B-40-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1161</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1177</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">+@</span>
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:+@</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -502,7 +505,7 @@
 
           
           <div class="method-source-code" id="2D-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1137</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1153</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">-</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:-</span>, <span class="ruby-identifier">other</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -535,7 +538,7 @@
 
           
           <div class="method-source-code" id="2D-40-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1165</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1181</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">-@</span>
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:-@</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -568,7 +571,7 @@
 
           
           <div class="method-source-code" id="2F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1145</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1161</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">/</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:/</span>, <span class="ruby-identifier">other</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -601,7 +604,7 @@
 
           
           <div class="method-source-code" id="3C-3C-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1157</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1173</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">&lt;&lt;</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:&lt;&lt;</span>, <span class="ruby-identifier">other</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -634,7 +637,7 @@
 
           
           <div class="method-source-code" id="3D-3D-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1092</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1108</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">==</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-keyword">case</span> <span class="ruby-identifier">other</span>
         <span class="ruby-keyword">when</span> <span class="ruby-constant">Label</span>
@@ -676,7 +679,7 @@
 
           
           <div class="method-source-code" id="3E-3E-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1153</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1169</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">&gt;&gt;</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:&gt;&gt;</span>, <span class="ruby-identifier">other</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -709,7 +712,7 @@
 
           
           <div class="method-source-code" id="5B-5D-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1359</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1375</span>
         <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">index</span> = <span class="ruby-keyword">nil</span>)
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">index</span>.<span class="ruby-identifier">nil?</span>
                         <span class="ruby-keyword">if</span> <span class="ruby-ivar">@pointer</span>
@@ -773,7 +776,7 @@
 
           
           <div class="method-source-code" id="5E-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1169</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1185</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">^</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:^</span>, <span class="ruby-identifier">other</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -806,7 +809,7 @@
 
           
           <div class="method-source-code" id="dummy-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1185</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1201</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dummy?</span>
         <span class="ruby-ivar">@lhs</span>.<span class="ruby-identifier">dummy?</span> <span class="ruby-operator">||</span> (<span class="ruby-ivar">@rhs</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:dummy?</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-ivar">@rhs</span>.<span class="ruby-identifier">dummy?</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -844,7 +847,7 @@
 
           
           <div class="method-source-code" id="dup-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1064</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1080</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dup</span>
         <span class="ruby-keyword">super</span>.<span class="ruby-identifier">tap</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> 
                 <span class="ruby-identifier">l</span>.<span class="ruby-identifier">instance_variable_set</span>(<span class="ruby-string">&#39;@index&#39;</span>, <span class="ruby-ivar">@index</span>.<span class="ruby-identifier">dup</span>)
@@ -880,7 +883,7 @@
 
           
           <div class="method-source-code" id="expression-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1107</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1123</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">expression?</span>
         <span class="ruby-ivar">@pointer</span> <span class="ruby-operator">||</span> <span class="ruby-operator">!</span><span class="ruby-ivar">@oper</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-operator">!</span><span class="ruby-ivar">@index</span>.<span class="ruby-identifier">empty?</span>
 <span class="ruby-keyword">end</span></pre>
@@ -913,7 +916,7 @@
 
           
           <div class="method-source-code" id="immediate-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1189</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1205</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">immediate?</span>
         <span class="ruby-keyword">if</span> <span class="ruby-ivar">@index</span>.<span class="ruby-identifier">empty?</span>
                 <span class="ruby-ivar">@lhs</span>.<span class="ruby-identifier">immediate?</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-ivar">@rhs</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:immediate?</span>) <span class="ruby-operator">?</span> <span class="ruby-ivar">@rhs</span>.<span class="ruby-identifier">immediate?</span> <span class="ruby-operator">:</span> <span class="ruby-keyword">true</span>)
@@ -967,7 +970,7 @@
 
           
           <div class="method-source-code" id="method_missing-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1398</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1414</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">method_missing</span>(<span class="ruby-identifier">m</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_ary</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_a</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_hash</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_h</span>
                 <span class="ruby-keyword">super</span>
@@ -1004,7 +1007,7 @@
 
           
           <div class="method-source-code" id="name-3D-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1347</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1363</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">name=</span>(<span class="ruby-identifier">value</span>)
         <span class="ruby-identifier">value</span> = <span class="ruby-identifier">value</span>.<span class="ruby-identifier">to_s</span>
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-node">&quot;Invalid label name: #{value.inspect}&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">value</span>.<span class="ruby-identifier">empty?</span>
@@ -1040,7 +1043,7 @@
 
           
           <div class="method-source-code" id="pointer-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1105</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1121</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">pointer?</span>; <span class="ruby-ivar">@pointer</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1071,7 +1074,7 @@
 
           
           <div class="method-source-code" id="reinitialize-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1213</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1229</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">reinitialize</span>(<span class="ruby-identifier">address</span>, <span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-identifier">reloc</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-identifier">members</span> = <span class="ruby-keyword">nil</span>)
         <span class="ruby-keyword">return</span> <span class="ruby-keyword">self</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">address</span> <span class="ruby-operator">==</span> <span class="ruby-keyword">self</span>
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Can&#39;t re-initialize&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@oper</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-ivar">@index</span>.<span class="ruby-identifier">empty?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-ivar">@lhs</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Label</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-ivar">@lhs</span>.<span class="ruby-identifier">dummy?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-ivar">@pointer</span>
@@ -1129,7 +1132,7 @@
 
           
           <div class="method-source-code" id="respond_to_missing-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1394</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1410</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">respond_to_missing?</span>(<span class="ruby-identifier">m</span>, <span class="ruby-identifier">include_private</span>=<span class="ruby-keyword">false</span>)
         <span class="ruby-identifier">m</span> <span class="ruby-operator">!=</span> <span class="ruby-value">:to_ary</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">!=</span> <span class="ruby-value">:to_a</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">!=</span> <span class="ruby-value">:to_hash</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">!=</span> <span class="ruby-value">:to_h</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1162,7 +1165,7 @@
 
           
           <div class="method-source-code" id="sublabel-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1209</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1225</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sublabel?</span>
         <span class="ruby-keyword">false</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1195,7 +1198,7 @@
 
           
           <div class="method-source-code" id="sublabel_access_expression-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1111</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1127</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sublabel_access_expression?</span>
         <span class="ruby-operator">!</span><span class="ruby-ivar">@pointer</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-ivar">@oper</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-ivar">@index</span>.<span class="ruby-identifier">empty?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-ivar">@index</span>.<span class="ruby-identifier">all?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">s</span><span class="ruby-operator">|</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">s</span> }
 <span class="ruby-keyword">end</span></pre>
@@ -1228,7 +1231,7 @@
 
           
           <div class="method-source-code" id="to_alloc-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1242</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1258</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_alloc</span>; <span class="ruby-keyword">self</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1259,7 +1262,7 @@
 
           
           <div class="method-source-code" id="to_i-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1270</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1286</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_i</span>(<span class="ruby-identifier">start</span> = <span class="ruby-value">0</span>, <span class="ruby-identifier">rel_to</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">override:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">prefix:</span><span class="ruby-string">&#39;&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-value">size_of:</span><span class="ruby-keyword">false</span>)
         <span class="ruby-identifier">rel_to_label</span> = <span class="ruby-identifier">rel_to</span> <span class="ruby-operator">==</span> <span class="ruby-value">:self</span> <span class="ruby-operator">?</span> <span class="ruby-value">:self</span> <span class="ruby-operator">:</span> <span class="ruby-keyword">nil</span>
 
@@ -1365,7 +1368,7 @@
 
           
           <div class="method-source-code" id="to_label-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1244</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1260</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_label</span>(<span class="ruby-identifier">_</span>); <span class="ruby-keyword">self</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1396,7 +1399,7 @@
 
           
           <div class="method-source-code" id="to_name-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1354</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1370</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_name</span>
       <span class="ruby-keyword">return</span> <span class="ruby-ivar">@name</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@name</span>
       <span class="ruby-keyword">return</span> <span class="ruby-ivar">@lhs</span>.<span class="ruby-identifier">to_name</span> <span class="ruby-keyword">if</span> <span class="ruby-operator">!</span><span class="ruby-identifier">expression?</span>
@@ -1458,7 +1461,7 @@
 
           
           <div class="method-source-code" id="to_str-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1246</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1262</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_str</span>
         <span class="ruby-keyword">return</span> <span class="ruby-ivar">@name</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@name</span>
         <span class="ruby-keyword">return</span> <span class="ruby-ivar">@lhs</span>.<span class="ruby-identifier">to_str</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@pointer</span>
@@ -1513,7 +1516,7 @@
 
           
           <div class="method-source-code" id="7C-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1173</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1189</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">|</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:|</span>, <span class="ruby-identifier">other</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -1546,7 +1549,7 @@
 
           
           <div class="method-source-code" id="~-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1181</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1197</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">~</span>
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-value">:~</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -1569,7 +1572,7 @@
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.1.0.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 
