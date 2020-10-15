@@ -439,16 +439,29 @@ module Z80
 			end
 
 			def unpack_from_tzx_chunk(tap, file='-') # :nodoc:
-				if tap.bytesize > 3
+				while tap.bytesize > 3
 					id, tap = tap.unpack("Ca*")
 					# $stderr.puts "unpacking TZX: id=0x#{id.to_s(16)}"
 					case id
-					when 0x10
+					when 0x10 # Standard Speed Data Block
 						_wait, tap = tap.unpack("va*")
-					when 0x35
+						break
+					when 0x30 # Text description
+						size, tap = tap.unpack("Ca*")
+						_txt, tap = tap.unpack("a#{size}a*")
+					when 0x31 # Message block
+						_wait, size, tap = tap.unpack("CCa*")
+						_msg, tap = tap.unpack("a#{size}a*")
+					when 0x32 # Archive info
+						size, tap = tap.unpack("va*")
+						_info, tap = tap.unpack("a#{size}a*")
+					when 0x33 # Hardware type
+						count, tap = tap.unpack("Ca*")
+						_hwinfo, tap = tap.unpack("a#{count*3}a*")
+					when 0x35 # Custom info block
 						_name, size, tap = tap.unpack("a10L<a*")
 						_info, tap = tap.unpack("a#{size}a*")
-					when 0x5A
+					when 0x5A # The Glue
 						_glue, tap = tap.unpack("a9a*")
 					else
 						raise "Only the standard speed data block are currently handled in TZX files, got: 0x#{id.to_s(16)} in `#{file}'"
