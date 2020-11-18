@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require_relative 'examples/rakefile.rb'
 
 desc "Documentation"
 task :doc do
@@ -43,7 +44,7 @@ EXAMPLES = %w[
 ]
 
 desc "Compile examples"
-task :examples do
+task :examples => 'example:gallery' do
   EXAMPLES.each do |example|
     sh "ruby -Ilib #{File.join("examples", example)}"
   end
@@ -60,6 +61,7 @@ UTIL_TESTS = %w[
   zxutils/ay_music.rb
   zxutils/ay_music_player.rb
   zxutils/benchmark.rb
+  zxutils/gallery.rb
   zxutils/multitasking.rb
   zxutils/multitasking_io.rb
 ]
