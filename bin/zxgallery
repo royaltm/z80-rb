@@ -1,0 +1,131 @@
+#!/usr/bin/env ruby
+# -*- coding: BINARY -*-
+ZXGALLERY_VERSION = '0.1'
+require 'set'
+require 'zxutils/gallery'
+require 'zxlib/basic'
+ADDRESS_MIN = 0x8000
+ADDRESS_MAX = 0xFFF4 - ZXUtils::Gallery::SCR_MAX_SIZE - ZXUtils::Gallery.code.bytesize
+HELP = <<_EOH_
+ZXGALLERY #{ZXGALLERY_VERSION}: Creates a TAP file with a ZX Spectrum screen gallery.
+Usage:
+#{File.basename($0)} [options] screen_files...
+
+  screen_files: paths to SCR files to be appended to the tape;
+  options:
+    -o, --output: the target file name (the .tap extension is optional),
+    -c, --code: the address of the code in the range: #{ADDRESS_MIN}..#{ADDRESS_MAX}
+_EOH_
+
+output_tap = "gallery.tap"
+code_address = 50000
+
+screens = []
+
+while arg = ARGV.shift
+  case arg
+  when /^-o$/, /^--output$/
+    output_tap = ARGV.shift
+  when /^-c$/, /^--code$/
+    code_address = ARGV.shift.to_i
+  when /^-/
+    puts HELP; exit
+  else
+    screens << arg
+  end
+end
+
+if output_tap.nil?
+  puts HELP; exit 1
+end
+
+if code_address < ADDRESS_MIN || code_address > ADDRESS_MAX
+    $stderr.puts "ZXGALLERY: The code address should be between #{ADDRESS_MIN} and #{ADDRESS_MAX}"
+    exit 2
+end
+
+def normalize_file(filepath, extension = File.extname(filepath), ignore_missing = false)
+  dir, base = File.dirname(filepath), File.basename(filepath, extension)
+  normpath = File.join(dir, base + extension)
+  if ignore_missing || File.exist?(normpath)
+    normpath
+  else
+    $stderr.puts "ZXGALLERY: No such file: #{filepath}"
+    exit 3
+  end
+end
+
+SCR_SIZES = ZXUtils::Gallery::Formats.constants.map do |cname|
+  ZXUtils::Gallery::Formats.const_get cname
+end
+SCR_MATCH = ::Set.new(SCR_SIZES).freeze
+
+def check_format(size, file)
+  unless SCR_MATCH === size
+    $stderr.puts "ZXGALLERY: Couldn't determine the screen format of the file: #{file.inspect}."
+    $stderr.puts "ZXGALLERY: Known format sizes: #{SCR_SIZES.sort.join(', ')}."
+    exit 4
+  end
+end
+
+output_tap = normalize_file(output_tap, '.tap', true)
+
+screens.map! {|scr| normalize_file scr }.each do |file|
+  check_format File.size(file), file
+end
+
+class GalleryProg # :nodoc:
+  include Z80
+  include Z80::TAP
+
+  import              ZXUtils::Gallery
+  screen              label
+end
+
+SCR = Struct.new(:code, :org) do
+  include Z80::TAP
+end
+
+program_code = GalleryProg.new code_address
+start = program_code[:start]
+basic = <<-EOB
+   1 DEF FN d(a,s)=USR #{start}: DEF FN l(a)=USR #{start}: DEF FN x()=USR #{start}
+  10 BORDER 0: PAPER 0: INK 7: CLS
+EOB
+
+unless screens.empty?
+  basic += <<-EOB
+  20 FOR i=1 TO #{screens.length}
+EOB
+end
+
+basic += <<-EOB
+  30 PRINT AT 0,0;
+  40 LET s=FN l(#{program_code[:screen]}): REM s=size of the loaded `SCREEN$`
+  50 RANDOMIZE FN d(#{program_code[:screen]},s)
+EOB
+
+unless screens.empty?
+  basic += <<-EOB
+  60 NEXT i
+EOB
+end
+
+basic += <<-EOB
+  99 BORDER 7: PAPER 7: INK 0: CLS
+9998 STOP: GO TO 10
+9999 CLEAR #{0x5fff}: LOAD ""CODE : RANDOMIZE USR #{start}: RUN
+EOB
+
+program = ZXLib::Basic.parse_source basic
+program.save_tap(output_tap, line: 9999)
+program_code.save_tap(output_tap, append: true)
+screens.each do |file|
+  code = File.open(file, 'rb') {|f| f.read}
+  check_format(code.bytesize, file)
+  scrname = File.basename(file, File.extname(file))
+  scr = SCR.new(code, program_code[:screen])
+  scr.save_tap(output_tap, append: true, name: scrname)
+end
+
+Z80::TAP.parse_file(output_tap) { |hb| puts hb.to_s }
