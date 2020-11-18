@@ -303,6 +303,8 @@ module ZXLib
             mask_int    addr 0x0038 # THE 'MASKABLE INTERRUPT' ROUTINE
             key_int     addr 0x0048 # KEY-INT part of the interrupt routine
             keyboard    addr 0x02BF # read KEYBOARD routine called from the system interrupt routine
+            ld_bytes    addr 0x0556 # Load bytes: A - 0x00 header, 0xFF data; IX - address, DE - length, CF - 1=LOAD, 0=VERIFY; output: CF=1 ok
+            sa_bytes    addr 0x04C2 # Save bytes: A - 0x00 header, 0xFF data; IX - address, DE - length
             po_any      addr 0x0B24 # THE 'PRINT ANY CHARACTER' ROUTINE
             po_gr_1     addr 0x0B38 # The 16 2*2 mosaic characters 128-143 decimal are formed from bits 0-3 of the character
             error_5     addr 0x0C86 # Out of screen
@@ -329,6 +331,8 @@ module ZXLib
             differ      addr 0x19DD # Difference routine: BC = HL - DE, DE <-> HL
             reclaim_1   addr 0x19E5 # Handle reclaiming space: DE - start address of the space to reclaim, HL - address after the space
             reclaim_2   addr 0x19E8 # HL - start address of the space to reclaim, BC - size of the space to reclaim
+            out_num_1   addr 0x1A1B # Prints a small integer in the range 0-9999. BC - an integer in the range 0-9999.
+            out_num_2   addr 0x1A28 # Prints a space padded, small integer in the range 0-9999. HL - an address of the integer to print.
             error_0     addr 0x1BB0 # OK
             go_to       addr 0x1E67 # Handle GO TO command
             go_to_1     addr 0x1E6C # Handle GO TO command: expecting line in HL with line number check
