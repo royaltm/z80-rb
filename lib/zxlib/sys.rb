@@ -415,7 +415,25 @@ module ZXLib
             ay_sel  addr 0xF5 # out: select a register 0-14, in: read the value of the selected register
             ay_inp  addr 0xF6 # in: read the value of the selected register
             ay_out  addr 0xF6 # out: write data to the selected register
-            ula     addr 0xFF # 0bMIColScr M - MMU 0=DOCK, 1=EX-ROM; I - Interrupts 1=DI, 0=EI; Col - colors for hi-res; Scr - screen modes: 000=screen 0, 001=screen 1, 010=hi-colour, 110=hi-res
+            ula     addr 0xFF # 0bMIColScr M - MMU 0=DOCK, 1=EX-ROM; I - Interrupts 1=DI, 0=EI;
+                              # Col - colors for hi-res
+                              # Scr - screen modes: 000=screen 0, 001=screen 1, 010=hi-colour, 110=hi-res
+        end
+
+        # ULAplus
+        # https://faqwiki.zxnet.co.uk/wiki/ULAplus
+        isolate :io_plus do
+            reg  addr 0xBF3B # 0 - 63 palette entry select, 64 - group mode and bits 0-5 select screen mode:
+                             # bits 0-2: 000=screen 0, 001=screen 1, 010=hi-colour, 110=hi-res (bank 5)
+                             #           100=screen 0, 101=screen 1, 011=hi-colour, 111=hi-res (bank 7)
+                             # bits 3-5 set colours in hi-res mode:
+                             #   000 - Black on White     100 - Green on Magenta
+                             #   001 - Blue on Yellow     101 - Cyan on Red
+                             #   010 - Red on Cyan        110 - Yellow on Blue
+                             #   011 - Magenta on Green   111 - White on Black
+            dta addr 0xFF3B  # group mode: 0 - no palette, 1 - RGB palette, 2 - grayscale
+            mode_group addr 0x40
+            mode_mask  addr 0x3F
         end
 
         # Default AY-3-891x I/O ports
