@@ -29,7 +29,7 @@ def normalize_file(filepath, extension, exit_on_missing = true)
   if File.exist?(normpath)
     normpath
   elsif exit_on_missing
-    $stderr.puts "ZXRUN: No such a source: #{filepath}"
+    $stderr.puts "ZXRUN: No such source: #{filepath}"
     exit 1
   end
 end
