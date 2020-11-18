@@ -76,6 +76,8 @@
   
     <li><a href="./Float.html">Float</a>
   
+    <li><a href="./GalleryProg.html">GalleryProg</a>
+  
     <li><a href="./Object.html">Object</a>
   
     <li><a href="./Symbol.html">Symbol</a>
@@ -267,6 +269,10 @@
     <li><a href="./ZXUtils/BigFont/Macros.html">ZXUtils::BigFont::Macros</a>
   
     <li><a href="./ZXUtils/Emu.html">ZXUtils::Emu</a>
+  
+    <li><a href="./ZXUtils/Gallery.html">ZXUtils::Gallery</a>
+  
+    <li><a href="./ZXUtils/Gallery/Formats.html">ZXUtils::Gallery::Formats</a>
   
     <li><a href="./ZXUtils/Multitasking.html">ZXUtils::Multitasking</a>
   
@@ -623,6 +629,8 @@ Bytes: &quot;hello_worl&quot; CODE 32768,38</pre>
 </li><li>
 <p><a href="ZXUtils/Benchmark.html"><code>ZXUtils::Benchmark</code></a></p>
 </li><li>
+<p><a href="ZXUtils/Gallery.html"><code>ZXUtils::Gallery</code></a></p>
+</li><li>
 <p><a href="ZXUtils/Multitasking.html"><code>ZXUtils::Multitasking</code></a></p>
 </li><li>
 <p><a href="ZXUtils/MultitaskingIO.html"><code>ZXUtils::MultitaskingIO</code></a></p>
@@ -640,11 +648,28 @@ Bytes: &quot;hello_worl&quot; CODE 32768,38</pre>
 
 <h3 id="label-Features-3A">Features:<span><a href="#label-Features-3A">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
-<p><code>bin/zxconv</code></p>
+<h5 id="label-bin-2Fzxgallery"><code>bin/zxgallery</code><span><a href="#label-bin-2Fzxgallery">&para;</a> <a href="#top">&uarr;</a></span></h5>
+
+<pre>ZXGALLERY 0.1: Creates a TAP file with a ZX Spectrum screen gallery.
+Usage:
+zxgallery [options] screen_files...
+
+  screen_files: paths to SCR files to be appended to the tape;
+  options:
+    -o, --output: the target file name (the .tap extension is optional),
+    -c, --code: the address of the code in the range: 32768..51067</pre>
+<dl class="rdoc-list note-list"><dt>Example gallery
+<dd>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=+2B#tap=/z80-rb/examples/example_gallery.tap#fresh">royaltm.github.io/spectrusty/web-zxspectrum/#m=+2B#tap=/z80-rb/examples/example_gallery.tap#fresh</a></p>
+</dd></dl>
+
+<p>See <a href="ZXUtils/Gallery.html"><code>ZXUtils::Gallery</code></a> for more information.</p>
+
+<h5 id="label-bin-2Fzxconv"><code>bin/zxconv</code><span><a href="#label-bin-2Fzxconv">&para;</a> <a href="#top">&uarr;</a></span></h5>
 
 <p>(requires RMagick <a href="http://rmagick.rubyforge.org">rmagick.rubyforge.org</a>/)</p>
 
-<pre>ZXCONV 0.4: Converting images to ZX Spectrum is fun!
+<pre>ZXCONV 0.5: Converting images to ZX Spectrum is fun!
 Usage:
 zxconv source destination [options]
   rendering options:

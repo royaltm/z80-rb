@@ -800,13 +800,105 @@
 
         <div class="method-description">
           
-          <p>TODO: dyn width skip; cols.odd? mode = :copy, :set, :or, :xor, :and</p>
+          <p>.…</p>
+
+<pre class="ruby"><span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">some_table</span>
+<span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>
+<span class="ruby-identifier">add</span>  <span class="ruby-identifier">l</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+<span class="ruby-identifier">inc</span>  <span class="ruby-identifier">l</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, [<span class="ruby-identifier">hl</span>]
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
+<span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">eval</span>(<span class="ruby-value">0</span>){ <span class="ruby-identifier">xor</span> <span class="ruby-identifier">a</span> }.<span class="ruby-identifier">code</span>[<span class="ruby-value">0</span>]
+<span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">restore_p</span>], <span class="ruby-identifier">hl</span>
+</pre>
+
+<p>.…</p>
+
+<pre class="ruby"><span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">xskip</span>
+<span class="ruby-identifier">exx</span>
+<span class="ruby-identifier">pop</span>  <span class="ruby-identifier">de</span>
+<span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+<span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">start0</span>
+<span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+<span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">next1</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">iy</span>, <span class="ruby-identifier">start1</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
+<span class="ruby-identifier">rotate_bits</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">rshift</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>
+<span class="ruby-identifier">anda</span> <span class="ruby-identifier">m</span>       <span class="ruby-comment"># 0b00001111</span>
+<span class="ruby-identifier">jp</span>   (<span class="ruby-identifier">iy</span>)
+</pre>
+
+<p>next1                       dec  a</p>
+
+<pre class="ruby"><span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">next2</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+<span class="ruby-identifier">rotate_bits</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">rshift</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, <span class="ruby-identifier">a</span>
+<span class="ruby-identifier">anda</span> <span class="ruby-identifier">m</span>       <span class="ruby-comment"># 0b00001111</span>
+<span class="ruby-identifier">jr</span>   <span class="ruby-identifier">start2</span>
+</pre>
+
+<p>.…</p>
+
+<pre class="ruby"><span class="ruby-identifier">pop</span>  <span class="ruby-identifier">de</span>
+</pre>
+
+<p>start0                      ld   a, e</p>
+
+<pre class="ruby"><span class="ruby-identifier">rotate_bits</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">rshift</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>
+<span class="ruby-identifier">anda</span> <span class="ruby-identifier">m</span>       <span class="ruby-comment"># 0b00001111</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">a</span>
+
+<span class="ruby-identifier">fx</span>.<span class="ruby-identifier">call</span> [<span class="ruby-identifier">hl</span>] <span class="ruby-keyword">unless</span> <span class="ruby-identifier">fx</span>.<span class="ruby-identifier">nil?</span>
+<span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+
+<span class="ruby-identifier">inc</span>  <span class="ruby-identifier">l</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+<span class="ruby-identifier">anda</span> <span class="ruby-value">31</span>
+<span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">foobar</span>
+
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">t</span>
+</pre>
+
+<p>start1                      xor  e</p>
+
+<pre class="ruby"><span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># e: 3210....</span>
+
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>        <span class="ruby-comment"># a: 76543210</span>
+<span class="ruby-identifier">rotate_bits</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">rshift</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># d: 32107654</span>
+<span class="ruby-identifier">anda</span> <span class="ruby-identifier">m</span>           <span class="ruby-comment"># a: ....7654 b: mask 00001111</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># c: ....7654</span>
+<span class="ruby-identifier">ora</span>  <span class="ruby-identifier">e</span>           <span class="ruby-comment"># a: 32107654</span>
+<span class="ruby-identifier">fx</span>.<span class="ruby-identifier">call</span> [<span class="ruby-identifier">hl</span>] <span class="ruby-keyword">unless</span> <span class="ruby-identifier">fx</span>.<span class="ruby-identifier">nil?</span>
+<span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+<span class="ruby-identifier">inc</span>  <span class="ruby-identifier">l</span>
+
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">t</span>        <span class="ruby-comment"># a: ....7654</span>
+</pre>
+
+<p>start2                      xor  d           # d: 3210.…</p>
+
+<pre>             fx.call [hl] unless fx.nil?
+             ld   [hl], a
+             ...
+foobar       pop  de
+             pop  de
+             ...
+             inc h
+             djnz rowloop</pre>
+
+<p># TODO: dyn width skip; cols.odd? # mode = :copy, :set, :or, :xor, :and</p>
           
           
 
           
           <div class="method-source-code" id="bobs_draw_pixels_fast-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 549</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 624</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_draw_pixels_fast</span>(<span class="ruby-identifier">bitmap</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">2</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">bshift:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">mode:</span> <span class="ruby-value">:set</span>, <span class="ruby-value">tx:</span><span class="ruby-identifier">ix</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid scraddr argument&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scraddr</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">scraddr</span>) <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>))
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;target should be an address or a pointer or hl&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">target</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">target</span>)
