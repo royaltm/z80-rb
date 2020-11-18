@@ -8,7 +8,7 @@ require 'tempfile'
 #
 # Example:
 #   require 'z80'
-#   require 'utils/zx7'
+#   require 'zxutils/zx7'
 #
 #   class Program
 #     include Z80
