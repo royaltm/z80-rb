@@ -234,6 +234,7 @@ Another tool: +zxrun+ can be used to optionally compile ruby sources and run the
 * ZXUtils::BigFont
 * ZXUtils::Emu
 * ZXUtils::Benchmark
+* ZXUtils::Gallery
 * ZXUtils::Multitasking
 * ZXUtils::MultitaskingIO
 * ZXUtils::AYMusic
@@ -245,11 +246,27 @@ Another tool: +zxrun+ can be used to optionally compile ruby sources and run the
 
 ===Features:
 
-+bin/zxconv+
+=====+bin/zxgallery+
+
+  ZXGALLERY 0.1: Creates a TAP file with a ZX Spectrum screen gallery.
+  Usage:
+  zxgallery [options] screen_files...
+
+    screen_files: paths to SCR files to be appended to the tape;
+    options:
+      -o, --output: the target file name (the .tap extension is optional),
+      -c, --code: the address of the code in the range: 32768..51067
+
+Example gallery:: https://royaltm.github.io/spectrusty/web-zxspectrum/#m=+2B#tap=/z80-rb/examples/example_gallery.tap#fresh
+
+See ZXUtils::Gallery for more information.
+
+
+=====+bin/zxconv+
 
 (requires RMagick http://rmagick.rubyforge.org/)
 
-  ZXCONV 0.4: Converting images to ZX Spectrum is fun!
+  ZXCONV 0.5: Converting images to ZX Spectrum is fun!
   Usage:
   zxconv source destination [options]
     rendering options:
