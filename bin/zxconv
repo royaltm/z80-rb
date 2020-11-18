@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: BINARY -*-
-ZXCONV_VERSION = '0.4'
+ZXCONV_VERSION = '0.5'
 k,v = [
 	:dither1,    ?n,
 	:dither2,    ?n,
@@ -479,9 +479,10 @@ img2.rows.times do |row|
 	$bwidth.times do |col|
 		ws = col*8 + 8 > img.columns ? img.columns % 8 : 8
 		colors = attr2colors(row, col)
-		$bitmap << $screen[screen_addr(row, col)] = [img2.get_pixels(col*8, row, ws, 1).map { |p|
-			colors.index $pixels.index p
-		}.join].pack('B*')
+		pixind = img2.get_pixels(col*8, row, ws, 1).map do |p|
+			colors.index($pixels.index p) || ?0
+		end
+		$bitmap << $screen[screen_addr(row, col)] = [pixind.join].pack('B*')
 	end
 end
 
@@ -556,15 +557,22 @@ when ?t
 	$data+= to_tap(File.basename(basefilename), 0x8000, bindata) unless bindata.empty?
 	puts "Saving to TAP: `#{basefilename+='.tap'}'."
 when ?b
-	case screens.length
-	when 1
-		puts "Saving to SCR: `#{basefilename}.scr'."
-		File.open(basefilename+'.scr', 'wb') { |file| file.write screens[0][0] }
-	when 2
-		screens.each_with_index do |(scrdata, name), i|
-			filename = "#{basefilename}.#{name}.scr"
-			puts "Saving to SCR: `#{filename}'."
-			File.open(filename, 'wb') { |file| file.write scrdata.ljust(6912, "\x00") }
+	puts "Saving to SCR: `#{basefilename}.scr'."
+	File.open(basefilename+'.scr', 'wb') do |file|
+		case screens.length
+		when 1
+			file.write screens[0][0]
+		when 2
+			screens.each { |scrdata, | file.write scrdata }
+			if $options.hires == ?p
+				screen_mode = case $options.onlycolors
+					when [0,7] then 0b00111110
+					when [1,6] then 0b00110110
+					when [2,5] then 0b00101110
+					when [3,4] then 0b00100110
+				end
+				file.write screen_mode.chr
+			end
 		end
 	end
 	unless bindata.empty?
