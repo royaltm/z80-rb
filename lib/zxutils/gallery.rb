@@ -313,21 +313,26 @@ module ZXUtils
                         ret
     end
 
-    ns :show_highcolor do
-                        screen_mode 2
-      copy_screens      memcpy memT2k.screen0, hl, mem.scrlen
+    ns :copy_screens do
+                        screen_mode 2, palette: true # hide colors while copying
+                        memcpy memT2k.screen0, hl, mem.scrlen
                         memcpy memT2k.screen1, hl, mem.scrlen
                         ret
     end
 
+    ns :show_highcolor do
+                        call   copy_screens
+                        screen_mode 2
+                        ret
+    end
+
     ns :show_highres do
-                        screen_mode 6
-                        call  show_highcolor.copy_screens
+                        call  copy_screens
                         ld    a, [hl]
                         ora   6
                         # jp    set_screen_mode
     end
-    # A: screen mode on bits 0-5
+    # A: screen mode on bits 0-5 (standard color mode)
     ns :set_screen_mode do
                         anda  io_plus.mode_mask
                         out   (ioT2k.ula), a
@@ -342,7 +347,7 @@ module ZXUtils
                         restore_rom_interrupt_handler enable_intr: false
                         ret
     end
-    # A: screen mode on bits 0-5
+    # A: screen mode on bits 0-5 (RGB palette mode, clears palette)
     ns :set_screen_mode_plus do
                         anda  io_plus.mode_mask
                         ld    ixl, a     # save screen mode
@@ -379,8 +384,7 @@ module ZXUtils
     end
 
     ns :show_highcolor_plus do
-                        screen_mode 2, palette: true
-                        call  show_highcolor.copy_screens
+                        call  copy_screens
                         # jr    read_screen_palette
     end
     # HL: palette
@@ -408,14 +412,12 @@ module ZXUtils
     end
 
     ns :show_highcolor_256 do
-                        screen_mode 2, palette: true
-                        call  show_highcolor.copy_screens
+                        call  copy_screens
                         jr    show_256.enable_ham256
     end
 
     ns :show_interlace do
-                        screen_mode 0
-                        call  show_normal.copy_screen
+                        call  show_normal
                         memcpy memT2k.screen1, hl, mem.scrlen + mem.attrlen
                         ld    hl, interlace_int
                         # jp    setup_interrupt
