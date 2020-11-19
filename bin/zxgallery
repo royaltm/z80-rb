@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: BINARY -*-
-ZXGALLERY_VERSION = '0.2'
+ZXGALLERY_VERSION = '0.3'
 require 'set'
 require 'zxutils/gallery'
 require 'zxlib/basic'
@@ -90,7 +90,7 @@ program_code = GalleryProg.new code_address
 start = program_code[:start]
 basic = <<-EOB
    1 DEF FN d(a,s)=USR #{start}: DEF FN l(a)=USR #{start}: DEF FN x()=USR #{start}
-  10 BORDER 0: PAPER 0: INK 7: CLS
+  10 BORDER 0: PAPER 0: INK 7: RANDOMIZE FN x()
 EOB
 
 unless screens.empty?
