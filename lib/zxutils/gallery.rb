@@ -515,7 +515,7 @@ if __FILE__ == $0
       File.join('..', '..', 'examples', 'screens', 'test_ham256.scr'),
       __dir__)
 
-  class GalleryProg
+  class GalleryProg # :nodoc:
     include Z80
     include Z80::TAP
 
