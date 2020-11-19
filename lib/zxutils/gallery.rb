@@ -10,17 +10,18 @@ module ZXUtils
   #
   # Supported ULAplus formats:
   #
-  #        format type      size      mode      colors
-  #   /------------------^-------^------------^--------\
-  #   | standard screen  |  6912 | screen 0   |     15 |
-  #   | standard plus    |  6976 | screen 0   |     64 |
-  #   | standard HAM256  |  7680 | screen 0   |    256 |
-  #   | high color       | 12288 | hi-color   |     15 |
-  #   | high resolution  | 12289 | hi-res     |      2 |
-  #   | hi-color plus    | 12352 | hi-color   |     64 |
-  #   | hi-color HAM256  | 13056 | hi-color   |    256 |
-  #   | stand. interlace | 13824 | screen 0/1 |     15 |
-  #   \------------------------------------------------/
+  #        format type      size      mode      colors   palette
+  #   /------------------^-------^------------^--------^---------\
+  #   | standard screen  |  6912 | screen 0   |     15 | default |
+  #   | standard plus    |  6976 | screen 0   |     64 | static  |
+  #   | standard HAM256  |  7680 | screen 0   |    256 | dynamic |
+  #   | high color       | 12288 | hi-color   |     15 | default |
+  #   | high resolution  | 12289 | hi-res     |      2 | bright  |
+  #   | hi-color plus    | 12352 | hi-color   |     64 | static  |
+  #   | hi-res plus      | 12353 | hi-res     |      2 | static  |
+  #   | hi-color HAM256  | 13056 | hi-color   |    256 | dynamic |
+  #   | stand. interlace | 13824 | screen 0/1 |     15 | default |
+  #   \------------------+-------+------------+------------------/
   #
   # See: https://faqwiki.zxnet.co.uk/wiki/ULAplus#Extension_to_the_SCR_format
   #
@@ -74,6 +75,7 @@ module ZXUtils
       SCR_HIGHRES_SIZE = 32*192 + 32*192 + 1
       SCR_PLUS_SIZE = SCR_SIZE + 64
       SCR_HIGHCOLOR_PLUS_SIZE = SCR_HIGHCOLOR_SIZE + 64
+      SCR_HIGHRES_PLUS_SIZE = SCR_HIGHRES_SIZE + 64
       SCR_256_SIZE = SCR_SIZE + 64*12
       SCR_HIGHCOLOR_256_SIZE = SCR_HIGHCOLOR_SIZE + 64*12
       SCR_INTERLACE_SIZE = SCR_SIZE + SCR_SIZE
@@ -248,6 +250,7 @@ module ZXUtils
         SCR_HIGHRES_SIZE, show_highres,
         SCR_PLUS_SIZE, show_plus,
         SCR_HIGHCOLOR_PLUS_SIZE, show_highcolor_plus,
+        SCR_HIGHRES_PLUS_SIZE, show_highres_plus,
         SCR_256_SIZE, show_256,
         SCR_HIGHCOLOR_256_SIZE, show_highcolor_256,
         SCR_INTERLACE_SIZE, show_interlace,
@@ -370,7 +373,7 @@ module ZXUtils
                         cp    io_plus.mode_group
                         jr    NZ, cloop  # repeat until all 64 have been done
 
-                        ld    b, d       # select register port
+      set_color_mode    ld    b, d       # select register port
                         ora   ixl        # include screen mode
                         out   (c), a     # select mode group | screen mode
                         ld    a, 1       # RGB mode (2 for grey)
@@ -383,10 +386,23 @@ module ZXUtils
                         jr    read_screen_palette
     end
 
+    ns :show_highres_plus do
+                        call  copy_screens
+                        ld    a, [hl]
+                        ora   6
+                        anda  io_plus.mode_mask
+                        out   (ioT2k.ula), a
+                        ld    ixl, a     # save screen mode
+                        inc   hl
+                        call  read_screen_palette # A=64
+                        jr    set_screen_mode_plus.set_color_mode
+    end
+
     ns :show_highcolor_plus do
                         call  copy_screens
                         # jr    read_screen_palette
     end
+
     # HL: palette
     ns :read_screen_palette do
                         ld    de, (io_plus.reg & 0xFF00) | (((io_plus.dta >> 8) + 1) & 0x00FF)

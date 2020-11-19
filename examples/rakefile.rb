@@ -4,10 +4,11 @@ SCREENS = %w[
   car.scr
   car_hicolor.scr
   car_hicolor_dither.scr
-  car_hires.scr
+  car_hires_0.scr
   car_hires_0_dither.scr
   car_hires_1.scr
   car_hires_1_dither.scr
+  car_hires+_dither.scr
   car_interlace.scr
   car_64_dither.scr
   car_ham256.scr
