@@ -111,17 +111,18 @@
 
 <p>Supported ULAplus formats:</p>
 
-<pre>     format type      size      mode      colors
-/------------------^-------^------------^--------\
-| standard screen  |  6912 | screen 0   |     15 |
-| standard plus    |  6976 | screen 0   |     64 |
-| standard HAM256  |  7680 | screen 0   |    256 |
-| high color       | 12288 | hi-color   |     15 |
-| high resolution  | 12289 | hi-res     |      2 |
-| hi-color plus    | 12352 | hi-color   |     64 |
-| hi-color HAM256  | 13056 | hi-color   |    256 |
-| stand. interlace | 13824 | screen 0/1 |     15 |
-\------------------------------------------------/</pre>
+<pre>     format type      size      mode      colors   palette
+/------------------^-------^------------^--------^---------\
+| standard screen  |  6912 | screen 0   |     15 | default |
+| standard plus    |  6976 | screen 0   |     64 | static  |
+| standard HAM256  |  7680 | screen 0   |    256 | dynamic |
+| high color       | 12288 | hi-color   |     15 | default |
+| high resolution  | 12289 | hi-res     |      2 | bright  |
+| hi-color plus    | 12352 | hi-color   |     64 | static  |
+| hi-res plus      | 12353 | hi-res     |      2 | static  |
+| hi-color HAM256  | 13056 | hi-color   |    256 | dynamic |
+| stand. interlace | 13824 | screen 0/1 |     15 | default |
+\------------------+-------+------------+------------------/</pre>
 
 <p>See: <a href="https://faqwiki.zxnet.co.uk/wiki/ULAplus#Extension_to_the_SCR_format">faqwiki.zxnet.co.uk/wiki/ULAplus#Extension_to_the_SCR_format</a></p>
 
@@ -255,7 +256,7 @@ RANDOMIZE FN d(address,size): REM provide an address of the screen and its size<
 
           
           <div class="method-source-code" id="start-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/gallery.rb, line 128</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/gallery.rb, line 130</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:start</span> <span class="ruby-keyword">do</span>
                     <span class="ruby-identifier">call</span>  <span class="ruby-identifier">find_def_fn_arg</span>            <span class="ruby-comment"># is this an FN call with arguments?</span>
                     <span class="ruby-identifier">jr</span>    <span class="ruby-constant">C</span>, <span class="ruby-identifier">hw_detect_and_setup</span>     <span class="ruby-comment"># called directly via USR</span>
