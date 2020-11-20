@@ -313,7 +313,7 @@ module Z80
 		#  Property +data+ is a binary string containing the body data.
 		Body = ::Struct.new :data do
 			def to_tap(length=nil)
-				raise TapeError, "Header length dosn't match" unless length.nil? || data.bytesize == length
+				raise TapeError, "Header length doesn't match" unless length.nil? || data.bytesize == length
 				body = "\xff" + data
 				TAP.addsum body
 				[body.bytesize].pack('v') + body
@@ -410,6 +410,7 @@ module Z80
 							header = Header.new(*data.unpack('CA10v3'))
 						when 0xff
 							unless header.nil?
+								data, = data.unpack("a#{header.length}") if data.bytesize >= header.length
 								raise TapeError, "TAP bytes length doesn't match length in header: `#{file}'." unless data.bytesize == header.length
 							end
 							chunk = HeaderBody.new header, Body.new(data)
