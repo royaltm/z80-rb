@@ -524,7 +524,7 @@ module ZXLib
 			#    are being added.
 			#  * Argument after the +BIN+ keyword will be interpreted as a binary number.
 			#  * After the +REM+ statement most of the rules are being relaxed until the end of the line.
-			#  * A literal +7+ or +8+ after the SE BASIC's +DIR+ keyword will be interpreted as a single
+			#  * A literal +7+ or +8+ after the SE BASIC's +DIR+ statement will be interpreted as a single
 			#    character argument and not a number.
 			#  * In addition to all ZX Spectrum BASIC keywords, the SE BASIC keywords will be also recognized
 			#    and parsed accordingly. See Basic::Program#to_source for the list of those keywords.
