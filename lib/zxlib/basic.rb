@@ -6,6 +6,8 @@ module ZXLib
 	##
 	#  A module with ZX Spectrum's BASIC program utilities.
 	#
+	#  {SE BASIC}[https://faqwiki.zxnet.co.uk/wiki/OpenSE] extensions are supported.
+	#
 	#  See: ZXLib::Basic::Program, ZXLib::Basic::Vars, ZXLib::Basic::Variable
 	#
 	#  Example:
@@ -60,9 +62,9 @@ module ZXLib
 			#  * The £ (pound, code 96) and the © (code 127) characters are converted to a U+00A3 and U+00A9 accordingly.
 			#  * Raw FP numbers beginning with a character code 14 are being stripped outside of literal strings.
 			#  * A comma control character (code 6) is encoded as \\t (TABULATION U+0009) character.
-			#  * Control characters 8..11 are encoded as Unicode ARROWS (see table below).
+			#  * Control characters 8..11 are encoded as Unicode ARROWS (see below).
 			#  * The remaining control characters in the code range 0..31 are encoded using escape sequences.
-			#  * The block characters in the code range 128..143 are converted to Unicode BLOCK elements (see table below).
+			#  * The block characters in the code range 128..143 are converted to Unicode BLOCK elements (see below).
 			#  * The characters in the UDG code range 144..164 are converted to CIRCLED LATIN CAPITAL LETTERs.
 			#  * Keywords in the code range 165..255 are either encoded as escaped keywords (e.g. `PRINT`) when found inside
 			#    literal strings or just as sequences of its constituent characters.
@@ -73,13 +75,13 @@ module ZXLib
 			#      PRINT RND
 			#
 			#  The +RND+ keyword in this case may be a variable name consisting of 3 capital letters R N D or a +RND+ function.
-			#  The ZX Basic knows the difference because the keyword +RND+ is encoded as a single code point: 165.
+			#  The ZX BASIC knows the difference because the keyword +RND+ is encoded as a single code point: 165.
 			#  However when presented as text you can't really tell the difference.
 			#  This may lead to errors when trying to parse such a text back to the ZX Spectrum's binary program format.
 			#
-			#  To desambiguate keywords from regular characters in strings they are being encoded as escape sequences,
+			#  To disambiguate keywords from regular characters in strings they are being encoded as escape sequences,
 			#  e.g. `GO SUB`, `RND`, `OPEN #`.
-			#  Pass +true+ to +:escape_keywords+ option to enforce keywords to be always escaped.
+			#  Pass +true+ to the +:escape_keywords+ option to enforce keywords to be always escaped.
 			#
 			#  Escape sequences are using GRAVE ACCENT ` (U+0060, also known as a backtick) as enclosing character
 			#  because it's absent in the ZX Spectrum's character set.
@@ -155,9 +157,32 @@ module ZXLib
 			#        Unicode:    "£©░█ⒶⒷⒸⓊ←→↑↓"
 			#        Ascii only: "`&(c)|8#8abcu<>^v`" 
 			#
-			#  Passing +:ascii_only+ as +true+ will render escape sequences instead of non-ascii characters.
-			def to_source(escape_keywords:false, ascii_only:false)
-				lines.map { |line| line.to_s escape_keywords: escape_keywords, ascii_only: ascii_only }.join("\n")
+			#  Passing +true+ to the +:ascii_only+ option will render escape sequences instead of non-ascii characters.
+			#
+			#  ====SE BASIC support
+			#
+			#  Passing +true+ to the +:se+ option will render {SE BASIC}[https://faqwiki.zxnet.co.uk/wiki/OpenSE] tokens.
+			#
+			#  In this instance the new SE BASIC keywords will be recognized:
+			#
+			#        DELETE
+			#        EDIT
+			#        RENUM
+			#        PALETTE
+			#        SOUND
+			#        ON ERROR
+			#
+			#  and the following keywords will be output instead:
+			#
+			#        ZX Spectrum Basic | SE BASIC
+			#        ------------------+---------
+			#                     COPY | CALL
+			#                     INK  | PEN
+			#                     CAT  | DIR
+			def to_source(escape_keywords:false, ascii_only:false, se:false)
+				lines.map { |line|
+					line.to_s escape_keywords: escape_keywords, ascii_only: ascii_only, se: se
+				}.join("\n")
 			end
 			alias_method :to_s, :to_source
 			##
@@ -224,8 +249,8 @@ module ZXLib
 			#  Returns an UTF-8 encoded string.
 			#
 			#  See: Program#to_source.
-			def text(escape_keywords:false, ascii_only:false)
-				Tokenizer.program_data_to_text(body, escape_keywords, false, ascii_only)
+			def text(escape_keywords:false, ascii_only:false, se:false)
+				Tokenizer.program_data_to_text(body, escape_keywords, false, ascii_only, se)
 			end
 			##
 			#  Creates a textual representation of this line with the line number.
@@ -282,7 +307,13 @@ module ZXLib
 							end
 						elsif token.number?
 							numstr = token.to_chars
-							body << numstr << ?\x0E << numstr.gsub(Tokenizer::Patterns::SPACE_OR_CONTROL,'').to_f.to_z80bin
+							numpackstr = numstr.gsub(Tokenizer::Patterns::SPACE_OR_CONTROL,'')
+							body << numstr << ?\x0E << case numpackstr[0]
+							when '&'.freeze then numpackstr[1..].to_i(16)
+							when '\\'.freeze then numpackstr[1..].to_i(8)
+							else
+								numpackstr
+							end.to_f.to_z80bin
 						elsif token.quote?
 							body << token.to_chars << parse_string_body(tokenizer)
 						elsif token.colon?
@@ -313,6 +344,10 @@ module ZXLib
 								buffer << parse_reminder_body(tokenizer)
 							elsif token.keyword?('DEF FN')
 								buffer << parse_def_fn_argument_list(tokenizer)
+							elsif token.keyword?('ON ERROR')
+								buffer << parse_statement(tokenizer)
+							elsif token.keyword?('DIR')
+								buffer << parse_se_dir_statement(tokenizer)
 							end
 							break
 						elsif token.kind_of_space? || token.colon?
@@ -342,6 +377,20 @@ module ZXLib
 						else
 							buffer << token.to_chars
 						end
+					end
+					buffer
+				end
+
+				def parse_se_dir_statement(tokenizer)
+					buffer = ''
+					token = tokenizer.peek_token
+					while token.kind_of_space?
+						buffer << tokenizer.next_token.to_chars
+						token = tokenizer.peek_token
+					end
+					case token.to_chars
+					when '7','8'
+						buffer << tokenizer.next_token.to_chars
 					end
 					buffer
 				end
@@ -462,18 +511,23 @@ module ZXLib
 			#
 			#  * All numbers outside of string literals are followed by a character code 14 and 5 bytes of their
 			#    internal representation in the FP format (see ZXLib::Math).
-			#  * After every argument of a DEF FN header list a character code 14 and 5 placeholder bytes
-			#    are being added.
+			#    This also applies to SE BASIC hexadecimal and octal literals.
 			#  * Literal strings are being tracked, ensuring they are properly closed.
-			#  * Argument after the +BIN+ keyword will be interpreted as a binary number.
 			#  * Opened and closed parentheses are counted ensuring they are properly balanced.
 			#  * A statement keyword is expected (except spaces, control characters and colons) at the beginning
 			#    of each line, after the colon character or after a +THEN+ keyword. In these instances only
 			#    the statement keywords are being accepted.
 			#  * Inside parentheses the colon character or a +THEN+ keyword is forbidden.
 			#  * If a statement keyword is not expected only the keywords that may be used in expression context
-			#    are converted to ZX Basic keywords.
+			#    are converted to ZX BASIC keywords.
+			#  * After every argument of a DEF FN header list a character code 14 and 5 placeholder bytes
+			#    are being added.
+			#  * Argument after the +BIN+ keyword will be interpreted as a binary number.
 			#  * After the +REM+ statement most of the rules are being relaxed until the end of the line.
+			#  * A literal +7+ or +8+ after the SE BASIC's +DIR+ keyword will be interpreted as a single
+			#    character argument and not a number.
+			#  * In addition to all ZX Spectrum BASIC keywords, the SE BASIC keywords will be also recognized
+			#    and parsed accordingly. See Basic::Program#to_source for the list of those keywords.
 			#
 			#  Additionally +:start+ argument may be provided to indicate a starting line of a program.
 			#  This information will be used when saving program as a TAP file.
@@ -502,11 +556,13 @@ module ZXLib
 		##
 		#  A Basic program tokenizer.
 		class Tokenizer
-			def Tokenizer.program_data_to_text(data, escape_keywords=false, string_variable=false, ascii_only=false) # :nodoc:
+			def Tokenizer.program_data_to_text(data, escape_keywords=false, string_variable=false, ascii_only=false, se=false) # :nodoc:
 				res = ''.force_encoding(Encoding::UTF_8)
 				bytes = data.each_byte
 				string_is_opened = string_variable
 				escape_codes = if ascii_only then ESCAPE_CODES_ASCII_ONLY else ESCAPE_CODES end
+				keywords = if se then SE_KEYWORDS else KEYWORDS end
+				char_min = if se then SE_NEW_KEYWORDS_END else 0 end
 				while true
 					begin
 						c = bytes.next
@@ -524,7 +580,7 @@ module ZXLib
 							res << "`AT #{bytes.next},#{bytes.next}`"
 						when 23 # tab control
 							res << "`TAB #{bytes.next + (bytes.next << 8)}`"
-						when 0...KEYWORD_START_CODE
+						when char_min...KEYWORD_START_CODE
 							if c == 14 &&  # a number
 								5.times { bytes.next }
 								next
@@ -543,7 +599,7 @@ module ZXLib
 								res << CHAR_TABLE[c]
 							end
 						else
-							keyword = KEYWORDS[c - KEYWORD_START_CODE]
+							keyword = keywords.keyword_from_code(c)
 							if escape_keywords || string_is_opened
 								res << "`#{keyword.strip}`"
 							else
@@ -567,28 +623,39 @@ module ZXLib
 				def to_keyword_char
 					[keyword_code].pack('C')
 				end
+				def encode_number
+					numstr = chars.gsub(Tokenizer::Patterns::SPACE_OR_CONTROL,'')
+					?\x0E + case numstr[0]
+					when '&'.freeze then numstr[1..].to_i(16)
+					when '\\'.freeze then numstr[1..].to_i(8)
+					else
+						numstr
+					end.to_f.to_z80bin
+				end
 				def keyword?(name=nil)
 					if name.nil?
 						!keyword_code.nil?
 					elsif keyword_code.nil?
 						false
 					else
-						KEYWORDS[keyword_code - KEYWORD_START_CODE].strip.casecmp(name).zero?
+						KEYWORD_CODES[name] == keyword_code
 					end
 				end
 				def keyword_exact?
 					!!unless keyword_code.nil?
-						KEYWORDS[keyword_code - KEYWORD_START_CODE] == source
+						KEYWORDS.keyword_from_code(keyword_code) == source ||
+						SE_KEYWORDS.keyword_from_code(keyword_code) == source 
 					end
 				end
 				def keyword_fn?
 					!!unless keyword_code.nil?
-						keyword_code < STATEMENT_START_CODE || STATEMENTS_AS_EXPRESSIONS_CODES.include?(keyword_code)
+					  (keyword_code >= KEYWORD_START_CODE && keyword_code < STATEMENT_START_CODE) ||
+						STATEMENTS_AS_EXPRESSIONS_CODES.include?(keyword_code)
 					end
 				end
 				def keyword_statement?
 					!!unless keyword_code.nil?
-						keyword_code >= STATEMENT_START_CODE
+						keyword_code >= STATEMENT_START_CODE || keyword_code < SE_NEW_KEYWORDS_END
 					end
 				end
 				def kind_of_space?
@@ -692,6 +759,7 @@ module ZXLib
 							@token = Token.new @index, m.to_s, [code].pack('C'), code
 						else
 							chars = ''
+							code = nil
 							while m = Patterns::ESCAPE_TOKEN_MATCH.match(escexpr)
 								tok = m[1]
 								unless code = NON_ASCII_ESCAPE_TOKENS[tok]
@@ -706,7 +774,10 @@ module ZXLib
 							unless escexpr.empty? && !chars.empty?
 								raise SyntaxError, "unknown escape expression: #{escstr} in line: #{@line_index} at: #{@index}"
 							end
-							@token = Token.new @index, chars, chars, chars.bytesize == 1 && code >= KEYWORD_START_CODE ? code : nil
+							keyword_code = if chars.bytesize == 1 && (code >= KEYWORD_START_CODE || code < SE_NEW_KEYWORDS_END)
+								code
+							end
+							@token = Token.new @index, chars, chars, keyword_code
 						end
 						@index += offset
 					elsif m = Patterns::BINARY_EXPR_MATCH.match(@source)
@@ -968,7 +1039,24 @@ module ZXLib
 			' CLEAR ',
 			' RETURN ',
 			' COPY '
+		]
+
+		SE_NEW_KEYWORDS = [
+			' DELETE ',
+			' EDIT ',
+			' RENUM ',
+			' PALETTE ',
+			' SOUND ',
+			' ON ERROR ',
 		].freeze
+
+		SE_NEW_KEYWORDS_END = SE_NEW_KEYWORDS.length
+
+		SE_ALIASES = {
+			' CALL ' => 'COPY',
+			' PEN '  => 'INK',
+			' DIR '  => 'CAT',
+		}
 
 		NON_ASCII_ESCAPE_TOKENS = {
 			'<'    => 0x08, # ←
@@ -1043,12 +1131,44 @@ module ZXLib
 			PRINTABLE_CHARS.map.with_index {|a,i| [a, i + 0x20]}
 		]
 
+		SE_KEYWORDS = KEYWORDS.dup + SE_NEW_KEYWORDS
+		SE_NEW_KEYWORDS.each_with_index {|new_key, index| KEYWORD_CODES[new_key.strip] = index }
+		SE_ALIASES.each_pair do |new_key, old_key|
+			code = KEYWORD_CODES[old_key]
+			raise SyntaxError if code.nil?
+			KEYWORD_CODES[new_key.strip] = code
+			SE_KEYWORDS[code - KEYWORD_START_CODE] = new_key
+		end
+
+		class << KEYWORDS # :nodoc:
+			def keyword_from_code(code)
+				self[code - KEYWORD_START_CODE] if code >= KEYWORD_START_CODE
+			end
+		end
+
+		class << SE_KEYWORDS # :nodoc:
+			def keyword_from_code(code)
+				if code >= KEYWORD_START_CODE
+					self[code - KEYWORD_START_CODE]
+				elsif code < SE_NEW_KEYWORDS_END
+					self[code - SE_NEW_KEYWORDS_END]
+				end
+			end
+		end
+
+		KEYWORDS.freeze
+		SE_KEYWORDS.freeze
+
 		class Tokenizer
 			module Patterns
 				SPACES_OR_LINE_NO = /\A\s*(?:(\d+)\s?)?/
 				SPACE_OR_CONTROL = /[\x00-\x20]/
 				SPACE_LIKE = /\A[\x00-\x20]/
-				NUMBER_MATCH = /\A(?:\d*\.(?:[\x00-\x20]*\d)+(?:[\x00-\x20]*e[\x00-\x20]*[-+]?[\x00-\x20]*\d+)?|(?:\d+e[\x00-\x20]*[-+]?[\x00-\x20]*\d+)|\d+)/i
+				SE_HEX_NUMBER_MATCH = /&(?:[\x00-\x20]*[0-9a-fA-F])*/
+				SE_OCT_NUMBER_MATCH = /\\(?:[\x00-\x20]*[0-7])*/
+				FLOAT_NUMBER_MATCH = /\d*\.(?:[\x00-\x20]*\d)+(?:[\x00-\x20]*e[\x00-\x20]*[-+]?[\x00-\x20]*\d+)?/i
+				INTEXP_NUMBER_MATCH = /\d+e[\x00-\x20]*[-+]?[\x00-\x20]*\d+/i
+				NUMBER_MATCH = /\A(?:#{FLOAT_NUMBER_MATCH}|#{INTEXP_NUMBER_MATCH}|\d+|#{SE_HEX_NUMBER_MATCH}|#{SE_OCT_NUMBER_MATCH})/i
 				NUMBER_EXACT_MATCH = /#{NUMBER_MATCH}\z/
 				BINARY_EXPR_MATCH = /\ABIN(?:[\x00-\x20]*[01])*/
 				BINARY_EXPR_MATCH_EXTRACT = /\ABIN((?:[\x00-\x20]*[01])*)\z/
@@ -1056,27 +1176,32 @@ module ZXLib
 				VARNAME_MATCH_EXACT = /\A[[:alpha:]][[:alnum:]]*\z/
 				VARSTRNAME_MATCH_EXACT = /\A[[:alpha:]]\$\z/
 				ALPHA_MATCH_EXACT = /\A[[:alpha:]]\z/
-				KEYWORDS_MATCH = Regexp.union(Basic::KEYWORDS.sort { |x,y| y.length <=> x.length }.map { |stmnt|
-					if stmnt.start_with? ' '
-						if stmnt.end_with? ' '
-							/\A\s?#{Regexp.quote stmnt.strip}\b\s?/
-						else
-							/\A\s?#{Regexp.quote stmnt.lstrip}/
-						end
-					else
-						if stmnt.end_with? ' '
-							stmnt = stmnt.rstrip
-							if stmnt.end_with? '$'
-								/\A#{Regexp.quote stmnt}\B\s?/
+				ALL_KEYWORDS = Basic::KEYWORDS + Basic::SE_NEW_KEYWORDS + Basic::SE_ALIASES.keys
+				KEYWORDS_MATCH = Regexp.union(
+					ALL_KEYWORDS
+					.sort { |x,y| y.length <=> x.length }
+					.map do |stmnt|
+						if stmnt.start_with? ' '
+							if stmnt.end_with? ' '
+								/\A\s?#{Regexp.quote stmnt.strip}\b\s?/
 							else
-								/\A#{Regexp.quote stmnt}\b\s?/
+								/\A\s?#{Regexp.quote stmnt.lstrip}/
 							end
 						else
-							/\A#{Regexp.quote stmnt}/
-						end					
+							if stmnt.end_with? ' '
+								stmnt = stmnt.rstrip
+								if stmnt.end_with? '$'
+									/\A#{Regexp.quote stmnt}\B\s?/
+								else
+									/\A#{Regexp.quote stmnt}\b\s?/
+								end
+							else
+								/\A#{Regexp.quote stmnt}/
+							end					
+						end
 					end
-				})
-				KEYWORDS_MATCH_EXACT = /\A#{Regexp.union(Basic::KEYWORDS.map(&:strip).sort { |x,y| y.length <=> x.length })}\z/
+				)
+				KEYWORDS_MATCH_EXACT = /\A#{Regexp.union(ALL_KEYWORDS.map(&:strip).sort { |x,y| y.length <=> x.length })}\z/
 				NON_ASCII_ESCAPE_TOKEN_MATCH = Regexp.union(NON_ASCII_ESCAPE_TOKENS.keys)
 				ESCAPE_TOKEN_MATCH = /\A\s*(0x[0-9a-fA-F]+|0b[01]+|0[0-7]+|0|[1-9]\d*|#{NON_ASCII_ESCAPE_TOKEN_MATCH})\s*,?/
 				COLOR_CTRL_MATCH_EXACT = /\A(#{Regexp.union(Basic::COLOR_CTRL)})\s*(\d+)\z/
@@ -1207,8 +1332,8 @@ module ZXLib
 			#    => "foo\"\"`AT 5,2`©"
 			#    Basic::Vars.string_to_program_text("foo\"\x16\x05\x02\x7F", ascii_only: true)
 			#    => "foo\"\"`AT 5,2``(c)`"
-			def Vars.string_to_program_text(data, ascii_only:false)
-				Tokenizer.program_data_to_text(data, true, true, ascii_only)
+			def Vars.string_to_program_text(data, ascii_only:false, se:false)
+				Tokenizer.program_data_to_text(data, true, true, ascii_only, se)
 			end
 			##
 			#  Converts a UTF-8 text string to a binary string encoded in a form suitable for ZX-Spectrum's
