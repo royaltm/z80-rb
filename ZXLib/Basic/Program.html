@@ -202,7 +202,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 46</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 48</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">lines</span>, <span class="ruby-identifier">vars</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-identifier">start</span> = <span class="ruby-keyword">nil</span>)
         <span class="ruby-ivar">@lines</span> = <span class="ruby-identifier">lines</span>
         <span class="ruby-ivar">@vars</span> = <span class="ruby-constant">Vars</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">vars</span>)
@@ -245,7 +245,7 @@
 
           
           <div class="method-source-code" id="5B-5D-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 186</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 211</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">index</span>)
         <span class="ruby-identifier">lines</span>[<span class="ruby-identifier">index</span>]
 <span class="ruby-keyword">end</span></pre>
@@ -278,7 +278,7 @@
 
           
           <div class="method-source-code" id="code-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 191</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 216</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">code</span>
         <span class="ruby-identifier">res</span> = <span class="ruby-string">&#39;&#39;</span>
         <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
@@ -316,7 +316,7 @@
 
           
           <div class="method-source-code" id="line_index-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 164</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 189</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">line_index</span>(<span class="ruby-identifier">line_no</span>)
         <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">index</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">line_no</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-identifier">line_no</span>}
 <span class="ruby-keyword">end</span></pre>
@@ -351,7 +351,7 @@
 
           
           <div class="method-source-code" id="list-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 173</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 198</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">list</span>(<span class="ruby-identifier">line_no</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">line_no</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">index</span> = <span class="ruby-identifier">line_index</span>(<span class="ruby-identifier">line_no</span>)
@@ -377,7 +377,7 @@
         
         <div class="method-heading">
           <span class="method-name">to_s</span><span
-            class="method-args">(escape_keywords:false, ascii_only:false)</span>
+            class="method-args">(escape_keywords:false, ascii_only:false, se:false)</span>
           
         </div>
         
@@ -405,7 +405,7 @@
         
         <div class="method-heading">
           <span class="method-name">to_source</span><span
-            class="method-args">(escape_keywords:false, ascii_only:false)</span>
+            class="method-args">(escape_keywords:false, ascii_only:false, se:false)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -428,11 +428,11 @@
 </li><li>
 <p>A comma control character (code 6) is encoded as \t (TABULATION U+0009) character.</p>
 </li><li>
-<p>Control characters 8..11 are encoded as Unicode ARROWS (see table below).</p>
+<p>Control characters 8..11 are encoded as Unicode ARROWS (see below).</p>
 </li><li>
 <p>The remaining control characters in the code range 0..31 are encoded using escape sequences.</p>
 </li><li>
-<p>The block characters in the code range 128..143 are converted to Unicode BLOCK elements (see table below).</p>
+<p>The block characters in the code range 128..143 are converted to Unicode BLOCK elements (see below).</p>
 </li><li>
 <p>The characters in the UDG code range 144..164 are converted to CIRCLED LATIN CAPITAL LETTERs.</p>
 </li><li>
@@ -446,9 +446,9 @@
 <pre class="ruby"><span class="ruby-constant">PRINT</span> <span class="ruby-constant">RND</span>
 </pre>
 
-<p>The <code>RND</code> keyword in this case may be a variable name consisting of 3 capital letters R N D or a <code>RND</code> function. The ZX <a href="../Basic.html"><code>Basic</code></a> knows the difference because the keyword <code>RND</code> is encoded as a single code point: 165. However when presented as text you can&#39;t really tell the difference. This may lead to errors when trying to parse such a text back to the ZX Spectrum&#39;s binary program format.</p>
+<p>The <code>RND</code> keyword in this case may be a variable name consisting of 3 capital letters R N D or a <code>RND</code> function. The ZX BASIC knows the difference because the keyword <code>RND</code> is encoded as a single code point: 165. However when presented as text you can&#39;t really tell the difference. This may lead to errors when trying to parse such a text back to the ZX Spectrum&#39;s binary program format.</p>
 
-<p>To desambiguate keywords from regular characters in strings they are being encoded as escape sequences, e.g. `GO SUB`, `RND`, `OPEN #`. Pass <code>true</code> to <code>:escape_keywords</code> option to enforce keywords to be always escaped.</p>
+<p>To disambiguate keywords from regular characters in strings they are being encoded as escape sequences, e.g. `GO SUB`, `RND`, `OPEN #`. Pass <code>true</code> to the <code>:escape_keywords</code> option to enforce keywords to be always escaped.</p>
 
 <p>Escape sequences are using GRAVE ACCENT ` (U+0060, also known as a backtick) as enclosing character because it&#39;s absent in the ZX Spectrum&#39;s character set.</p>
 
@@ -520,15 +520,39 @@
 <pre>Unicode:    &quot;£©░█ⒶⒷⒸⓊ←→↑↓&quot;
 Ascii only: &quot;`&amp;(c)|8#8abcu&lt;&gt;^v`&quot;</pre>
 
-<p>Passing <code>:ascii_only</code> as <code>true</code> will render escape sequences instead of non-ascii characters.</p>
+<p>Passing <code>true</code> to the <code>:ascii_only</code> option will render escape sequences instead of non-ascii characters.</p>
+
+<h4 id="method-i-to_source-label-SE+BASIC+support">SE BASIC support<span><a href="#method-i-to_source-label-SE+BASIC+support">&para;</a> <a href="#top">&uarr;</a></span></h4>
+
+<p>Passing <code>true</code> to the <code>:se</code> option will render <a href="https://faqwiki.zxnet.co.uk/wiki/OpenSE">SE BASIC</a> tokens.</p>
+
+<p>In this instance the new SE BASIC keywords will be recognized:</p>
+
+<pre class="ruby"><span class="ruby-constant">DELETE</span>
+<span class="ruby-constant">EDIT</span>
+<span class="ruby-constant">RENUM</span>
+<span class="ruby-constant">PALETTE</span>
+<span class="ruby-constant">SOUND</span>
+<span class="ruby-constant">ON</span> <span class="ruby-constant">ERROR</span>
+</pre>
+
+<p>and the following keywords will be output instead:</p>
+
+<pre>ZX Spectrum Basic | SE BASIC
+------------------+---------
+             COPY | CALL
+             INK  | PEN
+             CAT  | DIR</pre>
           
           
 
           
           <div class="method-source-code" id="to_source-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 158</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_source</span>(<span class="ruby-value">escape_keywords:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ascii_only:</span><span class="ruby-keyword">false</span>)
-        <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span> <span class="ruby-identifier">line</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-value">escape_keywords:</span> <span class="ruby-identifier">escape_keywords</span>, <span class="ruby-value">ascii_only:</span> <span class="ruby-identifier">ascii_only</span> }.<span class="ruby-identifier">join</span>(<span class="ruby-string">&quot;\n&quot;</span>)
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 181</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_source</span>(<span class="ruby-value">escape_keywords:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ascii_only:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">se:</span><span class="ruby-keyword">false</span>)
+        <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">line</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-value">escape_keywords:</span> <span class="ruby-identifier">escape_keywords</span>, <span class="ruby-value">ascii_only:</span> <span class="ruby-identifier">ascii_only</span>, <span class="ruby-value">se:</span> <span class="ruby-identifier">se</span>
+        }.<span class="ruby-identifier">join</span>(<span class="ruby-string">&quot;\n&quot;</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -565,7 +589,7 @@ Ascii only: &quot;`&amp;(c)|8#8abcu&lt;&gt;^v`&quot;</pre>
 
           
           <div class="method-source-code" id="to_tap_chunk-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 203</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 228</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-value">line:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-identifier">prog_length</span> = <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>
         <span class="ruby-identifier">line</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">start</span>

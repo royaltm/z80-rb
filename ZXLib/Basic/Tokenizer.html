@@ -175,7 +175,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 635</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 702</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">text</span>, <span class="ruby-identifier">line_index</span>=<span class="ruby-value">0</span>, <span class="ruby-identifier">line_offset</span>=<span class="ruby-value">0</span>)
         <span class="ruby-ivar">@source</span> = <span class="ruby-identifier">text</span>
         <span class="ruby-ivar">@index</span> = <span class="ruby-identifier">line_offset</span>.<span class="ruby-identifier">to_i</span>
@@ -219,7 +219,7 @@
 
           
           <div class="method-source-code" id="next_token-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 656</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 723</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">next_token</span>
         <span class="ruby-identifier">token</span> = <span class="ruby-identifier">peek_token</span>
         <span class="ruby-keyword">unless</span> <span class="ruby-identifier">token</span>.<span class="ruby-identifier">terminator?</span>
@@ -256,7 +256,7 @@
 
           
           <div class="method-source-code" id="parse_each-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 644</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 711</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_each</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         <span class="ruby-identifier">enu</span> = <span class="ruby-operator">::</span><span class="ruby-constant">Enumerator</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">y</span><span class="ruby-operator">|</span>
                 <span class="ruby-keyword">while</span> <span class="ruby-identifier">token</span> = <span class="ruby-identifier">next_token</span>
@@ -298,7 +298,7 @@
 
           
           <div class="method-source-code" id="peek_token-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 663</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 730</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">peek_token</span>
         <span class="ruby-keyword">if</span> <span class="ruby-ivar">@token</span>.<span class="ruby-identifier">nil?</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-ivar">@source</span>.<span class="ruby-identifier">empty?</span>
@@ -330,6 +330,7 @@
                                 <span class="ruby-ivar">@token</span> = <span class="ruby-constant">Token</span>.<span class="ruby-identifier">new</span> <span class="ruby-ivar">@index</span>, <span class="ruby-identifier">m</span>.<span class="ruby-identifier">to_s</span>, [<span class="ruby-identifier">code</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;C&#39;</span>), <span class="ruby-identifier">code</span>
                         <span class="ruby-keyword">else</span>
                                 <span class="ruby-identifier">chars</span> = <span class="ruby-string">&#39;&#39;</span>
+                                <span class="ruby-identifier">code</span> = <span class="ruby-keyword">nil</span>
                                 <span class="ruby-keyword">while</span> <span class="ruby-identifier">m</span> = <span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">ESCAPE_TOKEN_MATCH</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">escexpr</span>)
                                         <span class="ruby-identifier">tok</span> = <span class="ruby-identifier">m</span>[<span class="ruby-value">1</span>]
                                         <span class="ruby-keyword">unless</span> <span class="ruby-identifier">code</span> = <span class="ruby-constant">NON_ASCII_ESCAPE_TOKENS</span>[<span class="ruby-identifier">tok</span>]
@@ -344,7 +345,10 @@
                                 <span class="ruby-keyword">unless</span> <span class="ruby-identifier">escexpr</span>.<span class="ruby-identifier">empty?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">chars</span>.<span class="ruby-identifier">empty?</span>
                                         <span class="ruby-identifier">raise</span> <span class="ruby-constant">SyntaxError</span>, <span class="ruby-node">&quot;unknown escape expression: #{escstr} in line: #{@line_index} at: #{@index}&quot;</span>
                                 <span class="ruby-keyword">end</span>
-                                <span class="ruby-ivar">@token</span> = <span class="ruby-constant">Token</span>.<span class="ruby-identifier">new</span> <span class="ruby-ivar">@index</span>, <span class="ruby-identifier">chars</span>, <span class="ruby-identifier">chars</span>, <span class="ruby-identifier">chars</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">code</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-constant">KEYWORD_START_CODE</span> <span class="ruby-operator">?</span> <span class="ruby-identifier">code</span> <span class="ruby-operator">:</span> <span class="ruby-keyword">nil</span>
+                                <span class="ruby-identifier">keyword_code</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">chars</span>.<span class="ruby-identifier">bytesize</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-identifier">code</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-constant">KEYWORD_START_CODE</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">code</span> <span class="ruby-operator">&lt;</span> <span class="ruby-constant">SE_NEW_KEYWORDS_END</span>)
+                                        <span class="ruby-identifier">code</span>
+                                <span class="ruby-keyword">end</span>
+                                <span class="ruby-ivar">@token</span> = <span class="ruby-constant">Token</span>.<span class="ruby-identifier">new</span> <span class="ruby-ivar">@index</span>, <span class="ruby-identifier">chars</span>, <span class="ruby-identifier">chars</span>, <span class="ruby-identifier">keyword_code</span>
                         <span class="ruby-keyword">end</span>
                         <span class="ruby-ivar">@index</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">offset</span>
                 <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">m</span> = <span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">BINARY_EXPR_MATCH</span>.<span class="ruby-identifier">match</span>(<span class="ruby-ivar">@source</span>)
@@ -402,7 +406,7 @@
 
           
           <div class="method-source-code" id="terminated-3F-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 641</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 708</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">terminated?</span>
         <span class="ruby-identifier">peek_token</span>.<span class="ruby-identifier">terminator?</span>
 <span class="ruby-keyword">end</span></pre>

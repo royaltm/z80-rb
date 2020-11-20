@@ -93,6 +93,8 @@
     
 <p>A module with ZX Spectrum&#39;s BASIC program utilities.</p>
 
+<p><a href="https://faqwiki.zxnet.co.uk/wiki/OpenSE">SE BASIC</a> extensions are supported.</p>
+
 <p>See: <a href="Basic/Program.html"><code>ZXLib::Basic::Program</code></a>, <a href="Basic/Vars.html"><code>ZXLib::Basic::Vars</code></a>, <a href="Basic/Variable.html"><code>ZXLib::Basic::Variable</code></a></p>
 
 <p>Example:</p>
@@ -204,6 +206,26 @@
         <dd>
         
       
+        <dt id="SE_ALIASES">SE_ALIASES
+        
+        <dd>
+        
+      
+        <dt id="SE_KEYWORDS">SE_KEYWORDS
+        
+        <dd>
+        
+      
+        <dt id="SE_NEW_KEYWORDS">SE_NEW_KEYWORDS
+        
+        <dd>
+        
+      
+        <dt id="SE_NEW_KEYWORDS_END">SE_NEW_KEYWORDS_END
+        
+        <dd>
+        
+      
         <dt id="STATEMENTS_AS_EXPRESSIONS_CODES">STATEMENTS_AS_EXPRESSIONS_CODES
         
         <dd>
@@ -252,7 +274,7 @@
 
           
           <div class="method-source-code" id="from_program_data-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 407</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 456</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">from_program_data</span>(<span class="ruby-identifier">data</span>, <span class="ruby-identifier">prog_length</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">start:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">prog_length</span>.<span class="ruby-identifier">nil?</span>
                 <span class="ruby-identifier">prog_length</span> = <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span>
@@ -299,7 +321,7 @@
 
           
           <div class="method-source-code" id="from_tap_chunk-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 427</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 476</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">from_tap_chunk</span>(<span class="ruby-identifier">chunk</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">program?</span>
                 <span class="ruby-identifier">from_program_data</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">body</span>.<span class="ruby-identifier">data</span>, <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">header</span>.<span class="ruby-identifier">p2</span>, <span class="ruby-value">start:</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">header</span>.<span class="ruby-identifier">p1</span>
@@ -345,13 +367,9 @@
 
 <p>This method doesn&#39;t interpret the BASIC program. A lot of nonsense will be accepted. However the program text is interpreted using a <a href="Basic/Tokenizer.html"><code>Basic::Tokenizer</code></a> and some simple heuristics, mainly to ensure a proper syntax of strings, numbers and some specific expressions:</p>
 <ul><li>
-<p>All numbers outside of string literals are followed by a character code 14 and 5 bytes of their internal representation in the FP format (see <a href="Math.html"><code>ZXLib::Math</code></a>).</p>
-</li><li>
-<p>After every argument of a DEF FN header list a character code 14 and 5 placeholder bytes are being added.</p>
+<p>All numbers outside of string literals are followed by a character code 14 and 5 bytes of their internal representation in the FP format (see <a href="Math.html"><code>ZXLib::Math</code></a>). This also applies to SE BASIC hexadecimal and octal literals.</p>
 </li><li>
 <p>Literal strings are being tracked, ensuring they are properly closed.</p>
-</li><li>
-<p>Argument after the <code>BIN</code> keyword will be interpreted as a binary number.</p>
 </li><li>
 <p>Opened and closed parentheses are counted ensuring they are properly balanced.</p>
 </li><li>
@@ -359,9 +377,17 @@
 </li><li>
 <p>Inside parentheses the colon character or a <code>THEN</code> keyword is forbidden.</p>
 </li><li>
-<p>If a statement keyword is not expected only the keywords that may be used in expression context are converted to ZX <a href="Basic.html"><code>Basic</code></a> keywords.</p>
+<p>If a statement keyword is not expected only the keywords that may be used in expression context are converted to ZX BASIC keywords.</p>
+</li><li>
+<p>After every argument of a DEF FN header list a character code 14 and 5 placeholder bytes are being added.</p>
+</li><li>
+<p>Argument after the <code>BIN</code> keyword will be interpreted as a binary number.</p>
 </li><li>
 <p>After the <code>REM</code> statement most of the rules are being relaxed until the end of the line.</p>
+</li><li>
+<p>A literal <code>7</code> or <code>8</code> after the SE BASIC&#39;s <code>DIR</code> keyword will be interpreted as a single character argument and not a number.</p>
+</li><li>
+<p>In addition to all ZX Spectrum BASIC keywords, the SE BASIC keywords will be also recognized and parsed accordingly. See <a href="Basic/Program.html#method-i-to_source"><code>Basic::Program#to_source</code></a> for the list of those keywords.</p>
 </li></ul>
 
 <p>Additionally <code>:start</code> argument may be provided to indicate a starting line of a program. This information will be used when saving program as a TAP file.</p>
@@ -370,7 +396,7 @@
 
           
           <div class="method-source-code" id="parse_source-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 479</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 533</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_source</span>(<span class="ruby-identifier">source</span>, <span class="ruby-value">start:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-keyword">unless</span> <span class="ruby-identifier">source</span>.<span class="ruby-identifier">force_encoding</span>(<span class="ruby-constant">Encoding</span><span class="ruby-operator">::</span><span class="ruby-constant">UTF_8</span>).<span class="ruby-identifier">valid_encoding?</span>
                 <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;invalid program source encoding, expecting: UTF-8&quot;</span>
@@ -416,7 +442,7 @@
 
           
           <div class="method-source-code" id="read_source-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 497</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 551</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_source</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-identifier">parse_source</span> <span class="ruby-constant">IO</span>.<span class="ruby-identifier">read</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">encoding:</span> <span class="ruby-constant">Encoding</span><span class="ruby-operator">::</span><span class="ruby-constant">UTF_8</span>), <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>
 <span class="ruby-keyword">end</span></pre>
@@ -451,7 +477,7 @@
 
           
           <div class="method-source-code" id="read_tap-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 441</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 490</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_tap</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>.<span class="ruby-identifier">read_chunk</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">chunk</span><span class="ruby-operator">|</span> <span class="ruby-identifier">from_tap_chunk</span>(<span class="ruby-identifier">chunk</span>) }
 <span class="ruby-keyword">end</span></pre>
