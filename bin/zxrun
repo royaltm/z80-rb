@@ -1,27 +1,33 @@
 #!/usr/bin/env ruby
 # -*- coding: BINARY -*-
-ZXRUN_VERSION = '0.1'
+ZXRUN_VERSION = '0.2'
 HELP = <<_EOH_
 ZXRUN #{ZXRUN_VERSION}: Run ZX Spectrum programs in an emulator.
 Usage:
-#{File.basename($0)} [sources] program
+#{File.basename($0)} [sources] program [-- emulator args, ...]
 
   sources: should be one or more paths to z80rb sources that are being compiled
            prior to loading ZX Spectrum emulator
            (the .rb extension is optional),
   program: a path to a TAP/TZX file to be run in an emulator
            (the .tap/.tzx extension is optional)
+
+  Environment: ZXEMU_PATH=/path/to/emulator
 _EOH_
 
 require 'rbconfig'
 
 RUBY = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name']).sub(/.*\s.*/m, '"\&"')
 
-*sources, program = ARGV
+args_start = lambda { |arg| arg != '--' }
+
+*sources, program = ARGV.take_while(&args_start)
 
 if program.nil?
   puts HELP; exit
 end
+
+_, *emu_args = ARGV.drop_while(&args_start)
 
 def normalize_file(filepath, extension, exit_on_missing = true)
   dir, base = File.dirname(filepath), File.basename(filepath, extension)
@@ -52,4 +58,4 @@ end
 
 require 'zxutils/emu'
 
-ZXUtils::Emu.run tapfile
+ZXUtils::Emu.run tapfile, *emu_args

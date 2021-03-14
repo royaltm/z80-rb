@@ -53,16 +53,20 @@ module ZXUtils
     ##
     # Runs a ZX Spectrum emulator program with the given +file+ as its argument.
     #
+    # Provides additional +args+ to the emulator program before the +file+ argument.
+    #
     # _NOTE_:: Replaces the ruby process with the one of an emulator.
-    def Emu.run(file)
-      Kernel.exec Emu.get_emulator_path, File.expand_path(file)
+    def Emu.run(file, *args)
+      Kernel.exec Emu.get_emulator_path, *args, File.expand_path(file)
     end
     ##
     # Spawns a ZX Spectrum emulator program with the given +file+ as its argument.
     #
+    # Provides additional +args+ to the emulator program before the +file+ argument.
+    #
     # _NOTE_:: Ruby process is being detached from the spawned emulator process.
-    def Emu.spawn(file)
-      Process.detach Kernel.spawn Emu.get_emulator_path, File.expand_path(file)
+    def Emu.spawn(file, *args)
+      Process.detach Kernel.spawn(Emu.get_emulator_path, *args, File.expand_path(file))
     end
   end
 end
