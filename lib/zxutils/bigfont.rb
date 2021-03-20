@@ -205,18 +205,18 @@ module ZXUtils
       #               Provide +nil+ if you don't care.
       # * +assume_chars_aligned+:: +true+ if every byte of a character resides on the same 256 byte size address page.
       #                            This is true for e.g. an 8 pixels height character addressed at the multiple of 8.
-      # * +hires+:: indicates rendering on SCLD or ULAplus hi-res screen.
+      # * +hires+:: option for rendering on SCLD or ULAplus hi-res screen.
       #
-      # +hires+ options:
+      # +hires+ option:
       #
-      # * +:odd+: the left character is always on the odd column (on screen 0).
-      #           In this instance the +hl'+ register should address the screen 0.
-      #           Adds at least 8 T-states to each character line.
-      # * +:even+: the left character is always on the even column (on screen 1).
-      #           In this instance the +hl'+ register should address the screen 1.
-      #           Adds at least 16 T-states to each character line.
-      # * +:any+ or +true+: rendering character on any of the 64 columns (slow).
-      #                     Adds at least 59 T-states to each character line.
+      # * +:odd+: the left column of a character is always on an odd screen column (on screen 0).
+      #   In this instance the +hl'+ register should address the screen 0.
+      #   Adds at least 8 T-states to each character line.
+      # * +:even+: the left column of a character is always on an even screen column (on screen 1).
+      #   In this instance the +hl'+ register should address the screen 1.
+      #   Adds at least 16 T-states to each character line.
+      # * +:any+ or +true+: renders a character on any of the 64 columns (slow).
+      #   Adds at least 59 T-states to each character line.
       #
       # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+
       def enlarge_char8_16(compact:true, over:false, scraddr:0x4000, assume_chars_aligned:true, hires:nil)

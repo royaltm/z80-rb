@@ -1171,7 +1171,7 @@ module ZXLib
             end
 
             ##
-            # Moves basic program and variables above the screen 1 (to 0x7B00).
+            # Moves Basic program and variables above the screen 1 (to 0x7B00).
             #
             # * +check_ensure+:: when +true+ checks if a call to MAKE-ROOM is needed.
             #
