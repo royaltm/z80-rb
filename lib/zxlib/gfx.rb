@@ -320,22 +320,26 @@ module ZXLib
       ##
       # Creates a routine that converts a vertical pixel coordinate to a screen byte address.
       #
-      # Modifies: +af+, +ah+, +al+, +t+.
+      # Modifies: +af+, +ah+, +al+, +t+. +col+ only in +hires+ mode.
       #
       # * +y+:: An 8-bit input register holding a vertical pixel coordinate. It must not be the same as +t+.
       #
       # Options:
       # * +ah+:: A register holding a high byte of a resulting address.
       # * +al+:: A register holding a low byte of a resulting address.
-      # * +col+:: An optional column number [0-31] as a unique 8-bit register or an integer or a label.
+      # * +col+:: An optional column number [0-31] ([0-63] in +hires+ mode) as a unique 8-bit register or
+      #           an integer or a label.
       # * +t+:: An 8-bit register for temporary operations.
       # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      # * +hires+:: Enable SCLD or ULAplus hi-res mode. If enabled, +col+ is interpreted as hi-res
+      #             screen column and only 2 highest bits of +scraddr+ is being used to establish
+      #             the primary screen memory address.
       #
-      # T-states: 73/81/87 if +col+ is: +nil+/+register+/+number+.
+      # T-states: 73/81/97/87 if +col+ is: +nil+/+register+/+register+ and +hires+/+number+.
       #
       # y < a1 a2 h3 h2 h1 l3 l2 l1,
       # h > S  S  S  a1 a2 l3 l2 l1,  l > h3 h2 h1 0  0  0  0  0
-      def ytoscr(y, ah:h, al:l, col:nil, t:c, scraddr:0x4000)
+      def ytoscr(y, ah:h, al:l, col:nil, t:c, scraddr:0x4000, hires:false)
           if [ah,al,t].include?(a) or [ah,al,t].uniq.size != 3 or t == y or
                   ![y, ah, al, t].all?{|r| register?(r) } or
                   (register?(col) and [y, ah, al, t, a].include?(col)) or
@@ -343,6 +347,8 @@ module ZXLib
                   !((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
               raise ArgumentError, "ytoscr: invalid arguments!"
           end
+          scraddrhi = (scraddr>>8)
+          scraddrhi = (scraddrhi & 0xC0) if hires
           isolate do
               if y == a
                       ld   al, a
@@ -356,20 +362,30 @@ module ZXLib
               else
                       xor  y
               end                       # a= H H h h h 0 0 0
-                      rlca              # a= H h h h 0 0 0 H
-                      rlca              # a= h h h 0 0 0 H H
-                      ld   ah, a        # h= h h h 0 0 0 H H
+              if hires
+                if register?(col)       # col= 0 0 c c c c c p
+                      srl  col          # col= 0 0 0 c c c c c CF=page
+                      rra               # a= p H H h h h 0 0
+                      rlca              # a= H H h h h 0 0 p
+                elsif col
+                      scraddrhi = scraddrhi | ((col & 1) << 5)
+                      col = (col >> 1)
+                end
+              end
+                      rlca              # a= H h h h 0 0 p H
+                      rlca              # a= h h h 0 0 p H H
+                      ld   ah, a        # h= h h h 0 0 p H H
                       anda 0b11100000   # a= h h h 0 0 0 0 0
                       add  col if col
                       ld   al, a        # l= h h h c c c c c
                       sub  col if col   # a= h h h 0 0 0 0 0
-                      xor  ah           # a= 0 0 0 0 0 0 H H
+                      xor  ah           # a= 0 0 0 0 0 p H H
                       3.times { rlca }
-                      ora  t            # a= 0 0 0 H H l l l
+                      ora  t            # a= 0 0 p H H l l l
               unless scraddr == 0
-                      ora  (scraddr>>8) # a= S S S H H l l l
+                      ora  scraddrhi    # a= S S p H H l l l
               end
-                      ld   ah, a        # h= S S S H H l l l
+                      ld   ah, a        # h= S S p H H l l l
           end
       end
       ##
