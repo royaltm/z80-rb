@@ -114,6 +114,8 @@ module ZXLib
       #              +hl+|+ix+|+iy+ = jump to an address in a register if out of screen.
       # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label,
       #               used only for an out of screen check.
+      # * +hires+:: if +true+ the out of screen check will be valid on any of the hi-res screen pages,
+      #             in this instance only 2 highest bits of +scraddr+ is important.
       #
       # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
       # The code in the given block should not fall through and should end with a jump or a +ret+.
@@ -122,7 +124,7 @@ module ZXLib
       #
       # * when +bcheck+ is +false+:: 27:87.5% / 49:1.56% / 59:10.94%
       # * when +bcheck+ is +true+ or +label+::  27:87.5% / (70:2 / 75:1):1.56% / 62:10.94%
-      def nextline(ah, al, bcheck = true, scraddr:0x4000, **nsopts, &block)
+      def nextline(ah, al, bcheck = true, scraddr:0x4000, hires:false, **nsopts, &block)
           if ah == al or [ah, al].include?(a) or
                   (register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
                   (bcheck == hl and ([h, l].include?(ah) or [h, l].include?(al))) or
@@ -141,9 +143,12 @@ module ZXLib
                       add  0x20
                       ld   al, a
               if bcheck
+                  scrhiaddr = (scraddr >> 8)
+                  scrhiaddr = (scrhiaddr|0x20) if hires
                       ld   a, ah
                       jp   NC, restrh
-                      cp   (scraddr >> 8)|0x18
+                      ora  0x20 if hires
+                      cp   (scrhiaddr|0x18)
                       jr   C, eoc
                   case bcheck
                   when true
@@ -178,6 +183,8 @@ module ZXLib
       #              +hl+|+ix+|+iy+ = jump to an address in a register if out of screen.
       # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label,
       #               used only for an out of screen check.
+      # * +hires+:: if +true+ the out of screen check will be valid on any of the hi-res screen pages,
+      #             in this instance only 2 highest bits of +scraddr+ is important.
       #
       # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
       # The code in the given block should not fall through and should end with a jump or a +ret+.
@@ -186,7 +193,7 @@ module ZXLib
       #
       # * when +bcheck+ is +false+:: 27:87.5% / 49:1.56% / 59:10.94%
       # * when +bcheck+ is +true+ or +label+::  27:87.5% / (70:2 / 75:1):1.56% / 62:10.94%
-      def prevline(ah, al, bcheck = true, scraddr:0x4000, **nsopts, &block)
+      def prevline(ah, al, bcheck = true, scraddr:0x4000, hires:false, **nsopts, &block)
           if ah == al or [ah, al].include?(a) or
                   (register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
                   (bcheck == hl and ([h, l].include?(ah) or [h, l].include?(al))) or
@@ -205,9 +212,12 @@ module ZXLib
                       sub  0x20
                       ld   al, a
               if bcheck
+                  scrhiaddr = (scraddr >> 8)
+                  scrhiaddr = (scrhiaddr|0x20) if hires
                       ld   a, ah
                       jp   NC, restrh
-                      cp   (scraddr >> 8)
+                      ora  0x20 if hires
+                      cp   scrhiaddr
                       jr   NC, eoc
                   case bcheck
                   when true
