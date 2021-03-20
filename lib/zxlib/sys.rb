@@ -460,6 +460,7 @@ module ZXLib
             attrs0       addr 0x5800
             screen1      addr 0x6000
             attrs1       addr 0x7800
+            rambot       addr 0x7B00
         end
 
         ##
@@ -1166,6 +1167,27 @@ module ZXLib
                           ld   [sys128.mmu_value],a
                           ei   if enable_intr # directly after an EI, interrupts aren't accepted.
                           out  (c), a
+                end
+            end
+
+            ##
+            # Moves basic program and variables above the screen 1 (to 0x7B00).
+            #
+            # * +check_ensure+:: when +true+ checks if a call to MAKE-ROOM is needed.
+            #
+            # Modifies: +af+, +bc+, +de+, +hl+.
+            def move_basic_above_scld_screen_memory(check_ensure:false)
+                isolate use: [:memT2k, :vars, :rom] do |eoc|
+                        ld   hl, memT2k.rambot
+                        ld   de, [vars.prog]
+                        dec  de
+                        cp   a
+                        sbc  hl, de
+                        jr   C, eoc if check_ensure
+                        jr   Z, eoc if check_ensure
+                        ld16 bc, hl
+                        ex   de, hl
+                        call rom.make_room
                 end
             end
         end
