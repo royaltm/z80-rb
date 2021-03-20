@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 
-<title>class ZXUtils::BigFont - ruby-Z80</title>
+<title>class ZXUtils::BigFontHires - ruby-Z80</title>
 
 <script type="text/javascript">
   var rdoc_rel_prefix = "../";
@@ -79,25 +79,14 @@
   </ul>
 </div>
 
-    <div id="extends-section" class="nav-section">
-  <h3>Extended With Modules</h3>
-
-  <ul class="link-list">
     
-  
-    <li><a class="extend" href="BigFont/Macros.html">ZXUtils::BigFont::Macros</a>
-  
-  
-  </ul>
-</div>
-
     <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
     
-    <li ><a href="#method-i-print_char">#print_char</a>
+    <li ><a href="#method-i-print_char_hires">#print_char_hires</a>
     
   </ul>
 </div>
@@ -105,38 +94,13 @@
   </div>
 </nav>
 
-<main role="main" aria-labelledby="class-ZXUtils::BigFont">
-  <h1 id="class-ZXUtils::BigFont" class="class">
-    class ZXUtils::BigFont
+<main role="main" aria-labelledby="class-ZXUtils::BigFontHires">
+  <h1 id="class-ZXUtils::BigFontHires" class="class">
+    class ZXUtils::BigFontHires
   </h1>
 
   <section class="description">
     
-<p><a href="../Z80.html"><code>Z80</code></a> <a href="BigFont/Macros.html"><code>Macros</code></a> producing routines to create and display 16x15 characters from a 8x8 font (e.g: a default ROM font) applying a simple anti-aliasing algorithm.</p>
-
-<pre>original character  character with widened pixels       final result of the algorithm
-
- 7 6 5 4 3 2 1 0     f e d c b a 9 8 7 6 5 4 3 2 1 0     f e d c b a 9 8 7 6 5 4 3 2 1 0
-░░░░░░░░░░░░░░░░ 0  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-░░░░████████░░░░ 1  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 1  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-░░██░░░░░░░░██░░ 2  ░░░░░░░░████████████████░░░░░░░░ 2  ░░░░░░░░████████████████░░░░░░░░
-░░██░░░░░░░░██░░ 3  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 3  ░░░░░░████░░░░░░░░░░░░████░░░░░░
-░░██░░██░░░░██░░ 4  ░░░░████░░░░░░░░░░░░░░░░████░░░░ 4  ░░░░████░░░░░░░░░░░░░░░░████░░░░
-░░██░░░░██░░██░░ 5  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 5  ░░░░████░░░░░░░░░░░░░░░░████░░░░
-░░░░████████░░░░ 6  ░░░░████░░░░░░░░░░░░░░░░████░░░░ 6  ░░░░████░░░░░░░░░░░░░░░░████░░░░
-░░░░░░░░░░░░░░░░ 7  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 7  ░░░░████░░░░░░░░░░░░░░░░████░░░░
-                    ░░░░████░░░░████░░░░░░░░████░░░░ 8  ░░░░████░░░░████░░░░░░░░████░░░░
-                    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 9  ░░░░████░░░░░░████░░░░░░████░░░░
-                    ░░░░████░░░░░░░░████░░░░████░░░░ a  ░░░░████░░░░░░░░████░░░░████░░░░
-                    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ b  ░░░░░░████░░░░████████████░░░░░░
-                    ░░░░░░░░████████████████░░░░░░░░ c  ░░░░░░░░████████████████░░░░░░░░
-                    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ d  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-                    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ e  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</pre>
-<dl class="rdoc-list note-list"><dt>Author
-<dd>
-<p>Rafał Michalski, © 2018-2021</p>
-</dd></dl>
-
   </section>
 
   
@@ -156,10 +120,10 @@
        </header>
 
     
-      <div id="method-i-print_char" class="method-detail ">
+      <div id="method-i-print_char_hires" class="method-detail ">
         
         <div class="method-heading">
-          <span class="method-name">print_char</span><span
+          <span class="method-name">print_char_hires</span><span
             class="method-args">()</span>
           
           <span class="method-click-advice">click to toggle source</span>
@@ -169,16 +133,16 @@
 
         <div class="method-description">
           
-          <p>ZX Spectrum&#39;s ROM compatible CHAN output routine</p>
+          <p>ZX Spectrum&#39;s ROM compatible CHAN output routine, for hi-res mode.</p>
 
 <p>The <code>a</code> register has the output code.</p>
           
           
 
           
-          <div class="method-source-code" id="print_char-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/bigfont.rb, line 375</span>
-<span class="ruby-identifier">ns</span> <span class="ruby-value">:print_char</span> <span class="ruby-keyword">do</span>
+          <div class="method-source-code" id="print_char_hires-source">
+            <pre><span class="ruby-comment"># File lib/zxutils/bigfont.rb, line 485</span>
+<span class="ruby-identifier">ns</span> <span class="ruby-value">:print_char_hires</span> <span class="ruby-keyword">do</span>
   <span class="ruby-comment"># The routine may modify the registers AF, AF&#39;, BC, DE, HL, IX. We should only preserve an alternative set</span>
   <span class="ruby-comment"># which is a regular set for the system. Modifying IY is not a good idea without disabling interrupts first.</span>
   <span class="ruby-identifier">with_saved</span> <span class="ruby-value">:exx</span>, <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-value">merge:</span> <span class="ruby-keyword">true</span> <span class="ruby-keyword">do</span>
@@ -218,14 +182,13 @@
   <span class="ruby-identifier">ascii_code</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vars</span>.<span class="ruby-identifier">chars</span>]
   <span class="ruby-identifier">code2address</span>    <span class="ruby-identifier">char_ptr_from_code</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>
                                         <span class="ruby-comment"># hl&#39; = screen address, c&#39; = 8, hl = char address</span>
-  <span class="ruby-identifier">output_char</span>     <span class="ruby-identifier">enlarge_char8_16</span>(<span class="ruby-value">compact:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">assume_chars_aligned:</span><span class="ruby-keyword">false</span>)
+  <span class="ruby-identifier">output_char</span>     <span class="ruby-identifier">enlarge_char8_16</span>(<span class="ruby-value">compact:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">assume_chars_aligned:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">hires:</span> <span class="ruby-value">:odd</span>)
 
                   <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">de</span>               <span class="ruby-comment"># restore coordinates</span>
                   <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">e</span>
-                  <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">e</span>
 
   <span class="ruby-identifier">check_col</span>       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
-                  <span class="ruby-identifier">cp</span>   <span class="ruby-value">0x1f</span>
+                  <span class="ruby-identifier">cp</span>   <span class="ruby-value">0x20</span>
                   <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">exit_save</span>
   <span class="ruby-identifier">next_line</span>       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-value">0</span>
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-value">16</span>

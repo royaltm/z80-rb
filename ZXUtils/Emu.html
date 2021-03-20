@@ -231,7 +231,7 @@
         
         <div class="method-heading">
           <span class="method-name">run</span><span
-            class="method-args">(file)</span>
+            class="method-args">(file, *args)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -241,6 +241,8 @@
         <div class="method-description">
           
           <p>Runs a ZX Spectrum emulator program with the given <code>file</code> as its argument.</p>
+
+<p>Provides additional <code>args</code> to the emulator program before the <code>file</code> argument.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
 <p>Replaces the ruby process with the one of an emulator.</p>
@@ -250,9 +252,9 @@
 
           
           <div class="method-source-code" id="run-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/emu.rb, line 57</span>
-<span class="ruby-keyword">def</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier ruby-title">run</span>(<span class="ruby-identifier">file</span>)
-  <span class="ruby-constant">Kernel</span>.<span class="ruby-identifier">exec</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier">get_emulator_path</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">file</span>)
+            <pre><span class="ruby-comment"># File lib/zxutils/emu.rb, line 59</span>
+<span class="ruby-keyword">def</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier ruby-title">run</span>(<span class="ruby-identifier">file</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+  <span class="ruby-constant">Kernel</span>.<span class="ruby-identifier">exec</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier">get_emulator_path</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">file</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -268,7 +270,7 @@
         
         <div class="method-heading">
           <span class="method-name">spawn</span><span
-            class="method-args">(file)</span>
+            class="method-args">(file, *args)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -278,6 +280,8 @@
         <div class="method-description">
           
           <p>Spawns a ZX Spectrum emulator program with the given <code>file</code> as its argument.</p>
+
+<p>Provides additional <code>args</code> to the emulator program before the <code>file</code> argument.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
 <p>Ruby process is being detached from the spawned emulator process.</p>
@@ -287,9 +291,9 @@
 
           
           <div class="method-source-code" id="spawn-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/emu.rb, line 64</span>
-<span class="ruby-keyword">def</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier ruby-title">spawn</span>(<span class="ruby-identifier">file</span>)
-  <span class="ruby-constant">Process</span>.<span class="ruby-identifier">detach</span> <span class="ruby-constant">Kernel</span>.<span class="ruby-identifier">spawn</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier">get_emulator_path</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">file</span>)
+            <pre><span class="ruby-comment"># File lib/zxutils/emu.rb, line 68</span>
+<span class="ruby-keyword">def</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier ruby-title">spawn</span>(<span class="ruby-identifier">file</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+  <span class="ruby-constant">Process</span>.<span class="ruby-identifier">detach</span> <span class="ruby-constant">Kernel</span>.<span class="ruby-identifier">spawn</span>(<span class="ruby-constant">Emu</span>.<span class="ruby-identifier">get_emulator_path</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">file</span>))
 <span class="ruby-keyword">end</span></pre>
           </div>
           
