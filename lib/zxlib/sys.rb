@@ -190,7 +190,7 @@ module ZXLib
         ##
         # ZX Spectrum 128 variables.
         class Vars128 < Label
-            wap     byte, 20  # 23296 $5B00 Swap paging subroutine.
+            swap    byte, 20  # 23296 $5B00 Swap paging subroutine.
             younger byte,  9  # 23316 $5B14 Return paging subroutine.
             onerr   byte, 18  # 23325 $5B1D Error handler paging subroutine.
             pin     byte,  5  # 23343 $5B2F RS232 input pre-routine.
