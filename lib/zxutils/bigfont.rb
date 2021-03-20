@@ -27,7 +27,7 @@ module ZXUtils
   #                       ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ d  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
   #                       ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ e  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
   #
-  # Author:: Rafał Michalski, (c) 2018-2019
+  # Author:: Rafał Michalski, (c) 2018-2021
   class BigFont
     include Z80
 
@@ -205,9 +205,21 @@ module ZXUtils
       #               Provide +nil+ if you don't care.
       # * +assume_chars_aligned+:: +true+ if every byte of a character resides on the same 256 byte size address page.
       #                            This is true for e.g. an 8 pixels height character addressed at the multiple of 8.
+      # * +hires+:: indicates rendering on SCLD or ULAplus hi-res screen.
+      #
+      # +hires+ options:
+      #
+      # * +:odd+: the left character is always on the odd column (on screen 0).
+      #           In this instance the +hl'+ register should address the screen 0.
+      #           Adds at least 8 T-states to each character line.
+      # * +:even+: the left character is always on the even column (on screen 1).
+      #           In this instance the +hl'+ register should address the screen 1.
+      #           Adds at least 16 T-states to each character line.
+      # * +:any+ or +true+: rendering character on any of the 64 columns (slow).
+      #                     Adds at least 59 T-states to each character line.
       #
       # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+
-      def enlarge_char8_16(compact:true, over:false, scraddr:0x4000, assume_chars_aligned:true)
+      def enlarge_char8_16(compact:true, over:false, scraddr:0x4000, assume_chars_aligned:true, hires:nil)
         combine = case over
         when :xor
           proc {|x| xor x }
@@ -216,6 +228,58 @@ module ZXUtils
         else
           proc {|x| ora x }
         end
+
+        case hires
+        when :odd
+          screen_right_column = proc{ set 5, h }
+          screen_left_column  = proc{ res 5, h }
+        when :even
+          screen_right_column = proc{ res 5, h; inc l }
+          screen_left_column  = proc{ set 5, h; dec l }
+        when :any, true
+          screen_right_column = proc do
+            isolate do |eoc|
+              ld   a, h
+              xor  0x20
+              ld   h, a
+              anda 0x20
+              jr   NZ, eoc
+              inc  l
+            end
+          end
+          screen_left_column = proc do
+            isolate do |eoc|
+              ld   a, h
+              xor  0x20
+              ld   h, a
+              anda 0x20
+              jr   Z, eoc
+              dec  l
+            end
+          end
+        when nil
+          screen_right_column = proc{ inc l }
+          screen_left_column  = proc{ dec l }
+        else
+          raise ArgumentError, "enlarge_char8_16: invalid hires argument!"
+        end
+
+        scraddr_hires = false
+        unless compact
+          case hires
+          when :odd
+            scraddr_right = (scraddr|0x2000)
+            scraddr_left = (scraddr&~0x2000)
+          when :even
+            scraddr_right = (scraddr&~0x2000)
+            scraddr_left = (scraddr|0x2000)
+          else
+            scraddr_hires = !hires.nil?
+            scraddr_right = scraddr
+            scraddr_left = scraddr
+          end
+        end if scraddr
+
         isolate do |eoc|         # hl' - screen adddress, c' source height, hl - character address
           bcheck = if scraddr
             if compact then true else eoc end
@@ -235,19 +299,19 @@ module ZXUtils
                     ld   a, d
                     combine.call [hl]
                     ld   [hl], a # put on screen over
-                    inc  l
+                    screen_right_column.call
                     ld   a, e
                     combine.call [hl]
                     ld   [hl], a # put on screen over (leave hl at 2nd half)
           else
                     ld   [hl], d # put on screen
-                    inc  l
+                    screen_right_column.call
                     ld   [hl], e # put on screen (leave hl at 2nd half)
           end
           if compact
                     call next_line
           else
-                    nextline h, l, bcheck, scraddr:scraddr
+                    nextline h, l, bcheck, scraddr:scraddr_right, hires:scraddr_hires
           end
                     dec  c
                     jr   Z, eoc  # 15th line?
@@ -270,27 +334,27 @@ module ZXUtils
           if over
                     combine.call [hl]
                     ld   [hl], a # put on screen 2nd half over
-                    dec  l
+                    screen_left_column.call
                     ex   af, af
                     combine.call [hl]
                     ld   [hl], a # put on screen 1st half over
           else
                     ld   [hl], a # put on screen 2nd half
-                    dec  l
+                    screen_left_column.call
                     ex   af, af
                     ld   [hl], a # put on screen 1st half
           end
           if compact
                     call next_line
           else
-                    nextline h, l, bcheck, scraddr:scraddr
+                    nextline h, l, bcheck, scraddr:scraddr_left, hires:scraddr_hires
           end
                     exx
                     ld   a, c    # 2nd line
                     jp   mloop
           if compact
           next_line label
-                    nextline h, l, bcheck, scraddr:scraddr do
+                    nextline h, l, bcheck, scraddr:scraddr, hires:hires do
                       pop af     # discard return address
                       jr  eoc
                     end
@@ -357,6 +421,115 @@ module ZXUtils
 
       check_col       ld   a, e
                       cp   0x1f
+                      jr   C, exit_save
+      next_line       ld   e, 0
+                      ld   a, 16
+                      add  d
+                      ld   d, a
+
+      exit_save       ld   [cursor], de
+      end # with_saved
+                      ret
+
+      control_char    cp   ?\r.ord      # ENTER
+                      jr   NZ, skip_eol
+                      ld   e, 0x20
+                      jr   check_col
+      skip_eol        cp   0x16         # AT (y, x)
+                      jr   NZ, skip_at
+                      ld   [hl], 0x03   # flags = AT_ROW
+                      jr   exit_save
+      skip_at         cp   0x17         # TAB (x)
+                      jr   NZ, exit_save
+                      ld   [hl], 0x01   # flags = AT_COL
+                      jr   exit_save    # ignore anything else
+
+      at_control      bit  1, [hl]
+                      jr   Z, at_col_ctrl
+                      ld   [hl], 0x01   # flags = AT_COL
+                      ld   d, a         # set row
+                      jr   exit_save
+      at_col_ctrl     ld   [hl], 0x00   # flags = NONE
+                      ld   e, a         # set col
+                      jr   check_col
+
+      cursor          words 1
+      flags           bytes 1
+    end
+  end
+
+  class BigFontHires
+    include Z80
+
+    ###########
+    # Exports #
+    ###########
+
+    export print_char_hires
+
+    ###########
+    # Imports #
+    ###########
+
+    macro_import  ZXLib::Gfx
+    import        ZXLib::Sys, macros: true, labels: true, code: false
+    macro_import  BigFont
+
+    #####################
+    # PRINT CHAR HI-RES #
+    #####################
+
+    ##
+    # ZX Spectrum's ROM compatible CHAN output routine, for hi-res mode.
+    #
+    # The +a+ register has the output code.
+    ns :print_char_hires do
+      # The routine may modify the registers AF, AF', BC, DE, HL, IX. We should only preserve an alternative set
+      # which is a regular set for the system. Modifying IY is not a good idea without disabling interrupts first.
+      with_saved :exx, bc, de, hl, merge: true do
+                      ld   de, [cursor]
+                      ld   hl, flags
+                      bit  0, [hl]
+                      jp   NZ, at_control
+
+                      cp   0x20             # control code ?
+                      jp   C, control_char
+                      ex   af, af           # save code
+
+                      ld   a, d
+                      cp   192              # out of screen ?
+                      jp   NC, rom.error_5
+
+                      push de               # save coordinates
+                                            # calculate screen address in HL
+                      ytoscr d, col:e, t:c
+                      ld   c, 8             # 8 character lines
+                      exx                   # save screen address and height
+
+                      ex   af, af           # restore code
+                      cp   0x80             # ASCII ?
+                      jr   C, ascii_code
+
+                      sub  0x90             # block graphic character ?
+                      jr   NC, udg_code
+                      ld   b, a
+                      call rom.po_gr_1      # creates a block character in MEM-0
+                      ld   hl, vars.membot
+                      jr   output_char
+
+      udg_code        ld   hl, [vars.udg]
+                      jr   code2address
+
+      ascii_code      ld   hl, [vars.chars]
+      code2address    char_ptr_from_code hl, a, tt:de
+                                            # hl' = screen address, c' = 8, hl = char address
+      output_char     enlarge_char8_16(compact:true, assume_chars_aligned:false, hires: :odd)
+
+                      pop  de               # restore coordinates
+                      inc  e
+
+      check_col       ld   a, e
+                      cp   0x20
                       jr   C, exit_save
       next_line       ld   e, 0
                       ld   a, 16
