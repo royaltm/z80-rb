@@ -336,7 +336,7 @@ module Z80
 		#  * +:use+:: If +true+ namespace can inherit absolute labels from parent namespaces;
 		#             if a name, label or an Array of names is given - only specified labels
 		#             are being inherited; +false+ by default.
-		#  * +:inherit+:: An alias of +:inherit+.
+		#  * +:inherit+:: An alias of +:use+.
 		#  * +:isolate+:: If +true+ creates an isolated namespace; see: Program#isolate.
 		#  * +:merge+:: If +true+ merges labels from within a namespace with the current context;
 		#               useful if you want to pass an +eoc+ label to some block of code and
@@ -433,7 +433,7 @@ module Z80
 			# Get our context's id
 			context_id = @contexts.last.object_id
 			# Partition labels created in this context
-			members, dummies = @contexts.pop.partition do |n, l|
+			members, dummies = @contexts.pop.partition do |_, l|
 				if l.dummy?
 					false
 				else
@@ -463,6 +463,8 @@ module Z80
 						label.reinitialize @labels[name]
 						nil
 					else
+						# register dummy addr labels
+						members << [name, label] if label.addr?
 						[name, label] + contexts
 					end
 				end.compact

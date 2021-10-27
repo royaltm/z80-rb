@@ -193,7 +193,7 @@ module Z80
 		#    bar     label 2
 		def label(type = 1, align: nil, offset: 0)
 			lbl = Label.new pc, type, :code
-			if align.nil? or offset == 0
+			if align.nil? and offset == 0
 				@debug << DebugInfo.new(pc, 0, nil, nil, @context_labels.dup << lbl)
 			else
 				if align
@@ -206,7 +206,10 @@ module Z80
 			lbl
 		end
 		##
-		#  Returns an unnamed, immediate label at an absolute +address+ of the optional +type+.
+		#  Returns an unnamed address label of the optional +type+.
+		#
+		#  The address label can be an absolute +address+ or a lazy evaluated address label
+		#  if the given +address+ is a label or a lazy expression and +type+ is not specified.
 		#
 		#  +type+ can be an integer or a data structure (a class derived from Label).
 		#  The +address+ may be a number or another label or an immediate expression.
@@ -222,15 +225,23 @@ module Z80
 		#    foo addr 0xffff
 		#    bar addr 0x4000, 2
 		#    baz addr :next, 2 # 0x4002
-		def addr(address, type = 1, align: 1, offset: 0)
+		#    baz addr foo, 2 # foo must be an immediate label
+		#    bak addr foo # lazy evaluated
+		def addr(address, type = nil, align: 1, offset: 0)
+			align = align.to_i
+			raise ArgumentError, "align must be >= 1" if align < 1
 			if address == :next
 				last_label = @labels.values.last
 				raise Syntax, "There is no label added to the program yet." if last_label.nil?
 				addr last_label[1], type, align:align, offset:offset
+			elsif address.respond_to?(:to_alloc) && type.nil?
+				offset = offset.to_i
+				address = (address + align - 1) / align * align if align > 1
+				address = address + offset unless offset.zero?
+				Alloc.new address, :addr
 			else
+				type = 1 if type.nil?
 				address = address.to_i
-				align = align.to_i
-				raise ArgumentError, "align must be >= 1" if align < 1
 				address = (address + align - 1) / align * align + offset.to_i
 				Label.new address, type
 			end
@@ -438,7 +449,7 @@ module Z80
 				else
 					Label.new label.to_i, 1
 				end
-				@dummies.delete_if do |n, lbl, *cts|
+				dummies_deleted = @dummies.reject! do |n, lbl, *cts|
 					if n == name and cts.include? ct.object_id
 						lbl.reinitialize label
 						label.name = name
@@ -446,6 +457,10 @@ module Z80
 					else
 						false
 					end
+				end
+				# make sure aliased labels (allocs) gets undummied too
+				unless dummies_deleted.nil?
+					@dummies.delete_if {|_, lbl, *_| !lbl.dummy? }
 				end
 				if ct.has_key? name
 					ct[name].reinitialize label
@@ -709,6 +724,8 @@ module Z80
 		def dummy?
 			@type.nil?
 		end
+		## Checks if a label is an address label (lazy alias).
+		def addr?; false; end
 		##
 		# Creates a dummy label. Should not be used directly in programs.
 		# This is called by Program.method_missing when referenced label has not been defined yet.
@@ -1090,9 +1107,15 @@ module Z80
 			rhs = rhs.to_alloc if rhs.is_a?(Label)
 			raise Syntax, "rhs is not an Alloc or an integer" unless rhs.nil? or Integer === rhs or rhs.is_a?(Alloc)
 			raise Syntax, "lhs nor rhs must not be a pointer" if lhs.pointer? or (rhs.respond_to?(:pointer?) and rhs.pointer?)
-			raise Syntax, "invalid operator" unless oper.nil? or [:+,:-,:+@,:-@,:>>,:<<,:/,:%,:*,:^,:&,:|,:~].include?(oper)
-			raise Syntax, "invalid operator's rhs" unless (rhs.nil? and (oper.nil? or [:+@,:-@,:~].include?(oper))) or
+			raise Syntax, "invalid operator" unless oper.nil? or [:+,:-,:+@,:-@,:>>,:<<,:/,:%,:*,:^,:&,:|,:~,:addr].include?(oper)
+			raise Syntax, "invalid operator's rhs" unless (rhs.nil? and (oper.nil? or [:+@,:-@,:~,:addr].include?(oper))) or
 			                                              (!oper.nil? and !rhs.nil?)
+			addr = if oper == :addr
+				oper = nil
+				true
+			else
+				false
+			end
 			raise Syntax, "invalid index" unless Array === index and index.all?{|m| Integer === m || String === m || m.is_a?(Alloc) }
 			raise Syntax, "index-op is only allowed on labels" unless index.empty? or oper.nil?
 			unless oper.nil?
@@ -1103,6 +1126,7 @@ module Z80
 			@rhs     = rhs
 			@index   = index
 			@pointer = false
+			@addr    = addr
 			@name    = nil
 		end
 
@@ -1118,6 +1142,10 @@ module Z80
 				false
 			end
 		end
+
+		# This label can be the only dummy sublabel of another label and
+		# as such may exist in both members and dummies.
+		def addr?; @addr; end
 
 		def pointer?; @pointer; end
 
