@@ -11,15 +11,19 @@ module Z80
         class Shuffle
             ##
             # =Z80::Utils::Shuffle Macros
+            #
+            #   for i from 0 to length − 1 do
+            #       j ← random integer such that 0 ≤ j ≤ i
+            #       if j ≠ i
+            #           target[i] ← target[j]
+            #       target[j] ← source[i]
+            #
+            # Shuffle macros require:
+            #
+            #    macro_import MathInt
             module Macros
                 ##
-                # Shuffles an array of bytes.
-                #
-                #   for i from 0 to length − 1 do
-                #       j ← random integer such that 0 ≤ j ≤ i
-                #       if j ≠ i
-                #           target[i] ← target[j]
-                #       target[j] ← source[i]
+                # Creates a routine to shuffle an array of bytes.
                 #
                 # After the shuffle is performed +hl+ points to the memory address immediately
                 # following the shuffled table.
@@ -34,10 +38,10 @@ module Z80
                 # * +target+:: An address of the target array as a label, a pointer or +hl+.
                 # * +length+:: An 8bit length of an array in the range of 1..256 (0 is 256) as a label,
                 #              pointer or a register.
-                # * +source+:: A +source+ function. If +nil+ then identity is assumed: <tt>(i) => i</tt>,
+                # * +source+:: A +source+ function. If +nil+ then identity is assumed: <tt>source[i] => i</tt>,
                 #              otherwise it should be an address of a source function routine which expects
                 #              an argument +i+ in the register +c+ and <b>MUST PRESERVE</b> registers: +hl+ and +de+.
-                #              Function is expected to return its result in the +accumulator+.
+                #              Function is expected to return the source value in the +accumulator+.
                 def shuffle_bytes_source_max256(next_rng=nil, target:hl, length:a, source:nil, &next_rng_blk)
                     unless source.nil? or (address?(source) and !pointer?(source))
                         raise ArgumentError, "source should be nil or an address" 

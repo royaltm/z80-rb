@@ -23,7 +23,7 @@ module Z80
                 head_bf_tail  byte
             end
             ##
-            # =Z80::Utils::VecDeque
+            # =Z80::Utils::VecDeque macros.
             #
             # Macros producing routines for working with double ended queues.
             module Macros
