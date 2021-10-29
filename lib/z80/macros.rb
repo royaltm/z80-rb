@@ -207,6 +207,18 @@ module Z80
 				cp16r(th, tl, value>>8, value, jr_msb_c:jr_msb_c, jr_msb_nz:jr_msb_nz)
 			end
 			##
+			# Compares a pair of 16-bit registers +tt+ with +ss+ as unsigned integers.
+			#
+			# A sugar for:
+			#   cp16r(th,tl, sh,sl, ...)
+			#
+			# See: Macros#cp16r.
+			def cp16rr(tt, ss, jr_msb_c: nil, jr_msb_nz: :eoc)
+				th, tl = tt.split
+				sh, sl = ss.split
+				cp16r(th, tl, sh, sl, jr_msb_c:jr_msb_c, jr_msb_nz:jr_msb_nz)
+			end
+			##
 			# Compares a pair of registers +th+|+tl+ with another pair +sh+|+sl+ as unsigned 16-bit integers.
 			#
 			#   CF, ZF = (th|tl - +sh+|+sl+)
