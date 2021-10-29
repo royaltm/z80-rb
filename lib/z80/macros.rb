@@ -214,6 +214,8 @@ module Z80
 			#
 			# See: Macros#cp16r.
 			def cp16rr(tt, ss, jr_msb_c: nil, jr_msb_nz: :eoc)
+				raise ArgumentError, "tt must be a 16-bit register" unless !pointer?(tt) && register?(tt) && !tt.bit8?
+				raise ArgumentError, "ss must be a 16-bit register" unless !pointer?(ss) && register?(ss) && !ss.bit8?
 				th, tl = tt.split
 				sh, sl = ss.split
 				cp16r(th, tl, sh, sl, jr_msb_c:jr_msb_c, jr_msb_nz:jr_msb_nz)
