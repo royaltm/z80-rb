@@ -8,9 +8,20 @@ module ZXLib
     #
     #  Contains:
     #
-    #  * labels for some of ZX Spectrum 16/48K ROM routine addresses in a +rom+ namespace.
-    #  * labels for ZX Spectrum 16/48K memory layout in a +mem+ namespace.
-    #  * labels for ZX Spectrum 16/48K basic and system variables in a +vars+ namespace.
+    #  * labels for some of ZX Spectrum 16/48K ROM routine addresses in the +rom+ namespace.
+    #  * labels for ZX Spectrum 16/48K memory layout in the +mem+ namespace.
+    #  * labels for ZX Spectrum 16/48K memory layout in the +mem128+ namespace.
+    #  * labels for TC2048/2068 (SCLD) screen memory layout in the +memT2k+ namespace.
+    #  * labels for ZX Spectrum 16/48K basic and system variables in the +vars+ namespace.
+    #  * labels for ZX Spectrum 128K system variables in the +vars128+ namespace.
+    #  * labels for ZX Interface I variables in the +if1vars+ namespace.
+    #  * labels for I/O ports of ULA, ZX Printer in the +io+ namespace.
+    #  * labels for I/O ports of 128k MMU and AY-3-891x in the +io128+ namespace.
+    #  * labels for I/O ports of TC2068, TS2068, TC2048 in the +ioT2k+ namespace.
+    #  * labels for I/O ports of ULAplus in the +io_plus+ namespace.
+    #  * labels for I/O ports of AY-3-891x in the +io_ay+ namespace.
+    #  * labels for I/O ports of Kempston mouse and joystick in the +kempston_io+ namespace.
+    #  * labels for I/O ports of the Fuller Box in the +fuller_io+ namespace.
     #  * Macros for various tasks tied to the ZX Spectrum hardware or ZX Basic.
     #
     #  Example:
@@ -468,8 +479,10 @@ module ZXLib
         #
         # Some of the macros require:
         #
-        #    macro_import MathInt
-        #    macro_import ::ZXLib::Math
+        #    require 'zxlib/math'
+        #    # ...
+        #      macro_import MathInt
+        #      macro_import ::ZXLib::Math
         #
         module Macros
             ##
@@ -928,6 +941,8 @@ module ZXLib
             ##
             # Reads a 32-bit integer from a ZX Basic's FP-value.
             #
+            # Requires: <tt>macro_import ::ZXLib::Math</tt>.
+            #
             # +hl+:: must point to the 1st byte of the FP-value.
             # +th+:: most significant 16-bit output register pair.
             # +tl+:: least significant 16-bit output register pair.
@@ -988,6 +1003,8 @@ module ZXLib
             end
             ##
             # Gets a DEF FN argument value address.
+            #
+            # Requires: <tt>macro_import MathInt</tt>.
             #
             # * +argnum+:: 1-based argument index (0 is 256), may be a register or a number.
             # * +subroutine+:: if +true+ will use +ret+ instruction.

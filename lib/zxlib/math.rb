@@ -127,7 +127,7 @@ module ZXLib
         #
         module Macros
             ##
-            # Creates a routine that converts a ZX Basic's floating point value to a 32-bit integer.
+            # Creates a routine that converts a ZX Basic's floating point number to a 32-bit integer.
             #
             # +m3+|+m2+|+m1+|+m0+:: A 32-bit mantissa as four 8-bit registers, where +m3+ represents
             #                       the most significant byte.

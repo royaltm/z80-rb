@@ -322,7 +322,7 @@ if __FILE__ == $0
         shuffle_it  shuffle_bytes_source_max256(next_rng, target:hl, length:a)
         shuffle_end ret
 
-        qsort_asc   quicksort_bytes(:half, reverse: false, pivot_reg: c, swap_same: true, safe_args: false)
+        qsort_asc   quicksort_bytes(:half, reverse: false, pivot_reg: c, swap_same: true,  safe_args: false)
         qsort_desc  quicksort_bytes(:half, reverse: true,  pivot_reg: b, swap_same: false, safe_args: false)
         qsort_end   label
 
