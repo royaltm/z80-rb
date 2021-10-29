@@ -52,7 +52,6 @@ target, target_base = normalize_file(target, '.rb')
 
 klass_name ||= target_base
 klass_name = klass_name.split(/[_-]/).collect(&:capitalize).join
-target_tap = 
 
 if File.exist?(target)
     $stderr.puts "ZXINIT: file already exists: #{target}"
@@ -68,12 +67,17 @@ BOOTSTRAP[:program]=<<_EOB_
 require 'z80'
 # require 'z80/math_i'
 # require 'z80/stdlib'
+# require 'z80/utils/quick_sort'
 # require 'z80/utils/shuffle'
 # require 'z80/utils/sincos'
+# require 'z80/utils/vec_deque'
 require 'zxlib/sys'
+# require 'zxlib/ay_sound'
 # require 'zxlib/gfx'
 # require 'zxlib/gfx/bobs'
+# require 'zxlib/gfx/clip'
 # require 'zxlib/gfx/draw'
+# require 'zxlib/math'
 # module ZXLib
 #   module Gfx
 #     class Sprite8
@@ -86,18 +90,25 @@ require 'zxlib/sys'
 class #{klass_name}
   include Z80
   include Z80::TAP
+  # include ZXLib::AYSound::Registers
+  # include ZXLib::AYSound::EnvelopeControl
 
   export start
 
   # macro_import MathInt
   # macro_import Stdlib
+  # macro_import Utils::QuickSort
   # macro_import Utils::Shuffle
   # macro_import Utils::SinCos
+  # macro_import Utils::VecDeque
   label_import ZXLib::Sys, macros: true
+  # macro_import ZXLib::AYSound
   # macro_import ZXLib::Gfx
-  # macro_import ZXLib::Gfx::Draw
   # macro_import ZXLib::Gfx::Bobs
+  # macro_import ZXLib::Gfx::Clip
+  # macro_import ZXLib::Gfx::Draw
   # macro_import ZXLib::Gfx::Sprite8
+  # import ZXLib::Math, :math, macros: true
 
   macro :print_text do |eoc, text|
                         ld   de, text_data
