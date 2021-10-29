@@ -53,6 +53,7 @@ end
 
 UTIL_TESTS = %w[
   z80/stdlib.rb
+  z80/utils/quick_sort.rb
   z80/utils/shuffle.rb
   z80/utils/sincos.rb
   z80/utils/vec_deque.rb
