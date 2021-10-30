@@ -67,9 +67,9 @@ BOOTSTRAP[:program]=<<_EOB_
 require 'z80'
 # require 'z80/math_i'
 # require 'z80/stdlib'
-# require 'z80/utils/quick_sort'
 # require 'z80/utils/shuffle'
 # require 'z80/utils/sincos'
+# require 'z80/utils/sort'
 # require 'z80/utils/vec_deque'
 require 'zxlib/sys'
 # require 'zxlib/ay_sound'
@@ -97,9 +97,9 @@ class #{klass_name}
 
   # macro_import MathInt
   # macro_import Stdlib
-  # macro_import Utils::QuickSort
   # macro_import Utils::Shuffle
   # macro_import Utils::SinCos
+  # macro_import Utils::Sort
   # macro_import Utils::VecDeque
   label_import ZXLib::Sys, macros: true
   # macro_import ZXLib::AYSound

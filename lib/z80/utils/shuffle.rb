@@ -31,12 +31,12 @@ module Z80
                 # Modifies: +af+, +bc+, +de+, +hl+.
                 #
                 # +next_rng+:: An address of a random number generator routine. The routine should return
-                #              an 8bit random number in the +accumulator+. If +next_rng+ is +nil+
+                #              an 8-bit random number in the +accumulator+. If +next_rng+ is +nil+
                 #              the block of code with the RNG routine is expected instead.
                 #
                 # Options:
                 # * +target+:: An address of the target array as a label, a pointer or +hl+.
-                # * +length+:: An 8bit length of an array in the range of 1..256 (0 is 256) as a label,
+                # * +length+:: An 8-bit length of an array in the range of 1..256 (0 is 256) as a label,
                 #              pointer or a register.
                 # * +source+:: A +source+ function. If +nil+ then identity is assumed: <tt>source[i] => i</tt>,
                 #              otherwise it should be an address of a source function routine which expects

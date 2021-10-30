@@ -25,13 +25,16 @@ module ZXLib
   #
   #  ===The coordinate system.
   #
-  #  In all of the Gfx routines, including Draw and Sprite8, the screen pixel or cell coordinates are as follows:
+  #  All of the Gfx routines, including Bobs, Clip, Draw, and Sprite8, are using the following screen
+  #  coordinates system:
   #
-  #  * The coordinates (0,0) are at the top-left corner of the screen.
-  #  * The vertical axis (y) is reversed so y increases towards the bottom of the screen.
-  #    Hence e.g. 191 is the last visible pixel line and 23 is the last visible cell row.
-  #  * The horizontal axis (x) is normal so x increases towards the right edge of the screen.
-  #    Hence e.g. 255 is the last visible pixel column and 31 is the last visible cell column.
+  #  * The coordinates (0,0) are indicating the top-left corner of the screen.
+  #  * The vertical axis (y) is inversed - y increases towards the bottom of the screen.
+  #    Hence e.g. 191 is the last visible pixel line and 23 is the last visible attributes cell row
+  #    at the bottom.
+  #  * The horizontal axis (x) is normal - x increases towards the right edge of the screen.
+  #    Hence e.g. 255 is the last visible pixel column and 31 (or 63 in hi-res) is the last visible
+  #    cell column on the far right.
   module Gfx
     ##
     #  ==ZXLib::Gfx macros.
