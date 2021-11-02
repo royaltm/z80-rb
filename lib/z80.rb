@@ -463,8 +463,8 @@ module Z80
 						label.reinitialize @labels[name]
 						nil
 					else
-						# register dummy addr labels
-						members << [name, label] if label.addr?
+						# register dummy alias labels
+						members << [name, label] if label.alias?
 						[name, label] + contexts
 					end
 				end.compact

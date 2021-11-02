@@ -206,10 +206,35 @@ module Z80
 			lbl
 		end
 		##
-		#  Returns an unnamed address label of the optional +type+.
+		#  Returns an alias of a label or an expression.
 		#
-		#  The address label can be an absolute +address+ or a lazy evaluated address label
-		#  if the given +address+ is a label or a lazy expression and +type+ is not specified.
+		#  The +address+ must be a label or a label expression.
+		#
+		#  The returned label will eventually inherit the type from the given +address+.
+		#
+		#  Options:
+		#
+		#  * +:align+:: Additionally aligns the +address+ to the nearest multiple of +:align+ bytes.
+		#  * +:offset+:: Added to the +address+ after alignment.
+		#
+		#  Example:
+		#    baz as foo[2]
+		#    bak as (baz + 1 / 10), align: 16, offset: -1
+		def as(address, align: 1, offset: 0)
+			align = align.to_i
+			offset = offset.to_i
+			raise ArgumentError, "align must be >= 1" if align < 1
+			if address.respond_to?(:to_alloc)
+				offset = offset.to_i
+				address = (address + align - 1) / align * align if align > 1
+				address = address + offset unless offset.zero?
+				Alloc.new address, :alias
+			else
+				raise ArgumentError, "address must be a label or a lazy expression"
+			end
+		end
+		##
+		#  Returns an unnamed, immediate label at an absolute +address+ of the optional +type+.
 		#
 		#  +type+ can be an integer or a data structure (a class derived from Label).
 		#  The +address+ may be a number or another label or an immediate expression.
@@ -225,23 +250,15 @@ module Z80
 		#    foo addr 0xffff
 		#    bar addr 0x4000, 2
 		#    baz addr :next, 2 # 0x4002
-		#    baz addr foo, 2 # foo must be an immediate label
-		#    bak addr foo # lazy evaluated
-		def addr(address, type = nil, align: 1, offset: 0)
-			align = align.to_i
-			raise ArgumentError, "align must be >= 1" if align < 1
+		def addr(address, type = 1, align: 1, offset: 0)
 			if address == :next
 				last_label = @labels.values.last
 				raise Syntax, "There is no label added to the program yet." if last_label.nil?
 				addr last_label[1], type, align:align, offset:offset
-			elsif address.respond_to?(:to_alloc) && type.nil?
-				offset = offset.to_i
-				address = (address + align - 1) / align * align if align > 1
-				address = address + offset unless offset.zero?
-				Alloc.new address, :addr
 			else
-				type = 1 if type.nil?
 				address = address.to_i
+				align = align.to_i
+				raise ArgumentError, "align must be >= 1" if align < 1
 				address = (address + align - 1) / align * align + offset.to_i
 				Label.new address, type
 			end
@@ -725,7 +742,7 @@ module Z80
 			@type.nil?
 		end
 		## Checks if a label is an address label (lazy alias).
-		def addr?; false; end
+		def alias?; false; end
 		##
 		# Creates a dummy label. Should not be used directly in programs.
 		# This is called by Program.method_missing when referenced label has not been defined yet.
@@ -787,6 +804,9 @@ module Z80
 		def -@
 			-to_alloc
 		end
+		## Returns +true+ if a lazy evaluated label can be offset by +index+.
+		def indexable?; true; end
+		##
 		# Returns a lazy evaluated label offset by +index+.
 		# * If +index+ is +nil+, returns a pointer label instead.
 		# * If +index+ is a number or an expression the offset is multiplied by a size of a label's type.
@@ -1107,10 +1127,10 @@ module Z80
 			rhs = rhs.to_alloc if rhs.is_a?(Label)
 			raise Syntax, "rhs is not an Alloc or an integer" unless rhs.nil? or Integer === rhs or rhs.is_a?(Alloc)
 			raise Syntax, "lhs nor rhs must not be a pointer" if lhs.pointer? or (rhs.respond_to?(:pointer?) and rhs.pointer?)
-			raise Syntax, "invalid operator" unless oper.nil? or [:+,:-,:+@,:-@,:>>,:<<,:/,:%,:*,:^,:&,:|,:~,:addr].include?(oper)
-			raise Syntax, "invalid operator's rhs" unless (rhs.nil? and (oper.nil? or [:+@,:-@,:~,:addr].include?(oper))) or
+			raise Syntax, "invalid operator" unless oper.nil? or [:+,:-,:+@,:-@,:>>,:<<,:/,:%,:*,:^,:&,:|,:~,:alias].include?(oper)
+			raise Syntax, "invalid operator's rhs" unless (rhs.nil? and (oper.nil? or [:+@,:-@,:~,:alias].include?(oper))) or
 			                                              (!oper.nil? and !rhs.nil?)
-			addr = if oper == :addr
+			xalias = if oper == :alias
 				oper = nil
 				true
 			else
@@ -1126,7 +1146,7 @@ module Z80
 			@rhs     = rhs
 			@index   = index
 			@pointer = false
-			@addr    = addr
+			@alias   = xalias
 			@name    = nil
 		end
 
@@ -1145,7 +1165,7 @@ module Z80
 
 		# This label can be the only dummy sublabel of another label and
 		# as such may exist in both members and dummies.
-		def addr?; @addr; end
+		def alias?; @alias; end
 
 		def pointer?; @pointer; end
 
@@ -1261,7 +1281,7 @@ module Z80
 			if address.is_a?(Label) || Integer === address
 				@lhs.reinitialize(address, type, reloc, members)
 			elsif address.is_a?(self.class)
-				lhs, oper, rhs, index, pointer = %w[@lhs @oper @rhs @index @pointer].
+				lhs, oper, rhs, index, pointer, xalias = %w[@lhs @oper @rhs @index @pointer @alias].
 																					 map {|n| address.instance_variable_get(n) }
 				if lhs.is_a?(Label)
 					@lhs.reinitialize(lhs, type, reloc, members)
@@ -1272,6 +1292,7 @@ module Z80
 				@rhs     = rhs
 				@index   = index
 				@pointer = pointer
+				@alias   = xalias
 			else
 				raise Syntax, "invalid re-initialize address"
 			end
@@ -1279,6 +1300,9 @@ module Z80
 				address.to_name
 			elsif
 				@lhs.to_name
+			end
+			if name and @name and @name != name and @alias
+				name = nil
 			end
 			self.name = name unless name.nil?
 			self
@@ -1401,6 +1425,14 @@ module Z80
 		 	return @lhs.to_name if !expression?
 		end
 
+		def indexable?
+			if @alias
+				@lhs.indexable?
+			else
+				!@pointer and @oper.nil? and (@lhs.is_a?(Label) or !@index.empty?)
+			end
+		end
+
 		def [](index = nil)
 			if index.nil?
 				if @pointer
@@ -1410,8 +1442,7 @@ module Z80
 					Alloc.new(self).tap { |l| l.instance_variable_set('@pointer', true) }
 				end 
 			else
-				raise Syntax, "indexing is only allowed on a label" unless !@pointer and @oper.nil? and 
-				                                                      (@lhs.is_a?(Label) or !@index.empty?)
+				raise Syntax, "indexing is only allowed on a label" unless indexable?
         if @index.empty?
         	Alloc.new(self)
         else

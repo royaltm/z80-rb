@@ -705,7 +705,7 @@ module ZXLib
                 when :ret
                   loop0     ret
                 else
-                  loop0     addr no0shift    # created jump table will forward to this address
+                  loop0     as   no0shift    # created jump table will forward to this address
                 end
               else
                 fx0 = if fx
