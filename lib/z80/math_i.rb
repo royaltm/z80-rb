@@ -1711,31 +1711,43 @@ module Z80
             # * +r+:: A temporary register used in an alternative register set: +d+ or +e+.
             # * +rr+:: A 16-bit register: +de+ or +hl+.
             # * +byteorder+:: The order of bytes in the integer being converted: +:lsb+ or +:msb+.
+            # * +input_end+:: Indicates that +input+ points to the byte after the end of the integer payload
+            #                 instead of pointing to its beginning.
             #
             # Modifies: +af+, +b+, +rr+, +bc'+, +hl'+, +r'+.
-            def utobcd(bufend, input=de, size: 4, r: d, rr: de, byteorder: :lsb)
+            def utobcd(bufend, input=de, size: 4, r: d, rr: de, byteorder: :lsb, input_end:false)
                 raise ArgumentError unless address?(bufend) and
                                            (address?(input) or input == rr) and
                                            (address?(size) or (register?(size) and size.bit8?)) and
                                            [de, hl].include?(rr) and [d, e].include?(r)
-                raise ArgumentError, "byteorder should be :lsb or :msb" unless [:lsb, :msb].include?(byteorder)
-
+                raise ArgumentError, "input_end should be a boolean" unless [true, false].include?(input_end)
+                adjust_input = case byteorder
+                when :lsb then !input_end
+                when :msb then input_end
+                else
+                    raise ArgumentError, "byteorder should be :lsb or :msb"
+                end
                 isolate do
                     if address?(size) and pointer?(size)
                             ld   a, size
                             ld   b, a
-                    elsif byteorder == :lsb and (pointer?(input) or pointer?(size) or !address?(input) or !address?(size))
+                    elsif adjust_input and byteorder == :lsb and
+                                (pointer?(input) or pointer?(size) or !address?(input) or !address?(size))
                             ld   a, size unless size == a
                             ld   b, a unless size == b
                     else
                             ld   b, size unless size == b
                     end
-                    if byteorder == :lsb and address?(input) and address?(size) and
-                                              !pointer?(input) and !pointer?(size)
-                            ld   rr, input + size
+                    if adjust_input and address?(input) and address?(size) and
+                                        !pointer?(input) and !pointer?(size)
+                            ld   rr, input + size if byteorder == :lsb
+                            ld   rr, input - size if byteorder == :msb
                     else
                             ld   rr, input unless input == rr
+                        if adjust_input
                             adda_to *rr.split if byteorder == :lsb
+                            sub_from b, *rr.split if byteorder == :msb
+                        end
                     end
                     unless pointer?(bufend)
                             xor  a
