@@ -452,6 +452,6 @@ if __FILE__ == $0
     puts "code size: #{testsincos[:sintable] - testsincos[:start]}"
     raise "memory clash detected" if testsincos[:eop] > testsincos[:sincos]
 
-    program.save_tap 'testsincos.tap', line:9999
-    testsincos.save_tap 'testsincos.tap', append: true
+    program.save_tap 'test.z80.utils.sincos.tap', name:'sincos', line:9999
+    testsincos.save_tap 'test.z80.utils.sincos.tap', name:'sincos', append: true
 end

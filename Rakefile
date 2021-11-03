@@ -57,9 +57,9 @@ UTIL_TESTS = %w[
   z80/utils/sincos.rb
   z80/utils/sort.rb
   z80/utils/vec_deque.rb
+  zxlib/ay_sound.rb
   zxlib/math.rb
   zxlib/gfx/draw.rb
-  zxlib/ay_sound.rb
   zxutils/ay_music.rb
   zxutils/ay_music_player.rb
   zxutils/benchmark.rb
@@ -90,6 +90,8 @@ end
 
 BENCHES = %w[
   bench.rnd.rb
+  bench.sort.rb
+  bench.ubcd.rb
 ]
 
 desc "Compile benchmarks"

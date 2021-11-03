@@ -47,7 +47,7 @@ program = ZXLib::Basic.parse_source <<-EOC
      DEF FN r()=USR #{benchmark[:get_bench_result]}: REM result
      DEF FN z(s)=USR #{benchmark[:set_seed]}
   10 LET counter=50
-  20 PRINT "The results are on ZX Printer": OPEN #2,"P": PRINT "Seed:   T-States"
+  20 PRINT "See results on ZX Printer": OPEN #2,"P": PRINT "Seed:   T-States"
   30 LET sum=0: LET max=0: LET maxi=-1: LET min=1e+38: LET mini=-1
   40 INPUT "step 1-128: ";step: IF step<1 OR step>128 OR step<>INT step THEN GO TO 40
   50 FOR i=0 TO 65535 STEP step
@@ -75,9 +75,11 @@ EOC
 puts benchmark.debug
 puts "\nseed: " + (benchmark[:seed]).to_s
 puts program.to_source escape_keywords: true
-program.save_tap "bench.rnd", line: 9999
-benchmark.save_tap "bench.rnd", name: "benchmark", append: true
-puts "TAP: bench.rnd.tap:"
-Z80::TAP.parse_file('bench.rnd.tap') do |hb|
+
+tap_name = 'bench.rnd.tap'
+program.save_tap tap_name, line: 9999
+benchmark.save_tap tap_name, name:'benchmark', append: true
+puts "TAP #{tap_name}:"
+Z80::TAP.parse_file(tap_name) do |hb|
     puts hb.to_s
 end

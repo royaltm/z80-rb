@@ -467,6 +467,6 @@ if __FILE__ == $0
         end
         puts i.to_s.rjust(2) + ": " + fmtn
     end
-    program.save_tap 'testzxmath.tap', line: 9999
-    testzxmath.save_tap 'testzxmath.tap', append: true
+    program.save_tap 'test.zxlib.math.tap', name:'math', line: 9999
+    testzxmath.save_tap 'test.zxlib.math.tap', name:'math', append: true
 end

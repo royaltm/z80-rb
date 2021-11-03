@@ -550,7 +550,7 @@ if __FILE__ == $0
     30 RANDOMIZE FN d(#{screen},#{screen_end - screen})
     99 BORDER 7: PAPER 7: INK 0: CLS
   9998 STOP: GO TO 10
-  9999 CLEAR #{0x6000 - 1}: LOAD ""CODE : PRINT USR #{start}: RUN
+  9999 CLEAR #{0x6000 - 1}: LOAD "gallery"CODE : PRINT USR #{start}: RUN
   EOB
 
   puts program_code.debug[0..408]
@@ -558,8 +558,8 @@ if __FILE__ == $0
   # puts program_code.labels
   puts program
 
-  program.save_tap("test.gallery", name: "gallery", line: 9999)
-  program_code.save_tap("test.gallery", name: "gallery", append: true)
-
-  Z80::TAP.parse_file("test.gallery.tap") { |hb| puts hb.to_s }
+  tap_name = 'test.zxutils.gallery.tap'
+  program.save_tap tap_name, name:'gallery', line: 9999
+  program_code.save_tap tap_name, name:'gallery', append: true
+  Z80::TAP.parse_file(tap_name) { |hb| puts hb.to_s }
 end

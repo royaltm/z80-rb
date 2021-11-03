@@ -714,10 +714,12 @@ if __FILE__ == $0
     program.start = 9999
     puts program.to_source
 
-    program.save_tap 'snake'
-    snake.save_tap 'snake', append: true
+    tap_name = 'test.z80.utils.vec_deque.tap'
 
-    Z80::TAP.parse_file('snake.tap') do |hb|
+    program.save_tap tap_name, name:'snake'
+    snake.save_tap tap_name, name:'snake', append: true
+    puts "TAP #{tap_name}:"
+    Z80::TAP.parse_file(tap_name) do |hb|
             puts hb.to_s
     end
 end

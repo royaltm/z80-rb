@@ -894,8 +894,9 @@ if __FILE__ == $0
 
   assert_equal Digest::SHA256.base64digest(mtkernel.code), '4tLG44B2QHVvmIG+dNG3g5dAVqrc6MxA49HciodTTgw='
 
-  mtkernel.save_tap 'mtkernel'
-  Z80::TAP.parse_file('mtkernel.tap') do |hb|
+  tap_name = 'test.zxutils.multitasking.tap'
+  mtkernel.save_tap tap_name, name:'mtkernel'
+  Z80::TAP.parse_file(tap_name) do |hb|
       puts hb.to_s
   end
 end

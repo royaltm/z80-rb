@@ -1577,6 +1577,6 @@ if __FILE__ == $0
     end
     puts "draw size: #{draw_end - draw}"
 
-    program.save_tap 'testdraw.tap', line:9999
-    testdraw.save_tap 'testdraw.tap', append: true
+    program.save_tap 'test.zxlib.gfx.draw.tap', name:'draw', line:9999
+    testdraw.save_tap 'test.zxlib.gfx.draw.tap', name:'draw', append: true
 end

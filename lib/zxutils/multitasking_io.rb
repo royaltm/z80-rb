@@ -1460,10 +1460,11 @@ if __FILE__ == $0
 
   puts program.to_source escape_keywords:true
 
-  program.save_tap 'mtiotest', line:9999
-  echo.save_tap 'mtiotest', append:true, name: 'echo'
-  mtiokernel.save_tap 'mtiotest', append:true, name: 'mtiokernel'
-  Z80::TAP.parse_file('mtiotest.tap') do |hb|
+  tap_name = 'test.zxutils.multitasking_io.tap'
+  program.save_tap tap_name, name:'mtiotest', line:9999
+  echo.save_tap tap_name, name:'echo', append:true
+  mtiokernel.save_tap tap_name, name:'mtiokernel', append:true
+  Z80::TAP.parse_file(tap_name) do |hb|
       puts hb.to_s
   end
 end

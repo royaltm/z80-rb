@@ -426,10 +426,12 @@ if __FILE__ == $0
   9999 CLEAR 32767: LOAD "player"CODE: RANDOMIZE USR #{player[:init_music]}: RUN
   EOC
   puts program.to_source escape_keywords: true
-  program.save_tap "player", line: 9999
-  player.save_tap "player", append: true
-  puts "TAP: player.tap:"
-  Z80::TAP.parse_file('player.tap') do |hb|
+
+  tap_name = 'test.zxutils.ay_music_player.tap'
+  program.save_tap tap_name, name:'player', line: 9999
+  player.save_tap tap_name, name:'player', append: true
+  puts "TAP #{tap_name}:"
+  Z80::TAP.parse_file(tap_name) do |hb|
       puts hb.to_s
   end
 end

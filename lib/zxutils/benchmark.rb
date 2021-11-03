@@ -458,10 +458,12 @@ if __FILE__ == $0
     9999 CLEAR #{benchmark.org-1}: LOAD "benchmark"CODE: CLS: PRINT " `GO TO`  10 - benchmark"'"`GO SUB`100 - estimate TS/int."
     EOC
     puts program.to_source escape_keywords: true
-    program.save_tap "testbench", line: 9999
-    benchmark.save_tap "testbench", name: "benchmark", append: true
-    puts "TAP: testbench.tap:"
-    Z80::TAP.parse_file('testbench.tap') do |hb|
+
+    tap_name = 'test.zxutils.benchmark.tap'
+    program.save_tap tap_name, name:'benchmark', line: 9999
+    benchmark.save_tap tap_name, name:'benchmark', append: true
+    puts "TAP #{tap_name}:"
+    Z80::TAP.parse_file(tap_name) do |hb|
         puts hb.to_s
     end
 end

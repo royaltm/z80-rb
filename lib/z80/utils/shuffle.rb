@@ -183,7 +183,7 @@ if __FILE__ == $0
     END
     puts testshuffle.debug
     puts program.to_source escape_keywords:true
-    program.save_tap 'testshuffle.tap', line:9999
+    program.save_tap 'test.z80.utils.shuffle.tap', name:'shuffle', line:9999
     puts "shuffle length: #{testshuffle[:shuffle_end] - testshuffle[:shuffle_it]}"
-    testshuffle.save_tap 'testshuffle.tap', append:true
+    testshuffle.save_tap 'test.z80.utils.shuffle.tap', name:'shuffle', append:true
 end

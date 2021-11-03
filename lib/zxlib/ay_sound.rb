@@ -860,10 +860,11 @@ if __FILE__ == $0
     9999 CLEAR #{aytest.org-1}: LOAD ""CODE: RUN
     EOC
     puts program.to_source escape_keywords: true
-    program.save_tap "testay", line: 9999
-    aytest.save_tap "testay", append: true
-    puts "TAP: testay.tap:"
-    Z80::TAP.parse_file('testay.tap') do |hb|
+    tap_name = "test.zxlib.ay_sound.tap";
+    program.save_tap tap_name, name:'AY-3-891x', line: 9999
+    aytest.save_tap tap_name, name:'AY-3-891x', append: true
+    puts "TAP: #{tap_name}:"
+    Z80::TAP.parse_file(tap_name) do |hb|
         puts hb.to_s
     end
 end

@@ -1909,10 +1909,12 @@ if __FILE__ == $0
   9999 CLEAR #{music.org-1}: LOAD ""CODE: RUN
   EOC
   puts program.to_source escape_keywords: true
-  program.save_tap "testaymus", line: 9999
-  music.save_tap "testaymus", append: true, name: "music"
-  puts "TAP: testaymus.tap:"
-  Z80::TAP.parse_file('testaymus.tap') do |hb|
+
+  tap_name = 'test.zxutils.ay_music.tap'
+  program.save_tap tap_name, name:'music', line: 9999
+  music.save_tap tap_name, name:'music', append: true
+  puts "TAP #{tap_name}:"
+  Z80::TAP.parse_file(tap_name) do |hb|
       puts hb.to_s
   end
 end

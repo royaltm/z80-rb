@@ -660,12 +660,12 @@ if __FILE__ == $0
     END
     puts testsort.debug
     puts program.to_source escape_keywords:true
-    program.save_tap 'testsort.tap', line:9999
     puts "qsort_asc  length: #{testsort[:qsort_desc] - testsort[:qsort_asc]}"
     puts "qsort_desc length: #{testsort[:qsort_end] - testsort[:qsort_desc]}"
     puts "isort_asc  length: #{testsort[:isort_desc] - testsort[:isort_asc]}"
     puts "isort_desc length: #{testsort[:isort_end] - testsort[:isort_desc]}"
     puts "ssort_asc  length: #{testsort[:ssort_desc] - testsort[:ssort_asc]}"
     puts "ssort_desc length: #{testsort[:ssort_end] - testsort[:ssort_desc]}"
-    testsort.save_tap 'testsort.tap', append:true
+    program.save_tap 'test.z80.utils.sort.tap', name:'sort', line:9999
+    testsort.save_tap 'test.z80.utils.sort.tap', name:'sort', append:true
 end
