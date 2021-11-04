@@ -512,7 +512,6 @@ module Z80
             # * +tt+::       A 16-bit temporary register (+de+ or +bc+).
             # * +clrhl+::    If the result should be set or accumulated, if +false+ acts like: +hl+ += +k+ * +m+.
             # * +signed_k+:: If the multiplicant (+k+) represents a twos complement signed integer (-128..127).
-            # * +flags+::    
             #
             # Uses: +f+, +hl+, +tt+, optionally preserves: +k+.
             def mul_const(k=d, m=0, tt:de, clrhl:true, signed_k:false)
