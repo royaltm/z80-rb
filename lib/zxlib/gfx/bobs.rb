@@ -656,12 +656,10 @@ module ZXLib
           end
           if !pointer?(skip_cols) && label_immediate?(skip_cols)
             ncols = skip_cols.to_i
-            if ncols < 0
-              raise ArgumentError, "skip_cols must not be negative"
-            end
           else
             ncols = skip_cols
           end
+          raise ArgumentError, "skip_cols must not be negative" if Integer === ncols and ncols < 0
           skip_cols = case ncols # modifies: hl, sp (e: skip)
             when 0 then nil
             when 1..5
@@ -852,7 +850,7 @@ module ZXLib
         #          option must be set to +true+.
         #
         # * +bitmap+:: An address of a bitmap to be drawn as a label, a pointer, an integer or one of the 16-bit
-        #              registers: +ix+, +iy+, +sp+ or +hl'+.
+        #              registers: +hl'+, +ix+, +iy+ or +sp+.
         #              If +hl+ is specified the actual value will be read from alternative register +hl'+.
         # * +lines+:: A number of pixel lines to be drawn as an 8-bit register or a label, a pointer or an integer.
         #             The number must not be 0, otherwise the routine will resolve in UNDEFINED BEHAVIOUR.
@@ -885,7 +883,7 @@ module ZXLib
         #               If provided the routine breaks execution when the bottom of the screen has been reached.
         #               +CF+ = 0 (NC) if the routine terminates prematurely due to reaching bottom of the screen.
         #               Otherwise +CF+ = 1 if the whole bitmap has been drawn.
-        # * +jump_table+:: A label (or a symbol), a pointer address or +ix+/+iy+ registers referencing an external
+        # * +jump_table+:: A label, a pointer address or +de+/+bc+/+ix+/+iy+ registers referencing an external
         #                  jump table created with Macros#bobs_draw_pixels_fast_jump_table. If not provided
         #                  an internal jump table will be created instead. In this instance a +jump_table+ can be
         #                  later changed at run time by storing a new jump table address at +jump_table_p+ sublabel.
@@ -966,7 +964,10 @@ module ZXLib
           end if ncols
           local_jump_table = if jump_table.nil?
             true
-          elsif [ix, iy].include?(jump_table)
+          elsif [de, bc, ix, iy].include?(jump_table)
+            jh, jl = jump_table.split
+            raise ArgumentError, "lines, bshift and jump_table should use different registers" if [jh, jl].include?(lines) or
+                                                                                                  [jh, jl].include?(bshift)
             false
           else
             raise ArgumentError, "jump_table must be a label" unless label?(jump_table)
@@ -1012,10 +1013,10 @@ module ZXLib
                             add  a, a       # a: rshift * 2
                             add  bshift     # a: rshift * 3
             if register?(jump_table)
-                            ld16 de, jump_table
+                            ld16 de, jump_table unless jump_table == de
             else
             jump_table_a    ld   de, jump_table
-            jump_table_p    jump_table_a + 1 if !jump_table.pointer?
+            jump_table_p    jump_table_a + 1 unless jump_table.pointer?
             end
                             add  e
                             ld   e, a       # de: ->routine
