@@ -263,11 +263,11 @@ module ZXLib
       #
       # y < a1 a2 h3 h2 h1 l3 l2 l1,  x < x5 x4 x3 x2 x1 s3 s2 s1,
       # h > S  S  S  a1 a2 l3 l2 l1,  l > h3 h2 h1 x5 x4 x3 x2 x1,  s > 0  0  0  0  0  s3 s2 s1
-      def xytoscr(y, x, ah:h, al:l, s:b, t:c, scraddr:0x4000)
+      def yxtoscr(y, x, ah:h, al:l, s:b, t:c, scraddr:0x4000)
           if y == x or y == s or [x,ah,al,s,t].include?(a) or [ah,al,s].uniq.size != 3 or [ah, s].include?(t) or 
                 [ah, s, t].include?(x) or ![y, x, ah, al, s, t].all?{|r| register?(r) } or
                 !((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
-              raise ArgumentError, "xytoscr: invalid arguments!"
+              raise ArgumentError, "yxtoscr: invalid arguments!"
           end
           isolate do
               if y == a
@@ -320,6 +320,7 @@ module ZXLib
                       ld   al, a  # l= h h h x x x x x
           end
       end
+      alias_method :xytoscr, :yxtoscr
       ##
       # Creates a routine that converts a vertical pixel coordinate to a screen byte address.
       #
