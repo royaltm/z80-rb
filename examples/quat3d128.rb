@@ -16,8 +16,8 @@ class Float
       n.round & 0x7fff
     end
     hi, lo = i >> 8, i & 0xff
-    hi = (hi&0x7f)<<1 | (hi&0x80)>>7
-    hi<<8 | lo
+    hi = (hi&0x7f) << 1 | (hi&0x80) >> 7
+    hi << 8 | lo
   end
 end
 
