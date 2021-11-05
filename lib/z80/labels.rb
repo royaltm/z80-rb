@@ -212,6 +212,9 @@ module Z80
 		#
 		#  The returned label will eventually inherit the type from the given +address+.
 		#
+		#  The returned label will be visible together with aliased target in debug listing
+		#  at the code position when it was defined.
+		#
 		#  Options:
 		#
 		#  * +:align+:: Additionally aligns the +address+ to the nearest multiple of +:align+ bytes.
@@ -220,7 +223,7 @@ module Z80
 		#  Example:
 		#    baz as foo[2]
 		#    bak as (baz + 1 / 10), align: 16, offset: -1
-		def as(address, align: 1, offset: 0)
+		def alias_label(address, align: 1, offset: 0)
 			align = align.to_i
 			offset = offset.to_i
 			raise ArgumentError, "align must be >= 1" if align < 1
@@ -228,11 +231,15 @@ module Z80
 				offset = offset.to_i
 				address = (address + align - 1) / align * align if align > 1
 				address = address + offset unless offset.zero?
-				Alloc.new address, :alias
+				Alloc.new(address, :alias).tap do |alc|
+					@reloc << Relocation.new(pc, alc, :alias, nil)
+					@debug << DebugInfo.new(pc, 0, '---> %04xH', [nil, :alias], @context_labels.dup << alc)
+				end
 			else
 				raise ArgumentError, "address must be a label or a lazy expression"
 			end
 		end
+		alias_method :as, :alias_label
 		##
 		#  Returns an unnamed, immediate label at an absolute +address+ of the optional +type+.
 		#
@@ -637,6 +644,15 @@ module Z80
 	#    Creates a relative label "foo", with +value+ = +bar+ and of type 2:
 	#      foo       union bar, 2
 	#
+	#  Using Program.alias_label you can anchor labels:
+	#
+	#    ns :inner do
+	#      # inner.foo will reference some.other.label
+	#      foo    as  some.other.label
+	#      # inner.bar will reference (baz * 3) aligned to 16 bytes.
+	#      bar    as  baz * 3, align: 16
+	#    end
+	#
 	#  Examples::
 	#  To access +data_p+ field from a second +Sprite+ in the +spritep+:
 	#    ld  hl, [spritep.sprites[1].data_p]
@@ -883,8 +899,22 @@ module Z80
 			raise Syntax, "Can't rename already named label: #{@name} != #{value}" if @name and @name != value
 			@name = value
 		end
-		## Returns this label's name as string or +nil+.
-		def to_name; @name; end
+		##
+		# Returns this label's name as string or +nil+.
+		#
+		# +info+ enables returning made up name if this label is anonymous.
+		def to_name(info=false)
+			return @name if @name
+			if info
+				return '$'.freeze if @reloc == :code
+				return @address.to_s(16)
+			end
+		end
+		## Returns an abbreviated string information about a label for aliased targets.
+		def to_aliased_name(start)
+			return @name if @name
+			return (@address + if @reloc == :code then start else 0 end).to_s(16)
+		end
 		## Returns an abbreviated string information about a label, mostly used in error messages.
 		def to_str; "`#{@name}':#{'%04X' % @address}:#{@size} #{@reloc}#{dummy? ? '?':''}"; end
 		alias_method :to_s, :to_str
@@ -1312,12 +1342,21 @@ module Z80
 
 		def to_label(_); self; end
 
+		def to_aliased_name(start)
+			raise CompileError, "not an alias" unless alias?
+			if @lhs.alias? or @lhs.is_a?(Label)
+				@lhs.to_aliased_name(start)
+			else
+				@lhs.to_str
+			end
+		end
+
 		def to_str
 			return @name if @name
 			return @lhs.to_str if @pointer
 			case @oper
 			when nil
-				@lhs.to_name.to_s + @index.map {|idx|
+				@lhs.to_name(true).to_s + @index.map {|idx|
 					case idx
 					when String
 						'.' + idx
@@ -1420,9 +1459,9 @@ module Z80
 			@name = value
 		end
 
-		def to_name
+		def to_name(info=false)
 		 	return @name if @name
-		 	return @lhs.to_name if !expression?
+		 	return @lhs.to_name(info) if !expression?
 		end
 
 		def indexable?

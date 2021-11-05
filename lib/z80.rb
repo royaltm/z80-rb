@@ -35,6 +35,8 @@ module Z80
 	attr_reader :reloc_info
 	## A raw, debug information with all selections applied.
 	attr_reader :debug_info
+	## A map of alias labels and their evaluated values.
+	attr_reader :alias_info
 	## Returns an evaluated label's value by its name.
 	def [](name)
 		@labels[name.to_s]
@@ -67,6 +69,7 @@ module Z80
 		return @debug if @debug
 		reloc = @reloc_info
 		imports = @imports.values
+		aliases = @alias_info
 		@debug = @debug_info.map do |d|
 			case d
 			when DebugInfo
@@ -78,9 +81,13 @@ module Z80
 					" :" + d.labels.map {|n| n.to_name || n.to_i(org).to_s(16) }.join('.')
 				end
 
-				relocs = reloc.select {|r| (d.addr...d.addr+d.size).member? r.addr }.map {|r| r.alloc.to_s}.join(', ')
-				unless relocs.empty?
-					label = label.to_s + " -> #{relocs}"
+				unless d.size.zero?
+					relocs = reloc.select {|r| Integer === r.size and (d.addr...d.addr+d.size).member? r.addr }
+				  							.map {|r| r.alloc.to_s}
+				  							.join(', ')
+					unless relocs.empty?
+						label = label.to_s + " -> #{relocs}"
+					end
 				end
 
 				if (mnemo = d.text)
@@ -99,6 +106,9 @@ module Z80
 								data[o, 1].unpack('C')[0]
 							when :pcrel
 								data[o, 1].unpack('c')[0] + d.addr + d.size + org
+							when :alias
+								label = label.to_s + " -> #{d.labels.last.to_aliased_name(org)}"
+								aliases[d.labels.last]
 							end
 						}.flatten
 					end
@@ -229,8 +239,12 @@ module Z80
 				ConditionalBlock.compile(cndblk, code, reloc, debug, start, override)
 			end
 
+			aliases = {}
+
 			reloc.each do |r|
 				case r.size
+				when :alias
+					aliases[r.alloc] = r.alloc.to_i(start, override:override)
 				when 0
 					raise CompileError, "Absolute labels need relocation sizes for the overrides"
 					# OBSOLETE: ignore, this is an absolute address but we need relocation info for debug
@@ -267,7 +281,8 @@ module Z80
 			 '@labels', labels,
 			 '@imports', imports,
 			 '@reloc_info', reloc,
-			 '@debug_info', debug
+			 '@debug_info', debug,
+			 '@alias_info', aliases,
 			].each_slice(2) do |n,v|
 				prog.instance_variable_set n,v
 			end
