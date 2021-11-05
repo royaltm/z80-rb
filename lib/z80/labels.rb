@@ -7,7 +7,7 @@ class Symbol
 	#          inc hl
 	#          jr NC, :loop1
 	def to_label(program)
-		program.send self
+		program.define_label self
 	end
 end
 module Z80

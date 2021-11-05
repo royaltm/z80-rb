@@ -53,7 +53,7 @@ module Z80
 						lbl = with_saved(*registers, **nsopts) do |eoc|
 							mblock.call eoc, *args, &block
 						end
-						lbl = self.send n.to_sym, lbl if n
+						lbl = self.define_label n, lbl if n
 						lbl
 					end
 				end

@@ -597,9 +597,9 @@ module Z80
 
 			if name
 				plabel = Label.new(addr, type, :code, members)
-				self.send name.to_sym, plabel
+				self.define_label name, plabel
 			else
-				members.each {|n, m| self.send n.to_sym, m} if members
+				members.each {|n, m| self.define_label n, m} if members
 				plabel = Label.new addr, type, :code
 			end
 
