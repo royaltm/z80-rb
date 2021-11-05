@@ -28,7 +28,7 @@ module Z80
     #  Evaluates a block in an anonymous namespace if the condition evaluates to +true+.
     #  Returns an instance of ConditionalBlock.
     #
-    #  _NOTE_:: The block must produce some code or raise an error without producing any code.
+    #  _NOTE_:: The block should produce some code or raise an error without producing any code.
     #           Labels defined inside a block are not accessible from outside of the conditional block.
     def then(&block)
       raise Syntax, "`then' variant may be defined only once" unless @selection.then.nil?
@@ -40,11 +40,12 @@ module Z80
     #  Evaluates a block in an anonymous namespace if the condition evaluates to +false+.
     #  Returns an instance of ConditionalBlock.
     #
-    #  _NOTE_:: The block must produce some code or raise an error without producing any code.
+    #  _NOTE_:: The block should produce some code or raise an error without producing any code.
     #           Labels defined inside a block are not accessible from outside of the conditional block.
     def else(&block)
       raise Syntax, "Only one of `else' or `else_select` variant may be defined" unless @selection.else.nil?
-      raise Syntax, "`else' variant defined without `then'" if @selection.then.nil?
+      # create an empty +then+ variant that just passes.
+      @selection.then = create_variant if @selection.then.nil?
       @selection.else = create_variant(&block)
       self
     end
@@ -56,7 +57,8 @@ module Z80
     #  See Program.select.
     def else_select(*args, &test)
       raise Syntax, "Only one of `else' or `else_select` variant may be defined" unless @selection.else.nil?
-      raise Syntax, "`else' variant defined without `then'" if @selection.then.nil?
+      # create an empty +then+ variant that just passes.
+      @selection.then = create_variant if @selection.then.nil?
       ConditionalBlock.new(@program, *args, address: @address, codesize: @codesize, &test).tap do |cond|
         @selection.else = cond.selection
       end
@@ -115,7 +117,7 @@ module Z80
       @program.ns do |eoc|
         debug_ns_offset = @program.debug.length
         begin
-          block.call eoc
+          block.call eoc if block_given?
         rescue StandardError => e
           if code_offset == @program.code.bytesize &&
              reloc_offset == @program.reloc.length &&
@@ -139,7 +141,6 @@ module Z80
           raise Syntax, "conditional block variant code sizes differ"
         end
       end
-      raise Syntax, "conditional block variant is empty" if @codesize.zero?
       variant
     end
   end
@@ -152,8 +153,9 @@ module Z80
     #  Returns an instance of ConditionalBlock.
     #
     #  Each argument should be a label or a label expression.
+    #
     #  Provide a block of code that computes a boolean value based on the evaluated
-    #  label expressions.
+    #  label expressions provided as block's arguments.
     #
     #  _NOTE_:: Currently code produced by each variant must have the same number of bytes.
     #           Labels defined inside a variant are not accessible from outside of the conditional block.
@@ -166,6 +168,11 @@ module Z80
     #        ld   c, io.ay_out
     #      end.else do
     #        raise ArgumentError, "ay_out and ay_sel should differ only on either 8-bit lsb or msb"
+    #      end
+    #
+    #      # validate memory alignment condition
+    #      select((label + some_size) & 0xFF){|n| n >= some_size }.else do
+    #        raise ArgumentError, "data must fit on a single 256-byte page of memory"
     #      end
     def select(*args, &test)
       ConditionalBlock.new(self, *args, &test).tap {|cndblk| @conditional_blocks << cndblk }
