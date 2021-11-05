@@ -577,23 +577,31 @@ module ZXLib
         ##
         # Creates a jump table for the Macros#bobs_draw_pixels_fast routine.
         #
-        # Provide a label (or a symbol) referencing a label returned by either Macros#bobs_draw_pixels_fast
+        # Provide a label (or a symbol) referencing a routine created by either Macros#bobs_draw_pixels_fast
         # or Macros#bobs_draw_pixels_fast_routines.
         #
-        # Provide a reference to a label returned by this method as a +jump_table:+ option to +bobs_draw_pixels_fast+.
+        # Returns a label addressing the created jump table.
+        #
+        # Provide an address of a jump table as a +jump_table:+ option to +bobs_draw_pixels_fast+.
+        #
+        # _NOTE_:: The jump table must be aligned in memory so it does not cross 256-byte address pages.
+        #          In other words, the high 8 bits of addresses of each jump table byte must be the same.
+        #          Otherwise an error will be raised when trying to instanciate code.
+        #
+        # The jump table occupies 24 bytes of code.
         #
         # The content is lazy evaluated so the order of creating a table and a routine doesn't matter.
         def bobs_draw_pixels_fast_jump_table(draw_pixels_fast_label)
           throw ArgumentError, "draw_pixels_fast_label must be a label" unless direct_label?(draw_pixels_fast_label)
           draw_pixels_fast_label = draw_pixels_fast_label.to_label(self)
           isolate do
-            select((label + 8*3) & 0xFF){|x| x >= 8*3 }.then do |_|
-              (0..7).each do |index|
-                              dw   draw_pixels_fast_label.send(:"line_rshift#{index}").loop0
-                              db   0xff >> index
-              end
-            end.else do
-              raise ArgumentError, "jump_table must fit in a single 256 byte memory page"
+            size = 8*3
+            select((label + size) & 0xFF){|x| x >= size }.else do
+              raise ArgumentError, "jump_table data must fit on a single 256-byte page of memory"
+            end
+            (0..7).each do |index|
+              define_label :"jump#{index}",  dw( draw_pixels_fast_label.send(:"line_rshift#{index}").loop0 )
+              define_label :"mask#{index}",  db( 0xff >> index )
             end
           end
         end
@@ -883,10 +891,11 @@ module ZXLib
         #               If provided the routine breaks execution when the bottom of the screen has been reached.
         #               +CF+ = 0 (NC) if the routine terminates prematurely due to reaching bottom of the screen.
         #               Otherwise +CF+ = 1 if the whole bitmap has been drawn.
-        # * +jump_table+:: A label, a pointer address or +de+/+bc+/+ix+/+iy+ registers referencing an external
-        #                  jump table created with Macros#bobs_draw_pixels_fast_jump_table. If not provided
-        #                  an internal jump table will be created instead. In this instance a +jump_table+ can be
-        #                  later changed at run time by storing a new jump table address at +jump_table_p+ sublabel.
+        # * +jump_table+:: A label, a pointer address or one of +de+/+bc+/+ix+/+iy+ register pairs referencing
+        #                  an external jump table created with Macros#bobs_draw_pixels_fast_jump_table. If not
+        #                  provided an internal jump table will be created instead. In this instance a +jump_table+
+        #                  can be later changed at run time by storing a new jump table address at +jump_table_p+
+        #                  sublabel.
         # * +subroutine+:: Whether to create a subroutine.
         #
         # _NOTE_:: Restoring +sp+ register uses self-modifying code.
