@@ -469,17 +469,17 @@ module Z80
 					end
 				end.compact
 			end
-			# Remove our context from debug info
-			@context_labels.pop
 			# Handle merge option
 			if opts[:merge]
-				members.each {|n, l| self.send(n, l) }
+				members.each {|n, l| self.define_label(n, l) }
 				top.reinitialize addr, pc - addr, :code
 			else
+				# Remove our context from debug info
+				@context_labels.pop
 				top.reinitialize addr, pc - addr, :code, Hash[members]
 			end
 			# Optionally give name to top label
-			top = self.send name.to_sym, top if name
+			top = self.define_label name, top if name
 			top
 		end
 		##
