@@ -592,15 +592,22 @@ module ZXLib
         #
         # The content is lazy evaluated so the order of creating a table and a routine doesn't matter.
         def bobs_draw_pixels_fast_jump_table(draw_pixels_fast_label)
-          throw ArgumentError, "draw_pixels_fast_label must be a label" unless direct_label?(draw_pixels_fast_label)
-          draw_pixels_fast_label = draw_pixels_fast_label.to_label(self)
-          isolate do
+          unless draw_pixels_fast_label.nil?
+            throw ArgumentError, "draw_pixels_fast_label must be a label" unless direct_label?(draw_pixels_fast_label)
+            draw_pixels_fast_label = draw_pixels_fast_label.to_label(self)
+          end
+          ns do
             size = 8*3
             select((label + size) & 0xFF){|x| x >= size }.else do
               raise ArgumentError, "jump_table data must fit on a single 256-byte page of memory"
             end
             (0..7).each do |index|
-              define_label :"jump#{index}",  dw( draw_pixels_fast_label.send(:"line_rshift#{index}").loop0 )
+              line_rshiftN = if draw_pixels_fast_label.nil?
+                define_label :"line_rshift#{index}"
+              else
+                draw_pixels_fast_label.send :"line_rshift#{index}"
+              end
+              define_label :"jump#{index}",  dw( line_rshiftN.loop0 )
               define_label :"mask#{index}",  db( 0xff >> index )
             end
           end
@@ -1066,16 +1073,7 @@ module ZXLib
                             jp   (tx)       # pc: tx: routine.loop0
 
             if local_jump_table
-              ns :jump_table do
-                select((label + 8*3) & 0xFF){|x| x >= 8*3 }.then do |_|
-                  (0..7).each do |index|
-                              dw   define_label(:"line_rshift#{index}").loop0
-                              db   0xff >> index
-                  end
-                end.else do
-                  raise ArgumentError, "jump_table must fit in a single 256 byte memory page"
-                end
-              end
+              jump_table    bobs_draw_pixels_fast_jump_table nil
             end
             ###########################
             ##    bshift routines    ##
