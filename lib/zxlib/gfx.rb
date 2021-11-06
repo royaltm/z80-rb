@@ -754,6 +754,193 @@ module ZXLib
         end
       end
       ##
+      # Creates a routine that clears a rectangle on screen attributes using unrolled PUSH instructions.
+      #
+      # _NOTE_:: Interrupts must be disabled prior to calling this routine or the +disable_intr+
+      #          option must be set to +true+.
+      #
+      # * +address+:: An addres of a memory area to be cleared as a label, pointer, an integer or +hl+.
+      #               The interpretation of the given address depends on the +addr_mode+ option.
+      #               The starting address of the whole screen area must be a multiple of 0x2000.
+      # * +rows+:: A number of attribute rows to be cleared as an 8-bit register or a label or a pointer
+      #            or an integer.
+      # * +cols+:: A constant number of attribute columns to be cleared as an integer: 1 to 32.
+      # * +value+:: A pattern of 2 attributes (packed as 16-bit integer) to fill each line with as a label,
+      #             pointer, an integer or +de+.
+      #             For the odd number of columns the first and the last column will be the pattern's least
+      #             significant byte.
+      #
+      # Options:
+      # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
+      #                    only if you have already disabled the interrupts.
+      # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
+      #                   if you need to perform more uninterrupted actions.
+      # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored. Otherwise
+      #               +sp+ will point to the beginning of the last cleared line.
+      # * +addr_mode+:: Determines the interpretation of the given +address+. See below.
+      # * +unroll_rows+:: Creates unrolled code for columns and rows. In this instance +rows+ must be a constant.
+      # * +scraddr+:: An optional screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      #               If provided the routine breaks execution when the bottom of the attributes has been reached.
+      # * +subroutine+:: Whether to create a subroutine.
+      #
+      # +addr_mode+ should be one of:
+      #
+      # * +:optimal+:: For the odd number of +cols+ the +address+ should be the same as in the +:last+ mode.
+      #                For the even number of +cols+ the +address+ should be the same as in the +:end+ mode.
+      # * +:first+:: The +address+ should point to the first column of the topmost row of the area to be cleared.
+      # * +:last+:: The +address+ should point to the last column of the topmost row of the area to be cleared.
+      # * +:end+:: The +address+ should point to the next byte after the last column of the topmost row of the
+      #            area to be cleared.
+      #
+      # _NOTE_:: Restoring +sp+ register uses self-modifying code.
+      #
+      # Modifies: +af+, +af'+, +bc+, +de+, +hl+, optionally: +sp+.
+      # +af'+ is used only when +scraddr+ is defined and +unroll_rows+ is +false+.
+      def clear_attrs_region_fast(address=hl, rows=a, cols=2, value=0, disable_intr:true, enable_intr:true, save_sp:true, addr_mode: :optimal, unroll_rows:false, scraddr:nil, subroutine:false)
+        raise ArgumentError, "invalid scraddr argument" unless scraddr.nil? or (Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr)
+        raise ArgumentError, "address should be an address or a pointer or hl" unless address == hl or address?(address)
+        raise ArgumentError, "rows should be an integer or a label or a pointer or a register" unless (register?(rows) and rows.bit8?) or
+                                                                                                       address?(rows)
+        raise ArgumentError, "rows must be a positive non-zero integer to unroll code" if unroll_rows and
+                                                                                (!rows.is_a?(Integer) or rows <= 0)
+        cols = cols.to_i
+        raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
+        raise ArgumentError, "cols must be greater than or equal to 1" if cols < 1
+        raise ArgumentError, "value should be an integer or a label or a pointer or de" unless value == de or address?(value)
+        unless [:optimal, :first, :last, :end].include?(addr_mode)
+          raise ArgumentError, "addr_mode should be either :optimal, :first, :last or :end"
+        end
+        save_sp = false if cols == 1
+        if direct_address?(address)
+          case addr_mode
+          when :first
+            address = if cols.odd?
+              address + cols - 1
+            else
+              address + cols
+            end
+          when :last
+            address = address + 1 if cols.even?
+          when :end
+            address = address - 1 if cols.odd?
+          end
+        end
+
+        if addr_mode == :first
+          ts_cost = 7+4+4
+          ts_cost = ts_cost + 4 unless unroll_rows
+          ts_cost = ts_cost + 4 if pointer?(rows)
+          max_cols_adj_unroll = ts_cost / 4 + 1
+        end
+
+        clear_line = proc do |is_last = false|
+                        ld   [hl], e if cols.odd?
+                        ld   sp, hl unless cols == 1
+                        (cols >> 1).times { push de }
+                        add  hl, bc unless is_last
+        end
+
+        isolate do
+          if scraddr and !unroll_rows
+                        ex   af, af if rows == a
+                        ld   a, ((scraddr >> 8)|0x1B)-1
+                        ex   af, af
+          end
+          unless unroll_rows
+            if direct_address?(address) or addr_mode != :first or cols <= max_cols_adj_unroll
+                        ld   a, rows unless rows == a
+            elsif pointer?(rows)
+                        ld   a, rows
+                        ld   c, a      # ts:4
+            else
+                        ld   c, rows unless rows == c
+            end
+          end
+                        ld   hl, address unless address == hl
+          unless direct_address?(address)
+            if addr_mode == :first
+              if cols <= max_cols_adj_unroll
+                        (cols-1).times { inc l }
+              else
+                        ld   a, cols-1 # ts:7
+                        add  l         # ts:4
+                        ld   l, a      # ts:4
+                unless unroll_rows
+                        ld   a, c      # ts:4
+                end
+              end
+            end
+            unless addr_mode == :optimal
+              if addr_mode == :end
+                        dec  hl if cols.odd?
+              else
+                        inc  hl if cols.even?
+              end
+            end
+          end
+                        ld   de, value unless value == de
+                        ld   bc, 32
+                        di if disable_intr
+                        ld   [restore_sp_p], sp if save_sp
+          if unroll_rows
+                        clear_line.call rows == 1
+                        ld   a, ((scraddr >> 8)|0x1B)-1 if scraddr && rows > 1
+            (rows - 1).times do |row|
+              if scraddr
+                        cp   h      # a: ((scraddr >> 8)|0x1B)-1
+                if subroutine && !enable_intr && !save_sp
+                        ret  C
+                else
+                  rows_left = rows - 1 - row
+                  if cols > 1
+                    ahead = rows_left * (((cols + 1) >> 1) + 1)
+                  else
+                    ahead = rows_left
+                  end
+                  ahead = ahead + (rows_left - 1) * 4
+                  if ahead < 128
+                        jr   C, quit
+                  else
+                        jp   C, quit
+                  end
+                end
+              end
+                        clear_line.call row == rows - 2
+            end
+          else
+            if scraddr
+                        clear_line.call
+                        dec  a
+              if subroutine && !enable_intr && !save_sp
+                        ret  Z
+              else
+                        jr   Z, quit
+              end
+            loop_line   ex   af, af # ((scraddr >> 8)|0x1B)-1
+                        cp   h
+              if subroutine && !enable_intr && !save_sp
+                        ret  C
+              else
+                        jr   C, quit
+              end
+                        ex   af, af
+            else
+            loop_line   label
+            end
+                        clear_line.call
+                        dec  a
+                        jp   NZ, loop_line
+          end
+          quit          label unless subroutine && !enable_intr && !save_sp
+          if save_sp
+          restore_sp    ld   sp, 0
+          restore_sp_p  restore_sp + 1
+          end
+                        ei if enable_intr
+                        ret if subroutine && (enable_intr || save_sp)
+        end
+      end
+      ##
       # Creates a routine that copies a rectangle of an ink/paper screen from or to a shadow screen.
       #
       # * +address+:: An address of a top-left corner of the screen memory area to be copied to as a label, pointer,
