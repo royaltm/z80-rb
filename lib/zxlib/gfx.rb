@@ -611,7 +611,7 @@ module ZXLib
       # * +:last+:: The +address+ should point to the last column of the topmost line of the area to be cleared.
       #             This is the fastest mode as the address needs to be adjusted in other modes.
       # * +:first+:: The +address+ should point to the first column of the topmost line of the area to be cleared.
-      # * +:compat+:: The +address+ should point to next byte after the last column of the topmost line of the
+      # * +:compat+:: The +address+ should point to the next byte after the last column of the topmost line of the
       #               area to be cleared.
       #
       # _NOTE_:: Restoring +sp+ register uses self-modifying code.
@@ -626,6 +626,9 @@ module ZXLib
         raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
         raise ArgumentError, "cols must be greater than or equal to 1" if cols < 1
         raise ArgumentError, "value should be an integer or a label or a pointer or de" unless value == de or address?(value)
+        unless addr_mode.nil? or [:compat, :first, :last].include?(addr_mode)
+          raise ArgumentError, "addr_mode should be either :compat, :first or :last"
+        end
         save_sp = false if cols == 1
         fits_single_row = false
         if direct_address?(address)
@@ -740,14 +743,14 @@ module ZXLib
                         jr   C, skip_adj
                         ret if subroutine && !enable_intr && !save_sp
             end
-            quit        label
+            quit        label unless subroutine && !enable_intr && !save_sp
           end
           if save_sp
-          restore_sp    ld  sp, 0
+          restore_sp    ld   sp, 0
           restore_sp_p  restore_sp + 1
           end
                         ei if enable_intr
-                        ret if subroutine && (enable_intr || save_sp)
+                        ret if subroutine && (enable_intr || save_sp || fits_single_row)
         end
       end
       ##
