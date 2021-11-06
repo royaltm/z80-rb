@@ -589,8 +589,10 @@ module ZXLib
       #               The interpretation of the given address depends on the +addr_mode+ option.
       #               The starting address of the whole screen area must be a multiple of 0x2000.
       # * +lines+:: A number of pixel lines to be cleared as an 8-bit register or a label, pointer or an integer.
-      # * +cols+:: A constant even number of 8 pixel columns to be cleared as an integer.
+      # * +cols+:: A constant number of 8 pixel columns to be cleared as an integer: 1 to 32.
       # * +value+:: A pattern of 16 pixels to fill each line with as a label, pointer, an integer or +de+.
+      #             For the odd number of columns the first and the last column will be the pattern's least
+      #             significant byte.
       #
       # Options:
       # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
@@ -599,16 +601,18 @@ module ZXLib
       #                   if you need to perform more uninterrupted actions.
       # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored. Otherwise
       #               +sp+ will point to the beginning of the last cleared line.
-      # * +addr_mode+:: Determines the interpretation of the given +address+.
+      # * +addr_mode+:: Determines the interpretation of the given +address+. See below.
       # * +scraddr+:: An optional screen memory address which must be a multiple of 0x2000 as an integer or a label.
       #               If provided the routine breaks execution when the bottom of the screen has been reached.
       # * +subroutine+:: Whether to create a subroutine.
       #
       # +addr_mode+ should be one of:
       #
-      # * +:last+:: The +address+ should point to the last byte of the topmost line of the area to be cleared.
-      # * +:first+:: The +address+ should point to the first byte of the topmost line of the area to be cleared.
-      # * +:compat+:: The +address+ should point to next byte after the last byte of the topmost line of the area to be cleared.
+      # * +:last+:: The +address+ should point to the last column of the topmost line of the area to be cleared.
+      #             This is the fastest mode as the address needs to be adjusted in other modes.
+      # * +:first+:: The +address+ should point to the first column of the topmost line of the area to be cleared.
+      # * +:compat+:: The +address+ should point to next byte after the last column of the topmost line of the
+      #               area to be cleared.
       #
       # _NOTE_:: Restoring +sp+ register uses self-modifying code.
       #
@@ -619,10 +623,10 @@ module ZXLib
         raise ArgumentError, "lines should be an integer or a label or a pointer or a register" unless (register?(lines) and lines.bit8?) or
                                                                                                        address?(lines)
         cols = cols.to_i
-        raise ArgumentError, "cols must be even" if cols.odd?
         raise ArgumentError, "cols must be less than or equal to 32" if cols > 32
-        raise ArgumentError, "cols must be greater than or equal to 2" if cols < 2
+        raise ArgumentError, "cols must be greater than or equal to 1" if cols < 1
         raise ArgumentError, "value should be an integer or a label or a pointer or de" unless value == de or address?(value)
+        save_sp = false if cols == 1
         fits_single_row = false
         if direct_address?(address)
           case addr_mode
@@ -640,8 +644,8 @@ module ZXLib
                         ld   c, lines if register?(lines) && lines != c
                         ld   de, value unless value == de
 
-          if address?(address) and !pointer?(address)
-            if const_addr_not_right_edge or fits_single_row
+          if direct_address?(address)
+            if (const_addr_not_right_edge or fits_single_row) and cols.even?
                         ld   hl, address + 1
             else
                         ld   hl, address
@@ -670,7 +674,10 @@ module ZXLib
                         add  8          # 8 - h % 8
                         ld   b, a       # b: counter: 8 - h % 8
           end
-
+          # if (const_addr_not_right_edge or fits_single_row) and cols.even?
+          #   hl: -> last screen column + 1
+          # else
+          #   hl: -> last screen column
           unless fits_single_row
             if register?(lines)
                         ld   a, c       # a: lines
@@ -697,10 +704,12 @@ module ZXLib
                         di if disable_intr
                         ld   [restore_sp_p], sp if save_sp
           loop0         label
-                        inc  hl unless const_addr_not_right_edge or fits_single_row
-          loop1         ld   sp, hl
+                        inc  hl unless const_addr_not_right_edge or fits_single_row or cols.odd?
+          loop1         label
+                        ld   [hl], e if cols.odd?
+                        ld   sp, hl unless cols == 1
                         inc  h
-                        (cols>>1).times { push de }
+                        (cols >> 1).times { push de }
                         djnz loop1
           unless fits_single_row
             if subroutine && !enable_intr && !save_sp
@@ -708,7 +717,7 @@ module ZXLib
             else
                         jr   C, quit
             end
-                        dec  hl unless const_addr_not_right_edge
+                        dec  hl unless const_addr_not_right_edge or cols.odd?
                         ex   af, af     # a': remaining lines
                         ld   a, l
                         add  0x20
