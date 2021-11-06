@@ -663,6 +663,21 @@ module Z80
 				data
 			end, data_type
 		end
+		##
+		#  Appends user comment to the debug listing.
+		#
+		#  The comment will be visible as text in the listing at the current Program.pc address.
+		#
+		#  Example:
+		#
+		#    dc!
+		#    dc!"*********************************************"
+		#    dc!"***               HELLO Z80               ***"
+		#    dc!"*********************************************"
+    def debug_comment(text=''.freeze)
+        @debug << DebugInfo.new(pc, 0, text.to_s, nil, [Label.dummy])
+    end
+    alias_method :dc!, :debug_comment
 	end
 	#  some useless stuff; needed for z80 opcode testing; but didn't delete it (maybe will come in handy)
 	module Helpers # :nodoc:

@@ -12,6 +12,11 @@ class BenchRnd
     get_bench_result    calculate_benchmark_tstates(bm.counter, bm.tsframe, bm.frames, bm.idle, bm.adjustment)
     estimate_tsframes   estimate_tstates_per_interrupt(vars.udg, bm.interrup_vec, bm.forward, bm.tsframe, bm.idle)
 
+    dc!
+    dc!"*********************************************"
+    dc!"***                BENCHES                ***"
+    dc!"*********************************************"
+
     ns :set_seed   do
                     find_def_fn_args(1, subroutine:false, cf_on_direct:true)
                     jr   C,  from_vars

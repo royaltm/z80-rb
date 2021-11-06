@@ -73,6 +73,11 @@ class BenchSort
                 memcpy sortable1, sortable0, ARRAY_SIZE
     end
 
+    dc!
+    dc!"*********************************************"
+    dc!"***                BENCHES                ***"
+    dc!"*********************************************"
+
     ns :test_copy do
                 copy_sortable
                 ret

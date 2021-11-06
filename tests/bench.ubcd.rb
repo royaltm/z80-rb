@@ -19,6 +19,11 @@ class BenchPrintInt
     get_bench_result    calculate_benchmark_tstates(bm.counter, bm.tsframe, bm.frames, bm.idle, bm.adjustment)
     estimate_tsframes   estimate_tstates_per_interrupt(vars.udg, bm.interrup_vec, bm.forward, bm.tsframe, bm.idle)
 
+    dc!
+    dc!"*********************************************"
+    dc!"***                BENCHES                ***"
+    dc!"*********************************************"
+
     ns :test_print_int do
         size_a      ld    b, +test_integer
         size_p      size_a + 1
