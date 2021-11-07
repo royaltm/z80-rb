@@ -5,6 +5,8 @@ require 'zxlib/sys'
 
 module ZXUtils
   ##
+  # =BigFont
+  #
   # Z80 Macros producing routines to create and display 16x15 characters from a 8x8 font
   # (e.g: a default ROM font) applying a simple anti-aliasing algorithm.
   #
@@ -26,6 +28,10 @@ module ZXUtils
   #                       ░░░░░░░░████████████████░░░░░░░░ c  ░░░░░░░░████████████████░░░░░░░░
   #                       ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ d  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
   #                       ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ e  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  #
+  # 
+  # Features ZX Spectrum's ROM compatible CHAN output routines for both regular (256x192) and high
+  # resolution (512x192) screen modes. See BigFontHires.
   #
   # Author:: Rafał Michalski, (c) 2018-2021
   class BigFont
@@ -372,7 +378,7 @@ module ZXUtils
     ##
     # ZX Spectrum's ROM compatible CHAN output routine
     #
-    # The +a+ register has the output code.
+    # The +a+ register should have the output character code loaded.
     ns :print_char do
       # The routine may modify the registers AF, AF', BC, DE, HL, IX. We should only preserve an alternative set
       # which is a regular set for the system. Modifying IY is not a good idea without disabling interrupts first.
@@ -457,7 +463,10 @@ module ZXUtils
       flags           bytes 1
     end
   end
-
+  ##
+  # =BigFontHires
+  #
+  # See also: BigFont.
   class BigFontHires
     include Z80
 
@@ -482,7 +491,7 @@ module ZXUtils
     ##
     # ZX Spectrum's ROM compatible CHAN output routine, for hi-res mode.
     #
-    # The +a+ register has the output code.
+    # The +a+ register should have the output character code loaded.
     ns :print_char_hires do
       # The routine may modify the registers AF, AF', BC, DE, HL, IX. We should only preserve an alternative set
       # which is a regular set for the system. Modifying IY is not a good idea without disabling interrupts first.
