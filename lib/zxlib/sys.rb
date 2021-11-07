@@ -10,7 +10,7 @@ module ZXLib
     #
     #  * labels for some of ZX Spectrum 16/48K ROM routine addresses in the +rom+ namespace.
     #  * labels for ZX Spectrum 16/48K memory layout in the +mem+ namespace.
-    #  * labels for ZX Spectrum 16/48K memory layout in the +mem128+ namespace.
+    #  * labels for ZX Spectrum 128K memory layout in the +mem128+ namespace.
     #  * labels for TC2048/2068 (SCLD) screen memory layout in the +memT2k+ namespace.
     #  * labels for ZX Spectrum 16/48K basic and system variables in the +vars+ namespace.
     #  * labels for ZX Spectrum 128K system variables in the +vars128+ namespace.
