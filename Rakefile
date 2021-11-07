@@ -39,16 +39,20 @@ EXAMPLES = %w[
   labyrinth.rb
   mathi_test.rb
   multifill.rb
+  palette64.rb
   quat3d128.rb
   stars.rb
+  test_ham256.rb
   test_music.rb
 ]
 
 desc "Compile examples"
-task :examples => 'example:gallery' do
+task :examples do
   EXAMPLES.each do |example|
+    puts '','='*60, "Example: #{example}".center(40), '-'*60
     sh "ruby -Ilib #{File.join("examples", example)}"
   end
+  Rake::Task['example:gallery'].invoke
 end
 
 UTIL_TESTS = %w[
@@ -71,6 +75,7 @@ UTIL_TESTS = %w[
 desc "Compile utils' tests"
 task :utils do
   UTIL_TESTS.each do |path|
+    puts '','='*60, "Utility: #{path}".center(40), '-'*60
     sh "ruby -Ilib #{File.join("lib", path)}"
   end
 end
@@ -84,6 +89,7 @@ TESTS = %w[
 desc "Compile external tests"
 task :test do
   TESTS.each do |path|
+    puts '','='*60, "Test: #{path}".center(40), '-'*60
     sh "ruby -Ilib #{File.join("tests", path)}"
   end
 end
@@ -97,6 +103,7 @@ BENCHES = %w[
 desc "Compile benchmarks"
 task :bench do
   BENCHES.each do |path|
+    puts '','='*60, "Benchmark: #{path}".center(40), '-'*60
     sh "ruby -Ilib #{File.join("tests", path)}"
   end
 end

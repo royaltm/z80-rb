@@ -29,7 +29,8 @@ SCREENS = %w[
 
 namespace :example do
   desc "Create an example gallery"
-  task :gallery do 
+  task :gallery do
+    puts '','='*60, "Example: zxgallery".center(40), '-'*60
     paths = SCREENS.map {|s| File.join("examples","screens",s) }
     sh "zxgallery -o examples/example_gallery.tap #{paths.join(' ')}"
   end
