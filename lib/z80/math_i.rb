@@ -347,6 +347,8 @@ module Z80
             # +th+:: A target MSB 8-bit register.
             # +tl+:: A target LSB 8-bit register.
             #
+            # As a side effect: +a+ equals to +th+ when the routine ends.
+            #
             # ====Note:
             # Although this method is often a more convenient way to add an 8-bit unsigned integer
             # to a 16-bit pair of registers, it sets flags in the following way:
@@ -375,6 +377,8 @@ module Z80
             # +s+:: A subtractor as an 8-bit register except the accumulator.
             # +th+:: A target MSB 8-bit register.
             # +tl+:: A target LSB 8-bit register.
+            #
+            # As a side effect: +a+ equals to +th+ when the routine ends.
             #
             # ====Note:
             # Although this method is often a more convenient way to subtract an 8-bit unsigned register value

@@ -35,7 +35,7 @@ module Z80
         #                    ld    a, 31    # angle = PI*31/128
         #                    sincos_from_angle sincos, h, l
         #                    ld    c, [hl]  # sinus to bc
-        #                    inc   hl
+        #                    inc   l
         #                    ld    b, [hl]
         #                    ret
         #
@@ -134,7 +134,7 @@ module Z80
                 end
                 ##
                 # Creates a subroutine that generates a full SinCosTable from a quarter sinus table
-                # obtainable from neg_sintable256_pi_half_no_zero_lo.
+                # obtainable from #neg_sintable256_pi_half_no_zero_lo.
                 #
                 # +sincos+:: Address of a SinCos table as a label or an integer.
                 # +sintable+:: Address of a #neg_sintable256_pi_half_no_zero_lo sinus table.

@@ -68,7 +68,7 @@ module Z80
                 #       if i < last
                 #           qsort(A, i, last)
                 #
-                # Modifies: +af+, +bc+, +de+, +hl+.
+                # Modifies: +af+, +bc+, +de+, +hl+. Stack depth: recursive + 4 bytes.
                 #
                 # The created function is recursive and should be used for arrays larger than 30
                 # elements for performance reasons.
@@ -290,7 +290,7 @@ module Z80
                 #       A[j+1] ← x
                 #   end while
                 #
-                # Modifies: +af+, +bc+, +de+, +hl+.
+                # Modifies: +af+, +bc+, +de+, +hl+. Stack depth: 4 bytes.
                 #
                 # This function outperforms quicksort for smaller arrrays or arrays that are nearly sorted.
                 # The worst case scenario for this algorithm is the array sorted in reverse order.
@@ -400,7 +400,7 @@ module Z80
                 #       A[i] ⇄ A[iMax]
                 #       i ← i - 1
                 #
-                # Modifies: +af+, +bc+, +de+, +hl+.
+                # Modifies: +af+, +bc+, +de+, +hl+. Stack depth: 2 bytes.
                 #
                 # Produces the smallest code. Avoid using it when performance is important.
                 # For smaller arrays prefer using inserting sort or quicksort for larger arrays.
