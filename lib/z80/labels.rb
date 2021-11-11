@@ -1042,6 +1042,16 @@ module Z80
 				end[0,len].ljust(len, "\x0")
 			end
 			public
+			## Returns a lazy evaluated, debug visible, byte offset of a struct member.
+			#  Returns +nil+ if self is not a struct or a member does not exist.
+			def offset_of_(name)
+				if @members
+					name = name.to_s
+					if @members.any? {|m| m[0] == name }
+						self.new(0).tap{|l|l.name = self.name}.to_alloc.send(name)
+					end
+				end
+			end
 			## Returns a size of a data structure immediately.
 			def to_i; @struct_size; end
 			## Returns a lazy evaluated size of a data structure. Better for debugging than Label.to_i.
