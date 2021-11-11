@@ -137,6 +137,8 @@ module Z80
                                     reverse: false, safe_args: true, pivot_reg: c, swap_same: true, &swap_items)
                     raise ArgumentError, "pivot_reg must be either c or b register" unless [c, b].include?(pivot_reg)
                     raise ArgumentError, "reverse should be a boolean" unless [true, false].include?(reverse)
+                    raise ArgumentError, "safe_args should be a boolean" unless [true, false].include?(safe_args)
+                    raise ArgumentError, "swap_same should be a boolean" unless [true, false].include?(swap_same)
                     temp = if pivot_reg == c then b else c end
                     first, last = if reverse then [hl, de] else [de, hl] end
                     ii, jj = first, last
@@ -175,7 +177,7 @@ module Z80
                         if direct_address?(select_pivot)
                             selpiv_address = select_pivot
                             proc { call selpiv_address }
-                        elsif select_pivot.respond_to?(:call)
+                        elsif select_pivot.is_a?(Proc)
                             select_pivot
                         else
                             raise ArgumentError,
@@ -320,6 +322,10 @@ module Z80
                 #             ^                                      ^
                 # The side effects procedure <b>MUST PRESERVE</b> the content of the +hl+ 16-bit register.
                 def insertion_sort_bytes_max256(reverse:false, target:hl, length:b, subroutine:false, &side_effects)
+                    raise ArgumentError, "reverse should be a boolean" unless [true, false].include?(reverse)
+                    raise ArgumentError, "target must be either hl or an address" unless address?(target) or target == hl
+                    raise ArgumentError, "length must be an 8-bit integer, label or a register" unless address?(length) or (register?(b) and b.bit8?)
+                    raise ArgumentError, "subroutine should be a boolean" unless [true, false].include?(subroutine)
                     next_hl = if reverse
                         proc { dec hl }
                     else
@@ -337,7 +343,12 @@ module Z80
                     end
                     isolate do |eoc|
                                     ld    hl, target unless target == hl
+                        if pointer?(length)
+                                    ld    a, length
+                                    ld    b, a
+                        else
                                     ld    b, length unless length == b
+                        end
                                     dec   b
                         if subroutine
                                     ret   Z
@@ -425,6 +436,10 @@ module Z80
                 #
                 # The swap items procedure <b>MUST PRESERVE</b> values of +hl+ and +b+ registers.
                 def selection_sort_bytes_max256(reverse:false, target:hl, length:b, subroutine:false, &swap_items)
+                    raise ArgumentError, "reverse should be a boolean" unless [true, false].include?(reverse)
+                    raise ArgumentError, "target must be either hl or an address" unless address?(target) or target == hl
+                    raise ArgumentError, "length must be an 8-bit integer, label or a register" unless address?(length) or (register?(b) and b.bit8?)
+                    raise ArgumentError, "subroutine should be a boolean" unless [true, false].include?(subroutine)
                     next_hl = if reverse
                         proc { inc hl }
                     else
@@ -440,7 +455,12 @@ module Z80
                     end
                     isolate do |eoc|
                                     ld    hl, target unless target == hl
+                        if pointer?(length)
+                                    ld    a, length
+                                    ld    b, a
+                        else
                                     ld    b, length unless length == b
+                        end
                         # i ← length(A) - 1
                                     dec   b
                         if subroutine
