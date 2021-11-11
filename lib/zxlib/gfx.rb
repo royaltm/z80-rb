@@ -564,7 +564,7 @@ module ZXLib
       # i < 0  1  0  2a 1a l  l  l,
       # o > 0  1  0  1  1  0  2a 1a
       def scrtoattr(s, o:s, scraddr:0x4000)
-          unless [i, o].all?{|r| register?(r) } and
+          unless [s, o].all?{|r| register?(r) } and
                  ((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
             raise ArgumentError, "scrtoattr: invalid arguments!" 
           end
