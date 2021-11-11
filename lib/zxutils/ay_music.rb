@@ -874,7 +874,7 @@ module ZXUtils
                         ld   sp, [music_control.saved_sp]
       else
         restore_sp      ld   sp, 0
-        restore_sp_p    restore_sp + 1
+        restore_sp_p    as   restore_sp + 1
       end
                         ex   de, hl
                         jp   (hl)
@@ -994,7 +994,7 @@ module ZXUtils
                         ld   sp, [music_control.saved_sp]
       else
         restore_sp      ld   sp, 0
-        restore_sp_p    restore_sp + 1
+        restore_sp_p    as   restore_sp + 1
       end
                         ret
 

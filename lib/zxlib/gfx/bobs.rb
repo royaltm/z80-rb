@@ -352,7 +352,7 @@ module ZXLib
             end
             if save_sp
               restore_sp    ld  sp, 0
-              restore_sp_p  restore_sp + 1
+              restore_sp_p  as  restore_sp + 1
             end
                             ei if enable_intr
                             ret if subroutine && (enable_intr || save_sp)
@@ -479,7 +479,7 @@ module ZXLib
             quit            label
             if save_sp
               restore_sp    ld  sp, 0
-              restore_sp_p  restore_sp + 1
+              restore_sp_p  as  restore_sp + 1
             end
                             ei if enable_intr
                             ret if subroutine
@@ -1141,7 +1141,7 @@ module ZXLib
             end
             if save_sp
               restore_sp    ld  sp, 0
-              restore_sp_p  restore_sp + 1
+              restore_sp_p  as  restore_sp + 1
             end
                             ei if enable_intr
                             ret if subroutine && (enable_intr || save_sp)
