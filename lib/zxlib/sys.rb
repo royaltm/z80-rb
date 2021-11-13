@@ -432,7 +432,7 @@ module ZXLib
         end
 
         # ULAplus
-        # https://faqwiki.zxnet.co.uk/wiki/ULAplus
+        # https://sinclair.wiki.zxnet.co.uk/wiki/ULAplus
         isolate :io_plus do
             reg  addr 0xBF3B # 0 - 63 palette entry select, 64 - group mode and bits 0-5 select screen mode:
                              # bits 0-2: 000=screen 0, 001=screen 1, 010=hi-colour, 110=hi-res (bank 5)
