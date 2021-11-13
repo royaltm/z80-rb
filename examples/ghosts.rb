@@ -2,14 +2,12 @@
 require 'z80'
 require 'z80/math_i'
 require 'z80/stdlib'
-# require 'z80/utils/shuffle'
+require 'z80/utils/shuffle'
 require 'z80/utils/sincos'
 require 'z80/utils/sort'
-# require 'z80/utils/vec_deque'
 require 'zxlib/sys'
 require 'zxlib/gfx'
 require 'zxlib/gfx/bobs'
-# require 'zxlib/gfx/draw'
 require 'zxutils/bigfont'
 
 class Ghosts
@@ -21,12 +19,10 @@ class Ghosts
 
   export :auto
 
-  MODE = :or
-  MARK_MAX_Y = [-1].pack('c').unpack('C').first # because why not?
-  WIPE_TERMINATOR = 0
-  MAX_SPRITES = 24 # changing it to a larger value will be UB
+  MODE = :or # :or :xor :set :copy
   BORDER_PROFILE = false
   ASSERT_DEBUG = false
+  ANIMATE_STEP = 12
 
   class Word < Label
     l           byte
@@ -43,8 +39,13 @@ class Ghosts
     radius      byte
   end
 
+  MAX_SPRITES = 256/Sprite.to_i
+  raise SyntaxError, "max sprites must be smaller than #{256/Sprite.to_i}" if MAX_SPRITES > 256/Sprite.to_i
+  WIPE_TERMINATOR = 0
+  MARK_MAX_Y = [-1].pack('c').unpack('C').first # because why not?
+
   ## Graphics
-  ghost1        addr 0xF000
+  ghosts        addr 0xF000
   ## Clear screen region addresses and heights.
   #  The second stack is being populated while the previous one is being pulled from.
   wipe_stack0   addr 0xF800
@@ -53,25 +54,27 @@ class Ghosts
   sincos        addr wipe_stack1 + 0x0100, SinCosTable
   ## Variables: number of sprites (must be in the range: 1..MAX_SPRITES)
   nsprites      addr sincos[1], 1
-  ## Variables: last populated wipe stack (address MSB)
+  ## Variables: last populated wipe stack (MSB of wipe_stack0 or wipe_stack1)
   wipe_stack    addr :next, 1
-  ## Variables: frame interrupt counter
-  frame_iflag   addr :next, 1
   ## Variables: ghost chase radius delta
   chase_dt      addr :next, 1
   ## Variables: collected spell step
   spell_n       addr :next, 1
+  ## Variables top marker
+  vars_top      addr :next, 1
   ## Sprite index, contains LSB of sprite addresses
   sprindex      addr wipe_stack0 - 0x0100, 1
   ## Unsigned sprite Y position (sprite.y + 15) being used for sorting.
   #  MARK_MAX_Y denotes OOS sprites.
   spr_ys        addr sprindex - 0x0100, 1
   ## Sprite control data
-  sprites       addr spr_ys  - 0x0100, Sprite
+  sprites       addr spr_ys - 0x0100, Sprite
+  ## Shuffled random data
+  shuffled      addr sprites - 0x100, 1
 
   sanity_sp     addr 0xFF10 if ASSERT_DEBUG
 
-  raise SyntaxError if nsprites.to_i > 0xFF00
+  raise SyntaxError if vars_top.to_i > 0xFF00
   raise SyntaxError unless (sincos.to_i & 0xFF).zero?
   raise SyntaxError unless (wipe_stack0.to_i & 0xFF).zero?
   raise SyntaxError unless (wipe_stack1.to_i & 0xFF).zero?
@@ -81,14 +84,12 @@ class Ghosts
 
   macro_import MathInt
   macro_import Stdlib
-  # macro_import Utils::Shuffle
+  macro_import Utils::Shuffle
   macro_import Utils::SinCos
   macro_import Utils::Sort
-  # macro_import Utils::VecDeque
   label_import ZXLib::Sys, macros: true
   macro_import ZXLib::Gfx
   macro_import ZXLib::Gfx::Bobs
-  # macro_import ZXLib::Gfx::Draw
 
   def self.debug_border(color)
     raise ArgumentError, "border color: 0-7" unless (0..7).include?(color)
@@ -121,8 +122,16 @@ class Ghosts
   #          +-----+-----+---------+-----+-----+ 192
   #          (+106) (+98)   (+57)   (+76) (+81)
   #
-  # a': color, hl: bitmap, de: xx, bc: yy, cols: 2 -> c: height, de: screen address
-  macro :calc_screen_addrs_and_push_args do |eoc, oos:, height:16|
+  # <- a': attributes, hl: bitmap, de: sx, bc: sy, cols: 2
+  # -> c: height, de: screen address, [sp]:
+  # * attr_cols|ZF=0,CF=1
+  # * attr_addr
+  # * attr_rows|attributes
+  # * bshift|height
+  # * screen address
+  # * bitmap
+  # * jump_table
+  macro :calc_screen_addrs_and_push_args do |_, oos:, height:16|
     if oos.is_a?(Proc)
       oos_block = oos
       oos = define_label :oos
@@ -197,6 +206,12 @@ class Ghosts
                         # 176 < y < 192 || -16 < y < 0
                         inc   a            # height: yl + 16
                         jp    scraddrcalc
+                        # a: height -> a: attr_rows (height + 7)/8
+    lines_to_rows       add   a, 7
+                        3.times { rrca }         # rows: 1 or 2
+                        anda  3
+                        jp    push_attr_rows
+
                         # 0 <= y < 256
     ypos                ld    a, 192 - height  # a: 176
                         sub   yl               # 176 - yl
@@ -206,8 +221,8 @@ class Ghosts
 
     scraddrcalc         push  ix                 # jump_table
                         push  hl                 # bitmap
-                        ex    af, af             # a: color, a': height
-                        ld    l, a               # l: color_attr
+                        ex    af, af             # a: attributes, a': height
+                        ld    l, a               # l: attributes
                         ld    h, attr_cols       # h: attr_cols (0, 1 or 2)
                         yxtoscr yl, xl, ah:d, al:e, s:b, t:c, scraddr:0x4000
                         push  de                 # screen address
@@ -219,28 +234,23 @@ class Ghosts
                         add   b                  # if attr_cols.zero? and bshift.zero?
                         ld    a, 1               # attr_cols: 1
                         adc   a, a               # attr_cols: 2 or 3
-
     cols_settled        ex    af, af             # a: height, a': attr_cols
-                        ld    c, a               # c: height
-                        push  bc                 # bshift|lines
+                        ld    c, a               # c: height (lines)
+                        push  bc                 # bshift|lines (height)
                         # attribute rows
-                        cp    height
-                        jr    NC, lines_full
-    lines_trunc         add   a, 7
-                        anda  0b11000
-                        3.times { rrca }         # rows: 1 or 2
-                        jp    skip_full
-    lines_full          ld    a, d               # rows determined from screen address
-                        ora   0b1111_1000
-                        add   a, 7
+                        cp    height             # a: height (lines)
+                        jr    C, lines_to_rows
+                        ld    a, d               # rows determined from screen address
+                        anda  0b1111_1000
+                        cp    d                  # CF: 0b11111000 < 0b11111ddd (ddd != 000)
                         ld    a, 1
-                        adc   a, a               # rows: 2 or 3
-    skip_full           ld    h, a               # rows
-                        push  hl                 # rows|attr_color
+                        adc   a, a               # attr_rows: 2 or 3
+    push_attr_rows      ld    h, a               # attr_rows
+                        push  hl                 # attr_rows|attributes
                         # attribute address
-                        scrtoattr(d, o:h, scraddr:0x4000)
+                        scrtoattr d, o:h, scraddr:0x4000
                         ld    l, e
-                        push  hl                 # attrs_addr
+                        push  hl                 # attr_addr
                         ex    af, af             # a: attr_cols
                         ora   a                  # ZF=0 (a != 0)
                         scf                      # CF=1
@@ -254,12 +264,12 @@ class Ghosts
     scr_addr = scr_addr | 31
   end
 =end
-  ## Converts screen address low nibble for the clear_screen_region_fast.
+  ## Prepares screen address low nibble for the clear_screen_region_fast.
   # Modifies: af, tl
-  macro :clr_scr_addr do |_, tl|
+  macro :wipe_scr_addr do |_, tl|
                         ld    a, tl
                         add   2       # yyyxxxxx
-                        xor   tl      # 000zzzzz vs dddzzzzz
+                        xor   tl      # 000_____ vs ddd_____
                         cp    32
                         jr    C, noedge
                         ld    a, tl
@@ -267,6 +277,17 @@ class Ghosts
                         anda  31
     noedge              xor   tl      # yyyxxxxx
                         ld    tl, a
+  end
+
+  ## Converts y-coord as a 16-bit signed integer to unsigned 8-bit int or OOS.
+  # Modifies: af, yl
+  # <- a: height - 1
+  # -> ys: y + height - 1, ZF: 1=ok (y > -height and y <= 256 - height), 0=OOS
+  macro :syy_to_spr_ys do |_, yh=b, yl=c|
+                        add   yl
+                        ld    yl, a
+                        adc   a, yh
+                        sub   yl               # ZF: 1 if y > -height and y <= 256 - height
   end
 
 =begin
@@ -285,7 +306,7 @@ class Ghosts
       else
         if calc_res = calc_screen_addrs_and_push_args(sprites[sprindex[i]])
           scr_addr, wipe_lines = calc_res
-          wipe_stack_next.push clr_scr_addr(scr_addr), wipe_lines, spr_ys[i] + 1
+          wipe_stack_next.push wipe_scr_addr(scr_addr), wipe_lines, spr_ys[i] + 1
         end
         break if i.zero?
         i = i - 1
@@ -300,7 +321,8 @@ class Ghosts
 =end
   ##
   # Macro for pushing arguments for drawing sprites.
-  # hl: wipe_stack_last (top), iy: wipe_stack_next (top), a: nsprites (> 0)
+  # <- hl: -> wipe_stack_last (top), iy: -> wipe_stack_next (top), a: nsprites (> 0)
+  # -> iy: -> terminator of wipe_stack_next
   macro :push_sprites_args do |_, height:16|
                         dec   l
                         ld    [wipe_stack_cur_p], hl
@@ -356,6 +378,7 @@ class Ghosts
                         ld    a, [hl]; inc  l    # color_attr
                         ex    af, af             # a': color_attr
                         ld    a, [hl]; inc  l
+                        anda  ~(height*2 - 1)    # truncate to the nearest shape
                         ld    h, [hl]; ld   l, a # bitmap
     # a': color, hl: bitmap, de: xx, bc: yy, cols: 2 -> c: height, de: screen address
                         calc_screen_addrs_and_push_args(oos: proc do
@@ -364,7 +387,7 @@ class Ghosts
                           jp    next_sprite
                         end)
                         # store wipe
-                        clr_scr_addr e           # de: screen -> clr_screen
+                        wipe_scr_addr e           # de: screen -> clr_screen
                         ld    a, iyl             # iy: wipe_stack_next
                         add   a, 4
                         ld    iyl, a
@@ -441,6 +464,7 @@ end
 =end
   # assert nsprites != 0
   macro :sprite_index_to_spr_y do |height:16|
+                        di
                         ld    e, height - 1
                         exx
                         ld    c, 192 + height - 1
@@ -455,11 +479,7 @@ end
                         exx
                         pop   bc        # y
                         ld    a, e
-                        # ZF,_,c: bc + a
-                        add   c
-                        ld    c, a
-                        adc   b
-                        sub   c         # ZF: 1 if y > -height and y < 256
+                        syy_to_spr_ys b, c
                         ld    a, c      # y + height - 1
                         exx
                         jr    NZ, oos_y
@@ -480,22 +500,22 @@ end
                         djnz  pop_loop
     restore_sp          ld    sp, 0
     restore_sp_p        restore_sp + 1
+                        ei
   end
 
 =begin
   sprindex, spr_ys = sprindex.zip(spr_ys).sort { |a, b| a[1] <=> b[1] }.transpose
 =end
   ## Sorts both sprindex and spr_ys using spr_ys for order.
-  macro :sort_sprite_index do
+  macro :sort_sprindex_by_spr_ys do
                         ld   b, 0
                         ld   h, sprindex >> 8
                         ld   d, h
                         exx
-                        ld   a, [nsprites]
                         insertion_sort_bytes_max256(
                             reverse:false,
                             target:spr_ys,
-                            length:a) do |eoc|
+                            length:[nsprites]) do |eoc|
                         # de: bottom item (inserted)
                         # hl: upper item (removed)
                           ld   a, l     # upper
@@ -543,10 +563,9 @@ end
                         ld    a, [de]          # sprite index
                         add   a, Sprite.offset_of_(:bitmap)
                         ld    l, a
-                        ld    a, [hl]          # Sprite.bitmap
-                        add   a, height*2
-                        anda  0x7F
-                        ld    [hl], a
+                        ld    a, ANIMATE_STEP
+                        add   a, [hl]          # Sprite.bitmap.l
+                        ld    [hl], a          # Sprite.bitmap.l
                         inc   l
                         inc   l
                         ld    a, [hl]          # Sprite.direction
@@ -603,11 +622,7 @@ end
                         ld    [hl], b          # Sprite.y = y
                         # y = Sprite.y + height - 1
                         ld    a, height - 1
-                        # ZF,_,c: bc + a
-                        add   c
-                        ld    c, a
-                        adc   b
-                        sub   c                # ZF: 1 if y > -height and y <= 256 - height
+                        syy_to_spr_ys b, c
                         jr    NZ, oos_y        # b != 0
                         ld    a, c             # a: 0 <= (y + height - 1) < 256
                         cp    192 + height - 1
@@ -636,7 +651,7 @@ end
                         ld    [hl], c
                         inc   l
                         ld    [hl], b  # Sprite.x = x
-                        ld    a, e
+                        ld    a, e     # sprindex
                         ora   a
                         jp    NZ, next_sprite
   end
@@ -662,6 +677,129 @@ end
   end
 
   dc! "======================================================="
+  dc! "==           B A S I C   F U N C T I O N S           =="
+  dc! "======================================================="
+
+  ##
+  # Draws a single sprite on the screen.
+  # FN g(x,y,c)
+  ns :put_sprite do
+                        call  get_sprite_args
+                        ret   C
+                        ld    hl, ghosts
+                        xor   a      # CF=0, ZF=1
+                        push  af     # terminator: ZF=1
+    # a': color, hl: bitmap, de: xx, bc: yy, cols: 2 -> c: height, de: screen address
+                        calc_screen_addrs_and_push_args(oos: proc do
+                          report_error '5 Out of screen'
+                        end)
+                        ld    a, [clear_scr_lines]
+                        ora   a      # ZF=? CF=0
+                        jr    Z, skip_clear
+                        ld    hl, [clear_scr_addr] # clr_screen
+                        push  hl     # clr_screen
+                        push  af     # clr_lines|ZF=0,CF=0
+    skip_clear          ld    a, c   # a: lines
+                        ld    [clear_scr_lines], a # lines
+                        wipe_scr_addr e
+                        ld    [clear_scr_addr], de
+                        jp    clear_and_draw
+    # vars
+    clear_scr_addr      dw 0
+    clear_scr_lines     db 0
+  end
+
+  ##
+  # Adds a sprite to a sprite collection with given arguments.
+  # FN a(x,y,c,s)
+  # Removes all sprites if no arguments are given.
+  ns :add_or_clear_sprites do
+                        call  get_sprite_args
+                        jr    NC, add_sprite
+                        xor   a
+                        ld    [nsprites], a
+                        jr    return_nsprites
+    add_sprite          push  af               # a: shape
+                        ld    hl, nsprites
+                        ld    a, [hl]
+                        cp    MAX_SPRITES
+                        jr    NC, pop_quit
+                        inc   [hl]
+                        ld    hl, sprites
+                        push  de               # de: x
+                        push  bc               # bc: y
+                        mul_const a, Sprite.to_i, tt:de, clrhl:false # hl: new sprite
+                        ld    b, sprindex >> 8
+                        ld    c, a
+                        ld    a, l
+                        ld    [bc], a          # set sprindex
+                        pop   bc
+                        ld    [hl], c          # hl: -> Sprite.y.l
+                        inc   l
+                        ld    [hl], b          # hl: -> Sprite.y.h
+                        inc   l
+                        pop   bc
+                        ld    [hl], c          # hl: -> Sprite.x.l
+                        inc   l
+                        ld    [hl], b          # hl: -> Sprite.x.h
+                        ex    af, af           # a': color
+                        inc   l                # hl: -> Sprite.color_attr
+                        ld    [hl], a
+                        inc   l                # hl: -> Sprite.bitmap
+                        pop   af               # a: shape
+                        call  set_shape
+                        inc   l                # hl: -> Sprite.direction
+                        call  set_random_direction
+                        call  next_rng
+                        inc   l; ld [hl], a    # hl: -> Sprite.angle
+                        ld    a, 1
+                        inc   l; ld [hl], a    # hl: -> Sprite.radius
+  return_nsprites       ld    a, [nsprites]
+                        ld    c, a
+                        ld    b, 0
+                        exx
+                        ret
+  pop_quit              pop   af
+                        jr    return_nsprites
+  end
+
+  ## Draws sprites with their current x,y positions in a screen sync loop until keys is pressed
+  ns :draw_sprites do
+                        sprite_index_to_spr_y
+                        sort_sprindex_by_spr_ys
+                        call  setup_wipe
+    check_key           key_pressed?
+                        ret   NZ
+                        call  draw_loop
+                        jr    check_key
+    draw_loop           push  af               # restore terminator: ZF=1
+    restore_sp          ld    sp, 0
+    restore_sp_p        as    restore_sp + 1
+                        jp    sync_frame
+
+    setup_wipe          label
+    # swap wipe stacks
+                        xor   a
+                        ld    l, a
+                        ld    iyl, a
+                        ld    a, [wipe_stack]
+                        ld    h, a
+                        xor   1
+                        ld    iyh, a
+                        ld    [wipe_stack], a
+                        ld    a, [nsprites]
+                        ld    [sanity_sp], sp if ASSERT_DEBUG
+    # hl: wipe_stack_last (top), iy: wipe_stack_next (top), a: nsprites (> 0)
+    push_args           push_sprites_args height:16
+
+                        ld    [restore_sp_p], sp
+
+    sync_frame          ei # ensure we won't hang around here forever
+                        halt
+                        jp    clear_and_draw
+  end
+
+  dc! "======================================================="
   dc! "==            C L E A R   A N D   D R A W            =="
   dc! "======================================================="
 =begin
@@ -680,12 +818,12 @@ end
   end
 =end
   ##
-  # Pops arguments from stack and acts accordingly.
+  # Pops arguments from stack and draws a sprite or clears the region.
+  # Disables interrupts.
   ns :clear_and_draw do
                         di
                         debug_border(4)
     loop0               label
-                        # ei; call wait_key; di
                         pop   af # counter|flags (CF - 0:clear 1:draw, ZF=1 over)
                         jr    Z, end_stage
                         jr    C, draw_sprite
@@ -699,8 +837,7 @@ end
                           subroutine:false)
                         jp    loop0
 
-    end_stage           ei
-                        debug_border(0)
+    end_stage           debug_border(0)
     if ASSERT_DEBUG
                         ld    hl, [sanity_sp]
                         xor   a
@@ -781,122 +918,26 @@ end
   end
 
   dc! "======================================================="
-  dc! "==                  P O P U L A T E                  =="
-  dc! "======================================================="
-
-  ## Populate sprites
-  ns :populate do
-                        call  fn_argn
-                        jr    NC, check_args
-    no_args             ld    a, [nsprites]
-                        ld    e, a
-                        ld    d, 0
-                        jr    skip_args
-    check_args          label
-    error_q             report_error_unless Z, 'Q Parameter error'
-                        call  get_uint_de
-                        ld    a, e
-    skip_args           ora   d
-                        jp    Z, error_a
-                        cp16n d, e, MAX_SPRITES + 1
-                        jp    NC, error_a
-    num_ok              ld    a, e
-                        ld    [nsprites], a
-                        ld    b, a
-                        # initialize wipe stacks
-                        ld    a, [wipe_stack]
-                        ora   a
-                        call  Z, init.wipe
-                        # initialize sprites
-                        ld    ix, sprites
-                        ld    de, sprindex
-                        xor   a
-    loop0               ld    [de], a
-                        inc   de
-                        ld    hl, ghost1
-                        ld    [ix + sprites.bitmap.l], l
-                        ld    [ix + sprites.bitmap.h], h
-                        call  next_rng
-                        ld    [ix + sprites.angle], a
-                        ld    l, a
-                        ld    h, 0
-                        ld    c, 16
-                        sub_from c, h, l
-                        ld    [ix + sprites.y.l], l
-                        ld    [ix + sprites.y.h], h
-                        call  next_rng
-                        ld    [ix + sprites.radius], a
-                        ld    l, a
-                        ld    h, 0
-                        ld    c, 8
-                        sub_from c, h, l
-                        ld    [ix + sprites.x.l], l
-                        ld    [ix + sprites.x.h], h
-                        call  next_rng
-                        anda  7
-                        sub   4
-                        sbc   a, -1 # a: { -7..-1, 1..7 }
-                        ld    [ix + sprites.direction], a
-    random_color        call  next_rng
-                        ld    c, [ix + sprites.color_attr]
-                        xor   c
-                        anda  0b01000111
-                        xor   c
-                        ld    [ix + sprites.color_attr], a
-                        anda  7
-                        jr    Z, random_color
-
-                        ld    a, +Sprite
-                        add   a, ixl
-                        ld    ixl, a
-                        djnz  loop0
-                        ld    a, [nsprites]
-                        ld    b, 0
-                        ld    c, a
-                        exx
-                        ret
-  end
-
-  next_rng              exx
-                        ld   hl, [vars.seed]
-                        rnd
-                        ld   [vars.seed], hl
-                        ld   a, l
-                        exx
-                        ret
-
-  # hl: Sprite.color_attr
-  set_random_color      call  next_rng
-                        ld    c, [hl]
-                        xor   c
-                        anda  0b01000111
-                        xor   c
-                        ld    [hl], a
-                        anda  7
-                        ret   NZ
-                        jr    set_random_color
-
-  # hl: Sprite.direction
-  set_random_direction  call  next_rng
-                        anda  7
-                        sub   4
-                        sbc   a, -1 # a: { -7..-1, 1..7 }
-                        ld [hl], a
-                        ret
-
-  dc! "======================================================="
   dc! "==                      D E M O                      =="
   dc! "======================================================="
 
   ns :demo do
-    demo_loop           debug_border(5)
-                        # sprite_index_to_spr_y
+                        call  setup_interrupts
+                        ld    iyl, 0
+    demo_loop           ld    a, iyl   # wipe stack bottom (iyl/4=no. sprites that was drawn)
+                        cp    16*4     # if less than 16 sprites were drawn then enable interrupts
+                        jr    NC, forget_about_sync
+                        ei
+    forget_about_sync   debug_border(5)
+
                         move_sprites
+
                         debug_border(3)
-                        sort_sprite_index
+
+                        sort_sprindex_by_spr_ys
+
                         debug_border(6)
-    setup_wipe          label
-                        # swap wipe stacks
+    # swap wipe stacks
                         xor   a
                         ld    l, a
                         ld    iyl, a
@@ -907,19 +948,85 @@ end
                         ld    [wipe_stack], a
                         ld    a, [nsprites]
                         ld    [sanity_sp], sp if ASSERT_DEBUG
-                        # hl: wipe_stack_last (top), iy: wipe_stack_next (top), a: nsprites (> 0)
+                        call  push_args
+                        key_pressed?
+                        ret   NZ
+                        jp    demo_loop
+    # hl: wipe_stack_last (top), iy: wipe_stack_next (top), a: nsprites (> 0)
     push_args           push_sprites_args height:16
-
+                        # iy: wipe stack bottom
                         debug_border(1)
-
-                        ld    hl, frame_iflag
-                        xor   a
-                        cp    [hl]
-                        jr    NZ, skip_sync
-                        ei
+    # was there an interrupt already? (IFF2=0)
+                        ld    a, i
+                        jp    PO, clear_and_draw
+    sync_frame          ei # ensure we won't hang around here forever
                         halt
-    skip_sync           ld    [hl], a
                         jp    clear_and_draw
+  end
+
+  next_rng              exx
+                        ld   hl, [vars.seed]
+                        rnd
+                        ld   [vars.seed], hl
+                        ld   a, l
+                        exx
+                        ret
+
+  # hl: -> Sprite.color_attr
+  ns :set_random_color do
+                        call  next_rng
+                        ld    c, [hl]
+                        xor   c
+    attribute_mask_a    anda  0b01000111
+    attribute_mask_p    as    attribute_mask_a + 1
+                        xor   c
+                        ld    [hl], a
+    palette_ret         anda  7
+                        ret   NZ
+                        jr    set_random_color
+  end
+  # hl: -> Sprite.bitmap
+  set_random_shape      call  next_rng # a: shape
+  set_shape             ld    d, ghosts >> 8
+                        ld    e, a
+                        anda  3
+                        add   a, d
+                        ld    d, a
+                        ld    a, e
+                        anda  ~(16*2 - 1)
+                        ld [hl], a    # hl: -> Sprite.bitmap
+                        inc   l
+                        ld [hl], d
+                        ret
+
+  # hl: -> Sprite.direction
+  set_random_direction  call  next_rng
+                        anda  7
+                        sub   4
+                        sbc   a, -1 # a: { -7..-1, 1..7 }
+                        ld [hl], a
+                        ret
+
+  ns :clear_attrs_fx do
+                        shuffle_bytes_source_max256 next_rng, target:shuffled, length:256
+                        ld    b, 256
+                        ld    hl, shuffled
+    clrloop             ld    d, mem.attrs >> 8
+                        ld    e, [hl]
+                        inc   hl
+                        xor   a
+                        ld    [de], a
+                        inc   d
+                        ld    [de], a
+                        inc   d
+                        ld    [de], a
+                        ld    a, e
+                        anda  7
+                        jr    NZ, skip_halt
+                        halt
+    skip_halt           djnz  clrloop
+                        clrmem mem.screen, mem.scrlen
+                        ret
   end
 
   ns :summon_sprite do
@@ -936,18 +1043,15 @@ end
                         ld    [bc], a          # set sprindex
                         add   a, Sprite.offset_of_(:color_attr)
                         ld    l, a             # hl: -> Sprite.color_attr
+                        res   7, [hl]          # clear flash bit
                         call  set_random_color
-                        anda  0b01111111
-                        ld    [hl], a
-                        ld    de, ghost1
-                        inc   l; ld [hl], e    # hl: -> Sprite.bitmap
-                        inc   l; ld [hl], d
-                        inc   l
+                        inc   l                # hl: -> Sprite.bitmap
+                        call  set_random_shape
+                        inc   l                # hl: -> Sprite.direction
                         call  set_random_direction
                         call  next_rng
                         inc   l; ld [hl], a    # hl: -> Sprite.angle
-                        xor   a
-                        inc   l; ld [hl], a    # hl: -> Sprite.radius
+                        inc   l; ld [hl], 1    # hl: -> Sprite.radius
                         ret
   end
 
@@ -1085,69 +1189,78 @@ end
 
   # a: a key character
   ns :collect_key do
-                cp   ?1.ord
-                jp   Z, summon_sprite
-                cp   ?0.ord
-                jp   Z, banish_sprite
-                ora  0b0010_0000 # tolower
-                ex   af, af      # save char
-                ld   hl, spells
-                ld   bc, +spells
-                ld   de, spell_n
-                ld   a, [de]
-                ora  a
-                jr   NZ, check_next
-                ex   af, af      # restore char
-                cpir
-                ret  NZ
-    found_first ld   a, +spells*2 - 1
-                sub  c
-                ld   [de], a
-                ret
-    check_next  adda_to h, l
-                ex   af, af      # restore char
-                cp   [hl]
-                jr   Z, ok_char
-    bad_char    ld   a, 2
-                out  (io.ula), a
-                halt
-                halt
-                xor  a
-                out  (io.ula), a
-    clear_exit  xor  a
-                ld   [de], a
-                ret
-    ok_char     ld   a, [de]
-                add  a, c        # +spells
-                cp   +spells * 3
-                ld   [de], a
-                ret  C           # next collected
-                sub  +spells * 3
-                add  a, a
-                ld   hl, spell_jp
-                adda_to h, l
-                ld   a, [hl]
-                inc  hl
-                ld   h, [hl]
-                ld   l, a
-                push hl          # ret will jump
-                jr   clear_exit
+                        cp   ?1.ord
+                        jp   Z, summon_sprite
+                        cp   ?0.ord
+                        jp   Z, banish_sprite
+                        ora  0b0010_0000 # tolower
+                        ex   af, af      # save char
+                        ld   hl, spells
+                        ld   bc, +spells
+                        ld   de, spell_n
+                        ld   a, [de]
+                        ora  a
+                        jr   NZ, check_next
+                        ex   af, af      # restore char
+                        cpir
+                        jr   Z, found_first
+                        ld   a, 2
+                        jp   set_border_color
 
-    spells      data "rfmcvnwsq"
-                data "nlooaeotq"
-                data "danlcgooq"
-    spell_jp    dw spell1
-                dw spell2
-                dw spell3
-                dw spell4
-                dw spell5
-                dw spell6
-                dw spell7
-                dw spell8
-                dw spell9
+    found_first         ld   a, +spells*2 - 1
+                        sub  c
+                        ld   [de], a
+                        ret
+    check_next          adda_to h, l
+                        ex   af, af      # restore char
+                        cp   [hl]
+                        jr   Z, ok_char
+    bad_char            ld   a, 3
+    clear_exit          call set_border_color
+                        xor  a
+                        ld   [de], a
+                        ret
+    ok_char             ld   a, [de]
+                        add  a, c        # +spells
+                        cp   +spells * 3
+                        ld   [de], a
+                        ret  C           # next collected
+                        sub  +spells * 3
+                        add  a, a
+                        ld   hl, spell1_jp
+                        adda_to h, l
+                        ld   a, [hl]
+                        inc  hl
+                        ld   h, [hl]
+                        ld   l, a
+                        push hl          # ret will jump
+                        ld   a, 4
+                        jr   clear_exit
   end
+  spells                data "rfmcvnwsq"
+                        data "nlooaeotq"
+                        data "danlcgooq"
+  spell1_jp             dw spell1
+  spell2_jp             dw spell2
+  spell3_jp             dw spell3
+  spell4_jp             dw spell4
+  spell5_jp             dw spell5
+  spell6_jp             dw spell6
+  spell7_jp             dw spell7
+  spell8_jp             dw spell8
+  spell9_jp             dw spell9
 
-  ns :put_sprite do
+  dc! "======================================================="
+  dc! "==               S U B R O U T I N E S               =="
+  dc! "======================================================="
+
+  make_sincos create_sincos_from_sintable sincos, sintable:sintable
+  sintable    bytes   neg_sintable256_pi_half_no_zero_lo
+
+  # <- FN f(x,y,c[,s])
+  # -> CF: 0, de: x, bc: y, a': c, a: s
+  # -> CF: 1, no args
+  ns :get_sprite_args do
                         call  fn_argn
                         ret   C
     error_q             report_error_unless Z, 'Q Parameter error'
@@ -1164,38 +1277,19 @@ end
                         ora   a
                         jp    NZ, error_a
                         ld    a, e   # color
-                        ex    af, af
-                        pop   bc     # yy
+                        ex    af, af # a': color
+                        call  fn_argn.seek_next
+                        jr    NZ, random_shape
+                        call  get_uint_de
+                        ld    a, e   # shape
+    shape_set           pop   bc     # yy
                         pop   de     # xx
-                        ld    hl, ghost1
-                        xor   a      # CF=0, ZF=1
-                        push  af     # terminator: ZF=1
-    # a': color, hl: bitmap, de: xx, bc: yy, cols: 2 -> c: height, de: screen address
-                        calc_screen_addrs_and_push_args(oos: proc do
-                          report_error '5 Out of screen'
-                        end)
-                        ld    a, [clear_scr_lines]
-                        ora   a      # ZF=? CF=0
-                        jr    Z, skip_clear
-                        ld    hl, [clear_scr_addr] # clr_screen
-                        push  hl     # clr_screen
-                        push  af     # clr_lines|ZF=0,CF=0
-    skip_clear          ld    a, c   # a: lines
-                        ld    [clear_scr_lines], a # lines
-                        clr_scr_addr e
-                        ld    [clear_scr_addr], de
-                        jp    clear_and_draw
+                        ora   a      # CF: 0
+                        ret
+    random_shape        call  next_rng
+                        jr    shape_set
   end
 
-  dc! "======================================================="
-  dc! "==               S U B R O U T I N E S               =="
-  dc! "======================================================="
-
-  make_sincos create_sincos_from_sintable sincos, sintable:sintable
-  sintable    bytes   neg_sintable256_pi_half_no_zero_lo
-
-  clear_scr_addr        dw 0
-  clear_scr_lines       db 0
   fn_argn               find_def_fn_args 1, cf_on_direct:true
 
   error_a               report_error 'A Invalid argument'
@@ -1213,117 +1307,204 @@ end
                         ret
   end
 
-  ns :interrupt_handler do
-                        push  hl
-                        ld    hl, frame_iflag
-                        ld    [hl], -1
-                        pop   hl
-                        ret
-  end
-
   ns :setup_interrupts do
                         di
-                        memcpy 0xFFF4, interrupt_handler, +interrupt_handler
-                        ld  a, 0x18     # 18H is jr
+                        ld  a, 0xC9     # C9H is ret
                         ld  [0xFFFF], a
                         ld  a, 0x3B
                         ld  i, a
                         im2
-                        ei
                         ret
   end
 
-  # Waits until specified keys are being pressed.
-  wait_key      halt
-                key_pressed?
-                jr   Z, wait_key
-  # Waits until no key is being pressed.
-  release_key   halt
-                key_pressed?
-                jr   NZ, release_key
-                ret
+  # Waits until any key is being pressed, wait to release it or BREAK.
+  ns :wait_key_or_break do
+    wait_key            halt
+                        key_pressed?
+                        jr   Z, wait_key
+    # Waits until no key is being pressed.
+    release_key         halt
+                        call  rom.break_key
+                        jr    C, no_break
+                        call  restore_keyboard_vars
+                        call  turn_off_plus
+                        report_error 'D BREAK - CONT repeats'
+    no_break            key_pressed?
+                        ret   Z
+                        jr   release_key
+  end
+
+  # Restore reppel/repdel vars
+  # iy: vars_iy
+  ns :restore_keyboard_vars do
+                        ld    [iy + vars.repdel - vars_iy], 35
+                        ld    [iy + vars.repper - vars_iy], 5
+                        ret
+  end
+
+  ##
+  # Detect ULAplus and set up palette.
+  #
+  # *  0- 7 ink
+  # *  8-15 background (black)
+  # * 16-23 ink
+  # * 24-31 background (black)
+  # * 32-39 ink (black)
+  # * 40-47 background
+  # * 48-55 ink (black)
+  # * 56-63 background
+  ns :plus_pallette_on do
+                        ld    bc, io_plus.reg
+                        ld    a, io_plus.mode_group
+                        out   (c), a
+                        ld    b, io_plus.dta >> 8
+                        inp   a, (c)
+                        ret   NZ        # either mode was already set or is not supported
+                        inc   a         # a: palette mode=1
+                        out   (c), a
+                        # modify some routines
+                        ld    a, 0b01111111
+                        ld    [set_random_color.attribute_mask_p], a
+                        ld    a, 0xC9 # ret
+                        ld    [set_random_color.palette_ret], a
+                        ld    hl, spell3_plus
+                        ld    [spell3_jp], hl
+                        ld    hl, spell4_plus
+                        ld    [spell4_jp], hl
+                        clrmem set_border_color, +set_border_color, 0 # 3xNOP
+
+                        ld    hl, palcolor
+                        jp    plus_set_palette
+  end
+
+  ns :set_border_color do
+                        out  (io.ula), a
+                        ret
+  end
+
+  # a: color
+  ns :plus_set_bg_color do
+                        push  de
+                        ld    hl, bg_colors
+                        adda_to h, l
+                        ld    e, [hl]
+                        ld    c, io_plus.reg
+                        ld    a, 8
+                        ld    d, 16
+                        call  plus_set_palette.clr_loop
+                        ld    a, 24
+                        ld    d, 32
+                        call  plus_set_palette.clr_loop
+                        pop   de
+                        ret
+    bg_colors           db 0, 0, 0b00011100, 0b00011111, 0b11100000
+  end
+
+  ns :spell4_plus do
+                        ld    hl, palcolor
+                        call  plus_set_palette
+                        ld    a, 4
+                        call  plus_set_bg_color
+                        jp    spell4
+  end
+
+  ns :spell3_plus do
+                        ld    hl, palmono
+                        call  plus_set_palette
+                        ld    a, 4
+                        jp    plus_set_bg_color
+  end
+
+  ns :plus_set_palette do
+                        push  hl
+                        ld    c, io_plus.reg
+                        xor   a
+                        ld    d, 8
+                        call  pal_loop
+                        ld    de, (16 << 8)|0
+                        call  clr_loop
+                        ld    d, 24
+                        call  pal_loop
+                        ld    de, (40 << 8)|0
+                        call  clr_loop
+                        pop   hl
+                        ld    d, 48
+                        call  pal_loop
+                        ld    de, (56 << 8)|0
+                        call  clr_loop
+                        ld    d, 64
+
+    pal_loop            ld    e, [hl]
+                        inc   hl
+                        ld    b, io_plus.reg >> 8
+                        out   (c), a
+                        ld    b, io_plus.dta >> 8
+                        out   (c), e    # palette entry
+                        inc   a
+                        cp    d
+                        jr    C, pal_loop
+                        ret
+
+    clr_loop            ld    b, io_plus.reg >> 8
+                        out   (c), a
+                        ld    b, io_plus.dta >> 8
+                        out   (c), e    # palette entry
+                        inc   a
+                        cp    d
+                        jr    C, clr_loop
+                        ret
+  end
+
+  palcolor  db 0b000_000_11,
+               0b000_011_10,
+               0b011_001_10,
+               0b111_100_00,
+               0b100_111_00,
+               0b110_001_00,
+               0b010_001_11,
+               0b100_101_01,
+
+               0b111_111_00,
+               0b111_100_01,
+               0b100_110_01,
+               0b000_011_11,
+               0b011_000_11,
+               0b001_110_11,
+               0b101_110_00,
+               0b011_010_10
+
+  palmono   db 0b011_011_01,
+               0b101_101_10,
+               0b111_111_11,
+               0b011_011_01,
+               0b101_101_10,
+               0b111_111_11,
+               0b011_011_01,
+               0b101_101_10,
+
+               0b111_111_11,
+               0b011_011_01,
+               0b101_101_10,
+               0b111_111_11,
+               0b011_011_01,
+               0b101_101_10,
+               0b111_111_11,
+               0b011_011_01
+
+  ns :turn_off_plus do
+                        ld    bc, io_plus.reg
+                        ld    a, io_plus.mode_group
+                        out   (c), a
+                        ld    b, io_plus.dta >> 8
+                        xor   a
+                        out   (c), a
+                        ret
+  end
 end
-
-class Spirits
-  include Z80
-  include Z80::TAP
-
-  sprite1 bytes [
-      0b00000111, 0b00000000,
-      0b00000011, 0b10000000,
-      0b00000011, 0b11000000,
-      0b00000111, 0b11100000,
-      0b10001101, 0b10100001,
-      0b11111111, 0b11110011,
-      0b11111111, 0b11111111,
-      0b11001111, 0b11111111,
-      0b11000111, 0b11100011,
-      0b00000111, 0b11100001,
-      0b00000111, 0b11100000,
-      0b00001111, 0b11110000,
-      0b00001111, 0b11110000,
-      0b00011111, 0b11111000,
-      0b00011111, 0b11111000,
-      0b00000111, 0b11000000]
-
-  sprite2 bytes [
-      0b00000011, 0b00000000,
-      0b00000101, 0b10000000,
-      0b00000011, 0b11000000,
-      0b00000111, 0b11100000,
-      0b11000101, 0b10110000,
-      0b11111111, 0b11110011,
-      0b11111111, 0b11111111,
-      0b11001111, 0b11111111,
-      0b10000111, 0b11100111,
-      0b10000111, 0b11100011,
-      0b00001111, 0b11100001,
-      0b00001111, 0b11110000,
-      0b00001111, 0b11110000,
-      0b00011111, 0b11111000,
-      0b00011111, 0b11111000,
-      0b00110000, 0b11111000]
-
-  sprite3 bytes [
-      0b00000111, 0b00000000,
-      0b00000001, 0b10000000,
-      0b00000011, 0b11000000,
-      0b00000111, 0b11100000,
-      0b11001101, 0b10100001,
-      0b11111111, 0b11110011,
-      0b11111111, 0b11111111,
-      0b11001111, 0b11111111,
-      0b10000111, 0b11100011,
-      0b00000111, 0b11100001,
-      0b00000111, 0b11110000,
-      0b00000111, 0b11110000,
-      0b00001111, 0b11111000,
-      0b00011111, 0b11111000,
-      0b00011111, 0b11110000,
-      0b00001111, 0b10000000]
-
-  sprite4 bytes [
-      0b00000011, 0b10000000,
-      0b00000101, 0b11000000,
-      0b00000011, 0b11000000,
-      0b00000111, 0b11100001,
-      0b10000101, 0b10100011,
-      0b11111111, 0b11110011,
-      0b11111111, 0b11111111,
-      0b11001111, 0b11111111,
-      0b10000111, 0b11100001,
-      0b00000111, 0b11100000,
-      0b00000111, 0b11110000,
-      0b00000111, 0b11110000,
-      0b00001111, 0b11111000,
-      0b00011111, 0b11111000,
-      0b00011111, 0b11111000,
-      0b00011100, 0b00000000]
-end
-
 
 if __FILE__ == $0
   require 'zxlib/basic'
+  require_relative 'sprites.rb'
 
   class CemeteryGate
     include Z80
@@ -1341,59 +1522,79 @@ if __FILE__ == $0
                         ld    [vars.chars], hl
     end
 
-    with_saved :test_sprite, :exx, hl, ret: true do
+    with_saved :put_sprite, :exx, hl, ret: :after_ei do
                         call  gh.put_sprite
     end
 
+    with_saved :add_or_clear_sprites, :exx, hl, ret: true do
+                        call  gh.add_or_clear_sprites
+    end
+
+    with_saved :draw_sprites, :exx, hl, ret: :after_ei do
+                        call  gh.wait_key_or_break.release_key
+                        call  gh.draw_sprites
+    end
+
     with_saved :start_demo, :exx, hl, ret: true do |eoc|
-                        ld    a, 1
-                        ld    [vars.repdel], a
-                        ld    [vars.repper], a
                         xor   a
                         ld    [gh.spell_n], a
                         ld    [gh.nsprites], a
-                        call  gh.wait_key
-                        jr    check_key
+                        call  gh.wait_key_or_break
+                        ld    a, [iy + vars.last_k - vars_iy]
+                        cp    ?1.ord
+                        jr    NZ, eoc
+                        ld    a, 1
+                        ld    [vars.repdel], a
+                        ld    [vars.repper], a
+                        ld    a, [vars.frames]
+                        ld    [vars.seed], a
+                        call  gh.clear_attrs_fx
+                        call  gh.plus_pallette_on
+                        call  gh.summon_sprite
+
       loop0             ld    a, [gh.nsprites]
                         ora   a
-                        jr    Z, eoc
-                        call  gh.setup_interrupts
-      loop1             call  gh.demo
-                        key_pressed?
-                        jr    Z, loop1
-                        di
+                        jr    Z, quit
+
+                        call  gh.demo
+
                         ld    iy, vars_iy
                         restore_rom_interrupt_handler enable_intr:true
+                        ld    hl, vars.flags
       release_key       call  rom.break_key
                         jr    C, no_break
-                        ld    [iy + vars.repdel - vars_iy], 35
-                        ld    [iy + vars.repper - vars_iy], 5
+                        call  gh.restore_keyboard_vars
+                        call  gh.turn_off_plus
                         report_error 'D BREAK - CONT repeats'
-      no_break          key_pressed?
-                        halt
-                        jr    NZ, release_key
-      check_key         ld    hl, vars.flags
+      no_break          halt
                         bit   5, [hl]         # has a new key been pressed ?
-                        jr    Z, loop0        # nope, continue
-                        res   5, [hl]         # clear new key flag
+                        jr    NZ, new_char
+                        key_pressed?
+                        jr    Z, loop0
+                        jr    release_key
+      new_char          res   5, [hl]         # clear new key flag
                         ld    a, [iy + vars.last_k - vars_iy]
                         call  gh.collect_key
+                        call  gh.wait_key_or_break.release_key
+                        xor   a               # BORDER 0
+                        call  gh.set_border_color
                         jr    loop0
-    end
-
-    with_saved :populate, :exx, hl, ret: true do
-                        call  gh.populate
+      quit              call  gh.restore_keyboard_vars
+                        call  gh.turn_off_plus
+                        ld    bc, 0           # return FALSE
+                        exx
     end
 
     import              ZXUtils::BigFont, :bfont
+    # Undead 8x8 font from https://damieng.com/typography/zx-origins/
     font_ch8            import_file "examples/fonts/Undead.ch8", check_size:768, data_type:8
   end
 
   program_code = CemeteryGate.new 0xA000
-  spirits_code = Spirits.new program_code['gh.ghost1']
+  sprites_code = Sprites.new program_code['gh.ghosts']
   $sys = ZXLib::Sys.new
   puts program_code.debug
-  puts spirits_code.debug
+  puts sprites_code.debug
   puts "jump_tables    size: #{program_code['+gh.jump_tables']}"
   puts "clear_and_draw size: #{program_code['+gh.clear_and_draw']}"
   puts "draw_bob       size: #{program_code['+gh.clear_and_draw.draw_bob']}"
@@ -1403,49 +1604,58 @@ if __FILE__ == $0
   puts "draw_bob_rc1   size: #{program_code['+gh.clear_and_draw.draw_bob_rc1']}"
   middle_top = (20 - 3*4)/2
   program = ZXLib::Basic.parse_source <<-EOB
-   0 DEF FN n(x)=x-(65536 AND x>=32768)
-     DEF FN g(x,y,c)=USR #{program_code[:test_sprite]}
-     DEF FN a(n)=USR #{program_code[:populate]}
+   0 DEF FN g(x,y,c)=USR #{program_code[:put_sprite]}: DEF FN a(x,y,c,s)=USR #{program_code[:add_or_clear_sprites]}
      BORDER 0: PAPER 0: INK 7: BRIGHT 0: INVERSE 0: OVER 0: FLASH 0: CLS
-     PRINT AT #{middle_top},0;
-     FOR i=1 TO 4: READ c,a$: LET t=INT ((32-LEN a$)/2)
-     INK c: BRIGHT 1
-     PRINT #4;AT (24-PEEK #{$sys['vars.s_posn.line']})*8+2,t;a$(1): PRINT OVER 1;TAB t+2'TAB t+2;a$(2 TO )'''
+  10 PRINT AT #{middle_top},0;
+     RESTORE: FOR i=1 TO 4: READ c,a$: LET t=INT ((32-LEN a$)/2)
+     INK c: BRIGHT 0
+     PRINT #4;AT (24-PEEK #{$sys['vars.s_posn.line']})*8+2,t;a$(1): PRINT OVER 1;TAB t+2'BRIGHT 1;TAB t+2;a$(2 TO )'''
      NEXT i
-     PAUSE 0
-  10 RANDOMIZE : REM LET n=FN a(1)
-     RANDOMIZE USR #{program_code[:start_demo]}
-  99 RUN
- 100 INPUT "y: ";y;" x: ";x
- 110 RANDOMIZE FN g(x,y,BIN 10110001): PAUSE 0
-     GO TO 100
-9000 DATA 6,"Press [1] to summon spirits"
+  20 IF USR #{program_code[:start_demo]} THEN GO TO 20
+  98 RUN
+  99 REM *** test sprites ***
+ 100 INPUT "color: ";c
+ 110 INPUT "y: ";y;" x: ";x
+ 120 RANDOMIZE FN g(x,y,c): PAUSE 0
+     GO TO 110
+ 200 INPUT "color: ";c;" step: ";step;" shift: ";shift: LET s=0
+ 210 OUT (254),1: RANDOMIZE USR #{program_code[:add_or_clear_sprites]}
+     RANDOMIZE: FOR y=7 TO 176 STEP step
+     LET x=8*INT (RND*29)+shift: LET n=FN a(x,y,c,s): LET s=s+1: IF s>3 THEN LET s=0
+     NEXT y
+     PRINT AT 0,0;"sprites: ";n;" shift: ";shift
+     RANDOMIZE USR #{program_code[:draw_sprites]}
+     LET shift=shift+1: IF shift>7 THEN LET shift=0
+     GO TO 210
+9000 DATA 6,"Press [1] to summon the spirits"
      DATA 2,"Or banish them with [0] key"
-     DATA 5,"Flying away is what they can"
-     DATA 4,"Unless you find another spell"
+     DATA 5,"Swirling forever is their fate"
+     DATA 4,"Unless you find a hidden spell"
 9998 STOP: RUN
 9999 CLEAR #{program_code.org-1}: LOAD ""CODE : LOAD ""CODE : RANDOMIZE USR #{program_code[:initialize]}: RUN
 EOB
   tap_name = 'examples/ghosts.tap'
   program.save_tap(tap_name, line: 9999)
   program_code.save_tap(tap_name, append: true)
-  spirits_code.save_tap(tap_name, append: true, name:'spirits')
+  sprites_code.save_tap(tap_name, append: true, name:'spirits')
   Z80::TAP.parse_file(tap_name) { |hb| puts hb.to_s }
-
-  %w[wipe_stack0
+  puts "MAX_SPRITES: #{Ghosts::MAX_SPRITES}"
+  %w[ghosts
+    wipe_stack0
     wipe_stack1
     sincos
     nsprites
     wipe_stack
-    frame_iflag
     chase_dt
     sprindex
     spr_ys
+    spell_n
+    vars_top
     sprites
+    shuffled
     clear_and_draw.wipe_region.restore_sp_p
     clear_and_draw.draw_bob.restore_sp_p
     demo.push_args.wipe_stack_cur_p
-    demo.setup_wipe
   ].map{|n| [n, program_code["gh.#{n}"]] }.
     sort{|a,b| a[1] <=> b[1]}.each do |n,addr|
     puts "#{n.ljust(32)}: #{'%04X' % addr}"

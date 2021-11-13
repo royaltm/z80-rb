@@ -35,12 +35,14 @@ EXAMPLES = %w[
   bfont_demo_hires.rb
   calculator.rb
   dots.rb
+  ghosts.rb
   horse.rb
   labyrinth.rb
   mathi_test.rb
   multifill.rb
   palette64.rb
   quat3d128.rb
+  sprites.rb
   stars.rb
   test_ham256.rb
   test_music.rb
