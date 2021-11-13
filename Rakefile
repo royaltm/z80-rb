@@ -3,7 +3,7 @@ require_relative 'examples/rakefile.rb'
 
 desc "Documentation"
 task :doc do
-  sh "rdoc --encoding=UTF-8 --title=ruby-Z80 --main=README.rdoc README.rdoc LICENSE.md lib/z80.rb lib/z80/*.rb lib/z80/utils/*.rb lib/zxlib/*.rb lib/zxlib/*/*.rb lib/zxutils/*.rb lib/zxutils/*/*.rb"
+  sh "rdoc --encoding=UTF-8 --title=ruby-Z80 --main=README.rdoc README.rdoc LICENSE.md CHANGELOG.md lib/z80.rb lib/z80/*.rb lib/z80/utils/*.rb lib/zxlib/*.rb lib/zxlib/*/*.rb lib/zxutils/*.rb lib/zxutils/*/*.rb"
   sh "cp -v examples/*.{jpg,png,tap} doc/examples/"
 end
 
