@@ -96,6 +96,8 @@
     
     <li class="calls-super" ><a href="#method-c-new">::new</a>
     
+    <li ><a href="#method-c-offset_of_">::offset_of_</a>
+    
     <li ><a href="#method-c-to_data">::to_data</a>
     
     <li ><a href="#method-c-to_i">::to_i</a>
@@ -130,11 +132,15 @@
     
     <li ><a href="#method-i-5E">#^</a>
     
+    <li ><a href="#method-i-alias-3F">#alias?</a>
+    
     <li ><a href="#method-i-dummy-3F">#dummy?</a>
     
     <li ><a href="#method-i-expression-3F">#expression?</a>
     
     <li ><a href="#method-i-immediate-3F">#immediate?</a>
+    
+    <li ><a href="#method-i-indexable-3F">#indexable?</a>
     
     <li ><a href="#method-i-initialize">#initialize</a>
     
@@ -147,6 +153,8 @@
     <li ><a href="#method-i-sublabel-3F">#sublabel?</a>
     
     <li ><a href="#method-i-sublabel_access_expression-3F">#sublabel_access_expression?</a>
+    
+    <li ><a href="#method-i-to_aliased_name">#to_aliased_name</a>
     
     <li ><a href="#method-i-to_alloc">#to_alloc</a>
     
@@ -287,6 +295,16 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 </pre>
 </dd></dl>
 </li></ul>
+
+<p>Using <a href="Program.html#method-i-alias_label"><code>Program.alias_label</code></a> you can anchor labels:</p>
+
+<pre class="ruby"><span class="ruby-identifier">ns</span> <span class="ruby-value">:inner</span> <span class="ruby-keyword">do</span>
+  <span class="ruby-comment"># inner.foo will reference some.other.label</span>
+  <span class="ruby-identifier">foo</span>    <span class="ruby-identifier">as</span>  <span class="ruby-identifier">some</span>.<span class="ruby-identifier">other</span>.<span class="ruby-identifier">label</span>
+  <span class="ruby-comment"># inner.bar will reference (baz * 3) aligned to 16 bytes.</span>
+  <span class="ruby-identifier">bar</span>    <span class="ruby-identifier">as</span>  <span class="ruby-identifier">baz</span> <span class="ruby-operator">*</span> <span class="ruby-value">3</span>, <span class="ruby-value">align:</span> <span class="ruby-value">16</span>
+<span class="ruby-keyword">end</span>
+</pre>
 <dl class="rdoc-list note-list"><dt>Examples
 <dd>
 <p>To access <code>data_p</code> field from a second <code>Sprite</code> in the <code>spritep</code>:</p>
@@ -399,7 +417,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="2B-40-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 980</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1057</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">+@</span>
         <span class="ruby-keyword">if</span> <span class="ruby-keyword">defined?</span>(<span class="ruby-ivar">@struct_size</span>)
                 <span class="ruby-operator">+</span>(<span class="ruby-keyword">self</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">0</span>).<span class="ruby-identifier">tap</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span><span class="ruby-identifier">l</span>.<span class="ruby-identifier">name</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">name</span>}.<span class="ruby-identifier">to_alloc</span>)
@@ -436,7 +454,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="byte-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 885</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 952</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">byte</span>(<span class="ruby-identifier">size</span> = <span class="ruby-value">1</span>)
         <span class="ruby-value">1</span><span class="ruby-operator">*</span><span class="ruby-identifier">size</span>
 <span class="ruby-keyword">end</span></pre>
@@ -469,7 +487,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="dummy-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 714</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 764</span>
 <span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">dummy</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>)
         <span class="ruby-identifier">n</span> = <span class="ruby-identifier">new</span>(<span class="ruby-value">0</span>, <span class="ruby-keyword">nil</span>)
         <span class="ruby-identifier">n</span>.<span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">name</span>
@@ -504,7 +522,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="members_of_struct-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 988</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1065</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">members_of_struct</span>; <span class="ruby-ivar">@members</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-constant">Hash</span>[<span class="ruby-ivar">@members</span>]; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -540,7 +558,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="method_missing-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 896</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 963</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">method_missing</span>(<span class="ruby-identifier">m</span>, <span class="ruby-identifier">struct</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-identifier">count</span>=<span class="ruby-value">1</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">struct</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-operator">!</span><span class="ruby-keyword">defined?</span>(<span class="ruby-ivar">@struct_size</span>) <span class="ruby-operator">||</span> <span class="ruby-operator">!</span><span class="ruby-keyword">defined?</span>(<span class="ruby-ivar">@members</span>)
                 <span class="ruby-keyword">super</span>
@@ -598,7 +616,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 993</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1070</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new</span>(<span class="ruby-identifier">addr</span>, <span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-identifier">reloc</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-identifier">members</span> = <span class="ruby-keyword">nil</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">members</span>.<span class="ruby-identifier">nil?</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-keyword">defined?</span>(<span class="ruby-ivar">@struct_size</span>)
@@ -616,6 +634,44 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
                         <span class="ruby-identifier">type</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">addr</span>, <span class="ruby-identifier">type</span>.<span class="ruby-identifier">to_i</span>, <span class="ruby-identifier">reloc</span>)
                 <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">end</span> <span class="ruby-operator">||</span> (<span class="ruby-identifier">addr</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-keyword">self</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">addr</span> <span class="ruby-operator">:</span> <span class="ruby-keyword">super</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-offset_of_" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">offset_of_</span><span
+            class="method-args">(name)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a lazy evaluated, debug visible, byte offset of a struct member. Returns <code>nil</code> if self is not a struct or a member does not exist.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="offset_of_-source">
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1046</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">offset_of_</span>(<span class="ruby-identifier">name</span>)
+        <span class="ruby-keyword">if</span> <span class="ruby-ivar">@members</span>
+                <span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-ivar">@members</span>.<span class="ruby-identifier">any?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">m</span><span class="ruby-operator">|</span> <span class="ruby-identifier">m</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">==</span> <span class="ruby-identifier">name</span> }
+                        <span class="ruby-keyword">self</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">0</span>).<span class="ruby-identifier">tap</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span><span class="ruby-identifier">l</span>.<span class="ruby-identifier">name</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">name</span>}.<span class="ruby-identifier">to_alloc</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">name</span>)
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -646,7 +702,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="to_data-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 921</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 988</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_data</span>(<span class="ruby-identifier">prog</span>, <span class="ruby-identifier">offset</span>, <span class="ruby-identifier">data</span>)
         <span class="ruby-keyword">unless</span> <span class="ruby-keyword">defined?</span>(<span class="ruby-ivar">@struct_size</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-keyword">defined?</span>(<span class="ruby-ivar">@members</span>)
                 <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Label is not a data strucutre&quot;</span>
@@ -716,7 +772,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="to_i-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 978</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 1055</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_i</span>; <span class="ruby-ivar">@struct_size</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -751,7 +807,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="to_struct-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 880</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 947</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_struct</span>
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Label is not a data strucutre&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-keyword">defined?</span>(<span class="ruby-ivar">@members</span>)
         <span class="ruby-operator">::</span><span class="ruby-constant">Struct</span>.<span class="ruby-identifier">new</span> <span class="ruby-operator">*</span><span class="ruby-ivar">@members</span>.<span class="ruby-identifier">reject</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">_</span>, <span class="ruby-identifier">m</span><span class="ruby-operator">|</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">alias</span>}.<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">_</span><span class="ruby-operator">|</span> <span class="ruby-identifier">n</span>.<span class="ruby-identifier">to_sym</span>}
@@ -785,7 +841,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="word-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 889</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 956</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">word</span>(<span class="ruby-identifier">size</span> = <span class="ruby-value">1</span>)
         <span class="ruby-value">2</span><span class="ruby-operator">*</span><span class="ruby-identifier">size</span>
 <span class="ruby-keyword">end</span></pre>
@@ -826,7 +882,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="25-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 808</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 861</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">%</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-identifier">to_alloc</span> <span class="ruby-operator">%</span> <span class="ruby-identifier">other</span>
 <span class="ruby-keyword">end</span></pre>
@@ -859,7 +915,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="26-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 828</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 881</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">&amp;</span>(<span class="ruby-identifier">m</span>)
         <span class="ruby-identifier">to_alloc</span> <span class="ruby-operator">&amp;</span> <span class="ruby-identifier">m</span>
 <span class="ruby-keyword">end</span></pre>
@@ -892,7 +948,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="2A-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 800</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 853</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">*</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-identifier">to_alloc</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">other</span>
 <span class="ruby-keyword">end</span></pre>
@@ -925,7 +981,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="2A-2A-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 739</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 789</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">**</span>(<span class="ruby-identifier">name</span>)
         <span class="ruby-ivar">@members</span>[<span class="ruby-identifier">name</span>]
 <span class="ruby-keyword">end</span></pre>
@@ -958,7 +1014,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="2B-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 792</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 845</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">+</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-identifier">to_alloc</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">other</span>
 <span class="ruby-keyword">end</span></pre>
@@ -991,7 +1047,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="2B-40-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 765</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 815</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">+@</span>
         <span class="ruby-operator">+</span><span class="ruby-identifier">to_alloc</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1024,7 +1080,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="2D-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 796</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 849</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">-</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-identifier">to_alloc</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">other</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1057,7 +1113,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="2D-40-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 769</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 819</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">-@</span>
         <span class="ruby-operator">-</span><span class="ruby-identifier">to_alloc</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1090,7 +1146,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="2F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 804</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 857</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">/</span>(<span class="ruby-identifier">other</span>)
         <span class="ruby-identifier">to_alloc</span> <span class="ruby-operator">/</span> <span class="ruby-identifier">other</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1123,7 +1179,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="3C-3C-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 816</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 869</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">&lt;&lt;</span>(<span class="ruby-identifier">m</span>)
         <span class="ruby-identifier">to_alloc</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">m</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1156,7 +1212,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="3E-3E-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 812</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 865</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">&gt;&gt;</span>(<span class="ruby-identifier">m</span>)
         <span class="ruby-identifier">to_alloc</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-identifier">m</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1213,7 +1269,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="5B-5D-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 787</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 840</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">index</span> = <span class="ruby-keyword">nil</span>)
         <span class="ruby-identifier">to_alloc</span>[<span class="ruby-identifier">index</span>]
 <span class="ruby-keyword">end</span></pre>
@@ -1246,10 +1302,41 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="5E-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 820</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 873</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">^</span>(<span class="ruby-identifier">m</span>)
         <span class="ruby-identifier">to_alloc</span> <span class="ruby-operator">^</span> <span class="ruby-identifier">m</span>
 <span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-alias-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">alias?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Checks if a label is an address label (lazy alias).</p>
+          
+          
+
+          
+          <div class="method-source-code" id="alias-3F-source">
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 760</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">alias?</span>; <span class="ruby-keyword">false</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
         </div>
@@ -1279,7 +1366,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="dummy-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 708</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 756</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dummy?</span>
         <span class="ruby-ivar">@type</span>.<span class="ruby-identifier">nil?</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1312,7 +1399,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="expression-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 696</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 744</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">expression?</span>; <span class="ruby-keyword">false</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1343,10 +1430,41 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="immediate-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 700</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 748</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">immediate?</span>
         <span class="ruby-operator">!</span><span class="ruby-identifier">dummy?</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-ivar">@reloc</span>
 <span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-indexable-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">indexable?</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns <code>true</code> if a lazy evaluated label can be offset by <code>index</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="indexable-3F-source">
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 823</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">indexable?</span>; <span class="ruby-keyword">true</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
         </div>
@@ -1381,7 +1499,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="method_missing-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 857</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 924</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">method_missing</span>(<span class="ruby-identifier">m</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_ary</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_a</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_hash</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_h</span>
                 <span class="ruby-keyword">super</span>
@@ -1418,7 +1536,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="name-3D-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 842</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 895</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">name=</span>(<span class="ruby-identifier">value</span>)
         <span class="ruby-identifier">value</span> = <span class="ruby-identifier">value</span>.<span class="ruby-identifier">to_s</span>
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-node">&quot;Invalid label name: #{value.inspect}&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">value</span>.<span class="ruby-identifier">empty?</span>
@@ -1454,7 +1572,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="pointer-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 694</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 742</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">pointer?</span>; <span class="ruby-keyword">false</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1485,7 +1603,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="sublabel-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 704</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 752</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sublabel?</span>
         <span class="ruby-ivar">@reloc</span> <span class="ruby-operator">==</span> <span class="ruby-value">:parent</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1518,8 +1636,42 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="sublabel_access_expression-3F-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 698</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 746</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sublabel_access_expression?</span>; <span class="ruby-keyword">false</span>; <span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-to_aliased_name" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_aliased_name</span><span
+            class="method-args">(start)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns an abbreviated string information about a label for aliased targets.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="to_aliased_name-source">
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 913</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_aliased_name</span>(<span class="ruby-identifier">start</span>)
+        <span class="ruby-keyword">return</span> <span class="ruby-ivar">@name</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@name</span>
+        <span class="ruby-keyword">return</span> (<span class="ruby-ivar">@address</span> <span class="ruby-operator">+</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@reloc</span> <span class="ruby-operator">==</span> <span class="ruby-value">:code</span> <span class="ruby-keyword">then</span> <span class="ruby-identifier">start</span> <span class="ruby-keyword">else</span> <span class="ruby-value">0</span> <span class="ruby-keyword">end</span>).<span class="ruby-identifier">to_s</span>(<span class="ruby-value">16</span>)
+<span class="ruby-keyword">end</span></pre>
           </div>
           
         </div>
@@ -1549,7 +1701,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="to_alloc-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 761</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 811</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_alloc</span>
         <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -1603,7 +1755,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="to_i-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 676</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 724</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_i</span>(<span class="ruby-identifier">start</span> = <span class="ruby-value">0</span>, <span class="ruby-identifier">rel_to</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">override:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">prefix:</span><span class="ruby-string">&#39;&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-value">size_of:</span><span class="ruby-keyword">false</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-node">&quot;a label `#{@name}&#39; can&#39;t be coerced to a Integer before it&#39;s defined&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">dummy?</span>
 
@@ -1653,7 +1805,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="to_label-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 840</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 893</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_label</span>(<span class="ruby-identifier">_</span>); <span class="ruby-keyword">self</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1669,7 +1821,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
         
         <div class="method-heading">
           <span class="method-name">to_name</span><span
-            class="method-args">()</span>
+            class="method-args">(info=false)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -1679,13 +1831,21 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
         <div class="method-description">
           
           <p>Returns this label&#39;s name as string or <code>nil</code>.</p>
+
+<p><code>info</code> enables returning made up name if this label is anonymous.</p>
           
           
 
           
           <div class="method-source-code" id="to_name-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 849</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_name</span>; <span class="ruby-ivar">@name</span>; <span class="ruby-keyword">end</span></pre>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 905</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_name</span>(<span class="ruby-identifier">info</span>=<span class="ruby-keyword">false</span>)
+        <span class="ruby-keyword">return</span> <span class="ruby-ivar">@name</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@name</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">info</span>
+                <span class="ruby-keyword">return</span> <span class="ruby-string">&#39;$&#39;</span>.<span class="ruby-identifier">freeze</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@reloc</span> <span class="ruby-operator">==</span> <span class="ruby-value">:code</span>
+                <span class="ruby-keyword">return</span> <span class="ruby-ivar">@address</span>.<span class="ruby-identifier">to_s</span>(<span class="ruby-value">16</span>)
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
           </div>
           
         </div>
@@ -1743,7 +1903,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="to_str-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 851</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 918</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_str</span>; <span class="ruby-node">&quot;`#{@name}&#39;:#{&#39;%04X&#39; % @address}:#{@size} #{@reloc}#{dummy? ? &#39;?&#39;:&#39;&#39;}&quot;</span>; <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1778,7 +1938,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="7C-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 824</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 877</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">|</span>(<span class="ruby-identifier">m</span>)
         <span class="ruby-identifier">to_alloc</span> <span class="ruby-operator">|</span> <span class="ruby-identifier">m</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1811,7 +1971,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="~-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 832</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 885</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">~</span>
         <span class="ruby-operator">~</span><span class="ruby-identifier">to_alloc</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1852,7 +2012,7 @@ x &amp; y   - a bitwise &quot;and&quot; of x and y
 
           
           <div class="method-source-code" id="initialize-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 720</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 770</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">address</span>, <span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-identifier">reloc</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-identifier">members</span> = <span class="ruby-keyword">nil</span>) <span class="ruby-comment"># :notnew:</span>
         <span class="ruby-comment"># an absolute or relative address</span>
         <span class="ruby-ivar">@address</span> = <span class="ruby-identifier">address</span>.<span class="ruby-identifier">to_i</span>

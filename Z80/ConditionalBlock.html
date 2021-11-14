@@ -131,7 +131,7 @@
           <p>Evaluates a block in an anonymous namespace if the condition evaluates to <code>false</code>. Returns an instance of <a href="ConditionalBlock.html"><code>ConditionalBlock</code></a>.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
-<p>The block must produce some code or raise an error without producing any code. Labels defined inside a block are not accessible from outside of the conditional block.</p>
+<p>The block should produce some code or raise an error without producing any code. Labels defined inside a block are not accessible from outside of the conditional block.</p>
 </dd></dl>
           
           
@@ -141,7 +141,8 @@
             <pre><span class="ruby-comment"># File lib/z80/select.rb, line 44</span>
 <span class="ruby-keyword">def</span> <span class="ruby-keyword">else</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier ruby-title">block</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only one of `else&#39; or `else_select` variant may be defined&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span>.<span class="ruby-identifier">nil?</span>
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;`else&#39; variant defined without `then&#39;&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span>.<span class="ruby-identifier">nil?</span>
+  <span class="ruby-comment"># create an empty +then+ variant that just passes.</span>
+  <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span> = <span class="ruby-identifier">create_variant</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span>.<span class="ruby-identifier">nil?</span>
   <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span> = <span class="ruby-identifier">create_variant</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
   <span class="ruby-keyword">self</span>
 <span class="ruby-keyword">end</span></pre>
@@ -176,10 +177,11 @@
 
           
           <div class="method-source-code" id="else_select-source">
-            <pre><span class="ruby-comment"># File lib/z80/select.rb, line 56</span>
+            <pre><span class="ruby-comment"># File lib/z80/select.rb, line 57</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">else_select</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">test</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only one of `else&#39; or `else_select` variant may be defined&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span>.<span class="ruby-identifier">nil?</span>
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;`else&#39; variant defined without `then&#39;&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span>.<span class="ruby-identifier">nil?</span>
+  <span class="ruby-comment"># create an empty +then+ variant that just passes.</span>
+  <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span> = <span class="ruby-identifier">create_variant</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span>.<span class="ruby-identifier">nil?</span>
   <span class="ruby-constant">ConditionalBlock</span>.<span class="ruby-identifier">new</span>(<span class="ruby-ivar">@program</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-value">address:</span> <span class="ruby-ivar">@address</span>, <span class="ruby-value">codesize:</span> <span class="ruby-ivar">@codesize</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">test</span>).<span class="ruby-identifier">tap</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">cond</span><span class="ruby-operator">|</span>
     <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span> = <span class="ruby-identifier">cond</span>.<span class="ruby-identifier">selection</span>
   <span class="ruby-keyword">end</span>
@@ -210,7 +212,7 @@
           <p>Evaluates a block in an anonymous namespace if the condition evaluates to <code>true</code>. Returns an instance of <a href="ConditionalBlock.html"><code>ConditionalBlock</code></a>.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
-<p>The block must produce some code or raise an error without producing any code. Labels defined inside a block are not accessible from outside of the conditional block.</p>
+<p>The block should produce some code or raise an error without producing any code. Labels defined inside a block are not accessible from outside of the conditional block.</p>
 </dd></dl>
           
           

@@ -112,6 +112,8 @@
 
   <section class="description">
     
+<h1 id="class-ZXUtils::BigFont-label-BigFont"><a href="BigFont.html"><code>BigFont</code></a><span><a href="#class-ZXUtils::BigFont-label-BigFont">&para;</a> <a href="#top">&uarr;</a></span></h1>
+
 <p><a href="../Z80.html"><code>Z80</code></a> <a href="BigFont/Macros.html"><code>Macros</code></a> producing routines to create and display 16x15 characters from a 8x8 font (e.g: a default ROM font) applying a simple anti-aliasing algorithm.</p>
 
 <pre>original character  character with widened pixels       final result of the algorithm
@@ -132,6 +134,8 @@
                     ░░░░░░░░████████████████░░░░░░░░ c  ░░░░░░░░████████████████░░░░░░░░
                     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ d  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
                     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ e  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</pre>
+
+<p>Features ZX Spectrum&#39;s ROM compatible CHAN output routines for both regular (256x192) and high resolution (512x192) screen modes. See <a href="BigFontHires.html"><code>BigFontHires</code></a>.</p>
 <dl class="rdoc-list note-list"><dt>Author
 <dd>
 <p>Rafał Michalski, © 2018-2021</p>
@@ -171,13 +175,13 @@
           
           <p>ZX Spectrum&#39;s ROM compatible CHAN output routine</p>
 
-<p>The <code>a</code> register has the output code.</p>
+<p>The <code>a</code> register should have the output character code loaded.</p>
           
           
 
           
           <div class="method-source-code" id="print_char-source">
-            <pre><span class="ruby-comment"># File lib/zxutils/bigfont.rb, line 375</span>
+            <pre><span class="ruby-comment"># File lib/zxutils/bigfont.rb, line 381</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:print_char</span> <span class="ruby-keyword">do</span>
   <span class="ruby-comment"># The routine may modify the registers AF, AF&#39;, BC, DE, HL, IX. We should only preserve an alternative set</span>
   <span class="ruby-comment"># which is a regular set for the system. Modifying IY is not a good idea without disabling interrupts first.</span>

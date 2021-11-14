@@ -516,7 +516,7 @@ track3            data (track 3 data)</pre>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">saved_sp</span>]
   <span class="ruby-keyword">else</span>
     <span class="ruby-identifier">restore_sp</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-value">0</span>
-    <span class="ruby-identifier">restore_sp_p</span>    <span class="ruby-identifier">restore_sp</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+    <span class="ruby-identifier">restore_sp_p</span>    <span class="ruby-identifier">as</span>   <span class="ruby-identifier">restore_sp</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
   <span class="ruby-keyword">end</span>
                     <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>
                     <span class="ruby-identifier">jp</span>   (<span class="ruby-identifier">hl</span>)
@@ -664,7 +664,7 @@ track3            data (track 3 data)</pre>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, [<span class="ruby-identifier">music_control</span>.<span class="ruby-identifier">saved_sp</span>]
   <span class="ruby-keyword">else</span>
     <span class="ruby-identifier">restore_sp</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-value">0</span>
-    <span class="ruby-identifier">restore_sp_p</span>    <span class="ruby-identifier">restore_sp</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+    <span class="ruby-identifier">restore_sp_p</span>    <span class="ruby-identifier">as</span>   <span class="ruby-identifier">restore_sp</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
   <span class="ruby-keyword">end</span>
                     <span class="ruby-identifier">ret</span>
 

@@ -89,11 +89,19 @@
     
     <li ><a href="#method-i-address-3F">#address?</a>
     
+    <li ><a href="#method-i-alias_label">#alias_label</a>
+    
+    <li ><a href="#method-i-as">#as</a>
+    
     <li ><a href="#method-i-bytes">#bytes</a>
     
     <li ><a href="#method-i-data">#data</a>
     
     <li ><a href="#method-i-db">#db</a>
+    
+    <li ><a href="#method-i-dc-21">#dc!</a>
+    
+    <li ><a href="#method-i-debug_comment">#debug_comment</a>
     
     <li ><a href="#method-i-define_label">#define_label</a>
     
@@ -357,7 +365,7 @@
 
           
           <div class="method-source-code" id="addr-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 224</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 259</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">addr</span>(<span class="ruby-identifier">address</span>, <span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-value">align:</span> <span class="ruby-value">1</span>, <span class="ruby-value">offset:</span> <span class="ruby-value">0</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">address</span> <span class="ruby-operator">==</span> <span class="ruby-value">:next</span>
                 <span class="ruby-identifier">last_label</span> = <span class="ruby-ivar">@labels</span>.<span class="ruby-identifier">values</span>.<span class="ruby-identifier">last</span>
@@ -419,6 +427,107 @@
       </div>
 
     
+      <div id="method-i-alias_label" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">alias_label</span><span
+            class="method-args">(address, align: 1, offset: 0)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns an alias of a label or an expression.</p>
+
+<p>The <code>address</code> must be a label or a label expression.</p>
+
+<p>The returned label will eventually inherit the type from the given <code>address</code>.</p>
+
+<p>The returned label will be visible together with aliased target in debug listing at the code position when it was defined.</p>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>:align</code>
+<dd>
+<p>Additionally aligns the <code>address</code> to the nearest multiple of <code>:align</code> bytes.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>:offset</code>
+<dd>
+<p>Added to the <code>address</code> after alignment.</p>
+</dd></dl>
+</li></ul>
+
+<p>Example:</p>
+
+<pre class="ruby"><span class="ruby-identifier">baz</span> <span class="ruby-identifier">as</span> <span class="ruby-identifier">foo</span>[<span class="ruby-value">2</span>]
+<span class="ruby-identifier">bak</span> <span class="ruby-identifier">as</span> (<span class="ruby-identifier">baz</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span> <span class="ruby-operator">/</span> <span class="ruby-value">10</span>), <span class="ruby-value">align:</span> <span class="ruby-value">16</span>, <span class="ruby-value">offset:</span> <span class="ruby-value">-1</span>
+</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="alias_label-source">
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 225</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">alias_label</span>(<span class="ruby-identifier">address</span>, <span class="ruby-value">align:</span> <span class="ruby-value">1</span>, <span class="ruby-value">offset:</span> <span class="ruby-value">0</span>)
+        <span class="ruby-identifier">align</span> = <span class="ruby-identifier">align</span>.<span class="ruby-identifier">to_i</span>
+        <span class="ruby-identifier">offset</span> = <span class="ruby-identifier">offset</span>.<span class="ruby-identifier">to_i</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;align must be &gt;= 1&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">align</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">1</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">address</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_alloc</span>)
+                <span class="ruby-identifier">offset</span> = <span class="ruby-identifier">offset</span>.<span class="ruby-identifier">to_i</span>
+                <span class="ruby-identifier">address</span> = (<span class="ruby-identifier">address</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">align</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>) <span class="ruby-operator">/</span> <span class="ruby-identifier">align</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">align</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">align</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">1</span>
+                <span class="ruby-identifier">address</span> = <span class="ruby-identifier">address</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">offset</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">offset</span>.<span class="ruby-identifier">zero?</span>
+                <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">address</span>, <span class="ruby-value">:alias</span>).<span class="ruby-identifier">tap</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">alc</span><span class="ruby-operator">|</span>
+                        <span class="ruby-ivar">@reloc</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Relocation</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">pc</span>, <span class="ruby-identifier">alc</span>, <span class="ruby-value">:alias</span>, <span class="ruby-keyword">nil</span>)
+                        <span class="ruby-ivar">@debug</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">DebugInfo</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">pc</span>, <span class="ruby-value">0</span>, <span class="ruby-string">&#39;---&gt; %04xH&#39;</span>, [<span class="ruby-keyword">nil</span>, <span class="ruby-value">:alias</span>], <span class="ruby-ivar">@context_labels</span>.<span class="ruby-identifier">dup</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">alc</span>)
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;address must be a label or a lazy expression&quot;</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+        <div class="aliases">
+          Also aliased as: <a href="Program.html#method-i-as">as</a>
+        </div>
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-as" class="method-detail method-alias">
+        
+        <div class="method-heading">
+          <span class="method-name">as</span><span
+            class="method-args">(address, align: 1, offset: 0)</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+        </div>
+
+        
+
+        
+        <div class="aliases">
+          Alias for: <a href="Program.html#method-i-alias_label">alias_label</a>
+        </div>
+        
+      </div>
+
+    
       <div id="method-i-bytes" class="method-detail ">
         
         
@@ -464,7 +573,7 @@
 
           
           <div class="method-source-code" id="bytes-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 386</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 421</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bytes</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-identifier">data</span>(<span class="ruby-value">1</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -581,7 +690,7 @@
 
           
           <div class="method-source-code" id="data-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 323</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 358</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">data</span>(<span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-identifier">size</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
         <span class="ruby-identifier">res</span> = <span class="ruby-string">&#39;&#39;</span>
         <span class="ruby-identifier">from</span> = <span class="ruby-value">0</span>
@@ -669,12 +778,87 @@
 
           
           <div class="method-source-code" id="db-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 393</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 428</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">db</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-identifier">data</span>(<span class="ruby-value">1</span>, <span class="ruby-identifier">args</span>); <span class="ruby-keyword">end</span></pre>
           </div>
           
         </div>
 
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-dc-21" class="method-detail method-alias">
+        
+        <div class="method-heading">
+          <span class="method-name">dc!</span><span
+            class="method-args">(text=&#39;&#39;.freeze)</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+        </div>
+
+        
+
+        
+        <div class="aliases">
+          Alias for: <a href="Program.html#method-i-debug_comment">debug_comment</a>
+        </div>
+        
+      </div>
+
+    
+      <div id="method-i-debug_comment" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">debug_comment</span><span
+            class="method-args">(text=&#39;&#39;.freeze)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Appends user comment to the debug listing.</p>
+
+<p>The comment will be visible as text in the listing at the current <a href="Program.html#method-i-pc"><code>Program.pc</code></a> address.</p>
+
+<p>Example:</p>
+
+<pre class="ruby"><span class="ruby-identifier">dc!</span>
+<span class="ruby-identifier">dc!</span><span class="ruby-string">&quot;*********************************************&quot;</span>
+<span class="ruby-identifier">dc!</span><span class="ruby-string">&quot;***               HELLO Z80               ***&quot;</span>
+<span class="ruby-identifier">dc!</span><span class="ruby-string">&quot;*********************************************&quot;</span>
+</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="debug_comment-source">
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 676</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">debug_comment</span>(<span class="ruby-identifier">text</span>=<span class="ruby-string">&#39;&#39;</span>.<span class="ruby-identifier">freeze</span>)
+    <span class="ruby-ivar">@debug</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">DebugInfo</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">pc</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">text</span>.<span class="ruby-identifier">to_s</span>, <span class="ruby-keyword">nil</span>, [<span class="ruby-constant">Label</span>.<span class="ruby-identifier">dummy</span>])
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+        <div class="aliases">
+          Also aliased as: <a href="Program.html#method-i-dc-21">dc!</a>
+        </div>
         
 
         
@@ -715,7 +899,7 @@
 
           
           <div class="method-source-code" id="define_label-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 431</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 466</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">define_label</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">label</span>=<span class="ruby-keyword">nil</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;there is no context for a label&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">ct</span> = <span class="ruby-ivar">@contexts</span>.<span class="ruby-identifier">last</span>)
         <span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>
@@ -725,7 +909,7 @@
                 <span class="ruby-keyword">else</span>
                         <span class="ruby-constant">Label</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_i</span>, <span class="ruby-value">1</span>
                 <span class="ruby-keyword">end</span>
-                <span class="ruby-ivar">@dummies</span>.<span class="ruby-identifier">delete_if</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">lbl</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">cts</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">dummies_deleted</span> = <span class="ruby-ivar">@dummies</span>.<span class="ruby-identifier">reject!</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">lbl</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">cts</span><span class="ruby-operator">|</span>
                         <span class="ruby-keyword">if</span> <span class="ruby-identifier">n</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">name</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">cts</span>.<span class="ruby-identifier">include?</span> <span class="ruby-identifier">ct</span>.<span class="ruby-identifier">object_id</span>
                                 <span class="ruby-identifier">lbl</span>.<span class="ruby-identifier">reinitialize</span> <span class="ruby-identifier">label</span>
                                 <span class="ruby-identifier">label</span>.<span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>
@@ -733,6 +917,10 @@
                         <span class="ruby-keyword">else</span>
                                 <span class="ruby-keyword">false</span>
                         <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-comment"># make sure aliased labels (allocs) gets undummied too</span>
+                <span class="ruby-keyword">unless</span> <span class="ruby-identifier">dummies_deleted</span>.<span class="ruby-identifier">nil?</span>
+                        <span class="ruby-ivar">@dummies</span>.<span class="ruby-identifier">delete_if</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">_</span>, <span class="ruby-identifier">lbl</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">_</span><span class="ruby-operator">|</span> <span class="ruby-operator">!</span><span class="ruby-identifier">lbl</span>.<span class="ruby-identifier">dummy?</span> }
                 <span class="ruby-keyword">end</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">ct</span>.<span class="ruby-identifier">has_key?</span> <span class="ruby-identifier">name</span>
                         <span class="ruby-identifier">ct</span>[<span class="ruby-identifier">name</span>].<span class="ruby-identifier">reinitialize</span> <span class="ruby-identifier">label</span>
@@ -862,7 +1050,7 @@
 
           
           <div class="method-source-code" id="dw-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 411</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 446</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dw</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-identifier">data</span>(<span class="ruby-value">2</span>, <span class="ruby-identifier">args</span>); <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1031,7 +1219,7 @@
 
           
           <div class="method-source-code" id="import-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 537</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 554</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import</span>(<span class="ruby-identifier">program</span>, <span class="ruby-identifier">name</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">labels:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">code:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">macros:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">override:</span>{}, <span class="ruby-value">args:</span>[])
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">program</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Symbol</span>)
                 <span class="ruby-identifier">program</span>, <span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>, <span class="ruby-identifier">program</span>
@@ -1077,9 +1265,9 @@
 
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">name</span>
                 <span class="ruby-identifier">plabel</span> = <span class="ruby-constant">Label</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">addr</span>, <span class="ruby-identifier">type</span>, <span class="ruby-value">:code</span>, <span class="ruby-identifier">members</span>)
-                <span class="ruby-keyword">self</span>.<span class="ruby-identifier">send</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>, <span class="ruby-identifier">plabel</span>
+                <span class="ruby-keyword">self</span>.<span class="ruby-identifier">define_label</span> <span class="ruby-identifier">name</span>, <span class="ruby-identifier">plabel</span>
         <span class="ruby-keyword">else</span>
-                <span class="ruby-identifier">members</span>.<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">m</span><span class="ruby-operator">|</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">send</span> <span class="ruby-identifier">n</span>.<span class="ruby-identifier">to_sym</span>, <span class="ruby-identifier">m</span>} <span class="ruby-keyword">if</span> <span class="ruby-identifier">members</span>
+                <span class="ruby-identifier">members</span>.<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">m</span><span class="ruby-operator">|</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">define_label</span> <span class="ruby-identifier">n</span>, <span class="ruby-identifier">m</span>} <span class="ruby-keyword">if</span> <span class="ruby-identifier">members</span>
                 <span class="ruby-identifier">plabel</span> = <span class="ruby-constant">Label</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">addr</span>, <span class="ruby-identifier">type</span>, <span class="ruby-value">:code</span>
         <span class="ruby-keyword">end</span>
 
@@ -1159,7 +1347,7 @@
 
           
           <div class="method-source-code" id="import_file-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 620</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 637</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_file</span>(<span class="ruby-identifier">file</span>, <span class="ruby-identifier">type</span> = <span class="ruby-value">:any</span>, <span class="ruby-identifier">size</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">pipe:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">check_size:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">data_type:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">args</span>)
         <span class="ruby-identifier">type</span> = <span class="ruby-identifier">type</span>.<span class="ruby-identifier">to_s</span>.<span class="ruby-identifier">upcase</span>.<span class="ruby-identifier">to_sym</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value">:ANY</span>
@@ -1231,7 +1419,7 @@
 
           
           <div class="method-source-code" id="isolate-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 316</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 331</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">isolate</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         <span class="ruby-identifier">ns</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-value">isolate:</span> <span class="ruby-keyword">true</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -1286,7 +1474,7 @@
             <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 193</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">label</span>(<span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-value">align:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">offset:</span> <span class="ruby-value">0</span>)
         <span class="ruby-identifier">lbl</span> = <span class="ruby-constant">Label</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">pc</span>, <span class="ruby-identifier">type</span>, <span class="ruby-value">:code</span>
-        <span class="ruby-keyword">if</span> <span class="ruby-identifier">align</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">offset</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">align</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">offset</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
                 <span class="ruby-ivar">@debug</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">DebugInfo</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">pc</span>, <span class="ruby-value">0</span>, <span class="ruby-keyword">nil</span>, <span class="ruby-keyword">nil</span>, <span class="ruby-ivar">@context_labels</span>.<span class="ruby-identifier">dup</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">lbl</span>)
         <span class="ruby-keyword">else</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">align</span>
@@ -1459,7 +1647,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="label_import-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 505</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 522</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">label_import</span>(<span class="ruby-identifier">program</span>, <span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">labels:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">macros:</span><span class="ruby-keyword">false</span>)
         <span class="ruby-identifier">import</span> <span class="ruby-identifier">program</span>, <span class="ruby-identifier">name</span>, <span class="ruby-value">code:</span> <span class="ruby-keyword">false</span>, <span class="ruby-value">labels:</span> <span class="ruby-identifier">labels</span>, <span class="ruby-value">macros:</span> <span class="ruby-identifier">macros</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1499,7 +1687,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="macro_import-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 490</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 507</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">macro_import</span>(<span class="ruby-identifier">program</span>)
         <span class="ruby-identifier">import</span> <span class="ruby-identifier">program</span>, <span class="ruby-value">code:</span> <span class="ruby-keyword">false</span>, <span class="ruby-value">macros:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">labels:</span> <span class="ruby-keyword">false</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1563,7 +1751,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="method_missing-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 494</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 533</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">method_missing</span>(<span class="ruby-identifier">m</span>, <span class="ruby-identifier">label</span> = <span class="ruby-keyword">nil</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_ary</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_a</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_hash</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-value">:to_h</span>
                 <span class="ruby-keyword">super</span>
@@ -1610,7 +1798,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 188</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 198</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">new</span>(<span class="ruby-identifier">start</span> = <span class="ruby-value">0x0000</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-value">override:</span>{})
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;override should be a map of override names to labels&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">override</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_h</span>)
         <span class="ruby-identifier">override</span> = <span class="ruby-constant">Alloc</span>.<span class="ruby-identifier">compile</span>(<span class="ruby-identifier">override</span>, <span class="ruby-value">0</span>, <span class="ruby-value">include_sizes:</span><span class="ruby-keyword">false</span>)
@@ -1654,8 +1842,12 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
                 <span class="ruby-constant">ConditionalBlock</span>.<span class="ruby-identifier">compile</span>(<span class="ruby-identifier">cndblk</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">reloc</span>, <span class="ruby-identifier">debug</span>, <span class="ruby-identifier">start</span>, <span class="ruby-identifier">override</span>)
         <span class="ruby-keyword">end</span>
 
+        <span class="ruby-identifier">aliases</span> = {}
+
         <span class="ruby-identifier">reloc</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span>
                 <span class="ruby-keyword">case</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">size</span>
+                <span class="ruby-keyword">when</span> <span class="ruby-value">:alias</span>
+                        <span class="ruby-identifier">aliases</span>[<span class="ruby-identifier">r</span>.<span class="ruby-identifier">alloc</span>] = <span class="ruby-identifier">r</span>.<span class="ruby-identifier">alloc</span>.<span class="ruby-identifier">to_i</span>(<span class="ruby-identifier">start</span>, <span class="ruby-value">override:</span><span class="ruby-identifier">override</span>)
                 <span class="ruby-keyword">when</span> <span class="ruby-value">0</span>
                         <span class="ruby-identifier">raise</span> <span class="ruby-constant">CompileError</span>, <span class="ruby-string">&quot;Absolute labels need relocation sizes for the overrides&quot;</span>
                         <span class="ruby-comment"># OBSOLETE: ignore, this is an absolute address but we need relocation info for debug</span>
@@ -1692,7 +1884,8 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
          <span class="ruby-string">&#39;@labels&#39;</span>, <span class="ruby-identifier">labels</span>,
          <span class="ruby-string">&#39;@imports&#39;</span>, <span class="ruby-identifier">imports</span>,
          <span class="ruby-string">&#39;@reloc_info&#39;</span>, <span class="ruby-identifier">reloc</span>,
-         <span class="ruby-string">&#39;@debug_info&#39;</span>, <span class="ruby-identifier">debug</span>
+         <span class="ruby-string">&#39;@debug_info&#39;</span>, <span class="ruby-identifier">debug</span>,
+         <span class="ruby-string">&#39;@alias_info&#39;</span>, <span class="ruby-identifier">aliases</span>,
         ].<span class="ruby-identifier">each_slice</span>(<span class="ruby-value">2</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">n</span>,<span class="ruby-identifier">v</span><span class="ruby-operator">|</span>
                 <span class="ruby-identifier">prog</span>.<span class="ruby-identifier">instance_variable_set</span> <span class="ruby-identifier">n</span>,<span class="ruby-identifier">v</span>
         <span class="ruby-keyword">end</span>
@@ -1744,7 +1937,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>:inherit</code>
 <dd>
-<p>An alias of <code>:inherit</code>.</p>
+<p>An alias of <code>:use</code>.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>:isolate</code>
 <dd>
@@ -1779,7 +1972,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="ns-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 367</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 382</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ns</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;no block given to ns&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">block_given?</span>
         <span class="ruby-comment"># Save parent labels</span>
@@ -1848,7 +2041,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
         <span class="ruby-comment"># Get our context&#39;s id</span>
         <span class="ruby-identifier">context_id</span> = <span class="ruby-ivar">@contexts</span>.<span class="ruby-identifier">last</span>.<span class="ruby-identifier">object_id</span>
         <span class="ruby-comment"># Partition labels created in this context</span>
-        <span class="ruby-identifier">members</span>, <span class="ruby-identifier">dummies</span> = <span class="ruby-ivar">@contexts</span>.<span class="ruby-identifier">pop</span>.<span class="ruby-identifier">partition</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">l</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">members</span>, <span class="ruby-identifier">dummies</span> = <span class="ruby-ivar">@contexts</span>.<span class="ruby-identifier">pop</span>.<span class="ruby-identifier">partition</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">_</span>, <span class="ruby-identifier">l</span><span class="ruby-operator">|</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">dummy?</span>
                         <span class="ruby-keyword">false</span>
                 <span class="ruby-keyword">else</span>
@@ -1878,21 +2071,23 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
                                 <span class="ruby-identifier">label</span>.<span class="ruby-identifier">reinitialize</span> <span class="ruby-ivar">@labels</span>[<span class="ruby-identifier">name</span>]
                                 <span class="ruby-keyword">nil</span>
                         <span class="ruby-keyword">else</span>
+                                <span class="ruby-comment"># register dummy alias labels</span>
+                                <span class="ruby-identifier">members</span> <span class="ruby-operator">&lt;&lt;</span> [<span class="ruby-identifier">name</span>, <span class="ruby-identifier">label</span>] <span class="ruby-keyword">if</span> <span class="ruby-identifier">label</span>.<span class="ruby-identifier">alias?</span>
                                 [<span class="ruby-identifier">name</span>, <span class="ruby-identifier">label</span>] <span class="ruby-operator">+</span> <span class="ruby-identifier">contexts</span>
                         <span class="ruby-keyword">end</span>
                 <span class="ruby-keyword">end</span>.<span class="ruby-identifier">compact</span>
         <span class="ruby-keyword">end</span>
-        <span class="ruby-comment"># Remove our context from debug info</span>
-        <span class="ruby-ivar">@context_labels</span>.<span class="ruby-identifier">pop</span>
         <span class="ruby-comment"># Handle merge option</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">opts</span>[<span class="ruby-value">:merge</span>]
-                <span class="ruby-identifier">members</span>.<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">n</span>, <span class="ruby-identifier">l</span>) }
+                <span class="ruby-identifier">members</span>.<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">define_label</span>(<span class="ruby-identifier">n</span>, <span class="ruby-identifier">l</span>) }
                 <span class="ruby-identifier">top</span>.<span class="ruby-identifier">reinitialize</span> <span class="ruby-identifier">addr</span>, <span class="ruby-identifier">pc</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">addr</span>, <span class="ruby-value">:code</span>
         <span class="ruby-keyword">else</span>
+                <span class="ruby-comment"># Remove our context from debug info</span>
+                <span class="ruby-ivar">@context_labels</span>.<span class="ruby-identifier">pop</span>
                 <span class="ruby-identifier">top</span>.<span class="ruby-identifier">reinitialize</span> <span class="ruby-identifier">addr</span>, <span class="ruby-identifier">pc</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">addr</span>, <span class="ruby-value">:code</span>, <span class="ruby-constant">Hash</span>[<span class="ruby-identifier">members</span>]
         <span class="ruby-keyword">end</span>
         <span class="ruby-comment"># Optionally give name to top label</span>
-        <span class="ruby-identifier">top</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">send</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>, <span class="ruby-identifier">top</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">name</span>
+        <span class="ruby-identifier">top</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">define_label</span> <span class="ruby-identifier">name</span>, <span class="ruby-identifier">top</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">name</span>
         <span class="ruby-identifier">top</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -1939,7 +2134,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="org-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 296</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 311</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">org</span>(<span class="ruby-identifier">address</span> = <span class="ruby-identifier">pc</span>, <span class="ruby-identifier">pad</span> = <span class="ruby-value">0</span>, <span class="ruby-value">align:</span> <span class="ruby-value">1</span>, <span class="ruby-value">offset:</span> <span class="ruby-value">0</span>)
         <span class="ruby-identifier">address</span> = <span class="ruby-identifier">address</span>.<span class="ruby-identifier">to_i</span>
         <span class="ruby-identifier">align</span> = <span class="ruby-identifier">align</span>.<span class="ruby-identifier">to_i</span>
@@ -1978,7 +2173,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="pc-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 278</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 293</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">pc</span>
         <span class="ruby-ivar">@code</span>.<span class="ruby-identifier">bytesize</span>
 <span class="ruby-keyword">end</span></pre>
@@ -2092,7 +2287,9 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
 <p>Returns an instance of <a href="ConditionalBlock.html"><code>ConditionalBlock</code></a>.</p>
 
-<p>Each argument should be a label or a label expression. Provide a block of code that computes a boolean value based on the evaluated label expressions.</p>
+<p>Each argument should be a label or a label expression.</p>
+
+<p>Provide a block of code that computes a boolean value based on the evaluated label expressions provided as block&#39;s arguments.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
 <p>Currently code produced by each variant must have the same number of bytes. Labels defined inside a variant are not accessible from outside of the conditional block.</p>
@@ -2107,13 +2304,18 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 <span class="ruby-keyword">end</span>.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;ay_out and ay_sel should differ only on either 8-bit lsb or msb&quot;</span>
 <span class="ruby-keyword">end</span>
+
+<span class="ruby-comment"># validate memory alignment condition</span>
+<span class="ruby-identifier">select</span>((<span class="ruby-identifier">label</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">some_size</span>) <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF</span>){<span class="ruby-operator">|</span><span class="ruby-identifier">n</span><span class="ruby-operator">|</span> <span class="ruby-identifier">n</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-identifier">some_size</span> }.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;data must fit on a single 256-byte page of memory&quot;</span>
+<span class="ruby-keyword">end</span>
 </pre>
           
           
 
           
           <div class="method-source-code" id="select-source">
-            <pre><span class="ruby-comment"># File lib/z80/select.rb, line 169</span>
+            <pre><span class="ruby-comment"># File lib/z80/select.rb, line 176</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">select</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">test</span>)
   <span class="ruby-constant">ConditionalBlock</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">test</span>).<span class="ruby-identifier">tap</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">cndblk</span><span class="ruby-operator">|</span> <span class="ruby-ivar">@conditional_blocks</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">cndblk</span> }
 <span class="ruby-keyword">end</span></pre>
@@ -2163,7 +2365,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="union-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 252</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 287</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">union</span>(<span class="ruby-identifier">label</span>, <span class="ruby-identifier">type</span>, <span class="ruby-value">align:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">offset:</span> <span class="ruby-value">0</span>)
         <span class="ruby-keyword">unless</span> <span class="ruby-identifier">label</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:to_label</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">label</span>.<span class="ruby-identifier">sublabel?</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">label</span>.<span class="ruby-identifier">dummy?</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">type</span>.<span class="ruby-identifier">nil?</span>
                 <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Invalid union argument.&quot;</span>
@@ -2283,7 +2485,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 
           
           <div class="method-source-code" id="words-source">
-            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 404</span>
+            <pre><span class="ruby-comment"># File lib/z80/labels.rb, line 439</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">words</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-identifier">data</span>(<span class="ruby-value">2</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>); <span class="ruby-keyword">end</span></pre>
           </div>
           

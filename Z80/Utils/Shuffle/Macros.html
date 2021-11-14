@@ -85,6 +85,17 @@
     
 <h1 id="module-Z80::Utils::Shuffle::Macros-label-Z80-3A-3AUtils-3A-3AShuffle+Macros"><a href="../Shuffle.html"><code>Z80::Utils::Shuffle</code></a> <a href="Macros.html"><code>Macros</code></a><span><a href="#module-Z80::Utils::Shuffle::Macros-label-Z80-3A-3AUtils-3A-3AShuffle+Macros">&para;</a> <a href="#top">&uarr;</a></span></h1>
 
+<pre>for i from 0 to length − 1 do
+    j ← random integer such that 0 ≤ j ≤ i
+    if j ≠ i
+        target[i] ← target[j]
+    target[j] ← source[i]</pre>
+
+<p><a href="../Shuffle.html"><code>Shuffle</code></a> macros require:</p>
+
+<pre class="ruby"><span class="ruby-identifier">macro_import</span> <span class="ruby-constant">MathInt</span>
+</pre>
+
   </section>
 
   
@@ -117,20 +128,14 @@
 
         <div class="method-description">
           
-          <p>Shuffles an array of bytes.</p>
-
-<pre>for i from 0 to length − 1 do
-    j ← random integer such that 0 ≤ j ≤ i
-    if j ≠ i
-        target[i] ← target[j]
-    target[j] ← source[i]</pre>
+          <p>Creates a routine to shuffle an array of bytes.</p>
 
 <p>After the shuffle is performed <code>hl</code> points to the memory address immediately following the shuffled table.</p>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>next_rng</code>
 <dd>
-<p>An address of a random number generator routine. The routine should return an 8bit random number in the <code>accumulator</code>. If <code>next_rng</code> is <code>nil</code> the block of code with the RNG routine is expected instead.</p>
+<p>An address of a random number generator routine. The routine should return an 8-bit random number in the <code>accumulator</code>. If <code>next_rng</code> is <code>nil</code> the block of code with the RNG routine is expected instead.</p>
 </dd></dl>
 
 <p>Options:</p>
@@ -140,11 +145,11 @@
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>length</code>
 <dd>
-<p>An 8bit length of an array in the range of 1..256 (0 is 256) as a label, pointer or a register.</p>
+<p>An 8-bit length of an array in the range of 1..256 (0 is 256) as a label, pointer or a register.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>source</code>
 <dd>
-<p>A <code>source</code> function. If <code>nil</code> then identity is assumed: <code>(i) =&gt; i</code>, otherwise it should be an address of a source function routine which expects an argument <code>i</code> in the register <code>c</code> and <strong>MUST PRESERVE</strong> registers: <code>hl</code> and <code>de</code>. Function is expected to return its result in the <code>accumulator</code>.</p>
+<p>A <code>source</code> function. If <code>nil</code> then identity is assumed: <code>source[i] =&gt; i</code>, otherwise it should be an address of a source function routine which expects an argument <code>i</code> in the register <code>c</code> and <strong>MUST PRESERVE</strong> registers: <code>hl</code> and <code>de</code>. Function is expected to return the source value in the <code>accumulator</code>.</p>
 </dd></dl>
 </li></ul>
           
@@ -152,7 +157,7 @@
 
           
           <div class="method-source-code" id="shuffle_bytes_source_max256-source">
-            <pre><span class="ruby-comment"># File lib/z80/utils/shuffle.rb, line 40</span>
+            <pre><span class="ruby-comment"># File lib/z80/utils/shuffle.rb, line 44</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">shuffle_bytes_source_max256</span>(<span class="ruby-identifier">next_rng</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">length:</span><span class="ruby-identifier">a</span>, <span class="ruby-value">source:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">next_rng_blk</span>)
     <span class="ruby-keyword">unless</span> <span class="ruby-identifier">source</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">source</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">source</span>))
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;source should be nil or an address&quot;</span> 

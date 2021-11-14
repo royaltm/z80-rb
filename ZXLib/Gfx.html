@@ -119,13 +119,13 @@
 
 <h3 id="module-ZXLib::Gfx-label-The+coordinate+system.">The coordinate system.<span><a href="#module-ZXLib::Gfx-label-The+coordinate+system.">&para;</a> <a href="#top">&uarr;</a></span></h3>
 
-<p>In all of the <a href="Gfx.html"><code>Gfx</code></a> routines, including <a href="Gfx/Draw.html"><code>Draw</code></a> and <a href="Gfx/Sprite8.html"><code>Sprite8</code></a>, the screen pixel or cell coordinates are as follows:</p>
+<p>All of the <a href="Gfx.html"><code>Gfx</code></a> routines, including <a href="Gfx/Bobs.html"><code>Bobs</code></a>, <a href="Gfx/Clip.html"><code>Clip</code></a>, <a href="Gfx/Draw.html"><code>Draw</code></a>, and <a href="Gfx/Sprite8.html"><code>Sprite8</code></a>, are using the following screen coordinates system:</p>
 <ul><li>
-<p>The coordinates (0,0) are at the top-left corner of the screen.</p>
+<p>The coordinates (0,0) are indicating the top-left corner of the screen.</p>
 </li><li>
-<p>The vertical axis (y) is reversed so y increases towards the bottom of the screen. Hence e.g. 191 is the last visible pixel line and 23 is the last visible cell row.</p>
+<p>The vertical axis (y) is inversed - y increases towards the bottom of the screen. Hence e.g. 191 is the last visible pixel line and 23 is the last visible attributes cell row at the bottom.</p>
 </li><li>
-<p>The horizontal axis (x) is normal so x increases towards the right edge of the screen. Hence e.g. 255 is the last visible pixel column and 31 is the last visible cell column.</p>
+<p>The horizontal axis (x) is normal - x increases towards the right edge of the screen. Hence e.g. 255 is the last visible pixel column and 31 (or 63 in hi-res) is the last visible cell column on the far right.</p>
 </li></ul>
 
   </section>

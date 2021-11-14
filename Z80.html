@@ -151,6 +151,19 @@
       </header>
 
       
+      <div id="attribute-i-alias_info" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">alias_info</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>A map of alias labels and their evaluated values.</p>
+        
+        </div>
+      </div>
+      
       <div id="attribute-i-code" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">code</span><span
@@ -258,7 +271,7 @@
 
           
           <div class="method-source-code" id="add_code-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 129</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 139</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">add_code</span>(<span class="ruby-identifier">prg</span>, <span class="ruby-identifier">data</span>, <span class="ruby-identifier">type</span> = <span class="ruby-value">1</span>, <span class="ruby-identifier">mnemo</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">mpar</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">TypeError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">is_a?</span> <span class="ruby-constant">String</span>
         <span class="ruby-identifier">l</span> = <span class="ruby-constant">Label</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">pc</span> = <span class="ruby-identifier">prg</span>.<span class="ruby-identifier">pc</span>, <span class="ruby-identifier">type</span>, <span class="ruby-value">:code</span>)
@@ -295,7 +308,7 @@
 
           
           <div class="method-source-code" id="add_reloc-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 137</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 147</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">add_reloc</span>(<span class="ruby-identifier">prg</span>, <span class="ruby-identifier">label</span>, <span class="ruby-identifier">size</span>, <span class="ruby-identifier">offset</span> = <span class="ruby-value">0</span>, <span class="ruby-identifier">from</span> = <span class="ruby-keyword">nil</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;from argument accepted only for reloc size == 1&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">from</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
         <span class="ruby-identifier">alloc</span> = <span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_label</span>(<span class="ruby-identifier">prg</span>).<span class="ruby-identifier">to_alloc</span>
@@ -344,7 +357,7 @@
 
           
           <div class="method-source-code" id="5B-5D-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 38</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 40</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">[]</span>(<span class="ruby-identifier">name</span>)
         <span class="ruby-ivar">@labels</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>]
 <span class="ruby-keyword">end</span></pre>
@@ -399,11 +412,12 @@
 
           
           <div class="method-source-code" id="debug-source">
-            <pre><span class="ruby-comment"># File lib/z80.rb, line 65</span>
+            <pre><span class="ruby-comment"># File lib/z80.rb, line 67</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">debug</span>
         <span class="ruby-keyword">return</span> <span class="ruby-ivar">@debug</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@debug</span>
         <span class="ruby-identifier">reloc</span> = <span class="ruby-ivar">@reloc_info</span>
         <span class="ruby-identifier">imports</span> = <span class="ruby-ivar">@imports</span>.<span class="ruby-identifier">values</span>
+        <span class="ruby-identifier">aliases</span> = <span class="ruby-ivar">@alias_info</span>
         <span class="ruby-ivar">@debug</span> = <span class="ruby-ivar">@debug_info</span>.<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">d</span><span class="ruby-operator">|</span>
                 <span class="ruby-keyword">case</span> <span class="ruby-identifier">d</span>
                 <span class="ruby-keyword">when</span> <span class="ruby-constant">DebugInfo</span>
@@ -415,9 +429,13 @@
                                 <span class="ruby-string">&quot; :&quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">d</span>.<span class="ruby-identifier">labels</span>.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">n</span><span class="ruby-operator">|</span> <span class="ruby-identifier">n</span>.<span class="ruby-identifier">to_name</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">n</span>.<span class="ruby-identifier">to_i</span>(<span class="ruby-identifier">org</span>).<span class="ruby-identifier">to_s</span>(<span class="ruby-value">16</span>) }.<span class="ruby-identifier">join</span>(<span class="ruby-string">&#39;.&#39;</span>)
                         <span class="ruby-keyword">end</span>
 
-                        <span class="ruby-identifier">relocs</span> = <span class="ruby-identifier">reloc</span>.<span class="ruby-identifier">select</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> (<span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span><span class="ruby-operator">...</span><span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span><span class="ruby-operator">+</span><span class="ruby-identifier">d</span>.<span class="ruby-identifier">size</span>).<span class="ruby-identifier">member?</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">addr</span> }.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">alloc</span>.<span class="ruby-identifier">to_s</span>}.<span class="ruby-identifier">join</span>(<span class="ruby-string">&#39;, &#39;</span>)
-                        <span class="ruby-keyword">unless</span> <span class="ruby-identifier">relocs</span>.<span class="ruby-identifier">empty?</span>
-                                <span class="ruby-identifier">label</span> = <span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-node">&quot; -&gt; #{relocs}&quot;</span>
+                        <span class="ruby-keyword">unless</span> <span class="ruby-identifier">d</span>.<span class="ruby-identifier">size</span>.<span class="ruby-identifier">zero?</span>
+                                <span class="ruby-identifier">relocs</span> = <span class="ruby-identifier">reloc</span>.<span class="ruby-identifier">select</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">size</span> <span class="ruby-keyword">and</span> (<span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span><span class="ruby-operator">...</span><span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span><span class="ruby-operator">+</span><span class="ruby-identifier">d</span>.<span class="ruby-identifier">size</span>).<span class="ruby-identifier">member?</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">addr</span> }
+                                                                            .<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> <span class="ruby-identifier">r</span>.<span class="ruby-identifier">alloc</span>.<span class="ruby-identifier">to_s</span>}
+                                                                            .<span class="ruby-identifier">join</span>(<span class="ruby-string">&#39;, &#39;</span>)
+                                <span class="ruby-keyword">unless</span> <span class="ruby-identifier">relocs</span>.<span class="ruby-identifier">empty?</span>
+                                        <span class="ruby-identifier">label</span> = <span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-node">&quot; -&gt; #{relocs}&quot;</span>
+                                <span class="ruby-keyword">end</span>
                         <span class="ruby-keyword">end</span>
 
                         <span class="ruby-keyword">if</span> (<span class="ruby-identifier">mnemo</span> = <span class="ruby-identifier">d</span>.<span class="ruby-identifier">text</span>)
@@ -436,6 +454,9 @@
                                                         <span class="ruby-identifier">data</span>[<span class="ruby-identifier">o</span>, <span class="ruby-value">1</span>].<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;C&#39;</span>)[<span class="ruby-value">0</span>]
                                                 <span class="ruby-keyword">when</span> <span class="ruby-value">:pcrel</span>
                                                         <span class="ruby-identifier">data</span>[<span class="ruby-identifier">o</span>, <span class="ruby-value">1</span>].<span class="ruby-identifier">unpack</span>(<span class="ruby-string">&#39;c&#39;</span>)[<span class="ruby-value">0</span>] <span class="ruby-operator">+</span> <span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">d</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">org</span>
+                                                <span class="ruby-keyword">when</span> <span class="ruby-value">:alias</span>
+                                                        <span class="ruby-identifier">label</span> = <span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-node">&quot; -&gt; #{d.labels.last.to_aliased_name(org)}&quot;</span>
+                                                        <span class="ruby-identifier">aliases</span>[<span class="ruby-identifier">d</span>.<span class="ruby-identifier">labels</span>.<span class="ruby-identifier">last</span>]
                                                 <span class="ruby-keyword">end</span>
                                         }.<span class="ruby-identifier">flatten</span>
                                 <span class="ruby-keyword">end</span>

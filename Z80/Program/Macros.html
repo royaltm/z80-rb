@@ -72,6 +72,8 @@
     
     <li ><a href="#method-i-cp16r">#cp16r</a>
     
+    <li ><a href="#method-i-cp16rr">#cp16rr</a>
+    
     <li ><a href="#method-i-ld16">#ld16</a>
     
     <li ><a href="#method-i-macro">#macro</a>
@@ -212,7 +214,7 @@ ZF = 1 if th|tl == sh|sl</pre>
 
           
           <div class="method-source-code" id="cp16r-source">
-            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 230</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 244</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cp16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-value">:eoc</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;only th can be the accumulator&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
         <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -238,6 +240,49 @@ ZF = 1 if th|tl == sh|sl</pre>
                                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">tl</span>
                                 <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sl</span>
         <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-cp16rr" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">cp16rr</span><span
+            class="method-args">(tt, ss, jr_msb_c: nil, jr_msb_nz: :eoc)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Compares a pair of 16-bit registers <code>tt</code> with <code>ss</code> as unsigned integers.</p>
+
+<p>A sugar for:</p>
+
+<pre>cp16r(th,tl, sh,sl, ...)</pre>
+
+<p>See: <a href="Macros.html#method-i-cp16r"><code>Macros#cp16r</code></a>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="cp16rr-source">
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 215</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cp16rr</span>(<span class="ruby-identifier">tt</span>, <span class="ruby-identifier">ss</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-value">:eoc</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;tt must be a 16-bit register&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">tt</span>.<span class="ruby-identifier">bit8?</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;ss must be a 16-bit register&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">ss</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">ss</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">ss</span>.<span class="ruby-identifier">bit8?</span>
+        <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
+        <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span> = <span class="ruby-identifier">ss</span>.<span class="ruby-identifier">split</span>
+        <span class="ruby-identifier">cp16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>, <span class="ruby-value">jr_msb_c:</span><span class="ruby-identifier">jr_msb_c</span>, <span class="ruby-value">jr_msb_nz:</span><span class="ruby-identifier">jr_msb_nz</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -363,7 +408,7 @@ ZF = 1 if th|tl == sh|sl</pre>
                         <span class="ruby-identifier">lbl</span> = <span class="ruby-identifier">with_saved</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">registers</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                                 <span class="ruby-identifier">mblock</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">eoc</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
                         <span class="ruby-keyword">end</span>
-                        <span class="ruby-identifier">lbl</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">send</span> <span class="ruby-identifier">n</span>.<span class="ruby-identifier">to_sym</span>, <span class="ruby-identifier">lbl</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">n</span>
+                        <span class="ruby-identifier">lbl</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">define_label</span> <span class="ruby-identifier">n</span>, <span class="ruby-identifier">lbl</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">n</span>
                         <span class="ruby-identifier">lbl</span>
                 <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">end</span>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>CHANGELOG - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+  var index_rel_prefix = "./";
+</script>
+
+<script src="./js/navigation.js" defer></script>
+<script src="./js/search.js" defer></script>
+<script src="./js/search_index.js" defer></script>
+<script src="./js/searcher.js" defer></script>
+<script src="./js/darkfish.js" defer></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="file">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+<div class="nav-section">
+  <h3>Table of Contents</h3>
+
+  <ul class="link-list" role="directory">
+    <li><a href="#label-v1.1.0">v1.1.0</a>
+    <li><a href="#label-Z80-3A">Z80:</a>
+    <li><a href="#label-ZXLib-3A">ZXLib:</a>
+    <li><a href="#label-ZXUtils-3A">ZXUtils:</a>
+    <li><a href="#label-Bins-3A">Bins:</a>
+    <li><a href="#label-v1.0.0">v1.0.0</a>
+  </ul>
+</div>
+
+
+  <div id="project-metadata">
+    <div id="fileindex-section" class="nav-section">
+  <h3>Pages</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="./CHANGELOG_md.html">CHANGELOG</a>
+  
+    <li><a href="./LICENSE_md.html">LICENSE</a>
+  
+    <li><a href="./README_rdoc.html">README</a>
+  
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-label="Page CHANGELOG.md">
+
+<h1 id="label-v1.1.0">v1.1.0<span><a href="#label-v1.1.0">&para;</a> <a href="#top">&uarr;</a></span></h1>
+<ul><li>
+<p>FIXED: <a href="Z80/Program.html#method-i-ns"><code>Z80::Program#ns</code></a> with <code>merge</code> option enabled was discarding parent label context in debug output.</p>
+</li><li>
+<p>More benches and tests.</p>
+</li><li>
+<p>Improvement: use <a href="Z80/Program.html#method-i-define_label"><code>Z80::Program#define_label</code></a> instead of <code>send</code> to define dynamic labels in several places.</p>
+</li><li>
+<p>Several docs improvements.</p>
+</li></ul>
+
+<h2 id="label-Z80-3A">Z80:<span><a href="#label-Z80-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<ul><li>
+<p><a href="Z80/Program.html#method-i-debug_comment"><code>Z80::Program#debug_comment</code></a> (<a href="Z80/Program.html#method-i-dc-21"><code>Z80::Program#dc!</code></a>) helper method for including user comments in debug output.</p>
+</li><li>
+<p><a href="Z80/Program.html#method-i-alias_label"><code>Z80::Program#alias_label</code></a> (<a href="Z80/Program.html#method-i-as"><code>Z80::Program#as</code></a>) helper for creating namespace anchored lazy label aliases (visible in debug output).</p>
+</li><li>
+<p><a href="Z80/Program.html#method-i-direct_label-3F"><code>Z80::Program#direct_label?</code></a> and <a href="Z80/Program.html#method-i-direct_address-3F"><code>Z80::Program#direct_address?</code></a> helpers.</p>
+</li><li>
+<p><a href="Z80/TAP.html"><code>Z80::TAP</code></a> FIXED - byte block larger than the length indicated in the tap header will be truncated instead of raising an error.</p>
+</li><li>
+<p><a href="Z80/TZX.html"><code>Z80::TZX</code></a> recognize and skip common meta chunks.</p>
+</li><li>
+<p><a href="Z80/MathInt/Macros.html#method-i-twos_complement16_by_sgn"><code>Z80::MathInt::Macros#twos_complement16_by_sgn</code></a> macro - <code>sgn</code> argument can be accumulator and the new option <code>t</code>.</p>
+</li><li>
+<p><a href="Z80/MathInt/Macros.html#method-i-utobcd"><code>Z80::MathInt::Macros#utobcd</code></a> macro features new <code>input_end</code> option.</p>
+</li><li>
+<p><a href="Z80/Program/Macros.html#method-i-cp16n"><code>Z80::Program::Macros#cp16n</code></a> optimized comparing with a constant number &lt; 256.</p>
+</li><li>
+<p>new sugar macro <a href="Z80/Program/Macros.html#method-i-cp16rr"><code>Z80::Program::Macros#cp16rr</code></a>.</p>
+</li><li>
+<p><a href="Z80/Program.html#method-i-select"><code>Z80::Program#select</code></a> now allows conditional blocks without any code produced and else-only conditional blocks when only label validation is needed.</p>
+</li><li>
+<p><a href="Z80/Utils/Sort/Macros.html"><code>Z80::Utils::Sort::Macros</code></a> producing selected sorting algorithm routines.</p>
+</li></ul>
+
+<h2 id="label-ZXLib-3A">ZXLib:<span><a href="#label-ZXLib-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<ul><li>
+<p><a href="ZXLib/Sys.html"><code>ZXLib::Sys</code></a> new labels: <code>if1vars</code> (ZX Interface 1), <code>vars128</code> (128k), <code>io_plus</code> (ULAplus), <code>memT2k.rambot</code>, more ROM routines.</p>
+</li><li>
+<p>new macro: <a href="ZXLib/Sys/Macros.html#method-i-move_basic_above_scld_screen_memory"><code>ZXLib::Sys::Macros#move_basic_above_scld_screen_memory</code></a> for safely accessing SCLD shadow screen from BASIC.</p>
+</li><li>
+<p><a href="ZXLib/Gfx/Sprite8.html"><code>ZXLib::Gfx::Sprite8</code></a> <code>CALCULATE_SCREEN_ADDRESS</code> and <code>CHECK_HEIGHT_SANITY</code> control constants; new sugar <a href="ZXLib/Gfx/Sprite8/Macros.html"><code>ZXLib::Gfx::Sprite8::Macros</code></a>; <code>maskshift</code> label exported and slightly optimized <a href="ZXLib/Gfx/Sprite8/Macros.html#method-i-gfx_sprite8_calculate_coords"><code>ZXLib::Gfx::Sprite8::Macros#gfx_sprite8_calculate_coords</code></a> macro.</p>
+</li><li>
+<p><a href="ZXLib/Gfx/Macros.html#method-i-clear_screen_region_fast"><code>ZXLib::Gfx::Macros#clear_screen_region_fast</code></a> macro - FIXED corner cases, now accepts odd number of columns, optimized for constant arguments, new options: <code>addr_mode</code>, <code>scraddr</code> and <code>subroutine</code>.</p>
+</li><li>
+<p>new macros: <a href="ZXLib/Gfx/Macros.html#method-i-clear_attrs_region_fast"><code>ZXLib::Gfx::Macros#clear_attrs_region_fast</code></a>, <a href="ZXLib/Gfx/Macros.html#method-i-copy_shadow_screen_region"><code>ZXLib::Gfx::Macros#copy_shadow_screen_region</code></a>, <a href="ZXLib/Gfx/Macros.html#method-i-copy_shadow_attrs_region"><code>ZXLib::Gfx::Macros#copy_shadow_attrs_region</code></a>, <a href="ZXLib/Gfx/Macros.html#method-i-copy_shadow_attrs_region_quick"><code>ZXLib::Gfx::Macros#copy_shadow_attrs_region_quick</code></a> and <a href="ZXLib/Gfx/Macros.html#method-i-copy_shadow_screen_region_quick"><code>ZXLib::Gfx::Macros#copy_shadow_screen_region_quick</code></a>.</p>
+</li><li>
+<p>Macros <a href="ZXLib/Gfx/Macros.html#method-i-nextline"><code>ZXLib::Gfx::Macros#nextline</code></a>, <a href="ZXLib/Gfx/Macros.html#method-i-prevline"><code>ZXLib::Gfx::Macros#prevline</code></a> and <a href="ZXLib/Gfx/Macros.html#method-i-ytoscr"><code>ZXLib::Gfx::Macros#ytoscr</code></a> features new <code>hires</code> option.</p>
+</li><li>
+<p>Macro <a href="ZXLib/Gfx/Macros.html#method-i-xytoscr"><code>ZXLib::Gfx::Macros#xytoscr</code></a> renamed to better reflecting argument order <a href="ZXLib/Gfx/Macros.html#method-i-yxtoscr"><code>ZXLib::Gfx::Macros#yxtoscr</code></a> and aliased as old name for backward compatibility.</p>
+</li><li>
+<p>New <a href="ZXLib/Gfx/Bobs/Macros.html"><code>ZXLib::Gfx::Bobs::Macros</code></a> for drawing and manipulating bitmap objects.</p>
+</li><li>
+<p><a href="ZXLib/Basic.html"><code>ZXLib::Basic</code></a> recognizes SE BASIC instructions when parsing source, and <a href="ZXLib/Basic/Program.html#method-i-to_source"><code>ZXLib::Basic::Program#to_source</code></a> can list SE BASIC tokens with <code>se</code> option enabled.</p>
+</li></ul>
+
+<h2 id="label-ZXUtils-3A">ZXUtils:<span><a href="#label-ZXUtils-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<ul><li>
+<p><a href="ZXUtils/Gallery.html"><code>ZXUtils::Gallery</code></a> displays various ZX Spectrum screen formats, including SCLD, ULAplus (also HAM256) modes.</p>
+</li><li>
+<p><a href="ZXUtils/BigFont/Macros.html"><code>ZXUtils::BigFont::Macros</code></a> features high resolution mode; <a href="ZXUtils/BigFontHires.html"><code>ZXUtils::BigFontHires</code></a> program.</p>
+</li></ul>
+
+<h2 id="label-Bins-3A">Bins:<span><a href="#label-Bins-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<ul><li>
+<p><code>zxgallery</code>: creates <a href="ZXUtils/Gallery.html"><code>ZXUtils::Gallery</code></a> <code>.tap</code> file from provided <code>.scr</code> files.</p>
+</li><li>
+<p><code>zxconv</code>: v0.5 - saves hi-res and hi-color screens in a proper ULAplus extended <code>SCR</code> format.</p>
+</li><li>
+<p><code>zxrun</code>: v0.2 <code>ZXEMU_PATH</code> OS environment variable overrides emulator program; arguments passed to the emulator after <code>--</code>.</p>
+</li><li>
+<p><code>zxinit</code>: v0.3 program template now includes all zxlib modules.</p>
+</li></ul>
+
+<h1 id="label-v1.0.0">v1.0.0<span><a href="#label-v1.0.0">&para;</a> <a href="#top">&uarr;</a></span></h1>
+<ul><li>
+<p>Initial release.</p>
+</li></ul>
+
+</main>
+
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+
