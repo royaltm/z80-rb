@@ -1,9 +1,6 @@
 v1.1.0
 ======
 
-TODO: check alias_label export and compilation
-
-
 * FIXED: Z80::Program#ns with `merge` option enabled was discarding parent label context in debug output.
 * More benches and tests.
 * Improvement: use Z80::Program#define_label instead of `send` to define dynamic labels in several places.
