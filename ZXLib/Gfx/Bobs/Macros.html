@@ -179,7 +179,7 @@
 
           
           <div class="method-source-code" id="bobs_copy_attrs-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 134</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 151</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_attrs</span>(<span class="ruby-identifier">attrs</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">rows</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">rows</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">rows</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
@@ -304,7 +304,7 @@
 
           
           <div class="method-source-code" id="bobs_copy_attrs_fast-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 388</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 405</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_attrs_fast</span>(<span class="ruby-identifier">attrs</span>, <span class="ruby-identifier">rows</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">32</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">check_oos</span>
@@ -468,7 +468,7 @@
 
           
           <div class="method-source-code" id="bobs_copy_pixels-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 35</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 52</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_pixels</span>(<span class="ruby-identifier">bitmap</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">lines</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">lines</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
@@ -628,7 +628,7 @@
 
           
           <div class="method-source-code" id="bobs_copy_pixels_fast-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 209</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 226</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_pixels_fast</span>(<span class="ruby-identifier">bitmap</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">32</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid scraddr argument&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scraddr</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">scraddr</span>) <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>))
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;target should be an address or a pointer or hl&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">target</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">target</span>)
@@ -904,7 +904,7 @@
 
           
           <div class="method-source-code" id="bobs_draw_pixels_fast-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 924</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 941</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_draw_pixels_fast</span>(<span class="ruby-identifier">bitmap</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">2</span>,
                           <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>,
                           <span class="ruby-value">bshift:</span><span class="ruby-identifier">b</span>,
@@ -1174,7 +1174,7 @@
 
           
           <div class="method-source-code" id="bobs_draw_pixels_fast_jump_table-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 594</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 611</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_draw_pixels_fast_jump_table</span>(<span class="ruby-identifier">draw_pixels_fast_label</span>)
   <span class="ruby-keyword">unless</span> <span class="ruby-identifier">draw_pixels_fast_label</span>.<span class="ruby-identifier">nil?</span>
     <span class="ruby-identifier">throw</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_pixels_fast_label must be a label&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">draw_pixels_fast_label</span>)
@@ -1269,7 +1269,7 @@
 
           
           <div class="method-source-code" id="bobs_draw_pixels_fast_routines-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 642</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 659</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_draw_pixels_fast_routines</span>(<span class="ruby-identifier">next_row</span>, <span class="ruby-identifier">cols</span>,
                                    <span class="ruby-value">mode:</span> <span class="ruby-value">:set</span>,
                                    <span class="ruby-value">skip_cols:</span> <span class="ruby-keyword">nil</span>,
@@ -1541,7 +1541,7 @@
 
           
           <div class="method-source-code" id="bobs_rshift_bitmap_pixels_7times-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 502</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 519</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_rshift_bitmap_pixels_7times</span>(<span class="ruby-identifier">bitmap</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">lines</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">lines</span>)
@@ -1621,7 +1621,7 @@
 
           
           <div class="method-source-code" id="bobs_rshift_bitmap_pixels_once-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 543</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 560</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_rshift_bitmap_pixels_once</span>(<span class="ruby-identifier">bitmap</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">lines</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">lines</span>)
