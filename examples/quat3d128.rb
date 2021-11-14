@@ -124,8 +124,8 @@ class Quat3D
     ## Creates a Vertex data argument for given coordinates.
     def Vertex.make(x, y, z)
       x, y, z = x.round, y.round, z.round
-      xp = ((x<<PERSP_DSHIFT)/(z + 128)) + 128
-      yp = ((y<<PERSP_DSHIFT)/(z + 128)) + 96
+      xp = ((x << PERSP_DSHIFT)/(z + 128)) + 128
+      yp = ((y << PERSP_DSHIFT)/(z + 128)) + 96
       if xp < 0 || xp > 255 || yp < 0 || yp > 191
         xp = 255
         yp = 255
@@ -212,14 +212,14 @@ class Quat3D
           if nshift > 4
                       (8-nshift).times { rrca } # 0b00000000
                       ld   th, a
-                      anda (0xFF<<nshift)&0xFF
+                      anda (0xFF << nshift) & 0xFF
                       ld   tl, a
                       xor  th
                       ld   th, a
           else
                       nshift.times { rlca }
                       ld   tl, a
-                      anda (1<<nshift)-1
+                      anda (1 << nshift) - 1
                       ld   th, a
                       xor  tl
                       ld   tl, a
@@ -268,8 +268,8 @@ class Quat3D
                       apply_matrix_coord e, d, b  # z = qzx*x + qzy*y + qzz*z
                       inc  hl                     # hl: -> xp
     # calculate xp, yp
-    # xp = ((x<<PERSP_DSHIFT)/(z + 128)) + 128
-    # yp = ((y<<PERSP_DSHIFT)/(z + 128)) + 96
+    # xp = ((x << PERSP_DSHIFT)/(z + 128)) + 128
+    # yp = ((y << PERSP_DSHIFT)/(z + 128)) + 96
                       exx
     adjust_z          add  128              # a: z + 128
     adjust_z_p        adjust_z + 1          # a label pointer to adjust_z
@@ -281,7 +281,7 @@ class Quat3D
     pos_x             ld   e, a             # x
                       ex   af, af           # f': CF: sign
                       lshift8_16 PERSP_DSHIFT, d, e # de: x << PERSP_DSHIFT
-                      divmod16_8 d, e, c    # (x<<PERSP_DSHIFT) / z
+                      divmod16_8 d, e, c    # (x << PERSP_DSHIFT) / z
                       jr   C, x_overflow    # z=0
                       ld   a, d
                       anda a
