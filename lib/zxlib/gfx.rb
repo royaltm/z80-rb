@@ -393,6 +393,44 @@ module ZXLib
           end
       end
       ##
+      # Creates a routine that converts a vertical pixel coordinate to an address of a color attribute.
+      #
+      # Modifies: +af+, +ah+, +al+.
+      #
+      # * +y+:: An 8-bit input register holding a vertical pixel coordinate.
+      #
+      # Options:
+      # * +col+:: An 8-bit register, except +accumulator+, as a text column [0-31] or an integer or a label.
+      #           If it's a register then it must not be the same as +ah+.
+      # * +ah+:: A register holding a high byte of a resulting address.
+      # * +al+:: A register holding a low byte of a resulting address.
+      # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      #
+      # T-states: 49/53/56 for +col+: +0+/+register+/+number+, T-4 if +y+ is +accumulator+.
+      #
+      # y < 5r 4r 3r 2r 1r 0  0  0 ,  c < 0  0  0  5c 4c 3c 2c 1c,
+      # h > 0  1  0  1  1  0  5r 4r,  l < 3r 2r 1r 5c 4c 3c 2c 1c
+      def ytoattr(y, col:0, ah:h, al:l, scraddr:0x4000)
+        unless register?(ah) and ah.bit8? and register?(al) and al.bit8? and ah != al and ![col, ah, al].include?(a) and
+               ((address?(col) and !pointer?(col)) or (register?(col) and col != ah and col != y)) and
+               ((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
+          raise ArgumentError, "ytoattr: invalid arguments!"
+        end
+        attraddr = scraddr + 0x1800
+        isolate do
+              ld   a, y unless y == a
+              2.times {rlca}
+              ld   ah, a               # h= L L L x x x H H
+              anda 0b11100000          # a= L L L 0 0 0 0 0
+              add  col unless col == 0 # a= L L L C C C C C
+              ld   al, a               # l= L L L C C C C C
+              ld   a, ah               # h= L L L x x x H H
+              anda 0b00000011          # h= 0 0 0 0 0 0 H H
+              ora  (attraddr>>8)       # a= S S S 1 1 0 H H
+              ld   ah, a               # h= S S S 1 1 0 H H
+        end
+      end
+      ##
       # Creates a routine that converts row and column coordinates to a byte address of a top 8-pixel line.
       #
       # Modifies: +af+, +ah+, +al+.
