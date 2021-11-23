@@ -410,7 +410,7 @@ module ZXLib
       #
       # y < 5r 4r 3r 2r 1r 0  0  0 ,  c < 0  0  0  5c 4c 3c 2c 1c,
       # h > 0  1  0  1  1  0  5r 4r,  l < 3r 2r 1r 5c 4c 3c 2c 1c
-      def ytoattr(y, col:0, ah:h, al:l, scraddr:0x4000)
+      def ytoattr(y, ah:h, al:l, col:0, scraddr:0x4000)
         unless register?(ah) and ah.bit8? and register?(al) and al.bit8? and ah != al and ![col, ah, al].include?(a) and
                ((address?(col) and !pointer?(col)) or (register?(col) and col != ah and col != y)) and
                ((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
