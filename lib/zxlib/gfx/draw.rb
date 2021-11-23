@@ -21,8 +21,7 @@ module ZXLib
     #      with_saved :start, :exx, hl, ret: true do
     #                      ld   hl, [points[0]]
     #                      ld   de, [points[1]]
-    #                      prepare_args_draw_line_to
-    #                      call draw.line
+    #                      call draw.line_to
     #      end
     #    
     #      points          data ZXLib::Sys::Coords, 2, {x:0, y:0}, {x:255, y:191}
@@ -53,14 +52,37 @@ module ZXLib
       end
 
       ##
-      #  ==ZXLib::Gfx::Draw macros for drawing lines and plotting pixels on the ZX Spectrum.
+      # ==ZXLib::Gfx::Draw macros for drawing lines and plotting pixels on the ZX Spectrum.
+      #
+      # Coordinate system and drawing directions used by routines:
+      #
+      #       0,0  right ->  255,0
+      #        +----------------+
+      #        |                |
+      #      ^ |                |
+      #      u |      x, y      |
+      #      p |                |
+      #        |                |
+      #        |                |
+      #        +----------------+
+      #       0,191          255,191
       module Macros
         include ZXLib::Gfx::Macros
         include Z80::MathInt::Macros
         include Draw::Constants
         ##
         # A convenient method to build drawing subroutines.
-        # Returns a label with members including the routines and preshifted pixels data.
+        #
+        # Returns a namespace label with members including the routines and preshifted pixels data.
+        #
+        # Options:
+        # * +make_line+:: Whether to create +OR+ drawing routines.
+        # * +make_line_over+:: Whether to create +XOR+ drawing routines (OVER 1).
+        # * +make_line_inversed+:: Whether to create inversed +AND+ drawing routines (INVERSE 1).
+        # * +make_lines_to+:: Whether to create <tt>line_*_to</tt> entry points.
+        # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
+        # * +check_oos+:: Whether to check screen area boundaries when drawing lines. If +false+
+        #                 attempting to draw a line outside the screen boundaries will be UNDEFINED BEHAVIOUR.
         def make_draw_line_subroutines(make_line:true, make_line_over:true, make_line_inversed:true, make_lines_to:true, scraddr:0x4000, check_oos:true)
           isolate do
             if make_line
@@ -85,7 +107,7 @@ module ZXLib
           end
         end
         ##
-        # The common pixel mask data, precalculated to be used with other drawing routines.
+        # Creates precalculated pixel mask data to be used with drawing routines.
         #
         # +data_type+:
         #
@@ -96,7 +118,7 @@ module ZXLib
         #     :pixel_cover_right          11111111, 01111111 ... 00001111 ... 00000001
         #     :inversed_pixel_cover_right 00000000, 10000000 ... 11110000 ... 11111110
         #
-        # The data is being aligned to 8 bytes.
+        # Data is being aligned to 8 bytes.
         def preshifted_pixel_mask_data(data_type)
                         org   align: 8
           case data_type
@@ -118,23 +140,24 @@ module ZXLib
                         # 00000000 10000000 ... 11110000 ... 11111110
                         bytes (0..7).map{|x| ~(0xFF >> x) }
           else
-            raise ArgumentError, "should be one of: :pixel, :mask, :pixel_cover, :mask_cover"
+            raise ArgumentError, "data_type should be one of: :pixel, :mask, :pixel_cover, :mask_cover"
           end
         end
         ##
-        # The plot pixel routine.
+        # Creates the plot pixel routine.
         #
-        # * +x+:: The input register: horizontal-coordinate.
-        # * +y+:: The input register: vertical-coordinate.
-        # * +preshift+:: a label from the preshifted_pixel_mask_data called with a +:pixel+ or a +:inversed_pixel+ argument.
-        # * +fx+:: How to mix pixel with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+, +:skip+.
+        # * +x+:: The input register: horizontal-coordinate in the range [0, 255].
+        # * +y+:: The input register: vertical-coordinate in the range [0, 191].
+        # * +preshift+:: An address returned from the preshifted_pixel_mask_data called with a +:pixel+ or a +:inversed_pixel+ argument.
+        #                Alternatively specify as +de+ and provide the +preshift+ address in +de+ register pair.
+        # * +fx+:: Function determining how to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+, +:skip+.
         # * +with_attributes+:: Optionally writes to the screen attributes if not +false+.
-        #   Pass +:overwrite+ to ignore the +color_mask+.
-        # * +color_attr+:: an address, an immediate value or a 8-bit half of +ix+ or +iy+ register.
-        # * +color_mask+:: an address, an immediate value or a 8-bit half of +ix+ or +iy+ register.
-        # * +scraddr+:: a screen memory address as an integer, must be a multiple of 0x2000
+        #                       Pass +:overwrite+ to ignore the +color_mask+.
+        # * +color_attr+:: A pointer address, an integer or a label or a 8-bit half of +ix+ or +iy+ register.
+        # * +color_mask+:: A pointer address, an integer or a label or a 8-bit half of +ix+ or +iy+ register.
+        # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
         #
-        # Unless +with_attributes:+ is +:overwrite+: +memory+ = (+memory+ & +color_mask+) | +color_attr+.
+        # Unless +with_attributes:+ is +:overwrite+: +attr+ = (+attr+ & +color_mask+) | +color_attr+.
         #
         # Modifies: +af+, +bc+, +de+, +hl+.
         #
@@ -152,24 +175,35 @@ module ZXLib
         #   :xor  0xAE   XOR (HL)
         #   :and  0xA6   AND (HL)
         #   :none 0x7E   LD A,(HL) - may be used to temporary disable modifying screen memory
-        #   :nop  0x00   NOP       - effect is the same as :write but gives possibility to modify fx
+        #   :nop  0x00   NOP       - effect is the same as :write but gives possibility to modify fx run-time
         #
-        # Internal labels: +attr_a+ + +1+, +mask_a+ + +1+ may be used to modify +color_attr+ or +color_mask+ if
-        # the arguments were given immediate numbers.
+        # Internal labels: +attr_p+, +mask_p+ may be used to modify +color_attr+ or +color_mask+ if
+        # the arguments were given as numbers.
         #
-        # The internal label +preshift_a+ + +1+ may be used to change the +preshift+ address.
+        # If +preshift+ is given as a direct address the internal label +preshift_p+ may be used to modify the +preshift+
+        # address at run time.
         def plot_pixel(x, y, preshift, fx: :or, with_attributes:false, color_attr:ixl, color_mask:ixh, scraddr:0x4000)
+          raise ArgumentError, "plot_pixel: preshift should be an address or de" unless preshift == de || address?(preshift)
+          raise ArgumentError, "plot_pixel: color_attr should be an address or ixl, ixh" unless [ixl, ixh].include?(color_attr) || address?(color_attr)
+          raise ArgumentError, "plot_pixel: color_mask should be an address or ixl, ixh" unless [ixl, ixh].include?(color_mask) || address?(color_mask)
+          if preshift == de
+            raise ArgumentError, "plot_pixel: x and y in conflict with preshift" if [d, e].include?(x) || [d, e].include?(y)
+          end
           isolate do
                         xytoscr y, x, ah:h, al:l, s:c, t:b, scraddr:scraddr
-            preshift_a  ld   de, preshift
-            select(preshift & 7, &:zero?).then do |_|
+            if direct_address?(preshift)
+              select(preshift & 7, &:zero?).else do
+                raise ArgumentError, "preshift must be aligned to 8"
+              end
+              preshift_a  ld   de, preshift
+              preshift_p  as   preshift_a + 1
+            else
+                        ld   de, preshift unless preshift == de
+            end
                         ld   a, c
                         add  e
                         ld   e, a
                         ld   a, [de]
-            end.else do
-                raise ArgumentError, "preshift must be aligned to 8"
-            end
             case fx
             when Integer
             plot_fx     db   fx
@@ -192,14 +226,16 @@ module ZXLib
             if with_attributes
                         scrtoattr h, o:h, scraddr:0x4000
               if with_attributes == :overwrite
-                if immediate?(color_attr) && !pointer?(color_attr)
+                if direct_address?(color_attr)
             attr_a      ld   [hl], color_attr
+            attr_p      as   attr_a + 1
                 else
                         ld   a, color_attr
                         ld   [hl], a
                 end
               else # with_attributes <> :overwrite
             mask_a      ld   a, color_mask
+            mask_p      as   mask_a + 1
                         anda [hl]
                 if pointer?(color_attr)
                         ld   c, a
@@ -207,6 +243,7 @@ module ZXLib
                         ora  c
                 else
             attr_a      ora  color_attr
+            attr_p      as   attr_a + 1
                 end
                         ld   [hl], a
 
@@ -215,9 +252,9 @@ module ZXLib
           end
         end
         ##
-        # Prepares arguments for the draw_line routine based on two coordinates.
+        # Creates a routine that prepares arguments for the draw_line routine from two sets of coordinates.
         #
-        # Registers +hl+ and +de+ should contain the +yx+ coordinates of the 2 points that the line
+        # Registers +hl+ and +de+ should contain the +yx+ coordinates of 2 points that the line
         # should be drawn between.
         #
         # Modifies: +af+, +bc+, +de+, +hl+.
@@ -247,12 +284,12 @@ module ZXLib
           end
         end
         ##
-        # The "draw line" routine.
+        # Creates the "draw line" routine.
         #
-        # Expects registers:
-        # * +hl+: the starting (+yx+) point.
-        # * +bc+: a sign in +b+ and an absolute value of +dx+ in +c+.
-        # * +de+: a sign in +d+ and an absolute value of +dy+ in +e+.
+        # Input registers:
+        # * +hl+: the starting (+yx+) point coordinate.
+        # * +bc+: a sign in +b+ and an absolute value of horizontal (+x+) distance in +c+.
+        # * +de+: a sign in +d+ and an absolute value of vertical (+y+) distance in +e+.
         #
         # Arguments:
         # * +preshift_pixel+:: a label from the preshifted_pixel_mask_data called with a +:pixel+ or a +:inversed_pixel+ argument.
@@ -263,15 +300,19 @@ module ZXLib
         # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
         # * +pixel_type+:: How to interpret the preshifted data as a +:pixel+ or a +:mask+.
         #                  For inversed preshifted data use +:mask+ (e.g. to be used with +fx+=+:and+).
-        # * +scraddr+:: a screen memory address as an integer, must be a multiple of 0x2000.
-        # * +check_oos+:: Checks if the line is about to be drawn out of the screen area and stops.
-        # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or a label to jump to.
+        # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
+        # * +check_oos+:: Whether to check screen area boundaries when drawing a line. If +false+
+        #                 attempting to draw a line outside the screen boundaries will be UNDEFINED BEHAVIOUR.
+        # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or an address to jump to.
         #
-        # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+, +ix+, stack: max 2 bytes.
+        # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+, +ix+. Stack depth: 2 bytes.
         #
         # The sign should be a boolean flag: 0 for a positive sign and anything else for a negative sign.
-        # The +dx+ and +dy+ values must never be a 2'complement.
+        # The distances (+x+ and +y+) are interpreted as unsigned integers (not 2' complement).
         def draw_line(preshift_pixel, preshift_cov_lt, preshift_cov_rt, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)
+          raise ArgumentError, "draw_line: preshift_pixel must be a direct address" unless direct_address?(preshift_pixel)
+          raise ArgumentError, "draw_line: preshift_cov_lt must be a direct address" unless direct_address?(preshift_cov_lt)
+          raise ArgumentError, "draw_line: preshift_cov_rt must be a direct address" unless direct_address?(preshift_cov_rt)
           isolate do |eoc|
             end_with = eoc if end_with == :eoc
                           xor  a                  # if sdx < 0 then x = x - abs(dx), y = y - dy
@@ -295,7 +336,7 @@ module ZXLib
                 when :ret
                             ret
                 else
-                  raise ArgumentError, "end_with should be: :eoc, :ret or an address" unless address?(end_with)
+                  raise ArgumentError, "end_with should be: :eoc, :ret or an address" unless direct_address?(end_with)
                             jp   end_with
                 end
               end
@@ -358,38 +399,62 @@ module ZXLib
           end
         end
         ##
-        # Creates a routine optimized for drawing vertical lines.
+        # Creates a routine for drawing vertical lines.
         #
-        # Expects registers:
+        # Input registers with +preshift+ data:
         # * +hl+: the screen memory address at which the line should begin.
-        # * +a+: the +x+ coordinate modulo 8.
-        # * +b+: an absolute value of the delta +y+.
+        # * +a+: the horizontal (+x+) coordinate modulo 8 (pixel bit shift).
+        # * +b+: an absolute value of the vertical (+y+) pixel distance.
+        #
+        # Input registers without +preshift+ or when entering at +pmask_in_e+ label:
+        # * +hl+: the screen memory address at which the line should begin.
+        # * +e+: the pixel mask to be drawn (+e+ is not being modified).
+        # * +b+: an absolute value of the vertical (+y+) pixel distance.
         #
         # Arguments:
-        # * +preshift+:: a label from the preshifted_pixel_mask_data called with a +:pixel+ or a +:inversed_pixel+ argument.
+        # * +preshift+:: An address of an 8-byte aligned pixel mask array.
+        #
+        # Specify +preshift+ as:
+        # * A direct address or a label from the preshifted_pixel_mask_data called with +:pixel+ or +:inversed_pixel+.
+        #   In this instance an address can be modified run-time by writing it to the memory address at the
+        #   +preshift_p+ sub-label.
+        # * An intermediate (pointer) address.
+        # * +de+ register pair. In this instance load the +preshift+ address into +de+ registers before
+        #   calling this function.
+        # * +nil+ to skip creating code that loads the pixel mask. In this instance pixel mask will be
+        #   expected in the +e+ register instead.
         #
         # Options:
-        # * +direction+:: one of the following symbols: +:down+, +:up+.
+        # * +direction+:: Determines the direction of the line being drawn: +:down+ or +:up+.
         # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
-        # * +scraddr+:: a screen memory address as an integer, must be a multiple of 0x2000.
-        # * +check_oos+:: Checks if the line is about to be drawn out of the screen area and stops.
-        # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or a label to jump to.
+        # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
+        # * +check_oos+:: Whether to check screen area boundaries when drawing a line. If +false+
+        #                 attempting to draw a line crossing screen boundaries will be UNDEFINED BEHAVIOUR.
+        # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or an address to jump to.
         #
         # Modifies: +af+, +af'+, +b+, +de+, +hl+.
         def draw_line_vertical(preshift, direction: :down, fx: :or, scraddr:0x4000, check_oos:true, end_with: :eoc)
+          raise ArgumentError, "draw_line_vertical: preshift should be an address, de or nil" unless preshift.nil? || preshift == de || address?(preshift)
+          raise ArgumentError, "draw_line_vertical: end_with should be :eoc, :ret or an address" unless [:eoc, :ret].include?(end_with) || direct_address?(end_with)
           dy = b
           isolate do |eoc|
-            preshift_a    ld   de, preshift # 10000000 01000000 00100000 00010000 ... 00000001
-            preshift_p    as   preshift_a + 1
-            select(preshift & 7, &:zero?).then do |_|
+            unless preshift.nil?
+              if direct_address?(preshift)
+                select(preshift & 7, &:zero?).else do
+                    raise ArgumentError, "preshift must be aligned to 8"
+                end
+                preshift_a  ld   de, preshift # 10000000 01000000 00100000 00010000 ... 00000001
+                preshift_p  as   preshift_a + 1
+              else
+                          ld   de, preshift unless preshift == de
+              end
                           add  e
                           ld   e, a
                           ld   a, [de]      # a: pixel mask
                           ld   e, a         # e: pixel mask
-            end.else do
-                raise ArgumentError, "preshift must be aligned to 8"
             end
-            pxmask_in_e   ld   d, dy        # d: dy
+            # Call this entry point with register E holding pixel mask instead of x modulo 8 in A.
+            pmask_in_e    ld   d, dy        # d: dy
                           ld   a, h         # calculate counter based on screen address modulo 8
             case direction
             when :down
@@ -503,44 +568,71 @@ module ZXLib
           end
         end
         ##
-        # Creates a routine for drawing lines with the delta +y+ larger than or equal to the delta +x+.
+        # Creates a routine for drawing lines with the +y+ distance larger than or equal to the +x+ distance.
         #
-        # Expects registers:
+        # Input registers with +preshift+ data:
         # * +hl+: the screen memory address at which the line should begin.
-        # * +a+: the +x+ coordinate modulo 8.
-        # * +b+: an absolute value of the delta +y+.
-        # * +c+: an absolute value of the delta +x+.
+        # * +a+: the horizontal (+x+) coordinate modulo 8 (pixel bit shift).
+        # * +b+: an absolute value of the vertical (+y+) pixel distance.
+        # * +c+: an absolute value of the horizontal (+x+) pixel distance.
         #
-        # NOTE:: the delta +y+ must be greater than or equal to the delta +x+.
+        # Input registers without +preshift+ or when entering at +pmask_in_e+ label:
+        # * +hl+: the screen memory address at which the line should begin.
+        # * +e+: the pixel mask to be drawn.
+        # * +b+: an absolute value of the vertical (+y+) pixel distance.
+        # * +c+: an absolute value of the horizontal (+x+) pixel distance.
+        #
+        # NOTE:: The +y+ distance must be greater than or equal to the +x+ distance, otherwise the line
+        #        won't be drawn correctly.
         #
         # Arguments:
-        # * +preshift+:: a label from the preshifted_pixel_mask_data called with a +:pixel+ or a +:inversed_pixel+ argument.
+        # * +preshift+:: An address of an 8-byte aligned pixel mask array.
+        #
+        # Specify +preshift+ as:
+        # * A direct address or a label from the preshifted_pixel_mask_data called with +:pixel+ or +:inversed_pixel+.
+        #   In this instance an address can be modified run-time by writing it to the memory address at the
+        #   +preshift_p+ sub-label.
+        # * An intermediate (pointer) address.
+        # * +de+ register pair. In this instance load the +preshift+ address into +de+ registers before
+        #   calling this function.
+        # * +nil+ to skip creating code that loads the pixel mask. In this instance pixel mask will be
+        #   expected in the +e+ register instead.
         #
         # Options:
-        # * +direction+:: one of the following symbols: +:down_right+, +:up_right+, +:down_left+, +:up_left+.
+        # * +direction+:: Determines the direction of the line being drawn: +:down_right+, +:up_right+,
+        #                 +:down_left+, +:up_left+.
         # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
+        # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
         # * +pixel_type+:: How to interpret the preshifted data as a +:pixel+ or a +:mask+.
         #                  For inversed preshifted data use +:mask+ (e.g. to be used with +fx+=+:and+).
-        # * +scraddr+:: a screen memory address as an integer, must be a multiple of 0x2000.
-        # * +check_oos+:: Checks if the line is about to be drawn out of the screen area and stops.
-        # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or a label to jump to.
+        # * +check_oos+:: Whether to check screen area boundaries when drawing a line. If +false+
+        #                 attempting to draw a line crossing screen boundaries will be UNDEFINED BEHAVIOUR.
+        # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or an address to jump to.
         #
-        # Uses: +af+, +af'+, +bc+, +de+, +hl+, stack: max 2 bytes, preserves: +c+.
+        # Uses: +af+, +af'+, +bc+, +de+, +hl+, preserves: +c+. Stack depth: 2 bytes.
         def draw_line_dy_gte_dx(preshift, direction: :down_right, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)
+          raise ArgumentError, "draw_line_dy_gte_dx: preshift should be an address, de or nil" unless preshift.nil? || preshift == de || address?(preshift)
+          raise ArgumentError, "draw_line_dy_gte_dx: end_with should be :eoc, :ret or an address" unless [:eoc, :ret].include?(end_with) || direct_address?(end_with)
           dy = b
           dx = c
           isolate do |eoc|
-            preshift_a    ld   de, preshift # 10000000 01000000 00100000 00010000 ... 00000001
-            preshift_p    as   preshift_a + 1
-            select(preshift & 7, &:zero?).then do |_|
+            unless preshift.nil?
+              if direct_address?(preshift)
+                select(preshift & 7, &:zero?).else do
+                    raise ArgumentError, "preshift must be aligned to 8"
+                end
+                preshift_a  ld   de, preshift # 10000000 01000000 00100000 00010000 ... 00000001
+                preshift_p  as   preshift_a + 1
+              else
+                          ld   de, preshift unless preshift == de
+              end
                           add  e
                           ld   e, a
                           ld   a, [de]    # a: pixel mask
                           ld   e, a       # e: pixel mask
-            end.else do
-                raise ArgumentError, "preshift must be aligned to 8"
             end
-            pxmask_in_e   ld   a, dy
+            # Call this entry point with register E holding pixel mask instead of x modulo 8 in A.
+            pmask_in_e    ld   a, dy
                           rra             # a: dy / 2
                           ex   af, af     # 'a: acc dx
                           ld   d, dy      # d: dy
@@ -701,30 +793,51 @@ module ZXLib
           end
         end
         ##
-        # Creates a routine for drawing lines with the delta +x+ larger than the delta +y+.
+        # Creates a routine for drawing lines with the +x+ distance larger than the +y+ distance.
         #
-        # Expects registers:
+        # Input registers with +preshift+ data:
         # * +hl+: the screen memory address at which the line should begin.
-        # * +a+: the +x+ coordinate modulo 8.
-        # * +b+: an absolute value of the delta +y+.
-        # * +c+: an absolute value of the delta +x+.
+        # * +a+: the horizontal (+x+) coordinate modulo 8 (pixel bit shift).
+        # * +b+: an absolute value of the vertical (+y+) pixel distance.
+        # * +c+: an absolute value of the horizontal (+x+) pixel distance.
         #
-        # NOTE:: the delta +x+ must be greater than the delta +y+.
+        # Input registers without +preshift+ or when entering at +px_bsh_in_a_e+ label:
+        # * +hl+: the screen memory address at which the line should begin.
+        # * +a+: the pixel cover left mask.
+        # * +e+: the horizontal (+x+) coordinate modulo 8 (pixel bit shift).
+        # * +b+: an absolute value of the vertical (+y+) pixel distance.
+        # * +c+: an absolute value of the horizontal (+x+) pixel distance.
+        #
+        # NOTE:: The +x+ distance must be greater than the +y+ distance, UNDEFINED BEHAVIOUR otherwise.
         #
         # Arguments:
-        # * +preshift+:: a label from the preshifted_pixel_mask_data called with a +:pixel_cover_left+ or a +:inversed_pixel_cover_left+ argument.
+        # * +preshift+:: An address of an 8-byte aligned pixel cover left mask array.
+        #
+        # Specify +preshift+ as:
+        # * A direct address or a label from the preshifted_pixel_mask_data called with +:pixel_cover_left+ or
+        #   +:inversed_pixel_cover_left+. In this instance an address can be modified run-time by writing it
+        #   to the memory address at the +preshift_p+ sub-label.
+        # * An intermediate (pointer) address.
+        # * +de+ register pair. In this instance load the +preshift+ address into +de+ registers before
+        #   calling this function.
+        # * +nil+ to skip creating code that loads the pixel mask. In this instance the cover mask will be
+        #   expected in the +accumulator+ and the bit shift [0,7] in the +e+ register instead.
         #
         # Options:
-        # * +direction+:: one of the following symbols: +:down+, +:up+. The line is always drawn to the right.
+        # * +direction+:: Determines the direction of the line being drawn: +:down+ or +:up+.
+        #                 The line is always drawn to the right.
         # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
         # * +pixel_type+:: How to interpret the preshifted data as a +:pixel+ or a +:mask+.
         #                  For inversed preshifted data use +:mask+ (e.g. to be used with +fx+=+:and+).
-        # * +scraddr+:: a screen memory address as an integer, must be a multiple of 0x2000.
-        # * +check_oos+:: Checks if the line is about to be drawn out of the screen area and stops.
-        # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or a label to jump to.
+        # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
+        # * +check_oos+:: Whether to check screen area boundaries when drawing a line. If +false+
+        #                 attempting to draw a line crossing screen boundaries will be UNDEFINED BEHAVIOUR.
+        # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or an address to jump to.
         #
         # Uses: +af+, +af'+, +bc+, +de+, +hl+, +ix+, preserves: +c+.
         def draw_line_dx_gt_dy(preshift, direction: :down, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)
+          raise ArgumentError, "draw_line_dx_gt_dy: preshift should be an address, de or nil" unless preshift.nil? || preshift == de || address?(preshift)
+          raise ArgumentError, "draw_line_dx_gt_dy: end_with should be :eoc, :ret or an address" unless [:eoc, :ret].include?(end_with) || direct_address?(end_with)
           linescnt = dy = b
           dx = c
           yt = d
@@ -764,20 +877,28 @@ module ZXLib
             else
               false
             end
-            preshift_a    ld   de, preshift   # 10000000 11000000 ... 11111000 ... 11111111
-            preshift_p    as   preshift_a + 1
-            select(preshift & 7, &:zero?).then do |_|
+            unless preshift.nil?
+              if direct_address?(preshift)
+                select(preshift & 7, &:zero?).else do
+                    raise ArgumentError, "preshift must be aligned to 8"
+                end
+                preshift_a    ld   de, preshift   # 10000000 11000000 ... 11111000 ... 11111111
+                preshift_p    as   preshift_a + 1
+              else
+                          ld   de, preshift unless preshift == de
+              end
                           add  e
                           ld   e, a
                           ld   a, [de]        # a: line mask
-            end.else do
-                raise ArgumentError, "preshift must be aligned to 8"
             end
-            px_bsh_in_ae  ld   yt, dy         # yt: dy
+            # Call this entry point with accumulator holding cover mask and x modulo 8 in E.
+            px_bsh_in_a_e ld   yt, dy         # yt: dy
                           ex   af, af         # 'a: lmask
 
                           ld   a, e           # reclaim xshift
+            unless preshift.nil?
                           anda 0x07           # assume preshift is 8 byte aligned
+            end
 
                           ex   af, af         # a: lmask, a': xshift
                           ld   lmask, a       # lmask
@@ -984,7 +1105,7 @@ module ZXLib
                         prevline h, l, bcheck, scraddr:scraddr
             end
 
-            makslooplast2 ld   a, lmask
+            masklooplast2 ld   a, lmask
                           cpl                 # a: rmask
                           ex   af, af         # a': rmask, a: acc(dy)
             masklooplast0 sra  lmask          # 1100000 >> CF : lmask: 111000000 CF: 0
@@ -1012,31 +1133,38 @@ module ZXLib
           end
         end
         ##
-        # Creates a routine for drawing lines with the delta +x+ 4 times larger than the delta +y+.
+        # Creates a routine for drawing lines with the +x+ distance 4 times larger than the +y+ distance.
         #
-        # Expects registers:
+        # Input registers:
         # * +hl+: the screen memory address at which the line should begin.
-        # * +a+: the +x+ coordinate modulo 8.
-        # * +b+: an absolute value of the delta +y+.
-        # * +c+: an absolute value of the delta +x+.
+        # * +a+: the horizontal (+x+) coordinate modulo 8 (pixel bit shift).
+        # * +b+: an absolute value of the vertical (+y+) pixel distance.
+        # * +c+: an absolute value of the horizontal (+x+) pixel distance.
         #
-        # NOTE:: the delta +x+ must be greater than the delta +y+.
-        #        Performes best when the delta +x+ is at least 4 times the delta +y+.
+        # NOTE:: The +x+ distance must be greater than the +y+ distance, UNDEFINED BEHAVIOUR otherwise.
+        #        Performes best when the +x+ distance is more than 4 times larger than the +y+ distance.
         #
         # Arguments:
-        # * +preshift+:: a label from the preshifted_pixel_mask_data called with a +:pixel_cover_right+ or a +:inversed_pixel_cover_right+ argument.
+        # * +preshift+:: An address of an 8-byte aligned pixel cover right mask array.
+        #
+        # Specify +preshift+ as a direct address or a label from the preshifted_pixel_mask_data called with
+        # +:pixel_cover_right+ or +:inversed_pixel_cover_right+.
         #
         # Options:
-        # * +direction+:: one of the following symbols: +:down+, +:up+. The line is always drawn to the right.
+        # * +direction+:: Determines the direction of the line being drawn: +:down+ or +:up+.
+        #                 The line is always drawn to the right.
         # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
         # * +pixel_type+:: How to interpret the preshifted data as a +:pixel+ or a +:mask+.
         #                  For inversed preshifted data use +:mask+ (e.g. to be used with +fx+=+:and+).
-        # * +scraddr+:: a screen memory address as an integer, must be a multiple of 0x2000.
-        # * +check_oos+:: Checks if the line is about to be drawn out of the screen area and stops.
-        # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or a label to jump to.
+        # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
+        # * +check_oos+:: Whether to check screen area boundaries when drawing a line. If +false+
+        #                 attempting to draw a line crossing screen boundaries will be UNDEFINED BEHAVIOUR.
+        # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or an address to jump to.
         #
         # Uses: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+, +ix+, preserves: +c+.
         def draw_line_dx_gt_4dy(preshift, direction: :down, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)
+          raise ArgumentError, "draw_line_dx_gt_4dy: preshift should be a direct address" unless direct_address?(preshift)
+          raise ArgumentError, "draw_line_dx_gt_4dy: end_with should be :eoc, :ret or an address" unless [:eoc, :ret].include?(end_with) || direct_address?(end_with)
           dy = px = size = b
           c8 = dx = c
           quot = ixh
