@@ -50,7 +50,6 @@ module ZXLib
         PLOT_FX_XOR  = 0xAE
         PLOT_FX_OR   = 0xB6
       end
-
       ##
       # ==ZXLib::Gfx::Draw macros for drawing lines and plotting pixels on the ZX Spectrum.
       #
@@ -150,6 +149,8 @@ module ZXLib
         # * +y+:: The input register: vertical-coordinate in the range [0, 191].
         # * +preshift+:: An address returned from the preshifted_pixel_mask_data called with a +:pixel+ or a +:inversed_pixel+ argument.
         #                Alternatively specify as +de+ and provide the +preshift+ address in +de+ register pair.
+        #
+        # Options:
         # * +fx+:: Function determining how to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+, +:skip+.
         # * +with_attributes+:: Optionally writes to the screen attributes if not +false+.
         #                       Pass +:overwrite+ to ignore the +color_mask+.
@@ -168,7 +169,7 @@ module ZXLib
         # * merge attributes:: +62 +(0/1/6/12) for +color_mask+ one of: n/ixh/[ address ]/[ix+n];
         #                      +(0/1/14/20) for +color_attr+ one of: n/ixh/[ address ]/[ix+n]
         #
-        # Unless +fx+ was given :write, the internal label: +plot_fx+ may be used to modify the fx function:
+        # Unless +fx+ was given :write or :skip, the internal label: +plot_fx+ may be used to modify the fx function:
         #
         #   fx    value  Z80 mnemonic
         #   :or   0xB6   OR (HL)
@@ -284,22 +285,122 @@ module ZXLib
           end
         end
         ##
-        # Creates the "draw line" routine.
+        # Creates a routine that modifies the function of the draw_line code in place.
+        #
+        # +target+:: Provide a label returned from the draw_line macro.
+        #
+        # Options:
+        # * +fx_only+:: Whether to exclude code modifying both target preshift data addresses and pixel type.
+        #
+        # The routine expects an address of data created with draw_line_fx_data in the +hl+
+        # register pair.
+        #
+        # _NOTE_:: This routine can modify draw_line code only if it was created with +fx+ option:
+        #          +:or+, +:xor+, +:and+, +:none+ or +:nop+.
+        #
+        # T-states: 1530/564 with +fx_only+: +false+/+true+
+        #
+        # Modifies: +a+, +bc+, +de+, +hl+. Stack depth: 2 bytes.
+        def draw_line_update(target, fx_only:false)
+          raise ArgumentError, "draw_line_update: target should be a label" unless direct_label?(target)
+          isolate do
+                          push hl
+                          draw_line_update_dx_gt_dy  target.rt_up, fx_only:fx_only
+                          pop  hl
+                          draw_line_update_dx_gt_dy  target.rt_dn, fx_only:fx_only
+                          push hl
+                          draw_line_update_dx_gt_4dy target.rt4_up, fx_only:fx_only
+                          pop  hl
+                          draw_line_update_dx_gt_4dy target.rt4_dn, fx_only:fx_only
+                          push hl
+                          draw_line_update_dy_gte_dx target.up_rt, fx_only:fx_only
+                          pop  hl
+                          draw_line_update_dy_gte_dx target.dn_rt, fx_only:fx_only
+                          push hl
+                          draw_line_update_vertical  target.up, no_preshift:fx_only
+                          pop  hl
+                          draw_line_update_vertical  target.dn, no_preshift:fx_only
+          end
+        end
+        ##
+        # Creates data for draw_line_update routine.
+        #
+        # Arguments:
+        # * +preshift_pixel+:: An address of an 8-byte aligned pixel mask array. Preferably a label from macro
+        #                      preshifted_pixel_mask_data called with +:pixel+ or +:inversed_pixel+ argument.
+        # * +preshift_cov_lt+:: An address of an 8-byte aligned pixel cover left mask array. Preferably a label
+        #                       from macro preshifted_pixel_mask_data called with +:pixel_cover_left+ or
+        #                       +:inversed_pixel_cover_left+ argument.
+        # * +preshift_cov_rt+:: An address of an 8-byte aligned pixel cover right mask array. Preferably a label
+        #                       from macro preshifted_pixel_mask_data called with +:pixel_cover_right+ or
+        #                       +:inversed_pixel_cover_right+ argument.
+        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:none+, +:nop+.
+        # * +pixel_type+:: How to interpret preshifted pixel data as +:pixel+ or +:mask+.
+        #                  E.g. for inversed preshift data use +:mask+ (to be used with +fx+=+:and+).
+        #                  Use +:pixel_fx_only+ or +:mask_fx_only+ if you don't want to include +pixel_type+ data.
+        #                  In this instance draw_line_update routine should be created with +fx_only:+ +true+
+        #                  to be able to use data without +pixel_type+.
+        #                  The choice between +:pixel_fx_only+ and +:mask_fx_only+ should be based on whether
+        #                  data will be used to modify draw_line code originaly created, or lastly modified with
+        #                  the +pixel_type:+ as +:pixel+ or +:mask+.
+        #
+        # In case +:pixel_type+ is +:pixel_fx_only+ or +:mask_fx_only+ all three arguments:
+        # +preshift_pixel+, +preshift_cov_lt+ and +preshift_cov_rt+ should be +nil+.
+        def draw_line_fx_data(preshift_pixel, preshift_cov_lt, preshift_cov_rt, fx:, pixel_type:)
+          pixel_type_opt = if [:pixel_fx_only, :mask_fx_only].include?(pixel_type)
+            raise ArgumentError, "draw_line_fx_data: preshift_pixel should be nil" unless preshift_pixel.nil?
+            raise ArgumentError, "draw_line_fx_data: preshift_cov_lt should be nil" unless preshift_cov_lt.nil?
+            raise ArgumentError, "draw_line_fx_data: preshift_cov_rt should be nil" unless preshift_cov_rt.nil?
+            nil
+          else
+            raise ArgumentError, "draw_line_fx_data: preshift_pixel should be an address" unless direct_address?(preshift_pixel)
+            raise ArgumentError, "draw_line_fx_data: preshift_cov_lt should be an address" unless direct_address?(preshift_cov_lt)
+            raise ArgumentError, "draw_line_fx_data: preshift_cov_rt should be an address" unless direct_address?(preshift_cov_rt)
+            pixel_type
+          end
+          isolate do
+                          draw_line_fx_data_dx_gt_dy  preshift_cov_lt, fx:fx, pixel_type:pixel_type_opt
+                          draw_line_fx_data_dx_gt_4dy preshift_cov_rt, fx:fx, pixel_type:pixel_type
+                          draw_line_fx_data_dy_gte_dx preshift_pixel, fx:fx, pixel_type:pixel_type_opt
+                          draw_line_fx_data_vertical  preshift_pixel, fx:fx
+          end
+        end
+        ##
+        # Creates a routine that draws an approximation to a straight line.
+        #
+        # The routine only modifies ink/paper screen memory and does not modify attributes.
         #
         # Input registers:
-        # * +hl+: the starting (+yx+) point coordinate.
+        # * +h+: the starting vertical (+y+) point coordinate.
+        # * +l+: the starting horizontal (+x+) point coordinate.
         # * +bc+: a sign in +b+ and an absolute value of horizontal (+x+) distance in +c+.
         # * +de+: a sign in +d+ and an absolute value of vertical (+y+) distance in +e+.
         #
+        # The sign (+b+, +d+) is interpreted in the following way:
+        # * +sign+=+0+ - distance is positive.
+        # * +sign+<>+0+ - distance is negative.
+        #
+        # The distance values (+x+ and +y+) are always interpreted as unsigned integers (not 2' complement).
+        # For example:
+        #    dx = -2 can be encoded as b:1, c:2 or b:255, c:2
+        #    dy = 3 must be encoded as d:0, e:3
+        #
         # Arguments:
-        # * +preshift_pixel+:: a label from the preshifted_pixel_mask_data called with a +:pixel+ or a +:inversed_pixel+ argument.
-        # * +preshift_cov_lt+:: a label from the preshifted_pixel_mask_data called with a +:pixel_cover_left+ or a +:inversed_pixel_cover_left+ argument.
-        # * +preshift_cov_rt+:: a label from the preshifted_pixel_mask_data called with a +:pixel_cover_right+ or a +:inversed_pixel_cover_right+ argument.
+        # * +preshift_pixel+:: An address of an 8-byte aligned pixel mask array. Preferably a label from macro
+        #                      preshifted_pixel_mask_data called with +:pixel+ or +:inversed_pixel+ argument.
+        # * +preshift_cov_lt+:: An address of an 8-byte aligned pixel cover left mask array. Preferably a label
+        #                       from macro preshifted_pixel_mask_data called with +:pixel_cover_left+ or
+        #                       +:inversed_pixel_cover_left+ argument.
+        # * +preshift_cov_rt+:: An address of an 8-byte aligned pixel cover right mask array. Preferably a label
+        #                       from macro preshifted_pixel_mask_data called with +:pixel_cover_right+ or
+        #                       +:inversed_pixel_cover_right+ argument.
         #
         # Options:
-        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
-        # * +pixel_type+:: How to interpret the preshifted data as a +:pixel+ or a +:mask+.
-        #                  For inversed preshifted data use +:mask+ (e.g. to be used with +fx+=+:and+).
+        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:none+, +:nop+ or +:write+.
+        #          The +:nop+ has the same effect as +:write+ but allows to modify drawing functions at run time
+        #          with draw_line_update routine.
+        # * +pixel_type+:: How to interpret preshifted pixel data as +:pixel+ or +:mask+.
+        #                  E.g. for inversed preshift data use +:mask+ (to be used with +fx+=+:and+).
         # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
         # * +check_oos+:: Whether to check screen area boundaries when drawing a line. If +false+
         #                 attempting to draw a line outside the screen boundaries will be UNDEFINED BEHAVIOUR.
@@ -307,8 +408,13 @@ module ZXLib
         #
         # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+, +ix+. Stack depth: 2 bytes.
         #
-        # The sign should be a boolean flag: 0 for a positive sign and anything else for a negative sign.
-        # The distances (+x+ and +y+) are interpreted as unsigned integers (not 2' complement).
+        # Typical +fx+/+pixel_type+/+preshift_pixel+ combinations:
+        #
+        #   fx      pixel_type  preshift_pixel  OVER  INVERSE
+        #   :or     :pixel      :pixel             0        0
+        #   :xor    :pixel      :pixel             1        0
+        #   :and    :mask       :inversed_pixel    0        1
+        #   :none   *           *                  1        1
         def draw_line(preshift_pixel, preshift_cov_lt, preshift_cov_rt, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)
           raise ArgumentError, "draw_line: preshift_pixel must be a direct address" unless direct_address?(preshift_pixel)
           raise ArgumentError, "draw_line: preshift_cov_lt must be a direct address" unless direct_address?(preshift_cov_lt)
@@ -399,6 +505,69 @@ module ZXLib
           end
         end
         ##
+        # Creates a routine that modifies the function of the draw_line_vertical code in place.
+        #
+        # +target+:: Provide a label returned from the draw_line_vertical macro.
+        #
+        # Options:
+        # * +no_preshift+:: Whether to exclude code modifying target preshift data address.
+        #
+        # The routine expects an address of data created with draw_line_fx_data_vertical in the
+        # +hl+ register pair. After the routine executes the +hl+ will point to an address immediately
+        # following the last data byte.
+        #
+        # The routine can be entered at +no_preshift+ sub-label if provided data does not contain preshift
+        # data address.
+        #
+        # _NOTE_:: This routine can modify draw_line_vertical code only if it was created with +fx+
+        #          option: +:or+, +:xor+, +:and+, +:none+ or +:nop+.
+        #
+        # T-states: 68/26 with +no_preshift+: +false+/+true+
+        #
+        # Modifies: +a+, +bc+, +de+, +hl+.
+        def draw_line_update_vertical(target, no_preshift:false)
+          raise ArgumentError, "draw_line_update_vertical: target should be a label" unless direct_label?(target)
+          isolate do
+            unless no_preshift
+                          ld   de, target.preshift_p
+                          ldi
+                          ldi
+            end
+            define_label :no_preshift, label
+                          ld   de, target.plot_fx
+                          ldi
+          end
+        end
+        ##
+        # Creates data for draw_line_update_vertical routine.
+        #
+        # Arguments:
+        # * +preshift+:: An address of an 8-byte aligned pixel mask array. Preferably a label from macro
+        #                preshifted_pixel_mask_data called with +:pixel+ or +:inversed_pixel+ argument.
+        #                Provide +nil+ if you don't want to include +preshift+ data address.
+        #                In this instance draw_line_update_vertical should be created with +no_preshift:+ +true+
+        #                or entered at +no_preshift+ sub-label to be able to use created data without +preshift+
+        #                address.
+        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:none+, +:nop+.
+        def draw_line_fx_data_vertical(preshift, fx:)
+          raise ArgumentError, "draw_line_fx_data_vertical: preshift should be an address or nil" unless preshift.nil? || direct_address?(preshift)
+          fx = case fx
+          when :or,  PLOT_FX_OR    then PLOT_FX_OR
+          when :nop, PLOT_FX_NOP   then PLOT_FX_NOP
+          when :xor, PLOT_FX_XOR   then PLOT_FX_XOR
+          when :and, PLOT_FX_AND   then PLOT_FX_AND
+          when :none, PLOT_FX_NONE then PLOT_FX_NONE
+          when :write, :skip
+            raise ArgumentError, "forbidden fx value for updating: :#{fx}"
+          else
+            raise ArgumentError, "unknown fx: #{fx.inspect}"
+          end
+          isolate do
+                          dw   preshift unless preshift.nil?
+                          db   fx
+          end
+        end
+        ##
         # Creates a routine for drawing vertical lines.
         #
         # Input registers with +preshift+ data:
@@ -426,10 +595,13 @@ module ZXLib
         #
         # Options:
         # * +direction+:: Determines the direction of the line being drawn: +:down+ or +:up+.
-        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
+        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:none+, +:nop+, +:write+.
+        #          The +:nop+ has the same effect as +:write+ but allows to modify drawing functions at run time
+        #          with draw_line_update_vertical routine.
         # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
         # * +check_oos+:: Whether to check screen area boundaries when drawing a line. If +false+
         #                 attempting to draw a line crossing screen boundaries will be UNDEFINED BEHAVIOUR.
+        #                 The screen memory address given in +hl+ must always be valid or *UB*.
         # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or an address to jump to.
         #
         # Modifies: +af+, +af'+, +b+, +de+, +hl+.
@@ -443,7 +615,8 @@ module ZXLib
                 select(preshift & 7, &:zero?).else do
                     raise ArgumentError, "preshift must be aligned to 8"
                 end
-                preshift_a  ld   de, preshift # 10000000 01000000 00100000 00010000 ... 00000001
+                # 10000000 01000000 00100000 00010000 ... 00000001
+                preshift_a  ld   de, preshift
                 preshift_p  as   preshift_a + 1
               else
                           ld   de, preshift unless preshift == de
@@ -454,19 +627,19 @@ module ZXLib
                           ld   e, a         # e: pixel mask
             end
             # Call this entry point with register E holding pixel mask instead of x modulo 8 in A.
-            pmask_in_e    ld   d, dy        # d: dy
-                          ld   a, h         # calculate counter based on screen address modulo 8
+            pmask_in_e    ld   a, h         # calculate counter based on screen address modulo 8
             case direction
             when :down
                           anda 0b11111000   # (h & 0b11111000)
-                          sub  h            # (h & 0b11111000) - h % 8
                           add  8            # 8 - h % 8
+                          sub  h            # (h & 0b11111000) - h % 8
             when :up
                           anda 0b00000111   # (h & 0b00011111)
                           inc  a            # (h & 0b00011111) + 1
             else
               raise ArgumentError, "invalid direction argument"
             end
+                          ld   d, dy        # d: dy
                           ld   b, a         # b: counter: 8 - h % 8
                           ld   a, d         # a: dy
                           sub  b            # a: dy - counter
@@ -568,6 +741,90 @@ module ZXLib
           end
         end
         ##
+        # Creates a routine that modifies the function of the draw_line_dy_gte_dx code in place.
+        #
+        # +target+:: Provide a label returned from the draw_line_dy_gte_dx macro.
+        #
+        # Options:
+        # * +no_preshift+:: Whether to exclude code modifying target preshift data address.
+        # * +fx_only+:: Whether to exclude code modifying both target preshift data address and pixel type.
+        #
+        # The routine expects an address of data created with draw_line_fx_data_dy_gte_dx in the
+        # +hl+ register pair. After the routine executes the +hl+ will point to an address immediately
+        # following the last data byte.
+        #
+        # The routine can be entered at +no_preshift+ sub-label if provided data does not contain preshift
+        # data address or at +fx_only+ sub-label if provided data does not contain neither preshift address
+        # nor pixel type data.
+        #
+        # _NOTE_:: This routine can modify draw_line_dy_gte_dx code only if it was created with +fx+
+        #          option: +:or+, +:xor+, +:and+, +:none+ or +:nop+.
+        #
+        # T-states: 94/52/26 default/+no_preshift+:+true+/+fx_only+:+true+
+        #
+        # Modifies: +a+, +bc+, +de+, +hl+.
+        def draw_line_update_dy_gte_dx(target, no_preshift:false, fx_only:false)
+          raise ArgumentError, "draw_line_update_dy_gte_dx: target should be a label" unless direct_label?(target)
+          isolate do
+            unless no_preshift or fx_only
+                          ld   de, target.preshift_p
+                          ldi
+                          ldi
+            end
+            unless fx_only
+              define_label :no_preshift, label
+                          ld   de, target.pixel_cond
+                          ldi
+            end
+            define_label :fx_only, label
+                          ld   de, target.plot_fx
+                          ldi
+          end
+        end
+        ##
+        # Creates data for draw_line_update_dy_gte_dx routine.
+        #
+        # Arguments:
+        # * +preshift+:: An address of an 8-byte aligned pixel mask array. Preferably a label from macro
+        #                preshifted_pixel_mask_data called with +:pixel+ or +:inversed_pixel+ argument.
+        #                Use +nil+ if you don't want to include +preshift+ data address.
+        #                In this instance draw_line_update_dy_gte_dx should be created with +no_preshift:+ +true+
+        #                or entered at +no_preshift+ sub-label to be able to use created data without +preshift+
+        #                address.
+        # * +pixel_type+:: How to interpret preshifted pixel data as +:pixel+ or +:mask+.
+        #                  E.g. for inversed preshift data use +:mask+ (to be used with +fx+=+:and+).
+        #                  Use +nil+ if you don't want to include +pixel_type+ data.
+        #                  In this instance draw_line_update_dy_gte_dx should be created with +fx_only:+ +true+
+        #                  or entered at +fx_only+ sub-label to be able to use created data without +pixel_type+.
+        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:none+, +:nop+.
+        def draw_line_fx_data_dy_gte_dx(preshift, fx:, pixel_type:nil)
+          raise ArgumentError, "draw_line_fx_data_dy_gte_dx: preshift should be an address or nil" unless preshift.nil? || direct_address?(preshift)
+          raise ArgumentError, "draw_line_fx_data_dy_gte_dx: preshift should be nil if pixel_type is nil" if pixel_type.nil? && !preshift.nil?
+          fx = case fx
+          when :or,  PLOT_FX_OR    then PLOT_FX_OR
+          when :nop, PLOT_FX_NOP   then PLOT_FX_NOP
+          when :xor, PLOT_FX_XOR   then PLOT_FX_XOR
+          when :and, PLOT_FX_AND   then PLOT_FX_AND
+          when :none, PLOT_FX_NONE then PLOT_FX_NONE
+          when :write, :skip
+            raise ArgumentError, "forbidden fx value for updating: :#{fx}"
+          else
+            raise ArgumentError, "unknown fx: #{fx.inspect}"
+          end
+          isolate do
+                          dw   preshift unless preshift.nil?
+            case pixel_type
+            when :pixel
+                          db   0x38    # jr C
+            when :mask
+                          db   0x30    # jr NC
+            else
+              raise ArgumentError, "pixel_type should be :pixel or :mask"
+            end unless pixel_type.nil?
+                          db   fx
+          end
+        end
+        ##
         # Creates a routine for drawing lines with the +y+ distance larger than or equal to the +x+ distance.
         #
         # Input registers with +preshift+ data:
@@ -601,12 +858,15 @@ module ZXLib
         # Options:
         # * +direction+:: Determines the direction of the line being drawn: +:down_right+, +:up_right+,
         #                 +:down_left+, +:up_left+.
-        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
+        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:none+, +:nop+, +:write+.
+        #          The +:nop+ has the same effect as +:write+ but allows to modify drawing functions at run time
+        #          with draw_line_update_dy_gte_dx routine.
         # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
-        # * +pixel_type+:: How to interpret the preshifted data as a +:pixel+ or a +:mask+.
-        #                  For inversed preshifted data use +:mask+ (e.g. to be used with +fx+=+:and+).
+        # * +pixel_type+:: How to interpret preshifted pixel data as +:pixel+ or +:mask+.
+        #                  E.g. for inversed preshift data use +:mask+ (to be used with +fx+=+:and+).
         # * +check_oos+:: Whether to check screen area boundaries when drawing a line. If +false+
         #                 attempting to draw a line crossing screen boundaries will be UNDEFINED BEHAVIOUR.
+        #                 The screen memory address given in +hl+ must always be valid or *UB*.
         # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or an address to jump to.
         #
         # Uses: +af+, +af'+, +bc+, +de+, +hl+, preserves: +c+. Stack depth: 2 bytes.
@@ -621,8 +881,9 @@ module ZXLib
                 select(preshift & 7, &:zero?).else do
                     raise ArgumentError, "preshift must be aligned to 8"
                 end
-                preshift_a  ld   de, preshift # 10000000 01000000 00100000 00010000 ... 00000001
-                preshift_p  as   preshift_a + 1
+                # 10000000 01000000 00100000 00010000 ... 00000001
+              preshift_a  ld   de, preshift
+              preshift_p  as   preshift_a + 1
               else
                           ld   de, preshift unless preshift == de
               end
@@ -632,23 +893,25 @@ module ZXLib
                           ld   e, a       # e: pixel mask
             end
             # Call this entry point with register E holding pixel mask instead of x modulo 8 in A.
-            pmask_in_e    ld   a, dy
-                          rra             # a: dy / 2
-                          ex   af, af     # 'a: acc dx
-                          ld   d, dy      # d: dy
-                          ld   a, h       # calculate counter based on screen address modulo 8
+            pmask_in_e    ld   a, h       # calculate counter based on screen address modulo 8
             case direction
             when :down_left, :down_right
                           anda 0b11111000 # (h & 0b11111000)
-                          sub  h          # (h & 0b11111000) - h % 8
                           add  8          # 8 - h % 8
+                          sub  h          # (h & 0b11111000) - h % 8
             when :up_left, :up_right
                           anda 0b00000111 # (h & 0b00011111)
                           inc  a          # (h & 0b00011111) + 1
             else
               raise ArgumentError, "invalid direction argument"
-            end
-                          ld   b, a       # b: counter: 8 - h % 8
+            end                           # CF: 0 (for all possible ink/paper valid screen addresses)
+                          ld   d, dy      # d: dy
+                          ld   b, a       # b: counter: 8 - (h % 8) [dn] or (h % 8) + 1 [up]
+
+                          ld   a, d       # a: dy
+                          rra             # a: dy / 2 (CF=0 before)
+                          ex   af, af     # 'a: acc dx
+
                           ld   a, d       # a: dy
                           sub  b          # a: dy - counter
                           push af         # (sp): a: rest of dy, CF=1 ? the last lines
@@ -793,15 +1056,127 @@ module ZXLib
           end
         end
         ##
+        # Creates a routine that modifies the function of the draw_line_dx_gt_dy code in place.
+        #
+        # +target+:: Provide a label returned from the draw_line_dx_gt_dy macro.
+        #
+        # Options:
+        # * +no_preshift+:: Whether to exclude code modifying target preshift data address.
+        # * +fx_only+:: Whether to exclude code modifying both target preshift data address and pixel type.
+        #
+        # The routine expects an address of data created with draw_line_fx_data_dx_gt_dy in the
+        # +hl+ register pair. After the routine executes the +hl+ will point to an address immediately
+        # following the last data byte.
+        #
+        # The routine can be entered at +no_preshift+ sub-label if provided data does not contain preshift
+        # data address or at +fx_only+ sub-label if provided data does not contain neither preshift address
+        # nor pixel type data.
+        #
+        # _NOTE_:: This routine can modify draw_line_dx_gt_dy code only if it was created with +fx+
+        #          option: +:or+, +:xor+, +:and+, +:none+ or +:nop+.
+        #
+        # T-states: 311/269/65 default/+no_preshift+:+true+/+fx_only+:+true+
+        #
+        # Modifies: +a+, +bc+, +de+, +hl+.
+        def draw_line_update_dx_gt_dy(target, no_preshift:false, fx_only:false)
+          raise ArgumentError, "draw_line_update_dx_gt_dy: target should be a label" unless direct_label?(target)
+          isolate do
+            unless no_preshift or fx_only
+                          ld   de, target.preshift_p
+                          ldi
+                          ldi
+            end
+            unless fx_only
+              define_label :no_preshift, label
+                          ld   de, target.fx_pixel1
+                2.times { ldi }
+                          ld   de, target.fx_pixel2
+                2.times { ldi }
+                          ld   de, target.fx_pixel3 + 1
+                2.times { ldi }
+                          ld   a, [hl] # fx_pixel4
+                          inc  hl      # fx_pixel5
+                          ld   [target.fx_pixel4], a
+                          ld   [target.fx_pixel6], a
+                          ld   [target.fx_pixel7], a
+                          ld   de, target.fx_pixel5 + 1
+                          ldi
+            end
+            define_label :fx_only, label
+                          ld   a, [hl] # fx
+                          inc  hl
+                          ld   [target.plot_fx1], a
+                          ld   [target.plot_fx2], a
+                          ld   [target.plot_fx3], a
+                          ld   [target.plot_fx4], a
+          end
+        end
+        ##
+        # Creates data for draw_line_update_dx_gt_dy routine.
+        #
+        # Arguments:
+        # * +preshift_cov_lt+:: An address of an 8-byte aligned pixel cover left mask array. Preferably a label
+        #                       from macro preshifted_pixel_mask_data called with +:pixel_cover_left+ or
+        #                       +:inversed_pixel_cover_left+ argument. Use +nil+ if you don't want to include
+        #                       +preshift_cov_lt+ data address. In this instance draw_line_update_dx_gt_dy should
+        #                       be created with +no_preshift:+ +true+ or entered at +no_preshift+ sub-label to be
+        #                       able to use created data without +preshift_cov_lt+ address.
+        # * +pixel_type+:: How to interpret preshifted pixel data as +:pixel+ or +:mask+.
+        #                  E.g. for inversed preshift data use +:mask+ (to be used with +fx+=+:and+).
+        #                  Use +nil+ if you don't want to include +pixel_type+ data.
+        #                  In this instance draw_line_update_dx_gt_dy should be created with +fx_only:+ +true+
+        #                  or entered at +fx_only+ sub-label to be able to use created data without +pixel_type+.
+        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:none+, +:nop+.
+        def draw_line_fx_data_dx_gt_dy(preshift_cov_lt, fx:, pixel_type:nil)
+          raise ArgumentError, "draw_line_fx_data_dx_gt_dy: preshift_cov_lt should be an address or nil" unless preshift_cov_lt.nil? || direct_address?(preshift_cov_lt)
+          raise ArgumentError, "draw_line_fx_data_dx_gt_dy: preshift_cov_lt should be nil if pixel_type is nil" if pixel_type.nil? && !preshift_cov_lt.nil?
+          fx = case fx
+          when :or,  PLOT_FX_OR    then PLOT_FX_OR
+          when :nop, PLOT_FX_NOP   then PLOT_FX_NOP
+          when :xor, PLOT_FX_XOR   then PLOT_FX_XOR
+          when :and, PLOT_FX_AND   then PLOT_FX_AND
+          when :none, PLOT_FX_NONE then PLOT_FX_NONE
+          when :write, :skip
+            raise ArgumentError, "forbidden fx value for updating: :#{fx}"
+          else
+            raise ArgumentError, "unknown fx: #{fx.inspect}"
+          end
+          isolate do
+                          dw   preshift_cov_lt unless preshift_cov_lt.nil?
+            case pixel_type
+            when :pixel
+                          add  a       # fx_pixel1
+                          cpl
+                          xor  0xFF    # fx_pixel2
+                          db   0x2B    # fx_pixel3 + 1 (sra e)
+                          db   0x38    # jr C
+                          anda e       # fx_pixel4, fx_pixel6, fx_pixel7
+                          db   0x80    # fx_pixel5 + 1 (ld e, 0x80)
+            when :mask
+                          cpl          # fx_pixel1
+                          add  a
+                          anda a       # fx_pixel2
+                          cpl
+                          db   0x3B    # fx_pixel3 + 1 (srl e)
+                          db   0x30    # jr NC
+                          ora  e       # fx_pixel4, fx_pixel6, fx_pixel7
+                          db   0x7F    # fx_pixel5 + 1 (ld e, 0x7F)
+            else
+              raise ArgumentError, "pixel_type should be :pixel or :mask"
+            end unless pixel_type.nil?
+                          db   fx
+          end
+        end
+        ##
         # Creates a routine for drawing lines with the +x+ distance larger than the +y+ distance.
         #
-        # Input registers with +preshift+ data:
+        # Input registers with +preshift_cov_lt+ data:
         # * +hl+: the screen memory address at which the line should begin.
         # * +a+: the horizontal (+x+) coordinate modulo 8 (pixel bit shift).
         # * +b+: an absolute value of the vertical (+y+) pixel distance.
         # * +c+: an absolute value of the horizontal (+x+) pixel distance.
         #
-        # Input registers without +preshift+ or when entering at +px_bsh_in_a_e+ label:
+        # Input registers without +preshift_cov_lt+ or when entering at +px_bsh_in_a_e+ label:
         # * +hl+: the screen memory address at which the line should begin.
         # * +a+: the pixel cover left mask.
         # * +e+: the horizontal (+x+) coordinate modulo 8 (pixel bit shift).
@@ -811,14 +1186,14 @@ module ZXLib
         # NOTE:: The +x+ distance must be greater than the +y+ distance, UNDEFINED BEHAVIOUR otherwise.
         #
         # Arguments:
-        # * +preshift+:: An address of an 8-byte aligned pixel cover left mask array.
+        # * +preshift_cov_lt+:: An address of an 8-byte aligned pixel cover left mask array.
         #
-        # Specify +preshift+ as:
+        # Specify +preshift_cov_lt+ as:
         # * A direct address or a label from the preshifted_pixel_mask_data called with +:pixel_cover_left+ or
         #   +:inversed_pixel_cover_left+. In this instance an address can be modified run-time by writing it
         #   to the memory address at the +preshift_p+ sub-label.
         # * An intermediate (pointer) address.
-        # * +de+ register pair. In this instance load the +preshift+ address into +de+ registers before
+        # * +de+ register pair. In this instance load the +preshift_cov_lt+ address into +de+ registers before
         #   calling this function.
         # * +nil+ to skip creating code that loads the pixel mask. In this instance the cover mask will be
         #   expected in the +accumulator+ and the bit shift [0,7] in the +e+ register instead.
@@ -826,17 +1201,20 @@ module ZXLib
         # Options:
         # * +direction+:: Determines the direction of the line being drawn: +:down+ or +:up+.
         #                 The line is always drawn to the right.
-        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
-        # * +pixel_type+:: How to interpret the preshifted data as a +:pixel+ or a +:mask+.
-        #                  For inversed preshifted data use +:mask+ (e.g. to be used with +fx+=+:and+).
+        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:none+, +:nop+, +:write+.
+        #          The +:nop+ has the same effect as +:write+ but allows to modify drawing functions at run time
+        #          with draw_line_update_dx_gt_dy routine.
+        # * +pixel_type+:: How to interpret preshifted pixel data as +:pixel+ or +:mask+.
+        #                  E.g. for inversed preshift data use +:mask+ (to be used with +fx+=+:and+).
         # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
         # * +check_oos+:: Whether to check screen area boundaries when drawing a line. If +false+
         #                 attempting to draw a line crossing screen boundaries will be UNDEFINED BEHAVIOUR.
+        #                 The screen memory address given in +hl+ must always be valid or *UB*.
         # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or an address to jump to.
         #
         # Uses: +af+, +af'+, +bc+, +de+, +hl+, +ix+, preserves: +c+.
-        def draw_line_dx_gt_dy(preshift, direction: :down, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)
-          raise ArgumentError, "draw_line_dx_gt_dy: preshift should be an address, de or nil" unless preshift.nil? || preshift == de || address?(preshift)
+        def draw_line_dx_gt_dy(preshift_cov_lt, direction: :down, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)
+          raise ArgumentError, "draw_line_dx_gt_dy: preshift_cov_lt should be an address, de or nil" unless preshift_cov_lt.nil? || preshift_cov_lt == de || address?(preshift_cov_lt)
           raise ArgumentError, "draw_line_dx_gt_dy: end_with should be :eoc, :ret or an address" unless [:eoc, :ret].include?(end_with) || direct_address?(end_with)
           linescnt = dy = b
           dx = c
@@ -858,8 +1236,6 @@ module ZXLib
                           ld   a, [hl]
             when :nop
                           nop
-            when :write
-                          label
             else
               raise ArgumentError, "unknown fx value"
             end
@@ -877,15 +1253,16 @@ module ZXLib
             else
               false
             end
-            unless preshift.nil?
-              if direct_address?(preshift)
-                select(preshift & 7, &:zero?).else do
-                    raise ArgumentError, "preshift must be aligned to 8"
+            unless preshift_cov_lt.nil?
+              if direct_address?(preshift_cov_lt)
+                select(preshift_cov_lt & 7, &:zero?).else do
+                    raise ArgumentError, "preshift_cov_lt must be aligned to 8"
                 end
-                preshift_a    ld   de, preshift   # 10000000 11000000 ... 11111000 ... 11111111
+                # 10000000 11000000 ... 11111000 ... 11111111
+                preshift_a    ld   de, preshift_cov_lt
                 preshift_p    as   preshift_a + 1
               else
-                          ld   de, preshift unless preshift == de
+                          ld   de, preshift_cov_lt unless preshift_cov_lt == de
               end
                           add  e
                           ld   e, a
@@ -896,7 +1273,7 @@ module ZXLib
                           ex   af, af         # 'a: lmask
 
                           ld   a, e           # reclaim xshift
-            unless preshift.nil?
+            unless preshift_cov_lt.nil?
                           anda 0x07           # assume preshift is 8 byte aligned
             end
 
@@ -904,10 +1281,10 @@ module ZXLib
                           ld   lmask, a       # lmask
             case pixel_type
             when :pixel
-                          add  a              # lmask << 1
+              fx_pixel1   add  a              # lmask << 1
                           cpl                 # rmask = ~(rmask<<1)
             when :mask
-                          cpl                 # ~rmask
+              fx_pixel1   cpl                 # ~rmask
                           add  a              # rmask = (~rmask)<<1
             else
               raise ArgumentError, "pixel_type should be :pixel or :mask"
@@ -967,21 +1344,20 @@ module ZXLib
             maskloop2     ld   a, lmask       # line has advanced
             case pixel_type
             when :pixel
-                          xor  0xFF           # a: rmask = ~lmask
-                          jr   Z, next_col1   # diagonal: next line and next column
+              fx_pixel2   xor  0xFF           # a: rmask = ~lmask
             when :mask
-                          anda a
-                          jr   Z, next_col1   # diagonal: next line and next column
+              fx_pixel2   anda a
                           cpl                 # a: rmask = ~lmask
             end
+                          jr   Z, next_col1   # diagonal: next line and next column
                           ex   af, af         # a': rmask, a: acc(dy)
             maskloop0     label
             case pixel_type
             when :pixel
-                          sra  lmask          # 11000000 >> CF : lmask: 11100000 CF: 0
+              fx_pixel3   sra  lmask          # 11000000 >> CF : lmask: 11100000 CF: 0
                           jr   C, next_col0   # 11111111 CF: 1 (next column)
             when :mask
-                          srl  lmask          # 00111111 >> CF : lmask: 00011111 CF: 1
+              fx_pixel3   srl  lmask          # 00111111 >> CF : lmask: 00011111 CF: 1
                           jr   NC, next_col0  # 00000000 CF: 0 (next column)
             end
             maskloop1     add  yt             # a+= dy
@@ -993,11 +1369,11 @@ module ZXLib
                           ex   af, af         # a: rmask, a': acc(dy)
             case pixel_type
             when :pixel
-                          anda lmask
+              fx_pixel4   anda lmask
             when :mask
-                          ora  lmask
+              fx_pixel4   ora  lmask
             end
-            plot_fx1      combine_screen_pixels[]
+            plot_fx1      combine_screen_pixels[] unless fx == :write
                           ld   [hl], a
             ns do
               case direction
@@ -1050,7 +1426,7 @@ module ZXLib
 
             next_col0     ex   af, af         # a: rmask, a': acc(dy)
                                               # no need to AND lmask, lmask=0xFF (as mask: 0x00)
-            plot_fx2      combine_screen_pixels[]
+            plot_fx2      combine_screen_pixels[] unless fx == :write
                           ld   [hl], a
 
             next_col1     inc  l
@@ -1058,9 +1434,9 @@ module ZXLib
                           ld   a, lmask       # rmask: 0xFF (as mask: 0x00)
             case pixel_type
             when :pixel
-                          ld   lmask, 0x80    # lmask: 10000000
+              fx_pixel5   ld   lmask, 0x80    # lmask: 10000000
             when :mask
-                          ld   lmask, 0x7F    # lmask: 01111111
+              fx_pixel5   ld   lmask, 0x7F    # lmask: 01111111
             end
                           jr   Z, iter_last2  # colsleft == 0
                           ex   af, af         # a': rmask, a: acc(dy)
@@ -1092,11 +1468,11 @@ module ZXLib
                           ex   af, af         # a': acc(dy)
             case pixel_type
             when :pixel
-                          anda lmask
+              fx_pixel6   anda lmask
             when :mask
-                          ora  lmask
+              fx_pixel6   ora  lmask
             end
-            plot_fx3      combine_screen_pixels[]
+            plot_fx3      combine_screen_pixels[] unless fx == :write
                           ld   [hl], a
             case direction
             when :down
@@ -1117,11 +1493,11 @@ module ZXLib
             last_write    ex   af, af         # a: rmask, a': acc(dy)
             case pixel_type
             when :pixel
-                          anda lmask
+              fx_pixel7   anda lmask
             when :mask
-                          ora  lmask
+              fx_pixel7   ora  lmask
             end
-            plot_fx4      combine_screen_pixels[]
+            plot_fx4      combine_screen_pixels[] unless fx == :write
                           ld   [hl], a
             case end_with
             when :eoc
@@ -1129,6 +1505,140 @@ module ZXLib
                           ret
             else
                           jp   end_with       # below bottom line
+            end
+          end
+        end
+        ##
+        # Creates a routine that modifies the function of the draw_line_dx_gt_4dy code in place.
+        #
+        # +target+:: Provide a label returned from the draw_line_dx_gt_4dy macro.
+        #
+        # Options:
+        # * +no_preshift+:: Whether to exclude code modifying target preshift data address.
+        # * +fx_only+:: Whether to exclude code modifying both target preshift data address and pixel type.
+        #
+        # The routine expects an address of data created with draw_line_fx_data_dx_gt_4dy in the
+        # +hl+ register pair. After the routine executes the +hl+ will point to an address immediately
+        # following the last data byte.
+        #
+        # The routine can be entered at +no_preshift+ sub-label if provided data does not contain preshift
+        # data address or at +fx_only+ sub-label if provided data does not contain neither preshift address
+        # nor pixel type data.
+        #
+        # _NOTE_:: This routine can modify draw_line_dx_gt_4dy code only if it was created with +fx+
+        #          option: +:or+, +:xor+, +:and+, +:none+ or +:nop+.
+        #
+        # T-states: 250/175/123 default/+no_preshift+:+true+/+fx_only+:+true+
+        #
+        # Modifies: +a+, +bc+, +de+, +hl+.
+        def draw_line_update_dx_gt_4dy(target, no_preshift:false, fx_only:false)
+          raise ArgumentError, "draw_line_update_dx_gt_4dy: target should be a label" unless direct_label?(target)
+          isolate do
+            unless no_preshift or fx_only
+                          ld   a, [hl] # preshift LSB
+                          ld   de, target.preshift1_p
+                          ldi
+                          ldi
+                          ld   [target.preshift2_p], a
+                          ld   [target.preshift3_p], a
+            end
+            unless fx_only
+              define_label :no_preshift, label
+                          ld   de, target.fx_pixel1
+                          ldi
+                          ld   de, target.fx_pixel2
+                          ldi
+            end
+            define_label :fx_only, label
+                          ld   a, [hl] # fx
+                          inc  hl      # plot_fx3
+                          ld   [target.plot_fx1], a
+                          ld   [target.plot_fx2], a
+                          ld   de, target.plot_fx3
+                3.times { ldi }
+                          ld   de, target.fx_fill_jr_p
+                          ldi
+          end
+        end
+        ##
+        # Creates data for draw_line_update_dx_gt_4dy routine.
+        #
+        # Arguments:
+        # * +preshift_cov_rt+:: An address of an 8-byte aligned pixel cover right mask array. Preferably a label
+        #                       from macro preshifted_pixel_mask_data called with +:pixel_cover_right+ or
+        #                       +:inversed_pixel_cover_right+ argument. Use +nil+ if you don't want to include
+        #                       +preshift_cov_rt+ data address. In this instance draw_line_update_dx_gt_4dy should
+        #                       be created with +no_preshift:+ +true+ or entered at +no_preshift+ sub-label to be
+        #                       able to use created data without +preshift_cov_lt+ address.
+        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:none+, +:nop+.
+        # * +pixel_type+:: How to interpret preshifted pixel data as +:pixel+ or +:mask+.
+        #                  E.g. for inversed preshift data use +:mask+ (to be used with +fx+=+:and+).
+        #                  Use +:pixel_fx_only+ or +:mask_fx_only+ if you don't want to include +pixel_type+ data.
+        #                  In this instance draw_line_update_dx_gt_4dy should be created with +fx_only:+ +true+
+        #                  or entered at +fx_only+ sub-label to be able to use created data without +pixel_type+.
+        #                  The choice between +:pixel_fx_only+ and +:mask_fx_only+ should be based on whether
+        #                  data will be used to modify draw_line_dx_gt_4dy code created with the +pixel_type:+ as
+        #                  +:pixel+ or +:mask+.
+        def draw_line_fx_data_dx_gt_4dy(preshift_cov_rt, fx:, pixel_type:)
+          raise ArgumentError, "draw_line_fx_data_dx_gt_4dy: preshift_cov_rt should be an address or nil" unless preshift_cov_rt.nil? || direct_address?(preshift_cov_rt)
+          if [:pixel_fx_only, :mask_fx_only].include?(pixel_type) && !preshift_cov_rt.nil?
+            raise ArgumentError, "draw_line_fx_data_dx_gt_4dy: preshift_cov_rt should be nil if pixel_type is :pixel_fx_only or :mask_fx_only"
+          end
+          fx = case fx
+          when :or,  PLOT_FX_OR    then PLOT_FX_OR
+          when :nop, PLOT_FX_NOP   then PLOT_FX_NOP
+          when :xor, PLOT_FX_XOR   then PLOT_FX_XOR
+          when :and, PLOT_FX_AND   then PLOT_FX_AND
+          when :none, PLOT_FX_NONE then PLOT_FX_NONE
+          when :write, :skip
+            raise ArgumentError, "forbidden fx value for updating: :#{fx}"
+          else
+            raise ArgumentError, "unknown fx: #{fx.inspect}"
+          end
+          isolate do
+                          dw   preshift_cov_rt unless preshift_cov_rt.nil?
+            case pixel_type
+            when :pixel
+                          cpl                    # fx_pixel1
+                          anda e                 # fx_pixel2
+            when :mask
+                          nop                    # fx_pixel1
+                          ora  e                 # fx_pixel2
+            when :pixel_fx_only, :mask_fx_only
+            else
+              raise ArgumentError, "pixel_type should be :pixel or :mask or :pixel_fx_only or :mask_fx_only"
+            end
+                          db   fx
+            case pixel_type
+            when :pixel, :pixel_fx_only # 11111111
+              case fx
+              when PLOT_FX_OR, PLOT_FX_NOP
+                          ld   a, 0xFF
+                          ld   [hl], a
+                          db   -4                # fx_fill_jr_p
+              when PLOT_FX_XOR
+                          ld   a, [hl]
+                          cpl
+                          ld   [hl], a
+                          db   -6                # fx_fill_jr_p
+              when PLOT_FX_NONE, PLOT_FX_AND
+                          nop
+                          nop
+                          nop
+                          db   -3                # fx_fill_jr_p
+              end
+            when :mask, :mask_fx_only # 00000000
+              case fx
+              when PLOT_FX_AND, PLOT_FX_NOP
+                          ld   a, 0
+                          ld   [hl], a
+                          db   -4                # fx_fill_jr_p
+              when PLOT_FX_NONE, PLOT_FX_XOR, PLOT_FX_OR
+                          nop
+                          nop
+                          nop
+                          db   -3                # fx_fill_jr_p
+              end
             end
           end
         end
@@ -1145,25 +1655,28 @@ module ZXLib
         #        Performes best when the +x+ distance is more than 4 times larger than the +y+ distance.
         #
         # Arguments:
-        # * +preshift+:: An address of an 8-byte aligned pixel cover right mask array.
+        # * +preshift_cov_rt+:: An address of an 8-byte aligned pixel cover right mask array.
         #
-        # Specify +preshift+ as a direct address or a label from the preshifted_pixel_mask_data called with
-        # +:pixel_cover_right+ or +:inversed_pixel_cover_right+.
+        # Specify +preshift_cov_rt+ as a direct address or a label from the preshifted_pixel_mask_data
+        # called with +:pixel_cover_right+ or +:inversed_pixel_cover_right+.
         #
         # Options:
         # * +direction+:: Determines the direction of the line being drawn: +:down+ or +:up+.
         #                 The line is always drawn to the right.
-        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+.
-        # * +pixel_type+:: How to interpret the preshifted data as a +:pixel+ or a +:mask+.
-        #                  For inversed preshifted data use +:mask+ (e.g. to be used with +fx+=+:and+).
+        # * +fx+:: How to mix pixels with the screen: +:or+, +:xor+, +:and+, +:none+, +:nop+, +:write+.
+        #          The +:nop+ has the same effect as +:write+ but allows to modify drawing functions at run time
+        #          with draw_line_update_dx_gt_4dy routine.
+        # * +pixel_type+:: How to interpret preshifted pixel data as +:pixel+ or +:mask+.
+        #                  E.g. for inversed preshift data use +:mask+ (to be used with +fx+=+:and+).
         # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
         # * +check_oos+:: Whether to check screen area boundaries when drawing a line. If +false+
         #                 attempting to draw a line crossing screen boundaries will be UNDEFINED BEHAVIOUR.
+        #                 The screen memory address given in +hl+ must always be valid or *UB*.
         # * +end_with+:: What to do when drawing is over: +:eoc+, +:ret+ or an address to jump to.
         #
         # Uses: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+, +ix+, preserves: +c+.
-        def draw_line_dx_gt_4dy(preshift, direction: :down, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)
-          raise ArgumentError, "draw_line_dx_gt_4dy: preshift should be a direct address" unless direct_address?(preshift)
+        def draw_line_dx_gt_4dy(preshift_cov_rt, direction: :down, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)
+          raise ArgumentError, "draw_line_dx_gt_4dy: preshift_cov_rt should be a direct address" unless direct_address?(preshift_cov_rt)
           raise ArgumentError, "draw_line_dx_gt_4dy: end_with should be :eoc, :ret or an address" unless [:eoc, :ret].include?(end_with) || direct_address?(end_with)
           dy = px = size = b
           c8 = dx = c
@@ -1185,8 +1698,6 @@ module ZXLib
                           ld   a, [hl]
             when :nop
                           nop
-            when :write
-                          label
             else
               raise ArgumentError, "unknown fx value"
             end
@@ -1213,14 +1724,14 @@ module ZXLib
                           ld   c8, 8
                           ld   tmp, 0xF8
                           ld   px, a             # px': sss -> x
-            select(preshift & 7, &:zero?).then do |_|
-                          ld   hl, preshift
+            select(preshift_cov_rt & 7, &:zero?).else do
+                raise ArgumentError, "preshift_cov_rt must be aligned to 8"
+            end
+            preshift1_a   ld   hl, preshift_cov_rt
+            preshift1_p   as   preshift1_a + 1
                           add  l
                           ld   l, a
                           ld   pmask, [hl]       # 11111111 01111111 ... 00001111 ... 00000001
-            end.else do
-                raise ArgumentError, "preshift must be aligned to 8"
-            end
                           ld   a, px if check_oos
                           exx
             if check_oos
@@ -1285,7 +1796,7 @@ module ZXLib
                           jp   plot_fx3
 
             pixel_next_ln exx                    # a: lmask&pmask, a': acc(dy)
-            plot_fx1      combine_screen_pixels[]
+            plot_fx1      combine_screen_pixels[] unless fx == :write
                           ld   [hl], a
             next_line     label
             case direction
@@ -1333,7 +1844,7 @@ module ZXLib
                           ld   a, pmask          # pmask: 11111111 01111111 00111111..00000001
 
                           exx
-            plot_fx2      combine_screen_pixels[]
+            plot_fx2      combine_screen_pixels[] unless fx == :write
                           ld   [hl], a
                           inc  l
                           exx
@@ -1348,70 +1859,89 @@ module ZXLib
                           exx
                           ld   b, a              # counter: px/8
             plot_fx3      label
-            case fx
-            when :or, :write, :nop, PLOT_FX_OR, PLOT_FX_NOP
-                          ld   a, 0xFF           # filler
-            middle_loop   ld   [hl], a
-            when :xor, PLOT_FX_XOR
-            middle_loop   ld   a, [hl]
-                          cpl
-                          ld   [hl], a
-            when :and, PLOT_FX_AND
-                          ld   a, 0              # filler
-            middle_loop   ld   [hl], a
-            when :none, PLOT_FX_NONE
-                          nop
-                          nop
-            middle_loop   nop
+            case pixel_type
+            when :pixel # 11111111
+              case fx
+              when :write, :or, PLOT_FX_OR, :nop, PLOT_FX_NOP
+                            ld   a, 0xFF           # filler
+              middle_loop   ld   [hl], a
+              when :xor, PLOT_FX_XOR
+              middle_loop   ld   a, [hl]
+                            cpl                    # a: 0xFF
+                            ld   [hl], a
+              when :none, PLOT_FX_NONE, :and, PLOT_FX_AND
+                            nop
+                            nop
+                            nop
+              middle_loop   label
+              else
+                raise ArgumentError, "unknown fx value"
+              end
+            when :mask # 00000000
+              case fx
+              when :write, :and, PLOT_FX_AND, :nop, PLOT_FX_NOP
+                            ld   a, 0              # filler
+              middle_loop   ld   [hl], a
+              when :none, PLOT_FX_NONE, :xor, PLOT_FX_XOR, :or, PLOT_FX_OR
+                            nop
+                            nop
+                            nop
+              middle_loop   label
+              else
+                raise ArgumentError, "unknown fx value"
+              end
+            else
+              raise ArgumentError, "pixel_type should be :pixel or :mask"
             end
                           inc  l
-                          djnz middle_loop
+            fx_fill_jr_a  djnz middle_loop
+            fx_fill_jr_p  as   fx_fill_jr_a + 1
                           exx
 
-                          ld   a, l              # a: px & 0xF8
-            skip_middle   xor  px                # a: 0..7
-                          ld   px, a             # px: 0..7
-                          jr   Z, diagonal       # a: 0
-                          add  a, preshift       # a: 1..7 + preshift
+                          ld   a, l               # a: px & 0xF8
+            skip_middle   xor  px                 # a: 0..7
+                          ld   px, a              # px: 0..7
+                          jr   Z, diagonal        # a: 0
+            preshift2_a   add  a, preshift_cov_rt # a: 1..7 + preshift
+            preshift2_p   as   preshift2_a + 1
                           ld   l, a
-                          ld   a, [hl]           # pmask: -------- 01111111 00111111..00000001
+                          ld   a, [hl]            # pmask: -------- 01111111 00111111..00000001
                           ld   pmask, a
-                          cpl                    # lmask: -------- 10000000 11000000..11111110
+                          cpl                     # lmask: -------- 10000000 11000000..11111110
                           jp   pixel_next_ln
 
             diagonal      label
             case pixel_type
             when :pixel
-                          cpl                    # a: 0xFF
+              fx_pixel1   cpl                     # a: 0xFF
             when :mask
-                          nop
+              fx_pixel1   nop
             end
-                          ld   pmask, a          # pmask: 11111111
+                          ld   pmask, a           # pmask: 11111111
                           exx
                           jp   next_line
 
             same_same     add  c8
-                          ld   px, a             # px: 1..7
-                          add  a, preshift       # 1..7 + preshift
+                          ld   px, a              # px: 1..7
+            preshift3_a   add  a, preshift_cov_rt # 1..7 + preshift
+            preshift3_p   as   preshift3_a + 1
                           ld   l, a
-                          ld   a, [hl]           # pmask: 11111111 01111111 00111111..00000001
+                          ld   a, [hl]            # pmask: 11111111 01111111 00111111..00000001
                           ld   l, a
-                          cpl                    # lmask: 00000000 10000000 11000000..11111110
+                          cpl                     # lmask: 00000000 10000000 11000000..11111110
             case pixel_type
             when :pixel
-                          anda pmask
+              fx_pixel2   anda pmask
             when :mask
-                          ora  pmask
-            else
-              raise ArgumentError, "pixel_type should be :pixel or :mask"
+              fx_pixel2   ora  pmask
             end
-                          ld   pmask, l          # pmask:          01111111 00111111..00000001
+                          ld   pmask, l           # pmask:          01111111 00111111..00000001
                           jp   pixel_next_ln
 
-            last_chunk    jr   Z, last_chunk_bk  # (xcount+size)&0xff == 0
-                          sbc  size              # CF: 1
+            last_chunk    jr   Z, last_chunk_bk   # (xcount+size)&0xff == 0
+                          sbc  size               # CF: 1
                           cpl
-                          ld   size, a           # size -= xcount+size-256, xcount = 0
+                          ld   size, a            # size -= xcount+size-256, xcount = 0
                           xor  a
                           jp   last_chunk_bk
           end
@@ -1438,6 +1968,7 @@ if __FILE__ == $0
         include ZXLib::Gfx::Draw::Constants
 
         DRAW_OUT_OF_SCREEN_SAFE = true
+        DRAW_UPDATE_IN_PLACE = true
 
         macro_import MathInt
         macro_import ZXLib::Gfx::Draw
@@ -1473,7 +2004,11 @@ if __FILE__ == $0
         end
         ns :draw_fx do
                       ld   a, [vars.p_flag]
+          if DRAW_UPDATE_IN_PLACE
+                      ld   hl, fx_default
+          else
                       ld   hl, draw.line
+          end
                       anda 0b00001010           # INVERSE 1 or OVER 1
                       jr   Z, set_fx
                       cp   0b00001010           # INVERSE 1 and OVER 1
@@ -1481,21 +2016,52 @@ if __FILE__ == $0
                       ret                       # do nothing
           inverse_1   anda 0b00001000           # INVERSE 1
                       jr   Z, over_1
+          if DRAW_UPDATE_IN_PLACE
+                      ld   hl, fx_inverse
+          else
                       ld   hl, draw.line_inversed
+          end
                       jr   set_fx
-          over_1      ld   hl, draw.line_over
-          set_fx      ld   [draw_jump + 1], hl
-
+          if DRAW_UPDATE_IN_PLACE
+            over_1    ld   hl, fx_over
+            set_fx    draw_line_update draw.line, fx_only:false
+          else
+            over_1    ld   hl, draw.line_over
+            set_fx    ld   [draw_jump + 1], hl
+          end
                       ld   hl, [coords]
                       ld   bc, [dx]
                       ld   de, [dy]
-          draw_jump   jp   draw.line
+          if DRAW_UPDATE_IN_PLACE
+            draw_jump as   draw.line
+          else
+            draw_jump label
+          end
+                      jp   draw.line
+        end
+        if DRAW_UPDATE_IN_PLACE
+          fx_default  draw_line_fx_data(draw.preshifted_pixel,
+                                        draw.preshifted_pixel_cover_left,
+                                        draw.preshifted_pixel_cover_right,
+                                        fx: :or, pixel_type: :pixel)
+          fx_over     draw_line_fx_data(draw.preshifted_pixel,
+                                        draw.preshifted_pixel_cover_left,
+                                        draw.preshifted_pixel_cover_right,
+                                        fx: :xor, pixel_type: :pixel)
+          fx_inverse  draw_line_fx_data(draw.preshifted_inversed_pixel,
+                                        draw.preshifted_inversed_pixel_cover_left,
+                                        draw.preshifted_inversed_pixel_cover_right,
+                                        fx: :and, pixel_type: :mask)
         end
         coords        data ZXLib::Sys::Coords, {x:0, y:0}
         dx            dw 0
         dy            dw 0
-        draw          make_draw_line_subroutines(scraddr:0x4000, check_oos:DRAW_OUT_OF_SCREEN_SAFE)
-        draw_end      label
+        draw          make_draw_line_subroutines(make_lines_to: false,
+                                                 make_line_over:     !DRAW_UPDATE_IN_PLACE,
+                                                 make_line_inversed: !DRAW_UPDATE_IN_PLACE,
+                                                 scraddr:0x4000, check_oos:DRAW_OUT_OF_SCREEN_SAFE)
+
+        TEST_TS_ADJUST = if DRAW_UPDATE_IN_PLACE then 66 else 76 end
         ns :testing do
                                         #=76
                       ld   hl, [coords] # 16
@@ -1631,7 +2197,6 @@ if __FILE__ == $0
     testdraw = TestZXGfxDraw.new 0x8000
     coords = testdraw['coords']
     draw = testdraw[:draw]
-    draw_end = testdraw[:draw_end]
     draw_many = testdraw[:draw_many]
     draw_many_inv = testdraw[:draw_many_inv]
     draw_random_many = testdraw[:draw_random_many]
@@ -1667,7 +2232,7 @@ if __FILE__ == $0
      999 STOP
     1000 RANDOMIZE FN d(x,y,dx,dy): RETURN
     3000 CLS
-         LET frames=FN b(#{testing},256): LET res=FN r()-76: LET respix=INT (res/(FN l(dx,dy)+1)+.5)
+         LET frames=FN b(#{testing},256): LET res=FN r()-#{TestZXGfxDraw::TEST_TS_ADJUST}: LET respix=INT (res/(FN l(dx,dy)+1)+.5)
          PRINT OVER 0;frames;"(";FN i();"):";res;" ~";respix
          RETURN
     4000 CLS: RESTORE: OVER 0: LET ntests=54: DIM w(ntests,2)
@@ -1697,17 +2262,22 @@ if __FILE__ == $0
      :start,
      :draw,
      'draw.line',
-     'draw.line_over',
-     'draw.line_over.dn',
-     'draw.line_inversed',
+     'draw_fx.draw_jump',
      :testing,
      :draw_many,
      :draw_random_many,
     ].each do |name|
         puts "#{name.to_s.ljust(18)}: 0x#{testdraw[name].to_s(16).rjust(4,?0)} : #{testdraw[name]}"
     end
-    puts "draw size: #{draw_end - draw}"
-
-    program.save_tap 'test.zxlib.gfx.draw.tap', name:'draw', line:9999
-    testdraw.save_tap 'test.zxlib.gfx.draw.tap', name:'draw', append: true
+    puts "draw size:       #{testdraw['+draw']}"
+    if TestZXGfxDraw::DRAW_UPDATE_IN_PLACE
+      puts "set_fx size:     #{testdraw['+draw_fx.set_fx']}"
+      puts "fx_default size: #{testdraw['+fx_default']}"
+      puts "fx_over size:    #{testdraw['+fx_over']}"
+      puts "fx_inverse size: #{testdraw['+fx_inverse']}"
+    end
+    tap_name = 'test.zxlib.gfx.draw.tap'
+    program.save_tap tap_name, name:'draw', line:9999
+    testdraw.save_tap tap_name, name:'draw', append: true
+    Z80::TAP.parse_file(tap_name) { |hb| puts hb.to_s }
 end
