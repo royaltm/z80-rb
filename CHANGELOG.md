@@ -1,10 +1,11 @@
-v1.1.1.pre-1
+v1.1.1.pre-2
 ============
 
 ZXLib:
 -----
 * New macro ZXLib::Gfx::Macros#ytoattr.
 * Internal labels +preshift_p+, +pmask_in_e+, +px_bsh_in_ae+ added to ZXLib::Gfx::Draw::Macros for convenience and alternative entry points.
+* New routines in ZXLib::Gfx::Draw::Macros for updating draw line functions in place.
 
 v1.1.0
 ======
