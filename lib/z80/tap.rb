@@ -8,7 +8,7 @@ module Z80
 	#      puts Z80::TAP.parse_file("examples/calculator.tap").to_a
 	#
 	#      Program: "calculator" LINE 10 (226/226)
-  #      Bytes: "calculator" CODE 32768,61
+	#      Bytes: "calculator" CODE 32768,61
 	#
 	#      # convert a TZX file to a TAP file (may not work for custom loaders)
 	#      Z80::TAP.parse_file('foobar.tzx') {|t| t.save_tap('foobar', append:true) }
@@ -92,8 +92,8 @@ module Z80
 		##
 		#  Creates a TAP::HeaderBody chunk from self.
 		#
-    #  By default it uses Z80#code and the Z80#org to produce the tap data.
-    #
+		#  By default it uses Z80#code and the Z80#org to produce the tap data.
+		#
 		#  This method is used by #to_tap and #save_tap.
 		#
 		#  +name+ should contain max 10 ascii characters.

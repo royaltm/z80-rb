@@ -596,7 +596,7 @@ module Z80
 	#        data_pl byte
 	#        data_ph byte
 	#        size    word
-  #      # alias   orig.   type
+	#      # alias   orig.   type
 	#        data_p  data_pl word
 	#      end
 	#
@@ -622,16 +622,16 @@ module Z80
 	#
 	#  Allocating, that is assigning values to labels may be done in several ways:
 	#  * With Program.addr::
-  #    Creates an absolute (immediate) label "spritep", with +value+ = +0x8888+ and of type +SpritePool+:
-  #      spritep   addr 0x8888, SpritePool
-  #
+	#    Creates an absolute (immediate) label "spritep", with +value+ = +0x8888+ and of type +SpritePool+:
+	#      spritep   addr 0x8888, SpritePool
+	#
 	#  * With Program.data::
 	#    Creates a relative label "spritep", with +value+ = Program.pc and of type +SpritePool+,
 	#    fills SpritePool fields with provided data:
 	#      spritep   data SpritePool, [2,
 	#                    {x:0, y:0, size:12, data_p: sprite1_data},
 	#                    {x:0, y:0, size:16, data_p: sprite2_data}]
-  #
+	#
 	#  * With Program.label::
 	#    Creates a relative label "someprc", with +value+ = Program.pc and of type 1:
 	#      someprc   label
@@ -797,7 +797,7 @@ module Z80
 			if address.is_a? self.class
 				raise Syntax, "can't assign a dummy to another dummy" if address.dummy?
 				address, type, reloc, name, members = %w[@address @type @reloc @name @members].
-				                                        map {|n| address.instance_variable_get(n) }
+																								map {|n| address.instance_variable_get(n) }
 				self.name = name if name
 			end
 			raise Syntax, "address is not an integer." unless Integer === address
@@ -1169,7 +1169,7 @@ module Z80
 			raise Syntax, "lhs nor rhs must not be a pointer" if lhs.pointer? or (rhs.respond_to?(:pointer?) and rhs.pointer?)
 			raise Syntax, "invalid operator" unless oper.nil? or [:+,:-,:+@,:-@,:>>,:<<,:/,:%,:*,:^,:&,:|,:~,:alias].include?(oper)
 			raise Syntax, "invalid operator's rhs" unless (rhs.nil? and (oper.nil? or [:+@,:-@,:~,:alias].include?(oper))) or
-			                                              (!oper.nil? and !rhs.nil?)
+																										(!oper.nil? and !rhs.nil?)
 			xalias = if oper == :alias
 				oper = nil
 				true
@@ -1470,8 +1470,8 @@ module Z80
 		end
 
 		def to_name(info=false)
-		 	return @name if @name
-		 	return @lhs.to_name(info) if !expression?
+			return @name if @name
+			return @lhs.to_name(info) if !expression?
 		end
 
 		def indexable?
@@ -1492,11 +1492,11 @@ module Z80
 				end 
 			else
 				raise Syntax, "indexing is only allowed on a label" unless indexable?
-        if @index.empty?
-        	Alloc.new(self)
-        else
-        	dup
-        end.tap do |l|
+				if @index.empty?
+					Alloc.new(self)
+				else
+					dup
+				end.tap do |l|
 					lix = l.instance_variable_get('@index')
 					case index
 					when String, Symbol

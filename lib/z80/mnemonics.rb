@@ -55,9 +55,9 @@ module Z80
 		#      inp (c)    # sets flags, but drops the value
 		#  
 		#  ==A list of Mnemonics
-	  #  <code>adc add anda bit call ccf cp cpd cpdr cpi cpir cpl daa dec di djnz ei ex exx
+		#  <code>adc add anda bit call ccf cp cpd cpdr cpi cpir cpl daa dec di djnz ei ex exx
 		#  halt hlt im0 im01 im1 im2 inc ind indr ini inir inp jp jr ld ldd lddr ldi ldir neg
-    #  nop ora otdr otir out outd outi pop push res ret reti retn rl rla rlc rlca rld rr
+		#  nop ora otdr otir out outd outi pop push res ret reti retn rl rla rlc rlca rld rr
 		#  rra rrc rrca rrd rst sbc scf set sl1 sla sll sra srl sub xor</code>
 		#
 		module Mnemonics
@@ -584,7 +584,7 @@ module Z80
 			'exx',  "\xd9",
 			'di',   "\xF3",
 			'ei',   "\xFB",
-			'rld',	"\xED\x6F",
+			'rld',  "\xED\x6F",
 			'rrd',  "\xED\x67",
 			'neg',  "\xED\x44",
 			'reti', "\xED\x4D",

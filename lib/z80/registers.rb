@@ -23,9 +23,9 @@ module Z80
 		#
 		#    macro :foo do |_, rh, rl, tt|
 		#      th, tl = tt.split
-		#            		ld  rh|rl, tl
-		#            		inc rh|rl
-		#            		ld  rh|rl, th
+		#               ld  rh|rl, tl
+		#               inc rh|rl
+		#               ld  rh|rl, th
 		#    end
 		#
 		#    foo h, l, bc

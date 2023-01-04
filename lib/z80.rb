@@ -83,8 +83,8 @@ module Z80
 
 				unless d.size.zero?
 					relocs = reloc.select {|r| Integer === r.size and (d.addr...d.addr+d.size).member? r.addr }
-				  							.map {|r| r.alloc.to_s}
-				  							.join(', ')
+												.map {|r| r.alloc.to_s}
+												.join(', ')
 					unless relocs.empty?
 						label = label.to_s + " -> #{relocs}"
 					end
@@ -101,7 +101,7 @@ module Z80
 									[?-, -v]
 								else
 									[?+, v]
-								end	
+								end
 							when :byte
 								data[o, 1].unpack('C')[0]
 							when :pcrel
@@ -373,9 +373,9 @@ module Z80
 		#
 		#  Example:
 		#    ns :foo do |eoc|
-		#      loop1 	add  a, a
-		#            	jr   C, eoc
-		#           	djnz loop1
+		#      loop1    add  a, a
+		#               jr   C, eoc
+		#               djnz loop1
 		#    end
 		#
 		#  Returns a label that points to the beginning of the +block+ of code and its size is equal
@@ -674,10 +674,10 @@ module Z80
 		#    dc!"*********************************************"
 		#    dc!"***               HELLO Z80               ***"
 		#    dc!"*********************************************"
-    def debug_comment(text=''.freeze)
-        @debug << DebugInfo.new(pc, 0, text.to_s, nil, [Label.dummy])
-    end
-    alias_method :dc!, :debug_comment
+		def debug_comment(text=''.freeze)
+				@debug << DebugInfo.new(pc, 0, text.to_s, nil, [Label.dummy])
+		end
+		alias_method :dc!, :debug_comment
 	end
 	#  some useless stuff; needed for z80 opcode testing; but didn't delete it (maybe will come in handy)
 	module Helpers # :nodoc:

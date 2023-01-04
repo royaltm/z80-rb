@@ -649,7 +649,7 @@ module ZXLib
 				end
 				def keyword_fn?
 					!!unless keyword_code.nil?
-					  (keyword_code >= KEYWORD_START_CODE && keyword_code < STATEMENT_START_CODE) ||
+						(keyword_code >= KEYWORD_START_CODE && keyword_code < STATEMENT_START_CODE) ||
 						STATEMENTS_AS_EXPRESSIONS_CODES.include?(keyword_code)
 					end
 				end
@@ -1369,7 +1369,7 @@ module ZXLib
 		#  Represents a ZX Spectrum's Basic variable with various methods to create new variables,
 		#  inspect their content or save as TAP files.
 		class Variable
-	  	include VariableTypes
+			include VariableTypes
 			include Z80::TAP
 			##
 			#  Creates a Z80::TAP::HeaderBody instance from Basic::Variable.
