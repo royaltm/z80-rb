@@ -28,7 +28,7 @@ module Z80
                 # After the shuffle is performed +hl+ points to the memory address immediately
                 # following the shuffled table.
                 #
-                # Modifies: +af+, +bc+, +de+, +hl+.
+                # Modifies: +af+, +bc+, +de+, +hl+. Stack depth: 6 bytes or 8 if +next_rng+ is used.
                 #
                 # +next_rng+:: An address of a random number generator routine. The routine should return
                 #              an 8-bit random number in the +accumulator+. If +next_rng+ is +nil+

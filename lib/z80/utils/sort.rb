@@ -226,9 +226,9 @@ module Z80
                     end
                     isolate do
                         if safe_args
-                                    cp16rr last, first # rigth - first
-                                    ret  C             # rigth < first
-                                    ret  Z             # rigth = first
+                                    cp16rr last, first # last - first
+                                    ret  C             # last < first
+                                    ret  Z             # last = first
                         end
                         qsort       label
                                     push de          # sp[]: first (or last if reversed)
