@@ -6,6 +6,8 @@ ZXLib:
 * New macro ZXLib::Gfx::Macros#ytoattr.
 * Internal labels +preshift_p+, +pmask_in_e+, +px_bsh_in_ae+ added to ZXLib::Gfx::Draw::Macros for convenience and alternative entry points.
 * New routines in ZXLib::Gfx::Draw::Macros for updating draw line functions in place.
+* New macro Z80::MathInt::Macros#mul8_signed.
+* Saved 1 cycle on macro Z80::MathInt::Macros#mul.
 
 v1.1.0
 ======

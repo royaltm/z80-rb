@@ -5,19 +5,12 @@ require 'zxlib/basic'
 
 class Float
   ##
-  # Converts a float to a 16-bit fixed point number formatted: iiiiiiisffffffff
-  # where i represents the absolute integer part bits, f represents the fraction part bits and s is a sign bit.
+  # Converts a float to a 16-bit fixed point twos complement number formatted: iiiiiiiiffffffff
+  # where i represents the absolute integer part bits and f represents the fraction part.
   def to_fixed
-    raise ArgumentError if self >= 128 || self <= -128
-    n = self * 256.0
-    i = if n < 0
-      (-n).round & 0x7fff | 0x8000
-    else
-      n.round & 0x7fff
-    end
-    hi, lo = i >> 8, i & 0xff
-    hi = (hi&0x7f) << 1 | (hi&0x80) >> 7
-    hi << 8 | lo
+    n = (self * 256.0).round
+    raise ArgumentError if n >= 32768 || n <= -32768
+    n & 0xffff
   end
 end
 
@@ -342,7 +335,7 @@ class Quat3D
   # < x: a register with signed int8 x
   # < y: a register with signed int8 y
   # < z: a register with signed int8 z
-  # < sp -> matrix elements in a special 15 bit + sign fixed point format: iiiiiiisffffffff
+  # < sp -> matrix elements in a special 15 bit + sign fixed point format: iiiiiiiiffffffff
   # > a: int(([sp]*x + [sp+2]*y + [sp+4]*z + 0.5) / 256)
   # > sp: sp + 6
   macro :apply_matrix_coord do |_, x, y, z|
@@ -360,28 +353,15 @@ class Quat3D
   end
 
   # < x: a register with signed int8 
-  # < sp -> matrix element in a special 15 bit + sign fixed point format: iiiiiiisffffffff
+  # < sp -> matrix element in a special 15 bit + sign fixed point format: iiiiiiiiffffffff
   # > hl: [sp] * x
   # > sp: sp + 2
   # > x': x
   macro :apply_matrix_component do |_, x, clrhl:false|
-                      xor  a
-                      add  x           # a: x
-                      jp   P, pos_x    # x >= 0
-                      neg              # a: -x if x < 0
-      pos_x           exx
-      if clrhl
-                      ld  hl, 0
-                      ld  b, l
-      end
-                      ld   c, a        # c: abs(x)
-                      sbc  a           # a: sign of x: 0 || -1
-                      pop  de          # de: qxx = iiiiiiisffffffff
-                      srl  d           # CF: sign d: 0iiiiiii e: ffffffff
-                      adc  b           # -1+0=NZ || -1+1=Z || 0+0=Z || 0+1=NZ
-                      jr   Z, multiply
-                      neg16 d, e       # -qxx
-      multiply        mul8(d, e, c, tt:de, clrhl:false, double:false)
+                      ld   a, x
+                      exx
+                      pop  de          # de: qxx = iiiiiiiiffffffff
+      multiply        mul8_signed(d, e, a, tt:de, t:c, clrhl:clrhl, double:false)
   end
 
   # Draws a line between vertices.
