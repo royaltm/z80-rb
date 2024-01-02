@@ -478,11 +478,13 @@ module Z80
                 isolate do
                             ld   th, k unless k == th
                             ld   a, m unless m == a
-                            ld   tl, 0
                     if clrhl
-                            ld   h, tl
-                            ld   l, tl
+                            ld   hl, 0
+                            ld   tl, l
+                    else
+                            ld   tl, 0
                     end
+
                     if signed_k
                         loop1   sra  th
                     else
@@ -679,6 +681,47 @@ module Z80
                 end
             end
             ##
+            # Creates a routine that performs a multiplication of a 16-bit signed integer +kh+|+kl+ * 8bit signed +m+.
+            # Returns the result as a 16-bit integer in +hl+.
+            #
+            # Optionally the result in the +hl+ is being accumulated.
+            #
+            # Optionally multiplies the result by 2 if +double+ option is +true+.
+            #
+            # As a side-effect +t+ is always cleared to 0 and +kl+ and +kh+ are left unmodified
+            # if they are not part of +tt+ and +m+ is left unmodified if it's not +a+ or the same as +t+.
+            #
+            # +kh+::    The MSB part of the multiplicant as an immediate value or an 8-bit register.
+            # +kl+::    The LSB part of the multiplicant as an immediate value or an 8-bit register.
+            # +m+::     An 8-bit multiplicator register.
+            #
+            # Options:
+            # * +tt+::  A 16-bit temporary register (+de+ or +bc+).
+            # * +t+::   An 8-bit temporary register, it must not be the +accumulator+ nor be a part of the +tt+.
+            # * +clrhl+:: If the result should be set or accumulated, if +false+ acts like: +hl+ += +kh+|+kl+ * +m+.
+            # * +double+:: +true+ if the result should be multiplied by 2 (+kh+|+kl+ * 2).
+            # * +optimize+:: What is more important: +:time+ or +:size+? Applies only if +double+ is +false+.
+            #
+            # Uses: +af+, +hl+, +m+, +kh+, +kl+, +t+, +tt+, optionally preserves: +kh+, +kl+, +m+.
+            def mul8_signed(kh=h, kl=l, m=c, tt:de, t:m, clrhl:true, double:false, optimize: :time)
+                raise ArgumentError if t == a or !register?(t) or !t.bit8?
+                isolate do |eoc|
+                    unless t == m
+                            ld   t, m
+                    end
+                    if m == a
+                            neg
+                    else
+                            xor  a
+                            sub  m
+                    end
+                            jp   M, mul_it
+                            ld   t, a
+                            neg16 kh, kl
+                    mul_it  mul8(kh, kl, t, tt:tt, clrhl:clrhl, double:double, optimize:optimize)
+                end
+            end
+            ##
             # Creates a routine that performs a multiplication of a 16-bit integer +kh+|+kl+ * 8bit unsigned +m+.
             # Returns the result as a 16-bit integer in +hl+.
             #
@@ -699,7 +742,7 @@ module Z80
             # * +double+:: +true+ if the result should be multiplied by 2 (+kh+|+kl+ * 2).
             # * +optimize+:: What is more important: +:time+ or +:size+? Applies only if +double+ is +false+.
             #
-            # Uses: +f+, +hl+, +m+, +kh+, +kl+, +tt+.
+            # Uses: +f+, +hl+, +m+, +kh+, +kl+, +tt+, optionally preserves: +kh+, +kl+.
             def mul8(kh=h, kl=l, m=a, tt:de, clrhl:true, double:false, optimize: :time)
                 th, tl = tt.split
                 raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == kh or th == kl or !register?(m)
