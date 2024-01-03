@@ -175,24 +175,24 @@
           <div class="method-source-code" id="new-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 438</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
-  <span class="ruby-identifier">loop_offset</span> = <span class="ruby-keyword">nil</span>
-  <span class="ruby-identifier">bytes</span> = []
-  <span class="ruby-identifier">args</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">arg</span><span class="ruby-operator">|</span>
-    <span class="ruby-keyword">case</span> <span class="ruby-identifier">arg</span>
-    <span class="ruby-keyword">when</span> <span class="ruby-constant">Array</span>
-      <span class="ruby-identifier">bytes</span>.<span class="ruby-identifier">concat</span> <span class="ruby-constant">Array</span>(<span class="ruby-identifier">tuple_to_value</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">arg</span>))
-    <span class="ruby-keyword">when</span> <span class="ruby-value">:loop</span>
-      <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;There&#39;s more than one loop marker&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">loop_offset</span>.<span class="ruby-identifier">nil?</span>
-      <span class="ruby-identifier">loop_offset</span> = <span class="ruby-identifier">bytes</span>.<span class="ruby-identifier">length</span>
-    <span class="ruby-keyword">else</span>
-      <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;A tuple of [counter, value] is expected or :loop&quot;</span>
-    <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;Envelope requires at least one tuple argument&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">bytes</span>.<span class="ruby-identifier">empty?</span>
-  <span class="ruby-identifier">loop_offset</span> = <span class="ruby-identifier">loop_offset</span>.<span class="ruby-identifier">to_i</span>
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;Loop indicator must be placed before at least one argument tuple&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">loop_offset</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">bytes</span>.<span class="ruby-identifier">length</span>
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;Loop offset too large&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">loop_offset</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">255</span>
-  <span class="ruby-ivar">@code</span> = [<span class="ruby-identifier">loop_offset</span>].<span class="ruby-identifier">concat</span>(<span class="ruby-identifier">bytes</span>).<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;c*&#39;</span>)
+        <span class="ruby-identifier">loop_offset</span> = <span class="ruby-keyword">nil</span>
+        <span class="ruby-identifier">bytes</span> = []
+        <span class="ruby-identifier">args</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">arg</span><span class="ruby-operator">|</span>
+                <span class="ruby-keyword">case</span> <span class="ruby-identifier">arg</span>
+                <span class="ruby-keyword">when</span> <span class="ruby-constant">Array</span>
+                        <span class="ruby-identifier">bytes</span>.<span class="ruby-identifier">concat</span> <span class="ruby-constant">Array</span>(<span class="ruby-identifier">tuple_to_value</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">arg</span>))
+                <span class="ruby-keyword">when</span> <span class="ruby-value">:loop</span>
+                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;There&#39;s more than one loop marker&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">loop_offset</span>.<span class="ruby-identifier">nil?</span>
+                        <span class="ruby-identifier">loop_offset</span> = <span class="ruby-identifier">bytes</span>.<span class="ruby-identifier">length</span>
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;A tuple of [counter, value] is expected or :loop&quot;</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;Envelope requires at least one tuple argument&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">bytes</span>.<span class="ruby-identifier">empty?</span>
+        <span class="ruby-identifier">loop_offset</span> = <span class="ruby-identifier">loop_offset</span>.<span class="ruby-identifier">to_i</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;Loop indicator must be placed before at least one argument tuple&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">loop_offset</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">bytes</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;Loop offset too large&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">loop_offset</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">255</span>
+        <span class="ruby-ivar">@code</span> = [<span class="ruby-identifier">loop_offset</span>].<span class="ruby-identifier">concat</span>(<span class="ruby-identifier">bytes</span>).<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;c*&#39;</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           

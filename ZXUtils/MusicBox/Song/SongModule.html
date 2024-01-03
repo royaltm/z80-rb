@@ -280,7 +280,7 @@
           <div class="method-source-code" id="to_player_module-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 345</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_player_module</span>
-  <span class="ruby-constant">PlayerModule</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-ivar">@track_offsets</span>.<span class="ruby-identifier">map</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:first</span>), <span class="ruby-ivar">@index_offsets</span>.<span class="ruby-identifier">map</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:first</span>), <span class="ruby-ivar">@code</span>)
+        <span class="ruby-constant">PlayerModule</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-ivar">@track_offsets</span>.<span class="ruby-identifier">map</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:first</span>), <span class="ruby-ivar">@index_offsets</span>.<span class="ruby-identifier">map</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:first</span>), <span class="ruby-ivar">@code</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -341,32 +341,32 @@
           <div class="method-source-code" id="to_program-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 367</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_program</span>
-  <span class="ruby-identifier">code</span> = <span class="ruby-ivar">@code</span>
-  <span class="ruby-identifier">track_offsets</span> = <span class="ruby-ivar">@track_offsets</span>
-  <span class="ruby-identifier">index_offsets</span> = <span class="ruby-ivar">@index_offsets</span>
-  <span class="ruby-identifier">index_items</span> = <span class="ruby-ivar">@index_items</span>
-  <span class="ruby-identifier">index_labels</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">index_offsets</span>.<span class="ruby-identifier">length</span>)
-  <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span>
-    <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span>
-    <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>
+        <span class="ruby-identifier">code</span> = <span class="ruby-ivar">@code</span>
+        <span class="ruby-identifier">track_offsets</span> = <span class="ruby-ivar">@track_offsets</span>
+        <span class="ruby-identifier">index_offsets</span> = <span class="ruby-ivar">@index_offsets</span>
+        <span class="ruby-identifier">index_items</span> = <span class="ruby-ivar">@index_items</span>
+        <span class="ruby-identifier">index_labels</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">index_offsets</span>.<span class="ruby-identifier">length</span>)
+        <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span>
+                <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>
 
-    <span class="ruby-identifier">export</span> <span class="ruby-value">:auto</span>
-    <span class="ruby-identifier">track_a</span>       <span class="ruby-identifier">data</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">track_offsets</span>[<span class="ruby-value">0</span>])
-    <span class="ruby-identifier">track_b</span>       <span class="ruby-identifier">data</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">track_offsets</span>[<span class="ruby-value">1</span>])
-    <span class="ruby-identifier">track_c</span>       <span class="ruby-identifier">data</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">track_offsets</span>[<span class="ruby-value">2</span>])
-    <span class="ruby-identifier">index_items</span>.<span class="ruby-identifier">zip</span>(<span class="ruby-identifier">index_offsets</span>).
-    <span class="ruby-identifier">sort_by</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">item</span>, <span class="ruby-identifier">_</span><span class="ruby-operator">|</span> <span class="ruby-node">&quot;#{item.type}.#{item.name}&quot;</span>}.
-    <span class="ruby-identifier">chunk</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">item</span>, <span class="ruby-identifier">_</span><span class="ruby-operator">|</span> <span class="ruby-identifier">item</span>.<span class="ruby-identifier">type</span>}.
-    <span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">type</span>, <span class="ruby-identifier">items</span><span class="ruby-operator">|</span>
-      <span class="ruby-identifier">isolate</span> <span class="ruby-identifier">type</span> <span class="ruby-keyword">do</span>
-        <span class="ruby-identifier">items</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">item</span>, <span class="ruby-identifier">offsets</span><span class="ruby-operator">|</span>
-          <span class="ruby-identifier">index_labels</span>[<span class="ruby-identifier">item</span>.<span class="ruby-identifier">index</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>] = <span class="ruby-identifier">define_label</span> <span class="ruby-identifier">item</span>.<span class="ruby-identifier">name</span>, <span class="ruby-identifier">data</span>(<span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">offsets</span>))
+                <span class="ruby-identifier">export</span> <span class="ruby-value">:auto</span>
+                <span class="ruby-identifier">track_a</span>       <span class="ruby-identifier">data</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">track_offsets</span>[<span class="ruby-value">0</span>])
+                <span class="ruby-identifier">track_b</span>       <span class="ruby-identifier">data</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">track_offsets</span>[<span class="ruby-value">1</span>])
+                <span class="ruby-identifier">track_c</span>       <span class="ruby-identifier">data</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">track_offsets</span>[<span class="ruby-value">2</span>])
+                <span class="ruby-identifier">index_items</span>.<span class="ruby-identifier">zip</span>(<span class="ruby-identifier">index_offsets</span>).
+                <span class="ruby-identifier">sort_by</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">item</span>, <span class="ruby-identifier">_</span><span class="ruby-operator">|</span> <span class="ruby-node">&quot;#{item.type}.#{item.name}&quot;</span>}.
+                <span class="ruby-identifier">chunk</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">item</span>, <span class="ruby-identifier">_</span><span class="ruby-operator">|</span> <span class="ruby-identifier">item</span>.<span class="ruby-identifier">type</span>}.
+                <span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">type</span>, <span class="ruby-identifier">items</span><span class="ruby-operator">|</span>
+                        <span class="ruby-identifier">isolate</span> <span class="ruby-identifier">type</span> <span class="ruby-keyword">do</span>
+                                <span class="ruby-identifier">items</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">item</span>, <span class="ruby-identifier">offsets</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-identifier">index_labels</span>[<span class="ruby-identifier">item</span>.<span class="ruby-identifier">index</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>] = <span class="ruby-identifier">define_label</span> <span class="ruby-identifier">item</span>.<span class="ruby-identifier">name</span>, <span class="ruby-identifier">data</span>(<span class="ruby-identifier">code</span>.<span class="ruby-identifier">slice</span>(<span class="ruby-identifier">offsets</span>))
+                                <span class="ruby-keyword">end</span>
+                        <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;sanity error&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">index_labels</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">index_offsets</span>.<span class="ruby-identifier">length</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">index_labels</span>.<span class="ruby-identifier">any?</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:nil?</span>)
+                <span class="ruby-identifier">index_table</span>   <span class="ruby-identifier">words</span> <span class="ruby-identifier">index_labels</span>
         <span class="ruby-keyword">end</span>
-      <span class="ruby-keyword">end</span>
-    <span class="ruby-keyword">end</span>
-    <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;sanity error&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">index_labels</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">index_offsets</span>.<span class="ruby-identifier">length</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">index_labels</span>.<span class="ruby-identifier">any?</span>(<span class="ruby-operator">&amp;</span><span class="ruby-value">:nil?</span>)
-    <span class="ruby-identifier">index_table</span>   <span class="ruby-identifier">words</span> <span class="ruby-identifier">index_labels</span>
-  <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           

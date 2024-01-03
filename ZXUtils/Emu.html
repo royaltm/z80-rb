@@ -164,17 +164,17 @@
           <div class="method-source-code" id="find_emulator-source">
             <pre><span class="ruby-comment"># File lib/zxutils/emu.rb, line 26</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier ruby-title">find_emulator</span>
-  <span class="ruby-identifier">@@default_zxemu_path</span> <span class="ruby-operator">||=</span> (<span class="ruby-keyword">if</span> <span class="ruby-constant">RbConfig</span><span class="ruby-operator">::</span><span class="ruby-constant">CONFIG</span>[<span class="ruby-string">&#39;host_os&#39;</span>] <span class="ruby-operator">=~</span> <span class="ruby-regexp">/mswin|mingw|cygwin/</span>
-    [<span class="ruby-string">&#39;PROGRAMFILES&#39;</span>, <span class="ruby-string">&#39;ProgramFiles(x86)&#39;</span>].<span class="ruby-identifier">flat_map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">env_var</span><span class="ruby-operator">|</span>
-      <span class="ruby-identifier">program_files</span> = <span class="ruby-constant">ENV</span>[<span class="ruby-identifier">env_var</span>] <span class="ruby-operator">||</span> <span class="ruby-string">&#39;C:\Program Files&#39;</span>
-      <span class="ruby-constant">WIN_EMU_SEARCH_PATHS</span>.<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">parts</span><span class="ruby-operator">|</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">program_files</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">parts</span>) }
-    <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">end</span> <span class="ruby-operator">||</span> <span class="ruby-keyword">begin</span>
-    <span class="ruby-identifier">exts</span> = <span class="ruby-constant">ENV</span>[<span class="ruby-string">&#39;PATHEXT&#39;</span>] <span class="ruby-operator">?</span> <span class="ruby-constant">ENV</span>[<span class="ruby-string">&#39;PATHEXT&#39;</span>].<span class="ruby-identifier">split</span>(<span class="ruby-string">&#39;;&#39;</span>) <span class="ruby-operator">:</span> [<span class="ruby-string">&#39;&#39;</span>]
-    <span class="ruby-constant">ENV</span>[<span class="ruby-string">&#39;PATH&#39;</span>].<span class="ruby-identifier">split</span>(<span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">PATH_SEPARATOR</span>).<span class="ruby-identifier">flat_map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">path</span><span class="ruby-operator">|</span>
-      <span class="ruby-identifier">exts</span>.<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">ext</span><span class="ruby-operator">|</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-constant">EMU_DEFAULT</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">ext</span>) }
-    <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">end</span>).<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">find</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">path</span><span class="ruby-operator">|</span> <span class="ruby-operator">!</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">path</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">executable?</span>(<span class="ruby-identifier">path</span>) }
+        <span class="ruby-identifier">@@default_zxemu_path</span> <span class="ruby-operator">||=</span> (<span class="ruby-keyword">if</span> <span class="ruby-constant">RbConfig</span><span class="ruby-operator">::</span><span class="ruby-constant">CONFIG</span>[<span class="ruby-string">&#39;host_os&#39;</span>] <span class="ruby-operator">=~</span> <span class="ruby-regexp">/mswin|mingw|cygwin/</span>
+                [<span class="ruby-string">&#39;PROGRAMFILES&#39;</span>, <span class="ruby-string">&#39;ProgramFiles(x86)&#39;</span>].<span class="ruby-identifier">flat_map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">env_var</span><span class="ruby-operator">|</span>
+                        <span class="ruby-identifier">program_files</span> = <span class="ruby-constant">ENV</span>[<span class="ruby-identifier">env_var</span>] <span class="ruby-operator">||</span> <span class="ruby-string">&#39;C:\Program Files&#39;</span>
+                        <span class="ruby-constant">WIN_EMU_SEARCH_PATHS</span>.<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">parts</span><span class="ruby-operator">|</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">program_files</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">parts</span>) }
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span> <span class="ruby-operator">||</span> <span class="ruby-keyword">begin</span>
+                <span class="ruby-identifier">exts</span> = <span class="ruby-constant">ENV</span>[<span class="ruby-string">&#39;PATHEXT&#39;</span>] <span class="ruby-operator">?</span> <span class="ruby-constant">ENV</span>[<span class="ruby-string">&#39;PATHEXT&#39;</span>].<span class="ruby-identifier">split</span>(<span class="ruby-string">&#39;;&#39;</span>) <span class="ruby-operator">:</span> [<span class="ruby-string">&#39;&#39;</span>]
+                <span class="ruby-constant">ENV</span>[<span class="ruby-string">&#39;PATH&#39;</span>].<span class="ruby-identifier">split</span>(<span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">PATH_SEPARATOR</span>).<span class="ruby-identifier">flat_map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">path</span><span class="ruby-operator">|</span>
+                        <span class="ruby-identifier">exts</span>.<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">ext</span><span class="ruby-operator">|</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-constant">EMU_DEFAULT</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">ext</span>) }
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>).<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">find</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">path</span><span class="ruby-operator">|</span> <span class="ruby-operator">!</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">path</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">executable?</span>(<span class="ruby-identifier">path</span>) }
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -211,11 +211,11 @@
           <div class="method-source-code" id="get_emulator_path-source">
             <pre><span class="ruby-comment"># File lib/zxutils/emu.rb, line 46</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier ruby-title">get_emulator_path</span>
-  <span class="ruby-identifier">emu_path</span> = <span class="ruby-constant">ENV</span>[<span class="ruby-string">&#39;ZXEMU_PATH&#39;</span>] <span class="ruby-operator">||</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier">find_emulator</span>
-  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">emu_path</span>
-    <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;ZX Spectrum emulator not found. Define ZXEMU_PATH environment variable to help me find it.&quot;</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">emu_path</span>
+        <span class="ruby-identifier">emu_path</span> = <span class="ruby-constant">ENV</span>[<span class="ruby-string">&#39;ZXEMU_PATH&#39;</span>] <span class="ruby-operator">||</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier">find_emulator</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-identifier">emu_path</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;ZX Spectrum emulator not found. Define ZXEMU_PATH environment variable to help me find it.&quot;</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">emu_path</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -254,7 +254,7 @@
           <div class="method-source-code" id="run-source">
             <pre><span class="ruby-comment"># File lib/zxutils/emu.rb, line 59</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier ruby-title">run</span>(<span class="ruby-identifier">file</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
-  <span class="ruby-constant">Kernel</span>.<span class="ruby-identifier">exec</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier">get_emulator_path</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">file</span>)
+        <span class="ruby-constant">Kernel</span>.<span class="ruby-identifier">exec</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier">get_emulator_path</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">file</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -293,7 +293,7 @@
           <div class="method-source-code" id="spawn-source">
             <pre><span class="ruby-comment"># File lib/zxutils/emu.rb, line 68</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">Emu</span>.<span class="ruby-identifier ruby-title">spawn</span>(<span class="ruby-identifier">file</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
-  <span class="ruby-constant">Process</span>.<span class="ruby-identifier">detach</span> <span class="ruby-constant">Kernel</span>.<span class="ruby-identifier">spawn</span>(<span class="ruby-constant">Emu</span>.<span class="ruby-identifier">get_emulator_path</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">file</span>))
+        <span class="ruby-constant">Process</span>.<span class="ruby-identifier">detach</span> <span class="ruby-constant">Kernel</span>.<span class="ruby-identifier">spawn</span>(<span class="ruby-constant">Emu</span>.<span class="ruby-identifier">get_emulator_path</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">file</span>))
 <span class="ruby-keyword">end</span></pre>
           </div>
           

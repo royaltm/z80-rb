@@ -239,16 +239,16 @@
           <div class="method-source-code" id="new-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 691</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">resolver</span>)
-  <span class="ruby-ivar">@resolver</span> = <span class="ruby-identifier">resolver</span>
-  <span class="ruby-ivar">@markers</span> = <span class="ruby-constant">ROHash</span>.<span class="ruby-identifier">new</span>
-  <span class="ruby-ivar">@ticks_counter</span> = <span class="ruby-value">0</span>
-  <span class="ruby-ivar">@max_recursion_depth</span> = <span class="ruby-value">0</span>
-  <span class="ruby-ivar">@rational_counter</span> = <span class="ruby-constant">Rational</span>(<span class="ruby-value">0</span>,<span class="ruby-value">1</span>)
-  <span class="ruby-ivar">@code</span> = <span class="ruby-string">&#39;&#39;</span>
-  <span class="ruby-ivar">@last_pause_delay</span> = <span class="ruby-constant">Rational</span>(<span class="ruby-value">0</span>,<span class="ruby-value">1</span>)
-  <span class="ruby-ivar">@last_pause_ticks</span> = <span class="ruby-value">0</span>
-  <span class="ruby-ivar">@last_pause_range</span> = <span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-value">0</span>
-  <span class="ruby-keyword">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">instance_variable_get</span>(<span class="ruby-string">&#39;@commands&#39;</span>.<span class="ruby-identifier">freeze</span>).<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">c</span><span class="ruby-operator">|</span> <span class="ruby-keyword">self</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">c</span> }
+        <span class="ruby-ivar">@resolver</span> = <span class="ruby-identifier">resolver</span>
+        <span class="ruby-ivar">@markers</span> = <span class="ruby-constant">ROHash</span>.<span class="ruby-identifier">new</span>
+        <span class="ruby-ivar">@ticks_counter</span> = <span class="ruby-value">0</span>
+        <span class="ruby-ivar">@max_recursion_depth</span> = <span class="ruby-value">0</span>
+        <span class="ruby-ivar">@rational_counter</span> = <span class="ruby-constant">Rational</span>(<span class="ruby-value">0</span>,<span class="ruby-value">1</span>)
+        <span class="ruby-ivar">@code</span> = <span class="ruby-string">&#39;&#39;</span>
+        <span class="ruby-ivar">@last_pause_delay</span> = <span class="ruby-constant">Rational</span>(<span class="ruby-value">0</span>,<span class="ruby-value">1</span>)
+        <span class="ruby-ivar">@last_pause_ticks</span> = <span class="ruby-value">0</span>
+        <span class="ruby-ivar">@last_pause_range</span> = <span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-value">0</span>
+        <span class="ruby-keyword">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">instance_variable_get</span>(<span class="ruby-string">&#39;@commands&#39;</span>.<span class="ruby-identifier">freeze</span>).<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">c</span><span class="ruby-operator">|</span> <span class="ruby-keyword">self</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">c</span> }
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -289,7 +289,7 @@
           <div class="method-source-code" id="bytesize-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 710</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bytesize</span>
-  <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>
+        <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -322,7 +322,7 @@
           <div class="method-source-code" id="ticks_counter-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 705</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ticks_counter</span>(<span class="ruby-identifier">counter</span>=<span class="ruby-value">0</span>)
-  <span class="ruby-ivar">@ticks_counter</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-ivar">@ticks_counter</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">counter</span>)
+        <span class="ruby-ivar">@ticks_counter</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-ivar">@ticks_counter</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">counter</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           

@@ -188,13 +188,13 @@
           <div class="method-source-code" id="channel_name_to_index-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 30</span>
 <span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">channel_name_to_index</span>(<span class="ruby-identifier">channel</span>)
-  <span class="ruby-keyword">case</span> <span class="ruby-identifier">channel</span>
-  <span class="ruby-keyword">when</span> <span class="ruby-value">0</span>, <span class="ruby-string">&#39;a&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-string">&#39;A&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-value">:a</span>, <span class="ruby-value">:A</span> <span class="ruby-keyword">then</span> <span class="ruby-value">0</span>
-  <span class="ruby-keyword">when</span> <span class="ruby-value">1</span>, <span class="ruby-string">&#39;b&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-string">&#39;B&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-value">:b</span>, <span class="ruby-value">:B</span> <span class="ruby-keyword">then</span> <span class="ruby-value">1</span>
-  <span class="ruby-keyword">when</span> <span class="ruby-value">2</span>, <span class="ruby-string">&#39;c&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-string">&#39;C&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-value">:c</span>, <span class="ruby-value">:C</span> <span class="ruby-keyword">then</span> <span class="ruby-value">2</span>
-  <span class="ruby-keyword">else</span>
-    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;Couldn&#39;t guess which channel you&#39;ve had in mind: #{channel.inspect}&quot;</span>
-  <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">case</span> <span class="ruby-identifier">channel</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-value">0</span>, <span class="ruby-string">&#39;a&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-string">&#39;A&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-value">:a</span>, <span class="ruby-value">:A</span> <span class="ruby-keyword">then</span> <span class="ruby-value">0</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-value">1</span>, <span class="ruby-string">&#39;b&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-string">&#39;B&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-value">:b</span>, <span class="ruby-value">:B</span> <span class="ruby-keyword">then</span> <span class="ruby-value">1</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-value">2</span>, <span class="ruby-string">&#39;c&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-string">&#39;C&#39;</span>.<span class="ruby-identifier">freeze</span>, <span class="ruby-value">:c</span>, <span class="ruby-value">:C</span> <span class="ruby-keyword">then</span> <span class="ruby-value">2</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;Couldn&#39;t guess which channel you&#39;ve had in mind: #{channel.inspect}&quot;</span>
+        <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -277,7 +277,7 @@
           <div class="method-source-code" id="all_channels-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 114</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">all_channels</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">2</span>).<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-identifier">channel</span>(<span class="ruby-identifier">ch</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>) }
+        (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">2</span>).<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-identifier">channel</span>(<span class="ruby-identifier">ch</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>) }
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -319,7 +319,7 @@
           <div class="method-source-code" id="ch_a-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 125</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ch_a</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-identifier">channel</span> <span class="ruby-value">0</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
+        <span class="ruby-identifier">channel</span> <span class="ruby-value">0</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -357,7 +357,7 @@
           <div class="method-source-code" id="ch_b-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 135</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ch_b</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-identifier">channel</span> <span class="ruby-value">1</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
+        <span class="ruby-identifier">channel</span> <span class="ruby-value">1</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -395,7 +395,7 @@
           <div class="method-source-code" id="ch_c-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 145</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ch_c</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-identifier">channel</span> <span class="ruby-value">2</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
+        <span class="ruby-identifier">channel</span> <span class="ruby-value">2</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -437,20 +437,20 @@
           <div class="method-source-code" id="channel-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 73</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">channel</span>(<span class="ruby-identifier">ch_name</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-identifier">ch_index</span> = <span class="ruby-constant">MultitrackCommands</span>.<span class="ruby-identifier">channel_name_to_index</span> <span class="ruby-identifier">ch_name</span>
-  <span class="ruby-identifier">tracks</span> = <span class="ruby-keyword">if</span> (<span class="ruby-identifier">last_entry</span> = <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">last</span>) <span class="ruby-keyword">and</span> <span class="ruby-constant">TracksEntry</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">last_entry</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">last_entry</span>[<span class="ruby-identifier">ch_index</span>].<span class="ruby-identifier">nil?</span>
-    <span class="ruby-identifier">last_entry</span>
-  <span class="ruby-keyword">else</span>
-    <span class="ruby-constant">TracksEntry</span>.<span class="ruby-identifier">new</span>.<span class="ruby-identifier">tap</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">t</span> }
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
-  <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
-  <span class="ruby-identifier">tracks</span>[<span class="ruby-identifier">ch_index</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">include</span> <span class="ruby-constant">Track</span>
-    <span class="ruby-identifier">first_octave_note</span>(<span class="ruby-identifier">first_octave_note_</span>)
-    <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
-    <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">ch_index</span> = <span class="ruby-constant">MultitrackCommands</span>.<span class="ruby-identifier">channel_name_to_index</span> <span class="ruby-identifier">ch_name</span>
+        <span class="ruby-identifier">tracks</span> = <span class="ruby-keyword">if</span> (<span class="ruby-identifier">last_entry</span> = <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">last</span>) <span class="ruby-keyword">and</span> <span class="ruby-constant">TracksEntry</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">last_entry</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">last_entry</span>[<span class="ruby-identifier">ch_index</span>].<span class="ruby-identifier">nil?</span>
+                <span class="ruby-identifier">last_entry</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-constant">TracksEntry</span>.<span class="ruby-identifier">new</span>.<span class="ruby-identifier">tap</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">t</span> }
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
+        <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
+        <span class="ruby-identifier">tracks</span>[<span class="ruby-identifier">ch_index</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">include</span> <span class="ruby-constant">Track</span>
+                <span class="ruby-identifier">first_octave_note</span>(<span class="ruby-identifier">first_octave_note_</span>)
+                <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
+                <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -527,8 +527,8 @@
           <div class="method-source-code" id="for_channels-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 100</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">for_channels</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">chs</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-identifier">chs</span>.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-constant">MultitrackCommands</span>.<span class="ruby-identifier">channel_name_to_index</span> <span class="ruby-identifier">ch</span> }.
-  <span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-identifier">channel</span>(<span class="ruby-identifier">ch</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>) }
+        <span class="ruby-identifier">chs</span>.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-constant">MultitrackCommands</span>.<span class="ruby-identifier">channel_name_to_index</span> <span class="ruby-identifier">ch</span> }.
+        <span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-identifier">channel</span>(<span class="ruby-identifier">ch</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>) }
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -577,8 +577,8 @@
           <div class="method-source-code" id="loop_to-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 216</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">loop_to</span>(<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">repeat</span>=<span class="ruby-keyword">nil</span>)
-  <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">LoopCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">repeat</span>)
-  <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">LoopCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">repeat</span>)
+        <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -681,8 +681,8 @@
           <div class="method-source-code" id="mark-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 202</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mark</span>(<span class="ruby-identifier">name</span>)
-  <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MarkCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">name</span>)
-  <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MarkCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">name</span>)
+        <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -764,11 +764,11 @@
           <div class="method-source-code" id="pause-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 187</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">pause</span>(<span class="ruby-identifier">length</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">length_exts</span>)
-  <span class="ruby-identifier">ticks</span> = <span class="ruby-constant">Rational</span>(<span class="ruby-ivar">@tempo</span>, <span class="ruby-identifier">length</span>)
-  <span class="ruby-identifier">length_exts</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">len_ext</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">ticks</span> <span class="ruby-operator">+=</span> <span class="ruby-constant">Rational</span>(<span class="ruby-ivar">@tempo</span>, <span class="ruby-identifier">len_ext</span>)
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">wait</span>(<span class="ruby-identifier">ticks</span>)
+        <span class="ruby-identifier">ticks</span> = <span class="ruby-constant">Rational</span>(<span class="ruby-ivar">@tempo</span>, <span class="ruby-identifier">length</span>)
+        <span class="ruby-identifier">length_exts</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">len_ext</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ticks</span> <span class="ruby-operator">+=</span> <span class="ruby-constant">Rational</span>(<span class="ruby-ivar">@tempo</span>, <span class="ruby-identifier">len_ext</span>)
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">wait</span>(<span class="ruby-identifier">ticks</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -817,15 +817,15 @@
           <div class="method-source-code" id="repeat-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 230</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">repeat</span>(<span class="ruby-identifier">times</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">mark:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-identifier">mark_cmd</span> = <span class="ruby-constant">MarkCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">mark</span>)
-  <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">mark_cmd</span>
-  <span class="ruby-keyword">if</span> <span class="ruby-identifier">times</span> <span class="ruby-operator">!=</span> <span class="ruby-value">0</span>
-    <span class="ruby-keyword">yield</span>
-    <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">last</span>.<span class="ruby-identifier">equal?</span>(<span class="ruby-identifier">mark_cmd</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">times</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
-      <span class="ruby-identifier">loop_to</span> <span class="ruby-identifier">mark_cmd</span>.<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">times</span>
-    <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-identifier">mark_cmd</span> = <span class="ruby-constant">MarkCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">mark</span>)
+        <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">mark_cmd</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">times</span> <span class="ruby-operator">!=</span> <span class="ruby-value">0</span>
+                <span class="ruby-keyword">yield</span>
+                <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">last</span>.<span class="ruby-identifier">equal?</span>(<span class="ruby-identifier">mark_cmd</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">times</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
+                        <span class="ruby-identifier">loop_to</span> <span class="ruby-identifier">mark_cmd</span>.<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">times</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -928,8 +928,8 @@
           <div class="method-source-code" id="sub_track-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 155</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sub_track</span>(<span class="ruby-identifier">multitrack_name</span>)
-  <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">SubMultitrackEntry</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">multitrack_name</span>)
-  <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">SubMultitrackEntry</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">multitrack_name</span>)
+        <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -984,8 +984,8 @@
           <div class="method-source-code" id="synchronize_channels-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 59</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">synchronize_channels</span>(<span class="ruby-value">a:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">b:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">c:</span><span class="ruby-keyword">nil</span>)
-  <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">SynchronizeChannelsEntry</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>)
-  <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">SynchronizeChannelsEntry</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>)
+        <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1058,8 +1058,8 @@
           <div class="method-source-code" id="wait-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 169</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">wait</span>(<span class="ruby-identifier">ticks</span>)
-  <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">PauseCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">ticks</span>)
-  <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@channels</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">PauseCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">ticks</span>)
+        <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           

@@ -132,7 +132,7 @@
 
 <p>After the shuffle is performed <code>hl</code> points to the memory address immediately following the shuffled table.</p>
 
-<p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+<p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>. Stack depth: 6 bytes or 8 if <code>next_rng</code> is used.</p>
 <dl class="rdoc-list note-list"><dt><code>next_rng</code>
 <dd>
 <p>An address of a random number generator routine. The routine should return an 8-bit random number in the <code>accumulator</code>. If <code>next_rng</code> is <code>nil</code> the block of code with the RNG routine is expected instead.</p>

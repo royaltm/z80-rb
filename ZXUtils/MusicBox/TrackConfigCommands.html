@@ -151,8 +151,8 @@
           <div class="method-source-code" id="first_octave_note-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 15</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">first_octave_note</span>(<span class="ruby-identifier">note</span>=<span class="ruby-keyword">nil</span>)
-  <span class="ruby-ivar">@first_octave_note</span> = <span class="ruby-identifier">note</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">note</span>
-  <span class="ruby-ivar">@first_octave_note</span>
+        <span class="ruby-ivar">@first_octave_note</span> = <span class="ruby-identifier">note</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">note</span>
+        <span class="ruby-ivar">@first_octave_note</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -192,11 +192,11 @@
           <div class="method-source-code" id="tempo-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 27</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">tempo</span>(<span class="ruby-identifier">ticks</span>=<span class="ruby-keyword">nil</span>)
-  <span class="ruby-keyword">if</span> <span class="ruby-identifier">ticks</span>
-    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;ticks should be a positive integer&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">ticks</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">ticks</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">1</span>
-    <span class="ruby-ivar">@tempo</span> = <span class="ruby-identifier">ticks</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-ivar">@tempo</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">ticks</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;ticks should be a positive integer&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">ticks</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">ticks</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">1</span>
+                <span class="ruby-ivar">@tempo</span> = <span class="ruby-identifier">ticks</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-ivar">@tempo</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           

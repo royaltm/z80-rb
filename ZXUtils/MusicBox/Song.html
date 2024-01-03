@@ -220,16 +220,16 @@
           <div class="method-source-code" id="new-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 170</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>
-  <span class="ruby-ivar">@item_table</span> = {}
-  <span class="ruby-identifier">pargs</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">module_eval</span> <span class="ruby-keyword">do</span>
-    { <span class="ruby-value">track_klasses:</span>      <span class="ruby-ivar">@tracks</span>,
-      <span class="ruby-value">multitrack_klasses:</span> <span class="ruby-ivar">@multitracks</span>,
-      <span class="ruby-value">instrument_klasses:</span> <span class="ruby-ivar">@instruments</span>,
-      <span class="ruby-value">envelopes:</span>          <span class="ruby-ivar">@envelopes</span>,
-      <span class="ruby-value">chords:</span>             <span class="ruby-ivar">@chords</span>,
-      <span class="ruby-value">masks:</span>              <span class="ruby-ivar">@masks</span> }
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">super</span>(<span class="ruby-constant">Resolver</span>.<span class="ruby-identifier">new</span> <span class="ruby-ivar">@item_table</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">pargs</span>)
+        <span class="ruby-ivar">@item_table</span> = {}
+        <span class="ruby-identifier">pargs</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">module_eval</span> <span class="ruby-keyword">do</span>
+                { <span class="ruby-value">track_klasses:</span>      <span class="ruby-ivar">@tracks</span>,
+                        <span class="ruby-value">multitrack_klasses:</span> <span class="ruby-ivar">@multitracks</span>,
+                        <span class="ruby-value">instrument_klasses:</span> <span class="ruby-ivar">@instruments</span>,
+                        <span class="ruby-value">envelopes:</span>          <span class="ruby-ivar">@envelopes</span>,
+                        <span class="ruby-value">chords:</span>             <span class="ruby-ivar">@chords</span>,
+                        <span class="ruby-value">masks:</span>              <span class="ruby-ivar">@masks</span> }
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">super</span>(<span class="ruby-constant">Resolver</span>.<span class="ruby-identifier">new</span> <span class="ruby-ivar">@item_table</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">pargs</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -270,7 +270,7 @@
           <div class="method-source-code" id="instruments-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 209</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">instruments</span>
-  <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">instruments</span>
+        <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">instruments</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -303,18 +303,18 @@
           <div class="method-source-code" id="to_module-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 235</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_module</span>
-  <span class="ruby-identifier">body</span> = <span class="ruby-string">&#39;&#39;</span>
-  <span class="ruby-identifier">track_offsets</span> = <span class="ruby-ivar">@channel_tracks</span>.<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">track</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">offset</span> = <span class="ruby-identifier">body</span>.<span class="ruby-identifier">bytesize</span>
-    <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">code</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">TERMINATOR</span>
-    <span class="ruby-identifier">offset</span><span class="ruby-operator">...</span><span class="ruby-identifier">body</span>.<span class="ruby-identifier">bytesize</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">index_offsets</span> = <span class="ruby-ivar">@item_table</span>.<span class="ruby-identifier">each_key</span>.<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">item</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">offset</span> = <span class="ruby-identifier">body</span>.<span class="ruby-identifier">bytesize</span>
-    <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">item</span>.<span class="ruby-identifier">code</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">TERMINATOR</span>
-    <span class="ruby-identifier">offset</span><span class="ruby-operator">...</span><span class="ruby-identifier">body</span>.<span class="ruby-identifier">bytesize</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-constant">SongModule</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">track_offsets</span>, <span class="ruby-identifier">index_offsets</span>, <span class="ruby-identifier">item_table</span>.<span class="ruby-identifier">values</span>, <span class="ruby-identifier">body</span>
+        <span class="ruby-identifier">body</span> = <span class="ruby-string">&#39;&#39;</span>
+        <span class="ruby-identifier">track_offsets</span> = <span class="ruby-ivar">@channel_tracks</span>.<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">track</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">offset</span> = <span class="ruby-identifier">body</span>.<span class="ruby-identifier">bytesize</span>
+                <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">code</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">TERMINATOR</span>
+                <span class="ruby-identifier">offset</span><span class="ruby-operator">...</span><span class="ruby-identifier">body</span>.<span class="ruby-identifier">bytesize</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">index_offsets</span> = <span class="ruby-ivar">@item_table</span>.<span class="ruby-identifier">each_key</span>.<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">item</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">offset</span> = <span class="ruby-identifier">body</span>.<span class="ruby-identifier">bytesize</span>
+                <span class="ruby-identifier">body</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">item</span>.<span class="ruby-identifier">code</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">TERMINATOR</span>
+                <span class="ruby-identifier">offset</span><span class="ruby-operator">...</span><span class="ruby-identifier">body</span>.<span class="ruby-identifier">bytesize</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-constant">SongModule</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">track_offsets</span>, <span class="ruby-identifier">index_offsets</span>, <span class="ruby-identifier">item_table</span>.<span class="ruby-identifier">values</span>, <span class="ruby-identifier">body</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -347,7 +347,7 @@
           <div class="method-source-code" id="to_player_module-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 224</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_player_module</span>
-  <span class="ruby-identifier">to_module</span>.<span class="ruby-identifier">to_player_module</span>
+        <span class="ruby-identifier">to_module</span>.<span class="ruby-identifier">to_player_module</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -380,7 +380,7 @@
           <div class="method-source-code" id="to_program-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 230</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_program</span>
-  <span class="ruby-identifier">to_module</span>.<span class="ruby-identifier">to_program</span>
+        <span class="ruby-identifier">to_module</span>.<span class="ruby-identifier">to_program</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -413,12 +413,12 @@
           <div class="method-source-code" id="unused_item_names-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 214</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">unused_item_names</span>
-  { <span class="ruby-value">multitracks:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_multitrack_names</span>,
-    <span class="ruby-value">tracks:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_track_names</span>,
-    <span class="ruby-value">instruments:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_instrument_names</span>,
-    <span class="ruby-value">envelopes:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_envelope_names</span>,
-    <span class="ruby-value">chords:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_chord_names</span>,
-    <span class="ruby-value">masks:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_mask_names</span> }
+        { <span class="ruby-value">multitracks:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_multitrack_names</span>,
+                <span class="ruby-value">tracks:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_track_names</span>,
+                <span class="ruby-value">instruments:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_instrument_names</span>,
+                <span class="ruby-value">envelopes:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_envelope_names</span>,
+                <span class="ruby-value">chords:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_chord_names</span>,
+                <span class="ruby-value">masks:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_mask_names</span> }
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -455,22 +455,22 @@
           <div class="method-source-code" id="validate_recursion_depth-21-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 188</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">validate_recursion_depth!</span>(<span class="ruby-identifier">track_stack_depth</span>=<span class="ruby-value">20</span>)
-  <span class="ruby-identifier">max_recursion_depth</span> = <span class="ruby-value">0</span>
-  <span class="ruby-identifier">check_level</span> = <span class="ruby-identifier">proc</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">track</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">max_recursion_depth</span> = <span class="ruby-identifier">track</span>.<span class="ruby-identifier">max_recursion_depth</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">max_recursion_depth</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">max_recursion_depth</span>
-    <span class="ruby-identifier">block</span>.<span class="ruby-identifier">call</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">max_recursion_depth</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">track_stack_depth</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">channel_tracks</span>.<span class="ruby-identifier">each_with_index</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">track</span>, <span class="ruby-identifier">ch_num</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">check_level</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">track</span>) <span class="ruby-keyword">do</span>
-      <span class="ruby-identifier">raise</span> <span class="ruby-node">&quot;too many recursions on track_#{Resolver::CHANNEL_NAMES[ch_num]} depth: #{max_recursion_depth} &gt; #{track_stack_depth}&quot;</span>
-    <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">instruments</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">name</span>, <span class="ruby-identifier">instrument</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">check_level</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">instrument</span>) <span class="ruby-keyword">do</span>
-      <span class="ruby-identifier">raise</span> <span class="ruby-node">&quot;too many recursions on instrument :#{name} depth: #{max_recursion_depth} &gt; #{track_stack_depth}&quot;</span>
-    <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">max_recursion_depth</span>
+        <span class="ruby-identifier">max_recursion_depth</span> = <span class="ruby-value">0</span>
+        <span class="ruby-identifier">check_level</span> = <span class="ruby-identifier">proc</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">track</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">max_recursion_depth</span> = <span class="ruby-identifier">track</span>.<span class="ruby-identifier">max_recursion_depth</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">max_recursion_depth</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">max_recursion_depth</span>
+                <span class="ruby-identifier">block</span>.<span class="ruby-identifier">call</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">max_recursion_depth</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">track_stack_depth</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">channel_tracks</span>.<span class="ruby-identifier">each_with_index</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">track</span>, <span class="ruby-identifier">ch_num</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">check_level</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">track</span>) <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">raise</span> <span class="ruby-node">&quot;too many recursions on track_#{Resolver::CHANNEL_NAMES[ch_num]} depth: #{max_recursion_depth} &gt; #{track_stack_depth}&quot;</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">instruments</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">name</span>, <span class="ruby-identifier">instrument</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">check_level</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">instrument</span>) <span class="ruby-keyword">do</span>
+                        <span class="ruby-identifier">raise</span> <span class="ruby-node">&quot;too many recursions on instrument :#{name} depth: #{max_recursion_depth} &gt; #{track_stack_depth}&quot;</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">max_recursion_depth</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           

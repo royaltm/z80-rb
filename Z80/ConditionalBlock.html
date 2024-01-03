@@ -140,11 +140,11 @@
           <div class="method-source-code" id="else-source">
             <pre><span class="ruby-comment"># File lib/z80/select.rb, line 44</span>
 <span class="ruby-keyword">def</span> <span class="ruby-keyword">else</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier ruby-title">block</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only one of `else&#39; or `else_select` variant may be defined&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span>.<span class="ruby-identifier">nil?</span>
-  <span class="ruby-comment"># create an empty +then+ variant that just passes.</span>
-  <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span> = <span class="ruby-identifier">create_variant</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span>.<span class="ruby-identifier">nil?</span>
-  <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span> = <span class="ruby-identifier">create_variant</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-keyword">self</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only one of `else&#39; or `else_select` variant may be defined&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span>.<span class="ruby-identifier">nil?</span>
+        <span class="ruby-comment"># create an empty +then+ variant that just passes.</span>
+        <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span> = <span class="ruby-identifier">create_variant</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span>.<span class="ruby-identifier">nil?</span>
+        <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span> = <span class="ruby-identifier">create_variant</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-keyword">self</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -179,12 +179,12 @@
           <div class="method-source-code" id="else_select-source">
             <pre><span class="ruby-comment"># File lib/z80/select.rb, line 57</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">else_select</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">test</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only one of `else&#39; or `else_select` variant may be defined&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span>.<span class="ruby-identifier">nil?</span>
-  <span class="ruby-comment"># create an empty +then+ variant that just passes.</span>
-  <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span> = <span class="ruby-identifier">create_variant</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span>.<span class="ruby-identifier">nil?</span>
-  <span class="ruby-constant">ConditionalBlock</span>.<span class="ruby-identifier">new</span>(<span class="ruby-ivar">@program</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-value">address:</span> <span class="ruby-ivar">@address</span>, <span class="ruby-value">codesize:</span> <span class="ruby-ivar">@codesize</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">test</span>).<span class="ruby-identifier">tap</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">cond</span><span class="ruby-operator">|</span>
-    <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span> = <span class="ruby-identifier">cond</span>.<span class="ruby-identifier">selection</span>
-  <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Only one of `else&#39; or `else_select` variant may be defined&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span>.<span class="ruby-identifier">nil?</span>
+        <span class="ruby-comment"># create an empty +then+ variant that just passes.</span>
+        <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span> = <span class="ruby-identifier">create_variant</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span>.<span class="ruby-identifier">nil?</span>
+        <span class="ruby-constant">ConditionalBlock</span>.<span class="ruby-identifier">new</span>(<span class="ruby-ivar">@program</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-value">address:</span> <span class="ruby-ivar">@address</span>, <span class="ruby-value">codesize:</span> <span class="ruby-ivar">@codesize</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">test</span>).<span class="ruby-identifier">tap</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">cond</span><span class="ruby-operator">|</span>
+                <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">else</span> = <span class="ruby-identifier">cond</span>.<span class="ruby-identifier">selection</span>
+        <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -221,9 +221,9 @@
           <div class="method-source-code" id="then-source">
             <pre><span class="ruby-comment"># File lib/z80/select.rb, line 32</span>
 <span class="ruby-keyword">def</span> <span class="ruby-keyword">then</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier ruby-title">block</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;`then&#39; variant may be defined only once&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span>.<span class="ruby-identifier">nil?</span>
-  <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span> = <span class="ruby-identifier">create_variant</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-keyword">self</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;`then&#39; variant may be defined only once&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span>.<span class="ruby-identifier">nil?</span>
+        <span class="ruby-ivar">@selection</span>.<span class="ruby-identifier">then</span> = <span class="ruby-identifier">create_variant</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-keyword">self</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           

@@ -473,9 +473,9 @@ after     A → B   C   D              D   C   B ← A
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">safe_args</span>
-                    <span class="ruby-identifier">cp16rr</span> <span class="ruby-identifier">last</span>, <span class="ruby-identifier">first</span> <span class="ruby-comment"># rigth - first</span>
-                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>             <span class="ruby-comment"># rigth &lt; first</span>
-                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>             <span class="ruby-comment"># rigth = first</span>
+                    <span class="ruby-identifier">cp16rr</span> <span class="ruby-identifier">last</span>, <span class="ruby-identifier">first</span> <span class="ruby-comment"># last - first</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>             <span class="ruby-comment"># last &lt; first</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>             <span class="ruby-comment"># last = first</span>
         <span class="ruby-keyword">end</span>
         <span class="ruby-identifier">qsort</span>       <span class="ruby-identifier">label</span>
                     <span class="ruby-identifier">push</span> <span class="ruby-identifier">de</span>          <span class="ruby-comment"># sp[]: first (or last if reversed)</span>

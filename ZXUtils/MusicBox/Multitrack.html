@@ -192,10 +192,10 @@
           <div class="method-source-code" id="new-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 279</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">resolver</span>)
-  <span class="ruby-ivar">@resolver</span> = <span class="ruby-identifier">resolver</span>
-  <span class="ruby-ivar">@channel_tracks</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">3</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">_</span><span class="ruby-operator">|</span> <span class="ruby-constant">EmptyTrack</span>.<span class="ruby-identifier">new</span>(<span class="ruby-ivar">@resolver</span>) }
-  <span class="ruby-ivar">@ticks_behind_channels</span> = [<span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-value">2</span><span class="ruby-operator">**</span><span class="ruby-value">16</span>, <span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-value">2</span><span class="ruby-operator">**</span><span class="ruby-value">16</span>, <span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-value">2</span><span class="ruby-operator">**</span><span class="ruby-value">16</span>]
-  <span class="ruby-keyword">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">instance_variable_get</span>(<span class="ruby-string">&#39;@channels&#39;</span>.<span class="ruby-identifier">freeze</span>).<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">e</span><span class="ruby-operator">|</span> <span class="ruby-keyword">self</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">e</span> }
+        <span class="ruby-ivar">@resolver</span> = <span class="ruby-identifier">resolver</span>
+        <span class="ruby-ivar">@channel_tracks</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">3</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">_</span><span class="ruby-operator">|</span> <span class="ruby-constant">EmptyTrack</span>.<span class="ruby-identifier">new</span>(<span class="ruby-ivar">@resolver</span>) }
+        <span class="ruby-ivar">@ticks_behind_channels</span> = [<span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-value">2</span><span class="ruby-operator">**</span><span class="ruby-value">16</span>, <span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-value">2</span><span class="ruby-operator">**</span><span class="ruby-value">16</span>, <span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-value">2</span><span class="ruby-operator">**</span><span class="ruby-value">16</span>]
+        <span class="ruby-keyword">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">instance_variable_get</span>(<span class="ruby-string">&#39;@channels&#39;</span>.<span class="ruby-identifier">freeze</span>).<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">e</span><span class="ruby-operator">|</span> <span class="ruby-keyword">self</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">e</span> }
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -236,14 +236,14 @@
           <div class="method-source-code" id="channel_track-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 288</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">channel_track</span>(<span class="ruby-identifier">channel</span>)
-  <span class="ruby-identifier">channel</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">channel</span>
-  <span class="ruby-keyword">when</span> <span class="ruby-constant">Symbol</span>
-    <span class="ruby-constant">Resolver</span><span class="ruby-operator">::</span><span class="ruby-constant">CHANNEL_NAMES</span>.<span class="ruby-identifier">index</span>(<span class="ruby-identifier">channel</span>)
-  <span class="ruby-keyword">when</span> <span class="ruby-constant">Integer</span>
-    <span class="ruby-identifier">channel</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;unrecognized channel: #{channel}&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">channel</span>
-  <span class="ruby-ivar">@channel_tracks</span>[<span class="ruby-identifier">channel</span>]
+        <span class="ruby-identifier">channel</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">channel</span>
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">Symbol</span>
+                <span class="ruby-constant">Resolver</span><span class="ruby-operator">::</span><span class="ruby-constant">CHANNEL_NAMES</span>.<span class="ruby-identifier">index</span>(<span class="ruby-identifier">channel</span>)
+        <span class="ruby-keyword">when</span> <span class="ruby-constant">Integer</span>
+                <span class="ruby-identifier">channel</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;unrecognized channel: #{channel}&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">channel</span>
+        <span class="ruby-ivar">@channel_tracks</span>[<span class="ruby-identifier">channel</span>]
 <span class="ruby-keyword">end</span></pre>
           </div>
           

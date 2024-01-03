@@ -339,7 +339,7 @@
           <div class="method-source-code" id="chord_off-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 255</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">chord_off</span>
-  <span class="ruby-identifier">start_chord</span> <span class="ruby-keyword">nil</span>
+        <span class="ruby-identifier">start_chord</span> <span class="ruby-keyword">nil</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -393,8 +393,8 @@
           <div class="method-source-code" id="disable_ay_volume_ctrl-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 448</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">disable_ay_volume_ctrl</span>
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_DISABLE_AY_VOLUME_CTRL</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_DISABLE_AY_VOLUME_CTRL</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -448,8 +448,8 @@
           <div class="method-source-code" id="enable_ay_volume_ctrl-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 436</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">enable_ay_volume_ctrl</span>
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_ENABLE_AY_VOLUME_CTRL</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_ENABLE_AY_VOLUME_CTRL</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -559,8 +559,8 @@
           <div class="method-source-code" id="envelope_duration-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 181</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">envelope_duration</span>(<span class="ruby-identifier">duration</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">AYEnvelopeDurationCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">duration</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">AYEnvelopeDurationCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">duration</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -614,8 +614,8 @@
           <div class="method-source-code" id="envelope_shape-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 194</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">envelope_shape</span>(<span class="ruby-identifier">shape</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">AYEnvelopeShapeCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">shape</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">AYEnvelopeShapeCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">shape</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -776,8 +776,8 @@
           <div class="method-source-code" id="loop_to-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 124</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">loop_to</span>(<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">repeat</span>=<span class="ruby-keyword">nil</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">LoopCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">repeat</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">LoopCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">repeat</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -936,8 +936,8 @@
           <div class="method-source-code" id="mark-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 111</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mark</span>(<span class="ruby-identifier">name</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MarkCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">name</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MarkCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">name</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -984,8 +984,8 @@
           <div class="method-source-code" id="mask_ay_volume_envelope-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 266</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mask_ay_volume_envelope</span>(<span class="ruby-identifier">mask_name</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MaskCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:volume</span>, <span class="ruby-identifier">mask_name</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MaskCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:volume</span>, <span class="ruby-identifier">mask_name</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1032,7 +1032,7 @@
           <div class="method-source-code" id="mask_ay_volume_envelope_off-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 276</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mask_ay_volume_envelope_off</span>
-  <span class="ruby-identifier">mask_ay_volume_envelope</span> <span class="ruby-keyword">nil</span>
+        <span class="ruby-identifier">mask_ay_volume_envelope</span> <span class="ruby-keyword">nil</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1079,8 +1079,8 @@
           <div class="method-source-code" id="mask_noise-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 309</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mask_noise</span>(<span class="ruby-identifier">mask_name</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MaskCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:noise</span>, <span class="ruby-identifier">mask_name</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MaskCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:noise</span>, <span class="ruby-identifier">mask_name</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1127,7 +1127,7 @@
           <div class="method-source-code" id="mask_noise_off-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 320</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mask_noise_off</span>
-  <span class="ruby-identifier">mask_noise</span> <span class="ruby-keyword">nil</span>
+        <span class="ruby-identifier">mask_noise</span> <span class="ruby-keyword">nil</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1174,8 +1174,8 @@
           <div class="method-source-code" id="mask_tone-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 287</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mask_tone</span>(<span class="ruby-identifier">mask_name</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MaskCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:tone</span>, <span class="ruby-identifier">mask_name</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">MaskCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:tone</span>, <span class="ruby-identifier">mask_name</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1222,7 +1222,7 @@
           <div class="method-source-code" id="mask_tone_off-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 298</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mask_tone_off</span>
-  <span class="ruby-identifier">mask_tone</span> <span class="ruby-keyword">nil</span>
+        <span class="ruby-identifier">mask_tone</span> <span class="ruby-keyword">nil</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1383,8 +1383,8 @@
           <div class="method-source-code" id="mode1-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 157</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mode1</span>
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_PLAY_MODE_1</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_PLAY_MODE_1</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1433,8 +1433,8 @@
           <div class="method-source-code" id="mode2-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 170</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mode2</span>
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_PLAY_MODE_2</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_PLAY_MODE_2</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1677,8 +1677,8 @@
           <div class="method-source-code" id="noise-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 90</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">noise</span>(<span class="ruby-identifier">level</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">NoisePitchCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">level</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">NoisePitchCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">level</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1725,7 +1725,7 @@
           <div class="method-source-code" id="noise_envelope_off-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 235</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">noise_envelope_off</span>
-  <span class="ruby-identifier">start_noise_envelope</span> <span class="ruby-keyword">nil</span>
+        <span class="ruby-identifier">start_noise_envelope</span> <span class="ruby-keyword">nil</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1772,8 +1772,8 @@
           <div class="method-source-code" id="noise_off-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 479</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">noise_off</span>
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_DISABLE_NOISE</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_DISABLE_NOISE</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1820,8 +1820,8 @@
           <div class="method-source-code" id="noise_on-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 489</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">noise_on</span>
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_ENABLE_NOISE</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_ENABLE_NOISE</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1874,8 +1874,8 @@
           <div class="method-source-code" id="note_progress-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 401</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">note_progress</span>(<span class="ruby-identifier">period</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">NoteProgressPeriodCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">period</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">NoteProgressPeriodCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">period</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2007,11 +2007,11 @@
           <div class="method-source-code" id="pause-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 77</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">pause</span>(<span class="ruby-identifier">length</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">length_exts</span>)
-  <span class="ruby-identifier">ticks</span> = <span class="ruby-constant">Rational</span>(<span class="ruby-ivar">@tempo</span>, <span class="ruby-identifier">length</span>)
-  <span class="ruby-identifier">length_exts</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">len_ext</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">ticks</span> <span class="ruby-operator">+=</span> <span class="ruby-constant">Rational</span>(<span class="ruby-ivar">@tempo</span>, <span class="ruby-identifier">len_ext</span>)
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">wait</span>(<span class="ruby-identifier">ticks</span>)
+        <span class="ruby-identifier">ticks</span> = <span class="ruby-constant">Rational</span>(<span class="ruby-ivar">@tempo</span>, <span class="ruby-identifier">length</span>)
+        <span class="ruby-identifier">length_exts</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">len_ext</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ticks</span> <span class="ruby-operator">+=</span> <span class="ruby-constant">Rational</span>(<span class="ruby-ivar">@tempo</span>, <span class="ruby-identifier">len_ext</span>)
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">wait</span>(<span class="ruby-identifier">ticks</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2060,15 +2060,15 @@
           <div class="method-source-code" id="repeat-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 137</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">repeat</span>(<span class="ruby-identifier">times</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">mark:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-identifier">mark_cmd</span> = <span class="ruby-constant">MarkCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">mark</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">mark_cmd</span>
-  <span class="ruby-keyword">if</span> <span class="ruby-identifier">times</span> <span class="ruby-operator">!=</span> <span class="ruby-value">0</span>
-    <span class="ruby-keyword">yield</span>
-    <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">last</span>.<span class="ruby-identifier">equal?</span>(<span class="ruby-identifier">mark_cmd</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">times</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
-      <span class="ruby-identifier">loop_to</span> <span class="ruby-identifier">mark_cmd</span>.<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">times</span>
-    <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-identifier">mark_cmd</span> = <span class="ruby-constant">MarkCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">mark</span>)
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">mark_cmd</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">times</span> <span class="ruby-operator">!=</span> <span class="ruby-value">0</span>
+                <span class="ruby-keyword">yield</span>
+                <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">last</span>.<span class="ruby-identifier">equal?</span>(<span class="ruby-identifier">mark_cmd</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">times</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
+                        <span class="ruby-identifier">loop_to</span> <span class="ruby-identifier">mark_cmd</span>.<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">times</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2143,8 +2143,8 @@
           <div class="method-source-code" id="start_chord-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 245</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">start_chord</span>(<span class="ruby-identifier">chord_name</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">ChordCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">chord_name</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">ChordCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">chord_name</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2191,8 +2191,8 @@
           <div class="method-source-code" id="start_noise_envelope-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 225</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">start_noise_envelope</span>(<span class="ruby-identifier">envelope_name</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">EnvelopeCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:noise</span>, <span class="ruby-identifier">envelope_name</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">EnvelopeCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:noise</span>, <span class="ruby-identifier">envelope_name</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2239,8 +2239,8 @@
           <div class="method-source-code" id="start_volume_envelope-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 206</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">start_volume_envelope</span>(<span class="ruby-identifier">envelope_name</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">EnvelopeCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:volume</span>, <span class="ruby-identifier">envelope_name</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">EnvelopeCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:volume</span>, <span class="ruby-identifier">envelope_name</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2343,8 +2343,8 @@
           <div class="method-source-code" id="tone_off-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 459</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">tone_off</span>
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_DISABLE_TONE</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_DISABLE_TONE</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2391,8 +2391,8 @@
           <div class="method-source-code" id="tone_on-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 469</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">tone_on</span>
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_ENABLE_TONE</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_ENABLE_TONE</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2452,8 +2452,8 @@
           <div class="method-source-code" id="tone_progress-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 425</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">tone_progress</span>(<span class="ruby-identifier">delta</span>, <span class="ruby-identifier">counter</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">ToneProgressCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">delta</span>, <span class="ruby-identifier">counter</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">ToneProgressCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">delta</span>, <span class="ruby-identifier">counter</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2707,8 +2707,8 @@
           <div class="method-source-code" id="vibrato_amplitude-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 375</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vibrato_amplitude</span>(<span class="ruby-identifier">amplitude</span>=<span class="ruby-value">1.0</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">VibratoAmplitudeCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">amplitude</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">VibratoAmplitudeCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">amplitude</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2766,8 +2766,8 @@
           <div class="method-source-code" id="vibrato_angle-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 356</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vibrato_angle</span>(<span class="ruby-identifier">angle</span>=<span class="ruby-value">0.0</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">VibratoAngleCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">angle</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">VibratoAngleCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">angle</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2814,8 +2814,8 @@
           <div class="method-source-code" id="vibrato_off-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 385</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vibrato_off</span>
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_VIBRATO_OFF</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Command</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Command</span><span class="ruby-operator">::</span><span class="ruby-constant">Headers</span><span class="ruby-operator">::</span><span class="ruby-constant">CMD_VIBRATO_OFF</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2870,8 +2870,8 @@
           <div class="method-source-code" id="vibrato_step-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 338</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">vibrato_step</span>(<span class="ruby-identifier">step</span>=<span class="ruby-value">1.0</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">VibratoStepCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">step</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">VibratoStepCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">step</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2946,8 +2946,8 @@
           <div class="method-source-code" id="volume-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 100</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">volume</span>(<span class="ruby-identifier">level</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">VolumeLevelCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">level</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">VolumeLevelCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">level</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -2994,7 +2994,7 @@
           <div class="method-source-code" id="volume_envelope_off-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 216</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">volume_envelope_off</span>
-  <span class="ruby-identifier">start_volume_envelope</span> <span class="ruby-keyword">nil</span>
+        <span class="ruby-identifier">start_volume_envelope</span> <span class="ruby-keyword">nil</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -3127,8 +3127,8 @@
           <div class="method-source-code" id="wait-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 48</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">wait</span>(<span class="ruby-identifier">ticks</span>)
-  <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">PauseCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">ticks</span>)
-  <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
+        <span class="ruby-ivar">@commands</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">PauseCommand</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">ticks</span>)
+        <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           

@@ -176,7 +176,7 @@
           <div class="method-source-code" id="chord-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 105</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">chord</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
-  <span class="ruby-ivar">@chords</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Chord</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+        <span class="ruby-ivar">@chords</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Chord</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -211,7 +211,7 @@
           <div class="method-source-code" id="envelope-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 91</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">envelope</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
-  <span class="ruby-ivar">@envelopes</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Envelope</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+        <span class="ruby-ivar">@envelopes</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Envelope</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -244,8 +244,8 @@
           <div class="method-source-code" id="import_chord-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 110</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_chord</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">chord</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">chord</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Chord</span>)
-  <span class="ruby-ivar">@chords</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">chord</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">chord</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Chord</span>)
+        <span class="ruby-ivar">@chords</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">chord</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -278,8 +278,8 @@
           <div class="method-source-code" id="import_envelope-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 96</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_envelope</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">envelope</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">envelope</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Envelope</span>)
-  <span class="ruby-ivar">@envelopes</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">envelope</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">envelope</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Envelope</span>)
+        <span class="ruby-ivar">@envelopes</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">envelope</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -312,8 +312,8 @@
           <div class="method-source-code" id="import_instrument-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 62</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_instrument</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">track</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Class</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-constant">Instrument</span>)
-  <span class="ruby-ivar">@instruments</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">track</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Class</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-constant">Instrument</span>)
+        <span class="ruby-ivar">@instruments</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">track</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -346,8 +346,8 @@
           <div class="method-source-code" id="import_mask-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 124</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_mask</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">mask</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">mask</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Mask</span>)
-  <span class="ruby-ivar">@masks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">mask</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">mask</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Mask</span>)
+        <span class="ruby-ivar">@masks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">mask</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -380,8 +380,8 @@
           <div class="method-source-code" id="import_multitrack-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 82</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_multitrack</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">multitrack</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">multitrack</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Class</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">multitrack</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-constant">Multitrack</span>)
-  <span class="ruby-ivar">@multitracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">multitrack</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">multitrack</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Class</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">multitrack</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-constant">Multitrack</span>)
+        <span class="ruby-ivar">@multitracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">multitrack</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -414,8 +414,8 @@
           <div class="method-source-code" id="import_track-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 43</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">import_track</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">track</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Class</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-constant">Track</span>)
-  <span class="ruby-ivar">@tracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">track</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Class</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">track</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-constant">Track</span>)
+        <span class="ruby-ivar">@tracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-identifier">track</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -450,13 +450,13 @@
           <div class="method-source-code" id="instrument-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 51</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">instrument</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
-  <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
-  <span class="ruby-ivar">@instruments</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">include</span> <span class="ruby-constant">Instrument</span>
-    <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
-    <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
+        <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
+        <span class="ruby-ivar">@instruments</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">include</span> <span class="ruby-constant">Instrument</span>
+                <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
+                <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -491,7 +491,7 @@
           <div class="method-source-code" id="mask-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 119</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mask</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
-  <span class="ruby-ivar">@masks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Mask</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+        <span class="ruby-ivar">@masks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Mask</span>.<span class="ruby-identifier">new</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -526,14 +526,14 @@
           <div class="method-source-code" id="multitrack-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 70</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">multitrack</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
-  <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
-  <span class="ruby-ivar">@multitracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">include</span> <span class="ruby-constant">Multitrack</span>
-    <span class="ruby-identifier">first_octave_note</span>(<span class="ruby-identifier">first_octave_note_</span>)
-    <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
-    <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
+        <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
+        <span class="ruby-ivar">@multitracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">include</span> <span class="ruby-constant">Multitrack</span>
+                <span class="ruby-identifier">first_octave_note</span>(<span class="ruby-identifier">first_octave_note_</span>)
+                <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
+                <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -568,14 +568,14 @@
           <div class="method-source-code" id="track-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 31</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">track</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
-  <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
-  <span class="ruby-ivar">@tracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">include</span> <span class="ruby-constant">Track</span>
-    <span class="ruby-identifier">first_octave_note</span>(<span class="ruby-identifier">first_octave_note_</span>)
-    <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
-    <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-  <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">first_octave_note_</span> = <span class="ruby-ivar">@first_octave_note</span>
+        <span class="ruby-identifier">tempo_</span> = <span class="ruby-ivar">@tempo</span>
+        <span class="ruby-ivar">@tracks</span>[<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>] = <span class="ruby-constant">Class</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">include</span> <span class="ruby-constant">Track</span>
+                <span class="ruby-identifier">first_octave_note</span>(<span class="ruby-identifier">first_octave_note_</span>)
+                <span class="ruby-identifier">tempo</span>(<span class="ruby-identifier">tempo_</span>)
+                <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">module_eval</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           

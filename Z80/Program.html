@@ -849,7 +849,7 @@
           <div class="method-source-code" id="debug_comment-source">
             <pre><span class="ruby-comment"># File lib/z80.rb, line 676</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">debug_comment</span>(<span class="ruby-identifier">text</span>=<span class="ruby-string">&#39;&#39;</span>.<span class="ruby-identifier">freeze</span>)
-    <span class="ruby-ivar">@debug</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">DebugInfo</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">pc</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">text</span>.<span class="ruby-identifier">to_s</span>, <span class="ruby-keyword">nil</span>, [<span class="ruby-constant">Label</span>.<span class="ruby-identifier">dummy</span>])
+                <span class="ruby-ivar">@debug</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">DebugInfo</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">pc</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">text</span>.<span class="ruby-identifier">to_s</span>, <span class="ruby-keyword">nil</span>, [<span class="ruby-constant">Label</span>.<span class="ruby-identifier">dummy</span>])
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -1960,9 +1960,9 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
 <p>Example:</p>
 
 <pre class="ruby"><span class="ruby-identifier">ns</span> <span class="ruby-value">:foo</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
-  <span class="ruby-identifier">loop1</span>  <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>
-         <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
-         <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">loop1</span>
+  <span class="ruby-identifier">loop1</span>    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>
+           <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
+           <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">loop1</span>
 <span class="ruby-keyword">end</span>
 </pre>
 
@@ -2317,7 +2317,7 @@ foo, :foo, [foo], foo[10], [:foo], [foo + 10]</pre>
           <div class="method-source-code" id="select-source">
             <pre><span class="ruby-comment"># File lib/z80/select.rb, line 176</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">select</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">test</span>)
-  <span class="ruby-constant">ConditionalBlock</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">test</span>).<span class="ruby-identifier">tap</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">cndblk</span><span class="ruby-operator">|</span> <span class="ruby-ivar">@conditional_blocks</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">cndblk</span> }
+        <span class="ruby-constant">ConditionalBlock</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword">self</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">test</span>).<span class="ruby-identifier">tap</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">cndblk</span><span class="ruby-operator">|</span> <span class="ruby-ivar">@conditional_blocks</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">cndblk</span> }
 <span class="ruby-keyword">end</span></pre>
           </div>
           
