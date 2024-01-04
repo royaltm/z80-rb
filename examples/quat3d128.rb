@@ -448,6 +448,43 @@ class Quat3D
                         jr   NC, quit
                         key_pressed?
                         jr   NZ, release_key2
+      ns do |eoc|
+                        ld   a, [vars.last_k]
+                        sub  0x30
+                        jr   Z, sel_blk
+                        cp   9
+                        jr   Z, sel_nink
+                        cp   8
+                        jr   Z, sel_ink0
+                        jr   NC, eoc
+                        3.times { rlca }
+                        ld   c, a
+                        cp   0b00100000
+                        sbc  a, a
+                        anda 7
+                        ora  c
+                        jr   paint_st
+        sel_blk         ld   a, [last_color]
+                        3.times { rrca }
+                        anda 7
+                        jr   paint
+        sel_nink        ld   a, [last_color]
+                        ld   c, a
+                        inc  a
+                        xor  c
+                        anda 7
+                        xor  c
+                        jr   paint_st
+        sel_ink0        ld   a, [last_color]
+                        anda ~7
+        paint_st        ld   [last_color], a
+        paint           push af
+                        call clear_screen
+                        mmu128_swap_screens(swap_bank:true, disable_intr:false, enable_intr:false)
+                        pop  af
+                        call clear_screen
+                        jp   draw_loop
+      end
       ns do
                         # find current object
                         ld   hl, [object_p]
@@ -477,6 +514,8 @@ class Quat3D
                         call set_border_cr
   end
 
+  last_color            db   BG_ATTR
+
   ###############
   # Subroutines #
   ###############
@@ -503,7 +542,7 @@ class Quat3D
   # < a: border color in paper bits
   set_border_cr       anda 0b00111000
                       3.times { rrca }
-                      out  (254), a
+                      out  (io.ula), a
                       ret
 
   ## Line drawing routines.
