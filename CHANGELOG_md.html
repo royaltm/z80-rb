@@ -61,6 +61,7 @@
 
   <ul class="link-list" role="directory">
     <li><a href="#label-v1.1.1.pre-2">v1.1.1.pre-2</a>
+    <li><a href="#label-Z80-3A">Z80:</a>
     <li><a href="#label-ZXLib-3A">ZXLib:</a>
     <li><a href="#label-v1.1.0">v1.1.0</a>
     <li><a href="#label-Z80-3A">Z80:</a>
@@ -94,6 +95,17 @@
 
 <h1 id="label-v1.1.1.pre-2">v1.1.1.pre-2<span><a href="#label-v1.1.1.pre-2">&para;</a> <a href="#top">&uarr;</a></span></h1>
 
+<h2 id="label-Z80-3A">Z80:<span><a href="#label-Z80-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<ul><li>
+<p>New macro <a href="Z80/MathInt/Macros.html#method-i-mul8_signed"><code>Z80::MathInt::Macros#mul8_signed</code></a>.</p>
+</li><li>
+<p>Saved 1 cycle on macro <a href="Z80/MathInt/Macros.html#method-i-mul"><code>Z80::MathInt::Macros#mul</code></a>.</p>
+</li><li>
+<p>New macro <a href="Z80/MathInt/Macros.html#method-i-sign_extend"><code>Z80::MathInt::Macros#sign_extend</code></a>.</p>
+</li><li>
+<p>New options :k_int24 and :optimize for <a href="Z80/MathInt/Macros.html#method-i-mul8_24"><code>Z80::MathInt::Macros#mul8_24</code></a>, saved 2 cycles.</p>
+</li></ul>
+
 <h2 id="label-ZXLib-3A">ZXLib:<span><a href="#label-ZXLib-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
 <ul><li>
 <p>New macro <a href="ZXLib/Gfx/Macros.html#method-i-ytoattr"><code>ZXLib::Gfx::Macros#ytoattr</code></a>.</p>
@@ -101,10 +113,6 @@
 <p>Internal labels <code>preshift_p</code>, <code>pmask_in_e</code>, <code>px_bsh_in_ae</code> added to <a href="ZXLib/Gfx/Draw/Macros.html"><code>ZXLib::Gfx::Draw::Macros</code></a> for convenience and alternative entry points.</p>
 </li><li>
 <p>New routines in <a href="ZXLib/Gfx/Draw/Macros.html"><code>ZXLib::Gfx::Draw::Macros</code></a> for updating draw line functions in place.</p>
-</li><li>
-<p>New macro <a href="Z80/MathInt/Macros.html#method-i-mul8_signed"><code>Z80::MathInt::Macros#mul8_signed</code></a>.</p>
-</li><li>
-<p>Saved 1 cycle on macro <a href="Z80/MathInt/Macros.html#method-i-mul"><code>Z80::MathInt::Macros#mul</code></a>.</p>
 </li></ul>
 
 <h1 id="label-v1.1.0">v1.1.0<span><a href="#label-v1.1.0">&para;</a> <a href="#top">&uarr;</a></span></h1>
