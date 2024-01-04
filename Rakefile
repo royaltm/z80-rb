@@ -83,6 +83,7 @@ task :utils do
 end
 
 TESTS = %w[
+  test.math_i.mul8_24.rb
   test.math_i.mul_const.rb
   test.math_i.mul_const8_24.rb
   test.zxlib.basic.se.rb
