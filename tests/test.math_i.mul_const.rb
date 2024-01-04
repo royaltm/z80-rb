@@ -186,7 +186,7 @@ include ZXLib
     9998 STOP: RUN
     9999 CLEAR #{mtest.org-1}: LOAD ""CODE: RUN
     END
-    puts mtest.name
+    puts "#{mtest.name} size: #{mtest.code.bytesize}"
     %w[
         test_pos
         test_sig
@@ -197,7 +197,7 @@ include ZXLib
         madd_table
         maddsig_table
     ].each do |label|
-        puts "#{label.ljust(20)}: 0x#{mtest[label].to_s 16} - #{mtest[label]}, size: #{mtest.code.bytesize}"
+        puts "#{label.ljust(20)}: 0x#{mtest[label].to_s 16} - #{mtest[label]}, size: #{mtest['+'+label]}"
     end
 
     program.save_tap "#{mtest.name}.tap", line:9999

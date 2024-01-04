@@ -9,34 +9,38 @@ class MTestFactory
         include ::ZXLib::Sys::Macros
         include ::ZXLib::Math::Macros
         include ::Z80::MathInt::Macros
-        def make_tests(tt=de, signed:false)
+        def make_tests(tt=de, optimize=:time, signed:false)
             label_import  ZXLib::Sys
 
             th, tl = tt.split
-            sgn = tl
             kk = if tt == de then bc else de end
             kh, kl = kk.split
+            sgn = kh
 
             ns :test_mul do
                         call find_args
                 error_q report_error_unless Z, "Q Parameter error"
                 if signed
-                        read_integer_value kh, kl, sgn
+                        read_integer_value th, tl, sgn
                         jr   NZ, error_a.err
-                        sign_extend(a, kh)
+                        sign_extend(a, th)
                         xor  sgn
                         jr   NZ, error_b.err
+                        ld   a, sgn
                 else
-                        read_positive_int_value kh, kl
+                        read_positive_int_value th, tl
                         jr   NZ, error_a.err
                 end
+                        ex   af, af # a': sgn or 0
                         inc  hl
                         call find_args.seek_next
                         jr   NZ, error_q.err
-                        read_positive_int_value th, tl
+                        read_positive_int_value kh, kl
                 error_a report_error_unless Z, "A Invalid argument"
-                        cp16n th, tl, 257
+                        cp16n kh, kl, 256
                 error_b report_error_unless C, "B Integer out of range"
+                        ex   af, af # a: sgn or 0
+                        ld   sgn, a
                         inc  hl
                         call find_args.seek_next
                         jr   NZ, skip_3
@@ -61,28 +65,31 @@ class MTestFactory
                         ld   a, e
                         pop  kk
                         pop  tt
-                        ld   ix, madd_table
+                        call multadd
+                        anda a
                         jr   skmul
 
-                skip_3  ld   ix, mul_table
-                skmul   call multiply
-                        ld   d, a
+                skip_3  call multiply
+                unless signed
+                        jr   C, error_6.err
+                        jr   NZ, nozerch
+                        anda a
+                        jr   Z, skmul
+                error_6 report_error "6 Number too big" # error raised when ZF flag check failed
+                nozerch anda a
+                        jr   Z, error_6.err
+                end
+                skmul   ld   d, a
                         ld   c, h
                         ld   b, l
                         ld   e, 0
                 if signed
-                        jp   P, skipzch
+                sknegs  jp   P, skipzch
                         neg_int d, c, b, t:e, t_is_zero:true
                         ora  0x80 # SF = 1
                 skipzch integer32_to_fp e, d, c, b, sgn:M
                 else
-                        jr   NZ, nozerch
-                        anda a
-                        jr   Z, skipzch
-                error_6 report_error "6 Number too big" # error raised when ZF flag check failed
-                nozerch anda a
-                        jr   Z, error_6.err
-                skipzch integer32_to_fp e, d, c, b, sgn:nil
+                        integer32_to_fp e, d, c, b, sgn:nil
                 end
             end
 
@@ -90,37 +97,13 @@ class MTestFactory
 
             find_args   find_def_fn_args 1, subroutine:true
 
-            ns :multiply do # hl + kk * tt
-                        sla  tl
-                        rl   th
-                        add  ix, tt
-                        ld   tl, [ix + 0]
-                        ld   th, [ix + 1]
-                        ld   ixl, tl
-                        ld   ixh, th
-                        anda a
-                        jp   (ix)
-            end
+            # a|hl = kk * tt
+            multiply    mul8_24(th, tl, kl, t:sgn, tt:tt, clrahl: true, k_int24:signed, optimize:optimize)
+                        ret
 
-            mul_table   label
-            (0..256).each do |i|
-                        dw  define_label :"mul_#{i}"
-            end
-
-            madd_table   label
-            (0..256).each do |i|
-                        dw  define_label :"madd_#{i}"
-            end
-
-            (0..256).each do |i|
-                define_label :"mul_#{i}", mul_const8_24(kh, kl, i, t:kl, tt:tt, clrahl:true, signed_k:signed)
-                ret
-            end
-
-            (0..256).each do |i|
-                define_label :"madd_#{i}", mul_const8_24(kh, kl, i, t:kl, tt:tt, clrahl:false, signed_k:signed)
-                ret
-            end
+            # a|hl += kk * tt
+            multadd     mul8_24(th, tl, kl, t:sgn, tt:tt, clrahl:false, k_int24:signed, optimize:optimize)
+                        ret
         end
     end
 end
@@ -130,10 +113,10 @@ class MTest1
     include Z80::TAP
 
     SIGNED = false
-    NAME = "test.math_i.mul_const8_24.unsigned.de"
+    NAME = "test.math_i.mul8_24.unsigned_16.time"
 
     macro_import MTestFactory
-    make_tests de, signed:SIGNED
+    make_tests de, :time, signed:SIGNED
 end
 
 class MTest2
@@ -141,10 +124,10 @@ class MTest2
     include Z80::TAP
 
     SIGNED = false
-    NAME = "test.math_i.mul_const8_24.unsigned.bc"
+    NAME = "test.math_i.mul8_24.unsigned_16.size"
 
     macro_import MTestFactory
-    make_tests bc, signed:SIGNED
+    make_tests de, :size, signed:SIGNED
 end
 
 class MTest3
@@ -152,10 +135,10 @@ class MTest3
     include Z80::TAP
 
     SIGNED = true
-    NAME = "test.math_i.mul_const8_24.signed.de"
+    NAME = "test.math_i.mul8_24.signed_24.time"
 
     macro_import MTestFactory
-    make_tests de, signed:SIGNED
+    make_tests de, :time, signed:SIGNED
 end
 
 class MTest4
@@ -163,10 +146,10 @@ class MTest4
     include Z80::TAP
 
     SIGNED = true
-    NAME = "test.math_i.mul_const8_24.signed.bc"
+    NAME = "test.math_i.mul8_24.signed_24.size"
 
     macro_import MTestFactory
-    make_tests bc, signed:SIGNED
+    make_tests de, :size, signed:SIGNED
 end
 
 include ZXLib
@@ -177,7 +160,7 @@ include ZXLib
     source = <<-END
        1 DEF FN m(a,b)=USR #{mtest[:test_mul]}: DEF FN a(a,b,c)=USR #{mtest[:test_mul]}
       10 RANDOMIZE
-      20 FOR b=0 TO 256
+      20 FOR b=0 TO 255
     END
     if mtest_klass::SIGNED
         source << <<-END
@@ -214,8 +197,7 @@ include ZXLib
         test_mul
         find_args
         multiply
-        mul_table
-        madd_table
+        multadd
     ].each do |label|
         puts "#{label.ljust(20)}: 0x#{mtest[label].to_s 16} - #{mtest[label]}, size: #{mtest['+'+label]}"
     end

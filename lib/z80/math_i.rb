@@ -342,6 +342,23 @@ module Z80
                 end
             end
             ##
+            # Creates a routine that extends a sign bit from an octet indicated by +tl+ into a +th+.
+            #
+            # +th+:: A target octet as an 8-bit register or a pointer.
+            # +tl+:: An octet being sign-extended as an 8-bit register or a pointer.
+            #
+            # Uses: +af+, +th+, +tl+.
+            #
+            # T-states: 8|12|16.
+            def sign_extend(th=a, tl=a)
+                isolate do
+                            ld   a, tl unless tl == a
+                            add  a, a
+                            sbc  a, a
+                            ld   th, a unless th == a
+                end
+            end
+            ##
             # Creates a routine that adds an 8-bit accumulator value to a 16-bit +th+|+tl+ register pair.
             #
             # +th+:: A target MSB 8-bit register.
@@ -770,8 +787,9 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that performs a multiplication of an unsigned 16-bit integer +kh+|+kl+ * 8-bit unsigned +m+.
-            # Returns the result as a 24-bit unsigned integer in +a+|+hl+.
+            # Creates a routine that performs a multiplication of a 16-bit unsigned integer +kh+|+kl+ or
+            # 24-bit integer +t+|+kh+|+kl+ * 8-bit unsigned +m+.
+            # Returns the result as a 24-bit integer in +a+|+hl+.
             #
             # Optionally accumulates the result in +a+|+hl+.
             #
@@ -783,36 +801,59 @@ module Z80
             # * +t+::      An 8-bit temporary register, it must not be the +accumulator+ or +m+ or be a part of +tt+.
             # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
             # * +clrahl+:: If +a+|+hl+ should be set or accumulated, if +false+ acts like: +a+|+hl+ += +kh+|+kl+ * +m+.
+            # * +k_int24+:: Whether a multiplicant is a 24-bit (possibly signed) integer with its MSB bits in +t+.
+            # * +optimize+:: What is more important: +:time+ or +:size+?
+            #
+            # If +k_int24+ is +false+ and +clrahl+ is +true+ the resulting flags: ZF=1 signals the result 
+            # fits in 16 bits, SF contains the sign of the result and CF=1 indicates overflow.
             #
             # Uses: +af+, +bc+, +de+, +hl+.
-            def mul8_24(kh=h, kl=l, m=b, t:c, tt:de, clrahl:true)
+            def mul8_24(kh=h, kl=l, m=b, t:c, tt:de, clrahl:true, k_int24: false, optimize: :time)
                 th, tl = tt.split
                 raise ArgumentError if tt == hl or [a,th,tl,t].include?(m) or [a,th,tl,m].include?(t) or
-                                                             tl == kh or th == kl or !register?(m) or !register?(t)
+                                       tl == kh or th == kl or !register?(m) or !register?(t)
                 isolate do |eoc|
                                 ld  tl, kl unless kl == tl
                                 ld  th, kh unless kh == th
                     if clrahl
-                                ld  hl, 0
                                 xor a
-                                ld  t, a
-                    else
+                                ld  h, a
+                                ld  l, a
+                                ld  t, a unless k_int24
+                    elsif !k_int24
                                 ld  t, 0
                     end
+                    if optimize == :size        # 20 bytes (+~10 cycles per m bit)
+                        loop1   srl m           # 0 -> multiplicator -> carry
+                                jr  Z, last
+                                jr  NC, noadd   # carry == 0 ? don't add
+                                add hl, tt      # add multiplicant to result lo16
+                                adc a, t        # add multiplicant to result hi8
+                        noadd   sla tl          # multiplicant *= 2
+                                rl  th
+                                rl  t
+                                jr  loop1       # m != 0 ? loop
+                        last    jr  NC, eoc
+                                add hl, tt      # last add
+                                adc a, t
+                    elsif optimize == :time     # 27 bytes
                                 srl m           # 0 -> multiplicator -> carry
                                 jp  NZ, loop1   # m != 0 ? start regular loop
                                 jr  C, skadd    # m == 1 ? add and quit
                                 jp  eoc         # m == 0 ? just quit
-                    loop1       jr  NC, noadd   # carry == 0 ? don't add
+                        loop1   jr  NC, noadd   # carry == 0 ? don't add
                                 add hl, tt      # add multiplicant to result lo16
                                 adc a, t        # add multiplicant to result hi8
-                    noadd       sla tl          # multiplicant *= 2
+                        noadd   sla tl          # multiplicant *= 2
                                 rl  th
                                 rl  t
                                 srl m           # 0 -> multiplicator -> carry
                                 jp  NZ, loop1   # m != 0 ? loop
-                    skadd       add hl, tt      # last add b.c. carry == 1
+                        skadd   add hl, tt      # last add b.c. carry == 1
                                 adc a, t
+                    else
+                        raise ArgumentError, "optimize should be :time or :size"
+                    end
                 end
             end
             ##
