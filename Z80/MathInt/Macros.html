@@ -112,6 +112,8 @@
     
     <li ><a href="#method-i-mul_signed">#mul_signed</a>
     
+    <li ><a href="#method-i-mul_signed9">#mul_signed9</a>
+    
     <li ><a href="#method-i-neg16">#neg16</a>
     
     <li ><a href="#method-i-neg_int">#neg_int</a>
@@ -355,7 +357,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="bcdtoa-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1898</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2040</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bcdtoa</span>(<span class="ruby-identifier">buffer</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">size</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">skip_leading0:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">preserve_in:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">buffer</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">buffer</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>) <span class="ruby-keyword">and</span>
                                (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">size</span>) <span class="ruby-keyword">or</span> (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">size</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">size</span>.<span class="ruby-identifier">bit8?</span>)) <span class="ruby-keyword">and</span>
@@ -692,7 +694,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="divmod-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1265</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1407</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod</span>(<span class="ruby-identifier">k</span>, <span class="ruby-identifier">m</span>, <span class="ruby-value">clrrem:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-keyword">unless</span> <span class="ruby-identifier">clrrem</span>
         <span class="ruby-identifier">check0</span> = <span class="ruby-keyword">false</span>
@@ -803,7 +805,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="divmod16-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1392</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1534</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod16</span>(<span class="ruby-identifier">x</span>=<span class="ruby-identifier">ixl</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">quick8:</span><span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">x</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -935,7 +937,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="divmod24_8-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1484</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1626</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod24_8</span>(<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">km</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">m</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">km</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">m</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">4</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -1001,7 +1003,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="divmod32_16-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1582</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1724</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod32_16</span>(<span class="ruby-value">x:</span><span class="ruby-identifier">ixl</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">quick8:</span><span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">x</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -1163,7 +1165,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="divmod32_8-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1513</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1655</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod32_8</span>(<span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">mt:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">c</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -1271,7 +1273,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="divmod8-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1338</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1480</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod8</span>(<span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">c</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -1382,7 +1384,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
         
         <div class="method-heading">
           <span class="method-name">mul</span><span
-            class="method-args">(k=d, m=a, tt:de, clrhl:true, signed_k:false)</span>
+            class="method-args">(k=d, m=a, tt:de, clrhl:true, signed_k:false, kbit9_carry:false, tl_is_zero:false, optimize: :time)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -1391,17 +1393,17 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
         <div class="method-description">
           
-          <p>Creates a routine that performs a multiplication of an 8-bit integer <code>k</code> * 8-bit unsigned <code>m</code>. Returns the result as a 16-bit integer in <code>hl</code>.</p>
+          <p>Creates a routine that performs a multiplication of an 8(9)-bit integer <code>k</code> * 8-bit unsigned <code>m</code>. Returns the result as a 16-bit integer in <code>hl</code>.</p>
 
 <p>Optionally the result in the <code>hl</code> is being accumulated.</p>
 
 <p>As a side-effect accumulator is always cleared to 0 and <code>m</code> and <code>k</code> are left unmodified if they are not an: <code>accumulator</code> nor part of <code>tt</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>k</code>
 <dd>
-<p>A multiplicant as an immediate value or an 8-bit register.</p>
+<p>A multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>m</code>
 <dd>
-<p>A multiplicator as an immediate value or an 8-bit register.</p>
+<p>A multiplier as an immediate value or an 8-bit register.</p>
 </dd></dl>
 
 <p>Options:</p>
@@ -1415,7 +1417,19 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>signed_k</code>
 <dd>
-<p>If the multiplicant (<code>k</code>) represents a twos complement signed integer (-128..127).</p>
+<p>If the multiplicand (<code>k</code>) represents a twos complement signed integer.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>kbit9_carry</code>
+<dd>
+<p>If the multiplicand (<code>k</code>) is 9-bit, where MSB (9th) bit is read from CARRY flag.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tl_is_zero</code>
+<dd>
+<p>Whether <code>tl</code> (LSB of <code>tt</code>) register has been already cleared.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>optimize</code>
+<dd>
+<p>What is more important: <code>:time</code> or <code>:size</code>? Applies only if <code>kbit9_carry</code> is <code>true</code>.</p>
 </dd></dl>
 </li></ul>
 
@@ -1425,26 +1439,39 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="mul-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 491</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>)
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 622</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">kbit9_carry:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">tl_is_zero:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">th</span>
-    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">k</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">k</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">th</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">m</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">clrhl</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-value">0</span>
-                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">l</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">l</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">tl_is_zero</span>
         <span class="ruby-keyword">else</span>
-                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-value">0</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-value">0</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">tl_is_zero</span>
         <span class="ruby-keyword">end</span>
-
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">kbit9_carry</span>
+                <span class="ruby-identifier">rr</span>   <span class="ruby-identifier">th</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:size</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">cont9</span>
+            <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:time</span>
+                <span class="ruby-identifier">rr</span>   <span class="ruby-identifier">tl</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">noadd9</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+        <span class="ruby-identifier">noadd9</span>  <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">eoc</span>
+            <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;optimize should be :time or :size&quot;</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">signed_k</span>
             <span class="ruby-identifier">loop1</span>   <span class="ruby-identifier">sra</span>  <span class="ruby-identifier">th</span>
         <span class="ruby-keyword">else</span>
             <span class="ruby-identifier">loop1</span>   <span class="ruby-identifier">srl</span>  <span class="ruby-identifier">th</span>
         <span class="ruby-keyword">end</span>
-                <span class="ruby-identifier">rr</span>   <span class="ruby-identifier">tl</span>
+        <span class="ruby-identifier">cont9</span>   <span class="ruby-identifier">rr</span>   <span class="ruby-identifier">tl</span>
                 <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>
                 <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">noadd</span>
                 <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
@@ -1477,7 +1504,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
           <p>Creates a routine that performs a multiplication of a 16-bit integer (<code>hl</code>) by an unsigned 16-bit integer <code>mm</code> (<code>bc</code> or <code>de</code>). Returns the 32-bit integer result in <code>hl</code>|<code>hl&#39;</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>mm</code>
 <dd>
-<p>A 16bit multiplicator register (<code>bc</code> or <code>de</code>).</p>
+<p>A 16bit multiplier register (<code>bc</code> or <code>de</code>).</p>
 </dd></dl>
 
 <p>Options:</p>
@@ -1491,7 +1518,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>signed_hl</code>
 <dd>
-<p>If the multiplicant (<code>hl</code>) represents a twos complement signed integer (-32768..32767).</p>
+<p>If the multiplicand (<code>hl</code>) represents a twos complement signed integer (-32768..32767).</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>optimize</code>
 <dd>
@@ -1516,7 +1543,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="mul16_32-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1081</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1223</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul16_32</span>(<span class="ruby-identifier">mm</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">clrhlhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_hl:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">mm</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>)
     <span class="ruby-identifier">mh</span>, <span class="ruby-identifier">ml</span> = <span class="ruby-identifier">mm</span>.<span class="ruby-identifier">split</span>
@@ -1702,13 +1729,13 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 <p>As a side-effect <code>m</code> is always cleared to 0 and <code>kl</code> and <code>kh</code> are left unmodified if they are not part of <code>tt</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>kh</code>
 <dd>
-<p>The MSB part of the multiplicant as an immediate value or an 8-bit register.</p>
+<p>The MSB part of the multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>kl</code>
 <dd>
-<p>The LSB part of the multiplicant as an immediate value or an 8-bit register.</p>
+<p>The LSB part of the multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>m</code>
 <dd>
-<p>An 8-bit multiplicator register, must not be a part of the <code>tt</code>.</p>
+<p>An 8-bit multiplier register, must not be a part of the <code>tt</code>.</p>
 </dd></dl>
 
 <p>Options:</p>
@@ -1736,7 +1763,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="mul8-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 762</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 904</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">double:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">th</span>,<span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">tl</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">kh</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">kl</span> <span class="ruby-keyword">or</span> <span class="ruby-operator">!</span><span class="ruby-identifier">register?</span>(<span class="ruby-identifier">m</span>)
@@ -1791,13 +1818,13 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 <p>Optionally accumulates the result in <code>a</code>|<code>hl</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>kh</code>
 <dd>
-<p>The MSB part of the multiplicant as an immediate value or an 8-bit register.</p>
+<p>The MSB part of the multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>kl</code>
 <dd>
-<p>The LSB part of the multiplicant as an immediate value or an 8-bit register.</p>
+<p>The LSB part of the multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>m</code>
 <dd>
-<p>A multiplicator register, it must not be the <code>accumulator</code> or <code>t</code> or be a part of <code>tt</code>.</p>
+<p>A multiplier register, it must not be the <code>accumulator</code> or <code>t</code> or be a part of <code>tt</code>.</p>
 </dd></dl>
 
 <p>Options:</p>
@@ -1815,7 +1842,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>k_int24</code>
 <dd>
-<p>Whether a multiplicant is a 24-bit (possibly signed) integer with its MSB bits in <code>t</code>.</p>
+<p>Whether a multiplicand is a 24-bit (possibly signed) integer with its MSB bits in <code>t</code>.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>optimize</code>
 <dd>
@@ -1831,7 +1858,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="mul8_24-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 810</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 952</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_24</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrahl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_int24:</span> <span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">a</span>,<span class="ruby-identifier">th</span>,<span class="ruby-identifier">tl</span>,<span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">a</span>,<span class="ruby-identifier">th</span>,<span class="ruby-identifier">tl</span>,<span class="ruby-identifier">m</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">t</span>) <span class="ruby-keyword">or</span>
@@ -1848,12 +1875,12 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
                     <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">t</span>, <span class="ruby-value">0</span>
         <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:size</span>        <span class="ruby-comment"># 20 bytes (+~10 cycles per m bit)</span>
-            <span class="ruby-identifier">loop1</span>   <span class="ruby-identifier">srl</span> <span class="ruby-identifier">m</span>           <span class="ruby-comment"># 0 -&gt; multiplicator -&gt; carry</span>
+            <span class="ruby-identifier">loop1</span>   <span class="ruby-identifier">srl</span> <span class="ruby-identifier">m</span>           <span class="ruby-comment"># 0 -&gt; multiplier -&gt; carry</span>
                     <span class="ruby-identifier">jr</span>  <span class="ruby-constant">Z</span>, <span class="ruby-identifier">last</span>
                     <span class="ruby-identifier">jr</span>  <span class="ruby-constant">NC</span>, <span class="ruby-identifier">noadd</span>   <span class="ruby-comment"># carry == 0 ? don&#39;t add</span>
-                    <span class="ruby-identifier">add</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>      <span class="ruby-comment"># add multiplicant to result lo16</span>
-                    <span class="ruby-identifier">adc</span> <span class="ruby-identifier">a</span>, <span class="ruby-identifier">t</span>        <span class="ruby-comment"># add multiplicant to result hi8</span>
-            <span class="ruby-identifier">noadd</span>   <span class="ruby-identifier">sla</span> <span class="ruby-identifier">tl</span>          <span class="ruby-comment"># multiplicant *= 2</span>
+                    <span class="ruby-identifier">add</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>      <span class="ruby-comment"># add multiplicand to result lo16</span>
+                    <span class="ruby-identifier">adc</span> <span class="ruby-identifier">a</span>, <span class="ruby-identifier">t</span>        <span class="ruby-comment"># add multiplicand to result hi8</span>
+            <span class="ruby-identifier">noadd</span>   <span class="ruby-identifier">sla</span> <span class="ruby-identifier">tl</span>          <span class="ruby-comment"># multiplicand *= 2</span>
                     <span class="ruby-identifier">rl</span>  <span class="ruby-identifier">th</span>
                     <span class="ruby-identifier">rl</span>  <span class="ruby-identifier">t</span>
                     <span class="ruby-identifier">jr</span>  <span class="ruby-identifier">loop1</span>       <span class="ruby-comment"># m != 0 ? loop</span>
@@ -1861,17 +1888,17 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
                     <span class="ruby-identifier">add</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>      <span class="ruby-comment"># last add</span>
                     <span class="ruby-identifier">adc</span> <span class="ruby-identifier">a</span>, <span class="ruby-identifier">t</span>
         <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:time</span>     <span class="ruby-comment"># 27 bytes</span>
-                    <span class="ruby-identifier">srl</span> <span class="ruby-identifier">m</span>           <span class="ruby-comment"># 0 -&gt; multiplicator -&gt; carry</span>
+                    <span class="ruby-identifier">srl</span> <span class="ruby-identifier">m</span>           <span class="ruby-comment"># 0 -&gt; multiplier -&gt; carry</span>
                     <span class="ruby-identifier">jp</span>  <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">loop1</span>   <span class="ruby-comment"># m != 0 ? start regular loop</span>
                     <span class="ruby-identifier">jr</span>  <span class="ruby-constant">C</span>, <span class="ruby-identifier">skadd</span>    <span class="ruby-comment"># m == 1 ? add and quit</span>
                     <span class="ruby-identifier">jp</span>  <span class="ruby-identifier">eoc</span>         <span class="ruby-comment"># m == 0 ? just quit</span>
             <span class="ruby-identifier">loop1</span>   <span class="ruby-identifier">jr</span>  <span class="ruby-constant">NC</span>, <span class="ruby-identifier">noadd</span>   <span class="ruby-comment"># carry == 0 ? don&#39;t add</span>
-                    <span class="ruby-identifier">add</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>      <span class="ruby-comment"># add multiplicant to result lo16</span>
-                    <span class="ruby-identifier">adc</span> <span class="ruby-identifier">a</span>, <span class="ruby-identifier">t</span>        <span class="ruby-comment"># add multiplicant to result hi8</span>
-            <span class="ruby-identifier">noadd</span>   <span class="ruby-identifier">sla</span> <span class="ruby-identifier">tl</span>          <span class="ruby-comment"># multiplicant *= 2</span>
+                    <span class="ruby-identifier">add</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>      <span class="ruby-comment"># add multiplicand to result lo16</span>
+                    <span class="ruby-identifier">adc</span> <span class="ruby-identifier">a</span>, <span class="ruby-identifier">t</span>        <span class="ruby-comment"># add multiplicand to result hi8</span>
+            <span class="ruby-identifier">noadd</span>   <span class="ruby-identifier">sla</span> <span class="ruby-identifier">tl</span>          <span class="ruby-comment"># multiplicand *= 2</span>
                     <span class="ruby-identifier">rl</span>  <span class="ruby-identifier">th</span>
                     <span class="ruby-identifier">rl</span>  <span class="ruby-identifier">t</span>
-                    <span class="ruby-identifier">srl</span> <span class="ruby-identifier">m</span>           <span class="ruby-comment"># 0 -&gt; multiplicator -&gt; carry</span>
+                    <span class="ruby-identifier">srl</span> <span class="ruby-identifier">m</span>           <span class="ruby-comment"># 0 -&gt; multiplier -&gt; carry</span>
                     <span class="ruby-identifier">jp</span>  <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">loop1</span>   <span class="ruby-comment"># m != 0 ? loop</span>
             <span class="ruby-identifier">skadd</span>   <span class="ruby-identifier">add</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>      <span class="ruby-comment"># last add b.c. carry == 1</span>
                     <span class="ruby-identifier">adc</span> <span class="ruby-identifier">a</span>, <span class="ruby-identifier">t</span>
@@ -1912,13 +1939,13 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 <p>As a side-effect <code>m</code> is cleared to 0 when CF=0 and <code>kl</code> and <code>kh</code> are left unmodified if they are not part of <code>tt</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>kh</code>
 <dd>
-<p>The MSB part of the multiplicant as an immediate value or an 8-bit register.</p>
+<p>The MSB part of the multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>kl</code>
 <dd>
-<p>The LSB part of the multiplicant as an immediate value or an 8-bit register.</p>
+<p>The LSB part of the multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>m</code>
 <dd>
-<p>An 8-bit multiplicator register, must not be a part of the <code>tt</code>.</p>
+<p>An 8-bit multiplier register, must not be a part of the <code>tt</code>.</p>
 </dd></dl>
 
 <p>Options:</p>
@@ -1938,7 +1965,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="mul8_c-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 682</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 826</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_c</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">th</span>,<span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">tl</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">kh</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">kl</span> <span class="ruby-keyword">or</span> <span class="ruby-operator">!</span><span class="ruby-identifier">register?</span>(<span class="ruby-identifier">m</span>)
@@ -1988,13 +2015,13 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 <p>As a side-effect <code>t</code> is always cleared to 0 and <code>kl</code> and <code>kh</code> are left unmodified if they are not part of <code>tt</code> and <code>m</code> is left unmodified if it&#39;s not <code>a</code> or the same as <code>t</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>kh</code>
 <dd>
-<p>The MSB part of the multiplicant as an immediate value or an 8-bit register.</p>
+<p>The MSB part of the multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>kl</code>
 <dd>
-<p>The LSB part of the multiplicant as an immediate value or an 8-bit register.</p>
+<p>The LSB part of the multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>m</code>
 <dd>
-<p>An 8-bit multiplicator register.</p>
+<p>An 8-bit multiplier register.</p>
 </dd></dl>
 
 <p>Options:</p>
@@ -2026,23 +2053,21 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="mul8_signed-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 722</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 866</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_signed</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">m</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">double:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
-    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span> <span class="ruby-keyword">or</span> <span class="ruby-operator">!</span><span class="ruby-identifier">register?</span>(<span class="ruby-identifier">t</span>) <span class="ruby-keyword">or</span> <span class="ruby-operator">!</span><span class="ruby-identifier">t</span>.<span class="ruby-identifier">bit8?</span>
-    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
-        <span class="ruby-keyword">unless</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">m</span>
-                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">m</span>
-        <span class="ruby-keyword">end</span>
-        <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
-                <span class="ruby-identifier">neg</span>
-        <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> <span class="ruby-operator">!</span><span class="ruby-identifier">register?</span>(<span class="ruby-identifier">t</span>) <span class="ruby-keyword">or</span> <span class="ruby-operator">!</span><span class="ruby-identifier">t</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">a</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">th</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">t</span>)
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">kl</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">kl</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">tl</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">kh</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">kh</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">th</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">m</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-constant">P</span>, <span class="ruby-identifier">mul_it</span>      <span class="ruby-comment"># m &gt;= 0</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">a</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">m</span>
+                <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>
                 <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
-                <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">m</span>
-        <span class="ruby-keyword">end</span>
-                <span class="ruby-identifier">jp</span>   <span class="ruby-constant">M</span>, <span class="ruby-identifier">mul_it</span>
-                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">a</span>
-                <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">kh</span>, <span class="ruby-identifier">kl</span>
-        <span class="ruby-identifier">mul_it</span>  <span class="ruby-identifier">mul8</span>(<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">t</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">tt</span>, <span class="ruby-value">clrhl:</span><span class="ruby-identifier">clrhl</span>, <span class="ruby-value">double:</span><span class="ruby-identifier">double</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
+                <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">t</span>              <span class="ruby-comment"># a: -m</span>
+        <span class="ruby-identifier">mul_it</span>  <span class="ruby-identifier">mul8</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">tt</span>, <span class="ruby-value">clrhl:</span><span class="ruby-identifier">clrhl</span>, <span class="ruby-value">double:</span><span class="ruby-identifier">double</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -2079,10 +2104,10 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 <p>For those <code>m</code> that has only one bit set or none, <code>tt</code> is not being used. For some of <code>m</code> when <code>tt</code> is <code>de</code> the code can be better optimized as we may leverage the usage of <code>ex  de, hl</code> instruction.</p>
 <dl class="rdoc-list note-list"><dt><code>k</code>
 <dd>
-<p>A multiplicant as an immediate value or an 8-bit register.</p>
+<p>A multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>m</code>
 <dd>
-<p>A multiplicator value as a constant integer.</p>
+<p>A multiplier value as a constant integer.</p>
 </dd></dl>
 
 <p>Options:</p>
@@ -2096,7 +2121,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>signed_k</code>
 <dd>
-<p>If the multiplicant (<code>k</code>) represents a twos complement signed integer (-128..127).</p>
+<p>If the multiplicand (<code>k</code>) represents a twos complement signed integer (-128..127).</p>
 </dd></dl>
 </li></ul>
 
@@ -2106,7 +2131,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="mul_const-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 539</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 683</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_const</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-value">0</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Integer</span>) <span class="ruby-keyword">and</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">256</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>)
     <span class="ruby-identifier">tt</span> = <span class="ruby-identifier">hl</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">clrhl</span> <span class="ruby-keyword">and</span> (<span class="ruby-identifier">m</span> <span class="ruby-operator">&amp;</span> (<span class="ruby-identifier">m</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>)) <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
@@ -2262,13 +2287,13 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 <p>If <code>signed_k</code> is <code>false</code> and <code>clrahl</code> is <code>true</code> the resulting flags: ZF=1 signals the result  fits in 16 bits. If <code>signed_k</code> and <code>clrhl</code> are <code>true</code> the resulting flag: SF contains the sign of the result.</p>
 <dl class="rdoc-list note-list"><dt><code>kh</code>
 <dd>
-<p>The MSB part of the multiplicant as an immediate value or an 8-bit register.</p>
+<p>The MSB part of the multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>kl</code>
 <dd>
-<p>The LSB part of the multiplicant as an immediate value or an 8-bit register.</p>
+<p>The LSB part of the multiplicand as an immediate value or an 8-bit register.</p>
 </dd><dt><code>m</code>
 <dd>
-<p>A multiplicator value as a constant integer.</p>
+<p>A multiplier value as a constant integer.</p>
 </dd></dl>
 
 <p>Options:</p>
@@ -2286,7 +2311,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>signed_k</code>
 <dd>
-<p>If the multiplicant (<code>kh</code>|<code>kl</code>) represents a twos complement signed integer (-32768..32767).</p>
+<p>If the multiplicand (<code>kh</code>|<code>kl</code>) represents a twos complement signed integer (-32768..32767).</p>
 </dd></dl>
 </li></ul>
 
@@ -2296,7 +2321,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="mul_const8_24-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 881</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1023</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_const8_24</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-value">0</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrahl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">throw</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Integer</span>) <span class="ruby-keyword">and</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">256</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span>
@@ -2513,13 +2538,182 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">m</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
                 <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
                 <span class="ruby-identifier">jp</span>   <span class="ruby-constant">P</span>, <span class="ruby-identifier">mul_it</span>      <span class="ruby-comment"># m &gt;= 0</span>
-                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">a</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
                 <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
                 <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">th</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">a</span>
                 <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
                 <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">tl</span>
+            <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">m</span>
+            <span class="ruby-keyword">end</span>
         <span class="ruby-identifier">mul_it</span>  <span class="ruby-identifier">mul</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">tt</span>, <span class="ruby-value">clrhl:</span><span class="ruby-identifier">clrhl</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">true</span>)
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-mul_signed9" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">mul_signed9</span><span
+            class="method-args">(kh=c, kl=d, m=a, s:kh, tt:de, k_full_range:true, m_full_range:true, k_overflow:nil, m_is_zero_zf:false, optimize: :time)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that performs a multiplication of a signed 9-bit <code>kh</code>|<code>kl</code> * 9-bit signed <code>m</code>.</p>
+
+<p>The sign of a twos complement multiplicand <code>kl</code> is expected in <code>kh</code> extended over all 8 bits.</p>
+
+<p>The sign of a twos complement multiplier <code>m</code> is expected in the CARRY flag bit (CF).</p>
+
+<p>Optionally the ZERO flag (ZF) must signal <code>m</code> equals to 0 if <code>m_is_zero_zf</code> option is set.</p>
+
+<p>The sign of a twos complement result is returned in a register <code>s</code>.</p>
+
+<p>The result has only 17 bits capacity, thus multiplying (-256)x(-256) leads to overflow.</p>
+
+<p>To detect overflow check for all of the following conditions on result:</p>
+
+<pre>if (CF = 1) and (s == 0) and (hl == 0) then overflow is detected</pre>
+
+<p>Alternatively provide an address or a label of a routine to enter on overflow as <code>k_overflow</code> option. In this instance the values of flags and registers will be undefined on overflow.</p>
+<dl class="rdoc-list note-list"><dt><code>kh</code>
+<dd>
+<p>An extended multiplicand sign as an immediate value or an 8-bit register. <code>kh</code> is expected to be either equal to 0 or to -1 (twos complement). Other sign values will render &lt;b&gt;UNDEFINED BEHAVIOUR&lt;b&gt;.</p>
+</dd><dt><code>kl</code>
+<dd>
+<p>A multiplicand twos complement value as an immediate value or an 8-bit register.</p>
+</dd><dt><code>m</code>
+<dd>
+<p>A multiplier as an immediate value or an 8-bit register.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>s</code>
+<dd>
+<p>An 8-bit sign output register, preferably the same as <code>kh</code>.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>A 16-bit temporary register (<code>de</code> or <code>bc</code>).</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>k_full_range</code>
+<dd>
+<p>Determines whether the multiplicand is allowed to be equal to -256. Saves 7 T-states and 18-21 bytes if disabled.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>m_full_range</code>
+<dd>
+<p>Determines whether the multiplier is allowed to be equal to -256. Saves 7 T-states and 6-9 bytes if disabled.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>k_overflow</code>
+<dd>
+<p>An address of a rountine to enter on overflow. When <code>k_overflow</code> is enabled but <code>k_full_range</code> is disabled the routine will be entered in case if <code>k</code> = (-256) and <code>m</code> is negative. When <code>k_full_range</code> and <code>k_overflow</code> are enabled then the <code>m_full_range</code> option must be also enabled.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>m_is_zero_zf</code>
+<dd>
+<p>Determines whether <code>ZF</code> flag is expected to be set on input when <code>m</code> is 0. Saves 4 T-states and 1 byte if enabled.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>optimize</code>
+<dd>
+<p>What is more important: <code>:time</code> or <code>:size</code>?</p>
+</dd></dl>
+</li></ul>
+
+<h4 id="method-i-mul_signed9-label-Note-3A">Note:<span><a href="#method-i-mul_signed9-label-Note-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
+
+<p>When <code>m_is_zero_zf</code> option is set and ZERO flag is set to 1 on input, then CARRY flag must be reset in this instance. Otherwise the routine will resolve in <strong>UNDEFINED BEHAVIOUR</strong>.</p>
+
+<p>When <code>m_full_range</code> option is disabled, then passing (-256) to <code>m</code> will resolve in <strong>UNDEFINED BEHAVIOUR</strong>.</p>
+
+<p>When <code>k_full_range</code> option is disabled, then passing (-256) to <code>k</code> and a negative value to <code>m</code> will resolve in <strong>UNDEFINED BEHAVIOUR</strong> unless <code>k_overflow</code> option is enabled. In this instance the <code>k_overflow</code> routine will be called when attempting to multiply (-256) by a negative multiplier.</p>
+
+<p>For example if your multiplicand or a multiplier is derived from a subtraction of 2 positive 8-bit values, results can never equal to -256. Thus it is safe to disable <code>full_range</code>.</p>
+
+<p>Uses: <code>af</code>, <code>hl</code>, <code>tt</code>, <code>s</code>, optionally preserves: <code>kh</code>, <code>kl</code> or <code>m</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="mul_signed9-source">
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 535</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_signed9</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">s:</span><span class="ruby-identifier">kh</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">k_full_range:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">m_full_range:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_overflow:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">m_is_zero_zf:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
+    <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul_signed9: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">th</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">kh</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">kl</span> <span class="ruby-keyword">or</span> 
+                                                             [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">s</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul_signed9: invalid options&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">k_overflow</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">k_full_range</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">m_full_range</span>
+    <span class="ruby-identifier">jump</span> = <span class="ruby-identifier">proc</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">cond</span>, <span class="ruby-identifier">target</span><span class="ruby-operator">|</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:size</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-identifier">cond</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">cond</span>.<span class="ruby-identifier">jr_ok?</span>)
+                <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">cond</span>, <span class="ruby-identifier">target</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">cond</span>, <span class="ruby-identifier">target</span>
+        <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">kl</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">kl</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">th</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">s</span>, <span class="ruby-identifier">kh</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">s</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">kh</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">m</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">m</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-value">0</span>
+
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">m_neg</span>        <span class="ruby-comment"># m &lt;  0 - C=m sign</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">m_is_zero_zf</span>
+                <span class="ruby-identifier">jump</span>.<span class="ruby-identifier">call</span> <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">mul_it</span> <span class="ruby-comment"># m != 0</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">s</span>, <span class="ruby-identifier">l</span>            <span class="ruby-comment"># clear sign</span>
+                <span class="ruby-identifier">jump</span>.<span class="ruby-identifier">call</span> <span class="ruby-keyword">nil</span>, <span class="ruby-identifier">eoc</span>   <span class="ruby-comment"># CF=0</span>
+
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">k_full_range</span>              <span class="ruby-comment"># k = -(-256)</span>
+        <span class="ruby-identifier">k_over</span>  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">s</span>, <span class="ruby-identifier">l</span>            <span class="ruby-comment"># clear sign</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">tl</span>              <span class="ruby-comment"># a = -m, CF = 1 (unless m == -256)</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">m_full_range</span>
+                <span class="ruby-comment"># m == -256</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">k_overflow</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">k_overflow</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">km_n256</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">k_overflow</span>
+            <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tt</span>, <span class="ruby-value">0x8000</span>      <span class="ruby-comment"># th: (MSB=1|0x00) &gt;&gt; 1 = 0x80</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>            <span class="ruby-comment"># m is never 0 here</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">skipadd</span>     <span class="ruby-comment"># if NC then we are SURE +a+ can&#39;t be 0 now</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">eoc</span>
+        <span class="ruby-identifier">skipadd</span> <span class="ruby-identifier">srl</span>  <span class="ruby-identifier">th</span>              <span class="ruby-comment"># make sure to insert 0 in S (bit 7) position</span>
+                <span class="ruby-identifier">jump</span>.<span class="ruby-identifier">call</span> <span class="ruby-keyword">nil</span>, <span class="ruby-identifier">mult</span>.<span class="ruby-identifier">cont9</span>
+        <span class="ruby-keyword">end</span>
+
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">m_full_range</span>
+        <span class="ruby-identifier">km_n256</span> <span class="ruby-identifier">scf</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">k_overflow</span> <span class="ruby-keyword">or</span> <span class="ruby-operator">!</span><span class="ruby-identifier">k_full_range</span>
+        <span class="ruby-identifier">m_n256</span>  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">th</span>      <span class="ruby-comment"># hl: k * -256</span>
+                <span class="ruby-identifier">jump</span>.<span class="ruby-identifier">call</span> <span class="ruby-keyword">nil</span>, <span class="ruby-identifier">eoc</span>   <span class="ruby-comment"># CF=0|1 depending on overflow</span>
+        <span class="ruby-keyword">end</span>
+
+        <span class="ruby-identifier">m_neg</span>   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">s</span>, <span class="ruby-identifier">th</span>, <span class="ruby-value">th:</span><span class="ruby-identifier">a</span> <span class="ruby-comment"># a: 0|FF depending on th == 0</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">k_full_range</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">k_over</span>    <span class="ruby-comment"># 0-0:CF=0, 0-FF:CF=1, FF-0:CF=0, FF-FF:CF=0</span>
+        <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">k_overflow</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">k_overflow</span>
+        <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">s</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># s|k = -(s|k)</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">tl</span>         <span class="ruby-comment"># a = -m</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">m_full_range</span>
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">m_n256</span>  <span class="ruby-comment"># m == -256</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">mul_it</span>  <span class="ruby-identifier">rrc</span>  <span class="ruby-identifier">s</span>          <span class="ruby-comment"># k sign -&gt; CF</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">l</span>
+        <span class="ruby-identifier">mult</span>    <span class="ruby-identifier">mul</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">tt</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">kbit9_carry:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">tl_is_zero:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -2701,7 +2895,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="rnd-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1700</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1842</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rnd</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                         <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span>          <span class="ruby-comment"># seed + 1</span>
@@ -2903,7 +3097,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>t</code>
 <dd>
-<p>An 8-bit temporary register, which is used when <code>sgn</code> is accumulator.</p>
+<p>An 8-bit temporary register, which is used when <code>sgn</code> is the accumulator.</p>
 </dd></dl>
 </li></ul>
 
@@ -3008,7 +3202,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="utobcd-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1804</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1946</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">utobcd</span>(<span class="ruby-identifier">bufend</span>, <span class="ruby-identifier">input</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">size:</span> <span class="ruby-value">4</span>, <span class="ruby-value">r:</span> <span class="ruby-identifier">d</span>, <span class="ruby-value">rr:</span> <span class="ruby-identifier">de</span>, <span class="ruby-value">byteorder:</span> <span class="ruby-value">:lsb</span>, <span class="ruby-value">input_end:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">bufend</span>) <span class="ruby-keyword">and</span>
                                (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">input</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">input</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">rr</span>) <span class="ruby-keyword">and</span>
@@ -3114,7 +3308,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="utobcd_step-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1756</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1898</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">utobcd_step</span>(<span class="ruby-identifier">bufend</span>, <span class="ruby-identifier">r</span>, <span class="ruby-identifier">buflen</span>=<span class="ruby-value">1</span>, <span class="ruby-identifier">t</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">r_in_a</span>=<span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">bufend</span>) <span class="ruby-keyword">and</span>
                                [<span class="ruby-identifier">c</span>,<span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">r</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">c</span>,<span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">t</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">r</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">t</span> <span class="ruby-keyword">and</span>

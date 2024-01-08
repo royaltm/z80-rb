@@ -415,12 +415,12 @@
   <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>
 
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">multiplicand</span>]
-                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>,  [<span class="ruby-identifier">multiplicator</span>]
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>,  [<span class="ruby-identifier">multiplier</span>]
                 <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">math</span>.<span class="ruby-identifier">mul</span>
 
                 <span class="ruby-identifier">org</span> <span class="ruby-value">0x0020</span>
   <span class="ruby-identifier">multiplicand</span>  <span class="ruby-identifier">words</span> <span class="ruby-value">1</span>
-  <span class="ruby-identifier">multiplicator</span> <span class="ruby-identifier">bytes</span> <span class="ruby-value">1</span>
+  <span class="ruby-identifier">multiplier</span>    <span class="ruby-identifier">bytes</span> <span class="ruby-value">1</span>
 
   <span class="ruby-identifier">import</span> <span class="ruby-constant">MyZXMath</span>, <span class="ruby-value">:math</span>
 
@@ -434,13 +434,13 @@
 <p>check the debug output:</p>
 
 <pre>8000: 2A2080      ld   hl, (8020H)     -&gt; multiplicand
-8003: 3A2280      ld   a, (8022H)      -&gt; multiplicator
+8003: 3A2280      ld   a, (8022H)      -&gt; multiplier
 8006: C32380      jp   8023H           -&gt; math.mul
 8009: 00 00 00 00 00 00 00 00 ........
 8011: 00 00 00 00 00 00 00 00 ........
 8019: 00 00 00 00 00 00 00    .......
 8020: 00 00                   ..       :multiplicand
-8022: 00                      .        :multiplicator
+8022: 00                      .        :multiplier
 8023:                                  :math
 ============== MyZXMath ==============
 8023:             --- begin ---        :mul
