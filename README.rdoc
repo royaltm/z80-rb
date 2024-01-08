@@ -83,35 +83,32 @@ go to Ruby's +irb+ or your REP of choice and snap'&'paste this:
 
 check the debug output:
 
-  8000: 2A2080      ld   hl, (8020H)     -> multiplicand
-  8003: 3A2280      ld   a, (8022H)      -> multiplier
-  8006: C32380      jp   8023H           -> math.mul
-  8009: 00 00 00 00 00 00 00 00 ........
-  8011: 00 00 00 00 00 00 00 00 ........
-  8019: 00 00 00 00 00 00 00    .......
-  8020: 00 00                   ..       :multiplicand
-  8022: 00                      .        :multiplier
-  8023:                                  :math
+  8000: 2A0980      ld   hl, (8009H)     -> multiplicand
+  8003: 3A0B80      ld   a, (800bH)      -> multiplier
+  8006: C30C80      jp   800cH           -> math.mul
+  8009: 00 00                   ..       :multiplicand
+  800B: 00                      .        :multiplier
+  800C:                                  :math
   ============== MyZXMath ==============
-  8023:             --- begin ---        :mul
-  8023: 5D          ld   e, l
-  8024: 54          ld   d, h
-  8025: 210000      ld   hl, 0000H
-  8028: CB3F        srl  a               :mul.loop1
-  802A: 3003        jr   NC, 802fH       -> noadd
-  802C: 19          add  hl, de
-  802D: 380B        jr   C, 803aH        -> EOC
-  802F: 2807        jr   Z, 8038H        :mul.noadd -> ok
-  8031: CB23        sla  e
-  8033: CB12        rl   d
-  8035: D22880      jp   NC, 8028H       -> loop1
-  8038:                                  :mul.ok
-  8038: 4D          ld   c, l
-  8039: 44          ld   b, h
-  803A:             ---  end  ---        :mul.EOC
-  803A: D0          ret  NC
-  803B: CF          rst  08H
-  803C: 0A                      .
+  800C:             --- begin ---        :mul
+  800C: 5D          ld   e, l
+  800D: 54          ld   d, h
+  800E: 210000      ld   hl, 0000H
+  8011: CB3F        srl  a               :mul.loop1
+  8013: 3003        jr   NC, 8018H       -> noadd
+  8015: 19          add  hl, de
+  8016: 380B        jr   C, 8023H        -> EOC
+  8018: 2807        jr   Z, 8021H        :mul.noadd -> ok
+  801A: CB23        sla  e
+  801C: CB12        rl   d
+  801E: D21180      jp   NC, 8011H       -> loop1
+  8021:                                  :mul.ok
+  8021: 4D          ld   c, l
+  8022: 44          ld   b, h
+  8023:             ---  end  ---        :mul.EOC
+  8023: D0          ret  NC
+  8024: CF          rst  08H
+  8025: 0A                      .
   ^^^^^^^^^^^^^^ MyZXMath ^^^^^^^^^^^^^^
 
 wait, there's more...
@@ -119,15 +116,15 @@ wait, there's more...
   require 'zxlib/basic'
 
   prog = ZXLib::Basic.parse_source <<-END
-    10 CLEAR 32767
-    20 LOAD "multiply"CODE
-    30 INPUT "Multiplicand: ", x
-    40 INPUT "Multiplicator: ", y
-    50 POKE 32800, x-INT(x/256)*256
-    60 POKE 32801, INT(x/256)
-    70 POKE 32802, y
+    10 CLEAR #{calc.org-1}
+    20 LOAD ""CODE
+    30 INPUT "Multiplicand: ",x
+    40 INPUT "Multiplier: ",y
+    50 POKE #{calc[:multiplicand]},x-INT (x/256)*256
+    60 POKE #{calc[:multiplicand]+1},INT (x/256)
+    70 POKE #{calc[:multiplier]},y
     80 PRINT "x: ", x, "y: ", y
-    90 PRINT USR 32768
+    90 PRINT USR #{calc.org}
    100 GO TO 30
   END
 

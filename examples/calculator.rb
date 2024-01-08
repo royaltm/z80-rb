@@ -48,7 +48,6 @@ class Program
                 ld   a,  [multiplier]
                 jp   math.mul
 
-                org 0x0020
   multiplicand  words 1
   multiplier    bytes 1
 
@@ -62,15 +61,15 @@ calc = Program.new 0x8000
 
 puts calc.debug
 program = Basic.parse_source <<-END
-  10 CLEAR 32767
+  10 CLEAR #{calc.org-1}
   20 LOAD ""CODE
   30 INPUT "Multiplicand: ",x
-  40 INPUT "Multiplicator: ",y
-  50 POKE 32800,x-INT (x/256)*256
-  60 POKE 32801,INT (x/256)
-  70 POKE 32802,y
+  40 INPUT "Multiplier: ",y
+  50 POKE #{calc[:multiplicand]},x-INT (x/256)*256
+  60 POKE #{calc[:multiplicand]+1},INT (x/256)
+  70 POKE #{calc[:multiplier]},y
   80 PRINT "x: ", x, "y: ", y
-  90 PRINT USR 32768
+  90 PRINT USR #{calc.org}
  100 GO TO 30
 END
 program.start = 10
