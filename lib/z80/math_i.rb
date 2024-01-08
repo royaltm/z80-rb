@@ -244,7 +244,7 @@ module Z80
             # Options:
             # * +th+:: An 8-bit MSB output register, may be the same as +sh+ or +sl+.
             # * +tl+:: An 8-bit LSB output register, may be the same as +sl+.
-            # * +t+:: An 8-bit temporary register, which is used when +sgn+ is accumulator.
+            # * +t+:: An 8-bit temporary register, which is used when +sgn+ is the accumulator.
             #
             # When +sgn+ equals to 0 an integer is left unmodified: +th+|+tl+ = +sh+|+sl+.
             # When +sgn+ equals to -1 an integer's sign is being changed: +th+|+tl+ = 0 - +sh+|+sl+.
@@ -462,17 +462,145 @@ module Z80
                             ld   a, m unless m == a
                             anda a
                             jp   P, mul_it      # m >= 0
-                            ld   tl, a
+                            ld   tl, a if m == a
                             xor  a
                             sub  th
                             ld   th, a
                             xor  a
+                        if m == a
                             sub  tl
+                        else
+                            sub  m
+                        end
                     mul_it  mul(th, a, tt:tt, clrhl:clrhl, signed_k:true)
                 end
             end
             ##
-            # Creates a routine that performs a multiplication of an 8-bit integer +k+ * 8-bit unsigned +m+.
+            # Creates a routine that performs a multiplication of a signed 9-bit +kh+|+kl+ * 9-bit signed +m+.
+            #
+            # The sign of a twos complement multiplicand +kl+ is expected in +kh+ extended over all 8 bits.
+            #
+            # The sign of a twos complement multiplier +m+ is expected in the CARRY flag bit (CF).
+            #
+            # Optionally the ZERO flag (ZF) must signal +m+ equals to 0 if +m_is_zero_zf+ option is set.
+            #
+            # The sign of a twos complement result is returned in a register +s+.
+            #
+            # The result has only 17 bits capacity, thus multiplying (-256)x(-256) leads to overflow.
+            #
+            # To detect overflow check for all of the following conditions on result:
+            #
+            #   if (CF = 1) and (s == 0) and (hl == 0) then overflow is detected
+            #
+            # Alternatively provide an address or a label of a routine to enter on overflow as +k_overflow+ option.
+            # In this instance the values of flags and registers will be undefined on overflow.
+            #
+            # +kh+::  An extended multiplicand sign as an immediate value or an 8-bit register.
+            #         +kh+ is expected to be either equal to 0 or to -1 (twos complement).
+            #         Other sign values will render <b>UNDEFINED BEHAVIOUR<b>.
+            # +kl+::  A multiplicand twos complement value as an immediate value or an 8-bit register.
+            # +m+::   A multiplier as an immediate value or an 8-bit register.
+            #
+            # Options:
+            # * +s+::            An 8-bit sign output register, preferably the same as +kh+.
+            # * +tt+::           A 16-bit temporary register (+de+ or +bc+).
+            # * +k_full_range+:: Determines whether the multiplicand is allowed to be equal to -256.
+            #                    Saves 7 T-states and 18-21 bytes if disabled.
+            # * +m_full_range+:: Determines whether the multiplier is allowed to be equal to -256.
+            #                    Saves 7 T-states and 6-9 bytes if disabled.
+            # * +k_overflow+::   An address of a rountine to enter on overflow.
+            #                    When +k_overflow+ is enabled but +k_full_range+ is disabled the routine
+            #                    will be entered in case if +k+ = (-256) and +m+ is negative.
+            #                    When +k_full_range+ and +k_overflow+ are enabled then the +m_full_range+
+            #                    option must be also enabled.
+            # * +m_is_zero_zf+:: Determines whether +ZF+ flag is expected to be set on input when +m+ is 0.
+            #                    Saves 4 T-states and 1 byte if enabled.
+            # * +optimize+::     What is more important: +:time+ or +:size+?
+            #
+            # ====Note:
+            # When +m_is_zero_zf+ option is set and ZERO flag is set to 1 on input, then CARRY flag must be reset
+            # in this instance. Otherwise the routine will resolve in <b>UNDEFINED BEHAVIOUR</b>.
+            #
+            # When +m_full_range+ option is disabled, then passing (-256) to +m+ will resolve in
+            # <b>UNDEFINED BEHAVIOUR</b>.
+            #
+            # When +k_full_range+ option is disabled, then passing (-256) to +k+ and a negative value to +m+
+            # will resolve in <b>UNDEFINED BEHAVIOUR</b> unless +k_overflow+ option is enabled.
+            # In this instance the +k_overflow+ routine will be called when attempting to multiply (-256) by
+            # a negative multiplier.
+            #
+            # For example if your multiplicand or a multiplier is derived from a subtraction of 2 positive 8-bit
+            # values, results can never equal to -256. Thus it is safe to disable +full_range+.
+            #
+            # Uses: +af+, +hl+, +tt+, +s+, optionally preserves: +kh+, +kl+ or +m+.
+            def mul_signed9(kh=c, kl=d, m=a, s:kh, tt:de, k_full_range:true, m_full_range:true, k_overflow:nil, m_is_zero_zf:false, optimize: :time)
+                th, tl = tt.split
+                raise ArgumentError, "mul_signed9: invalid arguments" if tt == hl or m == th or kh == kl or 
+                                                                         [th, tl, h, l, a].include?(s)
+                raise ArgumentError, "mul_signed9: invalid options" if k_overflow and k_full_range and !m_full_range
+                jump = proc do |cond, target|
+                    if optimize == :size && (cond.nil? || cond.jr_ok?)
+                            jr   cond, target
+                    else
+                            jp   cond, target
+                    end
+                end
+                isolate do |eoc|
+                            ld   th, kl unless kl == th
+                            ld   s, kh unless s == kh
+                            ld   a, m unless m == a
+                            ld   hl, 0
+
+                            jr   C, m_neg        # m <  0 - C=m sign
+                            anda a unless m_is_zero_zf
+                            jump.call NZ, mul_it # m != 0
+                            ld   s, l            # clear sign
+                            jump.call nil, eoc   # CF=0
+
+                    if k_full_range              # k = -(-256)
+                    k_over  ld   s, l            # clear sign
+                            xor  a
+                            sub  tl              # a = -m, CF = 1 (unless m == -256)
+                        if m_full_range
+                            # m == -256
+                            jp   NC, k_overflow if k_overflow
+                            jr   NC, km_n256 unless k_overflow
+                        end
+                            ld   tt, 0x8000      # th: (MSB=1|0x00) >> 1 = 0x80
+                            add  a, a            # m is never 0 here
+                            jr   NC, skipadd     # if NC then we are SURE +a+ can't be 0 now
+                            add  hl, tt
+                            jr   Z, eoc
+                    skipadd srl  th              # make sure to insert 0 in S (bit 7) position
+                            jump.call nil, mult.cont9
+                    end
+
+                    if m_full_range
+                    km_n256 scf unless k_overflow or !k_full_range
+                    m_n256  ld   h, th      # hl: k * -256
+                            jump.call nil, eoc   # CF=0|1 depending on overflow
+                    end
+
+                    m_neg   ld   tl, a
+                            neg16 s, th, th:a # a: 0|FF depending on th == 0
+                    if k_full_range
+                            jr   C, k_over    # 0-0:CF=0, 0-FF:CF=1, FF-0:CF=0, FF-FF:CF=0
+                    elsif k_overflow
+                            jp   C, k_overflow
+                    end
+                            ld   s, a       # s|k = -(s|k)
+                            xor  a
+                            sub  tl         # a = -m
+                    if m_full_range
+                            jr   Z, m_n256  # m == -256
+                    end
+                    mul_it  rrc  s          # k sign -> CF
+                            ld   tl, l
+                    mult    mul(th, a, tt:tt, clrhl:false, signed_k:true, kbit9_carry:true, tl_is_zero:true, optimize:optimize)
+                end
+            end
+            ##
+            # Creates a routine that performs a multiplication of an 8(9)-bit integer +k+ * 8-bit unsigned +m+.
             # Returns the result as a 16-bit integer in +hl+.
             #
             # Optionally the result in the +hl+ is being accumulated.
@@ -480,34 +608,50 @@ module Z80
             # As a side-effect accumulator is always cleared to 0 and +m+ and +k+ are left unmodified
             # if they are not an: +accumulator+ nor part of +tt+.
             #
-            # +k+::        A multiplicant as an immediate value or an 8-bit register.
-            # +m+::        A multiplicator as an immediate value or an 8-bit register.
+            # +k+::        A multiplicand as an immediate value or an 8-bit register.
+            # +m+::        A multiplier as an immediate value or an 8-bit register.
             #
             # Options:
             # * +tt+::       A 16-bit temporary register (+de+ or +bc+).
             # * +clrhl+::    If the result should be set or accumulated, if +false+ acts like: +hl+ += +k+ * +m+.
-            # * +signed_k+:: If the multiplicant (+k+) represents a twos complement signed integer (-128..127).
+            # * +signed_k+:: If the multiplicand (+k+) represents a twos complement signed integer.
+            # * +kbit9_carry+:: If the multiplicand (+k+) is 9-bit, where MSB (9th) bit is read from CARRY flag.
+            # * +tl_is_zero+::  Whether +tl+ (LSB of +tt+) register has been already cleared.
+            # * +optimize+:: What is more important: +:time+ or +:size+? Applies only if +kbit9_carry+ is +true+.
             #
             # Uses: +af+, +hl+, +tt+, optionally preserves: +k+, +m+.
-            def mul(k=d, m=a, tt:de, clrhl:true, signed_k:false)
+            def mul(k=d, m=a, tt:de, clrhl:true, signed_k:false, kbit9_carry:false, tl_is_zero:false, optimize: :time)
                 th, tl = tt.split
                 raise ArgumentError if tt == hl or m == th
-                isolate do
+                isolate do |eoc|
                             ld   th, k unless k == th
                             ld   a, m unless m == a
                     if clrhl
                             ld   hl, 0
-                            ld   tl, l
+                            ld   tl, l unless tl_is_zero
                     else
-                            ld   tl, 0
+                            ld   tl, 0 unless tl_is_zero
                     end
-
+                    if kbit9_carry
+                            rr   th
+                        if optimize == :size
+                            jr   cont9
+                        elsif optimize == :time
+                            rr   tl
+                            add  a, a
+                            jr   NC, noadd9
+                            add  hl, tt
+                    noadd9  jr   Z, eoc
+                        else
+                            raise ArgumentError, "optimize should be :time or :size"
+                        end
+                    end
                     if signed_k
                         loop1   sra  th
                     else
                         loop1   srl  th
                     end
-                            rr   tl
+                    cont9   rr   tl
                             add  a, a
                             jr   NC, noadd
                             add  hl, tt
@@ -528,13 +672,13 @@ module Z80
             # For some of +m+ when +tt+ is +de+ the code can be better optimized as we may leverage
             # the usage of <tt>ex  de, hl</tt> instruction.
             #
-            # +k+::        A multiplicant as an immediate value or an 8-bit register.
-            # +m+::        A multiplicator value as a constant integer.
+            # +k+::        A multiplicand as an immediate value or an 8-bit register.
+            # +m+::        A multiplier value as a constant integer.
             #
             # Options:
             # * +tt+::       A 16-bit temporary register (+de+ or +bc+).
             # * +clrhl+::    If the result should be set or accumulated, if +false+ acts like: +hl+ += +k+ * +m+.
-            # * +signed_k+:: If the multiplicant (+k+) represents a twos complement signed integer (-128..127).
+            # * +signed_k+:: If the multiplicand (+k+) represents a twos complement signed integer (-128..127).
             #
             # Uses: +f+, +hl+, +tt+, optionally preserves: +k+.
             def mul_const(k=d, m=0, tt:de, clrhl:true, signed_k:false)
@@ -671,9 +815,9 @@ module Z80
             # As a side-effect +m+ is cleared to 0 when CF=0 and +kl+ and +kh+ are left unmodified
             # if they are not part of +tt+.
             #
-            # +kh+::    The MSB part of the multiplicant as an immediate value or an 8-bit register.
-            # +kl+::    The LSB part of the multiplicant as an immediate value or an 8-bit register.
-            # +m+::     An 8-bit multiplicator register, must not be a part of the +tt+.
+            # +kh+::    The MSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+::    The LSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::     An 8-bit multiplier register, must not be a part of the +tt+.
             #
             # Options:
             # * +tt+::    A 16-bit temporary register (+de+ or +bc+).
@@ -708,9 +852,9 @@ module Z80
             # As a side-effect +t+ is always cleared to 0 and +kl+ and +kh+ are left unmodified
             # if they are not part of +tt+ and +m+ is left unmodified if it's not +a+ or the same as +t+.
             #
-            # +kh+::    The MSB part of the multiplicant as an immediate value or an 8-bit register.
-            # +kl+::    The LSB part of the multiplicant as an immediate value or an 8-bit register.
-            # +m+::     An 8-bit multiplicator register.
+            # +kh+::    The MSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+::    The LSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::     An 8-bit multiplier register.
             #
             # Options:
             # * +tt+::  A 16-bit temporary register (+de+ or +bc+).
@@ -721,21 +865,19 @@ module Z80
             #
             # Uses: +af+, +hl+, +m+, +kh+, +kl+, +t+, +tt+, optionally preserves: +kh+, +kl+, +m+.
             def mul8_signed(kh=h, kl=l, m=c, tt:de, t:m, clrhl:true, double:false, optimize: :time)
-                raise ArgumentError if t == a or !register?(t) or !t.bit8?
-                isolate do |eoc|
-                    unless t == m
-                            ld   t, m
-                    end
-                    if m == a
-                            neg
-                    else
+                th, tl = tt.split
+                raise ArgumentError if !register?(t) or !t.bit8? or [a, tl, th].include?(t)
+                isolate do
+                            ld   tl, kl unless kl == tl
+                            ld   th, kh unless kh == th
+                            ld   a, m unless m == a
+                            anda a
+                            jp   P, mul_it      # m >= 0
+                            ld   t, a unless t == m
+                            neg16 th, tl
                             xor  a
-                            sub  m
-                    end
-                            jp   M, mul_it
-                            ld   t, a
-                            neg16 kh, kl
-                    mul_it  mul8(kh, kl, t, tt:tt, clrhl:clrhl, double:double, optimize:optimize)
+                            sub  t              # a: -m
+                    mul_it  mul8(th, tl, a, tt:tt, clrhl:clrhl, double:double, optimize:optimize)
                 end
             end
             ##
@@ -749,9 +891,9 @@ module Z80
             # As a side-effect +m+ is always cleared to 0 and +kl+ and +kh+ are left unmodified
             # if they are not part of +tt+.
             #
-            # +kh+::    The MSB part of the multiplicant as an immediate value or an 8-bit register.
-            # +kl+::    The LSB part of the multiplicant as an immediate value or an 8-bit register.
-            # +m+::     An 8-bit multiplicator register, must not be a part of the +tt+.
+            # +kh+::    The MSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+::    The LSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::     An 8-bit multiplier register, must not be a part of the +tt+.
             #
             # Options:
             # * +tt+::    A 16-bit temporary register (+de+ or +bc+).
@@ -793,15 +935,15 @@ module Z80
             #
             # Optionally accumulates the result in +a+|+hl+.
             #
-            # +kh+::     The MSB part of the multiplicant as an immediate value or an 8-bit register.
-            # +kl+::     The LSB part of the multiplicant as an immediate value or an 8-bit register.
-            # +m+::      A multiplicator register, it must not be the +accumulator+ or +t+ or be a part of +tt+.
+            # +kh+::     The MSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+::     The LSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::      A multiplier register, it must not be the +accumulator+ or +t+ or be a part of +tt+.
             #
             # Options:
             # * +t+::      An 8-bit temporary register, it must not be the +accumulator+ or +m+ or be a part of +tt+.
             # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
             # * +clrahl+:: If +a+|+hl+ should be set or accumulated, if +false+ acts like: +a+|+hl+ += +kh+|+kl+ * +m+.
-            # * +k_int24+:: Whether a multiplicant is a 24-bit (possibly signed) integer with its MSB bits in +t+.
+            # * +k_int24+:: Whether a multiplicand is a 24-bit (possibly signed) integer with its MSB bits in +t+.
             # * +optimize+:: What is more important: +:time+ or +:size+?
             #
             # If +k_int24+ is +false+ and +clrahl+ is +true+ the resulting flags: ZF=1 signals the result 
@@ -824,12 +966,12 @@ module Z80
                                 ld  t, 0
                     end
                     if optimize == :size        # 20 bytes (+~10 cycles per m bit)
-                        loop1   srl m           # 0 -> multiplicator -> carry
+                        loop1   srl m           # 0 -> multiplier -> carry
                                 jr  Z, last
                                 jr  NC, noadd   # carry == 0 ? don't add
-                                add hl, tt      # add multiplicant to result lo16
-                                adc a, t        # add multiplicant to result hi8
-                        noadd   sla tl          # multiplicant *= 2
+                                add hl, tt      # add multiplicand to result lo16
+                                adc a, t        # add multiplicand to result hi8
+                        noadd   sla tl          # multiplicand *= 2
                                 rl  th
                                 rl  t
                                 jr  loop1       # m != 0 ? loop
@@ -837,17 +979,17 @@ module Z80
                                 add hl, tt      # last add
                                 adc a, t
                     elsif optimize == :time     # 27 bytes
-                                srl m           # 0 -> multiplicator -> carry
+                                srl m           # 0 -> multiplier -> carry
                                 jp  NZ, loop1   # m != 0 ? start regular loop
                                 jr  C, skadd    # m == 1 ? add and quit
                                 jp  eoc         # m == 0 ? just quit
                         loop1   jr  NC, noadd   # carry == 0 ? don't add
-                                add hl, tt      # add multiplicant to result lo16
-                                adc a, t        # add multiplicant to result hi8
-                        noadd   sla tl          # multiplicant *= 2
+                                add hl, tt      # add multiplicand to result lo16
+                                adc a, t        # add multiplicand to result hi8
+                        noadd   sla tl          # multiplicand *= 2
                                 rl  th
                                 rl  t
-                                srl m           # 0 -> multiplicator -> carry
+                                srl m           # 0 -> multiplier -> carry
                                 jp  NZ, loop1   # m != 0 ? loop
                         skadd   add hl, tt      # last add b.c. carry == 1
                                 adc a, t
@@ -868,15 +1010,15 @@ module Z80
             # fits in 16 bits.
             # If +signed_k+ and +clrhl+ are +true+ the resulting flag: SF contains the sign of the result.
             #
-            # +kh+::     The MSB part of the multiplicant as an immediate value or an 8-bit register.
-            # +kl+::     The LSB part of the multiplicant as an immediate value or an 8-bit register.
-            # +m+::      A multiplicator value as a constant integer.
+            # +kh+::     The MSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+::     The LSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::      A multiplier value as a constant integer.
             #
             # Options:
             # * +t+::      An 8-bit temporary register, it must not be the +accumulator+ or be a part of +tt+.
             # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
             # * +clrahl+:: If +a+|+hl+  should be set or accumulated, if +false+ acts like: +a+|+hl+ += +kh+|+kl+ * +m+.
-            # * +signed_k+:: If the multiplicant (+kh+|+kl+) represents a twos complement signed integer (-32768..32767).
+            # * +signed_k+:: If the multiplicand (+kh+|+kl+) represents a twos complement signed integer (-32768..32767).
             #
             # Uses: +af+, +t+, +tt+, +hl+, optionally preserves: +kh+ and +kl+.
             def mul_const8_24(kh=h, kl=l, m=0, t:c, tt:de, clrahl:true, signed_k:false)
@@ -1059,13 +1201,13 @@ module Z80
             # Creates a routine that performs a multiplication of a 16-bit integer (+hl+) by an unsigned 16-bit integer +mm+ (+bc+ or +de+).
             # Returns the 32-bit integer result in +hl+|+hl'+.
             #
-            # +mm+::        A 16bit multiplicator register (+bc+ or +de+).
+            # +mm+::        A 16bit multiplier register (+bc+ or +de+).
             #
             # Options:
             # * +tt+::      A 16bit tempoarary register (+bc'+ or +de'+) of the alternative set.
             # * +clrhlhl+:: If +hl+|+hl'+ should be cleared, if +false+ acts like: +hl+|+hl'+ += +hl+ * +mm+;
             #               also it may be a 32-bit constant, in this instance acts like: +hl+|+hl'+ = +clrhlhl+ + +hl+ * +mm+.
-            # * +signed_hl+:: If the multiplicant (+hl+) represents a twos complement signed integer (-32768..32767).
+            # * +signed_hl+:: If the multiplicand (+hl+) represents a twos complement signed integer (-32768..32767).
             # * +optimize+::  What is more important: +:time+ (117 bytes) or +:size+ (51 bytes)?
             #
             # Uses: +af+, +af'+, +hl+, +hl'+, +mm+, +tt'+.

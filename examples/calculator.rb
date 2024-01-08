@@ -45,12 +45,12 @@ class Program
   include Z80::TAP
 
                 ld   hl, [multiplicand]
-                ld   a,  [multiplicator]
+                ld   a,  [multiplier]
                 jp   math.mul
 
                 org 0x0020
   multiplicand  words 1
-  multiplicator bytes 1
+  multiplier    bytes 1
 
   import MyZXMath, :math
 

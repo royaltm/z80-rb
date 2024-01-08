@@ -66,12 +66,12 @@ go to Ruby's +irb+ or your REP of choice and snap'&'paste this:
     include Z80::TAP
 
                   ld   hl, [multiplicand]
-                  ld   a,  [multiplicator]
+                  ld   a,  [multiplier]
                   jp   math.mul
 
                   org 0x0020
     multiplicand  words 1
-    multiplicator bytes 1
+    multiplier    bytes 1
 
     import MyZXMath, :math
 
@@ -84,13 +84,13 @@ go to Ruby's +irb+ or your REP of choice and snap'&'paste this:
 check the debug output:
 
   8000: 2A2080      ld   hl, (8020H)     -> multiplicand
-  8003: 3A2280      ld   a, (8022H)      -> multiplicator
+  8003: 3A2280      ld   a, (8022H)      -> multiplier
   8006: C32380      jp   8023H           -> math.mul
   8009: 00 00 00 00 00 00 00 00 ........
   8011: 00 00 00 00 00 00 00 00 ........
   8019: 00 00 00 00 00 00 00    .......
   8020: 00 00                   ..       :multiplicand
-  8022: 00                      .        :multiplicator
+  8022: 00                      .        :multiplier
   8023:                                  :math
   ============== MyZXMath ==============
   8023:             --- begin ---        :mul
