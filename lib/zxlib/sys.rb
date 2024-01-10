@@ -944,10 +944,12 @@ module ZXLib
             # Requires: <tt>macro_import ::ZXLib::Math</tt>.
             #
             # +hl+:: must point to the 1st byte of the FP-value.
-            # +th+:: most significant 16-bit output register pair.
-            # +tl+:: least significant 16-bit output register pair.
+            # +t3+:: most significant 8-bit output register.
+            # +t2+:: 8-bit output register.
+            # +t1+:: 8-bit output register.
+            # +t0+:: least significant 8-bit output register.
             #
-            # The result is being loaded into +th+|+tl+.
+            # The result is being loaded into +t3+|+t2+|+t1+|+t0+.
             # CF=1 signals that the FP-value is too big to fit into a 32-bit integer.
             # ZF=1 signals that the FP-value is positive. In this instance accumulator +a+ = 0.
             # ZF=0 signals that the FP-value is negative. In this instance accumulator +a+ = 0xFF.
@@ -955,12 +957,15 @@ module ZXLib
             #
             # +hl+ will always point to the last byte of the FP-value.
             #
-            # Modifies: +af+, +af'+, +hl+, +th+, +tl+.
-            def read_integer32_value(th=de, tl=bc)
-                raise ArgumentError unless [th, tl].uniq.size == 2 and
-                                           [th, tl].all? {|t| [bc, de].include?(t)}
-                t1, t0 = tl.split
-                t3, t2 = th.split
+            # Modifies: +af+, +af'+, +hl+, +bc+, +de+.
+            def read_integer32_value(t3=d, t2=e, t1=b, t0=c)
+                # legacy arguments handling (th, tl)
+                if [t3, t2].all? {|t| [bc, de].include?(t)}
+                    t1, t0 = t2.split
+                    t3, t2 = t3.split
+                end
+                raise ArgumentError unless [t3,t2,t1,t0].uniq.size == 4 and
+                                           [t3,t2,t1,t0].all? {|t| [b,c,d,e].include?(t)}
                 isolate do
                                 ld    a, [hl]
                                 inc   hl
