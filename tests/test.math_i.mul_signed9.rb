@@ -9,6 +9,7 @@ class MTestFactory
         include ::ZXLib::Sys::Macros
         include ::ZXLib::Math::Macros
         include ::Z80::MathInt::Macros
+
         def make_tests(tt=de, optimize=:time, overflow:false)
             label_import  ZXLib::Sys
 
@@ -63,8 +64,8 @@ class MTestFactory
                         ld   a, th
                         xor  sgn
                 error_b report_error_unless Z, "B Integer out of range"
-                        rrc  sgn
-                        ld   a, tl  # m: CF|tl
+                        ora  sgn    # SF: sign of m
+                        ld   a, tl  # m: SF|tl
                         pop  kk     # k: sgn|kl
 
                         call forward_ix # sgn|hl = k * m
@@ -99,16 +100,16 @@ class MTestFactory
             overflow_a  report_error "6 Number too big"
             end
             # CF|sgn|hl = sgn|kl * a
-            multiply    mul_signed9(sgn, kl, a, tt:tt, m_is_zero_zf:false, k_full_range: true, m_full_range: true, k_overflow:k_overflow, optimize:optimize)
+            multiply    mul_signed9(sgn, kl, a, tt:tt, m_neg_cond: M, m_is_zero_zf:false, k_full_range: true, m_full_range: true, k_overflow:k_overflow, optimize:optimize)
                         ret
 
-            mul_mlimit  mul_signed9(sgn, kl, a, tt:tt, m_is_zero_zf:false, k_full_range: true, m_full_range:false, optimize:optimize)
+            mul_mlimit  mul_signed9(sgn, kl, a, tt:tt, m_neg_cond: M, m_is_zero_zf:false, k_full_range: true, m_full_range:false, optimize:optimize)
                         ret
 
-            mul_klimit  mul_signed9(sgn, kl, a, tt:tt, m_is_zero_zf:false, k_full_range:false, m_full_range: true, k_overflow:k_overflow, optimize:optimize)
+            mul_klimit  mul_signed9(sgn, kl, a, tt:tt, m_neg_cond: M, m_is_zero_zf:false, k_full_range:false, m_full_range: true, k_overflow:k_overflow, optimize:optimize)
                         ret
 
-            mul_limits  mul_signed9(sgn, kl, a, tt:tt, m_is_zero_zf:false, k_full_range:false, m_full_range:false, k_overflow:k_overflow, optimize:optimize)
+            mul_limits  mul_signed9(sgn, kl, a, tt:tt, m_neg_cond: M, m_is_zero_zf:false, k_full_range:false, m_full_range:false, k_overflow:k_overflow, optimize:optimize)
                         ret
         end
     end
