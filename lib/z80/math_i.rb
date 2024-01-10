@@ -486,7 +486,7 @@ module Z80
             #
             # The sign of a twos complement multiplicand +kl+ is expected in +kh+ extended over all 8 bits.
             #
-            # The sign of a twos complement multiplier +m+ is expected in the CARRY flag bit (CF).
+            # The sign of a twos complement multiplier +m+ is provided via the flags register.
             #
             # Optionally the ZERO flag (ZF) must signal +m+ equals to 0 if +m_is_zero_zf+ option is set.
             #
@@ -510,6 +510,7 @@ module Z80
             # Options:
             # * +s+::            An 8-bit sign output register, preferably the same as +kh+.
             # * +tt+::           A 16-bit temporary register (+de+ or +bc+).
+            # * +m_neg_cond+::   A flags register check condition indicating that +m+ is negative.
             # * +k_full_range+:: Determines whether the multiplicand is allowed to be equal to -256.
             #                    Saves 7 T-states and 18-21 bytes if disabled.
             # * +m_full_range+:: Determines whether the multiplier is allowed to be equal to -256.
@@ -539,11 +540,12 @@ module Z80
             # values, results can never equal to -256. Thus it is safe to disable +full_range+.
             #
             # Uses: +af+, +hl+, +tt+, +s+, optionally preserves: +kh+, +kl+ or +m+.
-            def mul_signed9(kh=c, kl=d, m=a, s:kh, tt:de, k_full_range:true, m_full_range:true, k_overflow:nil, m_is_zero_zf:false, optimize: :time)
+            def mul_signed9(kh=c, kl=d, m=a, s:kh, tt:de, m_neg_cond:C, k_full_range:true, m_full_range:true, k_overflow:nil, m_is_zero_zf:false, optimize: :time)
                 th, tl = tt.split
                 raise ArgumentError, "mul_signed9: invalid arguments" if tt == hl or m == th or kh == kl or 
                                                                          [th, tl, h, l, a].include?(s)
                 raise ArgumentError, "mul_signed9: invalid options" if k_overflow and k_full_range and !m_full_range
+                raise ArgumentError, "mul_signed9: m_neg_cond must be a Condition" unless m_neg_cond.is_a?(Condition)
                 jump = proc do |cond, target|
                     if optimize == :size && (cond.nil? || cond.jr_ok?)
                             jr   cond, target
@@ -556,8 +558,12 @@ module Z80
                             ld   s, kh unless s == kh
                             ld   a, m unless m == a
                             ld   hl, 0
-
-                            jr   C, m_neg        # m <  0 - C=m sign
+                            # m < 0
+                    if m_neg_cond.jr_ok?
+                            jr   m_neg_cond, m_neg
+                    else
+                            jp   m_neg_cond, m_neg
+                    end
                             anda a unless m_is_zero_zf
                             jump.call NZ, mul_it # m != 0
                             ld   s, l            # clear sign
