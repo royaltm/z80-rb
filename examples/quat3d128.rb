@@ -335,7 +335,7 @@ class Quat3D
   # < x: a register with signed int8 x
   # < y: a register with signed int8 y
   # < z: a register with signed int8 z
-  # < sp -> matrix elements in a special 15 bit + sign fixed point format: iiiiiiiiffffffff
+  # < sp -> matrix elements in a signed 16 bit fixed point format: iiiiiiiiffffffff
   # > a: int(([sp]*x + [sp+2]*y + [sp+4]*z + 0.5) / 256)
   # > sp: sp + 6
   macro :apply_matrix_coord do |_, x, y, z|
@@ -353,7 +353,7 @@ class Quat3D
   end
 
   # < x: a register with signed int8 
-  # < sp -> matrix element in a special 15 bit + sign fixed point format: iiiiiiiiffffffff
+  # < sp -> matrix element in a signed 16 bit fixed point format: iiiiiiiiffffffff
   # > hl: [sp] * x
   # > sp: sp + 2
   # > x': x
