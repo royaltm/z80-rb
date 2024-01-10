@@ -312,13 +312,19 @@ module Z80
             #         slightly optimize the routine.
             # * +t_is_zero+:: Assume the +t+ register already holds 0. If +false+ the content of the +t+ register
             #                 will be set to 0.
+            # * +optimize_last+:: Saves 3 T-states on the last iteration when +t+ is not being used.
+            #                     This however renders the state of the CF flag useless.
             #
             # Integers are being processed starting from the least significant byte (the last argument).
             #
+            # On completion the +accumulator+ holds a copy of the MSB register after the operation.
+            #
+            # CF flag will hold the carry over state of the last operation, unless +optimize_last+ is +true+.
+            #
             # Modifies: +af+ and argument registers.
             #
-            # T-states: (register count) 1: 12, 2: 24, 3: 36|40|42, 4: 48|52|57, 5: 60|64|72, 6: 87.
-            def neg_int(*regs, t:nil, t_is_zero:false)
+            # T-states: (register count) 1: 12, 2: 24|27, 3: 36|39|40|42, 4: 48|52|54|57, 5: 60|64|69|72, 6: 84|87.
+            def neg_int(*regs, t:nil, t_is_zero:false, optimize_last:false)
                 raise ArgumentError, "neg_int invalid arguments!" if regs.empty? or regs.include?(a) or
                                                                    regs.any?{|r| !register?(r) || !r.bit8? } or
                                                                    regs.uniq.size != regs.size or
@@ -330,7 +336,7 @@ module Z80
                             xor  a
                             ld   t, a if !t_is_zero && register?(t)
                             sub  reg
-                        elsif regs.size == 2
+                        elsif optimize_last && (i == regs.size - 1) && !register?(t)
                             sbc  a, a
                             sub  reg
                         else
