@@ -551,7 +551,7 @@
 
           
           <div class="method-source-code" id="find_def_fn_args-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1026</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1031</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">find_def_fn_args</span>(<span class="ruby-identifier">argnum</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">not_found:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">cf_on_direct:</span><span class="ruby-keyword">false</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">not_found_blk</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-value">use:</span> <span class="ruby-value">:vars</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                     <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">argnum</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">argnum</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">b</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">argnum</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
@@ -824,7 +824,7 @@
 
           
           <div class="method-source-code" id="mmu128_select_bank-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1131</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1136</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mmu128_select_bank</span>(<span class="ruby-value">bank:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">screen:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mmu_port_in_bc:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">sys128:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sys128</span>)
     <span class="ruby-identifier">mask</span> = <span class="ruby-value">0b11111111</span>
     <span class="ruby-identifier">merg</span> = <span class="ruby-value">0b00000000</span>
@@ -907,7 +907,7 @@
 
           
           <div class="method-source-code" id="mmu128_swap_screens-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1176</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1181</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mmu128_swap_screens</span>(<span class="ruby-value">swap_bank:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mmu_port_in_bc:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">sys128:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sys128</span>)
     <span class="ruby-identifier">swap_bits</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">swap_bank</span> <span class="ruby-keyword">then</span> <span class="ruby-value">0b00001010</span> <span class="ruby-keyword">else</span> <span class="ruby-value">0b00001000</span> <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -956,7 +956,7 @@
 
           
           <div class="method-source-code" id="move_basic_above_scld_screen_memory-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1195</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1200</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">move_basic_above_scld_screen_memory</span>(<span class="ruby-value">check_ensure:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-value">use:</span> [<span class="ruby-value">:memT2k</span>, <span class="ruby-value">:vars</span>, <span class="ruby-value">:rom</span>] <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
             <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">memT2k</span>.<span class="ruby-identifier">rambot</span>
@@ -1022,7 +1022,7 @@
 
           
           <div class="method-source-code" id="read_arg_string-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 990</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 995</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_arg_string</span>(<span class="ruby-identifier">adh</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">adl</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">lenh</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">lenl</span>=<span class="ruby-identifier">c</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">adh</span>, <span class="ruby-identifier">adl</span>, <span class="ruby-identifier">lenl</span>].<span class="ruby-identifier">any?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">r</span>) }
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -1050,7 +1050,7 @@
         
         <div class="method-heading">
           <span class="method-name">read_integer32_value</span><span
-            class="method-args">(th=de, tl=bc)</span>
+            class="method-args">(t3=d, t2=e, t1=b, t0=c)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -1065,30 +1065,39 @@
 <dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
 <p>must point to the 1st byte of the FP-value.</p>
-</dd><dt><code>th</code>
+</dd><dt><code>t3</code>
 <dd>
-<p>most significant 16-bit output register pair.</p>
-</dd><dt><code>tl</code>
+<p>most significant 8-bit output register.</p>
+</dd><dt><code>t2</code>
 <dd>
-<p>least significant 16-bit output register pair.</p>
+<p>8-bit output register.</p>
+</dd><dt><code>t1</code>
+<dd>
+<p>8-bit output register.</p>
+</dd><dt><code>t0</code>
+<dd>
+<p>least significant 8-bit output register.</p>
 </dd></dl>
 
-<p>The result is being loaded into <code>th</code>|<code>tl</code>. CF=1 signals that the FP-value is too big to fit into a 32-bit integer. ZF=1 signals that the FP-value is positive. In this instance accumulator <code>a</code> = 0. ZF=0 signals that the FP-value is negative. In this instance accumulator <code>a</code> = 0xFF. If the value is negative the integer WON&#39;T BE a twos complement number.</p>
+<p>The result is being loaded into <code>t3</code>|<code>t2</code>|<code>t1</code>|<code>t0</code>. CF=1 signals that the FP-value is too big to fit into a 32-bit integer. ZF=1 signals that the FP-value is positive. In this instance accumulator <code>a</code> = 0. ZF=0 signals that the FP-value is negative. In this instance accumulator <code>a</code> = 0xFF. If the value is negative the integer WON&#39;T BE a twos complement number.</p>
 
 <p><code>hl</code> will always point to the last byte of the FP-value.</p>
 
-<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>th</code>, <code>tl</code>.</p>
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>bc</code>, <code>de</code>.</p>
           
           
 
           
           <div class="method-source-code" id="read_integer32_value-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 958</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_integer32_value</span>(<span class="ruby-identifier">th</span>=<span class="ruby-identifier">de</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">bc</span>)
-    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">2</span> <span class="ruby-keyword">and</span>
-                               [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>].<span class="ruby-identifier">all?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">t</span>)}
-    <span class="ruby-identifier">t1</span>, <span class="ruby-identifier">t0</span> = <span class="ruby-identifier">tl</span>.<span class="ruby-identifier">split</span>
-    <span class="ruby-identifier">t3</span>, <span class="ruby-identifier">t2</span> = <span class="ruby-identifier">th</span>.<span class="ruby-identifier">split</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 960</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_integer32_value</span>(<span class="ruby-identifier">t3</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">t2</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">t1</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">t0</span>=<span class="ruby-identifier">c</span>)
+    <span class="ruby-comment"># legacy arguments handling (th, tl)</span>
+    <span class="ruby-keyword">if</span> [<span class="ruby-identifier">t3</span>, <span class="ruby-identifier">t2</span>].<span class="ruby-identifier">all?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">t</span>)}
+        <span class="ruby-identifier">t1</span>, <span class="ruby-identifier">t0</span> = <span class="ruby-identifier">t2</span>.<span class="ruby-identifier">split</span>
+        <span class="ruby-identifier">t3</span>, <span class="ruby-identifier">t2</span> = <span class="ruby-identifier">t3</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">t3</span>,<span class="ruby-identifier">t2</span>,<span class="ruby-identifier">t1</span>,<span class="ruby-identifier">t0</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">4</span> <span class="ruby-keyword">and</span>
+                               [<span class="ruby-identifier">t3</span>,<span class="ruby-identifier">t2</span>,<span class="ruby-identifier">t1</span>,<span class="ruby-identifier">t0</span>].<span class="ruby-identifier">all?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">b</span>,<span class="ruby-identifier">c</span>,<span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">t</span>)}
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                     <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
                     <span class="ruby-identifier">inc</span>   <span class="ruby-identifier">hl</span>
@@ -1458,7 +1467,7 @@
 
           
           <div class="method-source-code" id="return_with_fp-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1085</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1090</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">return_with_fp</span>(<span class="ruby-value">pop_ret_address:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">rom:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">rom</span>, <span class="ruby-value">restore_iy:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">vars_iy</span>, <span class="ruby-value">restore_hl_alt:</span><span class="ruby-identifier">rom</span>.<span class="ruby-identifier">end_calc</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                     <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">hl</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">pop_ret_address</span>
