@@ -941,6 +941,93 @@ module Z80
                 end
             end
             ##
+            # Creates a routine that performs a multiplication of a 24-bit signed integer +ks+|+kh+|+kl+ * 9-bit
+            # signed +m+. Returns the result as a 24-bit integer in +a+|+hl+.
+            #
+            # The sign of a twos complement multiplier +m+ is provided via the flags register.
+            #
+            # Optionally accumulates the result in +a+|+hl+.
+            #
+            # +ks+::  The MSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +kh+::  The middle part of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+::  The LSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::   A multiplier register, it must not be the +accumulator+ or +t+ or be a part of +tt+.
+            #
+            # Options:
+            # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
+            # * +m_pos_cond+::   A flags register check condition indicating that +m+ is positive (including 0).
+            # * +m_full_range+:: Determines whether the multiplier is allowed to be equal to -256.
+            #                    Saves 10-12 T-states and 7-9+ bytes if disabled.
+            # * +optimize+:: What is more important: +:time+ or +:size+?
+            #
+            # If a block of code (+restore_a+) is present, +a+|+hl+ registers are not cleared. Provide
+            # instructions to restore +a+ and optionally +hl+ registers, thus the result will accumulate,
+            # acting as:
+            #
+            #   a|hl += k * m.
+            # 
+            # * The block of code must not modify the content of +tt+, +t+ or +m+ registers.
+            # * There is no need to restore +hl+ registers as they are not modified before the +restore_a+
+            #   instructions are executed.
+            # * The +restore_a+ block is inserted twice if the +optimize+ option is +:time+ and +m_full_range+
+            # is +true+.
+            #
+            # When +m_full_range+ option is disabled, then passing (-256) to +m+ will resolve in
+            # <b>UNDEFINED BEHAVIOUR</b>.
+            #
+            # Uses: +af+, +bc+, +de+, +hl+.
+            def mul_signed9_24(ks=c, kh=h, kl=l, m=b, tt:de, m_pos_cond:NC, m_full_range:true, optimize: :time, &restore_a)
+                th, tl = tt.split
+                raise ArgumentError, "mul_signed9_24: invalid arguments" if tt == hl or [th, tl, ks, h, l, a].include?(m) or
+                                                                            kh == kl or [th, tl, m, h, l, a].include?(ks)
+                raise ArgumentError, "mul_signed9_24: m_pos_cond must be a Condition" unless m_pos_cond.is_a?(Condition)
+                clrahl = !block_given?
+                jump = proc do |cond, target|
+                    if optimize == :size && (cond.nil? || cond.jr_ok?)
+                            jr   cond, target
+                    else
+                            jp   cond, target
+                    end
+                end
+                isolate do |eoc|
+                            ld   tl, kl unless kl == tl
+                            ld   th, kh unless kh == th
+
+                    if m_pos_cond.jr_ok?
+                            jr   m_pos_cond, mul_it # m >= 0
+                    else
+                            jp   m_pos_cond, mul_it # m >= 0
+                    end
+                            neg_int ks, th, tl, optimize_last:true
+
+                            xor  a
+                            sub  m
+                            ld   m, a
+                    if m_full_range
+                            jump.call NZ, mul_it # m != -256
+                        if clrahl
+                            ld   l, a             # a: 0
+                            ld   h, tl
+                            add  a, th            # set flags
+                            jump.call nil, eoc
+                        else
+                            ld   ks, th
+                            ld   th, tl
+                            ld   tl, a            # a: 0
+                            if optimize == :size
+                                ld   m, 1         # m: 1
+                            elsif optimize == :time
+                                ns(&restore_a)
+                                jump.call nil, mult.skadd
+                            end
+                        end
+                    end
+                    mul_it  label
+                            ns(&restore_a) unless clrahl
+                    mult    mul8_24(th, tl, m, t:ks, tt:tt, clrahl:clrahl, k_int24:true, optimize:optimize)
+                end
+            end
+            ##
             # Creates a routine that performs a multiplication of a 16-bit unsigned integer +kh+|+kl+ or
             # 24-bit integer +t+|+kh+|+kl+ * 8-bit unsigned +m+.
             # Returns the result as a 24-bit integer in +a+|+hl+.
