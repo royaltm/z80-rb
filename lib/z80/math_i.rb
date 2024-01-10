@@ -350,18 +350,18 @@ module Z80
             ##
             # Creates a routine that extends a sign bit from an octet indicated by +tl+ into a +th+.
             #
-            # +th+:: A target octet as an 8-bit register or a pointer.
-            # +tl+:: An octet being sign-extended as an 8-bit register or a pointer.
+            # +t+:: A target octet as an 8-bit register or a pointer.
+            # +s+:: An octet being sign-extended as an 8-bit register or a pointer.
             #
-            # Uses: +af+, +th+, +tl+.
+            # Uses: +af+, +t+, optionally preserves: +s+.
             #
             # T-states: 8|12|16.
-            def sign_extend(th=a, tl=a)
+            def sign_extend(t=a, s=a)
                 isolate do
-                            ld   a, tl unless tl == a
+                            ld   a, s unless s == a
                             add  a, a
                             sbc  a, a
-                            ld   th, a unless th == a
+                            ld   t, a unless t == a
                 end
             end
             ##
