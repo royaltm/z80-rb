@@ -350,7 +350,7 @@ module Z80
             ##
             # Creates a routine that extends a sign bit from an octet indicated by +tl+ into a +th+.
             #
-            # +t+:: A target octet as an 8-bit register or a pointer.
+            # +t+:: A target 8-bit register or a pointer.
             # +s+:: An octet being sign-extended as an 8-bit register or a pointer.
             #
             # Uses: +af+, +t+, optionally preserves: +s+.
@@ -482,7 +482,8 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that performs a multiplication of a signed 9-bit +kh+|+kl+ * 9-bit signed +m+.
+            # Creates a routine that performs a multiplication of a signed 9-bit integer +kh+|+kl+ *
+            # 9-bit signed integer +m+. Returns the result as a 17-bit integer in +s+|+hl+.
             #
             # The sign of a twos complement multiplicand +kl+ is expected in +kh+ extended over all 8 bits.
             #
@@ -494,7 +495,7 @@ module Z80
             #
             # The result has only 17 bits capacity, thus multiplying (-256)x(-256) leads to overflow.
             #
-            # To detect overflow check for all of the following conditions on result:
+            # To detect overflow check that all of the following conditions are met on result:
             #
             #   if (CF = 1) and (s == 0) and (hl == 0) then overflow is detected
             #
@@ -503,14 +504,16 @@ module Z80
             #
             # +kh+::  An extended multiplicand sign as an immediate value or an 8-bit register.
             #         +kh+ is expected to be either equal to 0 or to -1 (twos complement).
-            #         Other sign values will render <b>UNDEFINED BEHAVIOUR<b>.
-            # +kl+::  A multiplicand twos complement value as an immediate value or an 8-bit register.
-            # +m+::   A multiplier as an immediate value or an 8-bit register.
+            #         Other sign values will render <b>UNDEFINED BEHAVIOUR</b>.
+            # +kl+::  Least significant 8-bits of a twos complement multiplicand as an immediate value or
+            #         an 8-bit register.
+            # +m+::   Least significant 8-bits of a twos complement multiplier as an immediate value or
+            #         an 8-bit register.
             #
             # Options:
             # * +s+::            An 8-bit sign output register, preferably the same as +kh+.
             # * +tt+::           A 16-bit temporary register (+de+ or +bc+).
-            # * +m_neg_cond+::   A flags register check condition indicating that +m+ is negative.
+            # * +m_neg_cond+::   A flags register branching condition indicating that +m+ is negative.
             # * +k_full_range+:: Determines whether the multiplicand is allowed to be equal to -256.
             #                    Saves 7 T-states and 18-21 bytes if disabled.
             # * +m_full_range+:: Determines whether the multiplier is allowed to be equal to -256.
@@ -525,8 +528,9 @@ module Z80
             # * +optimize+::     What is more important: +:time+ or +:size+?
             #
             # ====Note:
-            # When +m_is_zero_zf+ option is set and ZERO flag is set to 1 on input, then CARRY flag must be reset
-            # in this instance. Otherwise the routine will resolve in <b>UNDEFINED BEHAVIOUR</b>.
+            # When +m_is_zero_zf+ option is set and ZERO flag is set to 1 to indicate that +m+ is equal to 0,
+            # then flags must also indicate positive +m+ in this instance. Otherwise the routine will resolve
+            # in <b>UNDEFINED BEHAVIOUR</b>.
             #
             # When +m_full_range+ option is disabled, then passing (-256) to +m+ will resolve in
             # <b>UNDEFINED BEHAVIOUR</b>.
@@ -854,8 +858,8 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that performs a multiplication of a 16-bit signed integer +kh+|+kl+ * 8bit signed +m+.
-            # Returns the result as a 16-bit integer in +hl+.
+            # Creates a routine that performs a multiplication of a 16-bit signed integer +kh+|+kl+ * 8bit
+            # signed integer +m+. Returns the result as a 16-bit integer in +hl+.
             #
             # Optionally the result in the +hl+ is being accumulated.
             #
@@ -942,21 +946,21 @@ module Z80
             end
             ##
             # Creates a routine that performs a multiplication of a 24-bit signed integer +ks+|+kh+|+kl+ * 9-bit
-            # signed +m+. Returns the result as a 24-bit integer in +a+|+hl+.
+            # signed integer +m+. Returns the result as a 24-bit integer in +a+|+hl+.
             #
             # The sign of a twos complement multiplier +m+ is provided via the flags register.
             #
             # Optionally accumulates the result in +a+|+hl+.
             #
-            # +ks+::  The MSB part of the multiplicand as an immediate value or an 8-bit register.
-            # +kh+::  The middle part of the multiplicand as an immediate value or an 8-bit register.
-            # +kl+::  The LSB part of the multiplicand as an immediate value or an 8-bit register.
-            # +m+::   A multiplier register, it must not be the +accumulator+ or +t+ or be a part of +tt+.
+            # +ks+::  The MS 8-bits of the multiplicand as an immediate value or an 8-bit register.
+            # +kh+::  Bits 8-15 of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+::  The LS 8-bits of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::   The LS 8-bits of the multiplier as an 8-bit register, it must not be the +accumulator+.
             #
             # Options:
             # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
-            # * +m_pos_cond+::   A flags register check condition indicating that +m+ is positive (including 0).
-            # * +m_full_range+:: Determines whether the multiplier is allowed to be equal to -256.
+            # * +m_pos_cond+::   A flags register branching condition indicating that +m+ is positive (including 0).
+            # * +m_full_range+:: Determines whether the multiplier is allowed to be equal to (-256).
             #                    Saves 10-12 T-states and 7-9+ bytes if disabled.
             # * +optimize+:: What is more important: +:time+ or +:size+?
             #
@@ -970,7 +974,7 @@ module Z80
             # * There is no need to restore +hl+ registers as they are not modified before the +restore_a+
             #   instructions are executed.
             # * The +restore_a+ block is inserted twice if the +optimize+ option is +:time+ and +m_full_range+
-            # is +true+.
+            #   is +true+.
             #
             # When +m_full_range+ option is disabled, then passing (-256) to +m+ will resolve in
             # <b>UNDEFINED BEHAVIOUR</b>.
