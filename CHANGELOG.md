@@ -4,6 +4,8 @@ v1.1.1.pre-2
 Z80:
 ---
 * New macro Z80::MathInt::Macros#mul8_signed.
+* New macro Z80::MathInt::Macros#mul_signed9.
+* New macro Z80::MathInt::Macros#mul_signed9_24.
 * Saved 1 cycle on macro Z80::MathInt::Macros#mul.
 * New macro Z80::MathInt::Macros#sign_extend.
 * New options :k_int24 and :optimize for Z80::MathInt::Macros#mul8_24, saved 2 cycles.
@@ -13,6 +15,7 @@ ZXLib:
 * New macro ZXLib::Gfx::Macros#ytoattr.
 * Internal labels +preshift_p+, +pmask_in_e+, +px_bsh_in_ae+ added to ZXLib::Gfx::Draw::Macros for convenience and alternative entry points.
 * New routines in ZXLib::Gfx::Draw::Macros for updating draw line functions in place.
+* Changed arguments of ZXLib::Sys::Macros#read_integer32_value to 4 8-bit registers instead of 2 16-bit registers, maintaining backward compatibility.
 
 v1.1.0
 ======
