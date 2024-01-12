@@ -457,6 +457,80 @@ module Z80
                 end
             end
             ##
+            # Shift logical left 8-bit register with a result extended to 16-bits.
+            #
+            # +bshift+:: How many bits to shift the content of the +tl+ register.
+            # +th+:: An 8-bit register, except the +accumulator+ for receiving the highest 8 bits of the result.
+            # +tl+:: An 8-bit register, except the +accumulator+ holding the initial value and receiving the
+            #        lowest 8-bit of the result.
+            #
+            # Modifies: +af+, +th+, +tl+.
+            #
+            # T-states: 7,18|23,29|35,39,43,39,35,31,11,19,23,27,31,26,30,34,10|11.
+            def sll8_16(bshift, th=h, tl=l)
+                raise ArgumentError, "lshift8_16: invalid arguments!" unless Integer === bshift and bshift >= 0 and
+                                                                         register?(th) and th.bit8? and th != a
+                                                                         register?(tl) and tl.bit8? and tl != a
+                isolate do
+                    case bshift
+                    when 0 # 7
+                                      ld   th, 0
+                    when 1 # 18|23
+                                      ld   th, 0
+                        if th == h && tl == l
+                                      add  hl, hl
+                        else
+                                      sla  tl
+                                      rr   th
+                        end
+                    when 2..7 # 29|35,39,43,39,35,31
+                        if bshift == 2 && th == h && tl == l # 29
+                                      ld   h, 0
+                                      add  hl, hl
+                                      add  hl, hl
+                        else
+                                      ld   a, tl
+                          if bshift > 4
+                                      (8-bshift).times { rrca }
+                                      ld   th, a
+                                      anda (0xFF << bshift) & 0xFF
+                                      ld   tl, a
+                                      xor  th
+                                      ld   th, a
+                          else
+                                      bshift.times { rlca }
+                                      ld   tl, a
+                                      anda (1 << bshift) - 1
+                                      ld   th, a
+                                      xor  tl
+                                      ld   tl, a
+                          end
+                        end
+                    when 8 # 11
+                                      ld   th, tl
+                                      ld   tl, 0
+                    when 9..12 # 19,23,27,31
+                                      ld   a, tl
+                                      (bshift-8).times { add a }
+                                      ld   th, a
+                                      ld   tl, 0
+                    when 13..15 # 26,30,34
+                                      ld   a, tl
+                                      (16-bshift).times { rrca }
+                                      anda (0xFF << (bshift-8)) & 0xFF
+                                      ld   th, a
+                                      ld   tl, 0
+                    else # 10 | 11
+                        if th.match16?(tl)
+                                      ld   th|tl, 0
+                        else
+                                      ld   tl, 0
+                                      ld   th, tl
+                        end
+                    end
+                end
+            end
+            ##
             # Creates a routine that performs a multiplication of a signed 8-bit +k+ * 8-bit signed +m+.
             #
             # See Macros.mul for details.
@@ -1616,6 +1690,39 @@ module Z80
                     end
                                     djnz loopfit     # loop
                                     ora  a if check0 # clear carry only when check0
+                end
+            end
+            ##
+            # Creates a routine that performs an euclidean division of unsigned 16-bit: +kh+|+kl+ / 8-bit +m+.
+            # Returns a quotient in +kh+|+kl+ and a remainder in +accumulator+.
+            #
+            # This routine utilizes a stacked up Macros.divmod routines.
+            #
+            # +kh+, +kl+:: A dividend as two unique 8-bit registers except: +a+, +b+.
+            # +m+:: A divisor as an 8-bit register except: +a+, +b+ and none of +kh+, +kl+.
+            #
+            # Options:
+            # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
+            #              and nothing except the +accumulator+ is being altered.
+            #              +CF+ should be ignored if +check0+ is +false+. It may also be a label
+            #              (within the relative jump range) to indicate where to jump if +m+ equals 0.
+            # * +check1+:: Checks if a divisor equals 1, a hot path optimization. It may also be a label
+            #              to indicate where to jump if +m+ equals 1.
+            # * +modulo+:: Calculates a remainder only.
+            # * +optimize+:: What is more important: +:time+ or +:size+?
+            #
+            # _NOTE_:: A Macros.divmod8 presents a slower (up to 12%) but a significantly
+            #          smaller (x1.5) alternative.
+            #
+            # Uses: +af+, +b+, +kh+, +kl+, preserves: +m+.
+            def divmod16_8(kh, kl, m, check0:true, check1:true, modulo:false, optimize: :time)
+                raise ArgumentError unless [kh, kl, m].uniq.size == 3
+                isolate do |eoc|
+                    check0 = eoc if check0 == true
+                    check1 = eoc if check1 == true
+                    divmod kh, m, check0:check0, check1:check1, modulo:modulo, optimize:optimize
+                    divmod kl, m, clrrem:false, modulo:modulo, optimize:optimize
+                    anda a if check0 # clear CF
                 end
             end
             ##
