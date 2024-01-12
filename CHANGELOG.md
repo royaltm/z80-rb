@@ -11,6 +11,7 @@ Z80:
 * Saved 1 cycle on macro Z80::MathInt::Macros#mul.
 * New macro Z80::MathInt::Macros#sign_extend.
 * New options :k_int24 and :optimize for Z80::MathInt::Macros#mul8_24, saved 2 cycles.
+* Z80::Utils::SinCos::Macros#sincos_from_angle enhanced arguments to support providing registers.
 
 ZXLib:
 -----

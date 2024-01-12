@@ -107,28 +107,45 @@ module Z80
                 #
                 # For each angle: a <= llllllhh; th =>  MSB SinCos address + 000000hh, tl => llllll00
                 # 
-                # +sincos+:: Address of SinCos table, must be aligned to 256 bytes.
-                #            (LSB of +sincos+ address must be +0+).
+                # +sincos+:: Address of SinCos table, must be aligned to 256 bytes or an 8-bit register holding
+                #            MSB of the SinCos address. LSB of +sincos+ address must be +0+.
                 #
-                # T-states: 30.
+                # Options:
+                # * +mask+:: An pptional 8-bit register holding preloaded mask value: +0xFC+ (+0b11111100+).
+                #
+                # T-states: 30|27|24.
                 #
                 # Mofifies: +af+, +th+, +tl+.
-                def sincos_from_angle(sincos, th=h, tl=l)
+                def sincos_from_angle(sincos, th=h, tl=l, mask:nil)
                     raise ArgumentError, "sincos must be a direct address" if pointer?(sincos)
                     if immediate?(sincos)
                         sincos = sincos.to_i
                         raise ArgumentError, "sincos address must be aligned to 256 bytes" unless (sincos & 0x00FF).zero?
                     end
+                    raise ArgumentError, "invalid mask argument" unless mask.nil? or
+                            (register?(mask) and mask.bit8? and ![a, th, tl, sincos].include?(mask))
+                    mask = 0b11111100 if mask.nil?
                     isolate do
-                        select(sincos & 0x00FF, &:zero?).then do |_|
+                        if register?(sincos)
+                            raise ArgumentError, "invalid sincos register" unless sincos.bit8? and 
+                                                                            ![a, th, tl].include?(sincos)
                                 ld   th, a
-                                anda 0b11111100
+                                anda mask
+                                ld   tl, a
+                                xor  th
+                                add  sincos
+                                ld   th, a
+                        else
+                            select(sincos & 0x00FF, &:zero?).then do |_|
+                                ld   th, a
+                                anda mask
                                 ld   tl, a
                                 xor  th
                                 add  sincos >> 8
                                 ld   th, a
-                        end.else do
-                            raise ArgumentError, "sincos address must be aligned to 256 bytes"
+                            end.else do
+                                raise ArgumentError, "sincos address must be aligned to 256 bytes"
+                            end
                         end
                     end
                 end
@@ -403,6 +420,7 @@ if __FILE__ == $0
         make_sincos create_sincos_from_sintable sincos, sintable:sintable
 
         sintable    bytes   neg_sintable256_pi_half_no_zero_lo
+        sintable_e  label
 
         draw        make_draw_line_subroutines
         draw_end    label
@@ -447,9 +465,10 @@ if __FILE__ == $0
     ].each do |name|
         puts "#{name.to_s.ljust(14)}: 0x#{testsincos[name].to_s(16).rjust(4,?0)} : #{testsincos[name]}"
     end
-    puts "make sincos size: #{testsincos[:sintable] - testsincos[:make_sincos]}"
-    puts "draw size: #{testsincos[:draw_end] - testsincos[:draw]}"
-    puts "code size: #{testsincos[:sintable] - testsincos[:start]}"
+    puts "make sincos size: #{testsincos[:"+make_sincos"]}"
+    puts "sintable size   : #{testsincos[:sintable_e] - testsincos[:sintable]}"
+    puts "draw size       : #{testsincos[:"+draw"]}"
+    puts "code size       : #{testsincos[:sintable] - testsincos[:start]}"
     raise "memory clash detected" if testsincos[:eop] > testsincos[:sincos]
 
     program.save_tap 'test.z80.utils.sincos.tap', name:'sincos', line:9999
