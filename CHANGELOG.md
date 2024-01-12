@@ -19,6 +19,15 @@ ZXLib:
 * New routines in ZXLib::Gfx::Draw::Macros for updating draw line functions in place.
 * Changed arguments of ZXLib::Sys::Macros#read_integer32_value to 4 8-bit registers instead of 2 16-bit registers, maintaining backward compatibility.
 
+Z80Lib3D:
+--------
+* New library created.
+* Z80Lib3D::Primitives struct collection added.
+* Z80Lib3D::Quaternion module with helper functions added.
+* Z80Lib3D::Matrix3D class with macros for applying matrices added.
+* Float::to_fixed16_8 method defined in fixed_float.rb file.
+
+
 v1.1.0
 ======
 
