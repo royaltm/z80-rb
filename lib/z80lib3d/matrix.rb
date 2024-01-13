@@ -21,7 +21,7 @@ module Z80Lib3D
       #   Z = M[6]*vx + M[7]*vy + M[8]*vz
       #
       #   XP =  ((X << persp_dshift) / (Z + scrz0)) + scrx0
-      #   YP = -((y << persp_dshift) / (Z + scrz0)) + scry0
+      #   YP = -((Y << persp_dshift) / (Z + scrz0)) + scry0
       #
       # Vertices list must be terminated with a (-128) octet and must not be empty.
       #
@@ -54,15 +54,18 @@ module Z80Lib3D
       # * +adjust_x_p+ points to +scrx0+.
       # * +adjust_y_p+ points to +scry0+.
       # * +adjust_z_p+ points to +scrz0+.
+      # * +matrix_loop+ enter to skip reading first Z coordinate, can be used to pre-check if vertices are empty.
+      #   Expects Z coordinage already in +b+ and +hl+ pointing to the next coordinate.
       #
       # Modifies: +sp+, +af+, +af'+, +hl+, +bc+, +de+, +hl'+, +bc'+, +de'+.
       def apply_matrix(matrix, vertices:hl, scrx0:128, scry0:128, scrz0:128, persp_dshift:7)
+        raise ArgumentError, "apply_matrix: invalid arguments" unless [scrx0, scry0, scrz0].all?{|l| direct_address?(l) }
         isolate do
                           ld   hl, vertices unless vertices==hl
                           ld   b, [hl]                # b: z
                           inc  hl                     # hl: -> y
           matrix_loop     ld   sp, matrix
-          matrix_p        matrix_loop + 1             # a label pointer to a matrix argument
+          matrix_p        as matrix_loop + 1          # a label pointer to a matrix argument
                           ld   d, [hl]                # d: y
                           inc  hl                     # hl: -> x
                           ld   e, [hl]                # e: x
@@ -75,7 +78,7 @@ module Z80Lib3D
           # calculate xp, yp
                           exx
           adjust_z_a      add  scrz0            # a: z + 128 (make Z positive)
-          adjust_z_p      adjust_z_a + 1        # a label pointer to scrz0
+          adjust_z_p      as adjust_z_a + 1     # a label pointer to scrz0
                           ld   c, a             # c: z
           # xp = ((x << PERSP_DSHIFT)/(z + 128)) + scrx0
                           ex   af, af           # a: x
@@ -93,7 +96,7 @@ module Z80Lib3D
                                                 # de < 256
                           ex   af, af           # f: CF: sign
           adjust_x_a      ld   a, scrx0         # x to screen coordinates
-          adjust_x_p      adjust_x_a + 1        # a label pointer to scrx0
+          adjust_x_p      as adjust_x_a + 1     # a label pointer to scrx0
                           jr   C, x_negative
 
           x_positive      add  e                # x  >= 0
@@ -127,7 +130,7 @@ module Z80Lib3D
                                                 # de < 256
                           ex   af, af           # f: CF: sign
           adjust_y_a      ld   a, scry0         # y  >= 0
-          adjust_y_p      adjust_y_a + 1        # a label pointer to scry0
+          adjust_y_p      as adjust_y_a + 1        # a label pointer to scry0
                           jr   C, y_negative
 
           y_positive      sub  e                # y to screen coordinates
