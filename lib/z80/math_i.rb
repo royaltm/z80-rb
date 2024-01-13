@@ -671,7 +671,8 @@ module Z80
                             jump.call nil, eoc   # CF=0|1 depending on overflow
                     end
 
-                    m_neg   ld   tl, a
+                    m_neg   label
+                            ld   tl, a unless m == tl
                             neg16 s, th, th:a # a: 0|FF depending on th == 0
                     if k_full_range
                             jr   C, k_over    # 0-0:CF=0, 0-FF:CF=1, FF-0:CF=0, FF-FF:CF=0
