@@ -588,9 +588,9 @@ module Z80
             # * +s+::            An 8-bit sign output register, preferably the same as +kh+.
             # * +tt+::           A 16-bit temporary register (+de+ or +bc+).
             # * +m_neg_cond+::   A flags register branching condition indicating that +m+ is negative.
-            # * +k_full_range+:: Determines whether the multiplicand is allowed to be equal to -256.
+            # * +k_full_range+:: Determines whether the multiplicand is allowed to be equal to (-256).
             #                    Saves 7 T-states and 18-21 bytes if disabled.
-            # * +m_full_range+:: Determines whether the multiplier is allowed to be equal to -256.
+            # * +m_full_range+:: Determines whether the multiplier is allowed to be equal to (-256).
             #                    Saves 7 T-states and 6-9 bytes if disabled.
             # * +k_overflow+::   An address of a rountine to enter on overflow.
             #                    When +k_overflow+ is enabled but +k_full_range+ is disabled the routine
@@ -615,7 +615,7 @@ module Z80
             # a negative multiplier.
             #
             # For example if your multiplicand or a multiplier is derived from a subtraction of 2 positive 8-bit
-            # values, results can never equal to -256. Thus it is safe to disable +full_range+.
+            # values, results can never equal to (-256). Thus it is safe to disable +full_range+.
             #
             # Uses: +af+, +hl+, +tt+, +s+, optionally preserves: +kh+, +kl+ or +m+.
             def mul_signed9(kh=c, kl=d, m=a, s:kh, tt:de, m_neg_cond:C, k_full_range:true, m_full_range:true, k_overflow:nil, m_is_zero_zf:false, optimize: :time)
@@ -652,7 +652,7 @@ module Z80
                             xor  a
                             sub  tl              # a = -m, CF = 1 (unless m == -256)
                         if m_full_range
-                            # m == -256
+                            # m == (-256)
                             jp   NC, k_overflow if k_overflow
                             jr   NC, km_n256 unless k_overflow
                         end
@@ -667,7 +667,7 @@ module Z80
 
                     if m_full_range
                     km_n256 scf unless k_overflow or !k_full_range
-                    m_n256  ld   h, th      # hl: k * -256
+                    m_n256  ld   h, th      # hl: k * (-256)
                             jump.call nil, eoc   # CF=0|1 depending on overflow
                     end
 
@@ -683,7 +683,7 @@ module Z80
                             xor  a
                             sub  tl         # a = -m
                     if m_full_range
-                            jr   Z, m_n256  # m == -256
+                            jr   Z, m_n256  # m == (-256)
                     end
                     mul_it  rrc  s          # k sign -> CF
                             ld   tl, l
@@ -1083,7 +1083,7 @@ module Z80
                             sub  m
                             ld   m, a
                     if m_full_range
-                            jump.call NZ, mul_it # m != -256
+                            jump.call NZ, mul_it # m != (-256)
                         if clrahl
                             ld   l, a             # a: 0
                             ld   h, tl
