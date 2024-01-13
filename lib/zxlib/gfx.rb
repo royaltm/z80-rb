@@ -742,6 +742,7 @@ module ZXLib
               end
             end
           end
+                        ld   c, 8 unless fits_single_row
                         di if disable_intr
                         ld   [restore_sp_p], sp if save_sp
           loop0         label
@@ -766,10 +767,10 @@ module ZXLib
                         jr   C, skip_adj unless scraddr
                         ld   a, h
                         jr   C, check_oos if scraddr
-                        sub  0x08
+                        sub  c          # c: 8
                         ld   h, a
             skip_adj    ex   af, af     # a: remaining lines
-                        ld   b, 8
+                        ld   b, c       # c: 8
                         sub  b
                         jr   NC, loop0
                         add  b
