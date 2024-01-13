@@ -77,19 +77,35 @@ class Quat3D
                         ld   [draw_loop.apply_matrix_a.adjust_z_p], a
                         # save sp
                         ld   [draw_loop.restore_sp_p], sp
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***               DRAW LOOP               ***"
+                        dc!"*********************************************"
     ns :draw_loop do
                         # clear shadow screen pixel area where the new frame will be rendered
                         clear_screen_region_fast(xy_to_pixel_addr(40+22*8, 10, scraddr:0xC000), 180, 22, disable_intr:false, enable_intr:false, save_sp:false)
       object_a          ld   hl, cubes
-      object_p          object_a + 1 # a pointer to a current object's address
+      object_p          as object_a + 1 # a pointer to a current object's address
                         # apply a current matrix to a current object's vertices and calculate screen coordinates
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***             APPLY  MATRIX             ***"
+                        dc!"*********************************************"
       apply_matrix_a    apply_matrix matrix, scrx0:128, scry0:96, scrz0:128, persp_dshift:PERSP_DSHIFT
                         # both apply_matrix and clear_screen_region_fast uses stack pointer so let's restore it
-      restore_sp        ld   sp, 0
-      restore_sp_p      restore_sp + 1
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***              DRAW  WIRES              ***"
+                        dc!"*********************************************"
+      restore_sp_a      ld   sp, 0
+      restore_sp_p      as restore_sp_a + 1
                         # draw current object to the shadow screen's memory
                         call rom.call_jump # effectively call (hl)
                         # set next matrix address
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***              NEXT MATRIX              ***"
+                        dc!"*********************************************"
                         ld   hl, [apply_matrix_a.matrix_p]
                         ld   bc, +matrix
                         add  hl, bc
@@ -97,15 +113,27 @@ class Quat3D
                         jr   C, skip_matrix_reset
       matrix_reset      ld   hl, matrix
       skip_matrix_reset ld   [apply_matrix_a.matrix_p], hl
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***             SWAP  SCREENS             ***"
+                        dc!"*********************************************"
                         # display shadow screen and swap bank 7 to the previous (now shadow) screen
                         mmu128_swap_screens(swap_bank:true, disable_intr:false, enable_intr:false)
                         # modify adjust_z value until object is near
                         ld   hl, apply_matrix_a.adjust_z_p
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***                ADJUST  Z              ***"
+                        dc!"*********************************************"
                         ld   a, [hl]
                         cp   128 - 8
                         jr   Z, skip_adjust_z
                         dec  [hl]
                         # loop unless key is pressed
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***                KEY CHECK              ***"
+                        dc!"*********************************************"
       skip_adjust_z     key_pressed?
                         jp   Z, draw_loop
                         # wait until key is released or a break key was pressed
@@ -113,9 +141,16 @@ class Quat3D
                         halt
                         di
                         call rom.break_key
-                        jr   NC, quit
+                        jp   NC, quit
                         key_pressed?
                         jr   NZ, release_key2
+                        ei
+                        halt
+                        di
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***              CHECK COLORS             ***"
+                        dc!"*********************************************"
       # check color keys
       ns do |eoc|
                         ld   a, [vars.last_k]
@@ -154,6 +189,10 @@ class Quat3D
                         call clear_screen
                         jp   draw_loop
       end
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***               NEXT OBJECT             ***"
+                        dc!"*********************************************"
       ns do
                         # find current object
                         ld   hl, [object_p]
@@ -176,7 +215,12 @@ class Quat3D
       end
                         jp   draw_loop
     end # draw_loop
+                        dc!"*********************************************"
     last_color          db   BG_ATTR
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***                  QUIT                 ***"
+                        dc!"*********************************************"
                         # reset bank and screen and enable interrupts
     quit                mmu128_select_bank(bank:0, screen:0, disable_intr:false, enable_intr:true)
                         call rom.cl_all
@@ -188,6 +232,10 @@ class Quat3D
   # Subroutines #
   ###############
 
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***              CLEAR SCREEN             ***"
+                        dc!"*********************************************"
   ##
   # Clears shadow screen attributes while creating a chequered pattern by alternating brightness bit,
   # sets border and clears ink/paper area.
@@ -215,6 +263,10 @@ class Quat3D
                       ret
   end
 
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***               DRAW  LINE              ***"
+                        dc!"*********************************************"
   ## Line drawing routines.
   draw                make_draw_line_subroutines(make_line:true, make_line_over:false, make_line_inversed:false,
                                                  scraddr:0xC000, check_oos:false)
@@ -223,6 +275,10 @@ class Quat3D
   # 3D Models #
   #############
 
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***                 MODELS                ***"
+                        dc!"*********************************************"
   ## 3D object pointers
   objects             dw cubes,
                          spaceship1,
@@ -367,6 +423,10 @@ class Quat3D
                       ret
   end
 
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***                 MATRIX                ***"
+                        dc!"*********************************************"
   ## Pre-calculated matrixes.
   matrix              data Matrix, *(0...180).map {|angle|
                         rad = angle*Math::PI/90.0
