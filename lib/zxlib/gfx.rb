@@ -988,7 +988,8 @@ module ZXLib
       # * +cols+:: A number of 8 pixel columns to be copied as an 8-bit register or a label or a pointer.
       #            If +cols+ is +a+ the +cols+ is taken from +a'+.
       #
-      # _NOTE_:: Unless +cols+ is one of: +ixh+, +ixl+, +iyh+ or +iyl+ the routine uses self modifying code.
+      # _NOTE_:: Unless +cols+ is a direct label or one of: +ixh+, +ixl+, +iyh+ or +iyl+ the routine uses
+      #          self modifying code.
       #
       # Options:
       # * +tgtaddr+:: A target screen memory address which must be a multiple of 0x2000 as an integer or a label.
@@ -1009,12 +1010,15 @@ module ZXLib
         raise ArgumentError, "address should be an address or a pointer or de" unless address == de or address?(address)
         raise ArgumentError, "lines should be a label or a pointer or a register" unless (register?(lines) and lines.bit8?) or
                                                                                         address?(lines)
-        raise ArgumentError, "cols should be a label or a pointer or a register" unless (register?(lines) and lines.bit8?) or
-                                                                                        address?(lines)
+        raise ArgumentError, "cols should be a label or a pointer or a register" unless (register?(cols) and cols.bit8?) or
+                                                                                        address?(cols)
+        fits_single_row = Integer === address && Integer === lines && lines <= (8 - (address>>8) % 8)
         isolate do |eoc|
+          unless fits_single_row
                           ld   a, lines unless lines == a
                           ex   af, af     # a': lines
-          unless [ixh,ixl,iyh,iyl].include?(cols)
+          end
+          unless [ixh,ixl,iyh,iyl].include?(cols) || direct_address?(cols)
                           ld   a, cols unless cols == a
                           ld   [cols_p], a
                           ld   c, a if check_edge && cols != c
@@ -1022,18 +1026,26 @@ module ZXLib
                           ld   b, 0
                           ld   de, address unless address == de
           if direct_address?(address)
+            if fits_single_row
+                          ld   h, ((address>>8) + (scrdiff>>8)) & 0xff
+            else
                           ld   a, d
                           add  scrdiff>>8
                           ld   h, a
+            end
                           ld   a, e
                           exx
+            if fits_single_row
+                          ld   b, lines
+            else
                           ld   b, 8 - (address>>8) % 8
+            end
           else
             if check_edge
               ns do |eoc|
                           ld   a, e
                           ora  ~31
-                if [ixh,ixl,iyh,iyl].include?(cols)
+                if [ixh,ixl,iyh,iyl].include?(cols) || direct_address?(cols)
                           add  cols
                 else
                           add  c
@@ -1056,6 +1068,7 @@ module ZXLib
                           ld   a, e
                           exx
           end
+          unless fits_single_row
                           ex   af, af     # a: lines, a': lo
                           ld   c, a       # c: lines
                           dec  a          # a: lines - 1 (remaining lines)
@@ -1063,11 +1076,12 @@ module ZXLib
                           jr   NC, start
                           ld   b, c       # b: counter = c: lines
 
-          start           ex   af, af     # a': remaining rows - 1; CF': 1 == last batch, a: lo
+            start         ex   af, af     # a': remaining rows - 1; CF': 1 == last batch, a: lo
+          end
           rloop           exx
           loop0           ld   e, a
           loop1           ld   l, a
-          if [ixh,ixl,iyh,iyl].include?(cols)
+          if [ixh,ixl,iyh,iyl].include?(cols) || direct_address?(cols)
                           ld   c, cols
           else
             cols_a        ld   c, 0 # self-modified
@@ -1080,12 +1094,14 @@ module ZXLib
                           inc  h
                           exx
                           djnz rloop
+                          ret if subroutine && fits_single_row
+          unless fits_single_row
                           ex   af, af     # a: remaining lines, a': lo
-          if subroutine
+            if subroutine
                           ret  C
-          else
+            else
                           jr   C, eoc
-          end
+            end
                           ld   b, 8
                           sub  b
                           jr   NC, loop8
@@ -1093,7 +1109,7 @@ module ZXLib
                           ld   b, a
                           inc  b
 
-          loop8           exx
+            loop8         exx
                           ex   af, af     # a: lo, a': remaining lines
                           add  0x20       # a: lo + 0x20
                           jr   C, loop0 unless break_oos
@@ -1106,11 +1122,12 @@ module ZXLib
                           ld   h, a
                           ld   a, e
                           jp   loop1
-          if break_oos
-            check_ooscr   cp   (tgtaddr >> 8)|0x18
+            if break_oos
+              check_ooscr cp   (tgtaddr >> 8)|0x18
                           ld   a, e
                           jr   C, loop1
                           ret if subroutine
+            end
           end
         end
       end
