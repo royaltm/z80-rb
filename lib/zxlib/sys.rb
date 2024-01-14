@@ -1109,10 +1109,10 @@ module ZXLib
             # Options:
             # * +bank+:: Selects a memory bank available at 0xC000-0xFFFF as an integer or
             #            any of the 8-bit registers except +a+, or indirect memory address via a 16-bit register.
-            #            In this instance you should pass +true+ to the +screen:+ option if bit-4 of 
+            #            In this instance you should pass +true+ to the +screen:+ option if bit-3 of 
             #            the +bank+ should select a screen to be displayed.
             # * +screen+:: 0 - Display screen from bank 5. 1 - Display screen from bank 7.
-            #              +true+ to preserve screen bit-4 from the +bank+ register.
+            #              +nil+ to preserve screen bit-3 from the +bank+ register.
             # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
             #                    only if you have already disabled the interrupts.
             # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
