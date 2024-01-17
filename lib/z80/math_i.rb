@@ -534,7 +534,7 @@ module Z80
             # Creates a routine that performs a multiplication of a signed 8-bit +k+ * 8-bit signed +m+.
             #
             # See Macros.mul for details.
-            def mul_signed(k=d, m=a, tt:de, clrhl:true)
+            def mul_signed(k=d, m=a, tt:de, clrhl:true, optimize: :time)
                 th, tl = tt.split
                 raise ArgumentError if tt == hl or m == th
                 isolate do
@@ -552,7 +552,7 @@ module Z80
                         else
                             sub  m
                         end
-                    mul_it  mul(th, a, tt:tt, clrhl:clrhl, signed_k:true)
+                    mul_it  mul(th, a, tt:tt, clrhl:clrhl, signed_k:true, optimize:optimize)
                 end
             end
             ##
