@@ -708,11 +708,17 @@ module Z80
             # * +signed_k+:: If the multiplicand (+k+) represents a twos complement signed integer.
             # * +kbit9_carry+:: If the multiplicand (+k+) is 9-bit, where MSB (9th) bit is read from CARRY flag.
             # * +tl_is_zero+::  Whether +tl+ (LSB of +tt+) register has been already cleared.
-            # * +optimize+:: What is more important: +:time+ or +:size+? Applies only if +kbit9_carry+ is +true+.
+            # * +optimize+:: What is more important: +:time+ or +:size+?
             #
             # Uses: +af+, +hl+, +tt+, optionally preserves: +k+, +m+.
             def mul(k=d, m=a, tt:de, clrhl:true, signed_k:false, kbit9_carry:false, tl_is_zero:false, optimize: :time)
+                raise ArgumentError, "mul: optimize should be :time or :size" unless [:size, :time].include?(optimize)
                 th, tl = tt.split
+                srx = if signed_k
+                    proc {|t| sra t}
+                else
+                    proc {|t| srl t}
+                end
                 raise ArgumentError if tt == hl or m == th
                 isolate do |eoc|
                             ld   th, k unless k == th
@@ -725,28 +731,37 @@ module Z80
                     end
                     if kbit9_carry
                             rr   th
-                        if optimize == :size
-                            jr   cont9
-                        elsif optimize == :time
+                        if optimize == :time
                             rr   tl
                             add  a, a
                             jr   NC, noadd9
                             add  hl, tt
                     noadd9  jr   Z, eoc
                         else
-                            raise ArgumentError, "optimize should be :time or :size"
+                            jr   cont9
                         end
+                    elsif optimize == :time
+                            srx[th]
+                            rr   tl
+                            add  a, a
+                            jr   NC, noadd8
+                            add  hl, tt
+                    noadd8  jr   Z, eoc
                     end
-                    if signed_k
-                        loop1   sra  th
-                    else
-                        loop1   srl  th
-                    end
+                    loop1   srx[th]
                     cont9   rr   tl
                             add  a, a
+                    if optimize == :time
+                            jr   NC, loop1
+                    else
                             jr   NC, noadd
+                    end
                             add  hl, tt
+                    if optimize == :time
+                            jp   NZ, loop1
+                    else
                     noadd   jr   NZ, loop1
+                    end
                 end
             end
             ##
