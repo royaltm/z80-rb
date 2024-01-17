@@ -1902,9 +1902,7 @@ module Z80
                                     cp  1
                                     jr  C, check0 if check0 # division by 0
                         if check1
-                                    jp  NZ, divstrt  # division by m > 1
-                                    xor a            # clear rest
-                                    jp  check1       # division by 1
+                                    jr  Z, divone    # division by m == 1
                         end
                     end
                     divstrt         xor a            # a = 0
@@ -1913,20 +1911,27 @@ module Z80
                                     jr  C, found
                                     djnz findhi
                                     jp  eoc          # hl == 0
+                    if check1
+                        divone      xor a            # clear rest
+                                    jp  check1       # division by 1
+                    end
                     loopfit         add hl, hl       # carry <- hl <- 0
                     found           adc a            # carry <- a <- carry
                                     jr  C, fits      # a >= 256
                                     cp  m            # a - m
                                     jr  NC, fits     # a >= m
                                     djnz loopfit     # loop
-                                    ccf if check0    # clear carry only when check0
+                    if check0
+                                    jp  quitccf      # clear carry only when check0
+                    else
                                     jp  eoc
+                    end
                     fits            sub m            # a = a - m (rest)
                     unless modulo
                                     inc l            # hl <- 1 (quotient)
                     end
                                     djnz loopfit     # loop
-                                    ora  a if check0 # clear carry only when check0
+                    quitccf         anda a if check0 # clear carry only when check0
                 end
             end
             ##
