@@ -16,7 +16,7 @@ class Stars
   macro_import ZXLib::Gfx::Draw
 
   BG_STARS = 256
-  NSTARS = 64
+  NSTARS = 128
   SPEED = 3
   MAX_SPEED = 32
   STAR_COORD_HI_MASK = 0b00111111
@@ -55,37 +55,33 @@ class Stars
                       call set_border_cr
                       jr   eoc
 
-    dec_speed         ld   a, [move_stars.speed_p + 1]
+    dec_speed         ld   a, [move_stars.speed_p]
                       anda a
                       jr   Z, mloop
                       dec  a
                       jr   set_speed
 
-    inc_speed         ld   a, [move_stars.speed_p + 1]
+    inc_speed         ld   a, [move_stars.speed_p]
                       inc  a
                       cp   MAX_SPEED
                       jr   NC, mloop
-    set_speed         ld   [move_stars.speed_p + 1], a
+    set_speed         ld   [move_stars.speed_p], a
                       jr   mloop
   end
 
-  macro :divmod16_8 do |eoc, th, tl, m| # divide (tt)/m
-                      divmod th, m, check0:eoc, check1:eoc
-                      divmod tl, m, clrrem:false
-                      anda a # clear CF
-  end
-
-  macro :persp_coord do |_, th, tl| # z: c, tt: x -> hl: x/z, CF:div by 0, a': sgn(x-128)
+  macro :persp_coord do |_, th, tl, c0:true| # z: c, tt: x -> hl: x/z, CF:div by 0, a': sgn(x-128)
                       rlc  tl               # we just need one random bit for a sign
                       ex   af, af           # CF: sgn(x)
-                      divmod16_8 th, tl, c  # (x*4)/z
+                      # (x*4)/z
+                      divmod16_8 th, tl, c, check0:c0, check0_far:false, check1:false, k_leq_m:true, ignore_cf:true, optimize: :time_alt
   end
 
   ns :move_stars do
                       ld   [restore_sp + 1], sp
                       di
                       ld   sp, stars
-    nstars_p          ld   b, NSTARS
+    nstars_a          ld   b, NSTARS
+    nstars_p          as nstars_a + 1
 
     sloop             exx
 
@@ -100,8 +96,8 @@ class Stars
                       ld   [hl], a               # clear star
                       exx
 
-                      persp_coord h, l           # hl: x/z
-                      jr   C, skip_star          # z=0
+                      persp_coord h, l, c0:skip_star # hl: x/z
+                      # jr   C, skip_star          # z=0
                       ld   a, h
                       anda a
                       jr   NZ, skip_star         # hl >= 256
@@ -126,8 +122,8 @@ class Stars
     skip_neg_x        ld   l, a                  # l: xp
 
                       ex   de, hl                # e: xp, hl: y
-                      persp_coord h, l           # hl: y/z
-                      jr   C, skip_star          # z=0
+                      persp_coord h, l, c0:skip_star # hl: y/z
+                      # jr   C, skip_star          # z=0
                       ld   a, h
                       anda a
                       jr   NZ, skip_star         # hl >= 256
@@ -153,7 +149,8 @@ class Stars
                       ld   [hl], a
     skip_plot         push hl                    # screen addr
                       ex   af, af                # a: z
-    speed_p           sub  SPEED
+    speed_a           sub  SPEED
+    speed_p           as speed_a + 1
                       ld   e, a                  # z
                       push de
                       jr   C, reinitialize_star
@@ -239,7 +236,8 @@ class Stars
   end
 
   ns :background_stars do
-    bstars_p          ld   b, BG_STARS
+    bstars_a          ld   b, BG_STARS
+    bstars_p          as bstars_a + 1
                       ld   ixl, 0b00000001
                       exx
                       call rand_seed
@@ -268,12 +266,13 @@ class Stars
   end
 
   rand_seed           ld   hl, 0
+  rand_seed_p         as rand_seed + 1
   rand_fn_hl          rnd
                       ret
 
-  seed                union rand_seed+1, 2
-  nstars              union move_stars.nstars_p + 1, 1
-  bstars              union background_stars.bstars_p + 1, 1
+  seed                union rand_seed_p, 2
+  nstars              union move_stars.nstars_p, 1
+  bstars              union background_stars.bstars_p, 1
 
   preshifted_pixel    preshifted_pixel_mask_data :pixel
   stars               label Star

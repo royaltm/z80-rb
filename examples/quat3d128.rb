@@ -91,7 +91,7 @@ class Quat3D
                         dc!"*********************************************"
                         dc!"***             APPLY  MATRIX             ***"
                         dc!"*********************************************"
-      apply_matrix_a    apply_matrix matrix, scrx0:128, scry0:96, scrz0:128, persp_dshift:PERSP_DSHIFT
+      apply_matrix_a    apply_matrix matrix, scrx0:128, scry0:96, scrz0:128, persp_dshift:PERSP_DSHIFT, optimize: :unroll_alt
                         # both apply_matrix and clear_screen_region_fast uses stack pointer so let's restore it
                         dc!
                         dc!"*********************************************"
