@@ -967,7 +967,7 @@ module Z80
             # * +t+::   An 8-bit temporary register, it must not be the +accumulator+ nor be a part of the +tt+.
             # * +clrhl+:: If the result should be set or accumulated, if +false+ acts like: +hl+ += +kh+|+kl+ * +m+.
             # * +double+:: +true+ if the result should be multiplied by 2 (+kh+|+kl+ * 2).
-            # * +optimize+:: What is more important: +:time+ or +:size+? Applies only if +double+ is +false+.
+            # * +optimize+:: What is more important: +:time+ or +:size+?
             #
             # Uses: +af+, +hl+, +m+, +kh+, +kl+, +t+, +tt+, optionally preserves: +kh+, +kl+, +m+.
             def mul8_signed(kh=h, kl=l, m=c, tt:de, t:m, clrhl:true, double:false, optimize: :time)
@@ -1005,33 +1005,42 @@ module Z80
             # * +tt+::    A 16-bit temporary register (+de+ or +bc+).
             # * +clrhl+:: If the result should be set or accumulated, if +false+ acts like: +hl+ += +kh+|+kl+ * +m+.
             # * +double+:: +true+ if the result should be multiplied by 2 (+kh+|+kl+ * 2).
-            # * +optimize+:: What is more important: +:time+ or +:size+? Applies only if +double+ is +false+.
+            # * +optimize+:: What is more important: +:time+ or +:size+?
             #
             # Uses: +f+, +hl+, +m+, +kh+, +kl+, +tt+, optionally preserves: +kh+, +kl+.
             def mul8(kh=h, kl=l, m=a, tt:de, clrhl:true, double:false, optimize: :time)
+                raise ArgumentError, "mul8: optimize should be :time or :size" unless [:size, :time].include?(optimize)
                 th, tl = tt.split
                 raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == kh or th == kl or !register?(m)
                 isolate do |eoc|
                             ld   tl, kl unless kl == tl
                             ld   th, kh unless kh == th
                             ld   hl, 0 if clrhl
-                    unless double
-                        if optimize == :size
-                            jr   muls1
-                        elsif optimize == :time
+                    if optimize == :time
+                        if double
+                            sla  tl
+                            rl   th
+                        end
                             srl  m
                             jr   C, doadd
                             jr   Z, eoc
-                        else
-                            raise ArgumentError, "optimize should be :time or :size"
-                        end
+                    elsif !double
+                            jr   muls1
                     end
                     loop1   sla  tl
                             rl   th
                     muls1   srl  m
+                    if optimize == :time
+                            jr   NC, loop1
+                    else
                             jr   NC, noadd
+                    end
                     doadd   add  hl, tt
+                    if optimize == :time
+                            jp   NZ, loop1
+                    else
                     noadd   jr   NZ, loop1
+                    end
                 end
             end
             ##
