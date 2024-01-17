@@ -58,8 +58,10 @@ module Z80Lib3D
       #   Expects Z coordinage already in +b+ and +hl+ pointing to the next coordinate.
       #
       # Modifies: +sp+, +af+, +af'+, +hl+, +bc+, +de+, +hl'+, +bc'+, +de'+.
-      def apply_matrix(matrix, vertices:hl, scrx0:128, scry0:128, scrz0:128, persp_dshift:7)
+      def apply_matrix(matrix, vertices:hl, scrx0:128, scry0:128, scrz0:128, persp_dshift:7, optimize: :time)
         raise ArgumentError, "apply_matrix: invalid arguments" unless [scrx0, scry0, scrz0].all?{|l| direct_address?(l) }
+        mx_optimize = if optimize != :size then :time else :size end
+        check0_far = (optimize == :unroll || optimize == :unroll_alt)
         isolate do
                           ld   hl, vertices unless vertices==hl
                           ld   b, [hl]                # b: z
@@ -69,11 +71,14 @@ module Z80Lib3D
                           ld   d, [hl]                # d: y
                           inc  hl                     # hl: -> x
                           ld   e, [hl]                # e: x
-                          apply_matrix_row e, d, b    # af: x = qxx*x + qxy*y + qxz*z
+                          # af: x = qxx*x + qxy*y + qxz*z
+                          apply_matrix_row e, d, b, optimize:mx_optimize
                           ex   af, af                 # a': new x
-                          apply_matrix_row e, d, b    # af: y = qyx*x + qyy*y + qyz*z
+                          # af: y = qyx*x + qyy*y + qyz*z
+                          apply_matrix_row e, d, b, optimize:mx_optimize
                           ld   c, a                   # c: new y
-                          apply_matrix_row e, d, b    # af: z = qzx*x + qzy*y + qzz*z
+                          # af: z = qzx*x + qzy*y + qzz*z
+                          apply_matrix_row e, d, b, optimize:mx_optimize
                           inc  hl                     # hl: -> xp
           # calculate xp, yp
                           exx
@@ -87,9 +92,10 @@ module Z80Lib3D
                           neg                   # CF: 1
           pos_x           ld   e, a             # x
                           ex   af, af           # f': CF: z sign
+                           # (x << PERSP_DSHIFT) / z
                           sll8_16 persp_dshift, d, e # de: x << PERSP_DSHIFT
-                          divmod16_8 d, e, c    # (x << PERSP_DSHIFT) / z
-                          jr   C, x_overflow    # z=0
+                          divmod16_8 d, e, c, check0:x_overflow, check0_far:check0_far, check1:false, ignore_cf:true, optimize:optimize
+                          # jr   C, x_overflow    # z=0
                           ld   a, d
                           anda a
                           jr   NZ, x_overflow   # de >= 256
@@ -106,7 +112,7 @@ module Z80Lib3D
                           exx
                           ld   [hl], a
                           inc  hl
-                          jr   skip_overflow_x
+                          jp   skip_overflow_x
 
           x_negative      sub  e                # x  <  0: x to screen coordinates
                           jr   C, x_overflow    # xp <  0
@@ -121,9 +127,10 @@ module Z80Lib3D
                           neg
           pos_y           ld   e, a             # y
                           ex   af, af           # f': CF: sign
+                          # (y << PERSP_DSHIFT) / z
                           sll8_16 persp_dshift, d, e # de: y << PERSP_DSHIFT
-                          divmod16_8 d, e, c    # (y << PERSP_DSHIFT) / z
-                          jr   C, y_overflow    # z=0
+                          divmod16_8 d, e, c, check0:y_overflow, check0_far:check0_far, check1:false, ignore_cf:true, optimize:optimize
+                          # jr   C, y_overflow    # z=0
                           ld   a, d
                           anda a
                           jr   NZ, y_overflow   # de >= 256
@@ -174,14 +181,14 @@ module Z80Lib3D
       # * +t+:: An 8-bit temporary register from the alternative register set.
       #
       # Modifies: +sp+, +af+, +hl'+, +tt'+, +t'+, preserves +x+, +y+, +z+.
-      def apply_matrix_row(x, y, z, tt:de, t:c)
+      def apply_matrix_row(x, y, z, tt:de, t:c, optimize: :time)
         raise ArgumentError, "apply_matrix_row: invalid arguments" if y == a or z == a
         isolate do
-                      apply_matrix_element x, tt:tt, t:t, clrhl: true  # qxx*x
+                      apply_matrix_element x, tt:tt, t:t, clrhl: true, optimize:optimize  # qxx*x
                       exx
-                      apply_matrix_element y, tt:tt, t:t, clrhl: false # +qxy*y
+                      apply_matrix_element y, tt:tt, t:t, clrhl: false, optimize:optimize # +qxy*y
                       exx
-                      apply_matrix_element z, tt:tt, t:t, clrhl: false # +qxz*z
+                      apply_matrix_element z, tt:tt, t:t, clrhl: false, optimize:optimize # +qxz*z
 
                       xor  a
                       sla  l
@@ -218,13 +225,13 @@ module Z80Lib3D
       # * +clrhl+:: Whether the result should be set (+true+) or added to the previous value (+false+).
       #
       # Modifies: +sp+, +af+, +hl'+, +tt'+, +t'+, optionally preserves +x+, swaps registers.
-      def apply_matrix_element(x, tt:de, t:c, clrhl:false)
+      def apply_matrix_element(x, tt:de, t:c, clrhl:false, optimize: :time)
         th, tl = tt.split
         isolate do
                       ld   a, x unless x == a
                       exx
                       pop  tt          # tt: qxx = iiiiiiiiffffffff
-          multiply    mul8_signed(th, tl, a, tt:tt, t:t, clrhl:clrhl, double:false)
+          multiply    mul8_signed(th, tl, a, tt:tt, t:t, clrhl:clrhl, double:false, optimize:optimize)
         end
       end
     end
