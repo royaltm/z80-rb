@@ -1581,12 +1581,12 @@ module Z80
             # Creates a routine that performs an euclidean division of unsigned: +k+ / +m+.
             # Returns a quotient in +k+ and a remainder in +accumulator+.
             #
-            # This routine can be stacked up one after another to divide arbitrary size dividends.
+            # This routine can be chained one after another to divide arbitrary size dividends.
             # Just preserve the +a+ and +m+ registers and pass +false+ to +clrrem:+ on subsequent routines.
             # Start with the most significant byte of the dividend:
             #
             #    ns :divide24_8 do |eoc| # divide (l|de)/c
-            #      divmod l, c, check0:eoc, check1:eoc
+            #      divmod l, c, check0:eoc, check1:eoc, ignore_cf:true
             #      divmod d, c, clrrem:false
             #      divmod e, c, clrrem:false
             #      anda a # clear CF
@@ -1596,72 +1596,283 @@ module Z80
             # +m+:: A divisor as an 8-bit register except: +a+, +b+, +k+.
             #
             # Options:
-            # * +clrrem+:: Clears a reminder (+accumulator+). If this is +false+, +check0+ and +check1+
-            #              options are being ignored.
+            # * +clrrem+:: Clears a reminder (+accumulator+). If this is +false+, +check0+, +check1+ and
+            #              +k_leq_m+ options are being ignored.
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. It may also be a label
-            #              (within the relative jump range) to indicate where to jump if +m+ equals 0.
-            # * +check1+:: Checks if a divisor equals 1, a hot path optimization. It may also be a label
+            #              (within the relative jump range) to indicate where to jump if +m+ is 0.
+            # * +check0_far+:: Allow to specify far (outside the relative jump range) +check0+ label.
+            # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. It may also be a label
             #              to indicate where to jump if +m+ equals 1.
+            # * +k_leq_m+:: Short circuits if a dividend is equal to or less than a divisor, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
-            # * +optimize+:: What is more important: +:time+ or +:size+?
+            # * +ignore_cf+:: Removes instruction to clear CF if +check0+ is also set. This can be used if
+            #                 +check0+ is provided as a label instead of checking the state of the CF flag.
+            # * +optimize+:: Optimization options: +:size+, +:time+, +:unroll+, +:time_alt+, +:unroll_alt+.
+            #                The +:time_alt+ and +:unroll_alt+ use undocumented +sll+ instruction.
+            #
+            # ====Optimization options:
+            # 
+            #   bytes|~avg T-states|max T-states
+            #
+            #    options       check       check       check        check          check      no clrrem
+            #   optimize        all       0 & km       0 & 1        0 only         none       remainder=0
+            #   :size        36|~221|400  34|~216|396  24|~367|389  19|~357|380  13|~336|358  14|~388|410
+            #   :time        49|~215|447  47|~210|453  39|~336|436  33|~331|442  27|~310|420  29|~358|460
+            #   :time_alt    51|~214|423  49|~209|425  41|~338|412  35|~332|414  30|~316|396  32|~364|436
+            #   :unroll     119|~172|301 117|~166|297 110|~256|290 104|~250|286 104|~250|286  80|~282|304
+            #   :unroll_alt 164|~161|296 162|~155|298 155|~236|285 149|~230|287 144|~213|269 140|~261|309
             #
             # Uses: +af+, +b+, +k+, preserves: +m+.
-            def divmod(k, m, clrrem:true, check0:true, check1:true, modulo:false, optimize: :time)
+            def divmod(k, m, clrrem:true, check0:true, check0_far:false, check1:true, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time)
                 unless clrrem
                     check0 = false
                     check1 = false
+                    k_leq_m = false
                 end
-                raise ArgumentError unless [d, e, h, l, c].include?(k) and [d, e, h, l, c].include?(m) and k != m
-                raise ArgumentError, "optimize should be :time or :size" unless [:size, :time].include?(optimize)
+                raise ArgumentError, "divmod: invalid arguments" unless [d, e, h, l, c].include?(k) and
+                                                                        [d, e, h, l, c].include?(m) and k != m
+                opt_alt = case optimize
+                when :time_alt
+                    optimize = :time
+                    true
+                when :unroll_alt
+                    optimize = :unroll
+                    true
+                when :size, :time, :unroll then false
+                else
+                    raise ArgumentError, "divmod: optimize should be :size, :time, :time_alt, :unroll or :unroll_alt"
+                end
+                if k_leq_m.nil?
+                    k_leq_m = (optimize != :size)
+                end
                 isolate do |eoc|
+                    if check0 == true
+                        check0 = eoc
+                        check0_far = (optimize == :unroll && opt_alt)
+                    end
                     check1 = eoc if check1 == true
-                    check0 = eoc if check0 == true
-                    if check0 or check1
+                    if check0 or check1 or k_leq_m
                                     ld  a, m
-                                    cp  1
-                                    jr  C, check0 if check0 # division by 0
-                        if check1
-                            if optimize == :size
-                                    jr  NZ, divstrt  # division by m > 1
+                                    cp  1 if check0 or check1 
+                        if check0
+                            if check0_far && optimize == :size
+                                    jp  C, check0 # division by 0
+                            elsif check0_far
+                                    jr  C, fw_check0 # division by 0
                             else
-                                    jp  NZ, divstrt  # division by m > 1
+                                    jr  C, check0 # division by 0
                             end
+                        end
+                        if check1
+                            if optimize == :size && !k_leq_m
+                                    jr  NZ, divstrt  # division by m > 1
                                     xor a            # clear rest
-                                    jp  check1       # division by 1
+                                if check1 == eoc
+                                    jr  eoc          # division by 1
+                                else
+                                    jp  check1
+                                end
+                            else
+                                    jr  Z, divone    # division by m == 1
+                            end
+                        end
+                        if k_leq_m
+                                    cp  k            # m < k ?
+                            if optimize == :size
+                                    jr  C, divstrt   # m < k
+                            kislqm  jr  Z, kiseqm    # k == m
+                                    ld  a, k         # k <  m
+                                    ld  k, 0 unless modulo
+                                    jr  eoc
+                            kiseqm  label            # k == m
+                                    ld  k, 1 unless modulo
+                                if check1 && check1 == eoc
+                            divone  xor a
+                                    jr  eoc
+                                else
+                                    xor a 
+                                    jr  eoc
+                                    if check1
+                                divone  xor a
+                                        jp  check1
+                                    end
+                                end
+                            else
+                                    jr  NC, kislqm   # m >= k
+                            end
                         end
                     end
-                    divstrt         ld  b, 8
-                    if clrrem
+                    if optimize == :unroll
+                        if clrrem
+                                    xor a
+                            7.times do |i|
+                                    sla k      # align highest set bit at CF
+                                    jr  C, define_label("iter#{i}").found1
+                            end
+                            if k_leq_m
+                                    jp  iter7  # k == 0x80
+                            else
+                                    sla k
+                                    jr  C, iter7.found1
+                        fw_check0   label if check0 && check0_far && check0 == eoc
+                                    jp  eoc    # k == 0
+                            end
+                            if k_leq_m
+                            kislqm  jr  Z, kiseqm   # k == m
+                                    ld  a, k        # k <  m
+                                    ld  k, 0 unless modulo
+                        fw_check0   label if check0 && check0_far && check0 == eoc
+                                    jp  eoc
+                            kiseqm  label           # k == m
+                                    ld  k, 1 unless modulo
+                                unless check1 && check1 == eoc
+                                    xor a 
+                                    jp  eoc
+                                end
+                            end
+                            if check1
+                            divone  xor a      # clear rest
+                        fw_check0   label if check0 && check0_far && !(check0 == eoc) && check0 == check1
+                                    jp  check1 # division by 1
+                            end
+                        fw_check0   jp  check0 if check0 && check0_far && !(check0 == eoc) && !(check0 == check1)
+                        end
+                        if opt_alt
+                            8.times do |i|
+                                ns :"iter#{i}" do
+                                        sla k unless clrrem && i.zero?
+                                found1  adc a
+                                        jr  C, :"fits#{i+1}" unless clrrem
+                                        cp  m
+                                        jr  NC, :"fits#{i+1}"
+                                end
+                            end
+                                        sla k unless modulo # clear carry, shift quotient into position
+                            if modulo && check0 && !ignore_cf
+                                        jp  quitccf # clear carry
+                            else
+                                        jp  eoc
+                            end
+                            (1..7).each do |i|
+                                ns :"fits#{i}" do
+                                        sub m
+                                        sll k
+                                        adc a
+                                        jr  C, :"fits#{i+1}" unless clrrem
+                                        cp  m
+                                    if i != 7
+                                        jr  C, :"iter#{i+1}"
+                                    else
+                                        jr  NC, fits8
+                                        sla k unless modulo # clear carry, shift quotient into position
+                                        if modulo && check0 && !ignore_cf
+                                            jp  quitccf # clear carry
+                                        else
+                                            jp  eoc
+                                        end
+                                    end
+                                end
+                            end
+                                fits8   sub m
+                                quitccf anda a if modulo && check0 && !ignore_cf # clear carry
+                                        sll k unless modulo # clear carry, shift quotient into position
+                        else
+                            8.times do |i|
+                                isolate :"iter#{i}" do |skipadd|
+                                        sla k unless clrrem && i.zero?
+                                found1  adc a
+                                        jr  C, fits unless clrrem
+                                        cp  m
+                                        jr  C, skipadd
+                                fits    sub m
+                                        inc k unless modulo
+                                end
+                            end
+                                        anda a if check0 && !ignore_cf # clear carry
+                        end
+                    else # optimize != :unroll
+                        divstrt     ld  b, 8
+                        if clrrem
                                     xor a            # a = 0
-                        if optimize == :time
+                            if optimize == :time
                             findhi  sla k            # align highest set bit at CF
                                     jr  C, found1
                                     djnz findhi
-                                    jp  eoc          # k == 0
+                                    jp  eoc unless k_leq_m # k == 0
+                                if k_leq_m
+                            kislqm  jr  Z, kiseqm   # k == m
+                                    ld  a, k        # k <  m
+                                    ld  k, 0 unless modulo
+                                    jp  eoc
+                            kiseqm  label           # k == m
+                                    ld  k, 1 unless modulo
+                                    unless check1 && check1 == eoc
+                                        xor a       # clear rest
+                                        jp  eoc
+                                    end
+                                end
+                                if check1
+                            divone  xor a            # clear rest
+                        fw_check0   label if check0 && check0_far && check0 == check1
+                                    jp  check1       # division by 1
+                                end
+                        fw_check0   jp  check0 if check0 && check0_far && !(check0 == check1)
+                            end
                         end
-                    end
-                    loopfit         sla k            # carry <- k <- 0
-                    found1          adc a            # carry <- a <- carry
-                    unless clrrem
-                                    jr  C, fits      # a >= 256
-                    end
+                        if optimize == :time
+                            unless clrrem
+                                    sla k            # carry <- k <- 0 (quotient)
+                                    adc a            # carry <- a <- carry
+                                    jr  C, fits unless clrrem # a >= 256
+                                    cp  m
+                                    jr  NC, fits     # a >= m
+                                    djnz loopfit     # b = 7
+                            end
+                            fits    sub m            # a = a - m (rest)
+                            if opt_alt && !modulo
+                                    sll k            # carry <- k <- 1 (quotient)
+                                    djnz found1      # loop
+                            else
+                                    inc k unless modulo # k <- 1 (quotient)
+                                    djnz loopfit     # loop
+                            end
+                            if !(opt_alt && !modulo) && check0 && !ignore_cf
+                                    jp  quitccf      # quit with clear carry
+                            else
+                                    jp  eoc
+                            end
+                            loopfit sla k            # carry <- k <- 0
+                            found1  adc a            # carry <- a <- carry
+                                    jr  C, fits unless clrrem # a >= 256
                                     cp  m            # a - m
                                     jr  NC, fits     # a >= m
-                                    djnz loopfit     # loop
-                                    ccf if check0    # clear carry only when check0
-                    if optimize == :size
-                                    jr  eoc
-                    else
-                                    jp  eoc
+                            nfits   djnz loopfit     # loop
+                            if opt_alt && !modulo
+                                    sla k            # clear carry, shift quotient into position
+                            elsif check0 && !ignore_cf
+                            quitccf anda a           # clear carry only when check0
+                            end
+                        elsif optimize == :size
+                            loopfit sla k            # carry <- k <- 0
+                                    adc a            # carry <- a <- carry
+                            if modulo && clrrem
+                                    sub m
+                                    jr  NC, fits
+                                    add m
+                            fits    djnz loopfit
+                            else
+                                    jr  C, fits unless clrrem # a >= 256
+                                    cp  m
+                                    jr  C, nfits
+                            fits    sub m
+                                    inc k unless modulo # k <- 1 (quotient)
+                            nfits   djnz loopfit
+                            end
+                                    anda a if check0 && !ignore_cf # clear carry
+                        end
                     end
-                    fits            sub m            # a = a - m (rest)
-                    unless modulo
-                                    inc k            # k <- 1 (quotient)
-                    end
-                                    djnz loopfit     # loop
-                                    ora  a if check0 # clear carry only when check0
                 end
             end
             ##
@@ -1732,23 +1943,31 @@ module Z80
             #              and nothing except the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. It may also be a label
             #              (within the relative jump range) to indicate where to jump if +m+ equals 0.
+            # * +check0_far+:: Allow to specify far (outside the relative jump range) +check0+ label.
             # * +check1+:: Checks if a divisor equals 1, a hot path optimization. It may also be a label
             #              to indicate where to jump if +m+ equals 1.
+            # * +k_leq_m+:: Short circuits if +kh+ is equal or less than a divisor, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
-            # * +optimize+:: What is more important: +:time+ or +:size+?
+            # * +ignore_cf+:: Removes instruction to clear CF if +check0+ is also set. This can be used if
+            #                 +check0+ is provided as a label instead of checking the state of the CF flag.
+            # * +optimize+:: Optimization options: +:size+, +:time+, +:unroll+, +:time_alt+, +:unroll_alt+.
+            #                See Macros.divmod for details.
             #
             # _NOTE_:: A Macros.divmod8 presents a slower (up to 12%) but a significantly
             #          smaller (x1.5) alternative.
             #
             # Uses: +af+, +b+, +kh+, +kl+, preserves: +m+.
-            def divmod16_8(kh, kl, m, check0:true, check1:true, modulo:false, optimize: :time)
+            def divmod16_8(kh, kl, m, check0:true, check0_far:false, check1:true, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time)
                 raise ArgumentError unless [kh, kl, m].uniq.size == 3
                 isolate do |eoc|
-                    check0 = eoc if check0 == true
+                    if check0 == true
+                        check0 = eoc
+                        check0_far = (optimize == :unroll || optimize == :unroll_alt)
+                    end
                     check1 = eoc if check1 == true
-                    divmod kh, m, check0:check0, check1:check1, modulo:modulo, optimize:optimize
+                    divmod kh, m, check0:check0, check0_far:check0_far, check1:check1, k_leq_m:k_leq_m, modulo:modulo, optimize:optimize, ignore_cf:true
                     divmod kl, m, clrrem:false, modulo:modulo, optimize:optimize
-                    anda a if check0 # clear CF
+                    anda a if check0 && !ignore_cf # clear CF unless ignored
                 end
             end
             ##
@@ -1764,7 +1983,7 @@ module Z80
             # * +check1+:: Checks if a divisor is 1, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
             # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance uses a different,
-            #              optimized for 8-bit division code. It can also be set to +:divmod8+ to use
+            #              optimized for 8-bit division code. +quick8+ can also be set to +:divmod8+ to use
             #              Macros.divmod8 (smaller code) instead of stacked Macros.divmod for an 8-bit division.
             #
             # Uses: +af+, +bc+, +hl+, +x+, preserves: +de+.
@@ -1781,7 +2000,7 @@ module Z80
                             if quick8 == :divmod8
                                         divmod8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo
                             else
-                                        divmod h, e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo, optimize: :time
+                                        divmod h, e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo, optimize: :time, ignore_cf:true
                                         divmod l, e, clrrem:false, optimize: :time
                                         anda a if check0
                             end
@@ -1854,21 +2073,29 @@ module Z80
             #              and nothing except the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. It may also be a label
             #              (within the relative jump range) to indicate where to jump if +m+ equals 0.
+            # * +check0_far+:: Allow to specify far (outside the relative jump range) +check0+ label.
             # * +check1+:: Checks if a divisor equals 1, a hot path optimization. It may also be a label
             #              to indicate where to jump if +m+ equals 1.
+            # * +k_leq_m+:: Short circuits if +kh+ is equal or less than a divisor, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
-            # * +optimize+:: What is more important: +:time+ or +:size+?
+            # * +ignore_cf+:: Removes instruction to clear CF if +check0+ is also set. This can be used if
+            #                 +check0+ is provided as a label instead of checking the state of the CF flag.
+            # * +optimize+:: Optimization options: +:size+, +:time+, +:unroll+, +:time_alt+, +:unroll_alt+.
+            #                See Macros.divmod for details.
             #
             # Uses: +af+, +b+, +kh+, +km+, +kl+, preserves: +m+.
-            def divmod24_8(kh, km, kl, m, check0:true, check1:true, modulo:false, optimize: :time)
+            def divmod24_8(kh, km, kl, m, check0:true, check0_far:false, check1:true, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time)
                 raise ArgumentError unless [kh, km, kl, m].uniq.size == 4
                 isolate do |eoc|
-                    check0 = eoc if check0 == true
+                    if check0 == true
+                        check0 = eoc
+                        check0_far = (optimize == :unroll || optimize == :unroll_alt)
+                    end
                     check1 = eoc if check1 == true
-                    divmod kh, m, check0:check0, check1:check1, modulo:modulo, optimize:optimize
+                    divmod kh, m, check0:check0, check0_far:check0_far, check1:check1, k_leq_m:k_leq_m, modulo:modulo, optimize:optimize, ignore_cf:true
                     divmod km, m, clrrem:false, modulo:modulo, optimize:optimize
                     divmod kl, m, clrrem:false, modulo:modulo, optimize:optimize
-                    anda a if check0 # clear CF
+                    anda a if check0 && !ignore_cf # clear CF unless ignored
                 end
             end
             ##
