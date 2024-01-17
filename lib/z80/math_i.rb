@@ -1180,19 +1180,20 @@ module Z80
                         last    jr  NC, eoc
                                 add hl, tt      # last add
                                 adc a, t
-                    elsif optimize == :time     # 27 bytes
+                    elsif optimize == :time     # 29 bytes
                                 srl m           # 0 -> multiplier -> carry
-                                jp  NZ, loop1   # m != 0 ? start regular loop
+                                jp  NZ, skip0   # m != 0 ? start regular loop
                                 jr  C, skadd    # m == 1 ? add and quit
                                 jp  eoc         # m == 0 ? just quit
-                        loop1   jr  NC, noadd   # carry == 0 ? don't add
-                                add hl, tt      # add multiplicand to result lo16
+                        skip0   jr  NC, noadd   # carry == 0 ? don't add
+                        doadd   add hl, tt      # add multiplicand to result lo16
                                 adc a, t        # add multiplicand to result hi8
                         noadd   sla tl          # multiplicand *= 2
                                 rl  th
                                 rl  t
                                 srl m           # 0 -> multiplier -> carry
-                                jp  NZ, loop1   # m != 0 ? loop
+                                jr  NC, noadd   # carry == 0 ? don't add
+                                jp  NZ, doadd   # carry == 1 and m != 0 ? loop
                         skadd   add hl, tt      # last add b.c. carry == 1
                                 adc a, t
                     else
