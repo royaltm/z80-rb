@@ -2027,29 +2027,35 @@ module Z80
                                         cp  1
                                         jr  C, check0 if check0 # division by 0
                             if check1
-                                        jp  NZ, div16strt # division by m > 1
-                                        ld  bc, 0         # clear rest
-                                        jp  check1        # division by 1
+                                        jr  Z, divone     # division by m == 1
                             end
                         end
                     end
                     div16strt           xor a            # a = 0 hi remainder
                                         ld  c, a         # c = 0 lo remainder
                                         ld  b, 16
+                    findhi              add hl, hl       # align highest set bit at CF
+                                        jr  C, found
+                                        djnz findhi
+                                        jp  eoc          # hl == 0, bc == 0
                     loopfit             add hl, hl       # carry <- hl <- 0
-                                        rl  c            # carry <- c <- carry
+                    found               rl  c            # carry <- c <- carry
                                         adc a            # carry <- a <- carry
                                         cp  d            # a - d
                                         jr  NC, fitshi   # a >= d
                                         djnz loopfit     # loop
                                         ccf if check0
                                         jp  over
+                    if check1 && !quick8
+                        divone          ld  bc, 0         # clear rest
+                                        jp  check1        # division by 1
+                    end
                     fitshi              ld  x, a
                                         ld  a, c
                                         jr  NZ, fitslo   # a > d, ignore e
                                         cp  e            # a == d: c - e
                                         jr  NC, fitslo   # a >= e
-                                        ld  a, x 
+                                        ld  a, x
                                         djnz loopfit     # loop
                                         ccf if check0
                                         jp  over
@@ -2340,8 +2346,8 @@ module Z80
                                     ld  h, a
                                     ld  a, c
                                     dec hl          # hl = hl - 1, in effect: borrow|hl = 0x1_nnnn - 0x1_0001 = 0x0_mmmm
-                                                                    # no need to check for overflow here since 65536 is never a result of n*75
-                    mloopck         jr  Z, fits     # b==0: (seed + 1) * 75 == 0x0001_nnnn
+                                                    # no need to check for overflow here since 65536 is never a result of n*75
+                                    jr  Z, fits     # b==0: (seed + 1) * 75 == 0x0001_nnnn
                     mloop1          add a           # shift left hl|a, highest bit to CF
                                     adc hl, hl
                                     jr  NC, mnext   # CF == 0: continue
