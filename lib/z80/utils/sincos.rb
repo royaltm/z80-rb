@@ -412,7 +412,7 @@ if __FILE__ == $0
         end
 
         mult_de_a   ld   a, 87
-                    mul8 d, e, a, tt:de, clrhl:true, double:true
+                    mul8 d, e, a, tt:de, clrhl:true, double:true, optimize: :size
                     inc  h  # rounding up instead of truncating
                     srl  h  # (v +.5)/2
                     ret
