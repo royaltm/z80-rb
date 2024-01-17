@@ -1741,7 +1741,7 @@ module ZXLib
             end
                           ld   tmp, dy
                           ld   xcount, dx
-                          divmod xcount, tmp, check0:horizontal, check1: true
+                          divmod xcount, tmp, check0:horizontal, check0_far:false, check1:true, k_leq_m:false, ignore_cf:true
                                                  # xcount: int(dx/dy), a: dx%dy
                           ld   quot, xcount      # quot: int(dx/dy)
                           ld   size, xcount      # size: quot
