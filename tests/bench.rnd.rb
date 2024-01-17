@@ -39,10 +39,13 @@ class BenchRnd
 
 end
 
+ZXINTERFACE1 = false
+
 benchmark = BenchRnd.new 0x8000 # Note: this must be the 0x8000 address at the moment.
 tsframe = benchmark['bm.tsframe']
 test_rnd = benchmark['test_rnd']
 seed = benchmark['test_rnd.seed']
+channel = if ZXINTERFACE1 then "T" else "P" end
 program = ZXLib::Basic.parse_source <<-EOC
    1 DEF FN n(x)=x-(65536 AND x>=32768)
      DEF FN b(a,c)=USR #{benchmark['bm.bench']}: REM benchmark
@@ -51,21 +54,21 @@ program = ZXLib::Basic.parse_source <<-EOC
      DEF FN i()=USR #{benchmark['bm.get_idle']}: REM idle
      DEF FN r()=USR #{benchmark[:get_bench_result]}: REM result
      DEF FN z(s)=USR #{benchmark[:set_seed]}
-  10 LET counter=50
-  20 PRINT "See results on ZX Printer": OPEN #2,"P": PRINT "Seed:   T-States"
-  30 LET sum=0: LET max=0: LET maxi=-1: LET min=1e+38: LET mini=-1
+  10 LET counter=50#{if ZXINTERFACE1 then ': FORMAT "T";19200' end}
+  20 PRINT "See results on ZX Printer": OPEN #2,"#{channel}": PRINT "Seed:   T-States"
+  30 LET sum=0: LET max=0: LET maxi=-1: LET min=1e+38: LET mini=-1: LET v=0
   40 INPUT "step 1-128: ";step: IF step<1 OR step>128 OR step<>INT step THEN GO TO 40
   50 FOR i=0 TO 65535 STEP step
  100 RANDOMIZE FN z(i): LET frames=FN b(#{benchmark[:test_rnd]},counter)
      LET w=FN r()-10: LET sum=sum+w
      IF w>max THEN LET max=w: LET maxi=i
      IF w<min THEN LET min=w: LET mini=i
-     PRINT i;":";TAB 8;FN r()-10
+     IF v<>w THEN PRINT i;":";TAB 8;w: LET v=w
      NEXT i
-     PRINT "Sum:";sum
-     PRINT "Avg:";sum/INT (65536/step)
-     PRINT "Max:";max;" for seed:";maxi
-     PRINT "Min:";min;" for seed:";mini
+     PRINT '"Sum:";sum
+     PRINT "Avg:";INVERSE 1;sum/INT (65536/step)
+     PRINT "Max:";INVERSE 1;max;INVERSE 0;" for seed:";maxi
+     PRINT "Min:";INVERSE 1;min;INVERSE 0;" for seed:";mini
      CLOSE #2
  999 STOP
 1000 REM Estimate T-States/interrupt
