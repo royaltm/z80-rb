@@ -101,6 +101,7 @@ task :test do
 end
 
 BENCHES = %w[
+  bench.divmod.rb
   bench.rnd.rb
   bench.sort.rb
   bench.ubcd.rb
