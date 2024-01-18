@@ -644,31 +644,30 @@ module Z80
                     end
                             anda a unless m_is_zero_zf
                             jump.call NZ, mul_it # m != 0
+                    if k_full_range && m_full_range && !k_overflow && m_is_zero_zf && m_neg_cond != C # clear CF
+                            anda a
+                    end
                             ld   s, l            # clear sign
                             jump.call nil, eoc   # CF=0
 
                     if k_full_range              # k = -(-256)
-                    k_over  ld   s, l            # clear sign
+                    k_over  ld   s, l            # clear sign (-256 * m) where m < 0
                             xor  a
                             sub  tl              # a = -m, CF = 1 (unless m == -256)
                         if m_full_range
                             # m == (-256)
                             jp   NC, k_overflow if k_overflow
-                            jr   NC, km_n256 unless k_overflow
+                            ccf unless k_overflow
+                        else
+                            ccf                  # CF:1 when m == -256
                         end
-                            ld   tt, 0x8000      # th: (MSB=1|0x00) >> 1 = 0x80
-                            add  a, a            # m is never 0 here
-                            jr   NC, skipadd     # if NC then we are SURE +a+ can't be 0 now
-                            add  hl, tt
-                            jr   Z, eoc
-                    skipadd srl  th              # make sure to insert 0 in S (bit 7) position
-                            jump.call nil, mult.cont9
+                            ld   h, a            # hl: 256 * -m where m < 0
+                            jump.call nil, eoc   # CF=0|1 depending on overflow unless k_overflow is set
                     end
 
                     if m_full_range
-                    km_n256 scf unless k_overflow or !k_full_range
-                    m_n256  ld   h, th      # hl: k * (-256)
-                            jump.call nil, eoc   # CF=0|1 depending on overflow
+                    m_n256  ld   h, th           # hl: k * (-256)
+                            jump.call nil, eoc   # CF=0|1 depending on overflow unless k_overflow is set
                     end
 
                     m_neg   label
@@ -679,13 +678,13 @@ module Z80
                     elsif k_overflow
                             jp   C, k_overflow
                     end
-                            ld   s, a       # s|k = -(s|k)
+                            ld   s, a         # s|k = -(s|k)
                             xor  a
-                            sub  tl         # a = -m
+                            sub  tl           # a = -m
                     if m_full_range
-                            jr   Z, m_n256  # m == (-256)
+                            jr   Z, m_n256    # m == (-256)
                     end
-                    mul_it  rrc  s          # k sign -> CF
+                    mul_it  rrc  s            # k sign -> CF
                             ld   tl, l
                     mult    mul(th, a, tt:tt, clrhl:false, signed_k:true, kbit9_carry:true, tl_is_zero:true, optimize:optimize)
                 end
