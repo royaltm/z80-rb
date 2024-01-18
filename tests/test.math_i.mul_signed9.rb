@@ -99,16 +99,25 @@ class MTestFactory
             if overflow
             overflow_a  report_error "6 Number too big"
             end
+            dc! "****************************************"
+            dc! "***             MULTIPLY             ***"
+            dc! "****************************************"
             # CF|sgn|hl = sgn|kl * a
             multiply    mul_signed9(sgn, kl, a, tt:tt, m_neg_cond: M, m_is_zero_zf:false, k_full_range: true, m_full_range: true, k_overflow:k_overflow, optimize:optimize)
                         ret
-
+            dc! "****************************************"
+            dc! "***        MULTIPLY m-limited        ***"
+            dc! "****************************************"
             mul_mlimit  mul_signed9(sgn, kl, a, tt:tt, m_neg_cond: M, m_is_zero_zf:false, k_full_range: true, m_full_range:false, optimize:optimize)
                         ret
-
+            dc! "****************************************"
+            dc! "***        MULTIPLY k-limited        ***"
+            dc! "****************************************"
             mul_klimit  mul_signed9(sgn, kl, a, tt:tt, m_neg_cond: M, m_is_zero_zf:false, k_full_range:false, m_full_range: true, k_overflow:k_overflow, optimize:optimize)
                         ret
-
+            dc! "****************************************"
+            dc! "***         MULTIPLY limited         ***"
+            dc! "****************************************"
             mul_limits  mul_signed9(sgn, kl, a, tt:tt, m_neg_cond: M, m_is_zero_zf:false, k_full_range:false, m_full_range:false, k_overflow:k_overflow, optimize:optimize)
                         ret
         end
@@ -163,7 +172,7 @@ include ZXLib
 
 [MTest1, MTest2, MTest3, MTest4].each do |mtest_klass|
     mtest = mtest_klass.new 65536 - mtest_klass.code.bytesize
-    # puts mtest.debug
+    puts mtest.debug
     source = <<-END
        1 DEF FN f(a,b)=USR #{mtest[:test_full]}: DEF FN m(a,b)=USR #{mtest[:test_mlim]}: DEF FN k(a,b)=USR #{mtest[:test_klim]}: DEF FN l(a,b)=USR #{mtest[:test_lim]}
       10 RANDOMIZE
