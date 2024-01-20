@@ -531,6 +531,179 @@ module Z80
                 end
             end
             ##
+            # Creates a routine that performs a multiplication of a 16-bit integer +kh+|+kl+ * 9-bit
+            # signed +CF+|+m+. Returns the result in +hl+.
+            #
+            # +kh+:: The MSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+:: The LSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::  The lowest 8-bits of the multiplier.
+            #
+            # The CF flag should contain the sign bit (bit 9th) of a 9-bit twos complement multiplier.
+            #
+            # Options:
+            # * +tt+::       A 16-bit temporary register (+de+ or +bc+ unless +optimize+ is +:size+).
+            # * +optimize+:: Optimization options: +:size+, +:time+ or +:unroll+.
+            #
+            # Modifies: +af+, +hl+, +tt+, optionally +b+ if +optimize+ is +:size+.
+            def mul16_signed9(kh=h, kl=l, m=b, tt:de, m_overflow:nil, optimize: :time)
+                th, tl = tt.split
+                raise ArgumentError, "mul16_signed: invalid arguments" if [kh, kl].include?(m)
+                t = if register?(m) && m.bit8? && m != a
+                    m
+                else
+                    [l, h, tl, th].find {|r| r != kh && r != kl}
+                end
+                isolate do
+                            ld   a, m unless m == a
+                            jr   NC, mult     # m >= 0
+                            ld   t, a unless t == m
+                            neg16 kh, kl
+                            xor  a
+                            sub  t              # a: -m
+                    if m_overflow
+                            jr   NC, m_overflow # m == 256
+                    else
+                            ccf                 # CF: 1 when m == 256, otherwise CF: 0
+                    end
+                    mult    mul16(kh, kl, a, tt:tt, mbit9_carry:!m_overflow, optimize:optimize)
+                end
+            end
+            ##
+            # Creates a routine that performs a multiplication of a 16-bit integer +kh+|+kl+ * 8-bit signed +m+.
+            # Returns the result in +hl+.
+            #
+            # +kh+:: The MSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+:: The LSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::  An 8-bit multiplier.
+            #
+            # Options:
+            # * +tt+::       A 16-bit temporary register (+de+ or +bc+ unless +optimize+ is +:size+).
+            # * +optimize+:: Optimization options: +:size+, +:time+ or +:unroll+.
+            #
+            # Modifies: +af+, +hl+, +tt+, optionally +b+ if +optimize+ is +:size+.
+            def mul16_signed(kh=h, kl=l, m=b, tt:de, optimize: :time)
+                th, tl = tt.split
+                raise ArgumentError, "mul16_signed: invalid arguments" if [kh, kl].include?(m)
+                t = if register?(m) && m.bit8? && m != a
+                    m
+                else
+                    [l, h, tl, th].find {|r| r != kh && r != kl}
+                end
+                isolate do
+                            ld   a, m unless m == a
+                            anda a
+                            jp   P, mult        # m >= 0
+                            ld   t, a unless t == m
+                            neg16 kh, kl
+                            xor  a
+                            sub  t              # a: -m
+                    mult    mul16(kh, kl, a, tt:tt, optimize:optimize)
+                end
+            end
+            ##
+            # Creates a routine that performs a multiplication of a 16-bit integer +kh+|+kl+ * 8(9)-bit
+            # unsigned +m+. Returns the result in +hl+.
+            #
+            # This routine is so far the most optimized of the similar routines: Macros.mul8 or Macros.mul.
+            # However there is no way to accumulate results using this code.
+            #
+            # +kh+::    The MSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+::    The LSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::     An 8-bit multiplier or the lowest 8-bits of a multiplier.
+            #
+            # If +mbit9_carry+ option is +true+ the CF flag should contain the most significant bit (bit 9th)
+            # of a 9-bit unsigned multiplier.
+            #
+            # Options:
+            # * +tt+::           A 16-bit temporary register (+de+ or +bc+ unless +optimize+ is +:size+).
+            # * +mbit9_carry+::  If the multiplier (+m+) is 9-bit, where MSB (9th) bit is read from CARRY flag.
+            # * +optimize+::     Optimization options: +:size+, +:time+ or +:unroll+.
+            #
+            # Modifies: +af+, +hl+, +tt+, optionally +b+ if +optimize+ is +:size+.
+            def mul16(kh=h, kl=l, m=a, tt:de, mbit9_carry:false, optimize: :time)
+                th, tl = tt.split
+                raise ArgumentError, "mul16: invalid arguments" if tt == hl or [kh, kl].include?(a)
+                raise ArgumentError, "mul16: tt must be +de+ if optimize is :size" if tt == bc && optimize == :size
+                isolate do |eoc|
+                                    ld   a, m  unless  m == a
+                    if kh == tl
+                        raise ArgumentError, "mul16: invalid arguments" if kl == th
+                                    ld   th, kh
+                                    ld   tl, kl unless kl == tl
+                    else
+                                    ld   tl, kl unless kl == tl
+                                    ld   th, kh unless kh == th
+                    end
+                    if optimize == :time
+                                    ld   l, tl unless kl == l
+                                    ld   h, th unless kh == h
+                        if mbit9_carry
+                                    jr   C, start9    # bit9 of m
+                        end
+                                    scf               # terminator
+                                    adc  a, a         # CF <- m <- 1
+                                    jr   C, cont1
+                            loop0   add  a, a         # CF <- m <- 0
+                                    jr   NC, loop0
+                                    jp   NZ, cont1
+                                    ld   h, a         # m == 0
+                                    ld   l, a
+                                    jp   eoc
+                        if mbit9_carry
+                            start9  adc  a, a         # CF <- m <- 1
+                                    jr   C, doadd1
+                        end
+                            loop1   add  hl, hl       # hl * 2
+                            cont1   add  a, a         # CF <- m <- 0
+                                    jr   NC, loop1
+                                    jr   Z, eoc
+                            doadd1  add  hl, hl       # hl * 2
+                                    add  hl, tt       # hl + tt
+                                    add  a, a         # CF <- m <- 0
+                                    jr   NC, loop1
+                                    jp   NZ, doadd1
+                    elsif optimize == :size
+                                    ld   hl, 0
+                        if mbit9_carry
+                                    ld   b, 9
+                                    jr   cont1
+                        else
+                                    ld   b, 8
+                        end
+                            loop1   add  hl, hl       # hl * 2
+                                    add  a, a         # CF <- m <- 0
+                            cont1   jr   NC, skip1
+                                    add  hl, tt       # hl + tt
+                            skip1   djnz loop1
+                    elsif optimize == :unroll
+                                    ld   l, tl unless kl == l
+                                    ld   h, th unless kh == h
+                        if mbit9_carry
+                                    jr   C, iter0     # bit9 of m
+                        end
+                        7.times do |i|
+                                    add  a, a
+                                    jr   C, :"iter#{i+1}"
+                        end
+                                    add  a, a
+                                    jr   C, eoc
+                                    ld   h, a         # m == 0
+                                    ld   l, a
+                                    jp   eoc
+                        (if mbit9_carry then 0 else 1 end..7).each do |i|
+                            ns :"iter#{i}" do |eoc|
+                                    add  hl, hl
+                            skip9   add  a, a
+                                    jr   NC, eoc
+                            doadd   add  hl, tt
+                            end
+                        end
+                    else
+                        raise ArgumentError, "mul16: optimize should be :size, :time or :unroll"
+                    end
+                end
+            end
+            ##
             # Creates a routine that performs a multiplication of a signed 8-bit +k+ * 8-bit signed +m+.
             #
             # See Macros.mul for details.
