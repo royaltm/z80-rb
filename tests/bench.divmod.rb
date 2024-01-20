@@ -12,7 +12,7 @@ OPTIONS = {
   optimize: :unroll_alt
 }.freeze
 
-class BenchRnd
+class BenchDivMod
     include Z80
     include Z80::TAP
 
@@ -76,7 +76,7 @@ end
 
 ZXINTERFACE1 = false
 
-benchmark = BenchRnd.new 0x8000 # Note: this must be the 0x8000 address at the moment.
+benchmark = BenchDivMod.new 0x8000 # Note: this must be the 0x8000 address at the moment.
 tsframe = benchmark['bm.tsframe']
 test_divmod = benchmark[:test_divmod]
 arg_k = benchmark[:arg_k]
