@@ -587,7 +587,7 @@ end
                         ex    af, af           # a: radius
                         ex    de, hl           # save sincos entry
                         # hl: y = sin(a) * r
-                        mul8(b, c, a, tt:bc, clrhl:true, double:false, optimize: :time)
+                        mul16(b, c, a, tt:bc, optimize: :unroll)
                         ex    de, hl           # hl: sincos entry, de: y
                         ld    a, [hl]          # sin(a).msb
                         inc   l                # hl: -> cos(angle)
@@ -608,7 +608,7 @@ end
                         ld    b, [hl]          # bc: cos(angle)
                         ld    d, b             # d: cos(angle).msb
                         # hl: x = cos(a) * r
-                        mul8(b, c, a, tt:bc, clrhl:true, double:false, optimize: :time)
+                        mul16(b, c, a, tt:bc, optimize: :unroll)
                         ld    a, d             # a: cos(angle).msb
                         add   a, a             # sign -> CF
                         ld    a, h             # a: x.lsb
@@ -1173,7 +1173,7 @@ end
                         ld    hl, -1
                         ld16  de, hl
                         ld    c, a
-                        divmod8 c, check0:quit, check1:true
+                        divmod8 c, check0:quit, check1:false
                         ld    b, c
                         ex    de, hl
                         neg16 d, e
