@@ -240,7 +240,7 @@
 
           
           <div class="method-source-code" id="clear_attrs_region_fast-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 837</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 838</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">clear_attrs_region_fast</span>(<span class="ruby-identifier">address</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">rows</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">2</span>, <span class="ruby-identifier">value</span>=<span class="ruby-value">0</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">addr_mode:</span> <span class="ruby-value">:optimal</span>, <span class="ruby-value">unroll_rows:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid scraddr argument&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scraddr</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)) <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">scraddr</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;address should be an address or a pointer or hl&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">address</span>)
@@ -571,6 +571,7 @@
         <span class="ruby-keyword">end</span>
       <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">end</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-value">8</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">fits_single_row</span>
                   <span class="ruby-identifier">di</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">disable_intr</span>
                   <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">restore_sp_p</span>], <span class="ruby-identifier">sp</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">save_sp</span>
     <span class="ruby-identifier">loop0</span>         <span class="ruby-identifier">label</span>
@@ -595,10 +596,10 @@
                   <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">skip_adj</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scraddr</span>
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>
                   <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">check_oos</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">scraddr</span>
-                  <span class="ruby-identifier">sub</span>  <span class="ruby-value">0x08</span>
+                  <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">c</span>          <span class="ruby-comment"># c: 8</span>
                   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
       <span class="ruby-identifier">skip_adj</span>    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a: remaining lines</span>
-                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">8</span>
+                  <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>       <span class="ruby-comment"># c: 8</span>
                   <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">b</span>
                   <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">loop0</span>
                   <span class="ruby-identifier">add</span>  <span class="ruby-identifier">b</span>
@@ -691,7 +692,7 @@
 
           
           <div class="method-source-code" id="copy_shadow_attrs_region-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 1136</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 1154</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">copy_shadow_attrs_region</span>(<span class="ruby-identifier">address</span>=<span class="ruby-identifier">de</span>, <span class="ruby-identifier">rows</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">tgtaddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">srcaddr:</span><span class="ruby-value">0x6000</span>, <span class="ruby-value">check_edge:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">break_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid tgtaddr argument&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">tgtaddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">tgtaddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">tgtaddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)) <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">tgtaddr</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid srcaddr argument&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">srcaddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">srcaddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">srcaddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)) <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">srcaddr</span>)
@@ -832,7 +833,7 @@
 
           
           <div class="method-source-code" id="copy_shadow_attrs_region_quick-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 1378</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 1396</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">copy_shadow_attrs_region_quick</span>(<span class="ruby-identifier">address</span>=<span class="ruby-identifier">de</span>, <span class="ruby-identifier">rows</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">32</span>, <span class="ruby-value">tgtaddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">srcaddr:</span><span class="ruby-value">0x6000</span>, <span class="ruby-value">check_edge:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">break_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">size_limit_opt:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid tgtaddr argument&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">tgtaddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">tgtaddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">tgtaddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)) <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">tgtaddr</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid srcaddr argument&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">srcaddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">srcaddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">srcaddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)) <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">srcaddr</span>)
@@ -954,7 +955,7 @@
 </li></ul>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
-<p>Unless <code>cols</code> is one of: <code>ixh</code>, <code>ixl</code>, <code>iyh</code> or <code>iyl</code> the routine uses self modifying code.</p>
+<p>Unless <code>cols</code> is a direct label or one of: <code>ixh</code>, <code>ixl</code>, <code>iyh</code> or <code>iyl</code> the routine uses self modifying code.</p>
 </dd></dl>
 
 <p>Options:</p>
@@ -986,7 +987,7 @@
 
           
           <div class="method-source-code" id="copy_shadow_screen_region-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 1003</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 1005</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">copy_shadow_screen_region</span>(<span class="ruby-identifier">address</span>=<span class="ruby-identifier">de</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">tgtaddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">srcaddr:</span><span class="ruby-value">0x6000</span>, <span class="ruby-value">check_edge:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">break_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid tgtaddr argument&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">tgtaddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">tgtaddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">tgtaddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)) <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">tgtaddr</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid srcaddr argument&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">srcaddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">srcaddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">srcaddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)) <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">srcaddr</span>)
@@ -995,12 +996,15 @@
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;address should be an address or a pointer or de&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">address</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;lines should be a label or a pointer or a register&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">lines</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">bit8?</span>) <span class="ruby-keyword">or</span>
                                                                                   <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">lines</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;cols should be a label or a pointer or a register&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">lines</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">bit8?</span>) <span class="ruby-keyword">or</span>
-                                                                                  <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">lines</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;cols should be a label or a pointer or a register&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">cols</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">cols</span>.<span class="ruby-identifier">bit8?</span>) <span class="ruby-keyword">or</span>
+                                                                                  <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">cols</span>)
+  <span class="ruby-identifier">fits_single_row</span> = <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">address</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">lines</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">lines</span> <span class="ruby-operator">&lt;=</span> (<span class="ruby-value">8</span> <span class="ruby-operator">-</span> (<span class="ruby-identifier">address</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-operator">%</span> <span class="ruby-value">8</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">fits_single_row</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">lines</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">lines</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
                     <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a&#39;: lines</span>
-    <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cols</span>)
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cols</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">cols</span>)
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">cols</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
                     <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">cols_p</span>], <span class="ruby-identifier">a</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">check_edge</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">cols</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">c</span>
@@ -1008,18 +1012,26 @@
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">address</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">address</span>)
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">fits_single_row</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, ((<span class="ruby-identifier">address</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-operator">+</span> (<span class="ruby-identifier">scrdiff</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>)) <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xff</span>
+      <span class="ruby-keyword">else</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
                     <span class="ruby-identifier">add</span>  <span class="ruby-identifier">scrdiff</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+      <span class="ruby-keyword">end</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
                     <span class="ruby-identifier">exx</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">fits_single_row</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">lines</span>
+      <span class="ruby-keyword">else</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">8</span> <span class="ruby-operator">-</span> (<span class="ruby-identifier">address</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-operator">%</span> <span class="ruby-value">8</span>
+      <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">else</span>
       <span class="ruby-keyword">if</span> <span class="ruby-identifier">check_edge</span>
         <span class="ruby-identifier">ns</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
                     <span class="ruby-identifier">ora</span>  <span class="ruby-operator">~</span><span class="ruby-value">31</span>
-          <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cols</span>)
+          <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cols</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">cols</span>)
                     <span class="ruby-identifier">add</span>  <span class="ruby-identifier">cols</span>
           <span class="ruby-keyword">else</span>
                     <span class="ruby-identifier">add</span>  <span class="ruby-identifier">c</span>
@@ -1042,6 +1054,7 @@
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
                     <span class="ruby-identifier">exx</span>
     <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">fits_single_row</span>
                     <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a: lines, a&#39;: lo</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># c: lines</span>
                     <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>          <span class="ruby-comment"># a: lines - 1 (remaining lines)</span>
@@ -1049,11 +1062,12 @@
                     <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">start</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>       <span class="ruby-comment"># b: counter = c: lines</span>
 
-    <span class="ruby-identifier">start</span>           <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a&#39;: remaining rows - 1; CF&#39;: 1 == last batch, a: lo</span>
+      <span class="ruby-identifier">start</span>         <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a&#39;: remaining rows - 1; CF&#39;: 1 == last batch, a: lo</span>
+    <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">rloop</span>           <span class="ruby-identifier">exx</span>
     <span class="ruby-identifier">loop0</span>           <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>
     <span class="ruby-identifier">loop1</span>           <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
-    <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cols</span>)
+    <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cols</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">cols</span>)
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>
     <span class="ruby-keyword">else</span>
       <span class="ruby-identifier">cols_a</span>        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-value">0</span> <span class="ruby-comment"># self-modified</span>
@@ -1066,12 +1080,14 @@
                     <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">h</span>
                     <span class="ruby-identifier">exx</span>
                     <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">rloop</span>
+                    <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">fits_single_row</span>
+    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">fits_single_row</span>
                     <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a: remaining lines, a&#39;: lo</span>
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
                     <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>
-    <span class="ruby-keyword">else</span>
+      <span class="ruby-keyword">else</span>
                     <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
-    <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">end</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">8</span>
                     <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">b</span>
                     <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">loop8</span>
@@ -1079,7 +1095,7 @@
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>
                     <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">b</span>
 
-    <span class="ruby-identifier">loop8</span>           <span class="ruby-identifier">exx</span>
+      <span class="ruby-identifier">loop8</span>         <span class="ruby-identifier">exx</span>
                     <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a: lo, a&#39;: remaining lines</span>
                     <span class="ruby-identifier">add</span>  <span class="ruby-value">0x20</span>       <span class="ruby-comment"># a: lo + 0x20</span>
                     <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">loop0</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">break_oos</span>
@@ -1092,11 +1108,12 @@
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
                     <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">loop1</span>
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">break_oos</span>
-      <span class="ruby-identifier">check_ooscr</span>   <span class="ruby-identifier">cp</span>   (<span class="ruby-identifier">tgtaddr</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>)<span class="ruby-operator">|</span><span class="ruby-value">0x18</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">break_oos</span>
+        <span class="ruby-identifier">check_ooscr</span> <span class="ruby-identifier">cp</span>   (<span class="ruby-identifier">tgtaddr</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>)<span class="ruby-operator">|</span><span class="ruby-value">0x18</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
                     <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">loop1</span>
                     <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+      <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">end</span>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
@@ -1171,7 +1188,7 @@
 
           
           <div class="method-source-code" id="copy_shadow_screen_region_quick-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 1225</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx.rb, line 1243</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">copy_shadow_screen_region_quick</span>(<span class="ruby-identifier">address</span>=<span class="ruby-identifier">de</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">32</span>, <span class="ruby-value">tgtaddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">srcaddr:</span><span class="ruby-value">0x6000</span>, <span class="ruby-value">check_edge:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">break_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">size_limit_opt:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid tgtaddr argument&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">tgtaddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">tgtaddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">tgtaddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)) <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">tgtaddr</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid srcaddr argument&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">srcaddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">srcaddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">srcaddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>)) <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">srcaddr</span>)

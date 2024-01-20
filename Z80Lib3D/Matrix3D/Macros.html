@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module Z80Lib3D::Matrix3D::Macros - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../";
+  var index_rel_prefix = "../../";
+</script>
+
+<script src="../../js/navigation.js" defer></script>
+<script src="../../js/search.js" defer></script>
+<script src="../../js/search_index.js" defer></script>
+<script src="../../js/searcher.js" defer></script>
+<script src="../../js/darkfish.js" defer></script>
+
+<link href="../../css/fonts.css" rel="stylesheet">
+<link href="../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../table_of_contents.html#pages">Pages</a>
+    <a href="../../table_of_contents.html#classes">Classes</a>
+    <a href="../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="../../Z80/MathInt/Macros.html">Z80::MathInt::Macros</a>
+  
+  
+  </ul>
+</div>
+
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-apply_matrix">#apply_matrix</a>
+    
+    <li ><a href="#method-i-apply_matrix_element">#apply_matrix_element</a>
+    
+    <li ><a href="#method-i-apply_matrix_row">#apply_matrix_row</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-Z80Lib3D::Matrix3D::Macros">
+  <h1 id="module-Z80Lib3D::Matrix3D::Macros" class="module">
+    module Z80Lib3D::Matrix3D::Macros
+  </h1>
+
+  <section class="description">
+    
+<h1 id="module-Z80Lib3D::Matrix3D::Macros-label-Z80Lib3D-3A-3AMatrix3D-3A-3AMacros"><a href="Macros.html"><code>Z80Lib3D::Matrix3D::Macros</code></a><span><a href="#module-Z80Lib3D::Matrix3D::Macros-label-Z80Lib3D-3A-3AMatrix3D-3A-3AMacros">&para;</a> <a href="#top">&uarr;</a></span></h1>
+
+<p><a href="Macros.html"><code>Macros</code></a> for applying 3D matrix to vertices.</p>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-apply_matrix" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">apply_matrix</span><span
+            class="method-args">(matrix, vertices:hl, scrx0:128, scry0:128, scrz0:128, persp_dshift:7, optimize: :time)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Applies a transformation matrix to vertices and calculates screen coordinates (xp, yp) for each one.</p>
+
+<pre class="ruby"><span class="ruby-constant">X</span> = <span class="ruby-constant">M</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">vx</span> <span class="ruby-operator">+</span> <span class="ruby-constant">M</span>[<span class="ruby-value">1</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">vy</span> <span class="ruby-operator">+</span> <span class="ruby-constant">M</span>[<span class="ruby-value">2</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">vz</span>
+<span class="ruby-constant">Y</span> = <span class="ruby-constant">M</span>[<span class="ruby-value">3</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">vx</span> <span class="ruby-operator">+</span> <span class="ruby-constant">M</span>[<span class="ruby-value">4</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">vy</span> <span class="ruby-operator">+</span> <span class="ruby-constant">M</span>[<span class="ruby-value">5</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">vz</span>
+<span class="ruby-constant">Z</span> = <span class="ruby-constant">M</span>[<span class="ruby-value">6</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">vx</span> <span class="ruby-operator">+</span> <span class="ruby-constant">M</span>[<span class="ruby-value">7</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">vy</span> <span class="ruby-operator">+</span> <span class="ruby-constant">M</span>[<span class="ruby-value">8</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">vz</span>
+
+<span class="ruby-constant">XP</span> =  ((<span class="ruby-constant">X</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">persp_dshift</span>) <span class="ruby-operator">/</span> (<span class="ruby-constant">Z</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">scrz0</span>)) <span class="ruby-operator">+</span> <span class="ruby-identifier">scrx0</span>
+<span class="ruby-constant">YP</span> = <span class="ruby-operator">-</span>((<span class="ruby-constant">Y</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">persp_dshift</span>) <span class="ruby-operator">/</span> (<span class="ruby-constant">Z</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">scrz0</span>)) <span class="ruby-operator">+</span> <span class="ruby-identifier">scry0</span>
+</pre>
+
+<p>Vertices list must be terminated with a (-128) octet and must not be empty.</p>
+
+<p>Vertices are represented by <a href="../Primitives/Vertex.html"><code>Primitives::Vertex</code></a> struct.</p>
+
+<p>Matrix is represented by <a href="../Primitives/Matrix.html"><code>Primitives::Matrix</code></a> struct.</p>
+
+<p>Each matrix element should be a 16-bit fixed point twos complement signed number with an 8-bit fractional part.</p>
+
+<p><strong>NOTE</strong>: The routine uses stack pointer to read matrix data, so disable interrupts first.</p>
+<dl class="rdoc-list note-list"><dt><code>matrix</code>
+<dd>
+<p>An address of matrix data as a label or a pointer.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>vertices</code>
+<dd>
+<p>An address of object vertices or <code>hl</code>.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scrx0</code>
+<dd>
+<p>A X coordinate adjustment used for calculating screen coordinates.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scry0</code>
+<dd>
+<p>A Y coordinate adjustment used for calculating screen coordinates.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scrz0</code>
+<dd>
+<p>A Z coordinate adjustment used for calculating screen coordinates.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>persp_dshift</code>
+<dd>
+<p>A screen coordinates perspective adjustment: 0-7.</p>
+</dd></dl>
+</li></ul>
+
+<p>When the routine completes:</p>
+<ul><li>
+<p><code>hl</code> will point to an address immediately following the vertices end marker.</p>
+</li><li>
+<p><code>sp</code> will point to an address immediately following the matrix.</p>
+</li></ul>
+
+<p>Notable run-time labels:</p>
+<ul><li>
+<p><code>matrix_p</code> can be used to change the address of the <code>matrix</code>.</p>
+</li><li>
+<p><code>adjust_x_p</code> points to <code>scrx0</code>.</p>
+</li><li>
+<p><code>adjust_y_p</code> points to <code>scry0</code>.</p>
+</li><li>
+<p><code>adjust_z_p</code> points to <code>scrz0</code>.</p>
+</li><li>
+<p><code>matrix_loop</code> enter to skip reading first Z coordinate, can be used to pre-check if vertices are empty. Expects Z coordinage already in <code>b</code> and <code>hl</code> pointing to the next coordinate.</p>
+</li></ul>
+
+<p>Modifies: <code>sp</code>, <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>bc</code>, <code>de</code>, <code>hl&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="apply_matrix-source">
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 61</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix</span>(<span class="ruby-identifier">matrix</span>, <span class="ruby-value">vertices:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">scrx0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scry0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scrz0:</span><span class="ruby-value">128</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-value">7</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;apply_matrix: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">scrx0</span>, <span class="ruby-identifier">scry0</span>, <span class="ruby-identifier">scrz0</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">l</span>) }
+  <span class="ruby-identifier">mx_optimize</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">optimize</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-value">:time_alt</span> <span class="ruby-keyword">then</span> <span class="ruby-value">:time</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-value">:unroll_alt</span> <span class="ruby-keyword">then</span> <span class="ruby-value">:unroll</span>
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">optimize</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-identifier">check0_far</span> = (<span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:unroll</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:unroll_alt</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">vertices</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">vertices</span><span class="ruby-operator">==</span><span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># b: z</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>                     <span class="ruby-comment"># hl: -&gt; y</span>
+    <span class="ruby-identifier">matrix_loop</span>     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">matrix</span>
+    <span class="ruby-identifier">matrix_p</span>        <span class="ruby-identifier">as</span> <span class="ruby-identifier">matrix_loop</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>          <span class="ruby-comment"># a label pointer to a matrix argument</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># d: y</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>                     <span class="ruby-comment"># hl: -&gt; x</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, [<span class="ruby-identifier">hl</span>]                <span class="ruby-comment"># e: x</span>
+                    <span class="ruby-comment"># af: x = qxx*x + qxy*y + qxz*z</span>
+                    <span class="ruby-identifier">apply_matrix_row</span> <span class="ruby-identifier">e</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">b</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">mx_optimize</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>                 <span class="ruby-comment"># a&#39;: new x</span>
+                    <span class="ruby-comment"># af: y = qyx*x + qyy*y + qyz*z</span>
+                    <span class="ruby-identifier">apply_matrix_row</span> <span class="ruby-identifier">e</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">b</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">mx_optimize</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>                   <span class="ruby-comment"># c: new y</span>
+                    <span class="ruby-comment"># af: z = qzx*x + qzy*y + qzz*z</span>
+                    <span class="ruby-identifier">apply_matrix_row</span> <span class="ruby-identifier">e</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">b</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">mx_optimize</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>                     <span class="ruby-comment"># hl: -&gt; xp</span>
+    <span class="ruby-comment"># calculate xp, yp</span>
+                    <span class="ruby-identifier">exx</span>
+    <span class="ruby-identifier">adjust_z_a</span>      <span class="ruby-identifier">add</span>  <span class="ruby-identifier">scrz0</span>            <span class="ruby-comment"># a: z + 128 (make Z positive)</span>
+    <span class="ruby-identifier">adjust_z_p</span>      <span class="ruby-identifier">as</span> <span class="ruby-identifier">adjust_z_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>     <span class="ruby-comment"># a label pointer to scrz0</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>             <span class="ruby-comment"># c: z</span>
+    <span class="ruby-comment"># xp = ((x &lt;&lt; PERSP_DSHIFT)/(z + 128)) + scrx0</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># a: x</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>                <span class="ruby-comment"># clear CF, change SF</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">P</span>, <span class="ruby-identifier">pos_x</span>
+                    <span class="ruby-identifier">neg</span>                   <span class="ruby-comment"># CF: 1</span>
+    <span class="ruby-identifier">pos_x</span>           <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>             <span class="ruby-comment"># x</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># f&#39;: CF: z sign</span>
+                     <span class="ruby-comment"># (x &lt;&lt; PERSP_DSHIFT) / z</span>
+                    <span class="ruby-identifier">sll8_16</span> <span class="ruby-identifier">persp_dshift</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span> <span class="ruby-comment"># de: x &lt;&lt; PERSP_DSHIFT</span>
+                    <span class="ruby-identifier">divmod16_8</span> <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">check0:</span><span class="ruby-identifier">x_overflow</span>, <span class="ruby-value">check0_far:</span><span class="ruby-identifier">check0_far</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ignore_cf:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>
+                    <span class="ruby-comment"># jr   C, x_overflow    # z=0</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">x_overflow</span>   <span class="ruby-comment"># de &gt;= 256</span>
+                                          <span class="ruby-comment"># de &lt; 256</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># f: CF: sign</span>
+    <span class="ruby-identifier">adjust_x_a</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">scrx0</span>         <span class="ruby-comment"># x to screen coordinates</span>
+    <span class="ruby-identifier">adjust_x_p</span>      <span class="ruby-identifier">as</span> <span class="ruby-identifier">adjust_x_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>     <span class="ruby-comment"># a label pointer to scrx0</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">x_negative</span>
+
+    <span class="ruby-identifier">x_positive</span>      <span class="ruby-identifier">add</span>  <span class="ruby-identifier">e</span>                <span class="ruby-comment"># x  &gt;= 0</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">skip_neg_x</span>   <span class="ruby-comment"># xp &lt;  256</span>
+                                          <span class="ruby-comment"># xp &gt;= 256</span>
+    <span class="ruby-identifier">x_overflow</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-value">255</span>           <span class="ruby-comment"># store xp=255, yp=255 (out of screen)</span>
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">skip_overflow_x</span>
+
+    <span class="ruby-identifier">x_negative</span>      <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">e</span>                <span class="ruby-comment"># x  &lt;  0: x to screen coordinates</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">x_overflow</span>    <span class="ruby-comment"># xp &lt;  0</span>
+    <span class="ruby-identifier">skip_neg_x</span>      <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>          <span class="ruby-comment"># store xp</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+    <span class="ruby-comment"># yp = -((y &lt;&lt; PERSP_DSHIFT)/(z + 128)) + scry0</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>             <span class="ruby-comment"># y</span>
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">P</span>, <span class="ruby-identifier">pos_y</span>
+                    <span class="ruby-identifier">neg</span>
+    <span class="ruby-identifier">pos_y</span>           <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>             <span class="ruby-comment"># y</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># f&#39;: CF: sign</span>
+                    <span class="ruby-comment"># (y &lt;&lt; PERSP_DSHIFT) / z</span>
+                    <span class="ruby-identifier">sll8_16</span> <span class="ruby-identifier">persp_dshift</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span> <span class="ruby-comment"># de: y &lt;&lt; PERSP_DSHIFT</span>
+                    <span class="ruby-identifier">divmod16_8</span> <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">check0:</span><span class="ruby-identifier">y_overflow</span>, <span class="ruby-value">check0_far:</span><span class="ruby-identifier">check0_far</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ignore_cf:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>
+                    <span class="ruby-comment"># jr   C, y_overflow    # z=0</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">y_overflow</span>   <span class="ruby-comment"># de &gt;= 256</span>
+                                          <span class="ruby-comment"># de &lt; 256</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># f: CF: sign</span>
+    <span class="ruby-identifier">adjust_y_a</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">scry0</span>         <span class="ruby-comment"># y  &gt;= 0</span>
+    <span class="ruby-identifier">adjust_y_p</span>      <span class="ruby-identifier">as</span> <span class="ruby-identifier">adjust_y_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>        <span class="ruby-comment"># a label pointer to scry0</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">y_negative</span>
+
+    <span class="ruby-identifier">y_positive</span>      <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">e</span>                <span class="ruby-comment"># y to screen coordinates</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">skip_neg_y</span>   <span class="ruby-comment"># yp &lt;  256</span>
+
+    <span class="ruby-identifier">y_overflow</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-value">255</span>           <span class="ruby-comment"># yp &gt;= 256</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">skip_neg_y</span>
+
+    <span class="ruby-identifier">y_negative</span>      <span class="ruby-identifier">add</span>  <span class="ruby-identifier">e</span>                <span class="ruby-comment"># y  &lt;  0: y to screen coordinates</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">y_overflow</span>    <span class="ruby-comment"># yp &lt;  0</span>
+    <span class="ruby-identifier">skip_neg_y</span>      <span class="ruby-identifier">exx</span>
+    <span class="ruby-identifier">skip_overflow_x</span> <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>          <span class="ruby-comment"># store yp</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># -&gt; z</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]          <span class="ruby-comment"># a: z</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">cp</span>   <span class="ruby-value">-128</span>             <span class="ruby-comment"># is end marker?</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>             <span class="ruby-comment"># b: z</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">matrix_loop</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-apply_matrix_element" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">apply_matrix_element</span><span
+            class="method-args">(x, clrhl:false, optimize: :time)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Applies a matrix element of the transformation matrix to a scalar.</p>
+
+<p>Matrix element should be a 16-bit fixed point twos complement signed number with an 8-bit fractional part.</p>
+
+<p>The address of a matrix element should be present in the stack pointer (<code>sp</code>) register.</p>
+
+<p><strong>NOTE</strong>: The registers <code>hl</code>|<code>bc</code>|<code>de</code> are being swapped with alternatives before the multiplication, however <code>x</code> is read into the <code>accumulator</code> before swapping.</p>
+
+<p>A result is returned in the <code>hl</code> as a twos complement signed 16-bit integer:</p>
+
+<pre>HL &lt;-&gt; HL&#39;
+HL = [SP]*x
+or
+HL = HL + [SP]*x</pre>
+
+<p>On completion <code>sp</code> points to the next matrix element (+2 bytes).</p>
+<dl class="rdoc-list note-list"><dt><code>x</code>
+<dd>
+<p>A signed 8-bit integer representing scalar as an 8-bit register or an address.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>clrhl</code>
+<dd>
+<p>Whether the result should be set (<code>true</code>) or added to the previous value (<code>false</code>).</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>sp</code>, <code>af</code>, <code>hl&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, optionally preserves <code>x</code>, swaps registers.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="apply_matrix_element-source">
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 231</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix_element</span>(<span class="ruby-identifier">x</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">exx</span>
+                <span class="ruby-identifier">pop</span>  <span class="ruby-identifier">bc</span>     <span class="ruby-comment"># bc: qxx = iiiiiiiiffffffff</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:size</span>
+      <span class="ruby-identifier">multiply</span>  <span class="ruby-identifier">mul8_signed</span>(<span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">e</span>, <span class="ruby-value">clrhl:</span><span class="ruby-identifier">clrhl</span>, <span class="ruby-value">double:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:size</span>)
+    <span class="ruby-keyword">else</span>
+      <span class="ruby-keyword">unless</span> <span class="ruby-identifier">clrhl</span>
+                <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span> <span class="ruby-comment"># de: sum</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-identifier">multiply</span>  <span class="ruby-identifier">mul16_signed</span>(<span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
+      <span class="ruby-keyword">unless</span> <span class="ruby-identifier">clrhl</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span> <span class="ruby-comment"># hl: add previous value</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-apply_matrix_row" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">apply_matrix_row</span><span
+            class="method-args">(x, y, z, optimize: :time)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Applies a row of the transformation matrix to a 3D vector.</p>
+
+<p>Each matrix element should be a 16-bit fixed point twos complement signed number with an 8-bit fractional part.</p>
+
+<p>The address of a matrix row should be present in the stack pointer (<code>sp</code>) register.</p>
+
+<p>A rounded result is returned in the <code>accumulator</code> as a twos complement signed 8-bit integer:</p>
+
+<pre class="ruby"><span class="ruby-constant">A</span> = <span class="ruby-constant">INT</span>(([<span class="ruby-constant">SP</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">x</span> <span class="ruby-operator">+</span> [<span class="ruby-constant">SP</span><span class="ruby-value">+2</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">y</span> <span class="ruby-operator">+</span> [<span class="ruby-constant">SP</span><span class="ruby-value">+4</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">z</span> <span class="ruby-operator">+</span> <span class="ruby-value">128</span>) <span class="ruby-operator">/</span> <span class="ruby-value">256</span>)
+</pre>
+
+<p>On completion <code>sp</code> points to the next matrix row elements (+6 bytes).</p>
+<dl class="rdoc-list note-list"><dt><code>x</code>
+<dd>
+<p>A signed 8-bit integer representing x coordinate as an 8-bit register or an address.</p>
+</dd><dt><code>y</code>
+<dd>
+<p>A signed 8-bit integer representing y coordinate as an 8-bit register or an address.</p>
+</dd><dt><code>z</code>
+<dd>
+<p>A signed 8-bit integer representing z coordinate as an 8-bit register or an address.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p>A 16-bit temporary register <code>de</code> or <code>bc</code> from the alternative register set.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>t</code>
+<dd>
+<p>An 8-bit temporary register from the alternative register set.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifies: <code>sp</code>, <code>af</code>, <code>hl&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, preserves <code>x</code>, <code>y</code>, <code>z</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="apply_matrix_row-source">
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 189</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix_row</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;apply_matrix_row: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">z</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">apply_matrix_element</span> <span class="ruby-identifier">x</span>, <span class="ruby-value">clrhl:</span> <span class="ruby-keyword">true</span>,  <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span> <span class="ruby-comment">#  qxx*x</span>
+                <span class="ruby-identifier">exx</span>
+                <span class="ruby-identifier">apply_matrix_element</span> <span class="ruby-identifier">y</span>, <span class="ruby-value">clrhl:</span> <span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span> <span class="ruby-comment"># +qxy*y</span>
+                <span class="ruby-identifier">exx</span>
+                <span class="ruby-identifier">apply_matrix_element</span> <span class="ruby-identifier">z</span>, <span class="ruby-value">clrhl:</span> <span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span> <span class="ruby-comment"># +qxz*z</span>
+
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">sla</span>  <span class="ruby-identifier">l</span>
+                <span class="ruby-identifier">adc</span>  <span class="ruby-identifier">h</span>                                 <span class="ruby-comment"># (sum+128)/256</span>
+
+                <span class="ruby-identifier">exx</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

@@ -63,6 +63,7 @@
     <li><a href="#label-v1.1.1.pre-2">v1.1.1.pre-2</a>
     <li><a href="#label-Z80-3A">Z80:</a>
     <li><a href="#label-ZXLib-3A">ZXLib:</a>
+    <li><a href="#label-Z80Lib3D-3A">Z80Lib3D:</a>
     <li><a href="#label-v1.1.0">v1.1.0</a>
     <li><a href="#label-Z80-3A">Z80:</a>
     <li><a href="#label-ZXLib-3A">ZXLib:</a>
@@ -99,11 +100,21 @@
 <ul><li>
 <p>New macro <a href="Z80/MathInt/Macros.html#method-i-mul8_signed"><code>Z80::MathInt::Macros#mul8_signed</code></a>.</p>
 </li><li>
+<p>New macro <a href="Z80/MathInt/Macros.html#method-i-mul_signed9"><code>Z80::MathInt::Macros#mul_signed9</code></a>.</p>
+</li><li>
+<p>New macro <a href="Z80/MathInt/Macros.html#method-i-mul_signed9_24"><code>Z80::MathInt::Macros#mul_signed9_24</code></a>.</p>
+</li><li>
+<p>New macro <a href="Z80/MathInt/Macros.html#method-i-sll8_16"><code>Z80::MathInt::Macros#sll8_16</code></a>.</p>
+</li><li>
+<p>New macro <a href="Z80/MathInt/Macros.html#method-i-divmod16_8"><code>Z80::MathInt::Macros#divmod16_8</code></a>.</p>
+</li><li>
 <p>Saved 1 cycle on macro <a href="Z80/MathInt/Macros.html#method-i-mul"><code>Z80::MathInt::Macros#mul</code></a>.</p>
 </li><li>
 <p>New macro <a href="Z80/MathInt/Macros.html#method-i-sign_extend"><code>Z80::MathInt::Macros#sign_extend</code></a>.</p>
 </li><li>
 <p>New options :k_int24 and :optimize for <a href="Z80/MathInt/Macros.html#method-i-mul8_24"><code>Z80::MathInt::Macros#mul8_24</code></a>, saved 2 cycles.</p>
+</li><li>
+<p><a href="Z80/Utils/SinCos/Macros.html#method-i-sincos_from_angle"><code>Z80::Utils::SinCos::Macros#sincos_from_angle</code></a> enhanced arguments to support providing registers.</p>
 </li></ul>
 
 <h2 id="label-ZXLib-3A">ZXLib:<span><a href="#label-ZXLib-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
@@ -113,6 +124,21 @@
 <p>Internal labels <code>preshift_p</code>, <code>pmask_in_e</code>, <code>px_bsh_in_ae</code> added to <a href="ZXLib/Gfx/Draw/Macros.html"><code>ZXLib::Gfx::Draw::Macros</code></a> for convenience and alternative entry points.</p>
 </li><li>
 <p>New routines in <a href="ZXLib/Gfx/Draw/Macros.html"><code>ZXLib::Gfx::Draw::Macros</code></a> for updating draw line functions in place.</p>
+</li><li>
+<p>Changed arguments of <a href="ZXLib/Sys/Macros.html#method-i-read_integer32_value"><code>ZXLib::Sys::Macros#read_integer32_value</code></a> to 4 8-bit registers instead of 2 16-bit registers, maintaining backward compatibility.</p>
+</li></ul>
+
+<h2 id="label-Z80Lib3D-3A">Z80Lib3D:<span><a href="#label-Z80Lib3D-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
+<ul><li>
+<p>New library created.</p>
+</li><li>
+<p><a href="Z80Lib3D/Primitives.html"><code>Z80Lib3D::Primitives</code></a> struct collection added.</p>
+</li><li>
+<p><a href="Z80Lib3D/Quaternion.html"><code>Z80Lib3D::Quaternion</code></a> module with helper functions added.</p>
+</li><li>
+<p><a href="Z80Lib3D/Matrix3D.html"><code>Z80Lib3D::Matrix3D</code></a> class with macros for applying matrices added.</p>
+</li><li>
+<p>Float::to_fixed16_8 method defined in fixed_float.rb file.</p>
 </li></ul>
 
 <h1 id="label-v1.1.0">v1.1.0<span><a href="#label-v1.1.0">&para;</a> <a href="#top">&uarr;</a></span></h1>

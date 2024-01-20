@@ -783,11 +783,11 @@
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>bank</code>
 <dd>
-<p>Selects a memory bank available at 0xC000-0xFFFF as an integer or any of the 8-bit registers except <code>a</code>, or indirect memory address via a 16-bit register. In this instance you should pass <code>true</code> to the <code>screen:</code> option if bit-4 of  the <code>bank</code> should select a screen to be displayed.</p>
+<p>Selects a memory bank available at 0xC000-0xFFFF as an integer or any of the 8-bit registers except <code>a</code>, or indirect memory address via a 16-bit register. In this instance you should pass <code>true</code> to the <code>screen:</code> option if bit-3 of  the <code>bank</code> should select a screen to be displayed.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>screen</code>
 <dd>
-<p>0 - Display screen from bank 5. 1 - Display screen from bank 7. <code>true</code> to preserve screen bit-4 from the <code>bank</code> register.</p>
+<p>0 - Display screen from bank 5. 1 - Display screen from bank 7. <code>nil</code> to preserve screen bit-3 from the <code>bank</code> register.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>disable_intr</code>
 <dd>

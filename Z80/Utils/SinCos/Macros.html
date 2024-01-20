@@ -141,7 +141,7 @@
 
           
           <div class="method-source-code" id="create_sincos_from_sintable-source">
-            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 146</span>
+            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 163</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">create_sincos_from_sintable</span>(<span class="ruby-identifier">sincos</span>, <span class="ruby-value">sintable:</span><span class="ruby-identifier">hl</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
         <span class="ruby-identifier">sincos0</span>     <span class="ruby-identifier">addr</span> <span class="ruby-value">0</span>, <span class="ruby-constant">SinCos</span>
@@ -269,7 +269,7 @@
         
         <div class="method-heading">
           <span class="method-name">sincos_from_angle</span><span
-            class="method-args">(sincos, th=h, tl=l)</span>
+            class="method-args">(sincos, th=h, tl=l, mask:nil)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -283,10 +283,17 @@
 <p>For each angle: a &lt;= llllllhh; th =&gt;  MSB <a href="SinCos.html"><code>SinCos</code></a> address + 000000hh, tl =&gt; llllll00</p>
 <dl class="rdoc-list note-list"><dt><code>sincos</code>
 <dd>
-<p>Address of <a href="SinCos.html"><code>SinCos</code></a> table, must be aligned to 256 bytes. (LSB of <code>sincos</code> address must be <code>0</code>).</p>
+<p>Address of <a href="SinCos.html"><code>SinCos</code></a> table, must be aligned to 256 bytes or an 8-bit register holding MSB of the <a href="SinCos.html"><code>SinCos</code></a> address. LSB of <code>sincos</code> address must be <code>0</code>.</p>
 </dd></dl>
 
-<p>T-states: 30.</p>
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>mask</code>
+<dd>
+<p>An pptional 8-bit register holding preloaded mask value: <code>0xFC</code> (<code>0b11111100</code>).</p>
+</dd></dl>
+</li></ul>
+
+<p>T-states: 30|27|24.</p>
 
 <p>Mofifies: <code>af</code>, <code>th</code>, <code>tl</code>.</p>
           
@@ -294,23 +301,37 @@
 
           
           <div class="method-source-code" id="sincos_from_angle-source">
-            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 115</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sincos_from_angle</span>(<span class="ruby-identifier">sincos</span>, <span class="ruby-identifier">th</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">l</span>)
+            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 118</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sincos_from_angle</span>(<span class="ruby-identifier">sincos</span>, <span class="ruby-identifier">th</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-value">mask:</span><span class="ruby-keyword">nil</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;sincos must be a direct address&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">sincos</span>)
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">immediate?</span>(<span class="ruby-identifier">sincos</span>)
         <span class="ruby-identifier">sincos</span> = <span class="ruby-identifier">sincos</span>.<span class="ruby-identifier">to_i</span>
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;sincos address must be aligned to 256 bytes&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">sincos</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x00FF</span>).<span class="ruby-identifier">zero?</span>
     <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid mask argument&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">mask</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span>
+            (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">mask</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">mask</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span>[<span class="ruby-identifier">a</span>, <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sincos</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">mask</span>))
+    <span class="ruby-identifier">mask</span> = <span class="ruby-value">0b11111100</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">mask</span>.<span class="ruby-identifier">nil?</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
-        <span class="ruby-identifier">select</span>(<span class="ruby-identifier">sincos</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x00FF</span>, <span class="ruby-operator">&amp;</span><span class="ruby-value">:zero?</span>).<span class="ruby-identifier">then</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">_</span><span class="ruby-operator">|</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">sincos</span>)
+            <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid sincos register&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">sincos</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">and</span> 
+                                                            <span class="ruby-operator">!</span>[<span class="ruby-identifier">a</span>, <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">sincos</span>)
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">a</span>
-                <span class="ruby-identifier">anda</span> <span class="ruby-value">0b11111100</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-identifier">mask</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">th</span>
+                <span class="ruby-identifier">add</span>  <span class="ruby-identifier">sincos</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">a</span>
+        <span class="ruby-keyword">else</span>
+            <span class="ruby-identifier">select</span>(<span class="ruby-identifier">sincos</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x00FF</span>, <span class="ruby-operator">&amp;</span><span class="ruby-value">:zero?</span>).<span class="ruby-identifier">then</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">_</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">anda</span> <span class="ruby-identifier">mask</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">a</span>
                 <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">th</span>
                 <span class="ruby-identifier">add</span>  <span class="ruby-identifier">sincos</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">a</span>
-        <span class="ruby-keyword">end</span>.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
-            <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;sincos address must be aligned to 256 bytes&quot;</span>
+            <span class="ruby-keyword">end</span>.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;sincos address must be aligned to 256 bytes&quot;</span>
+            <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
