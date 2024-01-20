@@ -791,9 +791,14 @@ module Z80
             # values, results can never equal to (-256). Thus it is safe to disable +full_range+.
             #
             # Uses: +af+, +hl+, +tt+, +s+, optionally preserves: +kh+, +kl+ or +m+.
-            def mul_signed9(kh=c, kl=d, m=a, s:kh, tt:de, m_neg_cond:C, k_full_range:true, m_full_range:true, k_overflow:nil, m_is_zero_zf:false, optimize: :time)
-                th, tl = tt.split
-                raise ArgumentError, "mul_signed9: invalid arguments" if tt == hl or m == th or kh == kl or 
+            def mul_signed9(kh, kl, m=a, s:kh, tt:de, m_neg_cond:C, k_full_range:true, m_full_range:true, k_overflow:nil, m_is_zero_zf:false, optimize: :time)
+                if optimize == :size
+                    th, tl = tt.split
+                else
+                    tl, th = tt.split
+                end
+                raise ArgumentError, "mul_signed9: invalid arguments" if tt == hl or kh == kl or
+                                                                         [kh, kl].include?(a) or
                                                                          [th, tl, h, l, a].include?(s)
                 raise ArgumentError, "mul_signed9: invalid options" if k_overflow and k_full_range and !m_full_range
                 raise ArgumentError, "mul_signed9: m_neg_cond must be a Condition" unless m_neg_cond.is_a?(Condition)
@@ -805,10 +810,16 @@ module Z80
                     end
                 end
                 isolate do |eoc|
+                            ld   a, m unless m == a
+                    if th == kh
+                        raise ArgumentError, "mul_signed9: invalid arguments" if s == kl
+                            ld   s, kh unless s == kh
+                            ld   th, kl unless kl == th
+                    else
                             ld   th, kl unless kl == th
                             ld   s, kh unless s == kh
-                            ld   a, m unless m == a
-                            ld   hl, 0
+                    end
+                            ld   hl, 0 if optimize == :size
                             # m < 0
                     if m_neg_cond.jr_ok?
                             jr   m_neg_cond, m_neg
@@ -817,22 +828,25 @@ module Z80
                     end
                             anda a unless m_is_zero_zf
                             jump.call NZ, mul_it # m != 0
-                    if k_full_range && m_full_range && !k_overflow && m_is_zero_zf && m_neg_cond != C # clear CF
-                            anda a
+                    if k_full_range && m_full_range && !k_overflow && m_is_zero_zf && m_neg_cond != C
+                            xor  a               # clear CF
                     end
-                            ld   s, l            # clear sign
+                            ld   s, a            # clear sign
+                    unless optimize == :size
+                            ld   h, a
+                            ld   l, a
+                    end
                             jump.call nil, eoc   # CF=0
 
                     if k_full_range              # k = -(-256)
-                    k_over  ld   s, l            # clear sign (-256 * m) where m < 0
-                            xor  a
+                    k_over  xor  a
+                            ld   s, a            # clear sign (-256 * m) where m < 0
+                            ld   l, a unless optimize == :size
                             sub  tl              # a = -m, CF = 1 (unless m == -256)
                         if m_full_range
                             # m == (-256)
                             jp   NC, k_overflow if k_overflow
-                            ccf unless k_overflow
-                        else
-                            ccf                  # CF:1 when m == -256
+                            ccf unless k_overflow # CF:1 when m == -256
                         end
                             ld   h, a            # hl: 256 * -m where m < 0
                             jump.call nil, eoc   # CF=0|1 depending on overflow unless k_overflow is set
@@ -840,6 +854,7 @@ module Z80
 
                     if m_full_range
                     m_n256  ld   h, th           # hl: k * (-256)
+                            ld   l, a unless optimize == :size
                             jump.call nil, eoc   # CF=0|1 depending on overflow unless k_overflow is set
                     end
 
@@ -857,9 +872,14 @@ module Z80
                     if m_full_range
                             jr   Z, m_n256    # m == (-256)
                     end
-                    mul_it  rrc  s            # k sign -> CF
+                    if optimize == :size
+                    mul_it  sra  s            # k sign -> CF
                             ld   tl, l
-                    mult    mul(th, a, tt:tt, clrhl:false, signed_k:true, kbit9_carry:true, tl_is_zero:true, optimize:optimize)
+                    mult    mul(th, a, tt:tt, clrhl:false, signed_k:true, kbit9_carry:true, tl_is_zero:true, optimize: :size)
+                    else
+                    mul_it  mul16(s, th, a, tt:tt, mbit9_carry:false, optimize:optimize)
+                            anda a if k_full_range && m_full_range && !k_overflow # clear CF
+                    end
                 end
             end
             ##
