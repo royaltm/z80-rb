@@ -709,10 +709,10 @@ module Z80
             # See Macros.mul for details.
             def mul_signed(k=d, m=a, tt:de, clrhl:true, optimize: :time)
                 th, tl = tt.split
-                raise ArgumentError if tt == hl or m == th
+                raise ArgumentError, "mul_signed: invalid arguments" if tt == hl or k == a
                 isolate do
-                            ld   th, k unless k == th
                             ld   a, m unless m == a
+                            ld   th, k unless k == th
                             anda a
                             jp   P, mul_it      # m >= 0
                             ld   tl, a if m == a
@@ -772,7 +772,7 @@ module Z80
             #                    option must be also enabled.
             # * +m_is_zero_zf+:: Determines whether +ZF+ flag is expected to be set on input when +m+ is 0.
             #                    Saves 4 T-states and 1 byte if enabled.
-            # * +optimize+::     What is more important: +:time+ or +:size+?
+            # * +optimize+::     Optimization options: +:size+, +:time+ or +:unroll+.
             #
             # ====Note:
             # When +m_is_zero_zf+ option is set and ZERO flag is set to 1 to indicate that +m+ is equal to 0,
@@ -904,6 +904,7 @@ module Z80
             #
             # Uses: +af+, +hl+, +tt+, optionally preserves: +k+, +m+.
             def mul(k=d, m=a, tt:de, clrhl:true, signed_k:false, kbit9_carry:false, tl_is_zero:false, optimize: :time)
+                raise ArgumentError, "mul: invalid arguments" if tt == hl or k == a
                 raise ArgumentError, "mul: optimize should be :time or :size" unless [:size, :time].include?(optimize)
                 th, tl = tt.split
                 srx = if signed_k
@@ -911,10 +912,9 @@ module Z80
                 else
                     proc {|t| srl t}
                 end
-                raise ArgumentError if tt == hl or m == th
                 isolate do |eoc|
-                            ld   th, k unless k == th
                             ld   a, m unless m == a
+                            ld   th, k unless k == th
                     if clrhl
                             ld   hl, 0
                             ld   tl, l unless tl_is_zero
@@ -1124,10 +1124,17 @@ module Z80
             # Uses: +f+, +hl+, +m+, +tt+, optionally preserves: +kh+, +kl+.
             def mul8_c(kh=h, kl=l, m=a, tt:de, clrhl:true)
                 th, tl = tt.split
-                raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == kh or th == kl or !register?(m)
+                raise ArgumentError, "mul8_c: invalid arguments" if tt == hl or [th, tl].include?(m) or
+                                                                    !register?(m) or !m.bit8?
                 isolate do |eoc|
+                    if kh == tl
+                        raise ArgumentError, "mul8_c: invalid arguments" if kl == th
+                            ld   th, kh
+                            ld   tl, kl unless kl == tl
+                    else
                             ld   tl, kl unless kl == tl
                             ld   th, kh unless kh == th
+                    end
                             ld   hl, 0 if clrhl
                     loop1   srl  m
                             jr   NC, noadd
@@ -1164,11 +1171,20 @@ module Z80
             # Uses: +af+, +hl+, +m+, +kh+, +kl+, +t+, +tt+, optionally preserves: +kh+, +kl+, +m+.
             def mul8_signed(kh=h, kl=l, m=c, tt:de, t:m, clrhl:true, double:false, optimize: :time)
                 th, tl = tt.split
-                raise ArgumentError if !register?(t) or !t.bit8? or [a, tl, th].include?(t)
+                raise ArgumentError, "mul8_signed: invalid arguments" if !register?(t) or !t.bit8? or
+                                                                         [a, tl, th].include?(t) or
+                                                                         [kh, kl].include?(a)
+
                 isolate do
+                            ld   a, m unless m == a
+                    if kh == tl
+                        raise ArgumentError, "mul8_signed: invalid arguments" if kl == th
+                            ld   th, kh
+                            ld   tl, kl unless kl == tl
+                    else
                             ld   tl, kl unless kl == tl
                             ld   th, kh unless kh == th
-                            ld   a, m unless m == a
+                    end
                             anda a
                             jp   P, mul_it      # m >= 0
                             ld   t, a unless t == m
@@ -1203,10 +1219,17 @@ module Z80
             def mul8(kh=h, kl=l, m=a, tt:de, clrhl:true, double:false, optimize: :time)
                 raise ArgumentError, "mul8: optimize should be :time or :size" unless [:size, :time].include?(optimize)
                 th, tl = tt.split
-                raise ArgumentError if tt == hl or [th,tl].include?(m) or tl == kh or th == kl or !register?(m)
+                raise ArgumentError, "mul8: invalid arguments" if tt == hl or [th, tl].include?(m) or
+                                                                  !register?(m) or !m.bit8?
                 isolate do |eoc|
+                    if kh == tl
+                        raise ArgumentError, "mul8: invalid arguments" if kl == th
+                            ld   th, kh
+                            ld   tl, kl unless kl == tl
+                    else
                             ld   tl, kl unless kl == tl
                             ld   th, kh unless kh == th
+                    end
                             ld   hl, 0 if clrhl
                     if optimize == :time
                         if double
@@ -1285,9 +1308,14 @@ module Z80
                     end
                 end
                 isolate do |eoc|
+                    if kh == tl
+                        raise ArgumentError, "mul_signed9_24: invalid arguments" if kl == th
+                            ld   th, kh
+                            ld   tl, kl unless kl == tl
+                    else
                             ld   tl, kl unless kl == tl
                             ld   th, kh unless kh == th
-
+                    end
                     if m_pos_cond.jr_ok?
                             jr   m_pos_cond, mul_it # m >= 0
                     else
@@ -1346,11 +1374,19 @@ module Z80
             # Uses: +af+, +bc+, +de+, +hl+.
             def mul8_24(kh=h, kl=l, m=b, t:c, tt:de, clrahl:true, k_int24: false, optimize: :time)
                 th, tl = tt.split
-                raise ArgumentError if tt == hl or [a,th,tl,t].include?(m) or [a,th,tl,m].include?(t) or
-                                       tl == kh or th == kl or !register?(m) or !register?(t)
+                raise ArgumentError, "mul8_24: invalid arguments" if tt == hl or [a, th, tl, t].include?(m) or
+                                                                    [a, th, tl, m].include?(t) or
+                                                                    !register?(m) or !register?(t) or
+                                                                    !m.bit8? or !t.bit8?
                 isolate do |eoc|
+                    if kh == tl
+                        raise ArgumentError, "mul_signed9_24: invalid arguments" if kl == th
+                                ld  th, kh
+                                ld  tl, kl unless kl == tl
+                    else
                                 ld  tl, kl unless kl == tl
                                 ld  th, kh unless kh == th
+                    end
                     if clrahl
                                 xor a
                                 ld  h, a
