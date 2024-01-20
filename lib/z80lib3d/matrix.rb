@@ -60,7 +60,12 @@ module Z80Lib3D
       # Modifies: +sp+, +af+, +af'+, +hl+, +bc+, +de+, +hl'+, +bc'+, +de'+.
       def apply_matrix(matrix, vertices:hl, scrx0:128, scry0:128, scrz0:128, persp_dshift:7, optimize: :time)
         raise ArgumentError, "apply_matrix: invalid arguments" unless [scrx0, scry0, scrz0].all?{|l| direct_address?(l) }
-        mx_optimize = if optimize != :size then :time else :size end
+        mx_optimize = case optimize
+        when :time_alt then :time
+        when :unroll_alt then :unroll
+        else
+          optimize
+        end
         check0_far = (optimize == :unroll || optimize == :unroll_alt)
         isolate do
                           ld   hl, vertices unless vertices==hl
@@ -180,15 +185,15 @@ module Z80Lib3D
       # * +tt+:: A 16-bit temporary register +de+ or +bc+ from the alternative register set.
       # * +t+:: An 8-bit temporary register from the alternative register set.
       #
-      # Modifies: +sp+, +af+, +hl'+, +tt'+, +t'+, preserves +x+, +y+, +z+.
-      def apply_matrix_row(x, y, z, tt:de, t:c, optimize: :time)
+      # Modifies: +sp+, +af+, +hl'+, +bc'+, +de'+, preserves +x+, +y+, +z+.
+      def apply_matrix_row(x, y, z, optimize: :time)
         raise ArgumentError, "apply_matrix_row: invalid arguments" if y == a or z == a
         isolate do
-                      apply_matrix_element x, tt:tt, t:t, clrhl: true, optimize:optimize  # qxx*x
+                      apply_matrix_element x, clrhl: true,  optimize:optimize #  qxx*x
                       exx
-                      apply_matrix_element y, tt:tt, t:t, clrhl: false, optimize:optimize # +qxy*y
+                      apply_matrix_element y, clrhl: false, optimize:optimize # +qxy*y
                       exx
-                      apply_matrix_element z, tt:tt, t:t, clrhl: false, optimize:optimize # +qxz*z
+                      apply_matrix_element z, clrhl: false, optimize:optimize # +qxz*z
 
                       xor  a
                       sla  l
@@ -220,18 +225,25 @@ module Z80Lib3D
       # +x+:: A signed 8-bit integer representing scalar as an 8-bit register or an address.
       #
       # Options:
-      # * +tt+:: A 16-bit temporary register +de+ or +bc+ from the alternative register set.
-      # * +t+:: An 8-bit temporary register from the alternative register set.
       # * +clrhl+:: Whether the result should be set (+true+) or added to the previous value (+false+).
       #
-      # Modifies: +sp+, +af+, +hl'+, +tt'+, +t'+, optionally preserves +x+, swaps registers.
-      def apply_matrix_element(x, tt:de, t:c, clrhl:false, optimize: :time)
-        th, tl = tt.split
-        isolate do
+      # Modifies: +sp+, +af+, +hl'+, +bc'+, +de'+, optionally preserves +x+, swaps registers.
+      def apply_matrix_element(x, clrhl:false, optimize: :time)
+        isolate do |eoc|
                       ld   a, x unless x == a
                       exx
-                      pop  tt          # tt: qxx = iiiiiiiiffffffff
-          multiply    mul8_signed(th, tl, a, tt:tt, t:t, clrhl:clrhl, double:false, optimize:optimize)
+                      pop  bc     # bc: qxx = iiiiiiiiffffffff
+          if optimize == :size
+            multiply  mul8_signed(b, c, a, tt:bc, t:e, clrhl:clrhl, double:false, optimize: :size)
+          else
+            unless clrhl
+                      ex   de, hl # de: sum
+            end
+            multiply  mul16_signed(b, c, a, tt:bc, optimize:optimize)
+            unless clrhl
+                      add  hl, de # hl: add previous value
+            end
+          end
         end
       end
     end
