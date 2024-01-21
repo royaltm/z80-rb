@@ -532,41 +532,89 @@ module Z80
             end
             ##
             # Creates a routine that performs a multiplication of a 16-bit integer +kh+|+kl+ * 9-bit
-            # signed +CF+|+m+. Returns the result in +hl+.
+            # signed integer +f+|+m+. Returns the 16-bit result in +hl+ or 17-bit result in +s+|+hl+.
             #
             # +kh+:: The MSB part of the multiplicand as an immediate value or an 8-bit register.
             # +kl+:: The LSB part of the multiplicand as an immediate value or an 8-bit register.
-            # +m+::  The lowest 8-bits of the multiplier.
+            # +m+::  The lowest 8-bits of the twos complement multiplier integer.
             #
-            # The CF flag should contain the sign bit (bit 9th) of a 9-bit twos complement multiplier.
+            # The branching condition specified in +m_neg_cond+ determines the sign (bit 9th) of
+            # a 9-bit twos complement multiplier.
             #
             # Options:
-            # * +tt+::       A 16-bit temporary register (+de+ or +bc+ unless +optimize+ is +:size+).
-            # * +optimize+:: Optimization options: +:size+, +:time+ or +:unroll+.
+            # * +s+::          An optional sign output register which extends the result to 17 bits:
+            #                  (-65536..65535). When +s+ is specified +m+ can't be +a+.
+            #                  The twos complement value stored in +s+ can only result in 0 or (-1).
+            # * +tt+::         A 16-bit temporary register (+de+ or +bc+ unless +optimize+ is +:size+).
+            # * +m_neg_cond+:: A flags register branching condition indicating that +m+ is negative.
+            #                  When +s+ is specified then +m_neg_cond+ can be +nil+ to indicate that
+            #                  no check should be performed. In this instance enter the routine at
+            #                  +posmul+ sub-label when +m+ >= 0 or at +negmul+ sub-label when +m+ < 0.
+            # * +m_overflow+:: A program address to branch to when +m+ = (-256). When branched
+            #                  +kh+ and +kl+ will be already negated (+k+ = 0 - +k+) and CF=0.
+            #                  Alternatively +m_overflow+ can be set to +false+, implicating that
+            #                  +m+ is never equal to (-256).
+            # * +optimize+::   Optimization options: +:compact+, +:size+, +:time+ or +:unroll+.
+            #                  _NOTE_: +:compact+ can't be selected if +s+ is specified.
             #
-            # Modifies: +af+, +hl+, +tt+, optionally +b+ if +optimize+ is +:size+.
-            def mul16_signed9(kh=h, kl=l, m=b, tt:de, m_overflow:nil, optimize: :time)
+            # Modifies: +af+, +hl+, +kh+, +kl+, +tt+, optionally +b+ if +optimize+ is +:compact+.
+            def mul16_signed9(kh=h, kl=l, m=c, s:nil, tt:de, m_overflow:nil, m_neg_cond:C, optimize: :time)
                 th, tl = tt.split
-                raise ArgumentError, "mul16_signed: invalid arguments" if [kh, kl].include?(m)
+                raise ArgumentError, "mul16_signed9: invalid arguments" if [kh, kl].include?(m) or
+                                                                    (!s.nil? and (m == a or
+                                                                        [kh, kl, th, tl, h, l, m, a].include?(s) or
+                                                                        !register?(m) or !m.bit8?))
+                unless m_neg_cond.nil? and !s.nil?
+                    raise ArgumentError, "mul16_signed9: m_neg_cond must be a Condition" unless m_neg_cond.is_a?(Condition)
+                end
                 t = if register?(m) && m.bit8? && m != a
                     m
                 else
                     [l, h, tl, th].find {|r| r != kh && r != kl}
                 end
-                isolate do
-                            ld   a, m unless m == a
-                            jr   NC, mult     # m >= 0
-                            ld   t, a unless t == m
-                            neg16 kh, kl
-                            xor  a
-                            sub  t              # a: -m
-                    if m_overflow
-                            jr   NC, m_overflow # m == 256
+                jump = proc do |cond, target|
+                    if optimize == :size || optimize == :compact
+                            jr   cond, target
                     else
-                            ccf                 # CF: 1 when m == 256, otherwise CF: 0
+                            jp   cond, target
                     end
-                    mult    mul16(kh, kl, a, tt:tt, mbit9_carry:!m_overflow, optimize:optimize)
                 end
+                isolate do |eoc|
+                    if s
+                        if m_neg_cond.jr_ok?
+                                jr   m_neg_cond, negmul
+                        else
+                                jp   m_neg_cond, negmul
+                        end unless m_neg_cond.nil?
+                        posmul  sign_extend(s, kh)
+                                ld   a, m
+                                anda a    # clear CF, test zero
+                                jump.call NZ, mult
+                                ld   s, a # clear sign
+                                ld   h, a
+                                ld   l, a
+                                jump.call nil, eoc
+                        negmul  neg16 kh, kl
+                                sign_extend(s, a)
+                    else
+                                ld   a, m unless m == a
+                        if m_neg_cond.jr_ok? # m >= 0
+                                jr   m_neg_cond.not, mult
+                        else
+                                jp   m_neg_cond.not, mult
+                        end
+                                ld   t, a unless t == m
+                                neg16 kh, kl
+                    end
+                                xor  a
+                                sub  m              # a: -m
+                        if m_overflow
+                                jr   NC, m_overflow # m == 256
+                        elsif m_overflow.nil?
+                                ccf                 # CF: 1 when m == 256, otherwise CF: 0
+                        end
+                        mult    mul16(kh, kl, a, tt:tt, mbit9_carry:m_overflow.nil?, optimize:optimize)
+                    end
             end
             ##
             # Creates a routine that performs a multiplication of a 16-bit integer +kh+|+kl+ * 8-bit signed +m+.
