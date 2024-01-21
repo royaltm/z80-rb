@@ -626,9 +626,9 @@ module Z80
             #
             # Options:
             # * +tt+::       A 16-bit temporary register (+de+ or +bc+ unless +optimize+ is +:size+).
-            # * +optimize+:: Optimization options: +:size+, +:time+ or +:unroll+.
+            # * +optimize+:: Optimization options: +:compact+, +:size+, +:time+ or +:unroll+.
             #
-            # Modifies: +af+, +hl+, +tt+, optionally +b+ if +optimize+ is +:size+.
+            # Modifies: +af+, +hl+, +tt+, optionally +b+ if +optimize+ is +:compact+.
             def mul16_signed(kh=h, kl=l, m=b, tt:de, optimize: :time)
                 th, tl = tt.split
                 raise ArgumentError, "mul16_signed: invalid arguments" if [kh, kl].include?(m)
@@ -665,13 +665,16 @@ module Z80
             # Options:
             # * +tt+::           A 16-bit temporary register (+de+ or +bc+ unless +optimize+ is +:size+).
             # * +mbit9_carry+::  If the multiplier (+m+) is 9-bit, where MSB (9th) bit is read from CARRY flag.
-            # * +optimize+::     Optimization options: +:size+, +:time+ or +:unroll+.
+            # * +optimize+::     Optimization options: +:compact+, +:size+, +:time+ or +:unroll+.
             #
-            # Modifies: +af+, +hl+, +tt+, optionally +b+ if +optimize+ is +:size+.
+            # _NOTE_:: Optimization +:compact+ is both a smaller and slightly faster alternative to +:size+,
+            #          however it requires the loop register +b+, thus preventing +bc+ to be used as +tt.
+            # Modifies: +af+, +hl+, +tt+, optionally +b+ if +optimize+ is +:compact+.
             def mul16(kh=h, kl=l, m=a, tt:de, mbit9_carry:false, optimize: :time)
                 th, tl = tt.split
                 raise ArgumentError, "mul16: invalid arguments" if tt == hl or [kh, kl].include?(a)
-                raise ArgumentError, "mul16: tt must be +de+ if optimize is :size" if tt == bc && optimize == :size
+                raise ArgumentError, "mul16: tt must be +de+ if optimize is :compact" if tt == bc &&
+                                                                                    optimize == :compact
                 isolate do |eoc|
                                     ld   a, m  unless  m == a
                     if kh == tl
@@ -710,7 +713,7 @@ module Z80
                                     add  a, a         # CF <- m <- 0
                                     jr   NC, loop1
                                     jp   NZ, doadd1
-                    elsif optimize == :size
+                    elsif optimize == :compact
                                     ld   hl, 0
                         if mbit9_carry
                                     ld   b, 9
@@ -723,6 +726,22 @@ module Z80
                             cont1   jr   NC, skip1
                                     add  hl, tt       # hl + tt
                             skip1   djnz loop1
+                    elsif optimize == :size
+                                    ld   hl, 0
+                        if mbit9_carry
+                                    jr   NC, start8   # bit9 of m
+                                    add  hl, tt
+                        end
+                        start8      scf               # terminator
+                                    adc  a, a         # CF <- m <- 1
+                                    jr   cont2
+                            loop1   add  hl, hl       # hl * 2
+                            cont1   add  a, a         # CF <- m <- 0
+                            cont2   jr   NC, loop1
+                                    jr   Z, eoc
+                            doadd1  add  hl, hl       # hl * 2
+                                    add  hl, tt       # hl + tt
+                                    jr   cont1
                     elsif optimize == :unroll
                                     ld   l, tl unless kl == l
                                     ld   h, th unless kh == h
@@ -747,7 +766,7 @@ module Z80
                             end
                         end
                     else
-                        raise ArgumentError, "mul16: optimize should be :size, :time or :unroll"
+                        raise ArgumentError, "mul16: optimize should be :compact, :size, :time or :unroll"
                     end
                 end
             end
