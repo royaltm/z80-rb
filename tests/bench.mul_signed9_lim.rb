@@ -43,20 +43,8 @@ class BenchMulSigned9
 
     ns :get_result do # a|hl
                     ld   a, [resign]
-                    ld   d, a       # sign
                     ld   hl, [result]
-                    ld   a, [carryover]
-                    anda a
-                    jr   Z, skip_ck # no carry
-                    inc  a          # a must be 0x0 or 0xFF
-                    report_error_unless Z, "N Statement lost" # sanity check
-                    ld   a, d       # sign
-                    ora  h
-                    ora  l
-                    jr   NZ, skip_ck
-                    ld   a, 1       # result=65536
-                    ld   d, a
-      skip_ck       ld   a, d       # sign
+                    ld   d, a       # sign
                     ld   c, h
                     ld   b, l
                     ld   e, 0
@@ -69,7 +57,7 @@ class BenchMulSigned9
 
     return_fp       return_with_fp restore_iy:nil, restore_hl_alt:nil
 
-    ns :test_mul_signed9 do # 20+20+8+4+13+16+4+13=98
+    ns :test_mul_signed9 do # 20+20+8+16+4+13=81
                     ld   de, [multiplicand] # 20
                     ld   bc, [multiplier]   # 20
                     sra  b                  # 8
@@ -77,18 +65,16 @@ class BenchMulSigned9
       dc!"**************************************"
       dc!"***            ROUTINE             ***"
       dc!"**************************************"
-      routine       mul_signed9(d, e, c, s:b, tt:de, m_neg_cond:C, k_full_range:true, m_full_range:true, m_is_zero_zf:false, optimize:OPTIMIZE)
+      routine       mul_signed9(d, e, c, s:b, tt:de, m_neg_cond:C, k_full_range:false, m_full_range:false, m_is_zero_zf:false, optimize:OPTIMIZE)
       dc!"**************************************"
       dc!
-                    sbc  a, a               # 4
-                    ld   [carryover], a     # 13
                     ld   [result], hl       # 16
                     ld   a, b               # 4
                     ld   [resign], a        # 13
                     ret
     end
 
-    ns :test_mul16_signed9 do # 20+20+8+4+13+16+4+13=98
+    ns :test_mul16_signed9 do # 20+20+8+16+4+13=81
                     ld   de, [multiplicand] # 20
                     ld   bc, [multiplier]   # 20
                     sra  b                  # 8
@@ -96,29 +82,22 @@ class BenchMulSigned9
       dc!"**************************************"
       dc!"***            ROUTINE             ***"
       dc!"**************************************"
-      routine       mul16_signed9(d, e, c, s:b, tt:de, m_neg_cond:C, m_overflow:m_is_256, optimize:OPTIMIZE)
+      routine       mul16_signed9(d, e, c, s:b, tt:de, m_neg_cond:C, m_overflow:false, optimize:OPTIMIZE)
       dc!"**************************************"
       dc!
-        store       nop                     # 4
-                    ld   [carryover], a     # 13
                     ld   [result], hl       # 16
                     ld   a, b               # 4
                     ld   [resign], a        # 13
                     ret
-        m_is_256    ld    l, a # a = 0, CF: 0
-                    ld    h, e
-                    ld    b, d
-                    jp    store
     end
 
-    carryover       db 0
     resign          db 0
     result          dw 0
     multiplicand    dw 0
     multiplier      dw 0
 end
 
-ZXINTERFACE1 = true
+ZXINTERFACE1 = false
 
 benchmark = BenchMulSigned9.new 0x8000 # Note: this must be the 0x8000 address at the moment.
 tsframe = benchmark['bm.tsframe']
@@ -126,8 +105,8 @@ test_mul_signed9 = benchmark[:test_mul_signed9]
 test_mul16_signed9 = benchmark[:test_mul16_signed9]
 routine_size = benchmark["+test_mul_signed9.routine"]
 routine16_size = benchmark["+test_mul16_signed9.routine"]
-# rtest, rsize = test_mul_signed9, routine_size
-rtest, rsize = test_mul16_signed9, routine16_size
+rtest, rsize = test_mul_signed9, routine_size
+# rtest, rsize = test_mul16_signed9, routine16_size
 channel = if ZXINTERFACE1 then "T" else "P" end
 program = ZXLib::Basic.parse_source <<-EOC
    1 DEF FN n(x)=x-(65536 AND x>=32768): DEF FN x()=USR #{benchmark[:get_result]}
@@ -140,16 +119,16 @@ program = ZXLib::Basic.parse_source <<-EOC
   10 LET counter=50#{if ZXINTERFACE1 then ': FORMAT "T";19200' end}
   20 PRINT "See results on ZX Printer": OPEN #2,"#{channel}": PRINT "SinCos: T-States size: #{rsize}"
   30 LET sum=0: LET max=0: LET maxi=-1: LET min=1e+38: LET mini=-1: LET v=0
-  50 FOR m=-256 TO 255: FOR k=-256 TO 255
+  50 FOR m=-255 TO 255: FOR k=-255 TO 255
  100 RANDOMIZE FN z(k,m): LET frames=FN b(#{rtest},counter)
-     LET w=FN r()-98: LET sum=sum+w
+     LET w=FN r()-81: LET sum=sum+w
      IF w>max THEN LET max=w: LET maxi=(k+256)*512+(m+256)
      IF w<min THEN LET min=w: LET mini=(k+256)*512+(m+256)
      IF v<>w THEN PRINT k;"*";m;":";TAB 16;w: LET v=w
  110 IF FN x()<>k*m THEN GO TO 2000
  120 NEXT k: NEXT m
      PRINT '"Sum:";sum
-     PRINT "Avg:";INVERSE 1;sum/#{512*512}
+     PRINT "Avg:";INVERSE 1;sum/#{511*511}
      PRINT "Max:";INVERSE 1;max;INVERSE 0;" for ";INT(maxi/512)-256;"*";maxi-INT(maxi/512)*512-256
      PRINT "Min:";INVERSE 1;min;INVERSE 0;" for ";INT(mini/512)-256;"*";mini-INT(mini/512)*512-256
      CLOSE #2
@@ -170,7 +149,7 @@ puts
 puts "routine mul_signed9   size: #{routine_size} bytes"
 puts "routine mul16_signed9 size: #{routine16_size} bytes"
 
-tap_name = 'bench.mul_signed9.tap'
+tap_name = 'bench.mul_signed9_lim.tap'
 program.save_tap tap_name, line: 9999
 benchmark.save_tap tap_name, name:'benchmark', append: true
 puts "TAP #{tap_name}:"

@@ -117,13 +117,23 @@ class MTest1
     include Z80
     include Z80::TAP
 
+    NAME = "test.math_i.mul16_9.compact"
+
+    macro_import MTestFactory
+    make_tests de, :compact
+end
+
+class MTest2
+    include Z80
+    include Z80::TAP
+
     NAME = "test.math_i.mul16_9.size"
 
     macro_import MTestFactory
     make_tests de, :size
 end
 
-class MTest2
+class MTest3
     include Z80
     include Z80::TAP
 
@@ -133,7 +143,7 @@ class MTest2
     make_tests de, :time
 end
 
-class MTest3
+class MTest4
     include Z80
     include Z80::TAP
 
@@ -145,7 +155,7 @@ end
 
 include ZXLib
 
-[MTest1, MTest2, MTest3].each do |mtest_klass|
+[MTest1, MTest2, MTest3, MTest4].each do |mtest_klass|
     mtest = mtest_klass.new 65536 - mtest_klass.code.bytesize
     # puts mtest.debug
     source = <<-END
