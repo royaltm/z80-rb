@@ -41,17 +41,17 @@ module Z80
 				raise Syntax, "A macro must have a name" unless name.is_a?(Symbol)
 				raise Syntax, "Macros may only be defined in the program context." if @contexts.size > 1
 				raise Syntax, "A label with the same name: \"#{name}\" exists." if @labels.has_key?(label.to_s)
-				m = lambda do |*args, &block|
+				m = lambda do |*args, **opts, &block|
 					if args.first.is_a?(Symbol)
 						n = args.shift
 					end
 					if registers.empty?
 						ns(n, **nsopts) do |eoc|
-							mblock.call eoc, *args, &block
+							mblock.call eoc, *args, **opts, &block
 						end
 					else
 						lbl = with_saved(*registers, **nsopts) do |eoc|
-							mblock.call eoc, *args, &block
+							mblock.call eoc, *args, **opts, &block
 						end
 						lbl = self.define_label n, lbl if n
 						lbl

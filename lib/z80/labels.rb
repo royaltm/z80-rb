@@ -1038,7 +1038,7 @@ module Z80
 				elsif Integer === data
 					[data].pack('Q<')
 				else
-					data.to_s.force_encoding(Encoding::ASCII_8BIT)
+					data.to_s.dup.force_encoding(Encoding::ASCII_8BIT)
 				end[0,len].ljust(len, "\x0")
 			end
 			public

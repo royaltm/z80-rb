@@ -131,7 +131,7 @@ class Ghosts
   # * screen address
   # * bitmap
   # * jump_table
-  macro :calc_screen_addrs_and_push_args do |_, oos:, height:16|
+  macro :calc_screen_addrs_and_push_args do |_, oos:nil, height:16|
     if oos.is_a?(Proc)
       oos_block = oos
       oos = define_label :oos
