@@ -664,7 +664,7 @@ module Z80
             #
             # Options:
             # * +tt+::           A 16-bit temporary register (+de+ or +bc+ unless +optimize+ is +:size+).
-            # * +mbit9_carry+::  If the multiplier (+m+) is 9-bit, where MSB (9th) bit is read from CARRY flag.
+            # * +mbit9_carry+::  If the multiplier (+m+) is 9-bit, where MSB (9th bit) is read from CARRY flag.
             # * +optimize+::     Optimization options: +:compact+, +:size+, +:time+ or +:unroll+.
             #
             # _NOTE_:: Optimization +:compact+ is both a smaller and slightly faster alternative to +:size+,
@@ -760,7 +760,7 @@ module Z80
                         (if mbit9_carry then 0 else 1 end..7).each do |i|
                             ns :"iter#{i}" do |eoc|
                                     add  hl, hl
-                            skip9   add  a, a
+                                    add  a, a
                                     jr   NC, eoc
                             doadd   add  hl, tt
                             end
@@ -1419,7 +1419,7 @@ module Z80
             end
             ##
             # Creates a routine that performs a multiplication of a 16-bit unsigned integer +kh+|+kl+ or
-            # 24-bit integer +t+|+kh+|+kl+ * 8-bit unsigned +m+.
+            # 24-bit integer +t+|+kh+|+kl+ * 8(9)-bit unsigned +m+.
             # Returns the result as a 24-bit integer in +a+|+hl+.
             #
             # Optionally accumulates the result in +a+|+hl+.
@@ -1433,13 +1433,14 @@ module Z80
             # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
             # * +clrahl+:: If +a+|+hl+ should be set or accumulated, if +false+ acts like: +a+|+hl+ += +kh+|+kl+ * +m+.
             # * +k_int24+:: Whether a multiplicand is a 24-bit (possibly signed) integer with its MSB bits in +t+.
+            # * +mbit9_carry+:: If the multiplier (+m+) is 9-bit, where MSB (9th bit) is read from CARRY flag.
             # * +optimize+:: What is more important: +:time+ or +:size+?
             #
             # If +k_int24+ is +false+ and +clrahl+ is +true+ the resulting flags: ZF=1 signals the result 
             # fits in 16 bits, SF contains the sign of the result and CF=1 indicates overflow.
             #
             # Uses: +af+, +bc+, +de+, +hl+.
-            def mul8_24(kh=h, kl=l, m=b, t:c, tt:de, clrahl:true, k_int24: false, optimize: :time)
+            def mul8_24(kh=h, kl=l, m=b, t:c, tt:de, clrahl:true, k_int24:false, mbit9_carry:false, optimize: :time)
                 th, tl = tt.split
                 raise ArgumentError, "mul8_24: invalid arguments" if tt == hl or [a, th, tl, t].include?(m) or
                                                                     [a, th, tl, m].include?(t) or
@@ -1447,7 +1448,7 @@ module Z80
                                                                     !m.bit8? or !t.bit8?
                 isolate do |eoc|
                     if kh == tl
-                        raise ArgumentError, "mul_signed9_24: invalid arguments" if kl == th
+                        raise ArgumentError, "mul8_24: invalid arguments" if kl == th
                                 ld  th, kh
                                 ld  tl, kl unless kl == tl
                     else
@@ -1455,17 +1456,26 @@ module Z80
                                 ld  th, kh unless kh == th
                     end
                     if clrahl
+                        if mbit9_carry
+                                ld  hl, 0
+                                ld  a, l
+                        else
                                 xor a
                                 ld  h, a
                                 ld  l, a
+                        end
                                 ld  t, a unless k_int24
                     elsif !k_int24
                                 ld  t, 0
                     end
                     if optimize == :size        # 20 bytes (+~10 cycles per m bit)
-                        loop1   srl m           # 0 -> multiplier -> carry
-                                jr  Z, last
-                                jr  NC, noadd   # carry == 0 ? don't add
+                        if mbit9_carry
+                                rr  m           # CF -> multiplier -> CF
+                                jr  cont1
+                        end
+                        loop1   srl m           # 0 -> multiplier -> CF
+                        cont1   jr  Z, last
+                                jr  NC, noadd   # CF == 0 ? don't add
                                 add hl, tt      # add multiplicand to result lo16
                                 adc a, t        # add multiplicand to result hi8
                         noadd   sla tl          # multiplicand *= 2
@@ -1476,11 +1486,15 @@ module Z80
                                 add hl, tt      # last add
                                 adc a, t
                     elsif optimize == :time     # 29 bytes
-                                srl m           # 0 -> multiplier -> carry
+                        if mbit9_carry
+                                rr  m           # CF -> multiplier -> CF
+                        else
+                                srl m           # 0 -> multiplier -> CF
+                        end
                                 jp  NZ, skip0   # m != 0 ? start regular loop
                                 jr  C, skadd    # m == 1 ? add and quit
                                 jp  eoc         # m == 0 ? just quit
-                        skip0   jr  NC, noadd   # carry == 0 ? don't add
+                        skip0   jr  NC, noadd   # CF == 0 ? don't add
                         doadd   add hl, tt      # add multiplicand to result lo16
                                 adc a, t        # add multiplicand to result hi8
                         noadd   sla tl          # multiplicand *= 2
