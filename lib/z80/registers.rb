@@ -187,6 +187,10 @@ module Z80
 			def jr_ok?
 				one_of?(@@names[0..3])
 			end
+			## Inverse the condition, e.g. +Z.not+ becomes +NZ+ and +NC.not+ becomes C, etc.
+			def not
+				@@conditions[@@names.index(name) ^ 1]
+			end
 			alias_method :to_str, :name
 			alias_method :to_s, :name
 			@@conditions = @@names.each_with_index.map {|r, i| new r, i << 3 }
