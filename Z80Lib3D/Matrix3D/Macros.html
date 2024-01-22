@@ -85,6 +85,12 @@
     
     <li ><a href="#method-i-apply_matrix_row">#apply_matrix_row</a>
     
+    <li ><a href="#method-i-copy_sincos_from_angle">#copy_sincos_from_angle</a>
+    
+    <li ><a href="#method-i-course_to_rotation">#course_to_rotation</a>
+    
+    <li ><a href="#method-i-rotation_to_matrix">#rotation_to_matrix</a>
+    
   </ul>
 </div>
 
@@ -467,6 +473,280 @@ HL = HL + [SP]*x</pre>
                 <span class="ruby-identifier">adc</span>  <span class="ruby-identifier">h</span>                                 <span class="ruby-comment"># (sum+128)/256</span>
 
                 <span class="ruby-identifier">exx</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-copy_sincos_from_angle" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">copy_sincos_from_angle</span><span
+            class="method-args">(target, angle=a, sincos:self.sincos, mask:nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="copy_sincos_from_angle-source">
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 272</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">copy_sincos_from_angle</span>(<span class="ruby-identifier">target</span>, <span class="ruby-identifier">angle</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">sincos:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sincos</span>, <span class="ruby-value">mask:</span><span class="ruby-keyword">nil</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">angle</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">angle</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">sincos_from_angle</span> <span class="ruby-identifier">sincos</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-value">mask:</span><span class="ruby-identifier">mask</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">target</span>.<span class="ruby-identifier">sin</span>], <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">target</span>.<span class="ruby-identifier">cos</span>], <span class="ruby-identifier">hl</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-course_to_rotation" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">course_to_rotation</span><span
+            class="method-args">(rotation, yaw=a, pitch=b, roll=c, sincos:self.sincos, restore_sp:true, save_sp:true)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="course_to_rotation-source">
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 251</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">course_to_rotation</span>(<span class="ruby-identifier">rotation</span>, <span class="ruby-identifier">yaw</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">pitch</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">roll</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">sincos:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sincos</span>, <span class="ruby-value">restore_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>)
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">restore_sp_p</span>], <span class="ruby-identifier">sp</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">save_sp</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">restore_sp</span>
+    <span class="ruby-identifier">select</span>(<span class="ruby-identifier">sincos</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x00FF</span>, <span class="ruby-operator">&amp;</span><span class="ruby-value">:zero?</span>).<span class="ruby-identifier">then</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">_</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">de</span>, (<span class="ruby-identifier">sincos</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF00</span>)<span class="ruby-operator">|</span><span class="ruby-value">0b11111100</span>
+    <span class="ruby-keyword">end</span>.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;sincos address must be aligned to 256 bytes&quot;</span>
+    <span class="ruby-keyword">end</span>
+    [<span class="ruby-identifier">yaw</span>,   <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">yaw</span>,
+     <span class="ruby-identifier">pitch</span>, <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">pitch</span>,
+     <span class="ruby-identifier">roll</span>,  <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">roll</span>].<span class="ruby-identifier">each_slice</span>(<span class="ruby-value">2</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">angle</span>, <span class="ruby-identifier">target</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">copy_sincos_from_angle</span>(<span class="ruby-identifier">target</span>, <span class="ruby-identifier">angle</span>, <span class="ruby-value">sincos:</span><span class="ruby-identifier">d</span>, <span class="ruby-value">mask:</span><span class="ruby-identifier">e</span>)
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">restore_sp</span>
+      <span class="ruby-identifier">restore_a</span>     <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">sp</span>, <span class="ruby-value">0</span>
+      <span class="ruby-identifier">restore_sp_p</span>  <span class="ruby-identifier">as</span> <span class="ruby-identifier">restore_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-rotation_to_matrix" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">rotation_to_matrix</span><span
+            class="method-args">(matrix, rotation, inline_mul:false, subroutine:true, optimize: :time)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>cosa*cosb cosa*cosc cosa*sinb=csiab cosa*sinc cosb*cosc cosb*sinc sina*cosb sina*cosc sina*sinb=sinab sina*sinc sinab*sinc sinab*cosc csiab*sinc csiab*cosc</p>
+
+<p>[cosa*cosb, cosa*sinb*sinc-sina*cosc, cosa*sinb*cosc+sina*sinc,</p>
+
+<pre>sina*cosb, sina*sinb*sinc+cosa*cosc, sina*sinb*cosc-cosa*sinc,
+-sinb    , cosb*sinc               , cosb*cosc]</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="rotation_to_matrix-source">
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 302</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rotation_to_matrix</span>(<span class="ruby-identifier">matrix</span>, <span class="ruby-identifier">rotation</span>, <span class="ruby-value">inline_mul:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
+  <span class="ruby-identifier">multiply</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">inline_mul</span>
+    <span class="ruby-identifier">proc</span> <span class="ruby-keyword">do</span>
+      <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>  <span class="ruby-comment"># b|hl = bc * de</span>
+                  <span class="ruby-identifier">sra</span>   <span class="ruby-identifier">b</span> <span class="ruby-comment"># 0 -&gt; 0 1 -&gt; 0(C) -1 -&gt; -1(C)</span>
+                  <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">mult</span>.<span class="ruby-identifier">posmul</span>
+                  <span class="ruby-identifier">jp</span>    <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">mult</span>.<span class="ruby-identifier">negmul</span> <span class="ruby-comment"># b != 0x01</span>
+        <span class="ruby-identifier">m_is_1</span>    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-value">0</span>
+                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">e</span>
+                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">d</span>
+                  <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">eoc</span>
+        <span class="ruby-identifier">mult</span>      <span class="ruby-identifier">mul16_signed9</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">s:</span> <span class="ruby-identifier">b</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">m_overflow:</span><span class="ruby-identifier">m_is_1</span>, <span class="ruby-value">m_neg_cond:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-comment"># isolate do |eoc|  # b|hl = bc * de</span>
+      <span class="ruby-comment">#             ld    a, b</span>
+      <span class="ruby-comment">#             dec   a     # b == 1 ?</span>
+      <span class="ruby-comment">#             jp    NZ, k_is_no_1</span>
+      <span class="ruby-comment">#   k_is_1    ld    b, d</span>
+      <span class="ruby-comment">#             ld    h, e</span>
+      <span class="ruby-comment">#             ld    l, a  # a: 0</span>
+      <span class="ruby-comment">#             jp    eoc   # b|hl = d|e|0</span>
+      <span class="ruby-comment">#   m_is_1    ld    h, c</span>
+      <span class="ruby-comment">#             ld    l, d  # d: 0</span>
+      <span class="ruby-comment">#             jp    eoc   # b|hl = b|c|0</span>
+      <span class="ruby-comment">#   km_is_1   ld    b, 1  # b|hl = 1|0|0</span>
+      <span class="ruby-comment">#             jp    eoc</span>
+      <span class="ruby-comment">#   k_is_no_1 dec   d     # d == 1 ?</span>
+      <span class="ruby-comment">#             jr    Z, m_is_1</span>
+      <span class="ruby-comment">#             inc   d     # d: 0 (+)  !0 (-)</span>
+      <span class="ruby-comment">#             mul_signed9(b, c, e, tt:de, m_neg_cond:NZ, k_overflow:km_is_1, optimize:optimize)</span>
+      <span class="ruby-comment"># end</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">proc</span> <span class="ruby-keyword">do</span>
+                  <span class="ruby-identifier">call</span>  <span class="ruby-identifier">multiply_sub</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">sin_b</span>]
+                <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>
+                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">matrix</span>.<span class="ruby-identifier">zx</span>], <span class="ruby-identifier">hl</span>
+    [<span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">cos_a</span>, <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">cos_b</span>, <span class="ruby-identifier">matrix</span>.<span class="ruby-identifier">xx</span>,
+     <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">sin_a</span>, <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">cos_b</span>, <span class="ruby-identifier">matrix</span>.<span class="ruby-identifier">yx</span>,
+     <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">cos_b</span>, <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">sin_c</span>, <span class="ruby-identifier">matrix</span>.<span class="ruby-identifier">zy</span>,
+     <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">cos_b</span>, <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">cos_c</span>, <span class="ruby-identifier">matrix</span>.<span class="ruby-identifier">zz</span>].<span class="ruby-identifier">each_slice</span>(<span class="ruby-value">3</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k_pt</span>, <span class="ruby-identifier">m_pt</span>, <span class="ruby-identifier">target</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">bc</span>, [<span class="ruby-identifier">k_pt</span>]
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">de</span>, [<span class="ruby-identifier">m_pt</span>]
+                <span class="ruby-identifier">multiply</span>.<span class="ruby-identifier">call</span>         <span class="ruby-comment"># b|hl: k_pt * m_pt</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">c</span>, <span class="ruby-identifier">h</span>
+                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">target</span>], <span class="ruby-identifier">bc</span>    <span class="ruby-comment"># cos_a * cos_b</span>
+    <span class="ruby-keyword">end</span>
+    [<span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">cos_a</span>, <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">sin_c</span>,  <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">sin_a</span>, <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">cos_c</span>, <span class="ruby-identifier">matrix</span>.<span class="ruby-identifier">xy</span>,  <span class="ruby-identifier">matrix</span>.<span class="ruby-identifier">xz</span>,
+     <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">sin_a</span>, <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">cos_c</span>,  <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">cos_a</span>, <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">sin_c</span>, <span class="ruby-identifier">matrix</span>.<span class="ruby-identifier">yz</span>,  <span class="ruby-identifier">matrix</span>.<span class="ruby-identifier">yy</span>
+    ].<span class="ruby-identifier">each_slice</span>(<span class="ruby-value">6</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k_pt</span>, <span class="ruby-identifier">m_pt</span>, <span class="ruby-identifier">n_pt</span>, <span class="ruby-identifier">j_pt</span>, <span class="ruby-identifier">target_sub</span>, <span class="ruby-identifier">target_add</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">bc</span>, [<span class="ruby-identifier">k_pt</span>]
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">de</span>, [<span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">sin_b</span>]
+                <span class="ruby-identifier">multiply</span>.<span class="ruby-identifier">call</span>          <span class="ruby-comment"># b|hl: cos_a * sin_b</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">c</span>, <span class="ruby-identifier">h</span>
+                <span class="ruby-identifier">push</span>  <span class="ruby-identifier">bc</span>               <span class="ruby-comment"># [sp]: cos_a * sin_b</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">de</span>, [<span class="ruby-identifier">m_pt</span>]
+                <span class="ruby-identifier">multiply</span>.<span class="ruby-identifier">call</span>          <span class="ruby-comment"># b|hl: cos_a * sin_b * sin_c</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>
+                <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># a&#39;:   msb(cos_a * sin_b * sin_c)</span>
+                <span class="ruby-identifier">push</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># [sp]: lsb(cos_a * sin_b * sin_c)</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">bc</span>, [<span class="ruby-identifier">n_pt</span>]
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">de</span>, [<span class="ruby-identifier">j_pt</span>]
+                <span class="ruby-identifier">multiply</span>.<span class="ruby-identifier">call</span>          <span class="ruby-comment"># b|hl: sin_a * cos_c</span>
+                <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>           <span class="ruby-comment"># b|de: sin_a * cos_c</span>
+                <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># a:    msb(cos_a * sin_b * sin_c)</span>
+                <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># a|hl: cos_a * sin_b * sin_c</span>
+                <span class="ruby-identifier">anda</span>  <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">sbc</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>
+                <span class="ruby-identifier">sbc</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>             <span class="ruby-comment"># a|hl: cos_a * sin_b * sin_c - sin_a * cos_c</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-identifier">h</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">target_sub</span>], <span class="ruby-identifier">hl</span> <span class="ruby-comment"># cos_a * sin_b * sin_c - sin_a * cos_c</span>
+
+                <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">bc</span>               <span class="ruby-comment"># bc: cos_a * sin_b</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">de</span>, [<span class="ruby-identifier">j_pt</span>]
+                <span class="ruby-identifier">multiply</span>.<span class="ruby-identifier">call</span>          <span class="ruby-comment"># b|hl: cos_a * sin_b * cos_c</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>
+                <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># a&#39;:   msb(cos_a * sin_b * cos_c)</span>
+                <span class="ruby-identifier">push</span>  <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># [sp]: lsb(cos_a * sin_b * cos_c)</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">bc</span>, [<span class="ruby-identifier">n_pt</span>]
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">de</span>, [<span class="ruby-identifier">m_pt</span>]
+                <span class="ruby-identifier">multiply</span>.<span class="ruby-identifier">call</span>          <span class="ruby-comment"># b|hl: sin_a * sin_c</span>
+                <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>           <span class="ruby-comment"># b|de: sin_a * sin_c</span>
+                <span class="ruby-identifier">ex</span>    <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>           <span class="ruby-comment"># a:    msb(cos_a * sin_b * cos_c)</span>
+                <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">hl</span>               <span class="ruby-comment"># a|hl: cos_a * sin_b * cos_c</span>
+                <span class="ruby-identifier">add</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span>
+                <span class="ruby-identifier">adc</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>             <span class="ruby-comment"># a|hl: cos_a * sin_b * cos_c + sin_a * sin_c</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-identifier">h</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">target_add</span>], <span class="ruby-identifier">hl</span> <span class="ruby-comment"># cos_a * sin_b * cos_c + sin_a * sin_c</span>
+    <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">inline_mul</span>
+                <span class="ruby-identifier">jp</span>    <span class="ruby-identifier">eoc</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">subroutine</span>
+
+      <span class="ruby-identifier">ns</span> <span class="ruby-value">:multiply_sub</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>  <span class="ruby-comment"># b|hl = bc * de, k and m in range: (-256..256)</span>
+                  <span class="ruby-identifier">sra</span>   <span class="ruby-identifier">b</span> <span class="ruby-comment"># 0 -&gt; 0 1 -&gt; 0(C) -1 -&gt; -1(C)</span>
+                  <span class="ruby-identifier">jr</span>    <span class="ruby-constant">C</span>, <span class="ruby-identifier">m_is_neg1</span>
+                  <span class="ruby-comment"># sign_extend(b, d)</span>
+                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">d</span>
+                  <span class="ruby-identifier">sra</span>   <span class="ruby-identifier">b</span>
+                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>
+                  <span class="ruby-identifier">anda</span>  <span class="ruby-identifier">a</span>    <span class="ruby-comment"># test zero</span>
+                  <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">m_zero</span>
+                  <span class="ruby-identifier">mul16</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
+                  <span class="ruby-identifier">ret</span>
+        <span class="ruby-identifier">m_zero</span>    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span> <span class="ruby-comment"># clear sign</span>
+                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
+                  <span class="ruby-identifier">ret</span>
+        <span class="ruby-identifier">m_is_neg1</span> <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">m_is_1</span> <span class="ruby-comment"># b = 0x01</span>
+                  <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>
+                  <span class="ruby-identifier">sign_extend</span>(<span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>)
+                  <span class="ruby-identifier">xor</span>   <span class="ruby-identifier">a</span>
+                  <span class="ruby-identifier">sub</span>   <span class="ruby-identifier">c</span>          <span class="ruby-comment"># a: -m</span>
+                  <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">m_is_1</span> <span class="ruby-comment"># m == 256</span>
+                  <span class="ruby-identifier">mul16</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
+                  <span class="ruby-identifier">ret</span>
+        <span class="ruby-identifier">m_is_1</span>    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-value">0</span> <span class="ruby-comment"># b|h|l = d|e|0</span>
+                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">e</span>
+                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">d</span>
+                  <span class="ruby-identifier">ret</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-comment"># ns :multiply_sub do # b|hl = bc * de</span>
+      <span class="ruby-comment">#           ld    a, b</span>
+      <span class="ruby-comment">#           dec   a         # b == 1 ?</span>
+      <span class="ruby-comment">#           jr    Z, k_is_1</span>
+      <span class="ruby-comment">#           dec   d         # d == 1 ?</span>
+      <span class="ruby-comment">#           jr    Z, m_is_1</span>
+      <span class="ruby-comment">#           inc   d         # d: 0 (+)  !0 (-)</span>
+      <span class="ruby-comment">#           mul_signed9(b, c, e, tt:de, m_neg_cond:NZ, k_overflow:km_is_1, optimize: :size)</span>
+      <span class="ruby-comment">#           ret   # b|hl</span>
+      <span class="ruby-comment">#   k_is_1  ld    b, d</span>
+      <span class="ruby-comment">#           ld    h, e</span>
+      <span class="ruby-comment">#           ld    l, a      # a: 0</span>
+      <span class="ruby-comment">#           ret   # b|hl = d|e|0</span>
+      <span class="ruby-comment">#   m_is_1  ld    h, c</span>
+      <span class="ruby-comment">#           ld    l, d      # d: 0</span>
+      <span class="ruby-comment">#           ret   # b|hl = b|c|0</span>
+      <span class="ruby-comment">#   km_is_1 ld    b, 1</span>
+      <span class="ruby-comment">#           ret   # b|hl = 1|0|0</span>
+      <span class="ruby-comment"># end</span>
+    <span class="ruby-keyword">end</span>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>

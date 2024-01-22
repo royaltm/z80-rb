@@ -83,6 +83,8 @@
     
     <li ><a href="#method-i-jr_ok-3F">#jr_ok?</a>
     
+    <li ><a href="#method-i-not">#not</a>
+    
     <li ><a href="#method-i-one_of-3F">#one_of?</a>
     
     <li ><a href="#method-i-to_i">#to_i</a>
@@ -305,6 +307,39 @@
             <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 186</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">jr_ok?</span>
         <span class="ruby-identifier">one_of?</span>(<span class="ruby-identifier">@@names</span>[<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">3</span>])
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-not" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">not</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Inverse the condition, e.g. <code>Z.not</code> becomes <code>NZ</code> and <code>NC.not</code> becomes C, etc.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="not-source">
+            <pre><span class="ruby-comment"># File lib/z80/registers.rb, line 190</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">not</span>
+        <span class="ruby-identifier">@@conditions</span>[<span class="ruby-identifier">@@names</span>.<span class="ruby-identifier ruby-title">index</span>(<span class="ruby-identifier">name</span>) <span class="ruby-operator">^</span> <span class="ruby-value">1</span>]
 <span class="ruby-keyword">end</span></pre>
           </div>
           

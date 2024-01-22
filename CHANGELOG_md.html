@@ -98,6 +98,22 @@
 
 <h2 id="label-Z80-3A">Z80:<span><a href="#label-Z80-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
 <ul><li>
+<p>New method Condition#not to logically inverse a branching condition.</p>
+</li><li>
+<p><a href="Z80/MathInt/Macros.html#method-i-mul"><code>Z80::MathInt::Macros#mul</code></a>* macros allow some combination of arguments that wasn&#39;t possible before.</p>
+</li><li>
+<p>New macros <a href="Z80/MathInt/Macros.html#method-i-mul16"><code>Z80::MathInt::Macros#mul16</code></a>, mul16_signed and mul16_signed9 introduce faster multiplication algorithm  and :unroll optimization option.</p>
+</li><li>
+<p>Minor branching optimization of <a href="Z80/MathInt/Macros.html#method-i-divmod8"><code>Z80::MathInt::Macros#divmod8</code></a> and divmod16.</p>
+</li><li>
+<p>Added options :check0_far, :k_leq_m, :ignore_cf to <a href="Z80/MathInt/Macros.html#method-i-divmod"><code>Z80::MathInt::Macros#divmod</code></a>, divmod16_8 and divmod24_8.</p>
+</li><li>
+<p>Added :time_alt, :unroll, and :unroll_alt optimization options to <a href="Z80/MathInt/Macros.html#method-i-divmod"><code>Z80::MathInt::Macros#divmod</code></a>, divmod16_8, divmod24_8 and internally reworked them.</p>
+</li><li>
+<p>Optimized internal loop of <a href="Z80/MathInt/Macros.html#method-i-mul"><code>Z80::MathInt::Macros#mul</code></a>, mul8 and mul8_24 routines.</p>
+</li><li>
+<p>Added option :optimize to <a href="Z80/MathInt/Macros.html#method-i-mul_signed"><code>Z80::MathInt::Macros#mul_signed</code></a>.</p>
+</li><li>
 <p>New macro <a href="Z80/MathInt/Macros.html#method-i-mul8_signed"><code>Z80::MathInt::Macros#mul8_signed</code></a>.</p>
 </li><li>
 <p>New macro <a href="Z80/MathInt/Macros.html#method-i-mul_signed9"><code>Z80::MathInt::Macros#mul_signed9</code></a>.</p>
@@ -119,6 +135,10 @@
 
 <h2 id="label-ZXLib-3A">ZXLib:<span><a href="#label-ZXLib-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
 <ul><li>
+<p>Immediate argument optimization of <a href="ZXLib/Gfx/Macros.html#method-i-copy_shadow_screen_region"><code>ZXLib::Gfx::Macros#copy_shadow_screen_region</code></a>.</p>
+</li><li>
+<p>Slight optimization of <a href="ZXLib/Gfx/Macros.html#method-i-clear_screen_region_fast"><code>ZXLib::Gfx::Macros#clear_screen_region_fast</code></a>.</p>
+</li><li>
 <p>New macro <a href="ZXLib/Gfx/Macros.html#method-i-ytoattr"><code>ZXLib::Gfx::Macros#ytoattr</code></a>.</p>
 </li><li>
 <p>Internal labels <code>preshift_p</code>, <code>pmask_in_e</code>, <code>px_bsh_in_ae</code> added to <a href="ZXLib/Gfx/Draw/Macros.html"><code>ZXLib::Gfx::Draw::Macros</code></a> for convenience and alternative entry points.</p>
