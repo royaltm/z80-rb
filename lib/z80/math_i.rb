@@ -551,7 +551,7 @@ module Z80
             #                  no check should be performed. In this instance enter the routine at
             #                  +posmul+ sub-label when +m+ >= 0 or at +negmul+ sub-label when +m+ < 0.
             # * +m_overflow+:: A program address to branch to when +m+ = (-256). When branched
-            #                  +kh+ and +kl+ will be already negated (+k+ = 0 - +k+) and CF=0.
+            #                  +kh+|+kl+ will be already negated +k+ = (- +k+) and +a+, +CF+ = 0.
             #                  Alternatively +m_overflow+ can be set to +false+, implicating that
             #                  +m+ is never equal to (-256).
             # * +optimize+::   Optimization options: +:compact+, +:size+, +:time+ or +:unroll+.
@@ -598,7 +598,7 @@ module Z80
                                 sign_extend(s, a)
                     else
                                 ld   a, m unless m == a
-                        if m_neg_cond.jr_ok? # m >= 0
+                        if m_neg_cond.jr_ok?        # m >= 0
                                 jr   m_neg_cond.not, mult
                         else
                                 jp   m_neg_cond.not, mult
@@ -607,14 +607,14 @@ module Z80
                                 neg16 kh, kl
                     end
                                 xor  a
-                                sub  m              # a: -m
+                                sub  t              # a: -m
                         if m_overflow
                                 jr   NC, m_overflow # m == 256
                         elsif m_overflow.nil?
                                 ccf                 # CF: 1 when m == 256, otherwise CF: 0
                         end
                         mult    mul16(kh, kl, a, tt:tt, mbit9_carry:m_overflow.nil?, optimize:optimize)
-                    end
+                end
             end
             ##
             # Creates a routine that performs a multiplication of a 16-bit integer +kh+|+kl+ * 8-bit signed +m+.
