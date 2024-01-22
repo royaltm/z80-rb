@@ -3,6 +3,15 @@ v1.1.1.pre-2
 
 Z80:
 ---
+* New method Condition#not to logically inverse a branching condition.
+* Z80::MathInt::Macros#mul* macros allow some combination of arguments that wasn't possible before.
+* New macros Z80::MathInt::Macros#mul16, #mul16_signed and #mul16_signed9 introduce faster multiplication algorithm
+  and :unroll optimization option.
+* Minor branching optimization of Z80::MathInt::Macros#divmod8 and #divmod16.
+* Added options :check0_far, :k_leq_m, :ignore_cf to Z80::MathInt::Macros#divmod, #divmod16_8 and #divmod24_8.
+* Added :time_alt, :unroll, and :unroll_alt optimization options to Z80::MathInt::Macros#divmod, #divmod16_8, #divmod24_8 and internally reworked them.
+* Optimized internal loop of Z80::MathInt::Macros#mul, #mul8 and #mul8_24 routines.
+* Added option :optimize to Z80::MathInt::Macros#mul_signed.
 * New macro Z80::MathInt::Macros#mul8_signed.
 * New macro Z80::MathInt::Macros#mul_signed9.
 * New macro Z80::MathInt::Macros#mul_signed9_24.
@@ -15,6 +24,8 @@ Z80:
 
 ZXLib:
 -----
+* Immediate argument optimization of ZXLib::Gfx::Macros#copy_shadow_screen_region.
+* Slight optimization of ZXLib::Gfx::Macros#clear_screen_region_fast.
 * New macro ZXLib::Gfx::Macros#ytoattr.
 * Internal labels +preshift_p+, +pmask_in_e+, +px_bsh_in_ae+ added to ZXLib::Gfx::Draw::Macros for convenience and alternative entry points.
 * New routines in ZXLib::Gfx::Draw::Macros for updating draw line functions in place.
