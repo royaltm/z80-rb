@@ -47,11 +47,19 @@ module Z80
 					end
 					if registers.empty?
 						ns(n, **nsopts) do |eoc|
-							mblock.call eoc, *args, **opts, &block
+							if opts.empty?
+								mblock.call(eoc, *args, &block)
+							else
+								mblock.call(eoc, *args, **opts, &block)
+							end
 						end
 					else
 						lbl = with_saved(*registers, **nsopts) do |eoc|
-							mblock.call eoc, *args, **opts, &block
+							if opts.empty?
+								mblock.call(eoc, *args, &block)
+							else
+								mblock.call(eoc, *args, **opts, &block)
+							end
 						end
 						lbl = self.define_label n, lbl if n
 						lbl
