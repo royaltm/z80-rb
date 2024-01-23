@@ -32,7 +32,13 @@ class BenchRnd
     ns :test_rnd do
       seed_a        ld   hl, 0 # 10
       seed_p        seed_a + 1
-                    rnd
+    dc!
+    dc!"*********************************************"
+    dc!"***                ROUTINE                ***"
+    dc!"*********************************************"
+      routine       rnd
+    dc!"*********************************************"
+    dc!
                     ret
     end
     seed            union test_rnd.seed_p, 2
@@ -82,6 +88,7 @@ program = ZXLib::Basic.parse_source <<-EOC
 EOC
 puts benchmark.debug
 puts "\nseed: " + (benchmark[:seed]).to_s
+puts "routine size: " + benchmark["+test_rnd.routine"].to_s
 puts program.to_source escape_keywords: true
 
 tap_name = 'bench.rnd.tap'

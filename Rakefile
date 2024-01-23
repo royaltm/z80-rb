@@ -104,6 +104,7 @@ end
 
 BENCHES = %w[
   bench.divmod.rb
+  bench.mul8_24.rb
   bench.mul_signed9.rb
   bench.mul_signed9_lim.rb
   bench.rnd.rb
