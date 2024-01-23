@@ -211,7 +211,7 @@ module Z80
 			#
 			# Modifies: +af+.
 			def cp16n(th, tl, value, jr_msb_c: nil, jr_msb_nz: :eoc)
-				cp16r(th, tl, value>>8, value, jr_msb_c:jr_msb_c, jr_msb_nz:jr_msb_nz)
+				cp16r(th, tl, value >> 8, value & 0xFF, jr_msb_c:jr_msb_c, jr_msb_nz:jr_msb_nz)
 			end
 			##
 			# Compares a pair of 16-bit registers +tt+ with +ss+ as unsigned integers.
@@ -251,28 +251,41 @@ module Z80
 			# Modifies: +af+.
 			def cp16r(th, tl, sh, sl, jr_msb_c: nil, jr_msb_nz: :eoc)
 				raise ArgumentError, "only th can be the accumulator" if [tl, sh, sl].include?(a)
+				skip_nz = proc do |target|
+					case target
+					when :ret
+							ret  NZ
+					else
+							jr   NZ, target
+					end
+				end
 				isolate do |eoc|
 					jr_msb_nz = eoc if jr_msb_nz == :eoc
 									ld   a, th unless th == a
+					if sh == 0 && sl == 0
+							  	ora  a
+							  	ora  tl
+							  	skip_nz[jr_msb_nz] unless jr_msb_nz == eoc
+					else
 						if sh == 0
-								ora  a
+									ora  a
 						else
-								cp   sh
+									cp   sh
 							case jr_msb_c
 							when :ret
-								ret  C
+									ret  C
 							else
-								jr   C, jr_msb_c
+									jr   C, jr_msb_c
 							end unless jr_msb_c.nil?
 						end
-						case jr_msb_nz
-						when :ret
-							ret  NZ
+									skip_nz[jr_msb_nz]
+									ld   a, tl
+						if sl == 0
+									ora  a
 						else
-							jr   NZ, jr_msb_nz
+									cp   sl
 						end
-							ld   a, tl
-							cp   sl
+					end
 				end
 			end
 		end
