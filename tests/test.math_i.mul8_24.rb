@@ -17,6 +17,18 @@ class MTestFactory
             kh, kl = kk.split
             sgn = kh
 
+            ns :test_mul24_8 do
+                        ld   ix, multiply
+                        jr   test_mul
+            end
+
+            ns :test_mul24_8a do
+                        ld   ix, multiply_a
+                        jr   test_mul
+            end
+
+            forward_ix  jp   (ix)
+
             ns :test_mul do
                         call find_args
                 error_q report_error_unless Z, "Q Parameter error"
@@ -69,7 +81,7 @@ class MTestFactory
                         anda a
                         jr   skmul
 
-                skip_3  call multiply
+                skip_3  call forward_ix
                 unless signed
                         jr   C, error_6.err
                         jr   NZ, nozerch
@@ -99,6 +111,10 @@ class MTestFactory
 
             # a|hl = kk * tt
             multiply    mul8_24(th, tl, kl, t:sgn, tt:tt, clrahl: true, k_int24:signed, optimize:optimize)
+                        ret
+
+            multiply_a  mul8_24a(th, tl, kl, t:sgn, tt:tt, k_int24:signed, optimize:optimize)
+                        anda a # clear CF
                         ret
 
             # a|hl += kk * tt
@@ -158,7 +174,7 @@ include ZXLib
     mtest = mtest_klass.new 65536 - mtest_klass.code.bytesize
     # puts mtest.debug
     source = <<-END
-       1 DEF FN m(a,b)=USR #{mtest[:test_mul]}: DEF FN a(a,b,c)=USR #{mtest[:test_mul]}
+       1 DEF FN m(a,b)=USR #{mtest[:test_mul24_8]}: DEF FN n(a,b)=USR #{mtest[:test_mul24_8a]}: DEF FN a(a,b,c)=USR #{mtest[:test_mul]}
       10 RANDOMIZE
       20 FOR b=0 TO 255
     END
@@ -166,6 +182,7 @@ include ZXLib
         source << <<-END
          LET a=INT (RND*65536)-32768: PRINT AT 0,0;a;"*";b;"=";: LET r=FN m(a,b)
          IF r<>a*b THEN GO TO 1000
+         LET r=FN n(a,b): IF r<>a*b THEN GO TO 1100
          PRINT r;"        "
          LET c=INT (RND*65536)*INT (RND*256)-8388608: LET z=c+a*b
          IF z>=8388608 THEN LET z=z-16777216
@@ -175,6 +192,7 @@ include ZXLib
         source << <<-END
          LET a=INT (RND*65536): PRINT AT 0,0;a;"*";b;"=";: LET r=FN m(a,b)
          IF r<>a*b THEN GO TO 1000
+         LET r=FN n(a,b): IF r<>a*b THEN GO TO 1100
          PRINT r;"        "
          LET c=INT (RND*65536)*INT (RND*256): LET z=c+a*b
          IF z>=16777216 THEN LET z=z-16777216
@@ -187,6 +205,7 @@ include ZXLib
          NEXT b
          GO TO 10
     1000 PRINT "        "'"assertion failed: ";r;"`<>`";a*b: GO TO 10000
+    1100 PRINT "        "'"assertion failed(a): ";r;"`<>`";a*b: GO TO 10000
     2000 PRINT "        "'"assertion failed: ";r;"`<>`";z: GO TO 10000
     9998 STOP: RUN
     9999 CLEAR #{mtest.org-1}: LOAD ""CODE: RUN

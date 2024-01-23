@@ -1439,6 +1439,14 @@ module Z80
             # If +k_int24+ is +false+ and +clrahl+ is +true+ the resulting flags: ZF=1 signals the result 
             # fits in 16 bits, SF contains the sign of the result and CF=1 indicates overflow.
             #
+            #   bytes|~avg T-states|max T-states
+            #
+            #        k_int24    false           true          false          true
+            #    mbit9_carry    false          false           true          true
+            #  optimize
+            #   :size        24|~466.5|569  23|~462.5|565  29|~548.2|656  28|~544.2|652
+            #   :time        33|~385.4|504  32|~381.4|500  34|~441.2|570  33|~437.2|566
+            #
             # Uses: +af+, +bc+, +de+, +hl+.
             def mul8_24(kh=h, kl=l, m=b, t:c, tt:de, clrahl:true, k_int24:false, mbit9_carry:false, optimize: :time)
                 th, tl = tt.split
@@ -1507,6 +1515,167 @@ module Z80
                                 adc a, t
                     else
                         raise ArgumentError, "optimize should be :time or :size"
+                    end
+                end
+            end
+            ##
+            # Creates a routine that performs a multiplication of a 16-bit unsigned integer +kh+|+kl+ or
+            # 24-bit integer +t+|+kh+|+kl+ * 8(9)-bit unsigned +m+.
+            # Returns the result as a 24-bit integer in +a+|+hl+.
+            #
+            # +kh+::   The MSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +kl+::   The LSB part of the multiplicand as an immediate value or an 8-bit register.
+            # +m+::    A multiplier register, it must not be the +accumulator+ or +t+ or be a part of +tt+.
+            #
+            # Options:
+            # * +t+::  An 8-bit temporary register, it must not be the +accumulator+ or +m+ or be a part of +tt+.
+            # * +tt+:: A 16 bit temporary register (+de+ or +bc+).
+            # * +k_int24+:: Whether a multiplicand is a 24-bit (possibly signed) integer with its MSB bits in +t+.
+            # * +mbit9_carry+:: If the multiplier (+m+) is 9-bit, where MSB (9th bit) is read from CARRY flag.
+            # * +optimize+::    Optimization options: +:size+, +:time+ or +:unroll+.
+            #
+            #   bytes|~avg T-states|max T-states
+            #
+            #        k_int24    false           true          false          true
+            #    mbit9_carry    false          false           true          true
+            #  optimize
+            #    :size       22|~451.0|567  21|~447.0|563  27|~470.0|591  26|~466.0|587
+            #    :time       39|~347.0|443  39|~343.0|439  47|~378.9|488  45|~374.9|484
+            #  :unroll       97|~291.2|351  97|~287.3|347 109|~323.1|388 107|~319.1|384
+            #
+            # Uses: +af+, +bc+, +de+, +hl+.
+            def mul8_24a(kh=h, kl=l, m=b, t:c, tt:de, k_int24:false, mbit9_carry:false, optimize: :time)
+                th, tl = tt.split
+                raise ArgumentError, "mul8_24a: invalid arguments" if tt == hl or [a, h, l, th, tl, t].include?(m) or
+                                                                    [a, th, tl, m].include?(t) or
+                                                                    !register?(m) or !register?(t) or
+                                                                    !m.bit8? or !t.bit8?
+                isolate do |eoc|
+                    if kh == tl
+                        raise ArgumentError, "mul8_24a: invalid arguments" if kl == th
+                                    ld  th, kh
+                                    ld  tl, kl unless kl == tl
+                    else
+                                    ld  tl, kl unless kl == tl
+                                    ld  th, kh unless kh == th
+                    end
+                    case optimize
+                    when :unroll
+                        if k_int24
+                                    ld   a, t
+                        elsif !mbit9_carry
+                                    xor  a
+                                    ld   t, a
+                        end
+                                    ld   l, tl unless kl == l
+                                    ld   h, th unless kh == h
+                        if mbit9_carry
+                                    jr   C, mbit9set  # bit9 of m
+                            unless k_int24
+                                    xor  a
+                                    ld   t, a
+                            end
+                        end
+                        7.times do |i|
+                                    sla  m            # CF <- m <- 0
+                                    jr   C, :"iter#{i+1}"
+                        end
+                                    sla  m            # CF <- m <- 0
+                                    jr   C, eoc
+                                    xor  a if k_int24
+                                    ld   h, a         # m == 0
+                                    ld   l, a
+                                    jp   eoc
+                        mbit9set    label
+                        if mbit9_carry && !k_int24
+                                    xor  a
+                                    ld   t, a
+                        end
+                        (if mbit9_carry then 0 else 1 end..7).each do |i|
+                            ns :"iter#{i}" do |eoc|
+                                    add  hl, hl
+                                    adc  a, a
+                                    sla  m            # CF <- m <- 0
+                                    jr   NC, eoc
+                            doadd   add  hl, tt
+                                    adc  a, t
+                            end
+                        end
+                    when :time
+                        if k_int24
+                                    ld   a, t
+                        elsif !mbit9_carry
+                                    xor  a
+                                    ld   t, a
+                        end
+                                    ld   l, tl unless kl == l
+                                    ld   h, th unless kh == h
+                        if mbit9_carry
+                                    jr   C, start9    # bit9 of m
+                            unless k_int24
+                                    xor  a
+                                    ld   t, a
+                            end
+                        end
+                                    sll  m            # CF <- m <- 1 (terminator)
+                                    jr   C, cont1
+                            loop0   sla  m            # CF <- m <- 0
+                                    jr   NC, loop0
+                                    jp   NZ, cont1
+                                    xor  a if k_int24
+                                    ld   h, a         # m == 0
+                                    ld   l, a
+                                    jp   eoc
+                        if mbit9_carry
+                            start9  label
+                            unless k_int24
+                                    xor  a
+                                    ld   t, a
+                            end
+                                    sll  m            # CF <- m <- 1 (terminator)
+                                    jr   C, doadd1
+                        end
+                            loop1   add  hl, hl       # hl * 2
+                                    adc  a, a         # a|hl * 2
+                            cont1   sla  m            # CF <- m <- 0
+                            cont2   jr   NC, loop1
+                                    jr   Z, eoc
+                            doadd1  add  hl, hl       # hl * 2
+                                    adc  a, a         # a|hl * 2
+                                    add  hl, tt       # hl + tt
+                                    adc  a, t         # a|hl + t|tt
+                                    sla  m            # CF <- m <- 0
+                                    jr   NC, loop1
+                                    jp   NZ, doadd1
+                    when :size
+                        if mbit9_carry
+                                    ld   hl, 0
+                                    ld   a, l
+                        else
+                                    xor  a
+                                    ld   l, a
+                                    ld   h, a
+                        end
+                                    ld   t, a unless k_int24
+                        if mbit9_carry
+                                    jr   NC, start8
+                                    add  hl, tt
+                                    adc  a, t
+                        end
+                        start8      sll  m            # CF <- m <- 1 (terminator)
+                                    jr   cont2
+                        loop1       add  hl, hl       # hl * 2
+                                    adc  a, a         # a|hl * 2
+                        cont1       sla  m            # CF <- m <- 0
+                        cont2       jr   NC, loop1
+                                    jr   Z, eoc
+                                    add  hl, hl       # hl * 2
+                                    adc  a, a         # a|hl * 2
+                                    add  hl, tt       # hl + tt
+                                    adc  a, t         # a|hl + t|tt
+                                    jr   cont1
+                    else
+                        raise ArgumentError, "optimize should be :size, :time or :unroll"
                     end
                 end
             end
