@@ -3,6 +3,7 @@ v1.1.1.pre-2
 
 Z80:
 ---
+* New macro Z80::MathInt::Macros#mul8_24a introduce faster multiplication algorithm.
 * Added :mbit9_carry option to Z80::MathInt::Macros#mul8_24.
 * New method Condition#not to logically inverse a branching condition.
 * Z80::MathInt::Macros#mul* macros allow some combination of arguments that wasn't possible before.
