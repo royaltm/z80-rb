@@ -179,7 +179,6 @@ module Z80
 				unless [bc, de, hl, ix, iy].include?(aa) and [bc, de, hl, ix, iy].include?(bb)
 					raise ArgumentError, "Use one of: bc de hl ix iy registers in ld16"
 				end
-				raise ArgumentError, "Registers must be different" if aa == bb
 				ah, al = aa.split
 				bh, bl = bb.split
 				isolate do
