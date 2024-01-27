@@ -68,6 +68,29 @@ module Z80
         ##
         # =Z80::MathInt Macros
         module Macros
+            ## Returns the number of leading zeros in the binary representation of +m+.
+            def leading_zeros(m, bitsize:8)
+                raise ArgumentError, "leading_zeros: m is not an integer" unless Integer === m
+                raise ArgumentError, "leading_zeros: m is out of range" if m < 0 || m >= (1<<bitsize)
+                return bitsize if m.zero?
+                zshift = 0
+                mask = 1 << (bitsize - 1)
+                while (m & (mask >> zshift)).zero?
+                    zshift += 1
+                end
+                zshift
+            end
+            ## Returns the number of trailing zeros in the binary representation of +m+.
+            def trailing_zeros(m, bitsize:8)
+                raise ArgumentError, "trailing_zeros: m is not an integer" unless Integer === m
+                raise ArgumentError, "trailing_zeros: m is out of range" if m < 0 || m >= (1<<bitsize)
+                return bitsize if m.zero?
+                zshift = 0
+                while (m & (1 << zshift)).zero?
+                    zshift += 1
+                end
+                zshift
+            end
             ##
             # Packs an integer of an arbitrary size and adds it to the Program.code at Program.pc.
             # Returns an unnamed relative label. The label's type is one of the structures created
