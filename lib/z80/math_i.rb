@@ -495,71 +495,161 @@ module Z80
             #
             # +bshift+:: How many bits to shift the content of the +tl+ register.
             # +th+:: An 8-bit register, except the +accumulator+ for receiving the highest 8 bits of the result.
-            # +tl+:: An 8-bit register, except the +accumulator+ holding the initial value and receiving the
-            #        lowest 8-bit of the result.
+            # +tl+:: An 8-bit register, except the +accumulator+ for receiving the lowest 8 bits of the result.
             #
-            # Modifies: +af+, +th+, +tl+.
+            # Modifies: +af+, +th+, +tl+, optionally preserves +a+, +sl+.
             #
-            # T-states: 7,18|23,29|35,39,43,39,35,31,11,19,23,27,31,26,30,34,10|11.
-            def sll8_16(bshift, th=h, tl=l)
+            # Options:
+            # * +sl+:: An 8-bit register holding the initial value to shift.
+            # * +zero+:: An 8-bit register holding zero value or 0. May save additional 3 or 7 T-states.
+            #
+            # T-states: 7|11, 18|22|23|27, 29|31|33|35, 35|39, 39|43, 35|39, 31|35, 23|27,
+            #           7|11, 15|19, 19|23, 23|27, 27|31, 22|26, 26|30, 30|34, 10|11.
+            def sll8_16(bshift, th=h, tl=l, sl:tl, zero:0)
                 raise ArgumentError, "lshift8_16: invalid arguments!" unless Integer === bshift and bshift >= 0 and
-                                                                         register?(th) and th.bit8? and th != a
-                                                                         register?(tl) and tl.bit8? and tl != a
+                                                                         register?(th) and th.bit8? and th != a and
+                                                                         register?(tl) and tl.bit8? and tl != a and
+                                                                         register?(sl) and sl.bit8? and
+                                                                         (zero == 0 ||
+                                                                            (register?(zero) and zero.bit8? and
+                                                                                (zero != sl)))
                 isolate do
                     case bshift
-                    when 0 # 7
-                                      ld   th, 0
-                    when 1 # 18|23
-                                      ld   th, 0
-                        if th == h && tl == l
-                                      add  hl, hl
+                    when 0 # 0|4|7|11
+                        if zero == tl && sl != th
+                                    ld   th, zero
+                                    ld   tl, sl unless sl == tl
                         else
-                                      sla  tl
-                                      rr   th
+                                    ld   tl, sl unless sl == tl
+                                    zero = 0 if zero == tl
+                                    ld   th, zero unless zero == th
                         end
-                    when 2..7 # 29|35,39,43,39,35,31
-                        if bshift == 2 && th == h && tl == l # 29
-                                      ld   h, 0
-                                      add  hl, hl
-                                      add  hl, hl
+                    when 1 # 18|22|23|27
+                        tc1 = if th == h && tl == l then 22 else 1000 end
+                        if sl == l then tc1 -= 4 end
+                        if zero == h
+                            tc1 -= 7
+                        elsif (zero == l && sl != h) || (zero != 0 && zero != l)
+                            tc1 -= 3
+                        end
+                        tc2 = if sl == a then 23 else 1000 end
+                        if zero == th
+                            tc2 -= 7
+                        elsif zero != 0
+                            tc2 -= 3
+                        end
+                        tc3 = 27
+                        if sl == tl then tc3 -= 4 end
+                        if zero == th
+                            tc3 -= 7
+                        elsif (zero == tl && sl != th) || (zero != 0 && zero != tl)
+                            tc3 -= 3
+                        end
+                        tcmin = [tc1, tc2, tc3].min
+                        if tcmin == tc1
+                            # 11(+4|7)(+4)|15|18|19|22
+                            if zero == l && sl != h
+                                    ld   h, zero
+                                    ld   l, sl unless sl == l
+                            else
+                                    ld   l, sl unless sl == l
+                                    zero = 0 if zero == l
+                                    ld   h, zero unless zero == h
+                            end
+                                    add  hl, hl
+                        elsif tcmin == tc2 # 16|20|23
+                                    ld   th, zero unless zero == th
+                                    add  a, a
+                                    rr   th
+                                    ld   tl, a
+                        else # 16(+4|7)(+4)|20|23|24|27
+                            if zero == tl && sl != th
+                                    ld   th, zero
+                                    ld   tl, sl unless sl == tl
+                            else
+                                    ld   tl, sl unless sl == tl
+                                    zero = 0 if zero == tl
+                                    ld   th, zero unless zero == th
+                            end
+                                    sla  tl
+                                    rr   th
+                        end
+                    when 2..6 # 29|31|33|35,35|39,39|43,35|39,31|35,(27|31)
+                        if bshift == 2 && th == h && tl == l && 
+                            (sl != a || ![0, l].include?(zero) || (zero == l && sl != h))
+                            # 22(+4|7)(+4)|26|29|30|33
+                            if zero == l && sl != h
+                                    ld   h, zero
+                                    ld   l, sl unless sl == l
+                            else
+                                    ld   l, sl unless sl == l
+                                    zero = 0 if zero == l
+                                    ld   h, zero unless zero == h
+                            end
+                                    add  hl, hl
+                                    add  hl, hl
                         else
-                                      ld   a, tl
-                          if bshift > 4
-                                      (8-bshift).times { rrca }
-                                      ld   th, a
-                                      anda (0xFF << bshift) & 0xFF
-                                      ld   tl, a
-                                      xor  th
-                                      ld   th, a
-                          else
-                                      bshift.times { rlca }
-                                      ld   tl, a
-                                      anda (1 << bshift) - 1
-                                      ld   th, a
-                                      xor  tl
-                                      ld   tl, a
+                                    ld   a, sl unless sl == a
+                          if bshift > 4 # 35|39,31|35,(27|31)
+                                    (8-bshift).times { rrca }
+                                    ld   th, a
+                                    anda (0xFF << bshift) & 0xFF
+                                    ld   tl, a
+                                    xor  th
+                                    ld   th, a
+                          else # 31|35,35|39,39|43
+                                    bshift.times { rlca }
+                                    ld   tl, a
+                                    anda (1 << bshift) - 1
+                                    ld   th, a
+                                    xor  tl
+                                    ld   tl, a
                           end
                         end
-                    when 8 # 11
-                                      ld   th, tl
-                                      ld   tl, 0
-                    when 9..12 # 19,23,27,31
-                                      ld   a, tl
-                                      (bshift-8).times { add a }
-                                      ld   th, a
-                                      ld   tl, 0
-                    when 13..15 # 26,30,34
-                                      ld   a, tl
-                                      (16-bshift).times { rrca }
+                    when 7..9 # 23|27,7|11,15|19
+                        if zero == th && sl != tl
+                                    ld   tl, zero
+                                    ld   th, sl unless sl == th
+                        else
+                                    ld   th, sl unless sl == th
+                                    zero = 0 if zero == th
+                                    ld   tl, zero unless zero == tl
+                        end
+                        if bshift == 7
+                                    srl  th
+                                    rr   tl
+                        elsif bshift == 9
+                                    sla  th
+                        end
+                    when 10..12 # (15|19),19|23,23|27,27|31
+                        if zero == a && sl != tl
+                                    ld   tl, zero
+                                    ld   a, sl unless sl == a
+                        else
+                                    ld   a, sl unless sl == a
+                                    zero = 0 if zero == a
+                                    ld   tl, zero unless zero == tl
+                        end
+                                    (bshift-8).times { add a }
+                                    ld   th, a
+                    when 13..15 # 22|26,26|30,30|34
+                        if zero == a && sl != tl
+                                    ld   tl, zero
+                                    ld   a, sl unless sl == a
+                        else
+                                    ld   a, sl unless sl == a
+                                    zero = 0 if zero == a
+                                    ld   tl, zero unless zero == tl
+                        end
+                                    (16-bshift).times { rrca }
                                       anda (0xFF << (bshift-8)) & 0xFF
-                                      ld   th, a
-                                      ld   tl, 0
-                    else # 10 | 11
-                        if th.match16?(tl)
+                                    ld   th, a
+                    else # 4|8|10|11
+                        if th.match16?(tl) && zero == 0
                                       ld   th|tl, 0
                         else
-                                      ld   tl, 0
-                                      ld   th, tl
+                                      ld   tl, zero unless zero == tl
+                                      ld   th, tl unless zero == th
                         end
                     end
                 end
