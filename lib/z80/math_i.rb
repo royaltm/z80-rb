@@ -301,16 +301,22 @@ module Z80
             ##
             # Creates a routine that changes the sign of a twos complement 16-bit integer in +sh+|+sl+.
             #
-            # +sh+:: An 8-bit register holding MSB of the input 16-bit integer.
+            # +sh+:: An 8-bit register holding MSB of the input 16-bit integer or an 8-bit integer.
             # +sl+:: An 8-bit register holding LSB of the input 16-bit integer.
             #
             # Options:
             # * +th+:: An 8-bit MSB output register, may be the same as +sh+ or +sl+.
             # * +tl+:: An 8-bit LSB output register, may be the same as +sl+.
             #
+            # To extend an 8-bit +e+ to a negative 16-bit +hl+:
+            #
+            #    neg16(  0, e, th:h, tl:l) # e is positive or 0 (0..255)
+            #    neg16( -1, e, th:h, tl:l) # e is negative, twos complement (-1..-256)
+            #    neg16(nil, e, th:h, tl:l) # e is a signed twos complement 8-bit (-128..127)
+            #
             # Uses: +af+, +th+, +tl+, preserves optionally: +sh+, +sl+.
             #
-            # T-states: 24
+            # T-states: 16|20|24
             def neg16(sh, sl, th:sh, tl:sl)
                 if [sh, sl, tl].include?(a) or sh == sl or th == tl or sh == tl
                     raise ArgumentError, "neg16: invalid arguments!"
@@ -319,8 +325,13 @@ module Z80
                         xor  a
                         sub  sl
                         ld   tl, a
+                        add  a, a if sh.nil?
                         sbc  a, a
-                        sub  sh
+                    unless sh.nil?
+                        dec  a if sh == 1
+                        inc  a if sh == -1
+                        sub  sh unless sh == 0 || sh == 1 || sh == -1
+                    end
                         ld   th, a unless th == a
                 end
             end
