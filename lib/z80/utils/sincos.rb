@@ -111,7 +111,7 @@ module Z80
                 #            MSB of the SinCos address. LSB of +sincos+ address must be +0+.
                 #
                 # Options:
-                # * +mask+:: An pptional 8-bit register holding preloaded mask value: +0xFC+ (+0b11111100+).
+                # * +mask+:: An optional 8-bit register holding preloaded mask value: +0xFC+ (+0b11111100+).
                 #
                 # T-states: 30|27|24.
                 #
