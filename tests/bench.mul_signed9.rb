@@ -138,7 +138,7 @@ program = ZXLib::Basic.parse_source <<-EOC
      DEF FN r()=USR #{benchmark[:get_bench_result]}: REM result
      DEF FN z(k,m)=USR #{benchmark[:set_args]}
   10 LET counter=50#{if ZXINTERFACE1 then ': FORMAT "T";19200' end}
-  20 PRINT "See results on ZX Printer": OPEN #2,"#{channel}": PRINT "SinCos: T-States size: #{rsize}"
+  20 PRINT "See results on ZX Printer": OPEN #2,"#{channel}": PRINT "k * m   T-States size: #{rsize}"
   30 LET sum=0: LET max=0: LET maxi=-1: LET min=1e+38: LET mini=-1: LET v=0
   50 FOR m=-256 TO 255: FOR k=-256 TO 255
  100 RANDOMIZE FN z(k,m): LET frames=FN b(#{rtest},counter)
