@@ -203,7 +203,7 @@ class BenchSinCosMul
     y_coord         dw 0
 end
 
-ZXINTERFACE1 = true
+ZXINTERFACE1 = false
 
 benchmark = BenchSinCosMul.new 0x8000 # Note: this must be the 0x8000 address at the moment.
 tsframe = benchmark['bm.tsframe']
