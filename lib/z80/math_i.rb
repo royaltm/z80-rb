@@ -308,7 +308,7 @@ module Z80
             # * +th+:: An 8-bit MSB output register, may be the same as +sh+ or +sl+.
             # * +tl+:: An 8-bit LSB output register, may be the same as +sl+.
             #
-            # To extend an 8-bit +e+ to a negative 16-bit +hl+:
+            # To extend an 8-bit integer in a register +e+ to a negative 16-bit in +hl+:
             #
             #    neg16(  0, e, th:h, tl:l) # e is positive or 0 (0..255)
             #    neg16( -1, e, th:h, tl:l) # e is negative, twos complement (-1..-256)
@@ -668,7 +668,7 @@ module Z80
             # Options:
             # * +s+::          An optional sign output register which extends the result to 17 bits:
             #                  (-65536..65535). When +s+ is specified +m+ can't be +a+.
-            #                  The twos complement value stored in +s+ can only result in 0 or (-1).
+            #                  The twos complement value returned in +s+ can only result in 0 or (-1).
             # * +tt+::         A 16-bit temporary register (+de+ or +bc+ unless +optimize+ is +:size+).
             # * +m_neg_cond+:: A flags register branching condition indicating that +m+ is negative.
             #                  When +s+ is specified then +m_neg_cond+ can be +nil+ to indicate that
@@ -679,7 +679,7 @@ module Z80
             #                  Alternatively +m_overflow+ can be set to +false+, implicating that
             #                  +m+ is never equal to (-256).
             # * +optimize+::   Optimization options: +:compact+, +:size+, +:time+ or +:unroll+.
-            #                  _NOTE_: +:compact+ can't be selected if +s+ is specified.
+            #                  _NOTE_: +:compact+ can't be selected if +s+ is +b+.
             #
             # Modifies: +af+, +hl+, +kh+, +kl+, +tt+, optionally +b+ if +optimize+ is +:compact+.
             def mul16_signed9(kh=h, kl=l, m=c, s:nil, tt:de, m_overflow:nil, m_neg_cond:C, optimize: :time)
@@ -690,6 +690,9 @@ module Z80
                                                                         !register?(m) or !m.bit8?))
                 unless m_neg_cond.nil? and !s.nil?
                     raise ArgumentError, "mul16_signed9: m_neg_cond must be a Condition" unless m_neg_cond.is_a?(Condition)
+                end
+                if optimize == :compact and s == b
+                    raise ArgumentError, "mul16_signed9: optimize can't be :compact with :s as b"
                 end
                 t = if register?(m) && m.bit8? && m != a
                     m
@@ -1292,6 +1295,317 @@ module Z80
                         end
                     end
                 end
+            end
+            ##
+            # Creates a routine that performs a multiplication of an 8-bit integer +k+ * 8-bit
+            # unsigned +m+. Returns the result as a 16-bit integer in +hl+.
+            #
+            # Creates an optimized, unrolled code so +m+ should be a constant value in the range: 0..256.
+            #
+            # As a side-effect +k+ is left unmodified if +k+ is not part of +tt+.
+            #
+            # For those +m+ that has only one bit set or none, +tt+ is not being used.
+            #
+            # This macro can produce faster routines compared to Macros.mul_const, but does not allow
+            # to accumulate results.
+            #
+            # +k+::        A multiplicand as an immediate value or an 8-bit register.
+            # +m+::        A multiplier value as a constant integer.
+            #
+            # Options:
+            # * +tt+::       A 16-bit temporary register (+de+ or +bc+).
+            # * +signed_k+:: If the multiplicand (+k+) represents a twos complement signed integer (-128..127).
+            # * +use_a+::    Whether to allow modifying the +a+ register. For some values of +m+ the routine
+            #                can be optimized further by utilizing the +accumulator+.
+            #
+            # Uses: +CF+, +hl+, +tt+, optionally +a+, optionally preserves: +k+.
+            def mul_const_ex(k=d, m=0, tt:de, signed_k:false, use_a:false, optimize: :time)
+                raise ArgumentError unless tt != hl and m.is_a?(Integer) and (0..256).include?(m)
+                # TODO: handle k=a and use_a
+                if m == 0
+                    return isolate do
+                        ld   hl, 0
+                    end
+                elsif m == 256
+                    return isolate do
+                        ld   h, k unless k == h
+                        ld   l, 0
+                    end
+                end
+                is_single_bit = (m & (m - 1)) == 0 # single bit only
+                th, tl = tt.split
+                srx = if signed_k
+                    ->(x) { sra x }
+                else
+                    ->(x) { srl x }
+                end
+                sign_extend_k = proc do |rh, rl, s:k, use_a:false, zero:0|
+                    ld   rl, s unless s == rl
+                    if signed_k
+                        if use_a
+                                sign_extend(rh, rl)
+                        else
+                                ld   rh, zero
+                                bit  7, s
+                                jr   Z, skip_neg
+                                dec  rh
+                    skip_neg    label
+                        end
+                    else
+                        ld   rh, zero
+                    end
+                end
+                # only 8-bit k
+                k_rshift_sum = proc do |m|
+                    ztshift = trailing_zeros(m)
+                    zlshift = leading_zeros(m)
+                    m >>= ztshift
+                    mask = 0x80 >> (ztshift + zlshift + 1)
+                    isolate do
+                        ld   h, k unless k == h
+                        ld   l, 0
+                        (zlshift+1).times do
+                            srx[h]
+                            rr   l
+                        end
+                        ld16 tt, hl unless is_single_bit
+                        while mask != 0
+                            srx[th]
+                            rr   tl
+                            add  hl, tt unless (mask & m).zero?
+                            mask >>= 1
+                        end
+                    end
+                end
+                # only 8-bit k
+                neg_k_rshift_sum = proc do |m|
+                    m = (-m) & 0xFF
+                    ztshift = trailing_zeros(m)
+                    m >>= ztshift
+                    mask = 0x80 >> ztshift
+                    isolate do
+                        ld   h, k unless k == h # hl = k * 256
+                        ld   l, 0
+                        ld16 tt, hl
+                        while mask != 0
+                            srx[th]
+                            rr   tl
+                            sbc  hl, tt unless (mask & m).zero?
+                            mask >>= 1
+                        end
+                    end
+                end
+                # only 8-bit k
+                split_hik_lshift_sum = proc do |m, use_a|
+                    zlshift = leading_zeros(m)
+                    mask = 0x80 >> zlshift
+                    isolate do
+                        if use_a && !signed_k
+                            if is_single_bit
+                                sll8_16(7 - zlshift, h, l, sl:k)
+                            else
+                                ld   tl, k unless k == tl
+                                ld   th, 0
+                                sll8_16(7 - zlshift, h, l, sl:tl, zero:th)
+                            end
+                        else
+                            ld   h, k unless k == h
+                            ld   l, 0
+                            sign_extend_k.call(th, tl, s:h, use_a:use_a, zero:l) unless is_single_bit
+                            (zlshift+1).times do
+                                srx[h]
+                                rr   l
+                            end
+                        end
+                        m ^= mask
+                        mask = 1
+                        until m.zero?
+                            unless (mask & m).zero?
+                                add  hl, tt
+                                m ^= mask
+                                break if m.zero?
+                            end
+                            sla  tl
+                            rl   th
+                            mask <<= 1
+                        end
+                    end
+                end
+                # 16-bit k supported
+                neg_split_hik_lshift_sum = proc do |m|
+                    m = (-m) & 0xFF
+                    isolate do
+                        ld   h, k unless k == h
+                        ld   l, 0
+                        sign_extend_k.call th, tl, s:h, zero:l
+                        mask = 1
+                        until m.zero?
+                            unless (mask & m).zero?
+                                anda a if signed_k || mask == 1
+                                sbc  hl, tt
+                                m ^= mask
+                                break if m.zero?
+                            end
+                            sla  tl
+                            rl   th
+                            mask <<= 1
+                        end
+                    end
+                end
+                # only 8-bit k
+                split_lok_rshift_sum = proc do |m, use_a|
+                    ztshift = trailing_zeros(m)
+                    m >>= ztshift
+                    mask = 0x80 >> ztshift
+                    isolate do
+                        if use_a && !signed_k
+                            if is_single_bit
+                                sll8_16(ztshift, h, l, sl:k)
+                            else
+                                ld   th, k unless k == th
+                                ld   tl, 0
+                                sll8_16(ztshift, h, l, sl:th, zero:tl)
+                            end
+                        else
+                            sign_extend_k.call h, l, use_a:use_a
+                            unless is_single_bit
+                                ld   th, l unless k == th
+                                ld   tl, if signed_k then 0 else h end
+                            end
+                            ztshift.times do
+                                add  hl, hl
+                            end
+                        end
+                        m ^= 1
+                        until m.zero?
+                            srx[th]
+                            rr  tl
+                            unless (mask & m).zero?
+                                add  hl, tt
+                                m ^= mask
+                            end
+                            mask >>= 1
+                        end
+                    end
+                end
+                # 16-bit k supported
+                sum_lshift_add_k = proc do |m, use_a|
+                    ztshift = trailing_zeros(m)
+                    zlshift = leading_zeros(m)
+                    m >>= ztshift
+                    mask = 0x80 >> (ztshift + zlshift + 1)
+                    isolate do
+                        if ztshift.zero?
+                            if k == tl && !is_single_bit
+                                sign_extend_k.call th, tl, use_a:use_a
+                                ld16 hl, tt
+                            else
+                                sign_extend_k.call h, l, use_a:use_a
+                                ld16 tt, hl unless is_single_bit
+                            end
+                        else
+                            if use_a && !signed_k
+                                sll8_16(ztshift, h, l, sl:k)
+                            else
+                                sign_extend_k.call h, l, use_a:use_a
+                                ztshift.times do
+                                    add  hl, hl
+                                end
+                            end
+                            ld16 tt, hl unless is_single_bit
+                        end
+                        while mask != 0
+                                add  hl, hl
+                          unless (mask & m).zero?
+                                add  hl, tt
+                          end
+                          mask >>= 1
+                        end
+                    end
+                end
+                # 16-bit k supported
+                neg_sum_lshift_add_k = proc do |m, use_a|
+                    m = (-m) & 0xFF
+                    ztshift = trailing_zeros(m)
+                    zlshift = leading_zeros(m)
+                    m >>= ztshift
+                    mask = 0x80 >> ztshift
+                    is_single_bit = (m & (m - 1)) == 0 # single bit only
+                    isolate do
+                        if use_a
+                            mask >>= zlshift + 1
+                            if [a, h, l].include?(k)
+                                ld   tl, k
+                                k = tl
+                            end
+                            if ztshift < 5 || signed_k
+                                neg16(unless signed_k then 0 end, k, th:h, tl:l)
+                                ztshift.times do
+                                    add  hl, hl
+                                end
+                            else # 224, 192, 160, 128, 96, 64, 32
+                                sll8_16(ztshift, h, l, sl:k)
+                                neg16(h, l)
+                            end
+                            ld   a, k
+                            ld16 tt, hl unless is_single_bit
+                        else
+                            if ztshift.zero? && k == tl
+                                sign_extend_k.call th, tl
+                                ld16 hl, tt
+                            else
+                                sign_extend_k.call h, l
+                                ztshift.times do
+                                    add  hl, hl
+                                end
+                                ld16 tt, hl
+                            end
+                        end
+                        while mask != 0
+                                add  hl, hl
+                          unless (mask & m).zero?
+                            if use_a
+                                add  hl, tt
+                            else
+                                anda a if signed_k
+                                sbc  hl, tt
+                            end
+                          end
+                          mask >>= 1
+                        end
+                        if use_a
+                            add  a, h
+                            ld   h, a
+                        end
+                    end
+                end
+                algorithms = {
+                    k_rshift_sum: k_rshift_sum,
+                    neg_k_rshift_sum: neg_k_rshift_sum,
+                    split_hik_lshift_sum: split_hik_lshift_sum,
+                    neg_split_hik_lshift_sum: neg_split_hik_lshift_sum,
+                    split_lok_rshift_sum: split_lok_rshift_sum,
+                    sum_lshift_add_k: sum_lshift_add_k,
+                    neg_sum_lshift_add_k: neg_sum_lshift_add_k
+                }
+                # case optimize
+                # when :time
+                #     algo = algorithms.each_value.map do |algo|
+                #         tsc = Z80::TStatesCounter.new
+                #         tsc.instance_exec(m, use_a, &algo)
+                #         [tsc.to_i, algo]
+                #     end.min_by {|i| i.first}[1]
+                # when :size
+                #     algo = algorithms.each_value.map do |algo|
+                #         csc = Z80::CodeSizeCounter.new
+                #         csc.instance_exec(m, use_a, &algo)
+                #         [csc.to_i, algo]
+                #     end.min_by {|i| i.first}[1]
+                # else
+                    algo = algorithms[optimize]
+                    raise ArgumentError, "mul_const_ex: unsupported algorithm in :optimize" if algo.nil?
+                    algo.call(m, use_a)
+                # end
             end
             ##
             # Creates a routine that performs a multiplication of an unsigned 16-bit integer +kh+|+kl+ * 8-bit unsigned +m+.
