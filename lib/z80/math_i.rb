@@ -301,22 +301,22 @@ module Z80
             ##
             # Creates a routine that changes the sign of a twos complement 16-bit integer in +sh+|+sl+.
             #
-            # +sh+:: An 8-bit register holding MSB of the input 16-bit integer or an 8-bit integer.
-            # +sl+:: An 8-bit register holding LSB of the input 16-bit integer.
+            # +sh+:: An 8-bit MSB of the 16-bit integer input, as a register, a constant or nil.
+            # +sl+:: An 8-bit register holding LSB of the 16-bit integer input.
             #
             # Options:
-            # * +th+:: An 8-bit MSB output register, may be the same as +sh+ or +sl+.
+            # * +th+:: An 8-bit MSB output register, may be +a+ or the same as +sh+ or +sl+.
             # * +tl+:: An 8-bit LSB output register, may be the same as +sl+.
             #
             # To extend an 8-bit integer in a register +e+ to a negative 16-bit in +hl+:
             #
-            #    neg16(  0, e, th:h, tl:l) # e is positive or 0 (0..255)
-            #    neg16( -1, e, th:h, tl:l) # e is negative, twos complement (-1..-256)
-            #    neg16(nil, e, th:h, tl:l) # e is a signed twos complement 8-bit (-128..127)
+            #    neg16(  0, e, th:h, tl:l) # e = positive or 0 (0..255)
+            #    neg16( -1, e, th:h, tl:l) # e = negative, twos complement (-1..-256)
+            #    neg16(nil, e, th:h, tl:l) # e = an 8-bit signed twos complement (-128..127)
             #
             # Uses: +af+, +th+, +tl+, preserves optionally: +sh+, +sl+.
             #
-            # T-states: 16|20|24
+            # T-states: (sh) reg,1,-1: 20|24, 0: 16|20, const: 23|27, nil: 27|28|31|32
             def neg16(sh, sl, th:sh, tl:sl)
                 if [sh, sl, tl].include?(a) or sh == sl or th == tl or sh == tl
                     raise ArgumentError, "neg16: invalid arguments!"
@@ -325,13 +325,21 @@ module Z80
                         xor  a
                         sub  sl
                         ld   tl, a
-                        add  a, a if sh.nil?
-                        sbc  a, a
-                    unless sh.nil?
-                        dec  a if sh == 1
-                        inc  a if sh == -1
-                        sub  sh unless sh == 0 || sh == 1 || sh == -1
+                    if sh.nil?
+                        add  a, a
+                        jr   Z, skip_ext # tl=0|128
                     end
+                        sbc  a, a
+                    case sh
+                    when 0,nil
+                    when 1
+                        dec  a
+                    when -1
+                        inc  a
+                    else
+                        sub  sh
+                    end
+                    skip_ext label if sh.nil?
                         ld   th, a unless th == a
                 end
             end
@@ -382,7 +390,7 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that extends a sign bit from an octet indicated by +tl+ into a +th+.
+            # Creates a routine that extends a sign bit from an octet indicated by +s+ into a +t+.
             #
             # +t+:: A target 8-bit register or a pointer.
             # +s+:: An octet being sign-extended as an 8-bit register or a pointer.
