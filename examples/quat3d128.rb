@@ -92,11 +92,11 @@ class Quat3D
                         dc!"***             APPLY  MATRIX             ***"
                         dc!"*********************************************"
       apply_matrix_a    apply_matrix matrix, scrx0:128, scry0:96, scrz0:128, persp_dshift:PERSP_DSHIFT, optimize: :unroll_alt
-                        # both apply_matrix and clear_screen_region_fast uses stack pointer so let's restore it
                         dc!
                         dc!"*********************************************"
                         dc!"***              DRAW  WIRES              ***"
                         dc!"*********************************************"
+                        # both apply_matrix and clear_screen_region_fast uses stack pointer so let's restore it
       restore_sp_a      ld   sp, 0
       restore_sp_p      as restore_sp_a + 1
                         # draw current object to the shadow screen's memory
@@ -120,11 +120,11 @@ class Quat3D
                         # display shadow screen and swap bank 7 to the previous (now shadow) screen
                         mmu128_swap_screens(swap_bank:true, disable_intr:false, enable_intr:false)
                         # modify adjust_z value until object is near
-                        ld   hl, apply_matrix_a.adjust_z_p
                         dc!
                         dc!"*********************************************"
                         dc!"***                ADJUST  Z              ***"
                         dc!"*********************************************"
+                        ld   hl, apply_matrix_a.adjust_z_p
                         ld   a, [hl]
                         cp   128 - 8
                         jr   Z, skip_adjust_z
