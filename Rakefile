@@ -42,6 +42,7 @@ EXAMPLES = %w[
   mathi_test.rb
   multifill.rb
   palette64.rb
+  qface3d128.rb
   quat3d128.rb
   sprites.rb
   stars.rb

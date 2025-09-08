@@ -56,6 +56,14 @@ class Quat3D
     end
   end
 
+  macro :print_text do |eoc, text|
+                        ld   de, text_data
+                        ld   bc, +text_data
+                        call rom.pr_string
+                        jr   eoc
+    text_data           data ZXLib::Basic::Vars.program_text_to_string text
+  end
+
   ########
   # Main #
   ########
@@ -64,6 +72,8 @@ class Quat3D
     release_key         halt
                         key_pressed?
                         jr   NZ, release_key # wait for any key being pressed to be released
+                        ld   a, 2
+                        call rom.chan_open
                         # prepare both shadow and regular screen memory, disabling interrupts first
                         mmu128_select_bank(bank:7, screen:0, disable_intr:true, enable_intr:false)
                         ld   a, BG_ATTR
@@ -71,6 +81,9 @@ class Quat3D
                         mmu128_swap_screens(swap_bank:true, disable_intr:false, enable_intr:false)
                         ld   a, BG_ATTR
                         call clear_screen
+                        print_text "`AT 0,3``INK 8``PAPER 8``BRIGHT 8`Press 0-9 to change colors"
+                        mmu128_swap_screens(swap_bank:true, disable_intr:false, enable_intr:false)
+                        copy_shadow_screen_region(xy_to_pixel_addr(0,0,scraddr:0xC000), 8, 32, tgtaddr:0xC000, srcaddr:0x4000, check_edge:false, break_oos:false)
 
                         # reset adjustment of z
                         ld   a, 128 + 58
@@ -86,11 +99,11 @@ class Quat3D
                         clear_screen_region_fast(xy_to_pixel_addr(40+22*8, 10, scraddr:0xC000), 180, 22, disable_intr:false, enable_intr:false, save_sp:false)
       object_a          ld   hl, cubes
       object_p          as object_a + 1 # a pointer to a current object's address
-                        # apply a current matrix to a current object's vertices and calculate screen coordinates
                         dc!
                         dc!"*********************************************"
                         dc!"***             APPLY  MATRIX             ***"
                         dc!"*********************************************"
+                        # apply a current matrix to a current object's vertices and calculate screen coordinates
       apply_matrix_a    apply_matrix matrix, scrx0:128, scry0:96, scrz0:128, persp_dshift:PERSP_DSHIFT, optimize: :unroll_alt
                         dc!
                         dc!"*********************************************"
@@ -101,11 +114,12 @@ class Quat3D
       restore_sp_p      as restore_sp_a + 1
                         # draw current object to the shadow screen's memory
                         call rom.call_jump # effectively call (hl)
-                        # set next matrix address
+
                         dc!
                         dc!"*********************************************"
                         dc!"***              NEXT MATRIX              ***"
                         dc!"*********************************************"
+                        # set next matrix address
                         ld   hl, [apply_matrix_a.matrix_p]
                         ld   bc, +matrix
                         add  hl, bc
@@ -119,21 +133,23 @@ class Quat3D
                         dc!"*********************************************"
                         # display shadow screen and swap bank 7 to the previous (now shadow) screen
                         mmu128_swap_screens(swap_bank:true, disable_intr:false, enable_intr:false)
-                        # modify adjust_z value until object is near
+
                         dc!
                         dc!"*********************************************"
                         dc!"***                ADJUST  Z              ***"
                         dc!"*********************************************"
+                        # modify adjust_z value until object is near
                         ld   hl, apply_matrix_a.adjust_z_p
                         ld   a, [hl]
                         cp   128 - 8
                         jr   Z, skip_adjust_z
                         dec  [hl]
-                        # loop unless key is pressed
+
                         dc!
                         dc!"*********************************************"
                         dc!"***                KEY CHECK              ***"
                         dc!"*********************************************"
+                        # loop unless key is pressed
       skip_adjust_z     key_pressed?
                         jp   Z, draw_loop
                         # wait until key is released or a break key was pressed
@@ -149,7 +165,7 @@ class Quat3D
                         di
                         dc!
                         dc!"*********************************************"
-                        dc!"***              CHECK COLORS             ***"
+                        dc!"***            CHECK COLOR KEYS           ***"
                         dc!"*********************************************"
       # check color keys
       ns do |eoc|
@@ -189,6 +205,7 @@ class Quat3D
                         call clear_screen
                         jp   draw_loop
       end
+
                         dc!
                         dc!"*********************************************"
                         dc!"***               NEXT OBJECT             ***"
