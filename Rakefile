@@ -34,6 +34,7 @@ EXAMPLES = %w[
   bfont_demo.rb
   bfont_demo_hires.rb
   calculator.rb
+  crc.rb
   dots.rb
   ghosts.rb
   horse.rb

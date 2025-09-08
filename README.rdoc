@@ -25,55 +25,56 @@ go to Ruby's +irb+ or your REP of choice and snap'&'paste this:
 
   require 'z80'
 
-  class MyZXMath
+  class MyZXCrc8
     module Macros
-      def mul8(eh, el, th, tl)  # performs hl * a using (a, th, tl)
-                                # stops on CARRY out
-                                # result to (eh|el)
-        raise ArgumentError unless th|tl != hl
-        ns do |eoc|
-                  ld  tl, l
-                  ld  th, h
-                  ld  hl,0
-          loop1   srl a
-                  jr  NC, noadd
-                  add hl, th|tl
-                  jr  C, eoc
-          noadd   jr  Z, ok
-                  sla tl
-                  rl  th
-                  jp  NC, loop1
-          ok      label
-                  unless  eh == h and el == l
-                    ld  el, l
-                    ld  eh, h
-                  end
+      def crc8(init, poly)  # CRC-8 *HL over DE bytes
+                            # result to A
+        raise ArgumentError if [h,l,d,e].include?(poly) ||
+                               [h,l,d,e].include?(init)
+        ns do
+                  ld  c, poly
+                  ld  a, init
+          loop1   ex  af, af
+                  ld  a, d
+                  xor e
+                  jr  Z, restore
+
+                  ex  af, af
+                  xor [hl]  # next char
+                  inc hl
+                  dec de
+                  ld  b, 8
+          loop8   add a, a  # shift CRC register
+                  jr  NC, nover
+                  xor c     # ^ gen polynomial
+          nover   djnz loop8
+                  jp  loop1
+          restore ex  af, af
         end
       end
     end
 
     include Z80
 
-    export mul
-    mul   mul8(b, c, d, e)
-          ret NC
-          rst 0x08             # ERROR-1
-          data  1, [0x0A]      # Error Report: Integer out of range
+    export calc
+    calc   crc8(0xfd, 0x1d) # CRC-8/I-CODE check=126
+           ld   b, 0
+           ld   c, a
+           ret
   end
 
   class Program
     include Z80
     include Z80::TAP
 
-                  ld   hl, [multiplicand]
-                  ld   a,  [multiplier]
-                  jp   math.mul
+    start         ld   hl, string
+                  ld   de, +string
+                  jp   crc_8.calc
 
-                  org 0x0020
-    multiplicand  words 1
-    multiplier    bytes 1
+                  org  0x0020
+    string        data "123456789"
 
-    import MyZXMath, :math
+    import MyZXCrc8, :crc_8
 
   end
 
@@ -83,68 +84,185 @@ go to Ruby's +irb+ or your REP of choice and snap'&'paste this:
 
 check the debug output:
 
-  8000: 2A0980      ld   hl, (8009H)     -> multiplicand
-  8003: 3A0B80      ld   a, (800bH)      -> multiplier
-  8006: C30C80      jp   800cH           -> math.mul
-  8009: 00 00                   ..       :multiplicand
-  800B: 00                      .        :multiplier
-  800C:                                  :math
-  ============== MyZXMath ==============
-  800C:             --- begin ---        :mul
-  800C: 5D          ld   e, l
-  800D: 54          ld   d, h
-  800E: 210000      ld   hl, 0000H
-  8011: CB3F        srl  a               :mul.loop1
-  8013: 3003        jr   NC, 8018H       -> noadd
-  8015: 19          add  hl, de
-  8016: 380B        jr   C, 8023H        -> EOC
-  8018: 2807        jr   Z, 8021H        :mul.noadd -> ok
-  801A: CB23        sla  e
-  801C: CB12        rl   d
-  801E: D21180      jp   NC, 8011H       -> loop1
-  8021:                                  :mul.ok
-  8021: 4D          ld   c, l
-  8022: 44          ld   b, h
-  8023:             ---  end  ---        :mul.EOC
-  8023: D0          ret  NC
-  8024: CF          rst  08H
-  8025: 0A                      .
-  ^^^^^^^^^^^^^^ MyZXMath ^^^^^^^^^^^^^^
+  8000: 212080      ld   hl, 8020H       :start -> string
+  8003: 110900      ld   de, 0009H       -> (+string)
+  8006: C32980      jp   8029H           -> crc_8.calc
+  8009: 00 00 00 00 00 00 00 00 ........
+  8011: 00 00 00 00 00 00 00 00 ........
+  8019: 00 00 00 00 00 00 00    .......
+  8020: 31 32 33 34 35 36 37 38 12345678 :string
+  8028: 39                      9        :string
+  8029:                                  :crc_8
+  ============== MyZXCrc8 ==============
+  8029:                                  :calc
+  8029: 0E1D        ld   c, 1dH
+  802B: 3EFD        ld   a, fdH
+  802D: 08          ex   af, af'         :calc.loop1
+  802E: 7A          ld   a, d
+  802F: AB          xor  e
+  8030: 280F        jr   Z, 8041H        -> restore
+  8032: 08          ex   af, af'
+  8033: AE          xor  (hl)
+  8034: 23          inc  hl
+  8035: 1B          dec  de
+  8036: 0608        ld   b, 08H
+  8038: 87          add  a, a            :calc.loop8
+  8039: 3001        jr   NC, 803cH       -> nover
+  803B: A9          xor  c
+  803C: 10FA        djnz 8038H           :calc.nover -> loop8
+  803E: C32D80      jp   802dH           -> loop1
+  8041: 08          ex   af, af'         :calc.restore
+  8042: 0600        ld   b, 00H
+  8044: 4F          ld   c, a
+  8045: C9          ret
+  ^^^^^^^^^^^^^^ MyZXCrc8 ^^^^^^^^^^^^^^
 
 wait, there's more...
 
   require 'zxlib/basic'
 
-  prog = ZXLib::Basic.parse_source <<-END
+  include ZXLib
+
+  program = Basic.parse_source <<-END
     10 CLEAR #{calc.org-1}
     20 LOAD ""CODE
-    30 INPUT "Multiplicand: ",x
-    40 INPUT "Multiplier: ",y
-    50 POKE #{calc[:multiplicand]},x-INT (x/256)*256
-    60 POKE #{calc[:multiplicand]+1},INT (x/256)
-    70 POKE #{calc[:multiplier]},y
-    80 PRINT "x: ", x, "y: ", y
-    90 PRINT USR #{calc.org}
-   100 GO TO 30
+    30 PRINT "CRC-8 of ""123456789"" is ";USR #{calc.org}
   END
 
-  puts prog
+  puts program
 
-Let's make a +.tap+ file now:
+Let's make this program a bit more interactive:
 
-  prog.save_tap 'calculator', line: 10
-  calc.save_tap 'calculator', append: true, name: 'multiply'
+  program = Basic.parse_source <<-END
+    10 CLEAR #{calc.org-1}
+    20 LOAD ""CODE
+    30 PRINT "CRC-8 of ""123456789"" is ";USR #{calc.org}
+    40 INPUT "Text: ";a$
+    50 PRINT """";a$;""""
+    60 PRINT "CRC-8: ";: REM call somehow our calc with a$
+   100 GO TO 40
+  END
+
+To read the address of +a$+ and it's length we will use DEFADD system variable.
+
+  require 'zxlib/sys'
+
+  class Program
+    include Z80
+    include Z80::TAP
+
+    # we'll import ZXLib::Sys library macros and labels but no code
+    import        ZXLib::Sys, macros: true, labels: true, code: false
+
+    # direct USR call
+    start         ld   hl, string
+                  ld   de, +string
+                  jp   crc_8.calc
+
+    # call via DEF FN
+    call_var      find_def_fn_args(1, subroutine: false, cf_on_direct: true)
+                  jr   C, start
+                  report_error_unless Z, "Q Parameter error"
+                  read_arg_string b, c, d, e   # bc: *a$ de: LEN a$
+                  ld16 hl, bc
+                  jp   crc_8.calc
+
+                  org  0x0030
+    string        data "123456789"
+
+    import MyZXCrc8, :crc_8
+
+  end
+
+  calc = Program.new 0x8000
+
+  puts calc.debug
+
+See debug output again:
+
+  8000: 213080      ld   hl, 8030H       :start -> string
+  8003: 110900      ld   de, 0009H       -> (+string)
+  8006: C33980      jp   8039H           -> crc_8.calc
+  8009:             --- begin ---        :call_var
+  8009: 2A0B5C      ld   hl, (5c0bH)     -> vars.defadd
+  800C: 7C          ld   a, h
+  800D: B5          or   l
+  800E: 37          scf
+  800F: 1808        jr   8019H           -> exit_on_zf
+  8011: 7E          ld   a, (hl)         :call_var.seek_next
+  8012: 23          inc  hl
+  8013: FE0E        cp   0eH
+  8015: 2805        jr   Z, 801cH        -> EOC
+  8017: FE29        cp   29H
+  8019: 20F6        jr   NZ, 8011H       :call_var.exit_on_zf -> seek_next
+  801B: 3C          inc  a
+  801C:             ---  end  ---        :call_var.EOC
+  801C: 38E2        jr   C, 8000H        -> start
+  801E:             --- begin ---
+  801E: 2802        jr   Z, 8022H        -> EOC
+  8020:                                  :801e.err
+  8020: CF          rst  08H             :801e.err.err
+  8021: 19                      .
+  8022:             ---  end  ---        :801e.EOC
+  8022: 23          inc  hl
+  8023: 4E          ld   c, (hl)
+  8024: 23          inc  hl
+  8025: 46          ld   b, (hl)
+  8026: 23          inc  hl
+  8027: 5E          ld   e, (hl)
+  8028: 23          inc  hl
+  8029: 56          ld   d, (hl)
+  802A: 69          ld   l, c
+  802B: 60          ld   h, b
+  802C: C33980      jp   8039H           -> crc_8.calc
+  802F: 00                      .
+  8030: 31 32 33 34 35 36 37 38 12345678 :string
+  8038: 39                      9        :string
+  8039:                                  :crc_8
+  ============== MyZXCrc8 ==============
+  ...
+
+Finally, let's revisit the BASIC program:
+
+  program = Basic.parse_source <<-END
+     1 DEF FN c(a$)=USR #{calc[:call_var]}
+    10 CLEAR #{calc.org-1}
+    20 LOAD ""CODE
+    30 PRINT "CRC-8 of ""123456789"" is ";USR #{calc.org}
+    40 INPUT "Text: ";a$
+    50 PRINT """";a$;""""
+    60 PRINT "CRC-8: ";FN c(a$)
+   100 GO TO 40
+  END
+
+  puts program
+
+The program:
+
+    1 DEF FN c(a$)=USR 32777
+   10 CLEAR 32767
+   20 LOAD ""CODE
+   30 PRINT "CRC-8 of ""123456789"" is ";USR 32768
+   40 INPUT "Text: ";a$
+   50 PRINT """";a$;""""
+   60 PRINT "CRC-8: ";FN c(a$)
+  100 GO TO 40
+
+Time to save our work in a +.tap+ file:
+
+  program.save_tap 'crc', line: 10
+  calc.save_tap 'crc', append: true, name: 'CRC-8'
 
 go to ZX Spectrum or an emulator[https://royaltm.github.io/spectrusty/web-zxspectrum/]:
 
-  LOAD "calculator"
+  LOAD "crc"
 
-and load the +calculator.tap+ file.
+and load the +crc.tap+ file.
 
 Enjoy!
 
-{rdoc-image:examples/calculator.png}[https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/calculator.tap#fresh]
-
+{rdoc-image:examples/crc.png}[https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/crc.tap#fresh]
+{rdoc-image:examples/crc-list.png}[https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/crc.tap#fresh]
 
 ==Examples
 
@@ -152,6 +270,7 @@ Sources for the examples can be found in the {example directory}[https://github.
 
 Click on an image to run the example in a web emulator:
 
+{rdoc-image:examples/calculator.png}[https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/calculator.tap#fresh]
 {rdoc-image:examples/bfont_demo-example.png}[https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/bfont_demo.tap#fresh]
 {rdoc-image:examples/bfont_demo_hires-example.png}[https://royaltm.github.io/spectrusty/web-zxspectrum/#m=TC2048#tap=/z80-rb/examples/bfont_demo_hires.tap#fresh]
 {rdoc-image:examples/dots-example.png}[https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/dots.tap#fresh]
