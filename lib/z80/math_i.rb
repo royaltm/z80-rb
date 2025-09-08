@@ -513,7 +513,8 @@ module Z80
             #
             # Options:
             # * +sl+:: An 8-bit register holding the initial value to shift.
-            # * +zero+:: An 8-bit register holding zero value or 0. May save additional 3 or 7 T-states.
+            # * +zero+:: An 8-bit register holding zero value or a literal 0. Specifying a register
+            #            may save additional 3 or 7 T-states.
             #
             # T-states: 7|11, 18|22|23|27, 29|31|33|35, 35|39, 39|43, 35|39, 31|35, 23|27,
             #           7|11, 15|19, 19|23, 23|27, 27|31, 22|26, 26|30, 30|34, 10|11.
@@ -1170,7 +1171,7 @@ module Z80
             #
             # Optionally the result in the +hl+ is being accumulated.
             #
-            # As a side-effect +k+ is left unmodified if +k+ is not part of +tt+.
+            # As a side-effect +k+ is left unmodified if +k+ is not part of +tt+ or +hl+.
             #
             # For those +m+ that has only one bit set or none, +tt+ is not being used.
             # For some of +m+ when +tt+ is +de+ the code can be better optimized as we may leverage
@@ -1186,7 +1187,8 @@ module Z80
             #
             # Uses: +f+, +hl+, +tt+, optionally preserves: +k+.
             def mul_const(k=d, m=0, tt:de, clrhl:true, signed_k:false)
-                raise ArgumentError unless tt != hl and m.is_a?(Integer) and (0..256).include?(m)
+                raise ArgumentError, "mul_const: invalid arguments" unless tt != hl and m.is_a?(Integer) and
+                                                                           (0..256).include?(m)
                 tt = hl if clrhl and (m & (m - 1)) == 0
                 th, tl = tt.split
                 if m == 0
@@ -1314,7 +1316,7 @@ module Z80
             #
             # Creates an optimized, unrolled code so +m+ should be a constant value in the range: 0..256.
             #
-            # As a side-effect +k+ is left unmodified if +k+ is not part of +tt+.
+            # As a side-effect +k+ is left unmodified if +k+ is not part of +tt+ or +hl+.
             #
             # For those +m+ that has only one bit set or none, +tt+ is not being used.
             #
@@ -1329,11 +1331,21 @@ module Z80
             # * +signed_k+:: If the multiplicand (+k+) represents a twos complement signed integer (-128..127).
             # * +use_a+::    Whether to allow modifying the +a+ register. For some values of +m+ the routine
             #                can be optimized further by utilizing the +accumulator+.
+            # * +optimize+:: Optimization options: +:size+, +:time+ or a specific algorithm.
             #
-            # Uses: +CF+, +hl+, +tt+, optionally +a+, optionally preserves: +k+.
+            # Algorithm list for +optimize+:
+            # * :k_rshift_sum
+            # * :neg_k_rshift_sum
+            # * :split_hik_lshift_sum
+            # * :neg_split_hik_lshift_sum
+            # * :split_lok_rshift_sum
+            # * :sum_lshift_add_k
+            # * :neg_sum_lshift_add_k
+            #
+            # Uses: +f+, +hl+, +tt+, optionally +a+, optionally preserves: +k+.
             def mul_const_ex(k=d, m=0, tt:de, signed_k:false, use_a:false, optimize: :time)
-                raise ArgumentError unless tt != hl and m.is_a?(Integer) and (0..256).include?(m)
-                # TODO: handle k=a and use_a
+                raise ArgumentError, "mul_const_ex: invalid arguments" unless tt != hl and m.is_a?(Integer) and
+                                                                              (0..256).include?(m)
                 if m == 0
                     return isolate do
                         ld   hl, 0
@@ -1351,14 +1363,16 @@ module Z80
                 else
                     ->(x) { srl x }
                 end
+                # tricky optim:
+                # if [rl, a].include?(k) this method should be called before k is modified
                 sign_extend_k = proc do |rh, rl, s:k, use_a:false, zero:0|
-                    ld   rl, s unless s == rl
+                    ld   rl, s unless k == rl # not a BUG!
                     if signed_k
                         if use_a
-                                sign_extend(rh, rl)
+                            sign_extend(rh, if k == a then a else rl end) # not a BUG!
                         else
                                 ld   rh, zero
-                                bit  7, s
+                                bit  7, rl
                                 jr   Z, skip_neg
                                 dec  rh
                     skip_neg    label
@@ -1418,7 +1432,7 @@ module Z80
                             else
                                 ld   tl, k unless k == tl
                                 ld   th, 0
-                                sll8_16(7 - zlshift, h, l, sl:tl, zero:th)
+                                sll8_16(7 - zlshift, h, l, sl: if k == th then tl else k end, zero:th)
                             end
                         else
                             ld   h, k unless k == h
@@ -1476,12 +1490,12 @@ module Z80
                             else
                                 ld   th, k unless k == th
                                 ld   tl, 0
-                                sll8_16(ztshift, h, l, sl:th, zero:tl)
+                                sll8_16(ztshift, h, l, sl: if k == tl then th else k end, zero:tl)
                             end
                         else
                             sign_extend_k.call h, l, use_a:use_a
                             unless is_single_bit
-                                ld   th, l unless k == th
+                                ld   th, l unless k == th # not a BUG!
                                 ld   tl, if signed_k then 0 else h end
                             end
                             ztshift.times do
@@ -1528,10 +1542,10 @@ module Z80
                         end
                         while mask != 0
                                 add  hl, hl
-                          unless (mask & m).zero?
+                            unless (mask & m).zero?
                                 add  hl, tt
-                          end
-                          mask >>= 1
+                            end
+                            mask >>= 1
                         end
                     end
                 end
@@ -1546,9 +1560,11 @@ module Z80
                     isolate do
                         if use_a
                             mask >>= zlshift + 1
-                            if [a, h, l].include?(k)
+                            kk = if [a, h, l].include?(k)
                                 ld   tl, k
-                                k = tl
+                                tl
+                            else
+                                k
                             end
                             if ztshift < 5 || signed_k
                                 neg16(unless signed_k then 0 end, k, th:h, tl:l)
@@ -1559,7 +1575,7 @@ module Z80
                                 sll8_16(ztshift, h, l, sl:k)
                                 neg16(h, l)
                             end
-                            ld   a, k
+                            ld   a, kk
                             ld16 tt, hl unless is_single_bit
                         else
                             if ztshift.zero? && k == tl
@@ -1598,8 +1614,153 @@ module Z80
                     neg_split_hik_lshift_sum: neg_split_hik_lshift_sum,
                     split_lok_rshift_sum: split_lok_rshift_sum,
                     sum_lshift_add_k: sum_lshift_add_k,
-                    neg_sum_lshift_add_k: neg_sum_lshift_add_k
+                    neg_sum_lshift_add_k: neg_sum_lshift_add_k,
                 }
+                # the choice made here may be slightly off, depending on what k is selected
+                # some k choices can benefit some algos, while punishing others
+                algo, with_a = case optimize
+                when :time
+                    if signed_k
+                        if use_a
+                            case m
+                            when 224
+                                [:neg_k_rshift_sum, false]
+                            when 32,64,80,96,112,128,144,152,160,168,176,192,208
+                                [:k_rshift_sum, false]
+                            when 33,65,67,129,131,133..135,137..143
+                                [:split_hik_lshift_sum, true]
+                            when 66,68,97..98,130,132,136,145,161..162,164,177,193..194,196,200,209,225..226
+                                [:split_lok_rshift_sum, true]
+                            when 126..127,158..159,174..175,182..184,186..191,199,203..207,211..223,227..255
+                                [:neg_sum_lshift_add_k, true]
+                            else
+                                [:sum_lshift_add_k, true]
+                            end
+                        else
+                            case m
+                            when 127,191
+                                [:neg_sum_lshift_add_k, false]
+                            when 120,124,184,188,190,216,220,224,232,240
+                                [:neg_k_rshift_sum, false]
+                            when 33,65,67,69..71,129,131,133..135,137..143
+                                [:split_hik_lshift_sum, false]
+                            when 66,68,97..98,130,132,136,145,161..162,164,177,193..194,196,209,225..226,228,241
+                                [:split_lok_rshift_sum, false]
+                            when 222..223,231,235..239,242..255
+                                [:neg_split_hik_lshift_sum, false]
+                            when 32,48,64,72,80,88,96,104,112,128,144,148,152,156,160,168,172,176,180,192,200,204,208,212
+                                [:k_rshift_sum, false]
+                            else
+                                [:sum_lshift_add_k, false]
+                            end
+                        end
+                    else
+                        if use_a
+                            case m
+                            when 176,192,208
+                                [:k_rshift_sum, false]
+                            when 9,17,33..35,65,67,69..71,129,131,133..135,137..143
+                                [:split_hik_lshift_sum, true]
+                            when 66,68,81,97..98,113,130,132,136,144..146,160..162,164,177..178,193..194,196,200,209..210,225..226
+                                [:split_lok_rshift_sum, true]
+                            when 95,111,119,123..127,151,155..159,167,171..175,179..191,198..199,202..207,211..224,227..255
+                                [:neg_sum_lshift_add_k, true]
+                            else
+                                [:sum_lshift_add_k, true]
+                            end
+                        else
+                            case m
+                            when 224,240
+                                [:neg_k_rshift_sum, false]
+                            when 126..127,188,190..191
+                                [:neg_sum_lshift_add_k, false]
+                            when 32,64,80,96,112,128,160,176,192,208
+                                [:k_rshift_sum, false]
+                            when 33,65,67,69..71,129,131,133..135,137..143
+                                [:split_hik_lshift_sum, false]
+                            when 66,68,72,81,97..98,113,130,132,136,144..146,161..162,164,177..178,193..194,196,200,209..210,225..226,228,241
+                                [:split_lok_rshift_sum, false]
+                            when 207,215,219..223,230..232,234..239,242..255
+                                [:neg_split_hik_lshift_sum, false]
+                            else
+                                [:sum_lshift_add_k, false]
+                            end
+                        end
+                    end
+                when :size
+                    if signed_k
+                        if use_a
+                            case m
+                            when 129
+                                [:split_hik_lshift_sum, true]
+                            when 130,132
+                                [:split_lok_rshift_sum, true]
+                            when 64,128,192
+                                [:k_rshift_sum, false]
+                            when 191,222..224,231,235..240,242..255
+                                [:neg_sum_lshift_add_k, true]
+                            else
+                                [:sum_lshift_add_k, true]
+                            end
+                        else
+                            case m
+                            when 224
+                                [:neg_k_rshift_sum, false]
+                            when 248
+                                [:neg_sum_lshift_add_k, false]
+                            when 129
+                                [:split_hik_lshift_sum, false]
+                            when 130,132
+                                [:split_lok_rshift_sum, false]
+                            when 252..255
+                                [:neg_split_hik_lshift_sum, false]
+                            when 64,128,160,192
+                                [:k_rshift_sum, false]
+                            else
+                                [:sum_lshift_add_k, false]
+                            end
+                        end
+                    else
+                        if use_a
+                            case m
+                            when 129
+                                [:split_hik_lshift_sum, true]
+                            when 136
+                                [:split_lok_rshift_sum, false]
+                            when 127
+                                [:neg_sum_lshift_add_k, false]
+                            when 130,132
+                                [:split_lok_rshift_sum, true]
+                            when 8,16,24,32,40,48,56,72,80,88,96,104,112,120,144,152,160,168,176,184,200,208,216,224
+                                [:sum_lshift_add_k, false]
+                            when 190..191,207,215,219..223,230..232,234..255
+                                [:neg_sum_lshift_add_k, true]
+                            else
+                                [:sum_lshift_add_k, true]
+                            end
+                        else
+                            case m
+                            when 129
+                                [:split_hik_lshift_sum, false]
+                            when 128
+                                [:k_rshift_sum, false]
+                            when 130,132,136
+                                [:split_lok_rshift_sum, false]
+                            when 250,252..255
+                                [:neg_split_hik_lshift_sum, false]
+                            when 127,190..191,222..223,238..240,246..248,251
+                                [:neg_sum_lshift_add_k, false]
+                            else
+                                [:sum_lshift_add_k, false]
+                            end
+                        end
+                    end
+                else
+                    [optimize, use_a]
+                end
+                algo_impl = algorithms[algo]
+                raise ArgumentError, "mul_const_ex: unsupported algorithm in :optimize" if algo_impl.nil?
+                algo_impl.call(m, with_a)
                 # case optimize
                 # when :time
                 #     algo = algorithms.each_value.map do |algo|
@@ -1614,9 +1775,9 @@ module Z80
                 #         [csc.to_i, algo]
                 #     end.min_by {|i| i.first}[1]
                 # else
-                    algo = algorithms[optimize]
-                    raise ArgumentError, "mul_const_ex: unsupported algorithm in :optimize" if algo.nil?
-                    algo.call(m, use_a)
+                #     algo = algorithms[optimize]
+                #     raise ArgumentError, "mul_const_ex: unsupported algorithm in :optimize" if algo.nil?
+                #     algo.call(m, use_a)
                 # end
             end
             ##

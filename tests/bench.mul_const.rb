@@ -3,7 +3,9 @@ require 'zxlib/basic'
 
 SIGNED_K = false
 USE_ACC = false
-OPTIMIZE = nil
+# OPTIMIZE = nil
+OPTIMIZE = :time
+# OPTIMIZE = :size
 # OPTIMIZE = :k_rshift_sum
 # OPTIMIZE = :neg_k_rshift_sum
 # OPTIMIZE = :neg_split_hik_lshift_sum
