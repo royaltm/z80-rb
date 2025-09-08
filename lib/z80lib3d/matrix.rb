@@ -42,6 +42,7 @@ module Z80Lib3D
       # * +scry0+::        A Y coordinate adjustment used for calculating screen coordinates.
       # * +scrz0+::        A Z coordinate adjustment used for calculating screen coordinates.
       # * +persp_dshift+:: A screen coordinates perspective adjustment: 0-7.
+      # * +optimize+:: Optimization options: +:size+, +:time+, +:unroll+, +:time_alt+, +:unroll_alt+.
       #
       # When the routine completes:
       #
@@ -182,8 +183,7 @@ module Z80Lib3D
       # +z+:: A signed 8-bit integer representing z coordinate as an 8-bit register or an address.
       #
       # Options:
-      # * +tt+:: A 16-bit temporary register +de+ or +bc+ from the alternative register set.
-      # * +t+:: An 8-bit temporary register from the alternative register set.
+      # * +optimize+:: Optimization options: +:size+, +:time+ or +:unroll+.
       #
       # Modifies: +sp+, +af+, +hl'+, +bc'+, +de'+, preserves +x+, +y+, +z+.
       def apply_matrix_row(x, y, z, optimize: :time)
@@ -226,6 +226,7 @@ module Z80Lib3D
       #
       # Options:
       # * +clrhl+:: Whether the result should be set (+true+) or added to the previous value (+false+).
+      # * +optimize+:: Optimization options: +:size+, +:time+ or +:unroll+.
       #
       # Modifies: +sp+, +af+, +hl'+, +bc'+, +de'+, optionally preserves +x+, swaps registers.
       def apply_matrix_element(x, clrhl:false, optimize: :time)
@@ -243,6 +244,238 @@ module Z80Lib3D
             unless clrhl
                       add  hl, de # hl: add previous value
             end
+          end
+        end
+      end
+      ## 
+      # Converts a given course (yaw,pitch,roll) to a target Primitives::Rotation.
+      #
+      # +rotation+:: A target Primitives::Rotation object label.
+      # +yaw+:: An 8-bit angle normalized in [0, 255] range.
+      # +pitch+:: An 8-bit angle normalized in [0, 255] range.
+      # +roll+:: An 8-bit angle normalized in [0, 255] range.
+      #
+      # Options:
+      # * +sincos+:: An address of a populated Primitives::SinCos table, aligned to 256 bytes.
+      # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored. Otherwise
+      #               +sp+ will be clobbered.
+      #
+      # Modifes +sp+, +af+, +hl+, +de+.
+      def course_to_rotation(rotation, yaw=a, pitch=b, roll=c, sincos:self.sincos, save_sp:true)
+        isolate do
+                      ld    [restore_sp_p], sp if save_sp
+          select(sincos & 0x00FF, &:zero?).then do |_|
+                      ld    de, (sincos & 0xFF00)|0b11111100
+          end.else do
+              raise ArgumentError, "sincos address must be aligned to 256 bytes"
+          end
+          [yaw,   rotation.yaw,
+           pitch, rotation.pitch,
+           roll,  rotation.roll].each_slice(2) do |angle, target|
+                      copy_sincos_from_angle(target, angle, sincos:d, mask:e)
+          end
+          if save_sp
+            restore_a     ld    sp, 0
+            restore_sp_p  as restore_a + 1
+          end
+        end
+      end
+      ##
+      # Retrieves and copies sin/cos values for an +angle+ to a +target+ Primitives::SinCos object.
+      #
+      # +target+:: A target Primitives::SinCos object label.
+      # +angle+:: An 8-bit angle normalized in [0, 255] range.
+      #
+      # Options:
+      # * +sincos+:: An address of a populated Primitives::SinCos table, aligned to 256 bytes.
+      # * +mask+:: An optional 8-bit register holding preloaded mask value: +0xFC+ (+0b11111100+).
+      #
+      # Modifes +sp+, +af+, +hl+.
+      def copy_sincos_from_angle(target, angle=a, sincos:self.sincos, mask:nil)
+        isolate do
+                      ld    a, angle unless angle == a
+                      sincos_from_angle sincos, h, l, mask:mask
+                      ld    sp, hl
+                      pop   hl
+                      ld    [target.sin], hl
+                      pop   hl
+                      ld    [target.cos], hl
+        end
+      end
+      ##
+      # Converts a Primitives::Rotation data into a Primitives::Matrix object.
+      #
+      # +matrix+:: A target Primitives::Matrix object label.
+      # +rotation+:: A source Primitives::Rotation object label.
+      #
+      # Options:
+      # +inline_mul+:: A boolean indicating whether to inline multiplication routine.
+      # +subroutine+:: A boolean indicating whether to create a subroutine.
+      # +optimize+:: A multiplication optimization argument for Z80::MathInt::Macros#mul16.
+      def rotation_to_matrix(matrix, rotation, inline_mul:false, subroutine:true, optimize: :time)
+        # cos(a)*cos(b)
+        # cos(a)*cos(c)
+        # cos(a)*sin(b)=(cos(a)*sin(b))
+        # cos(a)*sin(c)
+        # cos(b)*cos(c)
+        # cos(b)*sin(c)
+        # sin(a)*cos(b)
+        # sin(a)*cos(c)
+        # sin(a)*sin(b)=(sin(a)*sin(b))
+        # sin(a)*sin(c)
+        # (sin(a)*sin(b))*sin(c)
+        # (sin(a)*sin(b))*cos(c)
+        # (cos(a)*sin(b))*sin(c)
+        # (cos(a)*sin(b))*cos(c)
+        #
+        # [cos(a)*cos(b), cos(a)*sin(b)*sin(c)-sin(a)*cos(c), cos(a)*sin(b)*cos(c)+sin(a)*sin(c),
+        #  sin(a)*cos(b), sin(a)*sin(b)*sin(c)+cos(a)*cos(c), sin(a)*sin(b)*cos(c)-cos(a)*sin(c),
+        #  -sin(b)      , cos(b)*sin(c)                     , cos(b)*cos(c)]
+        multiply = if inline_mul
+          proc do
+            isolate do |eoc|  # b|hl = bc * de
+                        sra   b # 0 -> 0 1 -> 0(C) -1 -> -1(C)
+                        jr    NC, mult.posmul
+                        jp    NZ, mult.negmul # b != 0x01
+              m_is_1    ld    l, 0
+                        ld    h, e
+                        ld    b, d
+                        jr    eoc
+              mult      mul16_signed9(d, e, c, s: b, tt:de, m_overflow:m_is_1, m_neg_cond:nil, optimize:optimize)
+            end
+            # isolate do |eoc|  # b|hl = bc * de
+            #             ld    a, b
+            #             dec   a     # b == 1 ?
+            #             jp    NZ, k_is_no_1
+            #   k_is_1    ld    b, d
+            #             ld    h, e
+            #             ld    l, a  # a: 0
+            #             jp    eoc   # b|hl = d|e|0
+            #   m_is_1    ld    h, c
+            #             ld    l, d  # d: 0
+            #             jp    eoc   # b|hl = b|c|0
+            #   km_is_1   ld    b, 1  # b|hl = 1|0|0
+            #             jp    eoc
+            #   k_is_no_1 dec   d     # d == 1 ?
+            #             jr    Z, m_is_1
+            #             inc   d     # d: 0 (+)  !0 (-)
+            #             mul_signed9(b, c, e, tt:de, m_neg_cond:NZ, k_overflow:km_is_1, optimize:optimize)
+            # end
+          end
+        else
+          proc do
+                        call  multiply_sub
+          end
+        end
+        isolate do |eoc|
+                      ld    hl, [rotation.sin_b]
+                      neg16 h, l
+                      ld    [matrix.zx], hl
+          [rotation.cos_a, rotation.cos_b, matrix.xx,
+           rotation.sin_a, rotation.cos_b, matrix.yx,
+           rotation.cos_b, rotation.sin_c, matrix.zy,
+           rotation.cos_b, rotation.cos_c, matrix.zz].each_slice(3) do |k_pt, m_pt, target|
+                      ld    bc, [k_pt]
+                      ld    de, [m_pt]
+                      multiply.call         # b|hl: k_pt * m_pt
+                      ld    c, h
+                      ld    [target], bc    # cos_a * cos_b
+          end
+          [rotation.cos_a, rotation.sin_c,  rotation.sin_a, rotation.cos_c, matrix.xy,  matrix.xz,
+           rotation.sin_a, rotation.cos_c,  rotation.cos_a, rotation.sin_c, matrix.yz,  matrix.yy
+          ].each_slice(6) do |k_pt, m_pt, n_pt, j_pt, target_sub, target_add|
+                      ld    bc, [k_pt]
+                      ld    de, [rotation.sin_b]
+                      multiply.call          # b|hl: cos_a * sin_b
+                      ld    c, h
+                      push  bc               # [sp]: cos_a * sin_b
+                      ld    de, [m_pt]
+                      multiply.call          # b|hl: cos_a * sin_b * sin_c
+                      ld    a, b
+                      ex    af, af           # a':   msb(cos_a * sin_b * sin_c)
+                      push  hl               # [sp]: lsb(cos_a * sin_b * sin_c)
+                      ld    bc, [n_pt]
+                      ld    de, [j_pt]
+                      multiply.call          # b|hl: sin_a * cos_c
+                      ex    de, hl           # b|de: sin_a * cos_c
+                      ex    af, af           # a:    msb(cos_a * sin_b * sin_c)
+                      pop   hl               # a|hl: cos_a * sin_b * sin_c
+                      anda  a
+                      sbc   hl, de
+                      sbc   a, b             # a|hl: cos_a * sin_b * sin_c - sin_a * cos_c
+                      ld    l, h
+                      ld    h, a
+                      ld    [target_sub], hl # cos_a * sin_b * sin_c - sin_a * cos_c
+
+                      pop   bc               # bc: cos_a * sin_b
+                      ld    de, [j_pt]
+                      multiply.call          # b|hl: cos_a * sin_b * cos_c
+                      ld    a, b
+                      ex    af, af           # a':   msb(cos_a * sin_b * cos_c)
+                      push  hl               # [sp]: lsb(cos_a * sin_b * cos_c)
+                      ld    bc, [n_pt]
+                      ld    de, [m_pt]
+                      multiply.call          # b|hl: sin_a * sin_c
+                      ex    de, hl           # b|de: sin_a * sin_c
+                      ex    af, af           # a:    msb(cos_a * sin_b * cos_c)
+                      pop   hl               # a|hl: cos_a * sin_b * cos_c
+                      add   hl, de
+                      adc   a, b             # a|hl: cos_a * sin_b * cos_c + sin_a * sin_c
+                      ld    l, h
+                      ld    h, a
+                      ld    [target_add], hl # cos_a * sin_b * cos_c + sin_a * sin_c
+          end
+                      ret if subroutine
+          unless inline_mul
+                      jp    eoc unless subroutine
+
+            ns :multiply_sub do |eoc|  # b|hl = bc * de, k and m in range: (-256..256)
+                        sra   b # 0 -> 0 1 -> 0(C) -1 -> -1(C)
+                        jr    C, m_is_neg1
+                        # sign_extend(b, d)
+                        ld    b, d
+                        sra   b
+                        ld    a, c
+                        anda  a    # test zero
+                        jr    Z, m_zero
+                        mul16(d, e, a, tt:de, optimize:optimize)
+                        ret
+              m_zero    ld    b, a # clear sign
+                        ld    h, a
+                        ld    l, a
+                        ret
+              m_is_neg1 jr    Z, m_is_1 # b = 0x01
+                        neg16 d, e
+                        sign_extend(b, a)
+                        xor   a
+                        sub   c          # a: -m
+                        jr    NC, m_is_1 # m == 256
+                        mul16(d, e, a, tt:de, optimize:optimize)
+                        ret
+              m_is_1    ld    l, 0 # b|h|l = d|e|0
+                        ld    h, e
+                        ld    b, d
+                        ret
+            end
+            # ns :multiply_sub do # b|hl = bc * de
+            #           ld    a, b
+            #           dec   a         # b == 1 ?
+            #           jr    Z, k_is_1
+            #           dec   d         # d == 1 ?
+            #           jr    Z, m_is_1
+            #           inc   d         # d: 0 (+)  !0 (-)
+            #           mul_signed9(b, c, e, tt:de, m_neg_cond:NZ, k_overflow:km_is_1, optimize: :size)
+            #           ret   # b|hl
+            #   k_is_1  ld    b, d
+            #           ld    h, e
+            #           ld    l, a      # a: 0
+            #           ret   # b|hl = d|e|0
+            #   m_is_1  ld    h, c
+            #           ld    l, d      # d: 0
+            #           ret   # b|hl = b|c|0
+            #   km_is_1 ld    b, 1
+            #           ret   # b|hl = 1|0|0
+            # end
           end
         end
       end

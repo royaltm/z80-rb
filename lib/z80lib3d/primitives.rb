@@ -1,11 +1,18 @@
 require 'z80'
+require 'z80/utils/sincos'
 
 module Z80Lib3D
   ##
   # =Z80Lib3D::Primitives
   # 
   # 3D primitives for Z80 program data.
+  #
+  # * Vector
+  # * Vertex
+  # * Matrix
+  # * Rotation
   module Primitives
+    SinCos = Z80::Utils::SinCos::SinCos
     ##
     # =Z80Lib3D::Primitives::Vector
     # 
@@ -69,7 +76,7 @@ module Z80Lib3D
       end
     end
     ##
-    # =Z80Lib3D::Primitives::Vertex
+    # =Z80Lib3D::Primitives::Matrix
     # 
     # A type representing a transformation matrix 3x3.
     #
@@ -95,6 +102,31 @@ module Z80Lib3D
       zx  word
       zy  word
       zz  word
+    end
+    ##
+    # =Z80Lib3D::Primitives::Rotation
+    # 
+    # A type representing 3D rotation.
+    #
+    # Each rotation element should be a 16-bit fixed point twos complement signed number with an 8-bit
+    # fractional part.
+    #
+    # * +sin_a+: +word+ (yaw)
+    # * +cos_a+: +word+ (yaw)
+    # * +sin_b+: +word+ (pitch)
+    # * +cos_b+: +word+ (pitch)
+    # * +sin_c+: +word+ (roll)
+    # * +cos_c+: +word+ (roll)
+    class Rotation < Z80::Label
+      sin_a  word
+      cos_a  word
+      yaw    sin_a SinCos
+      sin_b  word
+      cos_b  word
+      pitch  sin_b SinCos
+      sin_c  word
+      cos_c  word
+      roll   sin_c SinCos
     end
   end
 end
