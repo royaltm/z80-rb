@@ -318,12 +318,16 @@ module Z80
             #
             # T-states: (sh) reg,1,-1: 20|24, 0: 16|20, const: 23|27, nil: 27|28|31|32
             def neg16(sh, sl, th:sh, tl:sl)
-                if [sh, sl, tl].include?(a) or sh == sl or th == tl or sh == tl
+                if [sh, tl].include?(a) or sh == sl or th == tl or sh == tl
                     raise ArgumentError, "neg16: invalid arguments!"
                 end
                 ns do
+                    if sl == a
+                        neg
+                    else
                         xor  a
                         sub  sl
+                    end
                         ld   tl, a
                     if sh.nil?
                         add  a, a
