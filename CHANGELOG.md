@@ -3,17 +3,22 @@ v1.1.1.pre-2
 
 Z80:
 ---
+* Added Z80::MathInt::Macros#mul_const_ex macro as an alternative to #mul_const.
+* Added options :sl and :zero to Z80::MathInt::Macros#sll8_16 and optimized the routine.
+* Z80::MathInt::Macros#neg16 accepts a constant or nil argument allowing to sign extend 8-bit integers to a negative 16-bit.
+* New helper functions Z80::MathInt::Macros#leading_zeros and #trailing_zeros.
 * New macro Z80::MathInt::Macros#mul8_24a introduce faster multiplication algorithm.
 * Added :mbit9_carry option to Z80::MathInt::Macros#mul8_24.
 * New method Condition#not to logically inverse a branching condition.
-* Z80::MathInt::Macros#mul* macros allow some combination of arguments that wasn't possible before.
+* Z80::MathInt::Macros#mul... macros allow some combination of arguments that wasn't possible before.
 * New macros Z80::MathInt::Macros#mul16, #mul16_signed and #mul16_signed9 introduce faster multiplication algorithm
   and :unroll optimization option.
 * Minor branching optimization of Z80::MathInt::Macros#divmod8 and #divmod16.
 * Added options :check0_far, :k_leq_m, :ignore_cf to Z80::MathInt::Macros#divmod, #divmod16_8 and #divmod24_8.
-* Added :time_alt, :unroll, and :unroll_alt optimization options to Z80::MathInt::Macros#divmod, #divmod16_8, #divmod24_8 and internally reworked them.
+* Internally reworked and added :time_alt, :unroll, and :unroll_alt optimization options to Z80::MathInt::Macros#divmod, #divmod16_8, #divmod24_8.
 * Optimized internal loop of Z80::MathInt::Macros#mul, #mul8 and #mul8_24 routines.
-* Added option :optimize to Z80::MathInt::Macros#mul_signed.
+* Added options :kbit9_carry, :tl_is_zero and :optimize to Z80::MathInt::Macros#mul.
+* Added :optimize option to Z80::MathInt::Macros#mul_signed.
 * New macro Z80::MathInt::Macros#mul8_signed.
 * New macro Z80::MathInt::Macros#mul_signed9.
 * New macro Z80::MathInt::Macros#mul_signed9_24.
