@@ -394,55 +394,56 @@
 
 <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;z80&#39;</span>
 
-<span class="ruby-keyword">class</span> <span class="ruby-constant">MyZXMath</span>
+<span class="ruby-keyword">class</span> <span class="ruby-constant">MyZXCrc8</span>
   <span class="ruby-keyword">module</span> <span class="ruby-constant">Macros</span>
-    <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8</span>(<span class="ruby-identifier">eh</span>, <span class="ruby-identifier">el</span>, <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>)  <span class="ruby-comment"># performs hl * a using (a, th, tl)</span>
-                              <span class="ruby-comment"># stops on CARRY out</span>
-                              <span class="ruby-comment"># result to (eh|el)</span>
-      <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">th</span><span class="ruby-operator">|</span><span class="ruby-identifier">tl</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">hl</span>
-      <span class="ruby-identifier">ns</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
-                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">l</span>
-                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">th</span>, <span class="ruby-identifier">h</span>
-                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">hl</span>,<span class="ruby-value">0</span>
-        <span class="ruby-identifier">loop1</span>   <span class="ruby-identifier">srl</span> <span class="ruby-identifier">a</span>
-                <span class="ruby-identifier">jr</span>  <span class="ruby-constant">NC</span>, <span class="ruby-identifier">noadd</span>
-                <span class="ruby-identifier">add</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">th</span><span class="ruby-operator">|</span><span class="ruby-identifier">tl</span>
-                <span class="ruby-identifier">jr</span>  <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
-        <span class="ruby-identifier">noadd</span>   <span class="ruby-identifier">jr</span>  <span class="ruby-constant">Z</span>, <span class="ruby-identifier">ok</span>
-                <span class="ruby-identifier">sla</span> <span class="ruby-identifier">tl</span>
-                <span class="ruby-identifier">rl</span>  <span class="ruby-identifier">th</span>
-                <span class="ruby-identifier">jp</span>  <span class="ruby-constant">NC</span>, <span class="ruby-identifier">loop1</span>
-        <span class="ruby-identifier">ok</span>      <span class="ruby-identifier">label</span>
-                <span class="ruby-keyword">unless</span>  <span class="ruby-identifier">eh</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">h</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">el</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">l</span>
-                  <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">el</span>, <span class="ruby-identifier">l</span>
-                  <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">eh</span>, <span class="ruby-identifier">h</span>
-                <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">crc8</span>(<span class="ruby-identifier">init</span>, <span class="ruby-identifier">poly</span>)  <span class="ruby-comment"># CRC-8 *HL over DE bytes</span>
+                          <span class="ruby-comment"># result to A</span>
+      <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>,<span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">poly</span>) <span class="ruby-operator">||</span>
+                             [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>,<span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">init</span>)
+      <span class="ruby-identifier">ns</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">c</span>, <span class="ruby-identifier">poly</span>
+                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">init</span>
+        <span class="ruby-identifier">loop1</span>   <span class="ruby-identifier">ex</span>  <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+                <span class="ruby-identifier">xor</span> <span class="ruby-identifier">e</span>
+                <span class="ruby-identifier">jr</span>  <span class="ruby-constant">Z</span>, <span class="ruby-identifier">restore</span>
+
+                <span class="ruby-identifier">ex</span>  <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                <span class="ruby-identifier">xor</span> [<span class="ruby-identifier">hl</span>]  <span class="ruby-comment"># next char</span>
+                <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">dec</span> <span class="ruby-identifier">de</span>
+                <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">b</span>, <span class="ruby-value">8</span>
+        <span class="ruby-identifier">loop8</span>   <span class="ruby-identifier">add</span> <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span>  <span class="ruby-comment"># shift CRC register</span>
+                <span class="ruby-identifier">jr</span>  <span class="ruby-constant">NC</span>, <span class="ruby-identifier">nover</span>
+                <span class="ruby-identifier">xor</span> <span class="ruby-identifier">c</span>     <span class="ruby-comment"># ^ gen polynomial</span>
+        <span class="ruby-identifier">nover</span>   <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">loop8</span>
+                <span class="ruby-identifier">jp</span>  <span class="ruby-identifier">loop1</span>
+        <span class="ruby-identifier">restore</span> <span class="ruby-identifier">ex</span>  <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
       <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">end</span>
   <span class="ruby-keyword">end</span>
 
   <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span>
 
-  <span class="ruby-identifier">export</span> <span class="ruby-identifier">mul</span>
-  <span class="ruby-identifier">mul</span>   <span class="ruby-identifier">mul8</span>(<span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>)
-        <span class="ruby-identifier">ret</span> <span class="ruby-constant">NC</span>
-        <span class="ruby-identifier">rst</span> <span class="ruby-value">0x08</span>             <span class="ruby-comment"># ERROR-1</span>
-        <span class="ruby-identifier">data</span>  <span class="ruby-value">1</span>, [<span class="ruby-value">0x0A</span>]      <span class="ruby-comment"># Error Report: Integer out of range</span>
+  <span class="ruby-identifier">export</span> <span class="ruby-identifier">calc</span>
+  <span class="ruby-identifier">calc</span>   <span class="ruby-identifier">crc8</span>(<span class="ruby-value">0xfd</span>, <span class="ruby-value">0x1d</span>) <span class="ruby-comment"># CRC-8/I-CODE check=126</span>
+         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0</span>
+         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>
+         <span class="ruby-identifier">ret</span>
 <span class="ruby-keyword">end</span>
 
 <span class="ruby-keyword">class</span> <span class="ruby-constant">Program</span>
   <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span>
   <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>
 
-                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">multiplicand</span>]
-                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>,  [<span class="ruby-identifier">multiplier</span>]
-                <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">math</span>.<span class="ruby-identifier">mul</span>
+  <span class="ruby-identifier">start</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">string</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-operator">+</span><span class="ruby-identifier">string</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">crc_8</span>.<span class="ruby-identifier">calc</span>
 
-                <span class="ruby-identifier">org</span> <span class="ruby-value">0x0020</span>
-  <span class="ruby-identifier">multiplicand</span>  <span class="ruby-identifier">words</span> <span class="ruby-value">1</span>
-  <span class="ruby-identifier">multiplier</span>    <span class="ruby-identifier">bytes</span> <span class="ruby-value">1</span>
+                <span class="ruby-identifier">org</span>  <span class="ruby-value">0x0020</span>
+  <span class="ruby-identifier">string</span>        <span class="ruby-identifier">data</span> <span class="ruby-string">&quot;123456789&quot;</span>
 
-  <span class="ruby-identifier">import</span> <span class="ruby-constant">MyZXMath</span>, <span class="ruby-value">:math</span>
+  <span class="ruby-identifier">import</span> <span class="ruby-constant">MyZXCrc8</span>, <span class="ruby-value">:crc_8</span>
 
 <span class="ruby-keyword">end</span>
 
@@ -453,70 +454,190 @@
 
 <p>check the debug output:</p>
 
-<pre>8000: 2A0980      ld   hl, (8009H)     -&gt; multiplicand
-8003: 3A0B80      ld   a, (800bH)      -&gt; multiplier
-8006: C30C80      jp   800cH           -&gt; math.mul
-8009: 00 00                   ..       :multiplicand
-800B: 00                      .        :multiplier
-800C:                                  :math
-============== MyZXMath ==============
-800C:             --- begin ---        :mul
-800C: 5D          ld   e, l
-800D: 54          ld   d, h
-800E: 210000      ld   hl, 0000H
-8011: CB3F        srl  a               :mul.loop1
-8013: 3003        jr   NC, 8018H       -&gt; noadd
-8015: 19          add  hl, de
-8016: 380B        jr   C, 8023H        -&gt; EOC
-8018: 2807        jr   Z, 8021H        :mul.noadd -&gt; ok
-801A: CB23        sla  e
-801C: CB12        rl   d
-801E: D21180      jp   NC, 8011H       -&gt; loop1
-8021:                                  :mul.ok
-8021: 4D          ld   c, l
-8022: 44          ld   b, h
-8023:             ---  end  ---        :mul.EOC
-8023: D0          ret  NC
-8024: CF          rst  08H
-8025: 0A                      .
-^^^^^^^^^^^^^^ MyZXMath ^^^^^^^^^^^^^^</pre>
+<pre>8000: 212080      ld   hl, 8020H       :start -&gt; string
+8003: 110900      ld   de, 0009H       -&gt; (+string)
+8006: C32980      jp   8029H           -&gt; crc_8.calc
+8009: 00 00 00 00 00 00 00 00 ........
+8011: 00 00 00 00 00 00 00 00 ........
+8019: 00 00 00 00 00 00 00    .......
+8020: 31 32 33 34 35 36 37 38 12345678 :string
+8028: 39                      9        :string
+8029:                                  :crc_8
+============== MyZXCrc8 ==============
+8029:                                  :calc
+8029: 0E1D        ld   c, 1dH
+802B: 3EFD        ld   a, fdH
+802D: 08          ex   af, af&#39;         :calc.loop1
+802E: 7A          ld   a, d
+802F: AB          xor  e
+8030: 280F        jr   Z, 8041H        -&gt; restore
+8032: 08          ex   af, af&#39;
+8033: AE          xor  (hl)
+8034: 23          inc  hl
+8035: 1B          dec  de
+8036: 0608        ld   b, 08H
+8038: 87          add  a, a            :calc.loop8
+8039: 3001        jr   NC, 803cH       -&gt; nover
+803B: A9          xor  c
+803C: 10FA        djnz 8038H           :calc.nover -&gt; loop8
+803E: C32D80      jp   802dH           -&gt; loop1
+8041: 08          ex   af, af&#39;         :calc.restore
+8042: 0600        ld   b, 00H
+8044: 4F          ld   c, a
+8045: C9          ret
+^^^^^^^^^^^^^^ MyZXCrc8 ^^^^^^^^^^^^^^</pre>
 
 <p>wait, there&#39;s more…</p>
 
 <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxlib/basic&#39;</span>
 
-<span class="ruby-identifier">prog</span> = <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-END</span>
+<span class="ruby-identifier">include</span> <span class="ruby-constant">ZXLib</span>
+
+<span class="ruby-identifier">program</span> = <span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-END</span>
 <span class="ruby-value">  10 CLEAR #{calc.org-1}
   20 LOAD &quot;&quot;CODE
-  30 INPUT &quot;Multiplicand: &quot;,x
-  40 INPUT &quot;Multiplier: &quot;,y
-  50 POKE #{calc[:multiplicand]},x-INT (x/256)*256
-  60 POKE #{calc[:multiplicand]+1},INT (x/256)
-  70 POKE #{calc[:multiplier]},y
-  80 PRINT &quot;x: &quot;, x, &quot;y: &quot;, y
-  90 PRINT USR #{calc.org}
- 100 GO TO 30
+  30 PRINT &quot;CRC-8 of &quot;&quot;123456789&quot;&quot; is &quot;;USR #{calc.org}
 </span><span class="ruby-identifier">END</span>
 
-<span class="ruby-identifier">puts</span> <span class="ruby-identifier">prog</span>
+<span class="ruby-identifier">puts</span> <span class="ruby-identifier">program</span>
 </pre>
 
-<p>Let&#39;s make a <code>.tap</code> file now:</p>
+<p>Let&#39;s make this program a bit more interactive:</p>
 
-<pre class="ruby"><span class="ruby-identifier">prog</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&#39;calculator&#39;</span>, <span class="ruby-value">line:</span> <span class="ruby-value">10</span>
-<span class="ruby-identifier">calc</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&#39;calculator&#39;</span>, <span class="ruby-value">append:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">name:</span> <span class="ruby-string">&#39;multiply&#39;</span>
+<pre class="ruby"><span class="ruby-identifier">program</span> = <span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-END</span>
+<span class="ruby-value">  10 CLEAR #{calc.org-1}
+  20 LOAD &quot;&quot;CODE
+  30 PRINT &quot;CRC-8 of &quot;&quot;123456789&quot;&quot; is &quot;;USR #{calc.org}
+  40 INPUT &quot;Text: &quot;;a$
+  50 PRINT &quot;&quot;&quot;&quot;;a$;&quot;&quot;&quot;&quot;
+  60 PRINT &quot;CRC-8: &quot;;: REM call somehow our calc with a$
+ 100 GO TO 40
+</span><span class="ruby-identifier">END</span>
+</pre>
+
+<p>To read the address of <code>a$</code> and it&#39;s length we will use DEFADD system variable.</p>
+
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;zxlib/sys&#39;</span>
+
+<span class="ruby-keyword">class</span> <span class="ruby-constant">Program</span>
+  <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span>
+  <span class="ruby-identifier">include</span> <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>
+
+  <span class="ruby-comment"># we&#39;ll import ZXLib::Sys library macros and labels but no code</span>
+  <span class="ruby-identifier">import</span>        <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">Sys</span>, <span class="ruby-value">macros:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">labels:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">code:</span> <span class="ruby-keyword">false</span>
+
+  <span class="ruby-comment"># direct USR call</span>
+  <span class="ruby-identifier">start</span>         <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">string</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-operator">+</span><span class="ruby-identifier">string</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">crc_8</span>.<span class="ruby-identifier">calc</span>
+
+  <span class="ruby-comment"># call via DEF FN</span>
+  <span class="ruby-identifier">call_var</span>      <span class="ruby-identifier">find_def_fn_args</span>(<span class="ruby-value">1</span>, <span class="ruby-value">subroutine:</span> <span class="ruby-keyword">false</span>, <span class="ruby-value">cf_on_direct:</span> <span class="ruby-keyword">true</span>)
+                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">start</span>
+                <span class="ruby-identifier">report_error_unless</span> <span class="ruby-constant">Z</span>, <span class="ruby-string">&quot;Q Parameter error&quot;</span>
+                <span class="ruby-identifier">read_arg_string</span> <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>   <span class="ruby-comment"># bc: *a$ de: LEN a$</span>
+                <span class="ruby-identifier">ld16</span> <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">crc_8</span>.<span class="ruby-identifier">calc</span>
+
+                <span class="ruby-identifier">org</span>  <span class="ruby-value">0x0030</span>
+  <span class="ruby-identifier">string</span>        <span class="ruby-identifier">data</span> <span class="ruby-string">&quot;123456789&quot;</span>
+
+  <span class="ruby-identifier">import</span> <span class="ruby-constant">MyZXCrc8</span>, <span class="ruby-value">:crc_8</span>
+
+<span class="ruby-keyword">end</span>
+
+<span class="ruby-identifier">calc</span> = <span class="ruby-constant">Program</span>.<span class="ruby-identifier">new</span> <span class="ruby-value">0x8000</span>
+
+<span class="ruby-identifier">puts</span> <span class="ruby-identifier">calc</span>.<span class="ruby-identifier">debug</span>
+</pre>
+
+<p>See debug output again:</p>
+
+<pre>8000: 213080      ld   hl, 8030H       :start -&gt; string
+8003: 110900      ld   de, 0009H       -&gt; (+string)
+8006: C33980      jp   8039H           -&gt; crc_8.calc
+8009:             --- begin ---        :call_var
+8009: 2A0B5C      ld   hl, (5c0bH)     -&gt; vars.defadd
+800C: 7C          ld   a, h
+800D: B5          or   l
+800E: 37          scf
+800F: 1808        jr   8019H           -&gt; exit_on_zf
+8011: 7E          ld   a, (hl)         :call_var.seek_next
+8012: 23          inc  hl
+8013: FE0E        cp   0eH
+8015: 2805        jr   Z, 801cH        -&gt; EOC
+8017: FE29        cp   29H
+8019: 20F6        jr   NZ, 8011H       :call_var.exit_on_zf -&gt; seek_next
+801B: 3C          inc  a
+801C:             ---  end  ---        :call_var.EOC
+801C: 38E2        jr   C, 8000H        -&gt; start
+801E:             --- begin ---
+801E: 2802        jr   Z, 8022H        -&gt; EOC
+8020:                                  :801e.err
+8020: CF          rst  08H             :801e.err.err
+8021: 19                      .
+8022:             ---  end  ---        :801e.EOC
+8022: 23          inc  hl
+8023: 4E          ld   c, (hl)
+8024: 23          inc  hl
+8025: 46          ld   b, (hl)
+8026: 23          inc  hl
+8027: 5E          ld   e, (hl)
+8028: 23          inc  hl
+8029: 56          ld   d, (hl)
+802A: 69          ld   l, c
+802B: 60          ld   h, b
+802C: C33980      jp   8039H           -&gt; crc_8.calc
+802F: 00                      .
+8030: 31 32 33 34 35 36 37 38 12345678 :string
+8038: 39                      9        :string
+8039:                                  :crc_8
+============== MyZXCrc8 ==============
+...</pre>
+
+<p>Finally, let&#39;s revisit the BASIC program:</p>
+
+<pre class="ruby"><span class="ruby-identifier">program</span> = <span class="ruby-constant">Basic</span>.<span class="ruby-identifier">parse_source</span> <span class="ruby-identifier">&lt;&lt;-END</span>
+<span class="ruby-value">   1 DEF FN c(a$)=USR #{calc[:call_var]}
+  10 CLEAR #{calc.org-1}
+  20 LOAD &quot;&quot;CODE
+  30 PRINT &quot;CRC-8 of &quot;&quot;123456789&quot;&quot; is &quot;;USR #{calc.org}
+  40 INPUT &quot;Text: &quot;;a$
+  50 PRINT &quot;&quot;&quot;&quot;;a$;&quot;&quot;&quot;&quot;
+  60 PRINT &quot;CRC-8: &quot;;FN c(a$)
+ 100 GO TO 40
+</span><span class="ruby-identifier">END</span>
+
+<span class="ruby-identifier">puts</span> <span class="ruby-identifier">program</span>
+</pre>
+
+<p>The program:</p>
+
+<pre>  1 DEF FN c(a$)=USR 32777
+ 10 CLEAR 32767
+ 20 LOAD &quot;&quot;CODE
+ 30 PRINT &quot;CRC-8 of &quot;&quot;123456789&quot;&quot; is &quot;;USR 32768
+ 40 INPUT &quot;Text: &quot;;a$
+ 50 PRINT &quot;&quot;&quot;&quot;;a$;&quot;&quot;&quot;&quot;
+ 60 PRINT &quot;CRC-8: &quot;;FN c(a$)
+100 GO TO 40</pre>
+
+<p>Time to save our work in a <code>.tap</code> file:</p>
+
+<pre class="ruby"><span class="ruby-identifier">program</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&#39;crc&#39;</span>, <span class="ruby-value">line:</span> <span class="ruby-value">10</span>
+<span class="ruby-identifier">calc</span>.<span class="ruby-identifier">save_tap</span> <span class="ruby-string">&#39;crc&#39;</span>, <span class="ruby-value">append:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">name:</span> <span class="ruby-string">&#39;CRC-8&#39;</span>
 </pre>
 
 <p>go to ZX Spectrum or an <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/">emulator</a>:</p>
 
-<pre class="ruby"><span class="ruby-constant">LOAD</span> <span class="ruby-string">&quot;calculator&quot;</span>
+<pre class="ruby"><span class="ruby-constant">LOAD</span> <span class="ruby-string">&quot;crc&quot;</span>
 </pre>
 
-<p>and load the <code>calculator.tap</code> file.</p>
+<p>and load the <code>crc.tap</code> file.</p>
 
 <p>Enjoy!</p>
 
-<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/calculator.tap#fresh"><img src="examples/calculator.png"></a></p>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/crc.tap#fresh"><img src="examples/crc.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/crc.tap#fresh"><img src="examples/crc-list.png"></a></p>
 
 <h2 id="label-Examples">Examples<span><a href="#label-Examples">&para;</a> <a href="#top">&uarr;</a></span></h2>
 
@@ -524,7 +645,7 @@
 
 <p>Click on an image to run the example in a web emulator:</p>
 
-<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/bfont_demo.tap#fresh"><img src="examples/bfont_demo-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=TC2048#tap=/z80-rb/examples/bfont_demo_hires.tap#fresh"><img src="examples/bfont_demo_hires-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/dots.tap#fresh"><img src="examples/dots-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/horse.tap#fresh"><img src="examples/horse-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k+#tap=/z80-rb/examples/ghosts.tap#fresh"><img src="examples/ghosts-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/labyrinth.tap#fresh"><img src="examples/labyrinth-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/mathi_test.tap#fresh"><img src="examples/mathi_test-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/multifill.tap#fresh"><img src="examples/multifill-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=+2B#tap=/z80-rb/examples/palette64.tap#fresh"><img src="examples/palette64-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/stars.tap#fresh"><img src="examples/stars-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=128k#tap=/z80-rb/examples/quat3d128.tap#fresh"><img src="examples/quat3d128-example.png"></a></p>
+<p><a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/calculator.tap#fresh"><img src="examples/calculator.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/bfont_demo.tap#fresh"><img src="examples/bfont_demo-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=TC2048#tap=/z80-rb/examples/bfont_demo_hires.tap#fresh"><img src="examples/bfont_demo_hires-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/dots.tap#fresh"><img src="examples/dots-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/horse.tap#fresh"><img src="examples/horse-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k+#tap=/z80-rb/examples/ghosts.tap#fresh"><img src="examples/ghosts-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/labyrinth.tap#fresh"><img src="examples/labyrinth-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/mathi_test.tap#fresh"><img src="examples/mathi_test-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/multifill.tap#fresh"><img src="examples/multifill-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=+2B#tap=/z80-rb/examples/palette64.tap#fresh"><img src="examples/palette64-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=48k#tap=/z80-rb/examples/stars.tap#fresh"><img src="examples/stars-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=128k#tap=/z80-rb/examples/quat3d128.tap#fresh"><img src="examples/quat3d128-example.png"></a> <a href="https://royaltm.github.io/spectrusty/web-zxspectrum/#m=128k#tap=/z80-rb/examples/qface3d128.tap#fresh"><img src="examples/qface3d128-example.png"></a></p>
 
 <p>The <a href="https://github.com/royaltm/zxspectrum-demo-yartz">YARTZ demo</a> released at Speccy.pl/2019 was made entirely using this <a href="https://github.com/royaltm/zxspectrum-demo-yartz">gem</a>, including music.</p>
 
@@ -596,6 +717,15 @@ Bytes: &quot;hello_worl&quot; CODE 32768,38</pre>
 <p><a href="Z80/Utils/Sort.html"><code>Z80::Utils::Sort</code></a></p>
 </li><li>
 <p><a href="Z80/Utils/VecDeque.html"><code>Z80::Utils::VecDeque</code></a></p>
+</li></ul>
+
+<h4 id="label-Z80+3D+utilities"><a href="Z80.html"><code>Z80</code></a> 3D utilities<span><a href="#label-Z80+3D+utilities">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<ul><li>
+<p><a href="Z80Lib3D/Matrix3D.html"><code>Z80Lib3D::Matrix3D</code></a></p>
+</li><li>
+<p><a href="Z80Lib3D/Primitives.html"><code>Z80Lib3D::Primitives</code></a></p>
+</li><li>
+<p><a href="Z80Lib3D/Quaternion.html"><code>Z80Lib3D::Quaternion</code></a></p>
 </li></ul>
 
 <h4 id="label-ZX+Spectrum+libraries">ZX Spectrum libraries<span><a href="#label-ZX+Spectrum+libraries">&para;</a> <a href="#top">&uarr;</a></span></h4>

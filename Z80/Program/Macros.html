@@ -159,9 +159,9 @@ ZF = 1 if th|tl == value</pre>
 
           
           <div class="method-source-code" id="cp16n-source">
-            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 205</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 212</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cp16n</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">value</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-value">:eoc</span>)
-        <span class="ruby-identifier">cp16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">value</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>, <span class="ruby-identifier">value</span>, <span class="ruby-value">jr_msb_c:</span><span class="ruby-identifier">jr_msb_c</span>, <span class="ruby-value">jr_msb_nz:</span><span class="ruby-identifier">jr_msb_nz</span>)
+        <span class="ruby-identifier">cp16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">value</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>, <span class="ruby-identifier">value</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF</span>, <span class="ruby-value">jr_msb_c:</span><span class="ruby-identifier">jr_msb_c</span>, <span class="ruby-value">jr_msb_nz:</span><span class="ruby-identifier">jr_msb_nz</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -214,31 +214,44 @@ ZF = 1 if th|tl == sh|sl</pre>
 
           
           <div class="method-source-code" id="cp16r-source">
-            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 244</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 251</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cp16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-value">:eoc</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;only th can be the accumulator&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
+        <span class="ruby-identifier">skip_nz</span> = <span class="ruby-identifier">proc</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">target</span><span class="ruby-operator">|</span>
+                <span class="ruby-keyword">case</span> <span class="ruby-identifier">target</span>
+                <span class="ruby-keyword">when</span> <span class="ruby-value">:ret</span>
+                                <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                <span class="ruby-keyword">else</span>
+                                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">target</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
         <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                 <span class="ruby-identifier">jr_msb_nz</span> = <span class="ruby-identifier">eoc</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">jr_msb_nz</span> <span class="ruby-operator">==</span> <span class="ruby-value">:eoc</span>
                                                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">th</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">sh</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">sl</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
+                                         <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                                         <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">tl</span>
+                                         <span class="ruby-identifier">skip_nz</span>[<span class="ruby-identifier">jr_msb_nz</span>] <span class="ruby-keyword">unless</span> <span class="ruby-identifier">jr_msb_nz</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">eoc</span>
+                <span class="ruby-keyword">else</span>
                         <span class="ruby-keyword">if</span> <span class="ruby-identifier">sh</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
-                                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                                                <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
                         <span class="ruby-keyword">else</span>
-                                        <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sh</span>
+                                                <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sh</span>
                                 <span class="ruby-keyword">case</span> <span class="ruby-identifier">jr_msb_c</span>
                                 <span class="ruby-keyword">when</span> <span class="ruby-value">:ret</span>
-                                        <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>
+                                                <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>
                                 <span class="ruby-keyword">else</span>
-                                        <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">jr_msb_c</span>
+                                                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">jr_msb_c</span>
                                 <span class="ruby-keyword">end</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">jr_msb_c</span>.<span class="ruby-identifier">nil?</span>
                         <span class="ruby-keyword">end</span>
-                        <span class="ruby-keyword">case</span> <span class="ruby-identifier">jr_msb_nz</span>
-                        <span class="ruby-keyword">when</span> <span class="ruby-value">:ret</span>
-                                <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                                                <span class="ruby-identifier">skip_nz</span>[<span class="ruby-identifier">jr_msb_nz</span>]
+                                                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">tl</span>
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">sl</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
+                                                <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
                         <span class="ruby-keyword">else</span>
-                                <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">jr_msb_nz</span>
+                                                <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sl</span>
                         <span class="ruby-keyword">end</span>
-                                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">tl</span>
-                                <span class="ruby-identifier">cp</span>   <span class="ruby-identifier">sl</span>
+                <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -276,7 +289,7 @@ ZF = 1 if th|tl == sh|sl</pre>
 
           
           <div class="method-source-code" id="cp16rr-source">
-            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 215</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 222</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cp16rr</span>(<span class="ruby-identifier">tt</span>, <span class="ruby-identifier">ss</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-value">:eoc</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;tt must be a 16-bit register&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">tt</span>.<span class="ruby-identifier">bit8?</span>
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;ss must be a 16-bit register&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">ss</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">ss</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">ss</span>.<span class="ruby-identifier">bit8?</span>
@@ -320,12 +333,11 @@ ZF = 1 if th|tl == sh|sl</pre>
 
           
           <div class="method-source-code" id="ld16-source">
-            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 169</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 177</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ld16</span>(<span class="ruby-identifier">aa</span>, <span class="ruby-identifier">bb</span>)
         <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">aa</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">bb</span>)
                 <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;Use one of: bc de hl ix iy registers in ld16&quot;</span>
         <span class="ruby-keyword">end</span>
-        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;Registers must be different&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">aa</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">bb</span>
         <span class="ruby-identifier">ah</span>, <span class="ruby-identifier">al</span> = <span class="ruby-identifier">aa</span>.<span class="ruby-identifier">split</span>
         <span class="ruby-identifier">bh</span>, <span class="ruby-identifier">bl</span> = <span class="ruby-identifier">bb</span>.<span class="ruby-identifier">split</span>
         <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -396,17 +408,25 @@ ZF = 1 if th|tl == sh|sl</pre>
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;A macro must have a name&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Symbol</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-string">&quot;Macros may only be defined in the program context.&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@contexts</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">1</span>
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">Syntax</span>, <span class="ruby-node">&quot;A label with the same name: \&quot;#{name}\&quot; exists.&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@labels</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">label</span>.<span class="ruby-identifier">to_s</span>)
-        <span class="ruby-identifier">m</span> = <span class="ruby-identifier">lambda</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">m</span> = <span class="ruby-identifier">lambda</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span><span class="ruby-operator">|</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">args</span>.<span class="ruby-identifier">first</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Symbol</span>)
                         <span class="ruby-identifier">n</span> = <span class="ruby-identifier">args</span>.<span class="ruby-identifier">shift</span>
                 <span class="ruby-keyword">end</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">registers</span>.<span class="ruby-identifier">empty?</span>
                         <span class="ruby-identifier">ns</span>(<span class="ruby-identifier">n</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
-                                <span class="ruby-identifier">mblock</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">eoc</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
+                                <span class="ruby-keyword">if</span> <span class="ruby-identifier">opts</span>.<span class="ruby-identifier">empty?</span>
+                                        <span class="ruby-identifier">mblock</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">eoc</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+                                <span class="ruby-keyword">else</span>
+                                        <span class="ruby-identifier">mblock</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">eoc</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+                                <span class="ruby-keyword">end</span>
                         <span class="ruby-keyword">end</span>
                 <span class="ruby-keyword">else</span>
                         <span class="ruby-identifier">lbl</span> = <span class="ruby-identifier">with_saved</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">registers</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
-                                <span class="ruby-identifier">mblock</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">eoc</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
+                                <span class="ruby-keyword">if</span> <span class="ruby-identifier">opts</span>.<span class="ruby-identifier">empty?</span>
+                                        <span class="ruby-identifier">mblock</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">eoc</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+                                <span class="ruby-keyword">else</span>
+                                        <span class="ruby-identifier">mblock</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">eoc</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+                                <span class="ruby-keyword">end</span>
                         <span class="ruby-keyword">end</span>
                         <span class="ruby-identifier">lbl</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">define_label</span> <span class="ruby-identifier">n</span>, <span class="ruby-identifier">lbl</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">n</span>
                         <span class="ruby-identifier">lbl</span>
@@ -496,7 +516,7 @@ ZF = 1 if th|tl == sh|sl</pre>
 
           
           <div class="method-source-code" id="with_saved-source">
-            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 107</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 115</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">with_saved</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">registers</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         <span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>
         <span class="ruby-identifier">with_return</span> = <span class="ruby-identifier">opts</span>.<span class="ruby-identifier">delete</span> <span class="ruby-value">:ret</span>

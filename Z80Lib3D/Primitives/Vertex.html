@@ -159,7 +159,7 @@
 
           
           <div class="method-source-code" id="make-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/primitives.rb, line 46</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/primitives.rb, line 51</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier ruby-title">make</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span>, <span class="ruby-value">scrx0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scry0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scrz0:</span><span class="ruby-value">128</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-value">7</span>)
   <span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span> = <span class="ruby-identifier">x</span>.<span class="ruby-identifier">round</span>, <span class="ruby-identifier">y</span>.<span class="ruby-identifier">round</span>, <span class="ruby-identifier">z</span>.<span class="ruby-identifier">round</span>
   <span class="ruby-identifier">scrxmax</span> = <span class="ruby-identifier">scrx0</span> <span class="ruby-operator">*</span> <span class="ruby-value">2</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
@@ -200,7 +200,7 @@
 
           
           <div class="method-source-code" id="make_many-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/primitives.rb, line 59</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/primitives.rb, line 64</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier ruby-title">make_many</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-value">scrx0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scry0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scrz0:</span><span class="ruby-value">128</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-value">7</span>)
   <span class="ruby-identifier">args</span>.<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span><span class="ruby-operator">|</span> <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier">make</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span>, <span class="ruby-value">scrx0:</span><span class="ruby-identifier">scrx0</span>, <span class="ruby-value">scry0:</span><span class="ruby-identifier">scry0</span>, <span class="ruby-value">scrz0:</span><span class="ruby-identifier">scrz0</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-identifier">persp_dshift</span>)}
 <span class="ruby-keyword">end</span></pre>
@@ -233,7 +233,7 @@
 
           
           <div class="method-source-code" id="scale-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/primitives.rb, line 64</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/primitives.rb, line 69</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier ruby-title">scale</span>(<span class="ruby-identifier">sc</span>, <span class="ruby-identifier">vertex</span>, <span class="ruby-value">scrx0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scry0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scrz0:</span><span class="ruby-value">128</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-value">7</span>)
   <span class="ruby-keyword">if</span> <span class="ruby-identifier">vertex</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
     <span class="ruby-identifier">vertex</span>.<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">v</span><span class="ruby-operator">|</span> <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier">scale</span>(<span class="ruby-identifier">sc</span>, <span class="ruby-identifier">v</span>, <span class="ruby-value">scrx0:</span><span class="ruby-identifier">scrx0</span>, <span class="ruby-value">scry0:</span><span class="ruby-identifier">scry0</span>, <span class="ruby-value">scrz0:</span><span class="ruby-identifier">scrz0</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-identifier">persp_dshift</span>)}

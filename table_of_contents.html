@@ -37,7 +37,7 @@
 
     <ul>
 
-      <li><a href="CHANGELOG_md.html#label-v1.1.1.pre-2">v1.1.1.pre-2</a>
+      <li><a href="CHANGELOG_md.html#label-v1.2.0.pre-1">v1.2.0.pre-1</a>
 
       <li><a href="CHANGELOG_md.html#label-Z80-3A">Z80:</a>
 
@@ -116,6 +116,8 @@
       <li><a href="README_rdoc.html#label-DSL+API">DSL API</a>
 
       <li><a href="README_rdoc.html#label-Z80+libraries">Z80 libraries</a>
+
+      <li><a href="README_rdoc.html#label-Z80+3D+utilities">Z80 3D utilities</a>
 
       <li><a href="README_rdoc.html#label-ZX+Spectrum+libraries">ZX Spectrum libraries</a>
 
@@ -2640,14 +2642,14 @@
     <span class="container">Z80::Program</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-expression-3F">#expression?</a>
-    &mdash;
-    <span class="container">Z80::Alloc</span>
-
-  <li class="method">
     <a href="Z80/Label.html#method-i-expression-3F">#expression?</a>
     &mdash;
     <span class="container">Z80::Label</span>
+
+  <li class="method">
+    <a href="Z80/Alloc.html#method-i-expression-3F">#expression?</a>
+    &mdash;
+    <span class="container">Z80::Alloc</span>
 
   <li class="method">
     <a href="ZXUtils/MultitaskingIO.html#method-i-find_channel">#find_channel</a>
@@ -2815,9 +2817,9 @@
     <span class="container">ZXUtils::MusicBox::TrackCommands</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-immediate-3F">#immediate?</a>
+    <a href="Z80/Alloc.html#method-i-immediate-3F">#immediate?</a>
     &mdash;
-    <span class="container">Z80::Label</span>
+    <span class="container">Z80::Alloc</span>
 
   <li class="method">
     <a href="Z80/Program.html#method-i-immediate-3F">#immediate?</a>
@@ -2825,9 +2827,9 @@
     <span class="container">Z80::Program</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-immediate-3F">#immediate?</a>
+    <a href="Z80/Label.html#method-i-immediate-3F">#immediate?</a>
     &mdash;
-    <span class="container">Z80::Alloc</span>
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="Z80/Program.html#method-i-import">#import</a>
@@ -2985,6 +2987,11 @@
     <span class="container">Z80::Program::Macros</span>
 
   <li class="method">
+    <a href="Z80/MathInt/Macros.html#method-i-leading_zeros">#leading_zeros</a>
+    &mdash;
+    <span class="container">Z80::MathInt::Macros</span>
+
+  <li class="method">
     <a href="ZXLib/Basic/Variable.html#method-i-length">#length</a>
     &mdash;
     <span class="container">ZXLib::Basic::Variable</span>
@@ -3030,14 +3037,14 @@
     <span class="container">ZXUtils::MusicBox::CommonInstrumentCommands</span>
 
   <li class="method">
-    <a href="ZXUtils/MusicBox/CommonInstrumentCommands.html#method-i-m">#m</a>
-    &mdash;
-    <span class="container">ZXUtils::MusicBox::CommonInstrumentCommands</span>
-
-  <li class="method">
     <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-m">#m</a>
     &mdash;
     <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
+
+  <li class="method">
+    <a href="ZXUtils/MusicBox/CommonInstrumentCommands.html#method-i-m">#m</a>
+    &mdash;
+    <span class="container">ZXUtils::MusicBox::CommonInstrumentCommands</span>
 
   <li class="method">
     <a href="ZXUtils/MusicBox/CommonInstrumentCommands.html#method-i-m1">#m1</a>
@@ -3135,11 +3142,6 @@
     <span class="container">ZXUtils::MusicBox::CommonInstrumentCommands</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-method_missing">#method_missing</a>
-    &mdash;
-    <span class="container">Z80::Label</span>
-
-  <li class="method">
     <a href="Z80/Alloc.html#method-i-method_missing">#method_missing</a>
     &mdash;
     <span class="container">Z80::Alloc</span>
@@ -3148,6 +3150,11 @@
     <a href="Z80/Program.html#method-i-method_missing">#method_missing</a>
     &mdash;
     <span class="container">Z80::Program</span>
+
+  <li class="method">
+    <a href="Z80/Label.html#method-i-method_missing">#method_missing</a>
+    &mdash;
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="ZXUtils/BigFont/Macros.html#method-i-mix_lines8_16">#mix_lines8_16</a>
@@ -3291,6 +3298,11 @@
 
   <li class="method">
     <a href="Z80/MathInt/Macros.html#method-i-mul_const8_24">#mul_const8_24</a>
+    &mdash;
+    <span class="container">Z80::MathInt::Macros</span>
+
+  <li class="method">
+    <a href="Z80/MathInt/Macros.html#method-i-mul_const_ex">#mul_const_ex</a>
     &mdash;
     <span class="container">Z80::MathInt::Macros</span>
 
@@ -3515,14 +3527,14 @@
     <span class="container">ZXLib::Basic::Tokenizer</span>
 
   <li class="method">
-    <a href="ZXUtils/MusicBox/TrackCommands.html#method-i-play">#play</a>
-    &mdash;
-    <span class="container">ZXUtils::MusicBox::TrackCommands</span>
-
-  <li class="method">
     <a href="ZXUtils/AYMusic.html#method-i-play">#play</a>
     &mdash;
     <span class="container">ZXUtils::AYMusic</span>
+
+  <li class="method">
+    <a href="ZXUtils/MusicBox/TrackCommands.html#method-i-play">#play</a>
+    &mdash;
+    <span class="container">ZXUtils::MusicBox::TrackCommands</span>
 
   <li class="method">
     <a href="ZXUtils/MusicBox/TrackCommands.html#method-i-play_chord">#play_chord</a>
@@ -3545,24 +3557,24 @@
     <span class="container">ZXLib::Gfx::Draw::Macros</span>
 
   <li class="method">
-    <a href="Z80/Program.html#method-i-pointer-3F">#pointer?</a>
-    &mdash;
-    <span class="container">Z80::Program</span>
-
-  <li class="method">
-    <a href="Z80/Program/Register.html#method-i-pointer-3F">#pointer?</a>
-    &mdash;
-    <span class="container">Z80::Program::Register</span>
-
-  <li class="method">
     <a href="Z80/Label.html#method-i-pointer-3F">#pointer?</a>
     &mdash;
     <span class="container">Z80::Label</span>
 
   <li class="method">
+    <a href="Z80/Program.html#method-i-pointer-3F">#pointer?</a>
+    &mdash;
+    <span class="container">Z80::Program</span>
+
+  <li class="method">
     <a href="Z80/Alloc.html#method-i-pointer-3F">#pointer?</a>
     &mdash;
     <span class="container">Z80::Alloc</span>
+
+  <li class="method">
+    <a href="Z80/Program/Register.html#method-i-pointer-3F">#pointer?</a>
+    &mdash;
+    <span class="container">Z80::Program::Register</span>
 
   <li class="method">
     <a href="ZXLib/Gfx/Draw/Macros.html#method-i-prepare_args_draw_line_to">#prepare_args_draw_line_to</a>
@@ -3675,14 +3687,14 @@
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-repeat">#repeat</a>
-    &mdash;
-    <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
-
-  <li class="method">
     <a href="ZXUtils/MusicBox/CommonInstrumentCommands.html#method-i-repeat">#repeat</a>
     &mdash;
     <span class="container">ZXUtils::MusicBox::CommonInstrumentCommands</span>
+
+  <li class="method">
+    <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-repeat">#repeat</a>
+    &mdash;
+    <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
 
   <li class="method">
     <a href="ZXLib/Sys/Macros.html#method-i-report_error">#report_error</a>
@@ -3725,14 +3737,19 @@
     <span class="container">Z80Lib3D::Quaternion</span>
 
   <li class="method">
+    <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-rpt">#rpt</a>
+    &mdash;
+    <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
+
+  <li class="method">
     <a href="ZXUtils/MusicBox/CommonInstrumentCommands.html#method-i-rpt">#rpt</a>
     &mdash;
     <span class="container">ZXUtils::MusicBox::CommonInstrumentCommands</span>
 
   <li class="method">
-    <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-rpt">#rpt</a>
+    <a href="Z80/TAP.html#method-i-save_tap">#save_tap</a>
     &mdash;
-    <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
+    <span class="container">Z80::TAP</span>
 
   <li class="method">
     <a href="Z80/TAP.html#method-i-save_tap">#save_tap</a>
@@ -3743,11 +3760,6 @@
     <a href="Z80/TAP/HeaderBody.html#method-i-save_tap">#save_tap</a>
     &mdash;
     <span class="container">Z80::TAP::HeaderBody</span>
-
-  <li class="method">
-    <a href="Z80/TAP.html#method-i-save_tap">#save_tap</a>
-    &mdash;
-    <span class="container">Z80::TAP</span>
 
   <li class="method">
     <a href="Z80/TAP/HeaderBody.html#method-i-screen-3F">#screen?</a>
@@ -3870,11 +3882,6 @@
     <span class="container">ZXLib::Basic::Variable</span>
 
   <li class="method">
-    <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-sub">#sub</a>
-    &mdash;
-    <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
-
-  <li class="method">
     <a href="ZXUtils/MusicBox/InstrumentCommands.html#method-i-sub">#sub</a>
     &mdash;
     <span class="container">ZXUtils::MusicBox::InstrumentCommands</span>
@@ -3883,6 +3890,11 @@
     <a href="ZXUtils/MusicBox/TrackCommands.html#method-i-sub">#sub</a>
     &mdash;
     <span class="container">ZXUtils::MusicBox::TrackCommands</span>
+
+  <li class="method">
+    <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-sub">#sub</a>
+    &mdash;
+    <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
 
   <li class="method">
     <a href="Z80/MathInt/Macros.html#method-i-sub_from">#sub_from</a>
@@ -3895,19 +3907,14 @@
     <span class="container">ZXUtils::MusicBox::InstrumentCommands</span>
 
   <li class="method">
-    <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-sub_track">#sub_track</a>
-    &mdash;
-    <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
-
-  <li class="method">
     <a href="ZXUtils/MusicBox/TrackCommands.html#method-i-sub_track">#sub_track</a>
     &mdash;
     <span class="container">ZXUtils::MusicBox::TrackCommands</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-sublabel-3F">#sublabel?</a>
+    <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-sub_track">#sub_track</a>
     &mdash;
-    <span class="container">Z80::Label</span>
+    <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
 
   <li class="method">
     <a href="Z80/Alloc.html#method-i-sublabel-3F">#sublabel?</a>
@@ -3915,14 +3922,19 @@
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-sublabel_access_expression-3F">#sublabel_access_expression?</a>
+    <a href="Z80/Label.html#method-i-sublabel-3F">#sublabel?</a>
     &mdash;
-    <span class="container">Z80::Alloc</span>
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="Z80/Label.html#method-i-sublabel_access_expression-3F">#sublabel_access_expression?</a>
     &mdash;
     <span class="container">Z80::Label</span>
+
+  <li class="method">
+    <a href="Z80/Alloc.html#method-i-sublabel_access_expression-3F">#sublabel_access_expression?</a>
+    &mdash;
+    <span class="container">Z80::Alloc</span>
 
   <li class="method">
     <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-synchronize_channels">#synchronize_channels</a>
@@ -4025,6 +4037,16 @@
     <span class="container">Float</span>
 
   <li class="method">
+    <a href="Z80/Program/Condition.html#method-i-to_i">#to_i</a>
+    &mdash;
+    <span class="container">Z80::Program::Condition</span>
+
+  <li class="method">
+    <a href="Z80/Alloc.html#method-i-to_i">#to_i</a>
+    &mdash;
+    <span class="container">Z80::Alloc</span>
+
+  <li class="method">
     <a href="Z80/Label.html#method-i-to_i">#to_i</a>
     &mdash;
     <span class="container">Z80::Label</span>
@@ -4035,29 +4057,19 @@
     <span class="container">Z80::Program::Register</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-to_i">#to_i</a>
-    &mdash;
-    <span class="container">Z80::Alloc</span>
-
-  <li class="method">
-    <a href="Z80/Program/Condition.html#method-i-to_i">#to_i</a>
-    &mdash;
-    <span class="container">Z80::Program::Condition</span>
-
-  <li class="method">
     <a href="Z80/Alloc.html#method-i-to_label">#to_label</a>
     &mdash;
     <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Symbol.html#method-i-to_label">#to_label</a>
-    &mdash;
-    <span class="container">Symbol</span>
-
-  <li class="method">
     <a href="Z80/Label.html#method-i-to_label">#to_label</a>
     &mdash;
     <span class="container">Z80::Label</span>
+
+  <li class="method">
+    <a href="Symbol.html#method-i-to_label">#to_label</a>
+    &mdash;
+    <span class="container">Symbol</span>
 
   <li class="method">
     <a href="ZXUtils/MusicBox/Song.html#method-i-to_module">#to_module</a>
@@ -4095,9 +4107,9 @@
     <span class="container">ZXUtils::MusicBox::Song</span>
 
   <li class="method">
-    <a href="ZXLib/Basic/Line.html#method-i-to_s">#to_s</a>
+    <a href="Z80/Label.html#method-i-to_s">#to_s</a>
     &mdash;
-    <span class="container">ZXLib::Basic::Line</span>
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="ZXLib/Basic/Program.html#method-i-to_s">#to_s</a>
@@ -4105,19 +4117,14 @@
     <span class="container">ZXLib::Basic::Program</span>
 
   <li class="method">
-    <a href="ZXLib/Basic/Vars.html#method-i-to_s">#to_s</a>
+    <a href="Z80/Alloc.html#method-i-to_s">#to_s</a>
     &mdash;
-    <span class="container">ZXLib::Basic::Vars</span>
+    <span class="container">Z80::Alloc</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-to_s">#to_s</a>
+    <a href="ZXLib/Basic/Line.html#method-i-to_s">#to_s</a>
     &mdash;
-    <span class="container">Z80::Label</span>
-
-  <li class="method">
-    <a href="ZXLib/Basic/Variable.html#method-i-to_s">#to_s</a>
-    &mdash;
-    <span class="container">ZXLib::Basic::Variable</span>
+    <span class="container">ZXLib::Basic::Line</span>
 
   <li class="method">
     <a href="Z80/TAP/HeaderBody.html#method-i-to_s">#to_s</a>
@@ -4125,9 +4132,14 @@
     <span class="container">Z80::TAP::HeaderBody</span>
 
   <li class="method">
-    <a href="Z80/Alloc.html#method-i-to_s">#to_s</a>
+    <a href="ZXLib/Basic/Variable.html#method-i-to_s">#to_s</a>
     &mdash;
-    <span class="container">Z80::Alloc</span>
+    <span class="container">ZXLib::Basic::Variable</span>
+
+  <li class="method">
+    <a href="ZXLib/Basic/Vars.html#method-i-to_s">#to_s</a>
+    &mdash;
+    <span class="container">ZXLib::Basic::Vars</span>
 
   <li class="method">
     <a href="ZXLib/Basic/Program.html#method-i-to_source">#to_source</a>
@@ -4150,14 +4162,24 @@
     <span class="container">Z80::TAP</span>
 
   <li class="method">
+    <a href="Z80/TAP/HeaderBody.html#method-i-to_tap">#to_tap</a>
+    &mdash;
+    <span class="container">Z80::TAP::HeaderBody</span>
+
+  <li class="method">
     <a href="Z80/TAP.html#method-i-to_tap">#to_tap</a>
     &mdash;
     <span class="container">Z80::TAP</span>
 
   <li class="method">
-    <a href="Z80/TAP/HeaderBody.html#method-i-to_tap">#to_tap</a>
+    <a href="ZXLib/Basic/Program.html#method-i-to_tap_chunk">#to_tap_chunk</a>
     &mdash;
-    <span class="container">Z80::TAP::HeaderBody</span>
+    <span class="container">ZXLib::Basic::Program</span>
+
+  <li class="method">
+    <a href="Z80/TAP.html#method-i-to_tap_chunk">#to_tap_chunk</a>
+    &mdash;
+    <span class="container">Z80::TAP</span>
 
   <li class="method">
     <a href="Z80/TAP.html#method-i-to_tap_chunk">#to_tap_chunk</a>
@@ -4168,16 +4190,6 @@
     <a href="ZXLib/Basic/Variable.html#method-i-to_tap_chunk">#to_tap_chunk</a>
     &mdash;
     <span class="container">ZXLib::Basic::Variable</span>
-
-  <li class="method">
-    <a href="Z80/TAP.html#method-i-to_tap_chunk">#to_tap_chunk</a>
-    &mdash;
-    <span class="container">Z80::TAP</span>
-
-  <li class="method">
-    <a href="ZXLib/Basic/Program.html#method-i-to_tap_chunk">#to_tap_chunk</a>
-    &mdash;
-    <span class="container">ZXLib::Basic::Program</span>
 
   <li class="method">
     <a href="Float.html#method-i-to_z80bin">#to_z80bin</a>
@@ -4208,6 +4220,11 @@
     <a href="ZXUtils/MusicBox/SongCommands.html#method-i-track">#track</a>
     &mdash;
     <span class="container">ZXUtils::MusicBox::SongCommands</span>
+
+  <li class="method">
+    <a href="Z80/MathInt/Macros.html#method-i-trailing_zeros">#trailing_zeros</a>
+    &mdash;
+    <span class="container">Z80::MathInt::Macros</span>
 
   <li class="method">
     <a href="Z80/MathInt/Macros.html#method-i-twos_complement16_by_sgn">#twos_complement16_by_sgn</a>
@@ -4380,14 +4397,14 @@
     <span class="container">ZXUtils::MusicBox::CommonInstrumentCommands</span>
 
   <li class="method">
-    <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-w">#w</a>
-    &mdash;
-    <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
-
-  <li class="method">
     <a href="ZXUtils/MusicBox/CommonInstrumentCommands.html#method-i-w">#w</a>
     &mdash;
     <span class="container">ZXUtils::MusicBox::CommonInstrumentCommands</span>
+
+  <li class="method">
+    <a href="ZXUtils/MusicBox/MultitrackCommands.html#method-i-w">#w</a>
+    &mdash;
+    <span class="container">ZXUtils::MusicBox::MultitrackCommands</span>
 
   <li class="method">
     <a href="ZXUtils/MusicBox/CommonInstrumentCommands.html#method-i-wait">#wait</a>
@@ -4450,14 +4467,14 @@
     <span class="container">ZXLib::Gfx::Macros</span>
 
   <li class="method">
-    <a href="Z80/Label.html#method-i-7C">#|</a>
-    &mdash;
-    <span class="container">Z80::Label</span>
-
-  <li class="method">
     <a href="Z80/Alloc.html#method-i-7C">#|</a>
     &mdash;
     <span class="container">Z80::Alloc</span>
+
+  <li class="method">
+    <a href="Z80/Label.html#method-i-7C">#|</a>
+    &mdash;
+    <span class="container">Z80::Label</span>
 
   <li class="method">
     <a href="Z80/Program/Register.html#method-i-7C">#|</a>

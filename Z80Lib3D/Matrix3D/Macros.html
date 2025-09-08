@@ -185,6 +185,10 @@
 <dd>
 <p>A screen coordinates perspective adjustment: 0-7.</p>
 </dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>optimize</code>
+<dd>
+<p>Optimization options: <code>:size</code>, <code>:time</code>, <code>:unroll</code>, <code>:time_alt</code>, <code>:unroll_alt</code>.</p>
+</dd></dl>
 </li></ul>
 
 <p>When the routine completes:</p>
@@ -213,7 +217,7 @@
 
           
           <div class="method-source-code" id="apply_matrix-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 61</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 62</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix</span>(<span class="ruby-identifier">matrix</span>, <span class="ruby-value">vertices:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">scrx0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scry0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scrz0:</span><span class="ruby-value">128</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-value">7</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;apply_matrix: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">scrx0</span>, <span class="ruby-identifier">scry0</span>, <span class="ruby-identifier">scrz0</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">l</span>) }
   <span class="ruby-identifier">mx_optimize</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">optimize</span>
@@ -368,6 +372,10 @@ HL = HL + [SP]*x</pre>
 <dd>
 <p>Whether the result should be set (<code>true</code>) or added to the previous value (<code>false</code>).</p>
 </dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>optimize</code>
+<dd>
+<p>Optimization options: <code>:size</code>, <code>:time</code> or <code>:unroll</code>.</p>
+</dd></dl>
 </li></ul>
 
 <p>Modifies: <code>sp</code>, <code>af</code>, <code>hl&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, optionally preserves <code>x</code>, swaps registers.</p>
@@ -376,7 +384,7 @@ HL = HL + [SP]*x</pre>
 
           
           <div class="method-source-code" id="apply_matrix_element-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 231</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 232</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix_element</span>(<span class="ruby-identifier">x</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
@@ -442,13 +450,9 @@ HL = HL + [SP]*x</pre>
 </dd></dl>
 
 <p>Options:</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<ul><li><dl class="rdoc-list note-list"><dt><code>optimize</code>
 <dd>
-<p>A 16-bit temporary register <code>de</code> or <code>bc</code> from the alternative register set.</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>t</code>
-<dd>
-<p>An 8-bit temporary register from the alternative register set.</p>
+<p>Optimization options: <code>:size</code>, <code>:time</code> or <code>:unroll</code>.</p>
 </dd></dl>
 </li></ul>
 
@@ -498,13 +502,33 @@ HL = HL + [SP]*x</pre>
 
         <div class="method-description">
           
-          
+          <p>Retrieves and copies sin/cos values for an <code>angle</code> to a <code>target</code> <a href="../../Z80/Utils/SinCos/SinCos.html"><code>Primitives::SinCos</code></a> object.</p>
+<dl class="rdoc-list note-list"><dt><code>target</code>
+<dd>
+<p>A target <a href="../../Z80/Utils/SinCos/SinCos.html"><code>Primitives::SinCos</code></a> object label.</p>
+</dd><dt><code>angle</code>
+<dd>
+<p>An 8-bit angle normalized in [0, 255] range.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>sincos</code>
+<dd>
+<p>An address of a populated <a href="../../Z80/Utils/SinCos/SinCos.html"><code>Primitives::SinCos</code></a> table, aligned to 256 bytes.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>mask</code>
+<dd>
+<p>An optional 8-bit register holding preloaded mask value: <code>0xFC</code> (<code>0b11111100</code>).</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifes <code>sp</code>, <code>af</code>, <code>hl</code>.</p>
           
           
 
           
           <div class="method-source-code" id="copy_sincos_from_angle-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 272</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 294</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">copy_sincos_from_angle</span>(<span class="ruby-identifier">target</span>, <span class="ruby-identifier">angle</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">sincos:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sincos</span>, <span class="ruby-value">mask:</span><span class="ruby-keyword">nil</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">angle</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">angle</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
@@ -530,7 +554,7 @@ HL = HL + [SP]*x</pre>
         
         <div class="method-heading">
           <span class="method-name">course_to_rotation</span><span
-            class="method-args">(rotation, yaw=a, pitch=b, roll=c, sincos:self.sincos, restore_sp:true, save_sp:true)</span>
+            class="method-args">(rotation, yaw=a, pitch=b, roll=c, sincos:self.sincos, save_sp:true)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -539,16 +563,42 @@ HL = HL + [SP]*x</pre>
 
         <div class="method-description">
           
-          
+          <p>Converts a given course (yaw,pitch,roll) to a target <a href="../Primitives/Rotation.html"><code>Primitives::Rotation</code></a>.</p>
+<dl class="rdoc-list note-list"><dt><code>rotation</code>
+<dd>
+<p>A target <a href="../Primitives/Rotation.html"><code>Primitives::Rotation</code></a> object label.</p>
+</dd><dt><code>yaw</code>
+<dd>
+<p>An 8-bit angle normalized in [0, 255] range.</p>
+</dd><dt><code>pitch</code>
+<dd>
+<p>An 8-bit angle normalized in [0, 255] range.</p>
+</dd><dt><code>roll</code>
+<dd>
+<p>An 8-bit angle normalized in [0, 255] range.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>sincos</code>
+<dd>
+<p>An address of a populated <a href="../../Z80/Utils/SinCos/SinCos.html"><code>Primitives::SinCos</code></a> table, aligned to 256 bytes.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>save_sp</code>
+<dd>
+<p>A boolean flag indicating that the <code>sp</code> register should be saved and restored. Otherwise <code>sp</code> will be clobbered.</p>
+</dd></dl>
+</li></ul>
+
+<p>Modifes <code>sp</code>, <code>af</code>, <code>hl</code>, <code>de</code>.</p>
           
           
 
           
           <div class="method-source-code" id="course_to_rotation-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 251</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">course_to_rotation</span>(<span class="ruby-identifier">rotation</span>, <span class="ruby-identifier">yaw</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">pitch</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">roll</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">sincos:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sincos</span>, <span class="ruby-value">restore_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>)
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 264</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">course_to_rotation</span>(<span class="ruby-identifier">rotation</span>, <span class="ruby-identifier">yaw</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">pitch</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">roll</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">sincos:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sincos</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
-                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">restore_sp_p</span>], <span class="ruby-identifier">sp</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">save_sp</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">restore_sp</span>
+                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">restore_sp_p</span>], <span class="ruby-identifier">sp</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">save_sp</span>
     <span class="ruby-identifier">select</span>(<span class="ruby-identifier">sincos</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x00FF</span>, <span class="ruby-operator">&amp;</span><span class="ruby-value">:zero?</span>).<span class="ruby-identifier">then</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">_</span><span class="ruby-operator">|</span>
                 <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">de</span>, (<span class="ruby-identifier">sincos</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF00</span>)<span class="ruby-operator">|</span><span class="ruby-value">0b11111100</span>
     <span class="ruby-keyword">end</span>.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
@@ -559,7 +609,7 @@ HL = HL + [SP]*x</pre>
      <span class="ruby-identifier">roll</span>,  <span class="ruby-identifier">rotation</span>.<span class="ruby-identifier">roll</span>].<span class="ruby-identifier">each_slice</span>(<span class="ruby-value">2</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">angle</span>, <span class="ruby-identifier">target</span><span class="ruby-operator">|</span>
                 <span class="ruby-identifier">copy_sincos_from_angle</span>(<span class="ruby-identifier">target</span>, <span class="ruby-identifier">angle</span>, <span class="ruby-value">sincos:</span><span class="ruby-identifier">d</span>, <span class="ruby-value">mask:</span><span class="ruby-identifier">e</span>)
     <span class="ruby-keyword">end</span>
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">restore_sp</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">save_sp</span>
       <span class="ruby-identifier">restore_a</span>     <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">sp</span>, <span class="ruby-value">0</span>
       <span class="ruby-identifier">restore_sp_p</span>  <span class="ruby-identifier">as</span> <span class="ruby-identifier">restore_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
     <span class="ruby-keyword">end</span>
@@ -588,19 +638,51 @@ HL = HL + [SP]*x</pre>
 
         <div class="method-description">
           
-          <p>cosa*cosb cosa*cosc cosa*sinb=csiab cosa*sinc cosb*cosc cosb*sinc sina*cosb sina*cosc sina*sinb=sinab sina*sinc sinab*sinc sinab*cosc csiab*sinc csiab*cosc</p>
+          <p>Converts a <a href="../Primitives/Rotation.html"><code>Primitives::Rotation</code></a> data into a <a href="../Primitives/Matrix.html"><code>Primitives::Matrix</code></a> object.</p>
+<dl class="rdoc-list note-list"><dt><code>matrix</code>
+<dd>
+<p>A target <a href="../Primitives/Matrix.html"><code>Primitives::Matrix</code></a> object label.</p>
+</dd><dt><code>rotation</code>
+<dd>
+<p>A source <a href="../Primitives/Rotation.html"><code>Primitives::Rotation</code></a> object label.</p>
+</dd></dl>
 
-<p>[cosa*cosb, cosa*sinb*sinc-sina*cosc, cosa*sinb*cosc+sina*sinc,</p>
-
-<pre>sina*cosb, sina*sinb*sinc+cosa*cosc, sina*sinb*cosc-cosa*sinc,
--sinb    , cosb*sinc               , cosb*cosc]</pre>
+<p>Options:</p>
+<dl class="rdoc-list note-list"><dt><code>inline_mul</code>
+<dd>
+<p>A boolean indicating whether to inline multiplication routine.</p>
+</dd><dt><code>subroutine</code>
+<dd>
+<p>A boolean indicating whether to create a subroutine.</p>
+</dd><dt><code>optimize</code>
+<dd>
+<p>A multiplication optimization argument for <a href="../../Z80/MathInt/Macros.html#method-i-mul16"><code>Z80::MathInt::Macros#mul16</code></a>.</p>
+</dd></dl>
           
           
 
           
           <div class="method-source-code" id="rotation_to_matrix-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 302</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 315</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rotation_to_matrix</span>(<span class="ruby-identifier">matrix</span>, <span class="ruby-identifier">rotation</span>, <span class="ruby-value">inline_mul:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
+  <span class="ruby-comment"># cos(a)*cos(b)</span>
+  <span class="ruby-comment"># cos(a)*cos(c)</span>
+  <span class="ruby-comment"># cos(a)*sin(b)=(cos(a)*sin(b))</span>
+  <span class="ruby-comment"># cos(a)*sin(c)</span>
+  <span class="ruby-comment"># cos(b)*cos(c)</span>
+  <span class="ruby-comment"># cos(b)*sin(c)</span>
+  <span class="ruby-comment"># sin(a)*cos(b)</span>
+  <span class="ruby-comment"># sin(a)*cos(c)</span>
+  <span class="ruby-comment"># sin(a)*sin(b)=(sin(a)*sin(b))</span>
+  <span class="ruby-comment"># sin(a)*sin(c)</span>
+  <span class="ruby-comment"># (sin(a)*sin(b))*sin(c)</span>
+  <span class="ruby-comment"># (sin(a)*sin(b))*cos(c)</span>
+  <span class="ruby-comment"># (cos(a)*sin(b))*sin(c)</span>
+  <span class="ruby-comment"># (cos(a)*sin(b))*cos(c)</span>
+  <span class="ruby-comment">#</span>
+  <span class="ruby-comment"># [cos(a)*cos(b), cos(a)*sin(b)*sin(c)-sin(a)*cos(c), cos(a)*sin(b)*cos(c)+sin(a)*sin(c),</span>
+  <span class="ruby-comment">#  sin(a)*cos(b), sin(a)*sin(b)*sin(c)+cos(a)*cos(c), sin(a)*sin(b)*cos(c)-cos(a)*sin(c),</span>
+  <span class="ruby-comment">#  -sin(b)      , cos(b)*sin(c)                     , cos(b)*cos(c)]</span>
   <span class="ruby-identifier">multiply</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">inline_mul</span>
     <span class="ruby-identifier">proc</span> <span class="ruby-keyword">do</span>
       <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>  <span class="ruby-comment"># b|hl = bc * de</span>

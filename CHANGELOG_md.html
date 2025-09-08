@@ -60,7 +60,7 @@
   <h3>Table of Contents</h3>
 
   <ul class="link-list" role="directory">
-    <li><a href="#label-v1.1.1.pre-2">v1.1.1.pre-2</a>
+    <li><a href="#label-v1.2.0.pre-1">v1.2.0.pre-1</a>
     <li><a href="#label-Z80-3A">Z80:</a>
     <li><a href="#label-ZXLib-3A">ZXLib:</a>
     <li><a href="#label-Z80Lib3D-3A">Z80Lib3D:</a>
@@ -94,13 +94,25 @@
 
 <main role="main" aria-label="Page CHANGELOG.md">
 
-<h1 id="label-v1.1.1.pre-2">v1.1.1.pre-2<span><a href="#label-v1.1.1.pre-2">&para;</a> <a href="#top">&uarr;</a></span></h1>
+<h1 id="label-v1.2.0.pre-1">v1.2.0.pre-1<span><a href="#label-v1.2.0.pre-1">&para;</a> <a href="#top">&uarr;</a></span></h1>
 
 <h2 id="label-Z80-3A">Z80:<span><a href="#label-Z80-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
 <ul><li>
+<p>Added <a href="Z80/MathInt/Macros.html#method-i-mul_const_ex"><code>Z80::MathInt::Macros#mul_const_ex</code></a> macro as an alternative to mul_const.</p>
+</li><li>
+<p>Added options :sl and :zero to <a href="Z80/MathInt/Macros.html#method-i-sll8_16"><code>Z80::MathInt::Macros#sll8_16</code></a> and optimized the routine.</p>
+</li><li>
+<p><a href="Z80/MathInt/Macros.html#method-i-neg16"><code>Z80::MathInt::Macros#neg16</code></a> accepts a constant or nil argument allowing to sign extend 8-bit integers to a negative 16-bit.</p>
+</li><li>
+<p>New helper functions <a href="Z80/MathInt/Macros.html#method-i-leading_zeros"><code>Z80::MathInt::Macros#leading_zeros</code></a> and trailing_zeros.</p>
+</li><li>
+<p>New macro <a href="Z80/MathInt/Macros.html#method-i-mul8_24a"><code>Z80::MathInt::Macros#mul8_24a</code></a> introduce faster multiplication algorithm.</p>
+</li><li>
+<p>Added :mbit9_carry option to <a href="Z80/MathInt/Macros.html#method-i-mul8_24"><code>Z80::MathInt::Macros#mul8_24</code></a>.</p>
+</li><li>
 <p>New method Condition#not to logically inverse a branching condition.</p>
 </li><li>
-<p><a href="Z80/MathInt/Macros.html#method-i-mul"><code>Z80::MathInt::Macros#mul</code></a>* macros allow some combination of arguments that wasn&#39;t possible before.</p>
+<p><a href="Z80/MathInt/Macros.html#method-i-mul"><code>Z80::MathInt::Macros#mul</code></a>… macros allow some combination of arguments that wasn&#39;t possible before.</p>
 </li><li>
 <p>New macros <a href="Z80/MathInt/Macros.html#method-i-mul16"><code>Z80::MathInt::Macros#mul16</code></a>, mul16_signed and mul16_signed9 introduce faster multiplication algorithm  and :unroll optimization option.</p>
 </li><li>
@@ -108,11 +120,13 @@
 </li><li>
 <p>Added options :check0_far, :k_leq_m, :ignore_cf to <a href="Z80/MathInt/Macros.html#method-i-divmod"><code>Z80::MathInt::Macros#divmod</code></a>, divmod16_8 and divmod24_8.</p>
 </li><li>
-<p>Added :time_alt, :unroll, and :unroll_alt optimization options to <a href="Z80/MathInt/Macros.html#method-i-divmod"><code>Z80::MathInt::Macros#divmod</code></a>, divmod16_8, divmod24_8 and internally reworked them.</p>
+<p>Internally reworked and added :time_alt, :unroll, and :unroll_alt optimization options to <a href="Z80/MathInt/Macros.html#method-i-divmod"><code>Z80::MathInt::Macros#divmod</code></a>, divmod16_8, divmod24_8.</p>
 </li><li>
 <p>Optimized internal loop of <a href="Z80/MathInt/Macros.html#method-i-mul"><code>Z80::MathInt::Macros#mul</code></a>, mul8 and mul8_24 routines.</p>
 </li><li>
-<p>Added option :optimize to <a href="Z80/MathInt/Macros.html#method-i-mul_signed"><code>Z80::MathInt::Macros#mul_signed</code></a>.</p>
+<p>Added options :kbit9_carry, :tl_is_zero and :optimize to <a href="Z80/MathInt/Macros.html#method-i-mul"><code>Z80::MathInt::Macros#mul</code></a>.</p>
+</li><li>
+<p>Added :optimize option to <a href="Z80/MathInt/Macros.html#method-i-mul_signed"><code>Z80::MathInt::Macros#mul_signed</code></a>.</p>
 </li><li>
 <p>New macro <a href="Z80/MathInt/Macros.html#method-i-mul8_signed"><code>Z80::MathInt::Macros#mul8_signed</code></a>.</p>
 </li><li>
