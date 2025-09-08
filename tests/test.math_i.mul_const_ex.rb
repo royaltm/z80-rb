@@ -168,7 +168,7 @@ include ZXLib
 
 [MTest1, MTest2].each do |mtest_klass|
     mtest = mtest_klass.new 65536 - mtest_klass.code.bytesize
-    puts mtest.debug
+    # puts mtest.debug
     puts "OPTIMIZE: #{OPTIMIZE} K_REG: #{K_REG}"
     program = Basic.parse_source <<-END
        1 DEF FN n(x)=x-(65536 AND x>=32768): DEF FN m(a,b)=USR #{mtest[:test_pos]}: DEF FN s(a,b)=FN n(USR #{mtest[:test_sig]}): DEF FN a(a,b)=USR #{mtest[:test_pos_a]}: DEF FN q(a,b)=FN n(USR #{mtest[:test_sig_a]})

@@ -90,6 +90,7 @@ TESTS = %w[
   test.math_i.mul9_24.rb
   test.math_i.mul_const.rb
   test.math_i.mul_const8_24.rb
+  test.math_i.mul_const_ex.rb
   test.math_i.mul_signed9.rb
   test.math_i.mul_signed9_24.rb
   test.zxlib.basic.se.rb
@@ -106,6 +107,7 @@ end
 BENCHES = %w[
   bench.divmod.rb
   bench.mul8_24.rb
+  bench.mul_const.rb
   bench.mul_signed9.rb
   bench.mul_signed9_lim.rb
   bench.rnd.rb
