@@ -216,6 +216,7 @@ include ZXLib
         test_mul
         find_args
         multiply
+        multiply_a
         multadd
     ].each do |label|
         puts "#{label.ljust(20)}: 0x#{mtest[label].to_s 16} - #{mtest[label]}, size: #{mtest['+'+label]}"

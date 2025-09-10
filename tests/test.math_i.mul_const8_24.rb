@@ -219,6 +219,8 @@ include ZXLib
     ].each do |label|
         puts "#{label.ljust(20)}: 0x#{mtest[label].to_s 16} - #{mtest[label]}, size: #{mtest['+'+label]}"
     end
+    puts "mul      0..256 size: " + (0..256).inject(0) {|a, n| a+mtest["+mul_#{n}"]}.to_s
+    puts "madd     0..256 size: " + (0..256).inject(0) {|a, n| a+mtest["+madd_#{n}"]}.to_s
 
     program.save_tap "#{mtest.class::NAME}.tap", line:9999
     mtest.save_tap "#{mtest.class::NAME}.tap", append:true
