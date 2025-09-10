@@ -3,6 +3,8 @@ v1.2.0.pre-1
 
 Z80:
 ---
+* Optimized Z80::MathInt::Macros#rnd by using #mul_const8_24a (size -10, time -40).
+* Added Z80::MathInt::Macros#mul_const8_24a macro as an alternative to #mul_const8_24.
 * Added Z80::MathInt::Macros#mul_const_ex macro as an alternative to #mul_const.
 * Added options :sl and :zero to Z80::MathInt::Macros#sll8_16 and optimized the routine.
 * Z80::MathInt::Macros#neg16 accepts a constant or nil argument allowing to sign extend 8-bit integers to a negative 16-bit.
