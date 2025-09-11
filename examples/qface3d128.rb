@@ -9,6 +9,7 @@ require 'z80lib3d/primitives'
 require 'z80lib3d/matrix'
 require 'z80lib3d/quaternion'
 
+## Tools for Vector3D
 module Vec3
   ## Return a vector between point a and b
   def vec3from(a, b)
@@ -16,6 +17,7 @@ module Vec3
     bx, by, bz = b
     [bx - ax, by - ay, bz - az]
   end
+
   ## Returns a vector square norm.
   def vec3norm_q(v)
     x, y, z = v
@@ -47,6 +49,7 @@ module Vec3
   end
 end
 
+## A helper struct (unused in this demo)
 Vector3D = ::Struct.new :x, :y, :z do
   include Vec3
   extend Vec3
@@ -67,7 +70,19 @@ Vector3D = ::Struct.new :x, :y, :z do
   end
 end
 
+##
+# A helper struct used by Object3D
+#
+# * +indices+:: an array of 0-based vertex indices (at least 3),
+# * +surface+:: an optional array tuple of 3 indices that is used to calculate face direction,
+# * +decoration+:: an optional surface decoration data address or a Z80 program label.
+#
+# If the +surface+ is +nil+ the face direction is calculated from the first 3 indices.
 Face3D = ::Struct.new :indices, :surface, :decoration do
+  ##
+  # Creates an Face3D object with given arguments.
+  #
+  # +vertices+ should be an array of [x, y, z] triplets and is only provided here for validation of the +indices+.
   def self.make(vertices, indices, surface:nil, decoration:nil)
     raise ArgumentError, "at least 3 indices expected" if !indices.is_a?(Array) or indices.length < 3
     raise ArgumentError, "expected array of vertices" if !vertices.is_a?(Array) or vertices.any?{|v| !v.respond_to?(:to_a)}
@@ -83,17 +98,41 @@ Face3D = ::Struct.new :indices, :surface, :decoration do
   end
 end
 
+##
+# A helper struct for creating 3D objects data for Z80 programs.
+#
+# * +vertices+:: an array of [x, y, z] triplets (points in 3D space),
+# * +edges+:: a map of {[A, B] -> edge index} used for edges deduplication, where A and B
+#             are vertex indices,
+# * +faces+:: an array of Face3D objects.
 Object3D = ::Struct.new :vertices, :edges, :faces do
+  ##
+  # Creates an initial Object3D containing only vertices without any faces or edges.
+  #
+  # * +vertices+:: [x, y, z] triplets (points in 3D space).
+  #
+  # If a code block is given the block is called with an argument containing an initialized
+  # object and can be used to populate it with faces.
+  #
+  # The center coordinate of the object is assumed to be [0, 0, 0].
   def self.make(*vertices)
     obj = new vertices, Hash.new, []
     yield obj if block_given?
     obj
   end
-
+  ##
+  # Scale all vertices in place by the given factor.
   def scale!(sc)
     vertices.map!{|x,y,z| [x*sc, y*sc, z*sc]}
   end
-
+  ##
+  # Creates and adds a new face to this object.
+  # 
+  # * +indices+:: at least 3 0-based vertex indices,
+  # * +surface+:: an optional array tuple of 3 indices that is used to calculate face direction,
+  # * +decoration+:: an optional surface decoration data address or a Z80 program label.
+  #
+  # If the +surface+ is +nil+ the face direction is calculated from the first 3 indices.
   def face!(*indices, surface:nil, decoration:nil)
     faces.push Face3D.make(vertices, indices, surface:surface, decoration:decoration)
     (indices + [indices.first]).each_cons(2) do |a,b|
@@ -102,7 +141,15 @@ Object3D = ::Struct.new :vertices, :edges, :faces do
       end
     end
   end
-
+  ##
+  # Creates a namespace containing Z80 program data from this object and returns its label.
+  #
+  # +prog+:: should be a Z80 program class to add a namespace to,
+  # +name+:: should be a label name as a symbol.
+  #
+  # The object must contain some faces, otherwise an error is raised.
+  #
+  # <b>NOTE</b>: Currently this function uses +edge+ and +face+ macros to create face and edge data.
   def to_prog(prog, name)
     raise ArgumentError, "no edges!" if edges.empty?
     eind = self.edges.invert
@@ -134,10 +181,10 @@ class QFace3D
   include Z80::TAP
   include Z80Lib3D::Primitives
 
-  OPTIMIZE = :unroll
-  MATRIX_OPTIMIZE = :unroll_alt
+  OPTIMIZE = :unroll # :size :time :unroll
+  MATRIX_OPTIMIZE = :unroll_alt # :size :time :time_alt :unroll :unroll_alt
 
-  ## Color attributes
+  ## Initial color attributes
   BG_ATTR = 0b01100000
 
   ## Perspective scale factor: [0-7]
@@ -163,25 +210,99 @@ class QFace3D
   # Macros #
   ##########
 
+  # Macro used by Object3D.to_prog
+  #
+  # Crates a face entry struct
+  # < s1, s2, s3: addresses of scr coordinates of 3 face points
+  # < edges: a list of edge address labels
+  macro :face do |_, s1, s2, s3, *edges, decoration:nil|
+    decoration = 0 unless decoration
+    raise ArgumentError, "no edges!" if edges.empty?
+    points            dw   s1, s2, s3
+    count             db   edges.length
+    edges.each do |edge|
+                      dw   edge
+    end
+                      dw   decoration
+  end
+
+  # Macro used by Object3D.to_prog
+  #
+  # Creates the edge drawing routine with a frame counter variable header
+  # < iy: drawing routine address
+  # < v1: Vertex address label
+  # < v2: Vertex address label
+  macro :edge do |_, v1, v2, frame_counter:0|
+      frame           db   frame_counter    # (1) frame
+      run             ld   de, [v1.scr]     # (4) 20
+                      ld   hl, [v2.scr]     # (3) 16
+                      jp   (iy)             # (2) 8
+  end
+
+  # Draws a line between vertices.
+  # < v1: Vertex label
+  # < v2: Vertex label
+  # < draw_line: a drawing routine address
+  macro :draw_wire do |_, v1, v2, draw_line: draw.line_to|
+                      ld   de, [v1.scr]     # 20
+                      ld   hl, [v2.scr]     # 16
+                      call draw_line
+  end
+
+  # Draws a poly-line between many vertices.
+  # < vertices: an array of Vertex labels
+  # < closed: if the last vertex should be connected to the first
+  # < draw_line: a drawing routine address
+  macro :draw_poly_wire do |_, *vertices, closed: true, draw_line: draw.line_to|
+    raise ArgumentError if vertices.length < 3
+    vertices.each_cons(2) do |v1, v2|
+                      draw_wire v1, v2, draw_line:draw_line
+    end
+    if closed
+                      draw_wire vertices.last, vertices.first, draw_line:draw_line
+    end
+  end
+
+  macro :print_text do |eoc, text|
+                        ld   de, text_data
+                        ld   bc, +text_data
+                        call rom.pr_string
+                        jr   eoc
+    text_data           data ZXLib::Basic::Vars.program_text_to_string text
+  end
+
   ##
-  # Draws faces by determining if the face visible side is towards the viewer first.
+  # Draws faces, first determining if the face visible side is towards the viewer.
+  #
   # If the face front is towards the viewer (z < 0) draws that face.
-  # Each edge is drawn only once. The +frame+ value determines if the edge was already drawn or not.
+  #
+  # Each edge is drawn only once.
+  #
+  # The +frame+ value, accessible at +frame_p+ sub-label is used to check and mark
+  # edges, determining if the edge was already drawn or not.
+  #
+  # The +frame+ value should be increased before each new frame is drawn.
   #
   # < faces: an address of a first face or hl
-  # < draw_line: an address of a draw line to routine or iy
+  # < draw_line: an address of a draw line_to routine or iy
   # > hl: an address of the last byte of the end marker
   #
   # stack depth: 8 bytes
   macro :draw_faces do |_, faces:hl, draw_line: draw.line_to|
-                      ld   [restore_sp_p], sp
                       ld   iy, draw_line unless draw_line == iy
                       ld   hl, faces unless faces == hl
     # First we take 3 face screen coordinates, calculate 2 vectors from them
     # and calculate the Z value of a cross-product of those vectors.
+    #
     # If the Z value is < 0 the face edge vectors are directed clock-wise
     # and we should draw it.
-    # The screen ys axis is reversed (growing downwards), so:
+    #
+    # The screen ys axis is reversed (growing downwards), given p0, p1, p2:
+    #
+    # v1 = p1 - p0 = [xp1 - xp0, -(yp1 - yp0)] = [dx1, dy1]
+    # v2 = p2 - p1 = [xp2 - xp1, -(yp2 - yp1)] = [dx2, dy2]
+    # z = xv1 * -yv2 - (-yv1 * xv2) # reversed y
+    # z = yv1 * xv2 - xv1 * yv2
     # z = (xp1 - xp0) * -(yp2 - yp1) - (-(yp1 - yp0) * (xp2 - xp1))
     # z = (yp1 - yp0) * (xp2 - xp1)  - (xp1 - xp0) * (yp2 - yp1)
     # z = dy1         * dx2          - dx1         * dy2
@@ -222,9 +343,12 @@ class QFace3D
                       sub  [hl]                   # af: xp2 - xp1 = dx2
 
                       exx
+                      dc!
+                      dc! "*** (dy1 * dx2) ***"
                       # dy1 * dx2 (c|d: dy1 * C|a: dx2)
                       # c|hl: -> (dy1 * dx2)
                       mul_signed9 c, d, a, tt:de, m_is_zero_zf:true, k_full_range:false, m_full_range:false, optimize:OPTIMIZE
+                      dc! "*******************"
                       push hl                     # c|hl: -> (dy1 * dx2)
 
                       exx
@@ -238,32 +362,52 @@ class QFace3D
                       sbc  a, a                   # a: sign of dy2
                       ld   b, a                   # b|d: dy2
                       ex   af, af                 # af: dx1
+                      dc!
+                      dc! "*** (dy2 * dx1) ***"
                       # dy2 * dx1 (b|d: dy2 * C|a: dx1)
                       # b|hl: -> (dy2 * dx1)
                       mul_signed9 b, d, a, tt:de, m_is_zero_zf:true, k_full_range:false, m_full_range:false, optimize:OPTIMIZE
+                      dc! "*******************"
                       ex   de, hl                 # b|de: -> (dy2 * dx1)
                       pop  hl                     # c|hl: -> (dy1 * dx2)
 
+                      dc!
+                      dc! "*** (dy1 * dx2) - (dx1 * dy2) ***"
                       # dy1 * dx2 - dx1 * dy2
                       anda a                      # CF: 0
-                      sbc  hl, de                 # (dy1 * dx2) - (dy2 * dx1)
+                      sbc  hl, de                 # z = (dy1 * dx2) - (dy2 * dx1)
                       ld   a, c
                       sbc  a, b                   # af|hl = (dy1 * dx2) - (dy2 * dx1)
 
+                      #
+                      # SF: 1 - z < 0, 0: z >= 0
+                      #
+
                       exx
-                      ex   de, hl                 # hl: -> count
-                      ld   b, [hl]                # count
+                      ex   de, hl                 # hl: -> *count
+
+                      dc!
+                      dc! "*** DRAW FACE ***"
+
+                      ld   b, [hl]                # edge count (assert != 0)
                       inc  hl                     # hl: -> *edgeN
                       jp   M, draw_face           # z < 0 (face to camera)
 
-    skip_face         inc  b                      # b: count + 1
-                      ld   a, b                   # b: count + 1
-                      add  a, b                   # a: (count + 1) * 2
-                      adda_to h, l                # hl: -> next face or -128
+                      dc!
+                      dc! "*** SKIP FACE ***"
+
+                      inc  b                      # b: count + 1 (to skip decoration)
+                      ld   a, b                   # a: count + 1
+                      add  a, b                   # a: (count + 1) * 2 (dw size)
+                      adda_to h, l                # hl: -> next face or 0
                       jp   next_face
 
-    draw_face         ld   a, 0
-    frame_p           draw_face + 1
+                      dc!
+                      dc! "*** DRAW EDGES ***"
+
+    draw_face         ld   a, 0                   # a: frame
+    frame_p           as draw_face + 1
+
     skip_loop         ld   e, [hl]                # hl: -> *edgeN
                       inc  hl
                       ld   d, [hl]                # de: -> edgeN.frame
@@ -271,6 +415,9 @@ class QFace3D
                       ex   de, hl                 # de: -> *edgeN+1, hl -> edgeN.frame
                       cp   [hl]                   # was this edge drawn?
                       jr   Z, skip_edge
+
+                      dc!
+                      dc! "*** DRAW EDGE ***"
 
                       ld   [hl], a                # update edgeN.frame
                       inc  hl                     # hl: -> edgeN.run
@@ -285,16 +432,20 @@ class QFace3D
     skip_edge         ex   de, hl                 # hl: -> *edgeN+1
                       djnz skip_loop
 
+                      dc!
+                      dc! "*** DECORATION ***"
+
     check_decoration  ld   e, [hl]                # hl: -> *decoration object ptr
                       inc  hl
                       ld   d, [hl]
                       inc  hl                     # hl: -> next face
-                      ld   a, e
-                      ora  d                      # de: -> decoration object
-                      jr   Z, next_face
+                      ld   a, e                   # de: -> decoration object
+                      ora  d
+                      jr   Z, next_face           # no decoration
                       push hl                     # save face pointer
-                      ex   de, hl                 # hl: -> decoration object
+                      ex   de, hl                 # hl: -> decoration vertices
                       call apply_matrix_to_vertices
+                                                  # hl: -> decoration draw edges routine
                       call rom.call_jump          # effectively call (hl)
                       pop  hl                     # restore face pointer
 
@@ -303,64 +454,7 @@ class QFace3D
                       ld   d, [hl]                # d|e: -> points[N]
                       ld   a, e
                       ora  d
-                      jp   NZ, face_loop
-  end
-
-  # Crates a face entry struct
-  # < s1, s2, s3: addresses of scr coordinates of 3 face points
-  # < edges: a list of edge labels
-  macro :face do |_, s1, s2, s3, *edges, decoration:nil|
-    decoration = 0 unless decoration
-    raise ArgumentError, "no edges!" if edges.empty?
-    points            dw   s1, s2, s3
-    count             db   edges.length
-    edges.each do |edge|
-                      dw   edge
-    end
-                      dw   decoration
-  end
-
-  # Creates the edge drawing routine with a frame counter variable header
-  # < iy: drawing routine address
-  # < v1: Vertex label
-  # < v2: Vertex label
-  macro :edge do |_, v1, v2, frame_counter:0|
-      frame           db   frame_counter    # (1) frame
-      run             ld   de, [v1.scr]     # (4) 20
-                      ld   hl, [v2.scr]     # (3) 16
-                      jp   (iy)             # (2) 8
-  end
-
-  # Draws a line between vertices.
-  # < v1: Vertex label
-  # < v2: Vertex label
-  # < draw_line: a drawing routine address
-  macro :draw_wire do |_, v1, v2, draw_line: draw.line_to|
-                      ld   de, [v1.scr]     # 20
-                      ld   hl, [v2.scr]     # 16
-                      call draw_line
-  end
-
-  # Draws a poly-line between many vertices.
-  # < vertices: an array of Vertex labels
-  # < closed: if the last vertex should be connected to the first
-  # < draw_line: a drawing routine address
-  macro :draw_poly_wire do |_, *vertices, closed: true, draw_line: draw.line_to|
-    raise ArgumentError if vertices.length < 3
-    vertices.each_cons(2) do |v1, v2|
-                      draw_wire v1, v2, draw_line:draw_line
-    end
-    if closed
-                      draw_wire vertices.last, vertices.first, draw_line:draw_line
-    end
-  end
-
-  macro :print_text do |eoc, text|
-                        ld   de, text_data
-                        ld   bc, +text_data
-                        call rom.pr_string
-                        jr   eoc
-    text_data           data ZXLib::Basic::Vars.program_text_to_string text
+                      jp   NZ, face_loop          # checked faces list terminating 0
   end
 
   ########
@@ -402,11 +496,19 @@ class QFace3D
                         # increase frame counter, this is used to indicate whether an edge was drawn for this frame
                         ld   hl, draw_faces_a.frame_p
                         inc  [hl]
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***             CLEAR SHADOW              ***"
+                        dc!"*********************************************"
                         # clear shadow screen pixel area where the new frame will be rendered
                         clear_screen_region_fast(xy_to_pixel_addr(16, 8, scraddr:0xC000), 182, 28, addr_mode: :first, disable_intr:false, enable_intr:false, save_sp:false)
                         # clear_screen_region_fast uses stack pointer so let's restore it
       restore_sp        ld   sp, 0
       restore_sp_p      as restore_sp + 1
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***             APPLY MATRIX              ***"
+                        dc!"*********************************************"
 
       object_a          ld   hl, cube
       object_p          as object_a + 1 # a pointer to a current object's address
@@ -683,6 +785,8 @@ class QFace3D
                       dc!"*********************************************"
                       dc!"***             APPLY  MATRIX             ***"
                       dc!"*********************************************"
+  # < hl: -> vertices
+  # > hl: -> vertices terminator + 1
   ns :apply_matrix_to_vertices do
                       ld   [restore_sp_p], sp
     apply_matrix_a    apply_matrix matrix, scrx0:128, scry0:96, scrz0:128, persp_dshift:PERSP_DSHIFT, optimize:MATRIX_OPTIMIZE
@@ -704,95 +808,10 @@ class QFace3D
                          elite,
                          0
 
-  # ns :cube do
-  #   vs                data Vertex, *Vertex.make_many(
-  #                       [ 35, 35, 35],
-  #                       [ 35,-35, 35],
-  #                       [-35,-35, 35],
-  #                       [-35, 35, 35],
-  #                       [ 35, 35,-35],
-  #                       [ 35,-35,-35],
-  #                       [-35,-35,-35],
-  #                       [-35, 35,-35])
-  #                     db   -128
-
-  #                     face vs[0].scr, vs[1].scr, vs[2].scr, edge0, edge1, edge2, edge3
-  #                     face vs[6].scr, vs[5].scr, vs[4].scr, edge4, edge5, edge6, edge7
-  #                     face vs[1].scr, vs[0].scr, vs[4].scr, edge4, edgeA, edge0, edgeB
-  #                     face vs[3].scr, vs[2].scr, vs[6].scr, edge6, edgeC, edge2, edgeD
-  #                     face vs[2].scr, vs[1].scr, vs[5].scr, edge1, edgeB, edge5, edgeC
-  #                     face vs[4].scr, vs[0].scr, vs[3].scr, edge3, edgeA, edge7, edgeD
-  #                     dw   0
-
-  #   edge0             edge vs[0], vs[1]
-  #   edge1             edge vs[1], vs[2]
-  #   edge2             edge vs[2], vs[3]
-  #   edge3             edge vs[3], vs[0]
-  #   edge4             edge vs[4], vs[5]
-  #   edge5             edge vs[5], vs[6]
-  #   edge6             edge vs[6], vs[7]
-  #   edge7             edge vs[7], vs[4]
-  #   edgeA             edge vs[0], vs[4]
-  #   edgeB             edge vs[1], vs[5]
-  #   edgeC             edge vs[2], vs[6]
-  #   edgeD             edge vs[3], vs[7]
-  # end
-
-  Object3D.make([  0,  8,  0],  # 0
-                [-40, -6, 30],  # 1
-                [-15, -8, 30],  # 2
-                [ 15, -8, 30],  # 3
-                [ 40, -6, 30],  # 4
-                [ 25,  7, 30],  # 5
-                [  0,  8, 30],  # 6
-                [-25,  7, 30],  # 7
-                [-40, -6,  5],  # 8
-                [ 40, -6,  5],  # 9
-                [-15, -8,-30],  #10
-                [ 15, -8,-30],  #11
-                # [  0, -8,-30],  #12
-                # [  0, -8,-40],  #13
-  ) do |obj|
-    obj.scale!(1.35)
-    obj.face!(0, 11, 10)
-    obj.face!(0, 10,  7)
-    obj.face!(0,  5, 11)
-    obj.face!(0,  7,  6)
-    obj.face!(0,  6,  5)
-    obj.face!(7, 10,  8)
-    obj.face!(1,  7,  8)
-    obj.face!(5,  9, 11)
-    obj.face!(4,  9,  5)
-    obj.face!(2,  1,  8, 10)
-    obj.face!(9,  4,  3, 11)
-    obj.face!(3,  2, 10, 11)
-    obj.face!(1,  2,  3,  4, 5, 6, 7, surface: [3, 6, 2], decoration: wire_engines)
-    obj.to_prog(self, :elite)
-  end
-
-  ns :wire_engines do
-    vs                data Vertex, *Vertex.scale(1.35, Vertex.make_many(
-                        [-30,  0, 30],  #0
-                        [-26, -1, 30],  #1
-                        [-26,  1, 30],  #2
-                        [ 30,  0, 30],  #3
-                        [ 26, -1, 30],  #4
-                        [ 26,  1, 30],  #5
-                        [-20, -4, 30],  #6
-                        [ -5, -5, 30],  #7
-                        [ -5,  5, 30],  #8
-                        [-20,  4, 30],  #9
-                        [ 20, -4, 30],  #10
-                        [  5, -5, 30],  #11
-                        [  5,  5, 30],  #12
-                        [ 20,  4, 30])) #13
-                      db   -128
-                      draw_poly_wire vs[ 0], vs[ 1], vs[ 2]
-                      draw_poly_wire vs[ 3], vs[ 4], vs[ 5]
-                      draw_poly_wire vs[ 6], vs[ 7], vs[ 8], vs[ 9]
-                      draw_poly_wire vs[10], vs[11], vs[12], vs[13]
-                      ret
-  end
+                      dc!
+                      dc!"*********************************************"
+                      dc!"***                CUBE 3D                ***"
+                      dc!"*********************************************"
 
   Object3D.make([ 35,-35, 35],  #0
                 [ 35, 35, 35],  #1
@@ -812,6 +831,50 @@ class QFace3D
     obj.face!(3, 7, 4, 0, decoration: wire_pi)
     obj.to_prog(self, :cube)
   end
+
+  # The above Object3D.to_prog creates the following program data:
+
+  # ns :cube do
+  #                     # a list of Vertex object data, terminated with -128
+  #   vs                data Vertex,*Vertex.scale(1.1, Vertex.make_many(
+  #                       [ 35,-35, 35],
+  #                       [ 35, 35, 35],
+  #                       [-35, 35, 35],
+  #                       [-35,-35, 35],
+  #                       [ 35,-35,-35],
+  #                       [ 35, 35,-35],
+  #                       [-35, 35,-35],
+  #                       [-35,-35,-35]))
+  #                     db   -128
+
+  #                     # a list of faces terminated with 0
+  #                     face vs[0].scr, vs[1].scr, vs[2].scr, edge0,  edge1,  edge2,  edge3,  decoration: wire_psi
+  #                     face vs[7].scr, vs[6].scr, vs[5].scr, edge4,  edge5,  edge6,  edge7,  decoration: wire_lambda
+  #                     face vs[0].scr, vs[4].scr, vs[5].scr, edge8,  edge6,  edge9,  edge0,  decoration: wire_xi
+  #                     face vs[3].scr, vs[2].scr, vs[6].scr, edge2,  edge10, edge4,  edge11, decoration: wire_delta
+  #                     face vs[1].scr, vs[5].scr, vs[6].scr, edge9,  edge5,  edge10, edge1,  decoration: wire_phi
+  #                     face vs[3].scr, vs[7].scr, vs[4].scr, edge11, edge7,  edge8,  edge3,  decoration: wire_pi
+  #                     dw   0
+
+  #                     # routines for drawing edges
+  #   edge0             edge vs[0], vs[1]
+  #   edge1             edge vs[1], vs[2]
+  #   edge2             edge vs[2], vs[3]
+  #   edge3             edge vs[3], vs[0]
+  #   edge4             edge vs[7], vs[6]
+  #   edge5             edge vs[6], vs[5]
+  #   edge6             edge vs[5], vs[4]
+  #   edge7             edge vs[4], vs[7]
+  #   edge8             edge vs[0], vs[4]
+  #   edge9             edge vs[5], vs[1]
+  #   edge10            edge vs[2], vs[6]
+  #   edge11            edge vs[7], vs[3]
+  # end
+
+                      dc!
+                      dc!"*********************************************"
+                      dc!"***            CUBE 3D DECALS             ***"
+                      dc!"*********************************************"
 
   ns :wire_psi do
     vs                data Vertex, *Vertex.scale(1.1, Vertex.make_many(
@@ -915,6 +978,70 @@ class QFace3D
 
                       dc!
                       dc!"*********************************************"
+                      dc!"***                ELITE 3D               ***"
+                      dc!"*********************************************"
+
+  Object3D.make([  0,  8,  0],  # 0
+                [-40, -6, 30],  # 1
+                [-15, -8, 30],  # 2
+                [ 15, -8, 30],  # 3
+                [ 40, -6, 30],  # 4
+                [ 25,  7, 30],  # 5
+                [  0,  8, 30],  # 6
+                [-25,  7, 30],  # 7
+                [-40, -6,  5],  # 8
+                [ 40, -6,  5],  # 9
+                [-15, -8,-30],  #10
+                [ 15, -8,-30],  #11
+                # [  0, -8,-30],  #12
+                # [  0, -8,-40],  #13
+  ) do |obj|
+    obj.scale!(1.35)
+    obj.face!(0, 11, 10)
+    obj.face!(0, 10,  7)
+    obj.face!(0,  5, 11)
+    obj.face!(0,  7,  6)
+    obj.face!(0,  6,  5)
+    obj.face!(7, 10,  8)
+    obj.face!(1,  7,  8)
+    obj.face!(5,  9, 11)
+    obj.face!(4,  9,  5)
+    obj.face!(2,  1,  8, 10)
+    obj.face!(9,  4,  3, 11)
+    obj.face!(3,  2, 10, 11)
+    obj.face!(1,  2,  3,  4, 5, 6, 7, surface: [3, 6, 2], decoration: wire_engines)
+    obj.to_prog(self, :elite)
+  end
+                      dc!
+                      dc!"*********************************************"
+                      dc!"***            ELITE 3D DECALS            ***"
+                      dc!"*********************************************"
+  ns :wire_engines do
+    vs                data Vertex, *Vertex.scale(1.35, Vertex.make_many(
+                        [-30,  0, 30],  #0
+                        [-26, -1, 30],  #1
+                        [-26,  1, 30],  #2
+                        [ 30,  0, 30],  #3
+                        [ 26, -1, 30],  #4
+                        [ 26,  1, 30],  #5
+                        [-20, -4, 30],  #6
+                        [ -5, -5, 30],  #7
+                        [ -5,  5, 30],  #8
+                        [-20,  4, 30],  #9
+                        [ 20, -4, 30],  #10
+                        [  5, -5, 30],  #11
+                        [  5,  5, 30],  #12
+                        [ 20,  4, 30])) #13
+                      db   -128
+                      draw_poly_wire vs[ 0], vs[ 1], vs[ 2]
+                      draw_poly_wire vs[ 3], vs[ 4], vs[ 5]
+                      draw_poly_wire vs[ 6], vs[ 7], vs[ 8], vs[ 9]
+                      draw_poly_wire vs[10], vs[11], vs[12], vs[13]
+                      ret
+  end
+
+                      dc!
+                      dc!"*********************************************"
                       dc!"***           ROTATION / MATRIX           ***"
                       dc!"*********************************************"
 
@@ -946,7 +1073,7 @@ include ZXLib
 quat3d = QFace3D.new 0x9000
 puts quat3d.debug
 puts "="*68
-%w[start apply_matrix_to_vertices.apply_matrix_a start.draw_loop.draw_faces_a draw rotate
+%w[start apply_matrix_to_vertices.apply_matrix_a rotate draw start.draw_loop.draw_faces_a 
    cube wire_delta wire_epsilon wire_lambda wire_phi wire_pi wire_psi wire_xi
    elite wire_engines].each do |label|
   puts "#{label.ljust(40)}: 0x#{quat3d[label].to_s(16).upcase} - #{quat3d[label]}, size: #{quat3d['+'+label]}"
