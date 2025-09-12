@@ -119,7 +119,7 @@ module Z80
 					a = d.addr - 8 + org
 					data.split('').each_slice(8).map do |ds|
 						a+= 8
-						"#{'%04X'%a}: #{hxd[ds, ' '].ljust 24}#{ds.join.gsub(/[\x0-\x1f]/, '.').ljust 8}#{label}"
+						"#{'%04X'%a}: #{hxd[ds, ' '].ljust 24}#{ds.join.gsub(/[^\x20-\x7e]/, '.').ljust 8}#{label}"
 					end
 				end
 			when Integer

@@ -3,6 +3,7 @@ v1.2.0.pre-1
 
 Z80:
 ---
+* Z80#debug method no more prints anything except printable ASCII characters.
 * Optimized Z80::MathInt::Macros#rnd by using #mul_const8_24a (size -10, time -40).
 * Added Z80::MathInt::Macros#mul_const8_24a macro as an alternative to #mul_const8_24.
 * Added Z80::MathInt::Macros#mul_const_ex macro as an alternative to #mul_const.
