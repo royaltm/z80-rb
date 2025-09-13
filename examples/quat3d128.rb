@@ -170,34 +170,46 @@ class Quat3D
       # check color keys
       ns do |eoc|
                         ld   a, [vars.last_k]
-                        sub  0x30
-                        jr   Z, sel_blk
+                        sub  ?0.ord
+                        jr   Z, sel_black
                         cp   9
                         jr   Z, sel_nink
                         cp   8
-                        jr   Z, sel_ink0
-                        jr   NC, eoc
+                        jr   Z, reset_ink
+                        jr   NC, eoc # check other keys
                         3.times { rlca }
-                        ld   c, a
+        sel_ink         ld   c, a
                         cp   0b00100000
                         sbc  a, a
                         anda 7
                         ora  c
-                        jr   paint_st
-        sel_blk         ld   a, [last_color]
+                        jr   paint_store
+        reset_ink       ld   a, [last_color]
+                        anda 0b00111000
+                        jr   sel_ink
+        sel_black       ld   a, [last_color]
+                        ld   c, a
                         3.times { rrca }
                         anda 7
-                        jr   paint
+                        jr   NZ, paint_store
+                        ld   a, 7
+                        jr   paint_store
         sel_nink        ld   a, [last_color]
+                        anda 0b00111111
                         ld   c, a
-                        inc  a
+                        3.times { rrca }
                         xor  c
                         anda 7
                         xor  c
-                        jr   paint_st
-        sel_ink0        ld   a, [last_color]
-                        anda ~7
-        paint_st        ld   [last_color], a
+                        ld   b, a
+                        ld   a, c
+        sel_next        inc  a
+                        xor  c
+                        anda 7
+                        xor  c
+                        cp   b
+                        jr   Z, sel_next
+        paint_store     ld   [last_color], a
         paint           push af
                         call clear_screen
                         mmu128_swap_screens(swap_bank:true, disable_intr:false, enable_intr:false)

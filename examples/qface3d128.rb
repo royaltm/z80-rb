@@ -392,11 +392,16 @@ class QFace3D
 
   # Prints +text+ string to an open channel using ROM +pr_string+ routine.
   macro :print_text do |eoc, text|
+    stext = ZXLib::Basic::Vars.program_text_to_string text
                         ld   de, text_data
                         ld   bc, +text_data
                         call rom.pr_string
+                    if stext.length > 0x7F
+                        jp   eoc
+                    else
                         jr   eoc
-    text_data           data ZXLib::Basic::Vars.program_text_to_string text
+                    end
+    text_data           data stext
   end
 
   ##
@@ -595,33 +600,95 @@ class QFace3D
   # Main #
   ########
 
+  MIN_Z = 128 - 8
+  MAX_Z = 128 + 58
+  X_POS = 128
+  Y_POS = 96
+
+  ROLL  = 2
+  PITCH = 3
+  YAW   = 1
+
   with_saved :start, :exx, hl, ret: true do |eoc|
                         call  make_sincos
-    release_key         halt
-                        key_pressed?
-                        jr   NZ, release_key # wait for any key being pressed to be released
+                        call rom.cl_all
                         ld   a, 2
                         call rom.chan_open
+                        print_text "`INK 0``PAPER 7``BRIGHT 0`"+
+                                   "`AT  4,9`O,P - pitch speed" +
+                                     "`TAB 9`Q,A - roll speed" +
+                                     "`TAB 9`Z,X - yaw speed" +
+                                     "`TAB 9`W,S - far/near" +
+                                   "`TAB 7`SPACE - stop" +
+                                     "`TAB 9`  C - reset yaw" +
+                                     "`TAB 9`V-M - (re)set roll" +
+                                     "`TAB 9`H-L - (re)set pitch" +
+                                     "`TAB 9`0-7 - PAPER color" +
+                                      "`TAB 11`8 - reset INK" +
+                                      "`TAB 11`9 - next INK" +
+                               "`TAB 3`any other - next solid" +
+                          "`''''``TAB 2`press any key to continue"
+    release_key0        halt
+                        key_pressed?
+                        jr   NZ, release_key0 # wait for any key being pressed to be released
+    press_key           halt
+                        key_pressed?
+                        jr   Z, press_key # wait for any key being pressed to be released
+    release_key1        halt
+                        key_pressed?
+                        jr   NZ, release_key1 # wait for any key being pressed to be released
+                        # ld   a, 2
+                        # call rom.chan_open
                         # prepare both shadow and regular screen memory, disabling interrupts first
                         mmu128_select_bank(bank:7, screen:0, disable_intr:true, enable_intr:false)
                         ld   a, BG_ATTR
+                        ld   [last_color], a
                         call clear_screen
                         mmu128_swap_screens(swap_bank:true, disable_intr:false, enable_intr:false)
                         ld   a, BG_ATTR
                         call clear_screen
-                        print_text "`AT 0,0``INK 8``PAPER 8``BRIGHT 8`0-9:colors OPQAZX:rot SPACE:stop"
+                        print_text "`AT 0,0``INK 8``PAPER 8``BRIGHT 8`OPQAZX:rot WS:zmov C,V-M,H-L:set"
                         mmu128_swap_screens(swap_bank:true, disable_intr:false, enable_intr:false)
                         copy_shadow_screen_region(xy_to_pixel_addr(0,0,scraddr:0xC000), 8, 32, tgtaddr:0xC000, srcaddr:0x4000, check_edge:false, break_oos:false)
 
-                        # reset adjustment of z
-                        ld   a, 128 + 58
+                        dc!"*********************************************"
+                        dc!"***            RESET ANIMATION            ***"
+                        dc!"*********************************************"
+                        # reset position
+                        ld   a, MAX_Z
                         ld   [apply_matrix_to_vertices.apply_matrix_a.adjust_z_p], a
-                        ld   a, 128 - 66
+                        ld   a, X_POS # 128
                         ld   [apply_matrix_to_vertices.apply_matrix_a.adjust_x_p], a
-                        ld   a, 96 - 33
+                        ld   a, Y_POS # 96
                         ld   [apply_matrix_to_vertices.apply_matrix_a.adjust_y_p], a
+
+                        # reset orientation
+                        xor  a
+                        ld   hl, yaw
+                        ld   [hl], a # yaw
+                        inc  hl
+                        ld   [hl], a # pitch
+                        inc  hl
+                        ld   [hl], a # roll
+
+                        # reset rotation speeds
+                        ld   a, ROLL
+                        ld   [draw_loop.roll_speed], a
+                        ld   a, PITCH
+                        ld   [draw_loop.pitch_speed], a
+                        ld   a, YAW
+                        ld   [draw_loop.yaw_speed], a
+
+                        # reset movement
+                        ld   a, -1
+                        ld   [draw_loop.zpos_speed], a
+
                         # save sp
                         ld   [draw_loop.restore_sp_p], sp
+                        ld   [draw_loop.course_to_rot.restore_sp_p], sp
+
+                        jp   draw_loop.animate
+
                         dc!
                         dc!"*********************************************"
                         dc!"***               DRAW LOOP               ***"
@@ -635,7 +702,8 @@ class QFace3D
                         dc!"***             CLEAR SHADOW              ***"
                         dc!"*********************************************"
                         # clear shadow screen pixel area where the new frame will be rendered
-                        clear_screen_region_fast(xy_to_pixel_addr(16, 8, scraddr:0xC000), 182, 28, addr_mode: :first, disable_intr:false, enable_intr:false, save_sp:false)
+                        clear_screen_region_fast(xy_to_pixel_addr(16, 8, scraddr:0xC000), 182, 28,
+                            addr_mode: :first, disable_intr:false, enable_intr:false, save_sp:false)
                         # clear_screen_region_fast uses stack pointer so let's restore it
       restore_sp        ld   sp, 0
       restore_sp_p      as restore_sp + 1
@@ -665,55 +733,56 @@ class QFace3D
                         dc!"***             ROTATE OBJECT             ***"
                         dc!"*********************************************"
 
+      animate           label
                         ld   hl, roll
-      roll_a            ld   a, 2
-      roll_speed        roll_a + 1
+      roll_a            ld   a, ROLL
+      roll_speed        as roll_a + 1
                         add  a, [hl]
                         ld   [hl], a
                         ld   c, a     # c: roll
 
                         ld   hl, pitch
-      pitch_a           ld   a, 3
-      pitch_speed       pitch_a + 1
+      pitch_a           ld   a, PITCH
+      pitch_speed       as pitch_a + 1
                         add  a, [hl]
                         ld   [hl], a
                         ld   b, a     # b: pitch
 
                         ld   hl, yaw
-      yaw_a             ld   a, 1
-      yaw_speed         yaw_a + 1
+      yaw_a             ld   a, YAW
+      yaw_speed         as yaw_a + 1
                         add  a, [hl]
                         ld   [hl], a  # a: yaw
 
-                        call rotate
+                        # yaw=a, pitch=b, roll=c
+      course_to_rot     course_to_rotation(rotation, a, b, c, sincos:sincos, save_sp: :restore_only)
+                        dc!
+                        dc!"*********************************************"
+                        dc!"***          ROTATION TO MATRIX           ***"
+                        dc!"*********************************************"
+      apply_rotation    rotation_to_matrix(matrix, rotation, inline_mul:OPTIMIZE != :size, subroutine:false, optimize:OPTIMIZE)
 
                         dc!
                         dc!"*********************************************"
-                        dc!"***            ADJUST POSITION            ***"
+                        dc!"***              MOVE OBJECT              ***"
                         dc!"*********************************************"
-                        # modify adjust position until object is near
                         ld   hl, apply_matrix_to_vertices.apply_matrix_a.adjust_z_p
                         ld   a, [hl]
-                        cp   128 - 8
-                        jr   Z, skip_adjust_z
-                        dec  [hl]
-      skip_adjust_z     ld   hl, apply_matrix_to_vertices.apply_matrix_a.adjust_x_p
-                        ld   a, [hl]
-                        cp   128
-                        jr   Z, skip_adjust_x
-                        inc  [hl]
-      skip_adjust_x     ld   hl, apply_matrix_to_vertices.apply_matrix_a.adjust_y_p
-                        ld   a, [hl]
-                        cp   96
-                        jr   Z, skip_adjust_y
-                        inc  [hl]
+      zpos_a            add  a, -1
+      zpos_speed        as zpos_a + 1
+                        cp   MIN_Z
+                        jr   C, skip_adjust_z
+                        cp   MAX_Z + 1
+                        jr   NC, skip_adjust_z
+                        ld   [hl], a
+      skip_adjust_z     label
 
                         dc!
                         dc!"*********************************************"
                         dc!"***                KEY CHECK              ***"
                         dc!"*********************************************"
                         # loop unless key is pressed
-      skip_adjust_y     key_pressed?
+      keyboard_check    key_pressed?
                         jp   Z, draw_loop
                         # restore iy
                         ld   iy, vars_iy
@@ -737,35 +806,45 @@ class QFace3D
       ns do |eoc|
                         ld   a, [vars.last_k]
                         sub  ?0.ord
-                        jr   Z, sel_blk
+                        jr   Z, sel_black
                         cp   9
                         jr   Z, sel_nink
                         cp   8
-                        jr   Z, sel_ink0
+                        jr   Z, reset_ink
                         jr   NC, eoc # check other keys
                         3.times { rlca }
-                        ld   c, a
+        sel_ink         ld   c, a
                         cp   0b00100000
                         sbc  a, a
                         anda 7
                         ora  c
-                        jr   paint_st
-        sel_blk         ld   a, [last_color]
+                        jr   paint_store
+        reset_ink       ld   a, [last_color]
+                        anda 0b00111000
+                        jr   sel_ink
+        sel_black       ld   a, [last_color]
+                        ld   c, a
                         3.times { rrca }
                         anda 7
-                        jr   NZ, paint
+                        jr   NZ, paint_store
                         ld   a, 7
-                        jr   paint
+                        jr   paint_store
         sel_nink        ld   a, [last_color]
+                        anda 0b00111111
                         ld   c, a
-                        inc  a
+                        3.times { rrca }
                         xor  c
                         anda 7
                         xor  c
-                        jr   paint_st
-        sel_ink0        ld   a, [last_color]
-                        anda ~7
-        paint_st        ld   [last_color], a
+                        ld   b, a
+                        ld   a, c
+        sel_next        inc  a
+                        xor  c
+                        anda 7
+                        xor  c
+                        cp   b
+                        jr   Z, sel_next
+        paint_store     ld   [last_color], a
         paint           push af
                         call clear_screen
                         mmu128_swap_screens(swap_bank:true, disable_intr:false, enable_intr:false)
@@ -779,41 +858,91 @@ class QFace3D
                         dc!"*********************************************"
       ns do |eoc|
                         cp   'o'.ord - ?0.ord
-                        jr   NZ, key_1
+                        jr   NZ, key_p
                         ld   hl, pitch_speed
-                        dec  [hl]
+        dec_hl          dec  [hl]
                         jp   draw_loop
-        key_1           cp   'p'.ord - ?0.ord
-                        jr   NZ, key_2
+        key_p           cp   'p'.ord - ?0.ord
+                        jr   NZ, key_q
                         ld   hl, pitch_speed
-                        inc  [hl]
+        inc_hl          inc  [hl]
                         jp   draw_loop
-        key_2           cp   'q'.ord - ?0.ord
-                        jr   NZ, key_3
+        key_q           cp   'q'.ord - ?0.ord
+                        jr   NZ, key_a
                         ld   hl, roll_speed
-                        inc  [hl]
-                        jp   draw_loop
-        key_3           cp   'a'.ord - ?0.ord
-                        jr   NZ, key_4
+                        jr   inc_hl
+        key_a           cp   'a'.ord - ?0.ord
+                        jr   NZ, key_z
                         ld   hl, roll_speed
-                        dec  [hl]
-                        jp   draw_loop
-        key_4           cp   'z'.ord - ?0.ord
-                        jr   NZ, key_5
+                        jr   dec_hl
+        key_z           cp   'z'.ord - ?0.ord
+                        jr   NZ, key_x
                         ld   hl, yaw_speed
-                        inc  [hl]
-                        jp   draw_loop
-        key_5           cp   'x'.ord - ?0.ord
-                        jr   NZ, key_6
+                        jr   inc_hl
+        key_x           cp   'x'.ord - ?0.ord
+                        jr   NZ, key_w
                         ld   hl, yaw_speed
-                        dec  [hl]
+                        jr   dec_hl
+        key_w           cp   'w'.ord - ?0.ord
+                        jr   NZ, key_s
+                        ld   hl, zpos_speed
+                        ld   [hl], 1
                         jp   draw_loop
-        key_6           cp   ' '.ord - ?0.ord
+        key_s           cp   's'.ord - ?0.ord
+                        jr   NZ, key_c
+                        ld   hl, zpos_speed
+                        ld   [hl], -1
+                        jp   draw_loop
+        key_c           cp   'c'.ord - ?0.ord
+                        jr   NZ, key_v
+                        xor  a
+        set_yaw         ld   hl, yaw
+                        ld   [hl], a # roll
+                        jp   draw_loop
+        key_v           cp   'v'.ord - ?0.ord
+                        jr   NZ, key_b
+                        xor  a
+        set_roll        ld   hl, roll
+                        ld   [hl], a # roll
+                        jp   draw_loop
+        key_b           cp   'b'.ord - ?0.ord
+                        jr   NZ, key_n
+                        ld   a, 128
+                        jr   set_roll
+        key_n           cp   'n'.ord - ?0.ord
+                        jr   NZ, key_m
+                        ld   a, -64
+                        jr   set_roll
+        key_m           cp   'm'.ord - ?0.ord
+                        jr   NZ, key_h
+                        ld   a, 64
+                        jr   set_roll
+        key_h           cp   'h'.ord - ?0.ord
+                        jr   NZ, key_j
+                        xor  a
+        set_pitch       ld   hl, pitch
+                        ld   [hl], a # pitch
+                        jp   draw_loop
+        key_j           cp   'j'.ord - ?0.ord
+                        jr   NZ, key_k
+                        ld   a, 128
+                        jr   set_pitch
+        key_k           cp   'k'.ord - ?0.ord
+                        jr   NZ, key_l
+                        ld   a, -64
+                        jr   set_pitch
+        key_l           cp   'l'.ord - ?0.ord
+                        jr   NZ, key_sp
+                        ld   a, 64
+                        jr   set_pitch
+
+        key_sp          cp   ' '.ord - ?0.ord
                         jr   NZ, eoc # next object
                         xor  a
                         ld   [pitch_speed], a
                         ld   [roll_speed], a
                         ld   [yaw_speed], a
+                        ld   [zpos_speed], a
                         jp   draw_loop
       end
 
@@ -907,15 +1036,6 @@ class QFace3D
   make_sincos         create_sincos_from_sintable sincos, sintable:sintable
   sintable            bytes   neg_sintable256_pi_half_no_zero_lo
   sintable_end        label
-
-                      dc!
-                      dc!"*********************************************"
-                      dc!"***                ROTATE                 ***"
-                      dc!"*********************************************"
-  ns :rotate do # yaw=a, pitch=b, roll=c
-                      course_to_rotation(rotation, a, b, c, sincos:sincos, save_sp:true)
-                      rotation_to_matrix(matrix, rotation, inline_mul:OPTIMIZE != :size, subroutine:true, optimize:OPTIMIZE)
-  end
 
                       dc!
                       dc!"*********************************************"
@@ -1249,7 +1369,7 @@ class QFace3D
                       dc!"*********************************************"
                       dc!"***               BOING 3D                ***"
                       dc!"*********************************************"
-  Object3D.make(
+  o = Object3D.make(
     [ -3,  60,   0], #0
     [ 32,  49,   0], #1
     [ 19,  49, -28], #2
@@ -1289,6 +1409,7 @@ class QFace3D
     obj.face!(0, 5, 6)
     obj.face!(0, 6, 7)
     obj.face!(0, 7, 1)
+
     obj.face!(1, 8, 9, 2)
     obj.face!(2, 9, 10, 3)
     obj.face!(3, 10, 11, 4)
@@ -1296,13 +1417,13 @@ class QFace3D
     obj.face!(5, 12, 13, 6)
     obj.face!(6, 13, 14, 7)
     obj.face!(7, 14, 8, 1)
-    obj.face!(8, 15, 16, 9)
-    obj.face!(9, 16, 17, 10)
-    obj.face!(10, 17, 18, 11)
-    obj.face!(11, 18, 19, 12)
-    obj.face!(12, 19, 20, 13)
-    obj.face!(13, 20, 21, 14)
-    obj.face!(14, 21, 15, 8)
+    obj.face!(8, 15, 16, 9, decoration: wire_ansuz)
+    obj.face!(9, 16, 17, 10, decoration: wire_algiz)
+    obj.face!(10, 17, 18, 11, decoration: wire_othila)
+    obj.face!(11, 18, 19, 12, decoration: wire_fehu)
+    obj.face!(12, 19, 20, 13, decoration: wire_mannaz)
+    obj.face!(13, 20, 21, 14, decoration: wire_inguz)
+    obj.face!(14, 21, 15, 8, decoration: wire_nauthiz)
     obj.face!(15, 22, 23, 16)
     obj.face!(16, 23, 24, 17)
     obj.face!(17, 24, 25, 18)
@@ -1319,12 +1440,101 @@ class QFace3D
     obj.face!(29, 22, 28)
     obj.to_prog(self, :boing)
   end
+                      dc!
+                      dc!"*********************************************"
+                      dc!"***            BOING 3D DECALS            ***"
+                      dc!"*********************************************"
+
+  ns :wire_ansuz do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(14,
+                        [  0,  10], [  0, -10],
+                        [  5,   5],
+                        [  0,   5], [  5,  0],
+                        align: :cb))
+    endvs             db   -128
+                      draw_wire vs[0], vs[1]
+                      draw_wire vs[0], vs[2]
+                      draw_wire vs[3], vs[4]
+    endwires          ret
+  end
+
+  ns :wire_algiz do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(15,
+                        [  0,  10], [  0, -10],
+                        [ -5,   5], [  0,   0], [  5,  5],
+                        align: :bc))
+    endvs             db   -128
+                      draw_wire vs[0], vs[1]
+                      draw_poly_wire vs[2], vs[3], vs[4], closed: false
+    endwires          ret
+  end
+
+  ns :wire_othila do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(16,
+                        [  0,  10],
+                        [ -5,   5], [  5,-10],
+                        [  5,   5], [ -5,-10],
+                        align: :cb))
+    endvs             db   -128
+                      draw_poly_wire vs[0], vs[1], vs[2], closed: false
+                      draw_poly_wire vs[0], vs[3], vs[4], closed: false
+    endwires          ret
+  end
+
+  ns :wire_fehu do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(17,
+                        [  0,  10], [  0, -10],
+                        [  0,   5], [  5,  10],
+                        [  0,   0], [  5,  5],
+                        align: :bc))
+    endvs             db   -128
+                      draw_wire vs[0], vs[1]
+                      draw_wire vs[2], vs[3]
+                      draw_wire vs[4], vs[5]
+    endwires          ret
+  end
+
+  ns :wire_mannaz do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(18,
+                        [ -5,  10], [ -5, -10],
+                        [  5,  10], [  5, -10],
+                        [  5,   0], [ -5,   0],
+                        align: :cb))
+    endvs             db   -128
+                      draw_wire vs[0], vs[1]
+                      draw_wire vs[2], vs[3]
+                      draw_wire vs[0], vs[4]
+                      draw_wire vs[2], vs[5]
+    endwires          ret
+  end
+
+  ns :wire_inguz do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(19,
+                        [ -5,  10], [  5,  0], [ -5,-10],
+                        [  5,  10], [ -5,  0], [  5,-10],
+                        align: :bc))
+    endvs             db   -128
+                      draw_poly_wire vs[0], vs[1], vs[2], closed: false
+                      draw_poly_wire vs[3], vs[4], vs[5], closed: false
+    endwires          ret
+  end
+
+  ns :wire_nauthiz do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(20,
+                        [  0,  10], [  0,-10],
+                        [ -5,  10], [  5,  0],
+                        align: :bc))
+    endvs             db   -128
+                      draw_wire vs[0], vs[1]
+                      draw_wire vs[2], vs[3]
+    endwires          ret
+  end
 
                       dc!
                       dc!"*********************************************"
                       dc!"***              DIAMOND 3D               ***"
                       dc!"*********************************************"
-  Object3D.make(
+  o = Object3D.make(
     [ 30,  50,   0], #0
     [ 21,  50, -21], #1
     [  0,  50, -30], #2
@@ -1385,14 +1595,14 @@ class QFace3D
     obj.face!(13, 20, 21)
     obj.face!(14, 21, 22)
     obj.face!(15, 22, 23)
-    obj.face!(24, 16, 23)
-    obj.face!(24, 17, 16)
-    obj.face!(24, 18, 17)
-    obj.face!(24, 19, 18)
-    obj.face!(24, 20, 19)
-    obj.face!(24, 21, 20)
-    obj.face!(24, 22, 21)
-    obj.face!(24, 23, 22)
+    obj.face!(24, 16, 23, decoration: wire_glow1)
+    obj.face!(24, 17, 16, decoration: wire_glow2)
+    obj.face!(24, 18, 17, decoration: wire_glow3)
+    obj.face!(24, 19, 18, decoration: wire_glow4)
+    obj.face!(24, 20, 19, decoration: wire_glow5)
+    obj.face!(24, 21, 20, decoration: wire_glow6)
+    obj.face!(24, 22, 21, decoration: wire_glow7)
+    obj.face!(24, 23, 22, decoration: wire_glow8)
     obj.to_prog(self, :diamond)
   end
                       dc!
@@ -1406,7 +1616,103 @@ class QFace3D
                         [-10, 50, -10],  #2
                         [ 10, 50, -10])) #4
     endvs             db   -128
-                      draw_poly_wire vs[ 0], vs[ 3], vs[ 1], vs[ 2]
+                      draw_poly_wire vs[0], vs[3], vs[1], vs[2]
+    endwires          ret
+  end
+
+  ns :wire_glow1 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(33,
+                        [  0, -10],
+                        [  5,   0],
+                        [  0,  10],
+                        [ -5,   0],
+                        align: :bc))
+    endvs             db   -128
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
+    endwires          ret
+  end
+
+  ns :wire_glow2 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(34,
+                        [  0, -10],
+                        [  5,   0],
+                        [  0,  10],
+                        [ -5,   0],
+                        align: :bc))
+    endvs             db   -128
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
+    endwires          ret
+  end
+
+  ns :wire_glow3 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(35,
+                        [  0, -10],
+                        [  5,   0],
+                        [  0,  10],
+                        [ -5,   0],
+                        align: :bc))
+    endvs             db   -128
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
+    endwires          ret
+  end
+
+  ns :wire_glow4 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(36,
+                        [  0, -10],
+                        [  5,   0],
+                        [  0,  10],
+                        [ -5,   0],
+                        align: :bc))
+    endvs             db   -128
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
+    endwires          ret
+  end
+
+  ns :wire_glow5 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(37,
+                        [  0, -10],
+                        [  5,   0],
+                        [  0,  10],
+                        [ -5,   0],
+                        align: :bc))
+    endvs             db   -128
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
+    endwires          ret
+  end
+
+  ns :wire_glow6 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(38,
+                        [  0, -10],
+                        [  5,   0],
+                        [  0,  10],
+                        [ -5,   0],
+                        align: :bc))
+    endvs             db   -128
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
+    endwires          ret
+  end
+
+  ns :wire_glow7 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(39,
+                        [  0, -10],
+                        [  5,   0],
+                        [  0,  10],
+                        [ -5,   0],
+                        align: :bc))
+    endvs             db   -128
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
+    endwires          ret
+  end
+
+  ns :wire_glow8 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(40,
+                        [  0, -10],
+                        [  5,   0],
+                        [  0,  10],
+                        [ -5,   0],
+                        align: :bc))
+    endvs             db   -128
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
     endwires          ret
   end
 
@@ -1707,12 +2013,17 @@ decals = [
   %w[wire_psi wire_lambda wire_pi wire_xi wire_delta wire_phi],
   %w[wire_cisters_1 wire_cisters_2 wire_cisters_3 wire_cisters_4 wire_cisters_5
      wire_cisters_6 wire_cisters_7 wire_cisters_8],
-  [],
-  %w[wire_rune],
+  %w[wire_ansuz wire_algiz wire_othila wire_fehu wire_mannaz wire_inguz wire_nauthiz],
+  %w[wire_rune wire_glow1 wire_glow2 wire_glow3 wire_glow4 wire_glow5 wire_glow6 wire_glow7 ],
   %w[wire_engines wire_front wire_slot_rt wire_slot_lt wire_cannons],
   %w[wire_entrance wire_serial wire_hull1 wire_hull2 wire_hull3 wire_hull4],
 ]
-(%w[start apply_matrix_to_vertices.apply_matrix_a rotate draw start.draw_loop.draw_faces_a] +
+(%w[start 
+    start.draw_loop.draw_faces_a
+    start.draw_loop.course_to_rot
+    start.draw_loop.apply_rotation
+    apply_matrix_to_vertices.apply_matrix_a
+    draw] +
  solids.map.with_index {|n,i| [n] + decals[i] }.flatten +
  %w[
    endsolids
