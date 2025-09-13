@@ -38,10 +38,11 @@ module Z80Lib3D
       #
       # Options:
       # * +vertices+::     An address of object vertices or +hl+.
-      # * +scrx0+::        A X coordinate adjustment used for calculating screen coordinates.
-      # * +scry0+::        A Y coordinate adjustment used for calculating screen coordinates.
-      # * +scrz0+::        A Z coordinate adjustment used for calculating screen coordinates.
-      # * +persp_dshift+:: A screen coordinates perspective adjustment: 0-7.
+      # * +scrx0+::        A value added to the screen X coordinate.
+      # * +scry0+::        A value added to the screen Y coordinate.
+      # * +scrz0+::        A value added to the Z coordinate.
+      # * +persp_dshift+:: Perspective adjustment (D): 0-7. X and Y coordinates are multiplied by 2
+      #                    to the power of D (bitwise left shifted) before calculating the screen X,Y.
       # * +optimize+:: Optimization options: +:size+, +:time+, +:unroll+, +:time_alt+, +:unroll_alt+.
       #
       # When the routine completes:
@@ -61,6 +62,7 @@ module Z80Lib3D
       # Modifies: +sp+, +af+, +af'+, +hl+, +bc+, +de+, +hl'+, +bc'+, +de'+.
       def apply_matrix(matrix, vertices:hl, scrx0:128, scry0:128, scrz0:128, persp_dshift:7, optimize: :time)
         raise ArgumentError, "apply_matrix: invalid arguments" unless [scrx0, scry0, scrz0].all?{|l| direct_address?(l) }
+        raise ArgumentError, "apply_matrix: invalid persp_dshift argument" unless (0..7).include?(persp_dshift)
         mx_optimize = case optimize
         when :time_alt then :time
         when :unroll_alt then :unroll
@@ -257,13 +259,15 @@ module Z80Lib3D
       #
       # Options:
       # * +sincos+:: An address of a populated Primitives::SinCos table, aligned to 256 bytes.
-      # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored. Otherwise
-      #               +sp+ will be clobbered.
-      #
+      # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored.
+      #               Otherwise +sp+ will be clobbered.
+      #               +save_sp+ can also be set to +:restore_only+ symbol, in this case the +SP+ value
+      #               needs to be stored in the memory pointed by the sub-label +restore_sp_p+.
       # Modifes +sp+, +af+, +hl+, +de+.
       def course_to_rotation(rotation, yaw=a, pitch=b, roll=c, sincos:self.sincos, save_sp:true)
+        raise ArgumentError, "course_to_rotation: :save_sp requires :restore_sp" if save_sp && !restore_sp
         isolate do
-                      ld    [restore_sp_p], sp if save_sp
+                      ld    [restore_sp_p], sp if save_sp && save_sp != :restore_only
           select(sincos & 0x00FF, &:zero?).then do |_|
                       ld    de, (sincos & 0xFF00)|0b11111100
           end.else do
@@ -311,8 +315,11 @@ module Z80Lib3D
       # Options:
       # +inline_mul+:: A boolean indicating whether to inline multiplication routine.
       # +subroutine+:: A boolean indicating whether to create a subroutine.
-      # +optimize+:: A multiplication optimization argument for Z80::MathInt::Macros#mul16.
+      # +optimize+:: A multiplication optimization: +:size+, +:time+ or +:unroll+.
+      #
+      # Modifies: +af+, +af'+, +hl+, +bc+, +de+. Stack depth: 6 bytes, 4 if +:inline_mul+ is +true+.
       def rotation_to_matrix(matrix, rotation, inline_mul:false, subroutine:true, optimize: :time)
+        raise ArgumentError, "rotation_to_matrix: invalid :optimize option" if optimize == :compact 
         # cos(a)*cos(b)
         # cos(a)*cos(c)
         # cos(a)*sin(b)=(cos(a)*sin(b))
@@ -333,17 +340,31 @@ module Z80Lib3D
         #  -sin(b)      , cos(b)*sin(c)                     , cos(b)*cos(c)]
         multiply = if inline_mul
           proc do
-            isolate do |eoc|  # b|hl = bc * de
-                        sra   b # 0 -> 0 1 -> 0(C) -1 -> -1(C)
-                        jr    NC, mult.posmul
-                        jp    NZ, mult.negmul # b != 0x01
-              m_is_1    ld    l, 0
-                        ld    h, e
-                        ld    b, d
-                        jr    eoc
-              mult      mul16_signed9(d, e, c, s: b, tt:de, m_overflow:m_is_1, m_neg_cond:nil, optimize:optimize)
+            isolate do |eoc|    # b|hl = de * bc
+                          sra   b # 0 -> 0 1 -> 0(C) -1 -> -1(C)
+                          jr    C, maybe_mneg
+                          ld    b, d # limited d: 0, 1, -1
+                          sra   b    # sign_extend(b, d)
+                          ld    a, c
+                          anda  a    # test zero
+                          jp    NZ, mult16
+              m_zero      ld    b, a # clear sign
+                          ld    h, a
+                          ld    l, a
+                          jr    eoc
+              m_is_256    ld    l, 0 # b|h|l = d|e|0
+                          ld    h, e
+                          ld    b, d
+                          jr    eoc
+              maybe_mneg  jr    Z, m_is_256 # m == 256 (b == 0x01)
+                          neg16 d, e        # m < 0
+                          sign_extend(b, a)
+                          xor   a
+                          sub   c          # a: -m
+                          jr    NC, m_is_256 # m == 256
+              mult16      mul16(d, e, a, tt:de, optimize:optimize)
             end
-            # isolate do |eoc|  # b|hl = bc * de
+            # isolate do |eoc|  # b|hl = de * bc
             #             ld    a, b
             #             dec   a     # b == 1 ?
             #             jp    NZ, k_is_no_1
@@ -364,7 +385,7 @@ module Z80Lib3D
           end
         else
           proc do
-                        call  multiply_sub
+                      call  multiply_de_bc
           end
         end
         isolate do |eoc|
@@ -429,52 +450,55 @@ module Z80Lib3D
           unless inline_mul
                       jp    eoc unless subroutine
 
-            ns :multiply_sub do |eoc|  # b|hl = bc * de, k and m in range: (-256..256)
-                        sra   b # 0 -> 0 1 -> 0(C) -1 -> -1(C)
-                        jr    C, m_is_neg1
-                        # sign_extend(b, d)
-                        ld    b, d
-                        sra   b
-                        ld    a, c
-                        anda  a    # test zero
-                        jr    Z, m_zero
-                        mul16(d, e, a, tt:de, optimize:optimize)
-                        ret
-              m_zero    ld    b, a # clear sign
-                        ld    h, a
-                        ld    l, a
-                        ret
-              m_is_neg1 jr    Z, m_is_1 # b = 0x01
-                        neg16 d, e
-                        sign_extend(b, a)
-                        xor   a
-                        sub   c          # a: -m
-                        jr    NC, m_is_1 # m == 256
-                        mul16(d, e, a, tt:de, optimize:optimize)
-                        ret
-              m_is_1    ld    l, 0 # b|h|l = d|e|0
-                        ld    h, e
-                        ld    b, d
-                        ret
+            isolate :multiply_de_bc do |eoc|  # b|hl = de * bc, bc and de in range: (-256..256)
+                          sra   b # 0 -> 0 1 -> 0(C) -1 -> -1(C)
+                          jr    C, maybe_mneg
+                          ld    b, d # limited d: 0, 1, -1
+                          sra   b    # sign_extend(b, d)
+                          ld    a, c
+                          anda  a    # test zero
+              if optimize == :size
+                          jr    NZ, mult16
+              else
+                          jr    Z, m_zero
+                          mul16(d, e, a, tt:de, optimize:optimize)
+                          ret
+              end
+              m_zero      ld    b, a # clear sign
+                          ld    h, a
+                          ld    l, a
+                          ret
+              m_is_256    ld    l, 0 # b|h|l = d|e|0
+                          ld    h, e
+                          ld    b, d
+                          ret
+              maybe_mneg  jr    Z, m_is_256 # m == 256 (b == 0x01)
+                          neg16 d, e        # m < 0
+                          sign_extend(b, a)
+                          xor   a
+                          sub   c          # a: -m
+                          jr    NC, m_is_256 # m == 256
+              mult16      mul16(d, e, a, tt:de, optimize:optimize)
+                          ret
             end
-            # ns :multiply_sub do # b|hl = bc * de
-            #           ld    a, b
-            #           dec   a         # b == 1 ?
-            #           jr    Z, k_is_1
-            #           dec   d         # d == 1 ?
-            #           jr    Z, m_is_1
-            #           inc   d         # d: 0 (+)  !0 (-)
-            #           mul_signed9(b, c, e, tt:de, m_neg_cond:NZ, k_overflow:km_is_1, optimize: :size)
-            #           ret   # b|hl
-            #   k_is_1  ld    b, d
-            #           ld    h, e
-            #           ld    l, a      # a: 0
-            #           ret   # b|hl = d|e|0
-            #   m_is_1  ld    h, c
-            #           ld    l, d      # d: 0
-            #           ret   # b|hl = b|c|0
-            #   km_is_1 ld    b, 1
-            #           ret   # b|hl = 1|0|0
+            # isolate :multiply_de_bc do # b|hl = de * bc, bc and de in range: (-256..256)
+            #             ld    a, b
+            #             dec   a         # b == 1 ?
+            #             jr    Z, k_is_1
+            #             dec   d         # d == 1 ?
+            #             jr    Z, m_is_1
+            #             inc   d         # d: 0 (+)  !0 (-)
+            #             mul_signed9(b, c, e, tt:de, m_neg_cond:NZ, k_overflow:km_is_1, optimize: :size)
+            #             ret   # b|hl
+            #   k_is_1    ld    b, d
+            #             ld    h, e
+            #             ld    l, a      # a: 0
+            #             ret   # b|hl = d|e|0
+            #   m_is_1    ld    h, c
+            #             ld    l, d      # d: 0
+            #             ret   # b|hl = b|c|0
+            #   km_is_1   ld    b, 1
+            #             ret   # b|hl = 1|0|0
             # end
           end
         end

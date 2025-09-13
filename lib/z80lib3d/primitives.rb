@@ -47,25 +47,50 @@ module Z80Lib3D
       ## A struct to represent Vertex instances
       S = to_struct
 
-      ## Creates a Vertex data argument for given coordinates.
+      ##
+      # Creates a Vertex struct object that can be used as a Z80.data argument.
+      #
+      # +x, +y+, +z+ are the Vertex coordinates. The coordinates are rounded to integers.
+      #
+      # This method raises an error if calculated screen coordinates can't be represented
+      # by 8-bit unsigned integers.
+      #
+      # Options:
+      # * +scrx0+::        A value added to the screen X coordinate.
+      # * +scry0+::        A value added to the screen Y coordinate.
+      # * +scrz0+::        A value added to the Z coordinate.
+      # * +persp_dshift+:: Perspective adjustment (D): 0-7. X and Y coordinates are
+      #                    multiplied by 2 to the power of D (bitwise left shifted)
+      #                    before calculating the screen X,Y.
       def Vertex.make(x, y, z, scrx0:128, scry0:128, scrz0:128, persp_dshift:7)
+        raise ArgumentError, "Vertex.make: invalid persp_dshift argument" unless (0..7).include?(persp_dshift)
         x, y, z = x.round, y.round, z.round
-        scrxmax = scrx0 * 2 - 1
-        scrymax = scry0 * 2 - 1
+        scrxmax = 0xFF
+        scrymax = 0xFF
         xp =  ((x << persp_dshift) / (z + scrz0)) + scrx0
-        yp = -((y << persp_dshift) / (z + scrz0)) + scry0
+        yp = -((y << persp_dshift) / (z + scrz0)) + scry0 # yp grows downwards
         if xp < 0 || xp > scrxmax || yp < 0 || yp > scrymax
           raise ArgumentError, "Vertex.make: vertex screen coordinates out of bounds"
         end
         S.new(Vector::S.new(z, y, x), xp, yp)
       end
 
-      ## Creates many Vertex data arguments from triplets: [x, y, z].
+      ##
+      # Creates many Vertex data arguments from triplets: [x, y, z] and returns
+      # an array of Vertex struct objects.
+      #
+      # See also Vertex.make.
       def Vertex.make_many(*args, scrx0:128, scry0:128, scrz0:128, persp_dshift:7)
         args.map{|x, y, z| Vertex.make(x, y, z, scrx0:scrx0, scry0:scry0, scrz0:scrz0, persp_dshift:persp_dshift)}
       end
 
-      ## Creates a re-scaled Vertex data arguments.
+      ## Creates a re-scaled Vertex struct object(s). See also Vertex.make.
+      #
+      # +sc+:: A scalar factor.
+      # +vertex+:: A Vertex struct object or an array of objects.
+      #
+      # Depending on the +vertex+ argument a single Vertex object or an array of
+      # objects is returned.
       def Vertex.scale(sc, vertex, scrx0:128, scry0:128, scrz0:128, persp_dshift:7)
         if vertex.is_a?(Array)
           vertex.map{|v| Vertex.scale(sc, v, scrx0:scrx0, scry0:scry0, scrz0:scrz0, persp_dshift:persp_dshift)}
