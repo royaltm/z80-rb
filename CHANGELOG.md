@@ -34,6 +34,7 @@ Z80:
 
 ZXLib:
 -----
+* A new escape sequence `'` (carriage return) and handling of "\r" code added to the BASIC tokenizer.
 * Immediate argument optimization of ZXLib::Gfx::Macros#copy_shadow_screen_region.
 * Slight optimization of ZXLib::Gfx::Macros#clear_screen_region_fast.
 * New macro ZXLib::Gfx::Macros#ytoattr.

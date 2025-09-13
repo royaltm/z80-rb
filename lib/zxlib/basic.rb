@@ -108,10 +108,11 @@ module ZXLib
 			#  Non-ASCII characters and alternative escape sequences:
 			#
 			#       code  escaped  unicode   description
-			#          8  `<`      U+2190 ←  move left
-			#          9  `>`      U+2192 →  move right
-			#         10  `v`      U+2193 ↓  move down
-			#         11  `^`      U+2191 ↑  move up
+			#          8  `<`      U+2190 ←  cursor left
+			#          9  `>`      U+2192 →  cursor right
+			#         10  `v`      U+2193 ↓  cursor down
+			#         11  `^`      U+2191 ↑  cursor up
+			#         13  `'`      U+000D \r carriage return
 			#         96  `&`      U+00A3 £  a pound sign
 			#        127  `(c)`    U+00A9 ©  a copyright sign
 			#        128  `|8`     U+2591 ░  various block characters
@@ -1063,6 +1064,7 @@ module ZXLib
 			'>'    => 0x09, # →
 			'v'    => 0x0A, # ↓
 			'^'    => 0x0B, # ↑
+			"'"    => 0x0D, # CR
 			'&'    => 0x60, # £
 			'(c)'  => 0x7F, # ©
 			'|8'   => 0x80, # ░
@@ -1126,7 +1128,7 @@ module ZXLib
 		KEYWORD_CODES = Hash[KEYWORDS.map.with_index {|key, index| [key.strip, index + KEYWORD_START_CODE] }]
 		CTRL_CODES = Hash[(COLOR_CTRL + CURSOR_CTRL).map.with_index {|key, index| [key, index + 0x10] }]
 		CHAR_CODES = Hash[
-			[[?\t, 6]] +
+			[[?\t, 6], [?\r, 0xD]] +
 			ARROWS.map.with_index {|a,i| [a, i + 8]} +
 			PRINTABLE_CHARS.map.with_index {|a,i| [a, i + 0x20]}
 		]
