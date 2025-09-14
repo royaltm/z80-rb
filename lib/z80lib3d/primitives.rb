@@ -48,9 +48,9 @@ module Z80Lib3D
       S = to_struct
 
       ##
-      # Creates a Vertex struct object that can be used as a Z80.data argument.
+      # Creates a Vertex struct object that can be used as a Z80::Program.data argument.
       #
-      # +x, +y+, +z+ are the Vertex coordinates. The coordinates are rounded to integers.
+      # +x+, +y+, +z+ are the Vertex coordinates. The coordinates are rounded to integers.
       #
       # This method raises an error if calculated screen coordinates can't be represented
       # by 8-bit unsigned integers.
@@ -81,10 +81,13 @@ module Z80Lib3D
       #
       # See also Vertex.make.
       def Vertex.make_many(*args, scrx0:128, scry0:128, scrz0:128, persp_dshift:7)
-        args.map{|x, y, z| Vertex.make(x, y, z, scrx0:scrx0, scry0:scry0, scrz0:scrz0, persp_dshift:persp_dshift)}
+        args.map{|x, y, z|
+          Vertex.make(x, y, z,
+            scrx0:scrx0, scry0:scry0, scrz0:scrz0, persp_dshift:persp_dshift)}
       end
 
-      ## Creates a re-scaled Vertex struct object(s). See also Vertex.make.
+      ##
+      # Creates a re-scaled Vertex struct object(s). See also Vertex.make.
       #
       # +sc+:: A scalar factor.
       # +vertex+:: A Vertex struct object or an array of objects.
@@ -93,21 +96,24 @@ module Z80Lib3D
       # objects is returned.
       def Vertex.scale(sc, vertex, scrx0:128, scry0:128, scrz0:128, persp_dshift:7)
         if vertex.is_a?(Array)
-          vertex.map{|v| Vertex.scale(sc, v, scrx0:scrx0, scry0:scry0, scrz0:scrz0, persp_dshift:persp_dshift)}
+          vertex.map{|v|
+            Vertex.scale(sc, v, scrx0:scrx0, scry0:scry0, scrz0:scrz0, persp_dshift:persp_dshift)}
         else
           vec = vertex.vec
-          Vertex.make(vec.x*sc, vec.y*sc, vec.z*sc, scrx0:scrx0, scry0:scry0, scrz0:scrz0, persp_dshift:persp_dshift)
+          Vertex.make(vec.x*sc, vec.y*sc, vec.z*sc,
+            scrx0:scrx0, scry0:scry0, scrz0:scrz0, persp_dshift:persp_dshift)
         end
       end
     end
     ##
     # =Z80Lib3D::Primitives::Matrix
     # 
-    # A type representing a transformation matrix 3x3.
+    # An object representing a 3D transformation matrix 3x3.
     #
-    # Each matrix element should be a 16-bit fixed point twos complement signed number with an 8-bit
-    # fractional part.
+    # Each Matrix element is a 16-bit fixed point, twos complement signed number with
+    # the integral part in its high 8 bits and the fractional part in its low 8 bits.
     #
+    # Matrix members:
     # * +xx+: +word+
     # * +xy+: +word+
     # * +xz+: +word+
@@ -131,17 +137,22 @@ module Z80Lib3D
     ##
     # =Z80Lib3D::Primitives::Rotation
     # 
-    # A type representing 3D rotation.
+    # The elements of this object can be used to construct rotation matrices Rα, Rβ, Rγ.
     #
-    # Each rotation element should be a 16-bit fixed point twos complement signed number with an 8-bit
-    # fractional part.
+    # Each Rotation member is a 16-bit fixed point, twos complement signed number with
+    # the integral part in its high 8 bits and the fractional part in its low 8 bits,
+    # in the range: [-1.0, 1.0].
     #
-    # * +sin_a+: +word+ (yaw)
-    # * +cos_a+: +word+ (yaw)
-    # * +sin_b+: +word+ (pitch)
-    # * +cos_b+: +word+ (pitch)
-    # * +sin_c+: +word+ (roll)
-    # * +cos_c+: +word+ (roll)
+    # Rotation members:
+    # * +sin_a+: +word+
+    # * +cos_a+: +word+
+    # * +yaw+: +SinCos+ alias of (+sin_a+, +cos_a+)
+    # * +sin_b+: +word+
+    # * +cos_b+: +word+
+    # * +pitch+: +SinCos+ alias of (+sin_b+, +cos_b+)
+    # * +sin_c+: +word+
+    # * +cos_c+: +word+
+    # * +roll+: +SinCos+ alias of (+sin_c+, +cos_c+)
     class Rotation < Z80::Label
       sin_a  word
       cos_a  word

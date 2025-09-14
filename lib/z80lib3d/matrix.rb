@@ -10,37 +10,42 @@ module Z80Lib3D
     ##
     # =Z80Lib3D::Matrix3D::Macros
     # 
-    # Macros for applying 3D matrix to vertices.
+    # Various 3D matrix operations.
     module Macros
       include Z80::MathInt::Macros
       ##
-      # Applies a transformation matrix to vertices and calculates screen coordinates (xp, yp) for each one.
+      # Creates a routine that applies a transformation matrix to vertices and calculates
+      # screen coordinates (xp, yp) for each vertex.
       #
-      #   X = M[0]*vx + M[1]*vy + M[2]*vz
-      #   Y = M[3]*vx + M[4]*vy + M[5]*vz
-      #   Z = M[6]*vx + M[7]*vy + M[8]*vz
+      #   X = M[0] * v.x + M[1] * v.y + M[2] * v.z
+      #   Y = M[3] * v.x + M[4] * v.y + M[5] * v.z
+      #   Z = M[6] * v.x + M[7] * v.y + M[8] * v.z
       #
-      #   XP =  ((X << persp_dshift) / (Z + scrz0)) + scrx0
-      #   YP = -((Y << persp_dshift) / (Z + scrz0)) + scry0
+      #   v.xp =  ((X << persp_dshift) / (Z + scrz0)) + scrx0
+      #   v.yp = -((Y << persp_dshift) / (Z + scrz0)) + scry0
       #
-      # Vertices list must be terminated with a (-128) octet and must not be empty.
+      # Vertices list must be terminated with an (-128) octet and must not be empty.
       #
-      # Vertices are represented by Primitives::Vertex struct.
+      # The vector element values (z, y, x) of each vertex must be in range [-127, 127].
       #
-      # Matrix is represented by Primitives::Matrix struct.
+      # Vertices are represented by the Primitives::Vertex object.
       #
-      # Each matrix element should be a 16-bit fixed point twos complement signed number with an 8-bit
-      # fractional part.
+      # Matrix is represented by the Primitives::Matrix object.
       #
-      # <b>NOTE</b>: The routine uses stack pointer to read matrix data, so disable interrupts first.
+      # Each matrix element should be a 16-bit fixed point twos complement signed number with
+      # an 8-bit fractional part.
+      #
+      # <b>NOTE</b>: The routine uses stack pointer to read matrix data, so the interrupts
+      # needs to be disabled before it is called.
       #
       # +matrix+:: An address of matrix data as a label or a pointer.
       #
       # Options:
-      # * +vertices+::     An address of object vertices or +hl+.
-      # * +scrx0+::        A value added to the screen X coordinate.
-      # * +scry0+::        A value added to the screen Y coordinate.
-      # * +scrz0+::        A value added to the Z coordinate.
+      # * +vertices+:: An address of the first Primitives::Vertex object or +hl+ register
+      #                pair, containing the address.
+      # * +scrx0+::    A value added to the screen X coordinate.
+      # * +scry0+::    A value added to the screen Y coordinate.
+      # * +scrz0+::    A value added to the Z coordinate.
       # * +persp_dshift+:: Perspective adjustment (D): 0-7. X and Y coordinates are multiplied by 2
       #                    to the power of D (bitwise left shifted) before calculating the screen X,Y.
       # * +optimize+:: Optimization options: +:size+, +:time+, +:unroll+, +:time_alt+, +:unroll_alt+.
@@ -79,13 +84,13 @@ module Z80Lib3D
                           ld   d, [hl]                # d: y
                           inc  hl                     # hl: -> x
                           ld   e, [hl]                # e: x
-                          # af: x = qxx*x + qxy*y + qxz*z
+                          # af: x = M.xx*x + M.xy*y + M.xz*z
                           apply_matrix_row e, d, b, optimize:mx_optimize
                           ex   af, af                 # a': new x
-                          # af: y = qyx*x + qyy*y + qyz*z
+                          # af: y = M.yx*x + M.yy*y + M.yz*z
                           apply_matrix_row e, d, b, optimize:mx_optimize
                           ld   c, a                   # c: new y
-                          # af: z = qzx*x + qzy*y + qzz*z
+                          # af: z = M.zx*x + M.zy*y + M.zz*z
                           apply_matrix_row e, d, b, optimize:mx_optimize
                           inc  hl                     # hl: -> xp
           # calculate xp, yp
@@ -167,10 +172,13 @@ module Z80Lib3D
         end
       end
       ##
-      # Applies a row of the transformation matrix to a 3D vector.
+      # Creates a routine that applies a row (row.x, row.y, row.z) of the transformation matrix
+      # to a 3D vector (x, y, z).
       #
-      # Each matrix element should be a 16-bit fixed point twos complement signed number with an 8-bit
-      # fractional part.
+      # Each matrix element should be a 16-bit, fixed point, twos complement signed number with
+      # an 8-bit fractional part.
+      #
+      # Each vector coordinate should be a twos complement signed 8-bit integer.
       #
       # The address of a matrix row should be present in the stack pointer (+sp+) register.
       #
@@ -180,9 +188,9 @@ module Z80Lib3D
       #
       # On completion +sp+ points to the next matrix row elements (+6 bytes).
       #
-      # +x+:: A signed 8-bit integer representing x coordinate as an 8-bit register or an address.
-      # +y+:: A signed 8-bit integer representing y coordinate as an 8-bit register or an address.
-      # +z+:: A signed 8-bit integer representing z coordinate as an 8-bit register or an address.
+      # +x+:: The +x+ coordinate as an 8-bit register or an address.
+      # +y+:: The +y+ coordinate as an 8-bit register or an address.
+      # +z+:: The +z+ coordinate as an 8-bit register or an address.
       #
       # Options:
       # * +optimize+:: Optimization options: +:size+, +:time+ or +:unroll+.
@@ -191,11 +199,11 @@ module Z80Lib3D
       def apply_matrix_row(x, y, z, optimize: :time)
         raise ArgumentError, "apply_matrix_row: invalid arguments" if y == a or z == a
         isolate do
-                      apply_matrix_element x, clrhl: true,  optimize:optimize #  qxx*x
+                      apply_matrix_element x, clrhl: true,  optimize:optimize #  [SP+0]*x
                       exx
-                      apply_matrix_element y, clrhl: false, optimize:optimize # +qxy*y
+                      apply_matrix_element y, clrhl: false, optimize:optimize # +[SP+2]*y
                       exx
-                      apply_matrix_element z, clrhl: false, optimize:optimize # +qxz*z
+                      apply_matrix_element z, clrhl: false, optimize:optimize # +[SP+4]*z
 
                       xor  a
                       sla  l
@@ -205,29 +213,36 @@ module Z80Lib3D
         end
       end
       ##
-      # Applies a matrix element of the transformation matrix to a scalar.
+      # Creates a routine that multiplies a value of an element of the transformation
+      # matrix with a scalar.
       #
-      # Matrix element should be a 16-bit fixed point twos complement signed number with an 8-bit
-      # fractional part.
+      # The matrix element should be a 16-bit, fixed point, twos complement signed number
+      # with an 8-bit fractional part.
       #
-      # The address of a matrix element should be present in the stack pointer (+sp+) register.
+      # The address of a matrix element should be present in the stack pointer (+sp+).
       #
-      # <b>NOTE</b>: The registers +hl+|+bc+|+de+ are being swapped with alternatives before the
-      # multiplication, however +x+ is read into the +accumulator+ before swapping.
+      # _NOTE_: The registers +hl+|+bc+|+de+ are being swapped with the alternative
+      # register bank before the multiplication, however +x+ is read into the +accumulator+
+      # before the swapping is performed.
       #
-      # A result is returned in the +hl+ as a twos complement signed 16-bit integer:
+      # A result is returned in the +hl+ register pair as a twos complement signed 16-bit
+      # integer:
       #
+      #   A = x
       #   HL <-> HL'
-      #   HL = [SP]*x
-      #   or
-      #   HL = HL + [SP]*x
+      #   if clrhl
+      #     HL = [SP]*A
+      #   else
+      #     HL = HL + [SP]*A
+      #   end
       #
       # On completion +sp+ points to the next matrix element (+2 bytes).
       #
       # +x+:: A signed 8-bit integer representing scalar as an 8-bit register or an address.
       #
       # Options:
-      # * +clrhl+:: Whether the result should be set (+true+) or added to the previous value (+false+).
+      # * +clrhl+:: Whether the result of the multiplication should be returned (+true+) or
+      #             added to the previous value in +hl'+ (+false+).
       # * +optimize+:: Optimization options: +:size+, +:time+ or +:unroll+.
       #
       # Modifies: +sp+, +af+, +hl'+, +bc'+, +de'+, optionally preserves +x+, swaps registers.
@@ -250,22 +265,31 @@ module Z80Lib3D
         end
       end
       ## 
-      # Converts a given course (yaw,pitch,roll) to a target Primitives::Rotation.
+      # Creates a routine that converts each of the three angles (yaw, pitch, roll) to
+      # a pair of sine and cosine values from these angles, and stores them in a +target+
+      # Primitives::Rotation object.
       #
-      # +rotation+:: A target Primitives::Rotation object label.
-      # +yaw+:: An 8-bit angle normalized in [0, 255] range.
-      # +pitch+:: An 8-bit angle normalized in [0, 255] range.
-      # +roll+:: An 8-bit angle normalized in [0, 255] range.
+      # +rotation+:: An address label of a target Primitives::Rotation object.
+      # +yaw+:: An 8-bit angle value normalized to the range: [0, 255].
+      # +pitch+:: An 8-bit angle value normalized to the range: [0, 255].
+      # +roll+:: An 8-bit angle value normalized to the range: [0, 255].
+      #
+      #   α = PI * angle / 128
+      #   angle = α * 128 / PI
       #
       # Options:
       # * +sincos+:: An address of a populated Primitives::SinCos table, aligned to 256 bytes.
-      # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored.
-      #               Otherwise +sp+ will be clobbered.
-      #               +save_sp+ can also be set to +:restore_only+ symbol, in this case the +SP+ value
-      #               needs to be stored in the memory pointed by the sub-label +restore_sp_p+.
+      # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and
+      #               restored, otherwise +sp+ will be clobbered.
+      #               +save_sp+ can be also set to +:restore_only+, in this case the value of
+      #               the +sp+ register needs to be stored first in the memory pointed by the
+      #               sub-label +restore_sp_p+.
+      #
       # Modifes +sp+, +af+, +hl+, +de+.
       def course_to_rotation(rotation, yaw=a, pitch=b, roll=c, sincos:self.sincos, save_sp:true)
-        raise ArgumentError, "course_to_rotation: :save_sp requires :restore_sp" if save_sp && !restore_sp
+        raise ArgumentError, "course_to_rotation: invalid arguments" unless [yaw, pitch, roll].uniq.length == 3 &&
+                                                        [yaw, pitch, roll].all? {|t| register?(t) && t.bit8? }
+        sch, mask = [d, e, b, c].filter {|t| ![yaw, pitch, roll].include?(t) }
         isolate do
                       ld    [restore_sp_p], sp if save_sp && save_sp != :restore_only
           select(sincos & 0x00FF, &:zero?).then do |_|
@@ -276,7 +300,7 @@ module Z80Lib3D
           [yaw,   rotation.yaw,
            pitch, rotation.pitch,
            roll,  rotation.roll].each_slice(2) do |angle, target|
-                      copy_sincos_from_angle(target, angle, sincos:d, mask:e)
+                      copy_sincos_from_angle(target, angle, sincos: sch, mask: mask)
           end
           if save_sp
             restore_a     ld    sp, 0
@@ -284,14 +308,20 @@ module Z80Lib3D
           end
         end
       end
+
       ##
-      # Retrieves and copies sin/cos values for an +angle+ to a +target+ Primitives::SinCos object.
+      # Creates a routine that finds and copies the sine and cosine values of an +angle+,
+      # saving them to the +target+ Primitives::SinCos object.
       #
-      # +target+:: A target Primitives::SinCos object label.
-      # +angle+:: An 8-bit angle normalized in [0, 255] range.
+      # +target+:: An address label of a target Primitives::SinCos object.
+      # +angle+:: An 8-bit angle value normalized to the range: [0, 255].
+      #
+      #   α = PI * angle / 128
+      #   angle = α * 128 / PI
       #
       # Options:
-      # * +sincos+:: An address of a populated Primitives::SinCos table, aligned to 256 bytes.
+      # +sincos+:: An address of SinCos table, must be aligned to 256 bytes or an 8-bit register
+      #            holding the MSB of the SinCos address. The LSB of +sincos+ address must be +0+.
       # * +mask+:: An optional 8-bit register holding preloaded mask value: +0xFC+ (+0b11111100+).
       #
       # Modifes +sp+, +af+, +hl+.
@@ -307,40 +337,39 @@ module Z80Lib3D
         end
       end
       ##
-      # Converts a Primitives::Rotation data into a Primitives::Matrix object.
+      # Creates a routine that calculates a 3D rotation matrix from Rα (yaw), Rβ (pitch)
+      # and Rγ (roll) matrices, and stores calculated values in a Primitives::Matrix object.
       #
-      # +matrix+:: A target Primitives::Matrix object label.
-      # +rotation+:: A source Primitives::Rotation object label.
+      # The matrices (Rα, Rβ, Rγ) are built from an array of +word+ values:
+      #
+      #   (sin(α), cos(α), sin(β), cos(β), sin(γ), cos(γ))
+      #
+      # represented as 16-bit, fixed point, twos complement signed numbers with an 8-bit
+      # fractional part, stored in a the Primitives::Rotation object.
+      #
+      #   M = [
+      #     # xx,          xy,                                   xz
+      #     cos(α)*cos(β), cos(α)*sin(β)*sin(γ) - sin(α)*cos(γ), cos(α)*sin(β)*cos(γ) + sin(α)*sin(γ),
+      #     # yx,          yy,                                   yz
+      #     sin(α)*cos(β), sin(α)*sin(β)*sin(γ) + cos(α)*cos(γ), sin(α)*sin(β)*cos(γ) - cos(α)*sin(γ),
+      #     # zx,          zy,                                   zz
+      #     -sin(β),       cos(β)*sin(γ),                        cos(β)*cos(γ)
+      #   ]
+      #
+      # +matrix+:: An address label of a target Primitives::Matrix object.
+      # +rotation+:: An address label of a source Primitives::Rotation object.
       #
       # Options:
-      # +inline_mul+:: A boolean indicating whether to inline multiplication routine.
+      # +inline_mul+:: A boolean indicating whether to inline multiplication routines.
       # +subroutine+:: A boolean indicating whether to create a subroutine.
       # +optimize+:: A multiplication optimization: +:size+, +:time+ or +:unroll+.
       #
       # Modifies: +af+, +af'+, +hl+, +bc+, +de+. Stack depth: 6 bytes, 4 if +:inline_mul+ is +true+.
       def rotation_to_matrix(matrix, rotation, inline_mul:false, subroutine:true, optimize: :time)
-        raise ArgumentError, "rotation_to_matrix: invalid :optimize option" if optimize == :compact 
-        # cos(a)*cos(b)
-        # cos(a)*cos(c)
-        # cos(a)*sin(b)=(cos(a)*sin(b))
-        # cos(a)*sin(c)
-        # cos(b)*cos(c)
-        # cos(b)*sin(c)
-        # sin(a)*cos(b)
-        # sin(a)*cos(c)
-        # sin(a)*sin(b)=(sin(a)*sin(b))
-        # sin(a)*sin(c)
-        # (sin(a)*sin(b))*sin(c)
-        # (sin(a)*sin(b))*cos(c)
-        # (cos(a)*sin(b))*sin(c)
-        # (cos(a)*sin(b))*cos(c)
-        #
-        # [cos(a)*cos(b), cos(a)*sin(b)*sin(c)-sin(a)*cos(c), cos(a)*sin(b)*cos(c)+sin(a)*sin(c),
-        #  sin(a)*cos(b), sin(a)*sin(b)*sin(c)+cos(a)*cos(c), sin(a)*sin(b)*cos(c)-cos(a)*sin(c),
-        #  -sin(b)      , cos(b)*sin(c)                     , cos(b)*cos(c)]
+        raise ArgumentError, "rotation_to_matrix: invalid :optimize option" if optimize == :compact
         multiply = if inline_mul
           proc do
-            isolate do |eoc|    # b|hl = de * bc
+            isolate do |eoc|    # b|hl = de * bc, bc and de in range: (-256..256)
                           sra   b # 0 -> 0 1 -> 0(C) -1 -> -1(C)
                           jr    C, maybe_mneg
                           ld    b, d # limited d: 0, 1, -1
@@ -364,7 +393,7 @@ module Z80Lib3D
                           jr    NC, m_is_256 # m == 256
               mult16      mul16(d, e, a, tt:de, optimize:optimize)
             end
-            # isolate do |eoc|  # b|hl = de * bc
+            # isolate do |eoc|  # b|hl = de * bc, bc and de in range: (-256..256)
             #             ld    a, b
             #             dec   a     # b == 1 ?
             #             jp    NZ, k_is_no_1
@@ -388,6 +417,24 @@ module Z80Lib3D
                       call  multiply_de_bc
           end
         end
+        # cos(a)*cos(b)
+        # cos(a)*cos(c)
+        # cos(a)*sin(b)=(cos(a)*sin(b))
+        # cos(a)*sin(c)
+        # cos(b)*cos(c)
+        # cos(b)*sin(c)
+        # sin(a)*cos(b)
+        # sin(a)*cos(c)
+        # sin(a)*sin(b)=(sin(a)*sin(b))
+        # sin(a)*sin(c)
+        # (sin(a)*sin(b))*sin(c)
+        # (sin(a)*sin(b))*cos(c)
+        # (cos(a)*sin(b))*sin(c)
+        # (cos(a)*sin(b))*cos(c)
+        #
+        # [cos(a)*cos(b), cos(a)*sin(b)*sin(c)-sin(a)*cos(c), cos(a)*sin(b)*cos(c)+sin(a)*sin(c),
+        #  sin(a)*cos(b), sin(a)*sin(b)*sin(c)+cos(a)*cos(c), sin(a)*sin(b)*cos(c)-cos(a)*sin(c),
+        #  -sin(b)      , cos(b)*sin(c)                     , cos(b)*cos(c)]
         isolate do |eoc|
                       ld    hl, [rotation.sin_b]
                       neg16 h, l

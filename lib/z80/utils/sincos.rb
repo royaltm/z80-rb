@@ -4,7 +4,7 @@ require 'z80'
 module Z80
     module Utils
         ##
-        # =Z80::Utils::SinCos - integer sinus-cosinus table routines.
+        # =Z80::Utils::SinCos - sine-cosine table routines.
         #
         # in Z80::Utils::SinCos::Macros
         #
@@ -34,7 +34,7 @@ module Z80
         #                    exx
         #                    ld    a, 31    # angle = PI*31/128
         #                    sincos_from_angle sincos, h, l
-        #                    ld    c, [hl]  # sinus to bc
+        #                    ld    c, [hl]  # sine to bc
         #                    inc   l
         #                    ld    b, [hl]
         #                    ret
@@ -50,9 +50,9 @@ module Z80
             # Consists of two +words+:
             # * +sin+
             # * +cos+
-            # where each of them is a signed 16bit +word+ (LSB 1st) fixed point number with
-            # the integral part in its high 8 bits and the fractional part in its low 8 bits.
-            # Each of them contain a corresponding trigonometric function value: [-1.0, 1.0].
+            # where each +word+ is a 16-bit fixed point, twos complement signed number with
+            # the integral part in its high 8 bits and the fractional part in its low 8 bits,
+            # in the range: [-1.0, 1.0].
             class SinCos < Z80::Label
                 sin  word
                 cos  word
@@ -60,8 +60,11 @@ module Z80
             ##
             # Z80::Utils::SinCos table struct.
             #
-            # The angle [0,256) being used in this table translates to radians in the following way:
-            #   PI * angle / 128
+            # The normalized angle [0,256) being used in this table translates to radians in
+            # the following way:
+            #
+            #   α = PI * angle / 128
+            #   angle = α * 128 / PI
             #
             # The full table consist of 256 SinCos entries which occupy 1024 bytes.
             #
@@ -81,7 +84,8 @@ module Z80
             # =Z80::Utils::SinCos Macros
             module Macros
                 ##
-                # Returns an array of 63 bytes containing the first quarter sinus table, 256-based angle, negated, fractional parts only.
+                # Returns an array of 63 bytes containing the first quarter sine table, 256-based angle,
+                # negated, and fractional parts only values.
                 #
                 #   for a in 1..63 -> (-256 * sin(PI * a / 128)) & 0x00FF
                 #
@@ -103,20 +107,32 @@ module Z80
                     end
                 end
                 ##
-                # Creates code that returns an address of SinCos entry for a given 256-based angle in the register +a+.
+                # Creates a routine that calculates an address of a SinCos table entry for a given
+                # +angle+ in the +a+ register and returns it in the +th+|+tl+ register pair.
                 #
-                # For each angle: a <= llllllhh; th =>  MSB SinCos address + 000000hh, tl => llllll00
+                # The expected +angle+ [0,256) translates to radians in the following way:
+                #
+                #   α = PI * angle / 128
+                #   angle = α * 128 / PI
+                #
+                # +th+ and +tl+ should be a unique pair of any 8-bit registers, except +a+.
+                #
+                #    a = ABCDEFGH (binary)
+                #   tl = ABCDEF00, th = 000000GH + INT (sincos / 256)
                 # 
-                # +sincos+:: Address of SinCos table, must be aligned to 256 bytes or an 8-bit register holding
-                #            MSB of the SinCos address. LSB of +sincos+ address must be +0+.
+                # +sincos+:: An address of SinCos table, must be aligned to 256 bytes or an 8-bit register
+                #            holding the MSB of the SinCos address. The LSB of +sincos+ address must be +0+.
                 #
                 # Options:
-                # * +mask+:: An optional 8-bit register holding preloaded mask value: +0xFC+ (+0b11111100+).
+                # * +mask+:: An optional 8-bit register holding a preloaded mask value:
+                #            +0xFC+ (+0b11111100+).
                 #
                 # T-states: 30|27|24.
                 #
                 # Mofifies: +af+, +th+, +tl+.
                 def sincos_from_angle(sincos, th=h, tl=l, mask:nil)
+                    raise ArgumentError, "sincos_from_angle: invalid th, tl arguments" unless th != tl &&
+                                                    [th, tl].all? {|t| register?(t) && t.bit8? && t != a }
                     raise ArgumentError, "sincos must be a direct address" if pointer?(sincos)
                     if immediate?(sincos)
                         sincos = sincos.to_i
@@ -150,15 +166,17 @@ module Z80
                     end
                 end
                 ##
-                # Creates a subroutine that generates a full SinCosTable from a quarter sinus table
+                # Creates a subroutine that generates a full SinCosTable from a quarter sines table
                 # obtainable from #neg_sintable256_pi_half_no_zero_lo.
                 #
-                # +sincos+:: Address of a SinCos table as a label or an integer.
-                # +sintable+:: Address of a #neg_sintable256_pi_half_no_zero_lo sinus table.
+                # +sincos+:: An address of SinCos table as a label or an integer.
+                # +sintable+:: Address of a #neg_sintable256_pi_half_no_zero_lo sines table.
                 #              Can be a +label+, +hl+ register or a +label+ pointer.
                 #
-                # _NOTE_:: +sincos+ must be an address on a 256 byte boundary
-                #          (lower byte of +sincos+ address must be +0+); reserve 1024 bytes.
+                # _NOTE_:: +sincos+ must be an address aligned to 256 bytes
+                #          (the lowest 8 bits of a 16-bit +sincos+ address must be +0+).
+                #
+                # The SinCosTable size is 1024 bytes.
                 #
                 # Mofifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+.
                 def create_sincos_from_sintable(sincos, sintable:hl)
@@ -328,12 +346,12 @@ if __FILE__ == $0
                     call mult_de_a      # hl = sin(a)*256*h
                     ld   l, h
                     ld   h, 0
-                    jr   get_cosinus
+                    jr   get_cosine
         neg_sin     neg16 d, e
                     call mult_de_a      # hl = -sin(a)*256*h
                     ld   l, h
                     ld   h, -1
-        get_cosinus ex   [sp], hl
+        get_cosine  ex   [sp], hl
                     ld   e, [hl]
                     inc  l
                     ld   d, [hl]
@@ -354,7 +372,7 @@ if __FILE__ == $0
                     jr   NZ, drawloop
         end
 
-        with_saved(:draw_sinus, :exx, hl, ret: true) do |eoc|
+        with_saved(:draw_sine, :exx, hl, ret: true) do |eoc|
                     call radius_arg
                                               # read system color attributes
         skip_args   ld   hl, [vars.attr_p]    # l: attr_p, h: mask_p
@@ -430,7 +448,7 @@ if __FILE__ == $0
 
         eop         label
 
-        center_y    draw_sinus.plot_jump + 1
+        center_y    draw_sine.plot_jump + 1
         scale_y     mult_de_a + 1
 
         sincos      addr 0xFB00, SinCos
@@ -440,7 +458,7 @@ if __FILE__ == $0
 
     testsincos = TestSinCos.new 0xE000
     program = Basic.parse_source <<-END
-       1 DEF FN s(h)=USR #{testsincos[:draw_sinus]}: DEF FN c(r)=USR #{testsincos[:draw_circle]}
+       1 DEF FN s(h)=USR #{testsincos[:draw_sine]}: DEF FN c(r)=USR #{testsincos[:draw_circle]}
       10 LET res=USR #{testsincos.org}
       20 IF res<>0 THEN PRINT "Error at: ";#{testsincos[:eop]-testsincos[:sincos_tmpl]}-res: STOP
       30 FOR h=0 TO 87: RANDOMIZE FN s(h): NEXT h: PAUSE 0
@@ -457,7 +475,7 @@ if __FILE__ == $0
      :sincos_tmpl,
      :start,
      :draw_circle,
-     :draw_sinus,
+     :draw_sine,
      :draw,
      :center_y,
      :scale_y,
