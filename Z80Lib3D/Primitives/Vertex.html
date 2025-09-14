@@ -153,9 +153,9 @@
 
         <div class="method-description">
           
-          <p>Creates a <a href="Vertex.html"><code>Vertex</code></a> struct object that can be used as a Z80.data argument.</p>
+          <p>Creates a <a href="Vertex.html"><code>Vertex</code></a> struct object that can be used as a <a href="../../Z80/Program.html#method-i-data"><code>Z80::Program.data</code></a> argument.</p>
 
-<p>+x, <code>y</code>, <code>z</code> are the <a href="Vertex.html"><code>Vertex</code></a> coordinates. The coordinates are rounded to integers.</p>
+<p><code>x</code>, <code>y</code>, <code>z</code> are the <a href="Vertex.html"><code>Vertex</code></a> coordinates. The coordinates are rounded to integers.</p>
 
 <p>This method raises an error if calculated screen coordinates can&#39;t be represented by 8-bit unsigned integers.</p>
 
@@ -228,7 +228,9 @@
           <div class="method-source-code" id="make_many-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/primitives.rb, line 83</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier ruby-title">make_many</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-value">scrx0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scry0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scrz0:</span><span class="ruby-value">128</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-value">7</span>)
-  <span class="ruby-identifier">args</span>.<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span><span class="ruby-operator">|</span> <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier">make</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span>, <span class="ruby-value">scrx0:</span><span class="ruby-identifier">scrx0</span>, <span class="ruby-value">scry0:</span><span class="ruby-identifier">scry0</span>, <span class="ruby-value">scrz0:</span><span class="ruby-identifier">scrz0</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-identifier">persp_dshift</span>)}
+  <span class="ruby-identifier">args</span>.<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span><span class="ruby-operator">|</span>
+    <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier">make</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span>,
+      <span class="ruby-value">scrx0:</span><span class="ruby-identifier">scrx0</span>, <span class="ruby-value">scry0:</span><span class="ruby-identifier">scry0</span>, <span class="ruby-value">scrz0:</span><span class="ruby-identifier">scrz0</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-identifier">persp_dshift</span>)}
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -253,7 +255,7 @@
 
         <div class="method-description">
           
-          <pre>Creates a re-scaled Vertex struct object(s). See also Vertex.make.</pre>
+          <p>Creates a re-scaled <a href="Vertex.html"><code>Vertex</code></a> struct object(s). See also <a href="Vertex.html#method-c-make"><code>Vertex.make</code></a>.</p>
 <dl class="rdoc-list note-list"><dt><code>sc</code>
 <dd>
 <p>A scalar factor.</p>
@@ -268,13 +270,15 @@
 
           
           <div class="method-source-code" id="scale-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/primitives.rb, line 94</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/primitives.rb, line 97</span>
 <span class="ruby-keyword">def</span> <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier ruby-title">scale</span>(<span class="ruby-identifier">sc</span>, <span class="ruby-identifier">vertex</span>, <span class="ruby-value">scrx0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scry0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scrz0:</span><span class="ruby-value">128</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-value">7</span>)
   <span class="ruby-keyword">if</span> <span class="ruby-identifier">vertex</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)
-    <span class="ruby-identifier">vertex</span>.<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">v</span><span class="ruby-operator">|</span> <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier">scale</span>(<span class="ruby-identifier">sc</span>, <span class="ruby-identifier">v</span>, <span class="ruby-value">scrx0:</span><span class="ruby-identifier">scrx0</span>, <span class="ruby-value">scry0:</span><span class="ruby-identifier">scry0</span>, <span class="ruby-value">scrz0:</span><span class="ruby-identifier">scrz0</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-identifier">persp_dshift</span>)}
+    <span class="ruby-identifier">vertex</span>.<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">v</span><span class="ruby-operator">|</span>
+      <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier">scale</span>(<span class="ruby-identifier">sc</span>, <span class="ruby-identifier">v</span>, <span class="ruby-value">scrx0:</span><span class="ruby-identifier">scrx0</span>, <span class="ruby-value">scry0:</span><span class="ruby-identifier">scry0</span>, <span class="ruby-value">scrz0:</span><span class="ruby-identifier">scrz0</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-identifier">persp_dshift</span>)}
   <span class="ruby-keyword">else</span>
     <span class="ruby-identifier">vec</span> = <span class="ruby-identifier">vertex</span>.<span class="ruby-identifier">vec</span>
-    <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier">make</span>(<span class="ruby-identifier">vec</span>.<span class="ruby-identifier">x</span><span class="ruby-operator">*</span><span class="ruby-identifier">sc</span>, <span class="ruby-identifier">vec</span>.<span class="ruby-identifier">y</span><span class="ruby-operator">*</span><span class="ruby-identifier">sc</span>, <span class="ruby-identifier">vec</span>.<span class="ruby-identifier">z</span><span class="ruby-operator">*</span><span class="ruby-identifier">sc</span>, <span class="ruby-value">scrx0:</span><span class="ruby-identifier">scrx0</span>, <span class="ruby-value">scry0:</span><span class="ruby-identifier">scry0</span>, <span class="ruby-value">scrz0:</span><span class="ruby-identifier">scrz0</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-identifier">persp_dshift</span>)
+    <span class="ruby-constant">Vertex</span>.<span class="ruby-identifier">make</span>(<span class="ruby-identifier">vec</span>.<span class="ruby-identifier">x</span><span class="ruby-operator">*</span><span class="ruby-identifier">sc</span>, <span class="ruby-identifier">vec</span>.<span class="ruby-identifier">y</span><span class="ruby-operator">*</span><span class="ruby-identifier">sc</span>, <span class="ruby-identifier">vec</span>.<span class="ruby-identifier">z</span><span class="ruby-operator">*</span><span class="ruby-identifier">sc</span>,
+      <span class="ruby-value">scrx0:</span><span class="ruby-identifier">scrx0</span>, <span class="ruby-value">scry0:</span><span class="ruby-identifier">scry0</span>, <span class="ruby-value">scrz0:</span><span class="ruby-identifier">scrz0</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-identifier">persp_dshift</span>)
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>

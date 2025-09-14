@@ -82,9 +82,11 @@
     
 <h1 id="class-Z80Lib3D::Primitives::Matrix-label-Z80Lib3D-3A-3APrimitives-3A-3AMatrix"><a href="Matrix.html"><code>Z80Lib3D::Primitives::Matrix</code></a><span><a href="#class-Z80Lib3D::Primitives::Matrix-label-Z80Lib3D-3A-3APrimitives-3A-3AMatrix">&para;</a> <a href="#top">&uarr;</a></span></h1>
 
-<p>A type representing a transformation matrix 3x3.</p>
+<p>An object representing a 3D transformation matrix 3x3.</p>
 
-<p>Each matrix element should be a 16-bit fixed point twos complement signed number with an 8-bit fractional part.</p>
+<p>Each <a href="Matrix.html"><code>Matrix</code></a> element is a 16-bit fixed point, twos complement signed number with the integral part in its high 8 bits and the fractional part in its low 8 bits.</p>
+
+<p><a href="Matrix.html"><code>Matrix</code></a> members:</p>
 <ul><li>
 <p><code>xx</code>: <code>word</code></p>
 </li><li>

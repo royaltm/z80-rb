@@ -82,9 +82,10 @@
     
 <p><a href="../SinCos.html"><code>Z80::Utils::SinCos</code></a> table struct.</p>
 
-<p>The angle [0,256) being used in this table translates to radians in the following way:</p>
+<p>The normalized angle [0,256) being used in this table translates to radians in the following way:</p>
 
-<pre class="ruby"><span class="ruby-constant">PI</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">angle</span> <span class="ruby-operator">/</span> <span class="ruby-value">128</span>
+<pre class="ruby"><span class="ruby-identifier">α</span> = <span class="ruby-constant">PI</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">angle</span> <span class="ruby-operator">/</span> <span class="ruby-value">128</span>
+<span class="ruby-identifier">angle</span> = <span class="ruby-identifier">α</span> <span class="ruby-operator">*</span> <span class="ruby-value">128</span> <span class="ruby-operator">/</span> <span class="ruby-constant">PI</span>
 </pre>
 
 <p>The full table consist of 256 <a href="SinCos.html"><code>SinCos</code></a> entries which occupy 1024 bytes.</p>

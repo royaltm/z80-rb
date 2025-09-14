@@ -123,17 +123,19 @@
 
         <div class="method-description">
           
-          <p>Creates a subroutine that generates a full <a href="SinCosTable.html"><code>SinCosTable</code></a> from a quarter sinus table obtainable from <a href="Macros.html#method-i-neg_sintable256_pi_half_no_zero_lo"><code>neg_sintable256_pi_half_no_zero_lo</code></a>.</p>
+          <p>Creates a subroutine that generates a full <a href="SinCosTable.html"><code>SinCosTable</code></a> from a quarter sines table obtainable from <a href="Macros.html#method-i-neg_sintable256_pi_half_no_zero_lo"><code>neg_sintable256_pi_half_no_zero_lo</code></a>.</p>
 <dl class="rdoc-list note-list"><dt><code>sincos</code>
 <dd>
-<p>Address of a <a href="SinCos.html"><code>SinCos</code></a> table as a label or an integer.</p>
+<p>An address of <a href="SinCos.html"><code>SinCos</code></a> table as a label or an integer.</p>
 </dd><dt><code>sintable</code>
 <dd>
-<p>Address of a <a href="Macros.html#method-i-neg_sintable256_pi_half_no_zero_lo"><code>neg_sintable256_pi_half_no_zero_lo</code></a> sinus table. Can be a <code>label</code>, <code>hl</code> register or a <code>label</code> pointer.</p>
+<p>Address of a <a href="Macros.html#method-i-neg_sintable256_pi_half_no_zero_lo"><code>neg_sintable256_pi_half_no_zero_lo</code></a> sines table. Can be a <code>label</code>, <code>hl</code> register or a <code>label</code> pointer.</p>
 </dd><dt><em>NOTE</em>
 <dd>
-<p><code>sincos</code> must be an address on a 256 byte boundary (lower byte of <code>sincos</code> address must be <code>0</code>); reserve 1024 bytes.</p>
+<p><code>sincos</code> must be an address aligned to 256 bytes (the lowest 8 bits of a 16-bit <code>sincos</code> address must be <code>0</code>).</p>
 </dd></dl>
+
+<p>The <a href="SinCosTable.html"><code>SinCosTable</code></a> size is 1024 bytes.</p>
 
 <p>Mofifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>af&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, <code>hl&#39;</code>.</p>
           
@@ -141,7 +143,7 @@
 
           
           <div class="method-source-code" id="create_sincos_from_sintable-source">
-            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 163</span>
+            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 181</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">create_sincos_from_sintable</span>(<span class="ruby-identifier">sincos</span>, <span class="ruby-value">sintable:</span><span class="ruby-identifier">hl</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
         <span class="ruby-identifier">sincos0</span>     <span class="ruby-identifier">addr</span> <span class="ruby-value">0</span>, <span class="ruby-constant">SinCos</span>
@@ -241,7 +243,7 @@
 
         <div class="method-description">
           
-          <p>Returns an array of 63 bytes containing the first quarter sinus table, 256-based angle, negated, fractional parts only.</p>
+          <p>Returns an array of 63 bytes containing the first quarter sine table, 256-based angle, negated, and fractional parts only values.</p>
 
 <pre>for a in 1..63 -&gt; (-256 * sin(PI * a / 128)) &amp; 0x00FF</pre>
 
@@ -251,7 +253,7 @@
 
           
           <div class="method-source-code" id="neg_sintable256_pi_half_no_zero_lo-source">
-            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 88</span>
+            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 92</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">neg_sintable256_pi_half_no_zero_lo</span>
     (<span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-value">63</span>).<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">a</span><span class="ruby-operator">|</span> (<span class="ruby-operator">-</span><span class="ruby-constant">Math</span>.<span class="ruby-identifier">sin</span>(<span class="ruby-constant">Math</span><span class="ruby-operator">::</span><span class="ruby-constant">PI</span><span class="ruby-operator">*</span><span class="ruby-identifier">a</span>.<span class="ruby-identifier">to_f</span><span class="ruby-operator">/</span><span class="ruby-value">128.0</span>)<span class="ruby-operator">*</span><span class="ruby-value">256.0</span>).<span class="ruby-identifier">truncate</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xff</span> }
 <span class="ruby-keyword">end</span></pre>
@@ -278,18 +280,27 @@
 
         <div class="method-description">
           
-          <p>Creates code that returns an address of <a href="SinCos.html"><code>SinCos</code></a> entry for a given 256-based angle in the register <code>a</code>.</p>
+          <p>Creates a routine that calculates an address of a <a href="SinCos.html"><code>SinCos</code></a> table entry for a given <code>angle</code> in the <code>a</code> register and returns it in the <code>th</code>|<code>tl</code> register pair.</p>
 
-<p>For each angle: a &lt;= llllllhh; th =&gt;  MSB <a href="SinCos.html"><code>SinCos</code></a> address + 000000hh, tl =&gt; llllll00</p>
+<p>The expected <code>angle</code> [0,256) translates to radians in the following way:</p>
+
+<pre class="ruby"><span class="ruby-identifier">α</span> = <span class="ruby-constant">PI</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">angle</span> <span class="ruby-operator">/</span> <span class="ruby-value">128</span>
+<span class="ruby-identifier">angle</span> = <span class="ruby-identifier">α</span> <span class="ruby-operator">*</span> <span class="ruby-value">128</span> <span class="ruby-operator">/</span> <span class="ruby-constant">PI</span>
+</pre>
+
+<p><code>th</code> and <code>tl</code> should be a unique pair of any 8-bit registers, except <code>a</code>.</p>
+
+<pre> a = ABCDEFGH (binary)
+tl = ABCDEF00, th = 000000GH + INT (sincos / 256)</pre>
 <dl class="rdoc-list note-list"><dt><code>sincos</code>
 <dd>
-<p>Address of <a href="SinCos.html"><code>SinCos</code></a> table, must be aligned to 256 bytes or an 8-bit register holding MSB of the <a href="SinCos.html"><code>SinCos</code></a> address. LSB of <code>sincos</code> address must be <code>0</code>.</p>
+<p>An address of <a href="SinCos.html"><code>SinCos</code></a> table, must be aligned to 256 bytes or an 8-bit register holding the MSB of the <a href="SinCos.html"><code>SinCos</code></a> address. The LSB of <code>sincos</code> address must be <code>0</code>.</p>
 </dd></dl>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>mask</code>
 <dd>
-<p>An optional 8-bit register holding preloaded mask value: <code>0xFC</code> (<code>0b11111100</code>).</p>
+<p>An optional 8-bit register holding a preloaded mask value: <code>0xFC</code> (<code>0b11111100</code>).</p>
 </dd></dl>
 </li></ul>
 
@@ -301,8 +312,10 @@
 
           
           <div class="method-source-code" id="sincos_from_angle-source">
-            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 118</span>
+            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 132</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sincos_from_angle</span>(<span class="ruby-identifier">sincos</span>, <span class="ruby-identifier">th</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-value">mask:</span><span class="ruby-keyword">nil</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;sincos_from_angle: invalid th, tl arguments&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">tl</span> <span class="ruby-operator">&amp;&amp;</span>
+                                    [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>].<span class="ruby-identifier">all?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">t</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">t</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">a</span> }
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;sincos must be a direct address&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">sincos</span>)
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">immediate?</span>(<span class="ruby-identifier">sincos</span>)
         <span class="ruby-identifier">sincos</span> = <span class="ruby-identifier">sincos</span>.<span class="ruby-identifier">to_i</span>
@@ -369,7 +382,7 @@
 
           
           <div class="method-source-code" id="sincos_table_descriptors-source">
-            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 96</span>
+            <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 100</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sincos_table_descriptors</span>
     (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">255</span>).<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">a</span><span class="ruby-operator">|</span>
         <span class="ruby-identifier">a</span> = ((<span class="ruby-identifier">a</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x3F</span>) <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">2</span>) <span class="ruby-operator">|</span> ((<span class="ruby-identifier">a</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xC0</span>) <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">6</span>)

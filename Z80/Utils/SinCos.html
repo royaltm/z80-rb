@@ -60,7 +60,7 @@
   <h3>Table of Contents</h3>
 
   <ul class="link-list" role="directory">
-    <li><a href="#class-Z80::Utils::SinCos-label-Z80-3A-3AUtils-3A-3ASinCos+-+integer+sinus-cosinus+table+routines.">Z80::Utils::SinCos - integer sinus-cosinus table routines.</a>
+    <li><a href="#class-Z80::Utils::SinCos-label-Z80-3A-3AUtils-3A-3ASinCos+-+sine-cosine+table+routines.">Z80::Utils::SinCos - sine-cosine table routines.</a>
     <li><a href="#class-Z80::Utils::SinCos-label-Structs">Structs</a>
     <li><a href="#class-Z80::Utils::SinCos-label-Example">Example</a>
   </ul>
@@ -101,7 +101,7 @@
 
   <section class="description">
     
-<h1 id="class-Z80::Utils::SinCos-label-Z80-3A-3AUtils-3A-3ASinCos+-+integer+sinus-cosinus+table+routines."><a href="SinCos.html"><code>Z80::Utils::SinCos</code></a> - integer sinus-cosinus table routines.<span><a href="#class-Z80::Utils::SinCos-label-Z80-3A-3AUtils-3A-3ASinCos+-+integer+sinus-cosinus+table+routines.">&para;</a> <a href="#top">&uarr;</a></span></h1>
+<h1 id="class-Z80::Utils::SinCos-label-Z80-3A-3AUtils-3A-3ASinCos+-+sine-cosine+table+routines."><a href="SinCos.html"><code>Z80::Utils::SinCos</code></a> - sine-cosine table routines.<span><a href="#class-Z80::Utils::SinCos-label-Z80-3A-3AUtils-3A-3ASinCos+-+sine-cosine+table+routines.">&para;</a> <a href="#top">&uarr;</a></span></h1>
 
 <p>in <a href="SinCos/Macros.html"><code>Z80::Utils::SinCos::Macros</code></a></p>
 
@@ -133,7 +133,7 @@
                 <span class="ruby-identifier">exx</span>
                 <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-value">31</span>    <span class="ruby-comment"># angle = PI*31/128</span>
                 <span class="ruby-identifier">sincos_from_angle</span> <span class="ruby-identifier">sincos</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>
-                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">c</span>, [<span class="ruby-identifier">hl</span>]  <span class="ruby-comment"># sinus to bc</span>
+                <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">c</span>, [<span class="ruby-identifier">hl</span>]  <span class="ruby-comment"># sine to bc</span>
                 <span class="ruby-identifier">inc</span>   <span class="ruby-identifier">l</span>
                 <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, [<span class="ruby-identifier">hl</span>]
                 <span class="ruby-identifier">ret</span>

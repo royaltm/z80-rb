@@ -405,7 +405,7 @@
                 <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">init</span>
         <span class="ruby-identifier">loop1</span>   <span class="ruby-identifier">ex</span>  <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
                 <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
-                <span class="ruby-identifier">xor</span> <span class="ruby-identifier">e</span>
+                <span class="ruby-identifier">ora</span> <span class="ruby-identifier">e</span>     <span class="ruby-comment"># de == 0 ?</span>
                 <span class="ruby-identifier">jr</span>  <span class="ruby-constant">Z</span>, <span class="ruby-identifier">restore</span>
 
                 <span class="ruby-identifier">ex</span>  <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
@@ -469,7 +469,7 @@
 802B: 3EFD        ld   a, fdH
 802D: 08          ex   af, af&#39;         :calc.loop1
 802E: 7A          ld   a, d
-802F: AB          xor  e
+802F: AB          or   e
 8030: 280F        jr   Z, 8041H        -&gt; restore
 8032: 08          ex   af, af&#39;
 8033: AE          xor  (hl)

@@ -82,21 +82,29 @@
     
 <h1 id="class-Z80Lib3D::Primitives::Rotation-label-Z80Lib3D-3A-3APrimitives-3A-3ARotation"><a href="Rotation.html"><code>Z80Lib3D::Primitives::Rotation</code></a><span><a href="#class-Z80Lib3D::Primitives::Rotation-label-Z80Lib3D-3A-3APrimitives-3A-3ARotation">&para;</a> <a href="#top">&uarr;</a></span></h1>
 
-<p>A type representing 3D rotation.</p>
+<p>The elements of this object can be used to construct rotation matrices Rα, Rβ, Rγ.</p>
 
-<p>Each rotation element should be a 16-bit fixed point twos complement signed number with an 8-bit fractional part.</p>
+<p>Each <a href="Rotation.html"><code>Rotation</code></a> member is a 16-bit fixed point, twos complement signed number with the integral part in its high 8 bits and the fractional part in its low 8 bits, in the range: [-1.0, 1.0].</p>
+
+<p><a href="Rotation.html"><code>Rotation</code></a> members:</p>
 <ul><li>
-<p><code>sin_a</code>: <code>word</code> (yaw)</p>
+<p><code>sin_a</code>: <code>word</code></p>
 </li><li>
-<p><code>cos_a</code>: <code>word</code> (yaw)</p>
+<p><code>cos_a</code>: <code>word</code></p>
 </li><li>
-<p><code>sin_b</code>: <code>word</code> (pitch)</p>
+<p><code>yaw</code>: <code>SinCos</code> alias of (<code>sin_a</code>, <code>cos_a</code>)</p>
 </li><li>
-<p><code>cos_b</code>: <code>word</code> (pitch)</p>
+<p><code>sin_b</code>: <code>word</code></p>
 </li><li>
-<p><code>sin_c</code>: <code>word</code> (roll)</p>
+<p><code>cos_b</code>: <code>word</code></p>
 </li><li>
-<p><code>cos_c</code>: <code>word</code> (roll)</p>
+<p><code>pitch</code>: <code>SinCos</code> alias of (<code>sin_b</code>, <code>cos_b</code>)</p>
+</li><li>
+<p><code>sin_c</code>: <code>word</code></p>
+</li><li>
+<p><code>cos_c</code>: <code>word</code></p>
+</li><li>
+<p><code>roll</code>: <code>SinCos</code> alias of (<code>sin_c</code>, <code>cos_c</code>)</p>
 </li></ul>
 
   </section>
