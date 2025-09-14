@@ -12,19 +12,23 @@ require 'z80lib3d/quaternion'
 ## Tools for Object3D
 module Vec3
   ## Returns a new vector by adding vector a to b
-  def vec3add(a, b) = a.zip(b).map {|a, b| a + b }
+  def vec3add(a, b)
+    a.zip(b).map {|a, b| a + b }
+  end
   ## Returns a new vector by subtracting vector b from a
-  def vec3sub(a, b) = a.zip(b).map {|a, b| a - b }
+  def vec3sub(a, b)
+    a.zip(b).map {|a, b| a - b }
+  end
   ## Scales a vector v by scalar s and returns a new vector
-  def vec3scale(v, s) = v.map{|x| x*s }
-
+  def vec3scale(v, s)
+    v.map{|x| x*s }
+  end
   ## Returns a dot product of 2 vectors
   def vec3dot(a, b)
     ax, ay, az = a
     bx, by, bz = b
     ax * bx + ay * by + az * bz
   end
-
   ## Returns a cross product of 2 vectors
   def vec3cross(a, b)
     ax, ay, az = a
@@ -33,10 +37,10 @@ module Vec3
      az * bx - ax * bz,
      ax * by - ay * bx]
   end
-
   ## Returns the length of a vector.
-  def vec3len(v) = Math::sqrt(vec3dot(v, v))
-
+  def vec3len(v)
+    Math::sqrt(vec3dot(v, v))
+  end
   ## Returns a normalized vector.
   def vec3normalize(v)
     n = vec3len(v)
@@ -44,7 +48,6 @@ module Vec3
     x, y, z = v
     [x/n, y/n, z/n]
   end
-
   ## Calculates a centroid of a triangle: (A + B + C)/3 and returns [cx, cy, cz]
   def vec3centroid3(a, b, c)
     ax, ay, az = a
@@ -55,7 +58,6 @@ module Vec3
     z = (az + bz + cz) / 3.0
     [x, y, z]
   end
-
   ##
   # Calculates a centroid of a solid simple (planar) polygon in 3D and returns [cx, cy, cz].
   #
@@ -104,7 +106,6 @@ module Vec3
     raise ArgumentError, "zero signed area" if area_sum.abs < 1e-12
     [cx / area_sum, cy / area_sum, cz / area_sum]
   end
-
   ##
   # Builds an orthonormal basis {U, V} lying in the triangle's (A, B, C) plane.
   # Returns a tuple of 2 vectors: [U, V].
@@ -154,7 +155,6 @@ module Vec3
     v = vec3normalize(vec3cross(n, u))
     [u, v]
   end
-
   ##
   # Maps flat (x, y) coordinates to the {u, v} plane with (0,0) located at the center
   # and axes lying in the plane.
