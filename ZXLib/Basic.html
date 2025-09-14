@@ -274,7 +274,7 @@
 
           
           <div class="method-source-code" id="from_program_data-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 456</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 457</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">from_program_data</span>(<span class="ruby-identifier">data</span>, <span class="ruby-identifier">prog_length</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">start:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">prog_length</span>.<span class="ruby-identifier">nil?</span>
                 <span class="ruby-identifier">prog_length</span> = <span class="ruby-identifier">data</span>.<span class="ruby-identifier">bytesize</span>
@@ -321,7 +321,7 @@
 
           
           <div class="method-source-code" id="from_tap_chunk-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 476</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 477</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">from_tap_chunk</span>(<span class="ruby-identifier">chunk</span>)
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">program?</span>
                 <span class="ruby-identifier">from_program_data</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">body</span>.<span class="ruby-identifier">data</span>, <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">header</span>.<span class="ruby-identifier">p2</span>, <span class="ruby-value">start:</span> <span class="ruby-identifier">chunk</span>.<span class="ruby-identifier">header</span>.<span class="ruby-identifier">p1</span>
@@ -396,7 +396,7 @@
 
           
           <div class="method-source-code" id="parse_source-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 533</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 534</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_source</span>(<span class="ruby-identifier">source</span>, <span class="ruby-value">start:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-keyword">unless</span> <span class="ruby-identifier">source</span>.<span class="ruby-identifier">force_encoding</span>(<span class="ruby-constant">Encoding</span><span class="ruby-operator">::</span><span class="ruby-constant">UTF_8</span>).<span class="ruby-identifier">valid_encoding?</span>
                 <span class="ruby-identifier">raise</span> <span class="ruby-string">&quot;invalid program source encoding, expecting: UTF-8&quot;</span>
@@ -442,7 +442,7 @@
 
           
           <div class="method-source-code" id="read_source-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 551</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 552</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_source</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-identifier">parse_source</span> <span class="ruby-constant">IO</span>.<span class="ruby-identifier">read</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">encoding:</span> <span class="ruby-constant">Encoding</span><span class="ruby-operator">::</span><span class="ruby-constant">UTF_8</span>), <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>
 <span class="ruby-keyword">end</span></pre>
@@ -477,7 +477,7 @@
 
           
           <div class="method-source-code" id="read_tap-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 490</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 491</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_tap</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>.<span class="ruby-identifier">read_chunk</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">chunk</span><span class="ruby-operator">|</span> <span class="ruby-identifier">from_tap_chunk</span>(<span class="ruby-identifier">chunk</span>) }
 <span class="ruby-keyword">end</span></pre>

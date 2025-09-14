@@ -185,7 +185,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 242</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 243</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">line_no</span>, <span class="ruby-identifier">body</span>)
         <span class="ruby-ivar">@line_no</span> = <span class="ruby-identifier">line_no</span>
         <span class="ruby-ivar">@body</span> = <span class="ruby-identifier">body</span>
@@ -221,7 +221,7 @@
 
           
           <div class="method-source-code" id="parse_source_line-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 268</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 269</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_source_line</span>(<span class="ruby-identifier">line_text</span>, <span class="ruby-identifier">last_line_no</span>=<span class="ruby-value">0</span>, <span class="ruby-identifier">line_index</span>=<span class="ruby-value">0</span>)
         <span class="ruby-identifier">offset</span> = <span class="ruby-value">0</span>
         <span class="ruby-identifier">line_no</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">m</span> = <span class="ruby-constant">Tokenizer</span><span class="ruby-operator">::</span><span class="ruby-constant">Patterns</span><span class="ruby-operator">::</span><span class="ruby-constant">SPACES_OR_LINE_NO</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">line_text</span>)
@@ -327,7 +327,7 @@
 
           
           <div class="method-source-code" id="text-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 251</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 252</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">text</span>(<span class="ruby-value">escape_keywords:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ascii_only:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">se:</span><span class="ruby-keyword">false</span>)
         <span class="ruby-constant">Tokenizer</span>.<span class="ruby-identifier">program_data_to_text</span>(<span class="ruby-identifier">body</span>, <span class="ruby-identifier">escape_keywords</span>, <span class="ruby-keyword">false</span>, <span class="ruby-identifier">ascii_only</span>, <span class="ruby-identifier">se</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -362,7 +362,7 @@
 
           
           <div class="method-source-code" id="to_s-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 259</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 260</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_s</span>(<span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-node">&quot;#{line_no.to_s.rjust(4)} #{text(**opts)}&quot;</span>
 <span class="ruby-keyword">end</span></pre>

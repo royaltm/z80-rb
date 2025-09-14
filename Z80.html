@@ -467,7 +467,7 @@
                                 <span class="ruby-identifier">a</span> = <span class="ruby-identifier">d</span>.<span class="ruby-identifier">addr</span> <span class="ruby-operator">-</span> <span class="ruby-value">8</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">org</span>
                                 <span class="ruby-identifier">data</span>.<span class="ruby-identifier">split</span>(<span class="ruby-string">&#39;&#39;</span>).<span class="ruby-identifier">each_slice</span>(<span class="ruby-value">8</span>).<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ds</span><span class="ruby-operator">|</span>
                                         <span class="ruby-identifier">a</span><span class="ruby-operator">+=</span> <span class="ruby-value">8</span>
-                                        <span class="ruby-node">&quot;#{&#39;%04X&#39;%a}: #{hxd[ds, &#39; &#39;].ljust 24}#{ds.join.gsub(/[\x0-\x1f]/, &#39;.&#39;).ljust 8}#{label}&quot;</span>
+                                        <span class="ruby-node">&quot;#{&#39;%04X&#39;%a}: #{hxd[ds, &#39; &#39;].ljust 24}#{ds.join.gsub(/[^\x20-\x7e]/, &#39;.&#39;).ljust 8}#{label}&quot;</span>
                                 <span class="ruby-keyword">end</span>
                         <span class="ruby-keyword">end</span>
                 <span class="ruby-keyword">when</span> <span class="ruby-constant">Integer</span>

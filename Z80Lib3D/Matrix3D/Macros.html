@@ -171,19 +171,19 @@
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scrx0</code>
 <dd>
-<p>A X coordinate adjustment used for calculating screen coordinates.</p>
+<p>A value added to the screen X coordinate.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scry0</code>
 <dd>
-<p>A Y coordinate adjustment used for calculating screen coordinates.</p>
+<p>A value added to the screen Y coordinate.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scrz0</code>
 <dd>
-<p>A Z coordinate adjustment used for calculating screen coordinates.</p>
+<p>A value added to the Z coordinate.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>persp_dshift</code>
 <dd>
-<p>A screen coordinates perspective adjustment: 0-7.</p>
+<p>Perspective adjustment (D): 0-7. X and Y coordinates are multiplied by 2 to the power of D (bitwise left shifted) before calculating the screen X,Y.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>optimize</code>
 <dd>
@@ -217,9 +217,10 @@
 
           
           <div class="method-source-code" id="apply_matrix-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 62</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 63</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix</span>(<span class="ruby-identifier">matrix</span>, <span class="ruby-value">vertices:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">scrx0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scry0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scrz0:</span><span class="ruby-value">128</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-value">7</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;apply_matrix: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">scrx0</span>, <span class="ruby-identifier">scry0</span>, <span class="ruby-identifier">scrz0</span>].<span class="ruby-identifier">all?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">l</span>) }
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;apply_matrix: invalid persp_dshift argument&quot;</span> <span class="ruby-keyword">unless</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">7</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">persp_dshift</span>)
   <span class="ruby-identifier">mx_optimize</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">optimize</span>
   <span class="ruby-keyword">when</span> <span class="ruby-value">:time_alt</span> <span class="ruby-keyword">then</span> <span class="ruby-value">:time</span>
   <span class="ruby-keyword">when</span> <span class="ruby-value">:unroll_alt</span> <span class="ruby-keyword">then</span> <span class="ruby-value">:unroll</span>
@@ -384,7 +385,7 @@ HL = HL + [SP]*x</pre>
 
           
           <div class="method-source-code" id="apply_matrix_element-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 232</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 234</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix_element</span>(<span class="ruby-identifier">x</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
@@ -462,7 +463,7 @@ HL = HL + [SP]*x</pre>
 
           
           <div class="method-source-code" id="apply_matrix_row-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 189</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 191</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix_row</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;apply_matrix_row: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">y</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">z</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -528,7 +529,7 @@ HL = HL + [SP]*x</pre>
 
           
           <div class="method-source-code" id="copy_sincos_from_angle-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 294</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 298</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">copy_sincos_from_angle</span>(<span class="ruby-identifier">target</span>, <span class="ruby-identifier">angle</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">sincos:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sincos</span>, <span class="ruby-value">mask:</span><span class="ruby-keyword">nil</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                 <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">angle</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">angle</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
@@ -585,7 +586,7 @@ HL = HL + [SP]*x</pre>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>save_sp</code>
 <dd>
-<p>A boolean flag indicating that the <code>sp</code> register should be saved and restored. Otherwise <code>sp</code> will be clobbered.</p>
+<p>A boolean flag indicating that the <code>sp</code> register should be saved and restored. Otherwise <code>sp</code> will be clobbered. <code>save_sp</code> can also be set to <code>:restore_only</code> symbol, in this case the <code>SP</code> value needs to be stored in the memory pointed by the sub-label <code>restore_sp_p</code>.</p>
 </dd></dl>
 </li></ul>
 
@@ -595,10 +596,11 @@ HL = HL + [SP]*x</pre>
 
           
           <div class="method-source-code" id="course_to_rotation-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 264</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 267</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">course_to_rotation</span>(<span class="ruby-identifier">rotation</span>, <span class="ruby-identifier">yaw</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">pitch</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">roll</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">sincos:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sincos</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;course_to_rotation: :save_sp requires :restore_sp&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">save_sp</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">restore_sp</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
-                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">restore_sp_p</span>], <span class="ruby-identifier">sp</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">save_sp</span>
+                <span class="ruby-identifier">ld</span>    [<span class="ruby-identifier">restore_sp_p</span>], <span class="ruby-identifier">sp</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">save_sp</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">save_sp</span> <span class="ruby-operator">!=</span> <span class="ruby-value">:restore_only</span>
     <span class="ruby-identifier">select</span>(<span class="ruby-identifier">sincos</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0x00FF</span>, <span class="ruby-operator">&amp;</span><span class="ruby-value">:zero?</span>).<span class="ruby-identifier">then</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">_</span><span class="ruby-operator">|</span>
                 <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">de</span>, (<span class="ruby-identifier">sincos</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF00</span>)<span class="ruby-operator">|</span><span class="ruby-value">0b11111100</span>
     <span class="ruby-keyword">end</span>.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
@@ -656,15 +658,18 @@ HL = HL + [SP]*x</pre>
 <p>A boolean indicating whether to create a subroutine.</p>
 </dd><dt><code>optimize</code>
 <dd>
-<p>A multiplication optimization argument for <a href="../../Z80/MathInt/Macros.html#method-i-mul16"><code>Z80::MathInt::Macros#mul16</code></a>.</p>
+<p>A multiplication optimization: <code>:size</code>, <code>:time</code> or <code>:unroll</code>.</p>
 </dd></dl>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>bc</code>, <code>de</code>. Stack depth: 6 bytes, 4 if <code>:inline_mul</code> is <code>true</code>.</p>
           
           
 
           
           <div class="method-source-code" id="rotation_to_matrix-source">
-            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 315</span>
+            <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 321</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rotation_to_matrix</span>(<span class="ruby-identifier">matrix</span>, <span class="ruby-identifier">rotation</span>, <span class="ruby-value">inline_mul:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rotation_to_matrix: invalid :optimize option&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:compact</span> 
   <span class="ruby-comment"># cos(a)*cos(b)</span>
   <span class="ruby-comment"># cos(a)*cos(c)</span>
   <span class="ruby-comment"># cos(a)*sin(b)=(cos(a)*sin(b))</span>
@@ -685,17 +690,31 @@ HL = HL + [SP]*x</pre>
   <span class="ruby-comment">#  -sin(b)      , cos(b)*sin(c)                     , cos(b)*cos(c)]</span>
   <span class="ruby-identifier">multiply</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">inline_mul</span>
     <span class="ruby-identifier">proc</span> <span class="ruby-keyword">do</span>
-      <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>  <span class="ruby-comment"># b|hl = bc * de</span>
-                  <span class="ruby-identifier">sra</span>   <span class="ruby-identifier">b</span> <span class="ruby-comment"># 0 -&gt; 0 1 -&gt; 0(C) -1 -&gt; -1(C)</span>
-                  <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">mult</span>.<span class="ruby-identifier">posmul</span>
-                  <span class="ruby-identifier">jp</span>    <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">mult</span>.<span class="ruby-identifier">negmul</span> <span class="ruby-comment"># b != 0x01</span>
-        <span class="ruby-identifier">m_is_1</span>    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-value">0</span>
-                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">e</span>
-                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">d</span>
-                  <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">eoc</span>
-        <span class="ruby-identifier">mult</span>      <span class="ruby-identifier">mul16_signed9</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">c</span>, <span class="ruby-value">s:</span> <span class="ruby-identifier">b</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">m_overflow:</span><span class="ruby-identifier">m_is_1</span>, <span class="ruby-value">m_neg_cond:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
+      <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>    <span class="ruby-comment"># b|hl = de * bc</span>
+                    <span class="ruby-identifier">sra</span>   <span class="ruby-identifier">b</span> <span class="ruby-comment"># 0 -&gt; 0 1 -&gt; 0(C) -1 -&gt; -1(C)</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">C</span>, <span class="ruby-identifier">maybe_mneg</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">d</span> <span class="ruby-comment"># limited d: 0, 1, -1</span>
+                    <span class="ruby-identifier">sra</span>   <span class="ruby-identifier">b</span>    <span class="ruby-comment"># sign_extend(b, d)</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">anda</span>  <span class="ruby-identifier">a</span>    <span class="ruby-comment"># test zero</span>
+                    <span class="ruby-identifier">jp</span>    <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">mult16</span>
+        <span class="ruby-identifier">m_zero</span>      <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span> <span class="ruby-comment"># clear sign</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">eoc</span>
+        <span class="ruby-identifier">m_is_256</span>    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-value">0</span> <span class="ruby-comment"># b|h|l = d|e|0</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">eoc</span>
+        <span class="ruby-identifier">maybe_mneg</span>  <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">m_is_256</span> <span class="ruby-comment"># m == 256 (b == 0x01)</span>
+                    <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>        <span class="ruby-comment"># m &lt; 0</span>
+                    <span class="ruby-identifier">sign_extend</span>(<span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>)
+                    <span class="ruby-identifier">xor</span>   <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sub</span>   <span class="ruby-identifier">c</span>          <span class="ruby-comment"># a: -m</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">m_is_256</span> <span class="ruby-comment"># m == 256</span>
+        <span class="ruby-identifier">mult16</span>      <span class="ruby-identifier">mul16</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
       <span class="ruby-keyword">end</span>
-      <span class="ruby-comment"># isolate do |eoc|  # b|hl = bc * de</span>
+      <span class="ruby-comment"># isolate do |eoc|  # b|hl = de * bc</span>
       <span class="ruby-comment">#             ld    a, b</span>
       <span class="ruby-comment">#             dec   a     # b == 1 ?</span>
       <span class="ruby-comment">#             jp    NZ, k_is_no_1</span>
@@ -716,7 +735,7 @@ HL = HL + [SP]*x</pre>
     <span class="ruby-keyword">end</span>
   <span class="ruby-keyword">else</span>
     <span class="ruby-identifier">proc</span> <span class="ruby-keyword">do</span>
-                  <span class="ruby-identifier">call</span>  <span class="ruby-identifier">multiply_sub</span>
+                <span class="ruby-identifier">call</span>  <span class="ruby-identifier">multiply_de_bc</span>
     <span class="ruby-keyword">end</span>
   <span class="ruby-keyword">end</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -781,52 +800,55 @@ HL = HL + [SP]*x</pre>
     <span class="ruby-keyword">unless</span> <span class="ruby-identifier">inline_mul</span>
                 <span class="ruby-identifier">jp</span>    <span class="ruby-identifier">eoc</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">subroutine</span>
 
-      <span class="ruby-identifier">ns</span> <span class="ruby-value">:multiply_sub</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>  <span class="ruby-comment"># b|hl = bc * de, k and m in range: (-256..256)</span>
-                  <span class="ruby-identifier">sra</span>   <span class="ruby-identifier">b</span> <span class="ruby-comment"># 0 -&gt; 0 1 -&gt; 0(C) -1 -&gt; -1(C)</span>
-                  <span class="ruby-identifier">jr</span>    <span class="ruby-constant">C</span>, <span class="ruby-identifier">m_is_neg1</span>
-                  <span class="ruby-comment"># sign_extend(b, d)</span>
-                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">d</span>
-                  <span class="ruby-identifier">sra</span>   <span class="ruby-identifier">b</span>
-                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>
-                  <span class="ruby-identifier">anda</span>  <span class="ruby-identifier">a</span>    <span class="ruby-comment"># test zero</span>
-                  <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">m_zero</span>
-                  <span class="ruby-identifier">mul16</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
-                  <span class="ruby-identifier">ret</span>
-        <span class="ruby-identifier">m_zero</span>    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span> <span class="ruby-comment"># clear sign</span>
-                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
-                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
-                  <span class="ruby-identifier">ret</span>
-        <span class="ruby-identifier">m_is_neg1</span> <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">m_is_1</span> <span class="ruby-comment"># b = 0x01</span>
-                  <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>
-                  <span class="ruby-identifier">sign_extend</span>(<span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>)
-                  <span class="ruby-identifier">xor</span>   <span class="ruby-identifier">a</span>
-                  <span class="ruby-identifier">sub</span>   <span class="ruby-identifier">c</span>          <span class="ruby-comment"># a: -m</span>
-                  <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">m_is_1</span> <span class="ruby-comment"># m == 256</span>
-                  <span class="ruby-identifier">mul16</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
-                  <span class="ruby-identifier">ret</span>
-        <span class="ruby-identifier">m_is_1</span>    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-value">0</span> <span class="ruby-comment"># b|h|l = d|e|0</span>
-                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">e</span>
-                  <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">d</span>
-                  <span class="ruby-identifier">ret</span>
+      <span class="ruby-identifier">isolate</span> <span class="ruby-value">:multiply_de_bc</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>  <span class="ruby-comment"># b|hl = de * bc, bc and de in range: (-256..256)</span>
+                    <span class="ruby-identifier">sra</span>   <span class="ruby-identifier">b</span> <span class="ruby-comment"># 0 -&gt; 0 1 -&gt; 0(C) -1 -&gt; -1(C)</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">C</span>, <span class="ruby-identifier">maybe_mneg</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">d</span> <span class="ruby-comment"># limited d: 0, 1, -1</span>
+                    <span class="ruby-identifier">sra</span>   <span class="ruby-identifier">b</span>    <span class="ruby-comment"># sign_extend(b, d)</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">anda</span>  <span class="ruby-identifier">a</span>    <span class="ruby-comment"># test zero</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:size</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">mult16</span>
+        <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">m_zero</span>
+                    <span class="ruby-identifier">mul16</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
+                    <span class="ruby-identifier">ret</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">m_zero</span>      <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span> <span class="ruby-comment"># clear sign</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ret</span>
+        <span class="ruby-identifier">m_is_256</span>    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">l</span>, <span class="ruby-value">0</span> <span class="ruby-comment"># b|h|l = d|e|0</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">h</span>, <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ret</span>
+        <span class="ruby-identifier">maybe_mneg</span>  <span class="ruby-identifier">jr</span>    <span class="ruby-constant">Z</span>, <span class="ruby-identifier">m_is_256</span> <span class="ruby-comment"># m == 256 (b == 0x01)</span>
+                    <span class="ruby-identifier">neg16</span> <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>        <span class="ruby-comment"># m &lt; 0</span>
+                    <span class="ruby-identifier">sign_extend</span>(<span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>)
+                    <span class="ruby-identifier">xor</span>   <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">sub</span>   <span class="ruby-identifier">c</span>          <span class="ruby-comment"># a: -m</span>
+                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NC</span>, <span class="ruby-identifier">m_is_256</span> <span class="ruby-comment"># m == 256</span>
+        <span class="ruby-identifier">mult16</span>      <span class="ruby-identifier">mul16</span>(<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">optimize:</span><span class="ruby-identifier">optimize</span>)
+                    <span class="ruby-identifier">ret</span>
       <span class="ruby-keyword">end</span>
-      <span class="ruby-comment"># ns :multiply_sub do # b|hl = bc * de</span>
-      <span class="ruby-comment">#           ld    a, b</span>
-      <span class="ruby-comment">#           dec   a         # b == 1 ?</span>
-      <span class="ruby-comment">#           jr    Z, k_is_1</span>
-      <span class="ruby-comment">#           dec   d         # d == 1 ?</span>
-      <span class="ruby-comment">#           jr    Z, m_is_1</span>
-      <span class="ruby-comment">#           inc   d         # d: 0 (+)  !0 (-)</span>
-      <span class="ruby-comment">#           mul_signed9(b, c, e, tt:de, m_neg_cond:NZ, k_overflow:km_is_1, optimize: :size)</span>
-      <span class="ruby-comment">#           ret   # b|hl</span>
-      <span class="ruby-comment">#   k_is_1  ld    b, d</span>
-      <span class="ruby-comment">#           ld    h, e</span>
-      <span class="ruby-comment">#           ld    l, a      # a: 0</span>
-      <span class="ruby-comment">#           ret   # b|hl = d|e|0</span>
-      <span class="ruby-comment">#   m_is_1  ld    h, c</span>
-      <span class="ruby-comment">#           ld    l, d      # d: 0</span>
-      <span class="ruby-comment">#           ret   # b|hl = b|c|0</span>
-      <span class="ruby-comment">#   km_is_1 ld    b, 1</span>
-      <span class="ruby-comment">#           ret   # b|hl = 1|0|0</span>
+      <span class="ruby-comment"># isolate :multiply_de_bc do # b|hl = de * bc, bc and de in range: (-256..256)</span>
+      <span class="ruby-comment">#             ld    a, b</span>
+      <span class="ruby-comment">#             dec   a         # b == 1 ?</span>
+      <span class="ruby-comment">#             jr    Z, k_is_1</span>
+      <span class="ruby-comment">#             dec   d         # d == 1 ?</span>
+      <span class="ruby-comment">#             jr    Z, m_is_1</span>
+      <span class="ruby-comment">#             inc   d         # d: 0 (+)  !0 (-)</span>
+      <span class="ruby-comment">#             mul_signed9(b, c, e, tt:de, m_neg_cond:NZ, k_overflow:km_is_1, optimize: :size)</span>
+      <span class="ruby-comment">#             ret   # b|hl</span>
+      <span class="ruby-comment">#   k_is_1    ld    b, d</span>
+      <span class="ruby-comment">#             ld    h, e</span>
+      <span class="ruby-comment">#             ld    l, a      # a: 0</span>
+      <span class="ruby-comment">#             ret   # b|hl = d|e|0</span>
+      <span class="ruby-comment">#   m_is_1    ld    h, c</span>
+      <span class="ruby-comment">#             ld    l, d      # d: 0</span>
+      <span class="ruby-comment">#             ret   # b|hl = b|c|0</span>
+      <span class="ruby-comment">#   km_is_1   ld    b, 1</span>
+      <span class="ruby-comment">#             ret   # b|hl = 1|0|0</span>
       <span class="ruby-comment"># end</span>
     <span class="ruby-keyword">end</span>
   <span class="ruby-keyword">end</span>
