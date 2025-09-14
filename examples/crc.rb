@@ -24,7 +24,7 @@ class MyZXCrc8
                 ld  a, init unless init == a
         loop1   ex  af, af
                 ld  a, d
-                xor e
+                ora e     # de == 0 ?
                 jr  Z, restore
 
                 ex  af, af

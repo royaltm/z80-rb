@@ -36,7 +36,7 @@ go to Ruby's +irb+ or your REP of choice and snap'&'paste this:
                   ld  a, init
           loop1   ex  af, af
                   ld  a, d
-                  xor e
+                  ora e     # de == 0 ?
                   jr  Z, restore
 
                   ex  af, af
@@ -99,7 +99,7 @@ check the debug output:
   802B: 3EFD        ld   a, fdH
   802D: 08          ex   af, af'         :calc.loop1
   802E: 7A          ld   a, d
-  802F: AB          xor  e
+  802F: AB          or   e
   8030: 280F        jr   Z, 8041H        -> restore
   8032: 08          ex   af, af'
   8033: AE          xor  (hl)
