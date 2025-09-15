@@ -4,7 +4,9 @@ require_relative 'examples/rakefile.rb'
 desc "Documentation"
 task :doc do
   sh "rdoc --encoding=UTF-8 --title=ruby-Z80 --main=README.rdoc README.rdoc LICENSE.md CHANGELOG.md lib/z80.rb lib/z80/*.rb lib/z80/utils/*.rb lib/zxlib/*.rb lib/zxlib/*/*.rb lib/zxutils/*.rb lib/zxutils/*/*.rb lib/z80lib3d/*.rb"
-  sh "cp -v examples/*.{jpg,png,tap} doc/examples/"
+  sh "cp -v examples/*.jpg doc/examples/"
+  sh "cp -v examples/*.png doc/examples/"
+  sh "cp -v examples/*.tap doc/examples/"
 end
 
 desc "Build the gem"
