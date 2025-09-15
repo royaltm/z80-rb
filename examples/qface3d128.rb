@@ -366,27 +366,64 @@ class QFace3D
                       jp   (iy)             # (2) 8
   end
 
+  # Plot particles.
+  # < vertices: an array of Vertex labels
+  # < plot_pixel: a plot_pixel routine address
+  # < preshift: a pixel preshift table address
+  # < tail_call: whether a routine should jump instead of calling on a last particle
+  macro :particles do |eoc, *vertices, plot_pixel: plot, preshift: draw.preshifted_pixel, tail_call: false|
+    vertices.each_with_index do |vs, i|
+      if i == 0
+                      ld   de, preshift
+      else
+                      ld   e, preshift & 0xFF
+      end
+                      ld   hl, [vs.scr]
+      if tail_call && i == vertices.length - 1
+                      jp   plot
+      else
+                      call plot
+      end
+    end
+  end
+
   # Draws a line between vertices.
   # < v1: Vertex label
   # < v2: Vertex label
   # < draw_line: a drawing routine address
-  macro :draw_wire do |_, v1, v2, draw_line: draw.line_to|
+  # < tail_call: whether a routine should jump instead of calling
+  macro :draw_wire do |_, v1, v2, draw_line: draw.line_to, tail_call: false|
                       ld   de, [v1.scr]     # (4) 20
                       ld   hl, [v2.scr]     # (3) 16
+    if tail_call
+                      jp   draw_line        # (3) 10
+    else
                       call draw_line        # (3) 17
+    end
   end
 
   # Draws a poly-line between many vertices.
   # < vertices: an array of Vertex labels
   # < closed: if the last vertex should be connected to the first
   # < draw_line: a drawing routine address
-  macro :draw_poly_wire do |_, *vertices, closed: true, draw_line: draw.line_to|
+  # < tail_call: whether a routine should jump instead of calling on a last line
+  macro :draw_poly_wire do |_, *vertices, closed: true, draw_line: draw.line_to, tail_call: false|
     raise ArgumentError if vertices.length < 3
-    vertices.each_cons(2) do |v1, v2|
-                      draw_wire v1, v2, draw_line:draw_line
+    v1 = nil
+    vertices.each_with_index do |v, i|
+      unless i == 0
+        v2 = v
+        tc = if closed then
+          false
+        else
+          tail_call && i == vertices.length - 1
+        end
+                      draw_wire v1, v2, draw_line:draw_line, tail_call:tc
+      end
+      v1 = v
     end
     if closed
-                      draw_wire vertices.last, vertices.first, draw_line:draw_line
+                      draw_wire vertices.last, vertices.first, draw_line:draw_line, tail_call:tail_call
     end
   end
 
@@ -1025,9 +1062,15 @@ class QFace3D
                       dc!"*********************************************"
                       dc!"***               DRAW  LINE              ***"
                       dc!"*********************************************"
-  ## Line drawing routines.
   draw                make_draw_line_subroutines(make_line:true, make_line_over:false, make_line_inversed:false,
                                                  scraddr:0xC000, check_oos:false)
+
+                      dc!
+                      dc!"*********************************************"
+                      dc!"***               PLOT PIXEL              ***"
+                      dc!"*********************************************"
+  plot                plot_pixel(l, h, de, fx: :or, scraddr:0xC000)
+                      ret
 
                       dc!
                       dc!"*********************************************"
@@ -1147,8 +1190,8 @@ class QFace3D
                         [ 20,-20, 35]))
     endvs             db   -128
                       draw_wire vs[0], vs[1]
-                      draw_poly_wire vs[2], vs[3], vs[4], vs[5], closed: false
-    endwires          ret
+                      draw_poly_wire vs[2], vs[3], vs[4], vs[5], closed: false, tail_call: true
+    endwires          label
   end
 
   ns :wire_lambda do
@@ -1161,8 +1204,8 @@ class QFace3D
                         [-20,-25,-35]))
     endvs             db   -128
                       draw_poly_wire vs[0], vs[1], vs[2], vs[3], closed: false
-                      draw_wire vs[4], vs[5]
-    endwires          ret
+                      draw_wire vs[4], vs[5], tail_call: true
+    endwires          label
   end
 
   ns :wire_pi do
@@ -1176,8 +1219,8 @@ class QFace3D
     endvs             db   -128
                       draw_wire vs[0], vs[1]
                       draw_wire vs[2], vs[3]
-                      draw_wire vs[4], vs[5]
-    endwires          ret
+                      draw_wire vs[4], vs[5], tail_call: true
+    endwires          label
   end
 
   # ns :wire_epsilon do
@@ -1190,8 +1233,8 @@ class QFace3D
   #                       [35,  0,  5]))
   #   endvs             db   -128
   #                     draw_poly_wire vs[0], vs[1], vs[2], vs[3], closed: false
-  #                     draw_wire vs[4], vs[5]
-  #   endwires          ret
+  #                     draw_wire vs[4], vs[5], tail_call: true
+  #   endwires          label
   # end
 
   ns :wire_xi do
@@ -1209,8 +1252,8 @@ class QFace3D
     endvs             db   -128
                       draw_wire vs[4], vs[5]
                       draw_poly_wire vs[0], vs[1], vs[2], vs[3], closed: false
-                      draw_poly_wire vs[6], vs[7], vs[8], vs[9], closed: false
-    endwires          ret
+                      draw_poly_wire vs[6], vs[7], vs[8], vs[9], closed: false, tail_call: true
+    endwires          label
   end
 
   ns :wire_delta do
@@ -1219,8 +1262,8 @@ class QFace3D
                         [-35, 20,-20],
                         [-35, 20, 20]))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], tail_call: true
+    endwires          label
   end
 
   ns :wire_phi do
@@ -1233,8 +1276,8 @@ class QFace3D
                         [-15, 35, 10]))
     endvs             db   -128
                       draw_wire vs[0], vs[1]
-                      draw_poly_wire vs[2], vs[3], vs[4], vs[5]
-    endwires          ret
+                      draw_poly_wire vs[2], vs[3], vs[4], vs[5], tail_call: true
+    endwires          label
   end
 
                       dc!
@@ -1273,8 +1316,8 @@ class QFace3D
                         [  5,  20],
                         align: :cb))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], closed: false
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], closed: false, tail_call: true
+    endwires          label
   end
 
   ns :wire_cisters_2 do
@@ -1286,8 +1329,8 @@ class QFace3D
                         align: :cb))
     endvs             db   -128
                       draw_wire vs[0], vs[1]
-                      draw_wire vs[2], vs[3]
-    endwires          ret
+                      draw_wire vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_cisters_3 do
@@ -1297,8 +1340,8 @@ class QFace3D
                         [  5,  10],
                         align: :cb))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], closed: false
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], closed: false, tail_call: true
+    endwires          label
   end
 
   ns :wire_cisters_4 do
@@ -1310,8 +1353,8 @@ class QFace3D
                         align: :cb))
     endvs             db   -128
                       draw_wire vs[0], vs[1]
-                      draw_wire vs[2], vs[3]
-    endwires          ret
+                      draw_wire vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_cisters_5 do
@@ -1322,8 +1365,8 @@ class QFace3D
                         [ -5,  10],
                         align: :cb))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], closed: false
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], closed: false, tail_call: true
+    endwires          label
   end
 
   ns :wire_cisters_6 do
@@ -1335,8 +1378,8 @@ class QFace3D
                         align: :cb))
     endvs             db   -128
                       draw_wire vs[0], vs[1]
-                      draw_wire vs[2], vs[3]
-    endwires          ret
+                      draw_wire vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_cisters_7 do
@@ -1347,8 +1390,8 @@ class QFace3D
                         [  5,  10],
                         align: :cb))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], closed: false
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], closed: false, tail_call: true
+    endwires          label
   end
 
   ns :wire_cisters_8 do
@@ -1361,8 +1404,8 @@ class QFace3D
                         align: :cb))
     endvs             db   -128
                       draw_wire vs[0], vs[1]
-                      draw_poly_wire vs[2], vs[3], vs[4], closed: false
-    endwires          ret
+                      draw_poly_wire vs[2], vs[3], vs[4], closed: false, tail_call: true
+    endwires          label
   end
 
                       dc!
@@ -1409,7 +1452,6 @@ class QFace3D
     obj.face!(0, 5, 6)
     obj.face!(0, 6, 7)
     obj.face!(0, 7, 1)
-
     obj.face!(1, 8, 9, 2)
     obj.face!(2, 9, 10, 3)
     obj.face!(3, 10, 11, 4)
@@ -1454,8 +1496,8 @@ class QFace3D
     endvs             db   -128
                       draw_wire vs[0], vs[1]
                       draw_wire vs[0], vs[2]
-                      draw_wire vs[3], vs[4]
-    endwires          ret
+                      draw_wire vs[3], vs[4], tail_call: true
+    endwires          label
   end
 
   ns :wire_algiz do
@@ -1465,8 +1507,8 @@ class QFace3D
                         align: :bc))
     endvs             db   -128
                       draw_wire vs[0], vs[1]
-                      draw_poly_wire vs[2], vs[3], vs[4], closed: false
-    endwires          ret
+                      draw_poly_wire vs[2], vs[3], vs[4], closed: false, tail_call: true
+    endwires          label
   end
 
   ns :wire_othila do
@@ -1477,8 +1519,8 @@ class QFace3D
                         align: :cb))
     endvs             db   -128
                       draw_poly_wire vs[0], vs[1], vs[2], closed: false
-                      draw_poly_wire vs[0], vs[3], vs[4], closed: false
-    endwires          ret
+                      draw_poly_wire vs[0], vs[3], vs[4], closed: false, tail_call: true
+    endwires          label
   end
 
   ns :wire_fehu do
@@ -1490,8 +1532,8 @@ class QFace3D
     endvs             db   -128
                       draw_wire vs[0], vs[1]
                       draw_wire vs[2], vs[3]
-                      draw_wire vs[4], vs[5]
-    endwires          ret
+                      draw_wire vs[4], vs[5], tail_call: true
+    endwires          label
   end
 
   ns :wire_mannaz do
@@ -1504,8 +1546,8 @@ class QFace3D
                       draw_wire vs[0], vs[1]
                       draw_wire vs[2], vs[3]
                       draw_wire vs[0], vs[4]
-                      draw_wire vs[2], vs[5]
-    endwires          ret
+                      draw_wire vs[2], vs[5], tail_call: true
+    endwires          label
   end
 
   ns :wire_inguz do
@@ -1515,8 +1557,8 @@ class QFace3D
                         align: :bc))
     endvs             db   -128
                       draw_poly_wire vs[0], vs[1], vs[2], closed: false
-                      draw_poly_wire vs[3], vs[4], vs[5], closed: false
-    endwires          ret
+                      draw_poly_wire vs[3], vs[4], vs[5], closed: false, tail_call: true
+    endwires          label
   end
 
   ns :wire_nauthiz do
@@ -1526,8 +1568,8 @@ class QFace3D
                         align: :bc))
     endvs             db   -128
                       draw_wire vs[0], vs[1]
-                      draw_wire vs[2], vs[3]
-    endwires          ret
+                      draw_wire vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
                       dc!
@@ -1616,8 +1658,8 @@ class QFace3D
                         [-10, 50, -10],  #2
                         [ 10, 50, -10])) #4
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[3], vs[1], vs[2]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[3], vs[1], vs[2], tail_call: true
+    endwires          label
   end
 
   ns :wire_glow1 do
@@ -1628,8 +1670,8 @@ class QFace3D
                         [ -5,   0],
                         align: :bc))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_glow2 do
@@ -1640,8 +1682,8 @@ class QFace3D
                         [ -5,   0],
                         align: :bc))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_glow3 do
@@ -1652,8 +1694,8 @@ class QFace3D
                         [ -5,   0],
                         align: :bc))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_glow4 do
@@ -1664,8 +1706,8 @@ class QFace3D
                         [ -5,   0],
                         align: :bc))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_glow5 do
@@ -1676,8 +1718,8 @@ class QFace3D
                         [ -5,   0],
                         align: :bc))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_glow6 do
@@ -1688,8 +1730,8 @@ class QFace3D
                         [ -5,   0],
                         align: :bc))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_glow7 do
@@ -1700,8 +1742,8 @@ class QFace3D
                         [ -5,   0],
                         align: :bc))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_glow8 do
@@ -1712,8 +1754,8 @@ class QFace3D
                         [ -5,   0],
                         align: :bc))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
                       dc!
@@ -1777,8 +1819,8 @@ class QFace3D
                       draw_poly_wire vs[ 0], vs[ 1], vs[ 2]
                       draw_poly_wire vs[ 3], vs[ 4], vs[ 5]
                       draw_poly_wire vs[ 6], vs[ 7], vs[ 8], vs[ 9]
-                      draw_poly_wire vs[10], vs[11], vs[12], vs[13]
-    endwires          ret
+                      draw_poly_wire vs[10], vs[11], vs[12], vs[13], tail_call: true
+    endwires          label
   end
 
   ns :wire_front do
@@ -1792,8 +1834,8 @@ class QFace3D
                         align: :bc))
     endvs             db   -128
                       draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-                      draw_wire vs[4], vs[5]
-    endwires          ret
+                      draw_wire vs[4], vs[5], tail_call: true
+    endwires          label
   end
 
   ns :wire_slot_rt do
@@ -1804,8 +1846,8 @@ class QFace3D
                         [ 9, -25],
                         align: :ba))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_slot_lt do
@@ -1816,8 +1858,8 @@ class QFace3D
                         [ 9,  25],
                         align: :ab))
     endvs             db   -128
-                      draw_poly_wire vs[0], vs[1], vs[2], vs[3]
-    endwires          ret
+                      draw_poly_wire vs[0], vs[1], vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
   ns :wire_cannons do
@@ -1829,8 +1871,8 @@ class QFace3D
                         align: :ba))
     endvs             db   -128
                       draw_wire vs[0], vs[1]
-                      draw_wire vs[2], vs[3]
-    endwires          ret
+                      draw_wire vs[2], vs[3], tail_call: true
+    endwires          label
   end
 
                       dc!
@@ -1865,14 +1907,14 @@ class QFace3D
   ) do |obj|
     obj.scale!(1.0)
     obj.face!(0, 1, 2, 3, 4, 5, 6, 7, surface: [2, 5, 6], decoration: wire_serial)
-    obj.face!(7, 6, 8, 9, decoration: wire_hull1)
-    obj.face!(6, 5, 10, 8)
+    obj.face!(7, 6, 8, 9,   decoration: wire_hull1)
+    obj.face!(6, 5, 10, 8,  decoration: wire_windows1)
     obj.face!(5, 4, 11, 10, decoration: wire_hull2)
-    obj.face!(4, 3, 12, 11)
+    obj.face!(4, 3, 12, 11, decoration: wire_windows2)
     obj.face!(3, 2, 13, 12, decoration: wire_hull3)
-    obj.face!(2, 1, 14, 13)
+    obj.face!(2, 1, 14, 13, decoration: wire_windows3)
     obj.face!(1, 0, 15, 14, decoration: wire_hull4)
-    obj.face!(0, 7, 9, 15)
+    obj.face!(0, 7, 9, 15,  decoration: wire_windows4)
     obj.face!(9, 8, 16, 17)
     obj.face!(8, 10, 18, 16)
     obj.face!(10, 11, 19, 18)
@@ -1901,8 +1943,8 @@ class QFace3D
     endvs             db   -128
                       draw_poly_wire vs[0], vs[1], vs[2], vs[3]
                       draw_wire vs[4], vs[5]
-                      draw_wire vs[6], vs[7]
-    endwires          ret
+                      draw_wire vs[6], vs[7], tail_call: true
+    endwires          label
   end
 
   ns :wire_serial do
@@ -1917,8 +1959,8 @@ class QFace3D
                       draw_wire vs[4], vs[5]
                       draw_wire vs[6], vs[7]
                       draw_wire vs[8], vs[9]
-                      draw_wire vs[10], vs[11]
-    endwires          ret
+                      draw_wire vs[10], vs[11], tail_call: true
+    endwires          label
   end
 
   ns :wire_hull1 do
@@ -1930,8 +1972,19 @@ class QFace3D
     endvs             db   -128
                       draw_wire vs[0], vs[1]
                       draw_wire vs[2], vs[3]
-                      draw_wire vs[4], vs[5]
-    endwires          ret
+                      draw_wire vs[4], vs[5], tail_call: true
+    endwires          label
+  end
+
+  ns :wire_windows1 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(2,
+                        [-15,  5], [  5,  5], [ 12,  5], [ 15,  5],
+                        [-10, -5], [  0, -5], [  5, -5], [ 10, -5],
+                      align: :cb))
+    endvs             db   -128
+                      particles vs[0], vs[1], vs[2], vs[3],
+                                vs[4], vs[5], vs[6], vs[7], tail_call: true
+    endparticles      label
   end
 
   ns :wire_hull2 do
@@ -1943,8 +1996,19 @@ class QFace3D
     endvs             db   -128
                       draw_wire vs[0], vs[1]
                       draw_wire vs[2], vs[3]
-                      draw_wire vs[4], vs[5]
-    endwires          ret
+                      draw_wire vs[4], vs[5], tail_call: true
+    endwires          label
+  end
+
+  ns :wire_windows2 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(4,
+                        [-10,  5], [ -5,  5], [ 12,  5], [ 10,  5],
+                        [-15, -5], [ 10, -5], [ 12, -5], [ 20, -5],
+                      align: :cb))
+    endvs             db   -128
+                      particles vs[0], vs[1], vs[2], vs[3],
+                                vs[4], vs[5], vs[6], vs[7], tail_call: true
+    endparticles      label
   end
 
   ns :wire_hull3 do
@@ -1956,8 +2020,19 @@ class QFace3D
     endvs             db   -128
                       draw_wire vs[0], vs[1]
                       draw_wire vs[2], vs[3]
-                      draw_wire vs[4], vs[5]
-    endwires          ret
+                      draw_wire vs[4], vs[5], tail_call: true
+    endwires          label
+  end
+
+  ns :wire_windows3 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(6,
+                        [-10,  5], [ -8,  5], [ -4,  5], [ 10,  5],
+                        [-10, -5], [ -4, -5], [ 12, -5], [ 10, -5],
+                      align: :cb))
+    endvs             db   -128
+                      particles vs[0], vs[1], vs[2], vs[3],
+                                vs[4], vs[5], vs[6], vs[7], tail_call: true
+    endparticles      label
   end
 
   ns :wire_hull4 do
@@ -1969,9 +2044,21 @@ class QFace3D
     endvs             db   -128
                       draw_wire vs[0], vs[1]
                       draw_wire vs[2], vs[3]
-                      draw_wire vs[4], vs[5]
-    endwires          ret
+                      draw_wire vs[4], vs[5], tail_call: true
+    endwires          label
   end
+
+  ns :wire_windows4 do
+    vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(8,
+                        [-15,  5], [ -5,  5], [  0,  5], [  4,  5],
+                        [-10, -5], [ -5, -5], [  0, -5], [  8, -5],
+                      align: :cb))
+    endvs             db   -128
+                      particles vs[0], vs[1], vs[2], vs[3],
+                                vs[4], vs[5], vs[6], vs[7], tail_call: true
+    endparticles      label
+  end
+
 
   endsolids label
 
@@ -2016,14 +2103,15 @@ decals = [
   %w[wire_ansuz wire_algiz wire_othila wire_fehu wire_mannaz wire_inguz wire_nauthiz],
   %w[wire_rune wire_glow1 wire_glow2 wire_glow3 wire_glow4 wire_glow5 wire_glow6 wire_glow7 ],
   %w[wire_engines wire_front wire_slot_rt wire_slot_lt wire_cannons],
-  %w[wire_entrance wire_serial wire_hull1 wire_hull2 wire_hull3 wire_hull4],
+  %w[wire_entrance wire_serial wire_hull1 wire_hull2 wire_hull3 wire_hull4
+     wire_windows1 wire_windows2 wire_windows3 wire_windows4],
 ]
 (%w[start 
     start.draw_loop.draw_faces_a
     start.draw_loop.course_to_rot
     start.draw_loop.apply_rotation
-    apply_matrix_to_vertices.apply_matrix_a
-    draw] +
+    draw plot
+    apply_matrix_to_vertices.apply_matrix_a] +
  solids.map.with_index {|n,i| [n] + decals[i] }.flatten +
  %w[
    endsolids
@@ -2040,7 +2128,13 @@ solids.each_with_index do |label, sindex|
   ecount = (quat3d["#{label}.endsolid"] - quat3d["#{label}.edge1"]) / quat3d["+#{label}.edge1"]
   decors = decals[sindex]
   dvscounts = decors.map {|n| (quat3d["#{n}.endvs"] - quat3d["#{n}.vs"]) / quat3d["+#{n}.vs"]}
-  dwcounts = decors.map {|n| (quat3d["#{n}.endwires"] - quat3d["#{n}.endvs"] - quat3d["+#{n}.endvs"]) / 10}
+  dwcounts = decors.map do |n|
+    if endwires = quat3d["#{n}.endwires"]
+      (endwires - quat3d["#{n}.endvs"] - quat3d["+#{n}.endvs"]) / 10
+    else
+      0
+    end
+  end
   puts "Solid #{label.ljust 10}: #{vscount.to_s.rjust 8} #{fcount.to_s.rjust 6} #{ecount.to_s.rjust 5} #{decors.length.to_s.rjust 6} #{dvscounts.sum.to_s.rjust 4} #{dwcounts.sum.to_s.rjust 7}"
 end
 puts "="*68
