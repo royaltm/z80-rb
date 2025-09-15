@@ -1978,7 +1978,7 @@ class QFace3D
 
   ns :wire_windows1 do
     vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(2,
-                        [-15,  5], [  5,  5], [ 12,  5], [ 15,  5],
+                        [-15,  5], [  5,  5], [ 10,  5], [ 15,  5],
                         [-10, -5], [  0, -5], [  5, -5], [ 10, -5],
                       align: :cb))
     endvs             db   -128
@@ -2002,8 +2002,8 @@ class QFace3D
 
   ns :wire_windows2 do
     vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(4,
-                        [-10,  5], [ -5,  5], [ 12,  5], [ 10,  5],
-                        [-15, -5], [ 10, -5], [ 12, -5], [ 20, -5],
+                        [-10,  5], [ -5,  5], [  5,  5], [ 10,  5],
+                        [-15, -5], [  0, -5], [  5, -5], [ 10, -5],
                       align: :cb))
     endvs             db   -128
                       particles vs[0], vs[1], vs[2], vs[3],
@@ -2026,8 +2026,8 @@ class QFace3D
 
   ns :wire_windows3 do
     vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(6,
-                        [-10,  5], [ -8,  5], [ -4,  5], [ 10,  5],
-                        [-10, -5], [ -4, -5], [ 12, -5], [ 10, -5],
+                        [-10,  5], [ -5,  5], [  0,  5], [ 10,  5],
+                        [-10, -5], [ -5, -5], [ 10, -5], [ 15, -5],
                       align: :cb))
     endvs             db   -128
                       particles vs[0], vs[1], vs[2], vs[3],
@@ -2050,8 +2050,8 @@ class QFace3D
 
   ns :wire_windows4 do
     vs                data Vertex, *Vertex.make_many( *o.map_vec2_face(8,
-                        [-15,  5], [ -5,  5], [  0,  5], [  4,  5],
-                        [-10, -5], [ -5, -5], [  0, -5], [  8, -5],
+                        [-15,  5], [ -5,  5], [  0,  5], [  5,  5],
+                        [-10, -5], [ -5, -5], [  0, -5], [ 10, -5],
                       align: :cb))
     endvs             db   -128
                       particles vs[0], vs[1], vs[2], vs[3],
