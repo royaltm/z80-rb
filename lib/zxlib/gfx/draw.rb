@@ -145,13 +145,17 @@ module ZXLib
         ##
         # Creates the plot pixel routine.
         #
-        # * +x+:: The input register: horizontal-coordinate in the range [0, 255].
-        # * +y+:: The input register: vertical-coordinate in the range [0, 191].
-        # * +preshift+:: An address returned from the preshifted_pixel_mask_data called with a +:pixel+ or a +:inversed_pixel+ argument.
-        #                Alternatively specify as +de+ and provide the +preshift+ address in +de+ register pair.
+        # * +x+:: The input register: horizontal-coordinate in the range [0, 255], one of:
+        #         +d+, +e+ or +l+.
+        # * +y+:: The input register: vertical-coordinate in the range [0, 191], one of:
+        #         +d+, +e+, +h+, +l+ or +a+.
+        # * +preshift+:: An address returned from the preshifted_pixel_mask_data called with a +:pixel+
+        #   or a +:inversed_pixel+ argument.
+        #   Alternatively specify as +de+ and provide the +preshift+ address in +de+ register pair.
         #
         # Options:
-        # * +fx+:: Function determining how to mix pixels with the screen: +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+, +:skip+.
+        # * +fx+:: Function determining how to mix pixels with the screen:
+        #          +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+, +:skip+.
         # * +with_attributes+:: Optionally writes to the screen attributes if not +false+.
         #                       Pass +:overwrite+ to ignore the +color_mask+.
         # * +color_attr+:: A pointer address, an integer or a label or a 8-bit half of +ix+ or +iy+ register.
@@ -169,7 +173,8 @@ module ZXLib
         # * merge attributes:: +62 +(0/1/6/12) for +color_mask+ one of: n/ixh/[ address ]/[ix+n];
         #                      +(0/1/14/20) for +color_attr+ one of: n/ixh/[ address ]/[ix+n]
         #
-        # Unless +fx+ was given :write or :skip, the internal label: +plot_fx+ may be used to modify the fx function:
+        # Unless +fx+ was given :write or :skip, the internal label: +plot_fx+ may be used to modify
+        # the fx function:
         #
         #   fx    value  Z80 mnemonic
         #   :or   0xB6   OR (HL)
@@ -190,6 +195,7 @@ module ZXLib
           if preshift == de
             raise ArgumentError, "plot_pixel: x and y in conflict with preshift" if [d, e].include?(x) || [d, e].include?(y)
           end
+
           isolate do
                         xytoscr y, x, ah:h, al:l, s:c, t:b, scraddr:scraddr
             if direct_address?(preshift)
