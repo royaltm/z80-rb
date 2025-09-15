@@ -21,8 +21,6 @@
 <link href="../../../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -60,71 +58,43 @@
   <div id="class-metadata">
     
     
-    <div id="includes-section" class="nav-section">
+    
+<div id="includes-section" class="nav-section">
   <h3>Included Modules</h3>
 
   <ul class="link-list">
-  
-  
     <li><a class="include" href="../Macros.html">ZXLib::Gfx::Macros</a>
-  
-  
-  
     <li><a class="include" href="../../../Z80/MathInt/Macros.html">Z80::MathInt::Macros</a>
-  
-  
-  
     <li><a class="include" href="Constants.html">ZXLib::Gfx::Draw::Constants</a>
-  
-  
   </ul>
 </div>
 
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-i-draw_line">#draw_line</a>
-    
     <li ><a href="#method-i-draw_line_dx_gt_4dy">#draw_line_dx_gt_4dy</a>
-    
     <li ><a href="#method-i-draw_line_dx_gt_dy">#draw_line_dx_gt_dy</a>
-    
     <li ><a href="#method-i-draw_line_dy_gte_dx">#draw_line_dy_gte_dx</a>
-    
     <li ><a href="#method-i-draw_line_fx_data">#draw_line_fx_data</a>
-    
     <li ><a href="#method-i-draw_line_fx_data_dx_gt_4dy">#draw_line_fx_data_dx_gt_4dy</a>
-    
     <li ><a href="#method-i-draw_line_fx_data_dx_gt_dy">#draw_line_fx_data_dx_gt_dy</a>
-    
     <li ><a href="#method-i-draw_line_fx_data_dy_gte_dx">#draw_line_fx_data_dy_gte_dx</a>
-    
     <li ><a href="#method-i-draw_line_fx_data_vertical">#draw_line_fx_data_vertical</a>
-    
     <li ><a href="#method-i-draw_line_update">#draw_line_update</a>
-    
     <li ><a href="#method-i-draw_line_update_dx_gt_4dy">#draw_line_update_dx_gt_4dy</a>
-    
     <li ><a href="#method-i-draw_line_update_dx_gt_dy">#draw_line_update_dx_gt_dy</a>
-    
     <li ><a href="#method-i-draw_line_update_dy_gte_dx">#draw_line_update_dy_gte_dx</a>
-    
     <li ><a href="#method-i-draw_line_update_vertical">#draw_line_update_vertical</a>
-    
     <li ><a href="#method-i-draw_line_vertical">#draw_line_vertical</a>
-    
     <li ><a href="#method-i-make_draw_line_subroutines">#make_draw_line_subroutines</a>
-    
     <li ><a href="#method-i-plot_pixel">#plot_pixel</a>
-    
     <li ><a href="#method-i-prepare_args_draw_line_to">#prepare_args_draw_line_to</a>
-    
     <li ><a href="#method-i-preshifted_pixel_mask_data">#preshifted_pixel_mask_data</a>
-    
   </ul>
 </div>
 
@@ -155,36 +125,25 @@ p |                |
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
 
-    
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-draw_line" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line</span><span
             class="method-args">(preshift_pixel, preshift_cov_lt, preshift_cov_rt, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that draws an approximation to a straight line.</p>
 
 <p>The routine only modifies ink/paper screen memory and does not modify attributes.</p>
@@ -259,10 +218,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 :xor    :pixel      :pixel             1        0
 :and    :mask       :inversed_pixel    0        1
 :none   *           *                  1        1</pre>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 424</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line</span>(<span class="ruby-identifier">preshift_pixel</span>, <span class="ruby-identifier">preshift_cov_lt</span>, <span class="ruby-identifier">preshift_cov_rt</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">pixel_type:</span> <span class="ruby-value">:pixel</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">end_with:</span> <span class="ruby-value">:eoc</span>)
@@ -355,28 +311,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_dx_gt_4dy" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_dx_gt_4dy</span><span
             class="method-args">(preshift_cov_rt, direction: :down, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine for drawing lines with the <code>x</code> distance 4 times larger than the <code>y</code> distance.</p>
 
 <p>Input registers:</p>
@@ -431,10 +378,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 </li></ul>
 
 <p>Uses: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>af&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, <code>hl&#39;</code>, <code>ix</code>, preserves: <code>c</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_dx_gt_4dy-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1684</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_dx_gt_4dy</span>(<span class="ruby-identifier">preshift_cov_rt</span>, <span class="ruby-value">direction:</span> <span class="ruby-value">:down</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">pixel_type:</span> <span class="ruby-value">:pixel</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">end_with:</span> <span class="ruby-value">:eoc</span>)
@@ -709,28 +653,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_dx_gt_dy" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_dx_gt_dy</span><span
             class="method-args">(preshift_cov_lt, direction: :down, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine for drawing lines with the <code>x</code> distance larger than the <code>y</code> distance.</p>
 
 <p>Input registers with <code>preshift_cov_lt</code> data:</p>
@@ -807,10 +742,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 </li></ul>
 
 <p>Uses: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>ix</code>, preserves: <code>c</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_dx_gt_dy-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1222</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_dx_gt_dy</span>(<span class="ruby-identifier">preshift_cov_lt</span>, <span class="ruby-value">direction:</span> <span class="ruby-value">:down</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">pixel_type:</span> <span class="ruby-value">:pixel</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">end_with:</span> <span class="ruby-value">:eoc</span>)
@@ -1109,28 +1041,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_dy_gte_dx" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_dy_gte_dx</span><span
             class="method-args">(preshift, direction: :down_right, fx: :or, pixel_type: :pixel, scraddr:0x4000, check_oos:true, end_with: :eoc)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine for drawing lines with the <code>y</code> distance larger than or equal to the <code>x</code> distance.</p>
 
 <p>Input registers with <code>preshift</code> data:</p>
@@ -1205,10 +1128,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 </li></ul>
 
 <p>Uses: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, preserves: <code>c</code>. Stack depth: 2 bytes.</p>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_dy_gte_dx-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 879</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_dy_gte_dx</span>(<span class="ruby-identifier">preshift</span>, <span class="ruby-value">direction:</span> <span class="ruby-value">:down_right</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">pixel_type:</span> <span class="ruby-value">:pixel</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">end_with:</span> <span class="ruby-value">:eoc</span>)
@@ -1397,28 +1317,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_fx_data" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_fx_data</span><span
             class="method-args">(preshift_pixel, preshift_cov_lt, preshift_cov_rt, fx:, pixel_type:)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates data for <a href="Macros.html#method-i-draw_line_update"><code>draw_line_update</code></a> routine.</p>
 
 <p>Arguments:</p>
@@ -1445,10 +1356,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 </li></ul>
 
 <p>In case <code>:pixel_type</code> is <code>:pixel_fx_only</code> or <code>:mask_fx_only</code> all three arguments: <code>preshift_pixel</code>, <code>preshift_cov_lt</code> and <code>preshift_cov_rt</code> should be <code>nil</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_fx_data-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 355</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_fx_data</span>(<span class="ruby-identifier">preshift_pixel</span>, <span class="ruby-identifier">preshift_cov_lt</span>, <span class="ruby-identifier">preshift_cov_rt</span>, <span class="ruby-value">fx:</span>, <span class="ruby-value">pixel_type:</span>)
@@ -1471,28 +1379,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_fx_data_dx_gt_4dy" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_fx_data_dx_gt_4dy</span><span
             class="method-args">(preshift_cov_rt, fx:, pixel_type:)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates data for <a href="Macros.html#method-i-draw_line_update_dx_gt_4dy"><code>draw_line_update_dx_gt_4dy</code></a> routine.</p>
 
 <p>Arguments:</p>
@@ -1509,10 +1408,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>How to interpret preshifted pixel data as <code>:pixel</code> or <code>:mask</code>. E.g. for inversed preshift data use <code>:mask</code> (to be used with <code>fx</code>=<code>:and</code>). Use <code>:pixel_fx_only</code> or <code>:mask_fx_only</code> if you don&#39;t want to include <code>pixel_type</code> data. In this instance <a href="Macros.html#method-i-draw_line_update_dx_gt_4dy"><code>draw_line_update_dx_gt_4dy</code></a> should be created with <code>fx_only:</code> <code>true</code> or entered at <code>fx_only</code> sub-label to be able to use created data without <code>pixel_type</code>. The choice between <code>:pixel_fx_only</code> and <code>:mask_fx_only</code> should be based on whether data will be used to modify <a href="Macros.html#method-i-draw_line_dx_gt_4dy"><code>draw_line_dx_gt_4dy</code></a> code created with the <code>pixel_type:</code> as <code>:pixel</code> or <code>:mask</code>.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_fx_data_dx_gt_4dy-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1588</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_fx_data_dx_gt_4dy</span>(<span class="ruby-identifier">preshift_cov_rt</span>, <span class="ruby-value">fx:</span>, <span class="ruby-value">pixel_type:</span>)
@@ -1579,28 +1475,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_fx_data_dx_gt_dy" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_fx_data_dx_gt_dy</span><span
             class="method-args">(preshift_cov_lt, fx:, pixel_type:nil)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates data for <a href="Macros.html#method-i-draw_line_update_dx_gt_dy"><code>draw_line_update_dx_gt_dy</code></a> routine.</p>
 
 <p>Arguments:</p>
@@ -1617,10 +1504,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>How to mix pixels with the screen: <code>:or</code>, <code>:xor</code>, <code>:and</code>, <code>:none</code>, <code>:nop</code>.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_fx_data_dx_gt_dy-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1136</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_fx_data_dx_gt_dy</span>(<span class="ruby-identifier">preshift_cov_lt</span>, <span class="ruby-value">fx:</span>, <span class="ruby-value">pixel_type:</span><span class="ruby-keyword">nil</span>)
@@ -1664,28 +1548,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_fx_data_dy_gte_dx" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_fx_data_dy_gte_dx</span><span
             class="method-args">(preshift, fx:, pixel_type:nil)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates data for <a href="Macros.html#method-i-draw_line_update_dy_gte_dx"><code>draw_line_update_dy_gte_dx</code></a> routine.</p>
 
 <p>Arguments:</p>
@@ -1702,10 +1577,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>How to mix pixels with the screen: <code>:or</code>, <code>:xor</code>, <code>:and</code>, <code>:none</code>, <code>:nop</code>.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_fx_data_dy_gte_dx-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 806</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_fx_data_dy_gte_dx</span>(<span class="ruby-identifier">preshift</span>, <span class="ruby-value">fx:</span>, <span class="ruby-value">pixel_type:</span><span class="ruby-keyword">nil</span>)
@@ -1736,28 +1608,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_fx_data_vertical" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_fx_data_vertical</span><span
             class="method-args">(preshift, fx:)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates data for <a href="Macros.html#method-i-draw_line_update_vertical"><code>draw_line_update_vertical</code></a> routine.</p>
 
 <p>Arguments:</p>
@@ -1770,10 +1633,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>How to mix pixels with the screen: <code>:or</code>, <code>:xor</code>, <code>:and</code>, <code>:none</code>, <code>:nop</code>.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_fx_data_vertical-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 558</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_fx_data_vertical</span>(<span class="ruby-identifier">preshift</span>, <span class="ruby-value">fx:</span>)
@@ -1795,28 +1655,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_update" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_update</span><span
             class="method-args">(target, fx_only:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that modifies the function of the <a href="Macros.html#method-i-draw_line"><code>draw_line</code></a> code in place.</p>
 <dl class="rdoc-list note-list"><dt><code>target</code>
 <dd>
@@ -1839,10 +1690,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>T-states: 1530/564 with <code>fx_only</code>: <code>false</code>/<code>true</code></p>
 
 <p>Modifies: <code>a</code>, <code>bc</code>, <code>de</code>, <code>hl</code>. Stack depth: 2 bytes.</p>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_update-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 310</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_update</span>(<span class="ruby-identifier">target</span>, <span class="ruby-value">fx_only:</span><span class="ruby-keyword">false</span>)
@@ -1867,28 +1715,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_update_dx_gt_4dy" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_update_dx_gt_4dy</span><span
             class="method-args">(target, no_preshift:false, fx_only:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that modifies the function of the <a href="Macros.html#method-i-draw_line_dx_gt_4dy"><code>draw_line_dx_gt_4dy</code></a> code in place.</p>
 <dl class="rdoc-list note-list"><dt><code>target</code>
 <dd>
@@ -1917,10 +1756,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>T-states: 250/175/123 default/<code>no_preshift</code>:<code>true</code>/<code>fx_only</code>:<code>true</code></p>
 
 <p>Modifies: <code>a</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_update_dx_gt_4dy-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1540</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_update_dx_gt_4dy</span>(<span class="ruby-identifier">target</span>, <span class="ruby-value">no_preshift:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">fx_only:</span><span class="ruby-keyword">false</span>)
@@ -1953,28 +1789,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_update_dx_gt_dy" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_update_dx_gt_dy</span><span
             class="method-args">(target, no_preshift:false, fx_only:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that modifies the function of the <a href="Macros.html#method-i-draw_line_dx_gt_dy"><code>draw_line_dx_gt_dy</code></a> code in place.</p>
 <dl class="rdoc-list note-list"><dt><code>target</code>
 <dd>
@@ -2003,10 +1830,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>T-states: 311/269/65 default/<code>no_preshift</code>:<code>true</code>/<code>fx_only</code>:<code>true</code></p>
 
 <p>Modifies: <code>a</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_update_dx_gt_dy-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1087</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_update_dx_gt_dy</span>(<span class="ruby-identifier">target</span>, <span class="ruby-value">no_preshift:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">fx_only:</span><span class="ruby-keyword">false</span>)
@@ -2043,28 +1867,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_update_dy_gte_dx" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_update_dy_gte_dx</span><span
             class="method-args">(target, no_preshift:false, fx_only:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that modifies the function of the <a href="Macros.html#method-i-draw_line_dy_gte_dx"><code>draw_line_dy_gte_dx</code></a> code in place.</p>
 <dl class="rdoc-list note-list"><dt><code>target</code>
 <dd>
@@ -2093,10 +1908,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>T-states: 94/52/26 default/<code>no_preshift</code>:<code>true</code>/<code>fx_only</code>:<code>true</code></p>
 
 <p>Modifies: <code>a</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_update_dy_gte_dx-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 772</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_update_dy_gte_dx</span>(<span class="ruby-identifier">target</span>, <span class="ruby-value">no_preshift:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">fx_only:</span><span class="ruby-keyword">false</span>)
@@ -2118,28 +1930,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_update_vertical" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_update_vertical</span><span
             class="method-args">(target, no_preshift:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that modifies the function of the <a href="Macros.html#method-i-draw_line_vertical"><code>draw_line_vertical</code></a> code in place.</p>
 <dl class="rdoc-list note-list"><dt><code>target</code>
 <dd>
@@ -2164,10 +1967,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>T-states: 68/26 with <code>no_preshift</code>: <code>false</code>/<code>true</code></p>
 
 <p>Modifies: <code>a</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_update_vertical-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 534</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_update_vertical</span>(<span class="ruby-identifier">target</span>, <span class="ruby-value">no_preshift:</span><span class="ruby-keyword">false</span>)
@@ -2184,28 +1984,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-draw_line_vertical" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">draw_line_vertical</span><span
             class="method-args">(preshift, direction: :down, fx: :or, scraddr:0x4000, check_oos:true, end_with: :eoc)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine for drawing vertical lines.</p>
 
 <p>Input registers with <code>preshift</code> data:</p>
@@ -2268,10 +2059,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>b</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="draw_line_vertical-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 614</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_vertical</span>(<span class="ruby-identifier">preshift</span>, <span class="ruby-value">direction:</span> <span class="ruby-value">:down</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">end_with:</span> <span class="ruby-value">:eoc</span>)
@@ -2410,28 +2198,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-make_draw_line_subroutines" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">make_draw_line_subroutines</span><span
             class="method-args">(make_line:true, make_line_over:true, make_line_inversed:true, make_lines_to:true, scraddr:0x4000, check_oos:true)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>A convenient method to build drawing subroutines.</p>
 
 <p>Returns a namespace label with members including the routines and preshifted pixels data.</p>
@@ -2462,10 +2241,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>Whether to check screen area boundaries when drawing lines. If <code>false</code> attempting to draw a line outside the screen boundaries will be UNDEFINED BEHAVIOUR.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="make_draw_line_subroutines-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 85</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">make_draw_line_subroutines</span>(<span class="ruby-value">make_line:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">make_line_over:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">make_line_inversed:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">make_lines_to:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>)
@@ -2492,28 +2268,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-plot_pixel" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">plot_pixel</span><span
             class="method-args">(x, y, preshift, fx: :or, with_attributes:false, color_attr:ixl, color_mask:ixh, scraddr:0x4000)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates the plot pixel routine.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>x</code>
 <dd>
@@ -2585,10 +2352,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 <p>Internal labels: <code>attr_p</code>, <code>mask_p</code> may be used to modify <code>color_attr</code> or <code>color_mask</code> if the arguments were given as numbers.</p>
 
 <p>If <code>preshift</code> is given as a direct address the internal label <code>preshift_p</code> may be used to modify the <code>preshift</code> address at run time.</p>
-          
-          
 
-          
           <div class="method-source-code" id="plot_pixel-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 191</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">plot_pixel</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">preshift</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">with_attributes:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">color_attr:</span><span class="ruby-identifier">ixl</span>, <span class="ruby-value">color_mask:</span><span class="ruby-identifier">ixh</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
@@ -2662,28 +2426,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-prepare_args_draw_line_to" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">prepare_args_draw_line_to</span><span
             class="method-args">()</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that prepares arguments for the <a href="Macros.html#method-i-draw_line"><code>draw_line</code></a> routine from two sets of coordinates.</p>
 
 <p>Registers <code>hl</code> and <code>de</code> should contain the <code>yx</code> coordinates of 2 points that the line should be drawn between.</p>
@@ -2698,10 +2453,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 </li><li>
 <p><code>de</code>: a sign and a <code>dy</code> value.</p>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="prepare_args_draw_line_to-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 273</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">prepare_args_draw_line_to</span>
@@ -2725,28 +2477,19 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-preshifted_pixel_mask_data" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">preshifted_pixel_mask_data</span><span
             class="method-args">(data_type)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates precalculated pixel mask data to be used with drawing routines.</p>
 
 <p><code>data_type</code>:</p>
@@ -2759,10 +2502,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 :inversed_pixel_cover_right 00000000, 10000000 ... 11110000 ... 11111110</pre>
 
 <p>Data is being aligned to 8 bytes.</p>
-          
-          
 
-          
           <div class="method-source-code" id="preshifted_pixel_mask_data-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 121</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">preshifted_pixel_mask_data</span>(<span class="ruby-identifier">data_type</span>)
@@ -2790,25 +2530,20 @@ dy = 3 must be encoded as d:0, e:3</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

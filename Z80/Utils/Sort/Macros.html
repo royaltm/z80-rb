@@ -21,8 +21,6 @@
 <link href="../../../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -62,18 +60,15 @@
     
     
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-i-insertion_sort_bytes_max256">#insertion_sort_bytes_max256</a>
-    
     <li ><a href="#method-i-quicksort_bytes">#quicksort_bytes</a>
-    
     <li ><a href="#method-i-selection_sort_bytes_max256">#selection_sort_bytes_max256</a>
-    
   </ul>
 </div>
 
@@ -91,36 +86,25 @@
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
 
-    
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-insertion_sort_bytes_max256" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">insertion_sort_bytes_max256</span><span
             class="method-args">(reverse:false, target:hl, length:b, subroutine:false, &amp;side_effects)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that sorts an array of bytes using insertion sort.</p>
 
 <pre>i ← 0
@@ -173,10 +157,7 @@ after     A → B   C   D              D   C   B ← A
           ^                                      ^</pre>
 
 <p>The side effects procedure <strong>MUST PRESERVE</strong> the content of the <code>hl</code> 16-bit register.</p>
-          
-          
 
-          
           <div class="method-source-code" id="insertion_sort_bytes_max256-source">
             <pre><span class="ruby-comment"># File lib/z80/utils/sort.rb, line 323</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">insertion_sort_bytes_max256</span>(<span class="ruby-value">reverse:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">length:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">side_effects</span>)
@@ -256,28 +237,19 @@ after     A → B   C   D              D   C   B ← A
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-quicksort_bytes" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">quicksort_bytes</span><span
             class="method-args">(select_pivot=:half, reverse: false, safe_args: true, pivot_reg: c, swap_same: true, &amp;swap_items)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a subroutine that sorts an array of bytes using quicksort algorithm.</p>
 
 <pre>algorithm qsort(A, first, last) is
@@ -374,10 +346,7 @@ after     A → B   C   D              D   C   B ← A
 <p>The built-in <code>:half</code> takes additional 39 to 43 T-states for each recursion but is a fair strategy for many cases.</p>
 
 <p>Better pivot selection algorithms can be derived especially if values that are being sorted are well known.</p>
-          
-          
 
-          
           <div class="method-source-code" id="quicksort_bytes-source">
             <pre><span class="ruby-comment"># File lib/z80/utils/sort.rb, line 135</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">quicksort_bytes</span>(<span class="ruby-identifier">select_pivot</span>=<span class="ruby-value">:half</span>,
@@ -525,28 +494,19 @@ after     A → B   C   D              D   C   B ← A
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-selection_sort_bytes_max256" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">selection_sort_bytes_max256</span><span
             class="method-args">(reverse:false, target:hl, length:b, subroutine:false, &amp;swap_items)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that sorts an array of bytes using selection sort.</p>
 
 <pre>i ← length(A) - 1
@@ -592,10 +552,7 @@ while i &gt; 0
 <p>Optionally provide a block that creates a custom inline procedure for swapping items. The procedure should expect items to be swapped at addresses pointed to by <code>hl</code> and <code>de</code> registers. The <code>accumulator</code> will already have the value loaded from <code>[de]</code>.</p>
 
 <p>The swap items procedure <strong>MUST PRESERVE</strong> values of <code>hl</code> and <code>b</code> registers.</p>
-          
-          
 
-          
           <div class="method-source-code" id="selection_sort_bytes_max256-source">
             <pre><span class="ruby-comment"># File lib/z80/utils/sort.rb, line 437</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">selection_sort_bytes_max256</span>(<span class="ruby-value">reverse:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">length:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">swap_items</span>)
@@ -662,25 +619,20 @@ while i &gt; 0
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

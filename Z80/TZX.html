@@ -21,8 +21,6 @@
 <link href="../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -62,26 +60,19 @@
     
     
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-c-parse_file">::parse_file</a>
-    
     <li ><a href="#method-c-parse_tap">::parse_tap</a>
-    
     <li ><a href="#method-c-read_chunk">::read_chunk</a>
-    
     <li ><a href="#method-c-read_data">::read_data</a>
-    
     <li ><a href="#method-i-save_tap">#save_tap</a>
-    
     <li ><a href="#method-i-to_tap">#to_tap</a>
-    
     <li ><a href="#method-i-to_tap_chunk">#to_tap_chunk</a>
-    
   </ul>
 </div>
 
@@ -154,26 +145,17 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
     <section class="constants-list">
       <header>
         <h3>Constants</h3>
       </header>
       <dl>
-      
         <dt id="Body">Body
-        
         <dd><p>A struct which represents the body chunk of a <a href="TAP.html"><code>TAP</code></a> file. Property <code>data</code> is a binary string containing the body data.</p>
-        
-      
         <dt id="Header">Header
-        
         <dd><p>A struct which represents the header chunk of a <a href="TAP.html"><code>TAP</code></a> file.</p>
 
 <p><a href="TAP.html#Header"><code>Header</code></a> struct properties:</p>
@@ -209,61 +191,36 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 <ul><li>
 <p><code>address</code>, <code>addr</code> and <code>org</code> returns the original code address.</p>
 </li></ul>
-        
-      
         <dt id="TYPE_CHAR_ARRAY">TYPE_CHAR_ARRAY
-        
         <dd>
-        
-      
         <dt id="TYPE_CODE">TYPE_CODE
-        
         <dd>
-        
-      
         <dt id="TYPE_NUMBER_ARRAY">TYPE_NUMBER_ARRAY
-        
         <dd>
-        
-      
         <dt id="TYPE_PROGRAM">TYPE_PROGRAM
-        
         <dd>
-        
-      
       </dl>
     </section>
-    
 
-    
 
-    
+
      <section id="public-class-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Class Methods</h3>
        </header>
 
-    
       <div id="method-c-parse_file" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">parse_file</span><span
             class="method-args">(filename, &amp;block)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns an Enumerator of <a href="TAP/HeaderBody.html"><code>TAP::HeaderBody</code></a> chunks representing segments of a <a href="TAP.html"><code>TAP</code></a> <code>file</code>. Optionally unwraps <a href="TZX.html"><code>TZX</code></a> headers.</p>
 
 <p>Pass a <code>block</code> to visit each <code>chunk</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="parse_file-source">
             <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 380</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_file</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -271,35 +228,23 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
         <span class="ruby-constant">TAP</span>.<span class="ruby-identifier">parse_tap</span>(<span class="ruby-identifier">tap</span>, <span class="ruby-identifier">filename</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-c-parse_tap" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">parse_tap</span><span
             class="method-args">(tap, file=&#39;-&#39;, &amp;block)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns an Enumerator of <a href="TAP/HeaderBody.html"><code>TAP::HeaderBody</code></a> chunks representing segments of a <a href="TAP.html"><code>TAP</code></a> blob. Optionally unwraps <a href="TZX.html"><code>TZX</code></a> headers.</p>
 
 <p>The <code>tap</code> argument must be a binary string. Pass a <code>block</code> to visit each <code>chunk</code>. Optionally pass a <code>file</code> name for error messages.</p>
-          
-          
 
-          
           <div class="method-source-code" id="parse_tap-source">
             <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 392</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_tap</span>(<span class="ruby-identifier">tap</span>, <span class="ruby-identifier">file</span>=<span class="ruby-string">&#39;-&#39;</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -340,37 +285,25 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-c-read_chunk" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">read_chunk</span><span
             class="method-args">(filename, name:nil, index:nil) { |chunk| ... }</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Reads a <a href="TAP/HeaderBody.html"><code>TAP::HeaderBody</code></a> chunk from a <a href="TAP.html"><code>TAP</code></a> file.</p>
 
 <p>Pass additional <code>:name</code> argument to search for the header name or a <code>:index</code> =&gt; <code>n</code> argument to choose the n&#39;th chunk (1-based) from a file.</p>
 
 <p>Pass a block to visit a chunk.</p>
-          
-          
 
-          
           <div class="method-source-code" id="read_chunk-source">
             <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 359</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_chunk</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">name:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">index:</span><span class="ruby-keyword">nil</span>)
@@ -389,37 +322,25 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-c-read_data" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">read_data</span><span
             class="method-args">(filename, **opts)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Reads a data chunk from a <a href="TAP.html"><code>TAP</code></a> file. Returns a binary string.</p>
 
 <p><a href="Program.html#method-i-import_file"><code>Program.import_file</code></a> uses this method to read from a <a href="TAP.html"><code>TAP</code></a> file.</p>
 
 <p>See <a href="TAP.html#method-c-read_chunk"><code>read_chunk</code></a> for <code>opts</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="read_data-source">
             <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 339</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_data</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
@@ -434,36 +355,26 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
         <span class="ruby-identifier">raise</span> <span class="ruby-node">&quot;Chunk: #{index} not found in a TAP file: `#{filename}`&quot;</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-save_tap" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">save_tap</span><span
             class="method-args">(filename, append:false, name:nil, **opts)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Saves self in a <a href="TAP.html"><code>TAP</code></a> file.</p>
 
 <p>The tap data is being generated by <a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a>.</p>
@@ -478,10 +389,7 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 </li></ul>
 
 <p>Any additional option will be passed to the <a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a> method.</p>
-          
-          
 
-          
           <div class="method-source-code" id="save_tap-source">
             <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 77</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">save_tap</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">append:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">name:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
@@ -489,65 +397,44 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
         <span class="ruby-identifier">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>).<span class="ruby-identifier">save_tap</span> <span class="ruby-identifier">filename</span>, <span class="ruby-value">append:</span><span class="ruby-identifier">append</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-to_tap" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">to_tap</span><span
             class="method-args">(name, **opts)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Produces a <a href="TAP.html"><code>TAP</code></a> blob as a binary string from self.</p>
 
 <p>A sugar for calling <a href="TAP/HeaderBody.html#method-i-to_tap"><code>TAP::HeaderBody#to_tap</code></a> method on the result produced by <a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a>.</p>
 
 <p><code>name</code> should contain max 10 ascii characters. Any options given will be passed to the <a href="TAP.html#method-i-to_tap_chunk"><code>to_tap_chunk</code></a> method.</p>
-          
-          
 
-          
           <div class="method-source-code" id="to_tap-source">
             <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 88</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-identifier">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>).<span class="ruby-identifier">to_tap</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-to_tap_chunk" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">to_tap_chunk</span><span
             class="method-args">(name, org:nil)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a <a href="TAP/HeaderBody.html"><code>TAP::HeaderBody</code></a> chunk from self.</p>
 
 <p>By default it uses <a href="../Z80.html#attribute-i-code"><code>Z80#code</code></a> and the <a href="../Z80.html#attribute-i-org"><code>Z80#org</code></a> to produce the tap data.</p>
@@ -555,35 +442,27 @@ checksum (checkbittoggle would be a better name!).............^^</pre>
 <p>This method is used by <a href="TAP.html#method-i-to_tap"><code>to_tap</code></a> and <a href="TAP.html#method-i-save_tap"><code>save_tap</code></a>.</p>
 
 <p><code>name</code> should contain max 10 ascii characters. Optionally <code>org</code> may be given to override the starting code address.</p>
-          
-          
 
-          
           <div class="method-source-code" id="to_tap_chunk-source">
             <pre><span class="ruby-comment"># File lib/z80/tap.rb, line 100</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_tap_chunk</span>(<span class="ruby-identifier">name</span>, <span class="ruby-value">org:</span><span class="ruby-keyword">nil</span>)
         <span class="ruby-constant">HeaderBody</span>.<span class="ruby-identifier">new_code</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">code</span>, <span class="ruby-identifier">org</span><span class="ruby-operator">||</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">org</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

@@ -21,8 +21,6 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -62,22 +60,17 @@
     
     
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-i-ay_music_finished-3F">#ay_music_finished?</a>
-    
     <li ><a href="#method-i-ay_music_init">#ay_music_init</a>
-    
     <li ><a href="#method-i-ay_music_note_to_fine_tone_cursor_table_factory">#ay_music_note_to_fine_tone_cursor_table_factory</a>
-    
     <li ><a href="#method-i-ay_music_preserve_io_ports_state">#ay_music_preserve_io_ports_state</a>
-    
     <li ><a href="#method-i-ay_music_tone_progress_table_factory">#ay_music_tone_progress_table_factory</a>
-    
   </ul>
 </div>
 
@@ -110,36 +103,25 @@ end</pre>
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
 
-    
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-ay_music_finished-3F" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_music_finished?</span><span
             class="method-args">(music_control, compact:false, subroutine:false, branch_not_finished: :eoc)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that detects if the currently played music is finished.</p>
 
 <p>As a result <code>ZF</code> is 1 if all of the main music track cursors has reached the end.</p>
@@ -164,10 +146,7 @@ end</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, (<code>b</code>, <code>de</code> if <code>compact</code> is <code>true</code>).</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_music_finished-3F-source">
             <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 470</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_finished?</span>(<span class="ruby-identifier">music_control</span>, <span class="ruby-value">compact:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">branch_not_finished:</span> <span class="ruby-value">:eoc</span>)
@@ -237,28 +216,19 @@ end</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_music_init" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_music_init</span><span
             class="method-args">(track_a, track_b, track_c, index_table:nil, init:self.init, play:self.play, music_control:self.music_control, disable_intr:true, enable_intr:true)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that initializes music tracks and optionally the index lookup table.</p>
 
 <p>Provide addresses of the main tracks as <code>track_a</code>, <code>track_b</code> and <code>track_c</code>.</p>
@@ -291,10 +261,7 @@ end</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>ix</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_music_init-source">
             <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 274</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_init</span>(<span class="ruby-identifier">track_a</span>, <span class="ruby-identifier">track_b</span>, <span class="ruby-identifier">track_c</span>, <span class="ruby-value">index_table:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">init:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">init</span>, <span class="ruby-value">play:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">play</span>, <span class="ruby-value">music_control:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">music_control</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>)
@@ -320,28 +287,19 @@ end</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_music_note_to_fine_tone_cursor_table_factory" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_music_note_to_fine_tone_cursor_table_factory</span><span
             class="method-args">(note_to_cursor, play:nil, num_notes:AYMusic::MAX_NOTES_COUNT, subroutine:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that builds a note-to-fine tones index table.</p>
 <dl class="rdoc-list note-list"><dt><code>note_to_cursor</code>
 <dd>
@@ -368,10 +326,7 @@ end</pre>
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code> and 1 level of stack.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_music_note_to_fine_tone_cursor_table_factory-source">
             <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 336</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_note_to_fine_tone_cursor_table_factory</span>(<span class="ruby-identifier">note_to_cursor</span>, <span class="ruby-value">play:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">num_notes:</span><span class="ruby-constant">AYMusic</span><span class="ruby-operator">::</span><span class="ruby-constant">MAX_NOTES_COUNT</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
@@ -418,28 +373,19 @@ end</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_music_preserve_io_ports_state" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_music_preserve_io_ports_state</span><span
             class="method-args">(music_control, play, bc_const_loaded:false, io_ay:self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that reads a state of the I/O ports from the AY-3-891x chip and stores it into the player&#39;s register mirror.</p>
 
 <p>Execute this code before each play iteration if you care about preserving the AY general purpose I/O ports&#39; state.</p>
@@ -467,10 +413,7 @@ end</pre>
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_music_preserve_io_ports_state-source">
             <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 315</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_preserve_io_ports_state</span>(<span class="ruby-identifier">music_control</span>, <span class="ruby-identifier">play</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -482,28 +425,19 @@ end</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_music_tone_progress_table_factory" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_music_tone_progress_table_factory</span><span
             class="method-args">(fine_tones, hz: 440, clock_hz: ZXLib::AYSound::CLOCK_HZ, subroutine:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that builds a fine tones to AY-3-891x tone periods table.</p>
 <dl class="rdoc-list note-list"><dt><code>fine_tones</code>
 <dd>
@@ -530,10 +464,7 @@ end</pre>
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>hl&#39;</code>, <code>b</code>, <code>bc&#39;</code>, <code>de</code>, <code>de&#39;</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_music_tone_progress_table_factory-source">
             <pre><span class="ruby-comment"># File lib/zxutils/ay_music.rb, line 392</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_music_tone_progress_table_factory</span>(<span class="ruby-identifier">fine_tones</span>, <span class="ruby-value">hz:</span> <span class="ruby-value">440</span>, <span class="ruby-value">clock_hz:</span> <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">AYSound</span><span class="ruby-operator">::</span><span class="ruby-constant">CLOCK_HZ</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
@@ -598,25 +529,20 @@ end</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

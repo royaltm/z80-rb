@@ -21,8 +21,6 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="class">
 <nav role="navigation">
   <div id="project-navigation">
@@ -59,30 +57,25 @@
 
   <div id="class-metadata">
     
-    <div id="parent-class-section" class="nav-section">
+    
+<div id="parent-class-section" class="nav-section">
   <h3>Parent</h3>
 
-  
   <p class="link"><a href="../../Object.html">Object</a>
-  
 </div>
 
     
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-c-new">::new</a>
-    
     <li ><a href="#method-c-parse_source_line">::parse_source_line</a>
-    
     <li ><a href="#method-i-text">#text</a>
-    
     <li ><a href="#method-i-to_s">#to_s</a>
-    
   </ul>
 </div>
 
@@ -102,21 +95,15 @@
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
     <section class="attribute-method-details" class="method-section">
       <header>
         <h3>Attributes</h3>
       </header>
 
-      
       <div id="attribute-i-body" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">body</span><span
@@ -125,11 +112,8 @@
 
         <div class="method-description">
         
-        
-        
         </div>
       </div>
-      
       <div id="attribute-i-line" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">line</span><span
@@ -138,11 +122,8 @@
 
         <div class="method-description">
         
-        
-        
         </div>
       </div>
-      
       <div id="attribute-i-line_no" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">line_no</span><span
@@ -151,39 +132,26 @@
 
         <div class="method-description">
         
-        
-        
         </div>
       </div>
-      
     </section>
-    
 
-    
+
      <section id="public-class-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Class Methods</h3>
        </header>
 
-    
       <div id="method-c-new" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">new</span><span
             class="method-args">(line_no, body)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
           
-          
-          
-          
 
-          
           <div class="method-source-code" id="new-source">
             <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 243</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">line_no</span>, <span class="ruby-identifier">body</span>)
@@ -191,35 +159,23 @@
         <span class="ruby-ivar">@body</span> = <span class="ruby-identifier">body</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-c-parse_source_line" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">parse_source_line</span><span
             class="method-args">(line_text, last_line_no=0, line_index=0)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a <a href="Line.html"><code>Basic::Line</code></a> from a provided BASIC program text.</p>
 
 <p>See: <a href="../Basic.html#method-c-parse_source"><code>Basic.parse_source</code></a></p>
-          
-          
 
-          
           <div class="method-source-code" id="parse_source_line-source">
             <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 269</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_source_line</span>(<span class="ruby-identifier">line_text</span>, <span class="ruby-identifier">last_line_no</span>=<span class="ruby-value">0</span>, <span class="ruby-identifier">line_index</span>=<span class="ruby-value">0</span>)
@@ -289,103 +245,73 @@
         <span class="ruby-constant">Line</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">line_no</span>, <span class="ruby-identifier">body</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-text" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">text</span><span
             class="method-args">(escape_keywords:false, ascii_only:false, se:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a textual representation of this line except its number. Returns an UTF-8 encoded string.</p>
 
 <p>See: <a href="Program.html#method-i-to_source"><code>Program#to_source</code></a>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="text-source">
             <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 252</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">text</span>(<span class="ruby-value">escape_keywords:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ascii_only:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">se:</span><span class="ruby-keyword">false</span>)
         <span class="ruby-constant">Tokenizer</span>.<span class="ruby-identifier">program_data_to_text</span>(<span class="ruby-identifier">body</span>, <span class="ruby-identifier">escape_keywords</span>, <span class="ruby-keyword">false</span>, <span class="ruby-identifier">ascii_only</span>, <span class="ruby-identifier">se</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-to_s" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">to_s</span><span
             class="method-args">(**opts)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a textual representation of this line with the line number. Returns an UTF-8 encoded string.</p>
 
 <p>See: <a href="Program.html#method-i-to_source"><code>Program#to_source</code></a>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="to_s-source">
             <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 260</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_s</span>(<span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-node">&quot;#{line_no.to_s.rjust(4)} #{text(**opts)}&quot;</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

@@ -21,8 +21,6 @@
 <link href="../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -60,37 +58,28 @@
   <div id="class-metadata">
     
     
-    <div id="includes-section" class="nav-section">
+    
+<div id="includes-section" class="nav-section">
   <h3>Included Modules</h3>
 
   <ul class="link-list">
-  
-  
     <li><span class="include">Math</span>
-  
-  
   </ul>
 </div>
 
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-i-normalize_quaternion">#normalize_quaternion</a>
-    
     <li ><a href="#method-i-quaternion2matrix">#quaternion2matrix</a>
-    
     <li ><a href="#method-i-quaternion_cross_product">#quaternion_cross_product</a>
-    
     <li ><a href="#method-i-quaternion_norm">#quaternion_norm</a>
-    
     <li ><a href="#method-i-quaternion_norm_q">#quaternion_norm_q</a>
-    
     <li ><a href="#method-i-rotor_quaternion">#rotor_quaternion</a>
-    
   </ul>
 </div>
 
@@ -110,41 +99,27 @@
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
 
-    
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-normalize_quaternion" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">normalize_quaternion</span><span
             class="method-args">(q)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns a normalized quaternion.</p>
-          
-          
 
-          
           <div class="method-source-code" id="normalize_quaternion-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/quaternion.rb, line 27</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">normalize_quaternion</span>(<span class="ruby-identifier">q</span>)
@@ -153,33 +128,21 @@
   [<span class="ruby-identifier">s</span><span class="ruby-operator">/</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">x</span><span class="ruby-operator">/</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">y</span><span class="ruby-operator">/</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">z</span><span class="ruby-operator">/</span><span class="ruby-identifier">n</span>]
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-quaternion2matrix" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">quaternion2matrix</span><span
             class="method-args">(q)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns a transformation matrix from a quaternion.</p>
-          
-          
 
-          
           <div class="method-source-code" id="quaternion2matrix-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/quaternion.rb, line 44</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">quaternion2matrix</span>(<span class="ruby-identifier">q</span>)
@@ -212,33 +175,21 @@
    <span class="ruby-identifier">qzx</span>, <span class="ruby-identifier">qzy</span>, <span class="ruby-identifier">qzz</span>]
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-quaternion_cross_product" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">quaternion_cross_product</span><span
             class="method-args">(a, b)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns a quaternion as a cross product of quaternions a and b.</p>
-          
-          
 
-          
           <div class="method-source-code" id="quaternion_cross_product-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/quaternion.rb, line 34</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">quaternion_cross_product</span>(<span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>)
@@ -250,66 +201,42 @@
    <span class="ruby-identifier">sa</span><span class="ruby-operator">*</span><span class="ruby-identifier">zb</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">sb</span><span class="ruby-operator">*</span><span class="ruby-identifier">za</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">xa</span><span class="ruby-operator">*</span><span class="ruby-identifier">yb</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">xb</span><span class="ruby-operator">*</span><span class="ruby-identifier">ya</span>]
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-quaternion_norm" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">quaternion_norm</span><span
             class="method-args">(q)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns a quaternion norm.</p>
-          
-          
 
-          
           <div class="method-source-code" id="quaternion_norm-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/quaternion.rb, line 22</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">quaternion_norm</span>(<span class="ruby-identifier">q</span>)
   <span class="ruby-identifier">sqrt</span>(<span class="ruby-identifier">quaternion_norm_q</span>(<span class="ruby-identifier">q</span>))
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-quaternion_norm_q" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">quaternion_norm_q</span><span
             class="method-args">(q)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns a quaternion square norm.</p>
-          
-          
 
-          
           <div class="method-source-code" id="quaternion_norm_q-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/quaternion.rb, line 16</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">quaternion_norm_q</span>(<span class="ruby-identifier">q</span>)
@@ -317,33 +244,21 @@
   <span class="ruby-identifier">s</span><span class="ruby-operator">*</span><span class="ruby-identifier">s</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">x</span><span class="ruby-operator">*</span><span class="ruby-identifier">x</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">y</span><span class="ruby-operator">*</span><span class="ruby-identifier">y</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">z</span><span class="ruby-operator">*</span><span class="ruby-identifier">z</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-rotor_quaternion" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">rotor_quaternion</span><span
             class="method-args">(rad, av)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns a rotor quaternion from radians and a unit vector.</p>
-          
-          
 
-          
           <div class="method-source-code" id="rotor_quaternion-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/quaternion.rb, line 9</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rotor_quaternion</span>(<span class="ruby-identifier">rad</span>, <span class="ruby-identifier">av</span>)
@@ -352,25 +267,20 @@
   [<span class="ruby-identifier">cos</span>(<span class="ruby-identifier">rad</span><span class="ruby-operator">/</span><span class="ruby-value">2</span>),<span class="ruby-identifier">sn</span><span class="ruby-operator">*</span><span class="ruby-identifier">x</span>,<span class="ruby-identifier">sn</span><span class="ruby-operator">*</span><span class="ruby-identifier">y</span>,<span class="ruby-identifier">sn</span><span class="ruby-operator">*</span><span class="ruby-identifier">z</span>]
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

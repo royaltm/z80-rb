@@ -21,8 +21,6 @@
 <link href="../../../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -62,30 +60,21 @@
     
     
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-i-bobs_copy_attrs">#bobs_copy_attrs</a>
-    
     <li ><a href="#method-i-bobs_copy_attrs_fast">#bobs_copy_attrs_fast</a>
-    
     <li ><a href="#method-i-bobs_copy_pixels">#bobs_copy_pixels</a>
-    
     <li ><a href="#method-i-bobs_copy_pixels_fast">#bobs_copy_pixels_fast</a>
-    
     <li ><a href="#method-i-bobs_draw_pixels_fast">#bobs_draw_pixels_fast</a>
-    
     <li ><a href="#method-i-bobs_draw_pixels_fast_jump_table">#bobs_draw_pixels_fast_jump_table</a>
-    
     <li ><a href="#method-i-bobs_draw_pixels_fast_routines">#bobs_draw_pixels_fast_routines</a>
-    
     <li ><a href="#method-i-bobs_rshift_bitmap_pixels_7times">#bobs_rshift_bitmap_pixels_7times</a>
-    
     <li ><a href="#method-i-bobs_rshift_bitmap_pixels_once">#bobs_rshift_bitmap_pixels_once</a>
-    
   </ul>
 </div>
 
@@ -109,36 +98,25 @@
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
 
-    
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-bobs_copy_attrs" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">bobs_copy_attrs</span><span
             class="method-args">(attrs=hl, rows=a, cols=c, target:de, scraddr:nil, subroutine:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that copies bitmap attributes to the screen as a rectangle object.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>attrs</code>
 <dd>
@@ -174,10 +152,7 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>bc&#39;</code>, <code>de</code>, <code>hl</code>. Swaps registers unless out of screen.</p>
-          
-          
 
-          
           <div class="method-source-code" id="bobs_copy_attrs-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 151</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_attrs</span>(<span class="ruby-identifier">attrs</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">rows</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
@@ -226,28 +201,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-bobs_copy_attrs_fast" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">bobs_copy_attrs_fast</span><span
             class="method-args">(attrs, rows=a, cols=32, target:hl, disable_intr:true, enable_intr:true, save_sp:true, check_oos:false, subroutine:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that copies bitmap attributes to the screen as a rectangle object using unrolled POP instructions.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -299,10 +265,7 @@
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, optionally: <code>sp</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="bobs_copy_attrs_fast-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 405</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_attrs_fast</span>(<span class="ruby-identifier">attrs</span>, <span class="ruby-identifier">rows</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">32</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
@@ -406,28 +369,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-bobs_copy_pixels" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">bobs_copy_pixels</span><span
             class="method-args">(bitmap=hl, lines=a, cols=c, target:de, scraddr:nil, subroutine:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that copies bitmap pixels to the ink/paper screen as a rectangle object.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>bitmap</code>
 <dd>
@@ -463,10 +417,7 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>bc&#39;</code>, <code>de</code>, <code>hl</code>. Swaps registers unless out of screen.</p>
-          
-          
 
-          
           <div class="method-source-code" id="bobs_copy_pixels-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 52</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_pixels</span>(<span class="ruby-identifier">bitmap</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
@@ -550,28 +501,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-bobs_copy_pixels_fast" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">bobs_copy_pixels_fast</span><span
             class="method-args">(bitmap, lines=c, cols=32, target:hl, disable_intr:true, enable_intr:true, save_sp:true, scraddr:nil, subroutine:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that copies bitmap pixels to the ink/paper screen as a rectangle object using unrolled POP instructions.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -623,10 +565,7 @@
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, optionally: <code>sp</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="bobs_copy_pixels_fast-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 226</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_pixels_fast</span>(<span class="ruby-identifier">bitmap</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">32</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
@@ -782,28 +721,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-bobs_draw_pixels_fast" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">bobs_draw_pixels_fast</span><span
             class="method-args">(bitmap, lines=a, cols=2, target:hl, bshift:b, mode: :set, skip_cols: nil, lclip: false, rclip: false, no0shift: false, tx:ix, disable_intr:true, enable_intr:true, save_sp:true, scraddr:nil, jump_table:nil, subroutine:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that draws bitmap pixels to the ink/paper screen as a rectangle object using unrolled POP instructions, line by line.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -899,10 +829,7 @@
 █░██░██░ ░███░░░█ -&gt;&gt;  ░██░░█░░ ░░░█░░░░ ░░█░░░██  :nand</pre>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>bc&#39;</code>, <code>de</code>, <code>d&#39;</code>, <code>hl</code>, (<code>hl&#39;</code>, <code>e&#39;</code> if skip_cols is given). Swaps registers unless out of screen.</p>
-          
-          
 
-          
           <div class="method-source-code" id="bobs_draw_pixels_fast-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 941</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_draw_pixels_fast</span>(<span class="ruby-identifier">bitmap</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">2</span>,
@@ -1132,28 +1059,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-bobs_draw_pixels_fast_jump_table" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">bobs_draw_pixels_fast_jump_table</span><span
             class="method-args">(draw_pixels_fast_label)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a jump table for the <a href="Macros.html#method-i-bobs_draw_pixels_fast"><code>Macros#bobs_draw_pixels_fast</code></a> routine.</p>
 
 <p>Provide a label (or a symbol) referencing a routine created by either <a href="Macros.html#method-i-bobs_draw_pixels_fast"><code>Macros#bobs_draw_pixels_fast</code></a> or <a href="Macros.html#method-i-bobs_draw_pixels_fast_routines"><code>Macros#bobs_draw_pixels_fast_routines</code></a>.</p>
@@ -1169,10 +1087,7 @@
 <p>The jump table occupies 24 bytes of code.</p>
 
 <p>The content is lazy evaluated so the order of creating a table and a routine doesn&#39;t matter.</p>
-          
-          
 
-          
           <div class="method-source-code" id="bobs_draw_pixels_fast_jump_table-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 611</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_draw_pixels_fast_jump_table</span>(<span class="ruby-identifier">draw_pixels_fast_label</span>)
@@ -1197,28 +1112,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-bobs_draw_pixels_fast_routines" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">bobs_draw_pixels_fast_routines</span><span
             class="method-args">(next_row, cols, mode: :set, skip_cols: nil, lclip: false, rclip: false, no0shift: nil, merge: false, jump_eoc: true)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates specialized routines for <a href="Macros.html#method-i-bobs_draw_pixels_fast"><code>Macros#bobs_draw_pixels_fast</code></a> that can be used externally via jump table.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -1264,10 +1170,7 @@
 <p>Whether the <code>jp next_row</code> should be appended at the end of the generated code.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="bobs_draw_pixels_fast_routines-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 659</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_draw_pixels_fast_routines</span>(<span class="ruby-identifier">next_row</span>, <span class="ruby-identifier">cols</span>,
@@ -1489,28 +1392,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-bobs_rshift_bitmap_pixels_7times" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">bobs_rshift_bitmap_pixels_7times</span><span
             class="method-args">(bitmap=hl, lines=c, cols=a, target:de)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that renders 7 bitmap textures by shifting 7 times each source bitmap lines by 1 bit to the right.</p>
 
 <p>Rendered bitmaps are extended to the right by 1 column (an octet).</p>
@@ -1536,10 +1430,7 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code> and some stack.</p>
-          
-          
 
-          
           <div class="method-source-code" id="bobs_rshift_bitmap_pixels_7times-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 519</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_rshift_bitmap_pixels_7times</span>(<span class="ruby-identifier">bitmap</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>)
@@ -1567,28 +1458,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-bobs_rshift_bitmap_pixels_once" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">bobs_rshift_bitmap_pixels_once</span><span
             class="method-args">(bitmap=hl, lines=c, cols=a, target:de)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that renders a bitmap texture by shifting each source bitmap lines by 1 bit to the right.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>Carry Flag
 <dd>
@@ -1616,10 +1498,7 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="bobs_rshift_bitmap_pixels_once-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 560</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_rshift_bitmap_pixels_once</span>(<span class="ruby-identifier">bitmap</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>)
@@ -1657,25 +1536,20 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

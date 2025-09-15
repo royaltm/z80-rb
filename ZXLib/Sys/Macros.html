@@ -21,8 +21,6 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -62,50 +60,31 @@
     
     
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-i-chan_exists">#chan_exists</a>
-    
     <li ><a href="#method-i-char_ptr_from_code">#char_ptr_from_code</a>
-    
     <li ><a href="#method-i-create_chan_and_open">#create_chan_and_open</a>
-    
     <li ><a href="#method-i-cursor_key_pressed-3F">#cursor_key_pressed?</a>
-    
     <li ><a href="#method-i-find_def_fn_args">#find_def_fn_args</a>
-    
     <li ><a href="#method-i-find_record">#find_record</a>
-    
     <li ><a href="#method-i-key_pressed-3F">#key_pressed?</a>
-    
     <li ><a href="#method-i-mmu128_select_bank">#mmu128_select_bank</a>
-    
     <li ><a href="#method-i-mmu128_swap_screens">#mmu128_swap_screens</a>
-    
     <li ><a href="#method-i-move_basic_above_scld_screen_memory">#move_basic_above_scld_screen_memory</a>
-    
     <li ><a href="#method-i-read_arg_string">#read_arg_string</a>
-    
     <li ><a href="#method-i-read_integer32_value">#read_integer32_value</a>
-    
     <li ><a href="#method-i-read_integer_value">#read_integer_value</a>
-    
     <li ><a href="#method-i-read_positive_int_value">#read_positive_int_value</a>
-    
     <li ><a href="#method-i-report_error">#report_error</a>
-    
     <li ><a href="#method-i-report_error_unless">#report_error_unless</a>
-    
     <li ><a href="#method-i-restore_rom_interrupt_handler">#restore_rom_interrupt_handler</a>
-    
     <li ><a href="#method-i-return_with_fp">#return_with_fp</a>
-    
     <li ><a href="#method-i-setup_custom_interrupt_handler">#setup_custom_interrupt_handler</a>
-    
   </ul>
 </div>
 
@@ -131,36 +110,25 @@
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
 
-    
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-chan_exists" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">chan_exists</span><span
             class="method-args">(name = nil, output: de, input: nil, chan_name: &#39;U&#39;, buffer: 23296)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Looks for a ZX Spectrum CHAN entry determined by <code>output</code>, <code>input</code> and a <code>chan_name</code>.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>output
 <dd>
@@ -189,10 +157,7 @@
 <p>ZF=1 if found, <code>hl</code> points to the record address that matches ZF=0 if not found, <code>hl</code> points to the memory address immediately after the last record</p>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, <code>bc</code>, <code>de</code></p>
-          
-          
 
-          
           <div class="method-source-code" id="chan_exists-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 759</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">chan_exists</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">output:</span> <span class="ruby-identifier">de</span>, <span class="ruby-value">input:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">chan_name:</span> <span class="ruby-string">&#39;U&#39;</span>, <span class="ruby-value">buffer:</span> <span class="ruby-value">23296</span>)
@@ -242,28 +207,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-char_ptr_from_code" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">char_ptr_from_code</span><span
             class="method-args">(chars, code=a, tt:de)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Calculates the address of the first byte of a character. The calculated address will be available in the <code>hl</code> register.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>chars</code>
 <dd>
@@ -282,10 +238,7 @@
 <p>T-States: 46, +(0|4|7|13) depending on code, +(0|10|16) depending on chars.</p>
 
 <p>Modifies: <code>af</code>, <code>tt</code>, <code>hl</code></p>
-          
-          
 
-          
           <div class="method-source-code" id="char_ptr_from_code-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 652</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">char_ptr_from_code</span>(<span class="ruby-identifier">chars</span>, <span class="ruby-identifier">code</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>)
@@ -305,28 +258,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-create_chan_and_open" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">create_chan_and_open</span><span
             class="method-args">(name = nil, output:, input: nil, strm_no: 4, chan_name: &#39;U&#39;)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a ZX Spectrum CHAN entry and opens it as a stream #N.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>output
 <dd>
@@ -349,10 +293,7 @@
 <p>Optionally give the returned namespace label a <code>name</code>.</p>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, <code>bc</code>, <code>de</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="create_chan_and_open-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 679</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">create_chan_and_open</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">output:</span>, <span class="ruby-value">input:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">strm_no:</span> <span class="ruby-value">4</span>, <span class="ruby-value">chan_name:</span> <span class="ruby-string">&#39;U&#39;</span>)
@@ -421,28 +362,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-cursor_key_pressed-3F" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">cursor_key_pressed?</span><span
             class="method-args">(t:b, io:self.io)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Test for cursor keys being pressed.</p>
 
 <p>Options:</p>
@@ -472,10 +404,7 @@
 [<span class="ruby-identifier">←</span>] [<span class="ruby-identifier">↓</span>] [<span class="ruby-identifier">↑</span>] [<span class="ruby-identifier">→</span>]
 </pre>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="cursor_key_pressed-3F-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 630</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cursor_key_pressed?</span>(<span class="ruby-value">t:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">io:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io</span>)
@@ -489,28 +418,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-find_def_fn_args" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">find_def_fn_args</span><span
             class="method-args">(argnum=b, subroutine:true, not_found:nil, cf_on_direct:false, &amp;not_found_blk)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Gets a DEF FN argument value address.</p>
 
 <p>Requires: <code>macro_import MathInt</code>.</p>
@@ -546,10 +466,7 @@
 <p><code>hl</code> points to the argument value when found.</p>
 
 <p>Modifies: <code>af</code>, <code>hl</code> and optionally <code>b</code> unless <code>argnum</code> == 1.</p>
-          
-          
 
-          
           <div class="method-source-code" id="find_def_fn_args-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1031</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">find_def_fn_args</span>(<span class="ruby-identifier">argnum</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">not_found:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">cf_on_direct:</span><span class="ruby-keyword">false</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">not_found_blk</span>)
@@ -596,28 +513,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-find_record" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">find_record</span><span
             class="method-args">(th=h, tl=l)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Search for a record that matches a large block of memory.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>+th|tl&#39;+
 <dd>
@@ -640,10 +548,7 @@
 <p>ZF=1 if found, <code>hl</code> points immediately <strong>after</strong> the record that matches, CF=0 ZF=0 if not found, <code>hl</code> points to the memory address immediately after the last record</p>
 
 <p>Modifies: <code>af</code>, <code>hl</code> and <code>stack</code></p>
-          
-          
 
-          
           <div class="method-source-code" id="find_record-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 817</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">find_record</span>(<span class="ruby-identifier">th</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">l</span>)
@@ -678,28 +583,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-key_pressed-3F" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">key_pressed?</span><span
             class="method-args">(line_mask=0, key_mask=0x1f, io:self.io)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Test for a key or keys being pressed.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>line_mask</code>
 <dd>
@@ -737,10 +633,7 @@
 <p>bits b0..b4=1 if a key is being pressed at any of the specified half-line.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="key_pressed-3F-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 603</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">key_pressed?</span>(<span class="ruby-identifier">line_mask</span>=<span class="ruby-value">0</span>, <span class="ruby-identifier">key_mask</span>=<span class="ruby-value">0x1f</span>, <span class="ruby-value">io:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io</span>)
@@ -756,28 +649,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-mmu128_select_bank" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">mmu128_select_bank</span><span
             class="method-args">(bank:nil, screen:nil, disable_intr:true, enable_intr:true, mmu_port_in_bc:false, sys128:self.sys128)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Selects an upper memory bank (0-7) and/or a screen memory page (0-1) to be displayed.</p>
 
 <p>Options:</p>
@@ -819,10 +703,7 @@
 <p>Memory banks 1,3,5 and 7 are contended, which reduces the speed of memory access in these banks.</p>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, memory at <code>sys128.mmu_value</code> (0x5B5C).</p>
-          
-          
 
-          
           <div class="method-source-code" id="mmu128_select_bank-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1136</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mmu128_select_bank</span>(<span class="ruby-value">bank:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">screen:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mmu_port_in_bc:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">sys128:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sys128</span>)
@@ -854,28 +735,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-mmu128_swap_screens" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">mmu128_swap_screens</span><span
             class="method-args">(swap_bank:false, disable_intr:true, enable_intr:true, mmu_port_in_bc:false, sys128:self.sys128)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Swap displayed screens.</p>
 
 <p>Options:</p>
@@ -902,10 +774,7 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, memory at <code>sys128.mmu_value</code> (0x5B5C).</p>
-          
-          
 
-          
           <div class="method-source-code" id="mmu128_swap_screens-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1181</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mmu128_swap_screens</span>(<span class="ruby-value">swap_bank:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mmu_port_in_bc:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">sys128:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sys128</span>)
@@ -921,28 +790,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-move_basic_above_scld_screen_memory" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">move_basic_above_scld_screen_memory</span><span
             class="method-args">(check_ensure:false)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Moves <a href="../Basic.html"><code>Basic</code></a> program and variables above the screen 1 (to 0x7B00).</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>check_ensure</code>
 <dd>
@@ -951,10 +811,7 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="move_basic_above_scld_screen_memory-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1200</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">move_basic_above_scld_screen_memory</span>(<span class="ruby-value">check_ensure:</span><span class="ruby-keyword">false</span>)
@@ -972,28 +829,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-read_arg_string" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">read_arg_string</span><span
             class="method-args">(adh=d, adl=e, lenh=b, lenl=c)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Reads a string address and its length from a ZX Basic&#39;s stringish FP-value.</p>
 <dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
@@ -1017,10 +865,7 @@
 <p>T-States: 52.</p>
 
 <p>Modifies: <code>hl</code>, <code>adh</code>, <code>adl</code>, <code>lenl</code>, <code>lenh</code></p>
-          
-          
 
-          
           <div class="method-source-code" id="read_arg_string-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 995</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_arg_string</span>(<span class="ruby-identifier">adh</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">adl</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">lenh</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">lenl</span>=<span class="ruby-identifier">c</span>)
@@ -1037,28 +882,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-read_integer32_value" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">read_integer32_value</span><span
             class="method-args">(t3=d, t2=e, t1=b, t0=c)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Reads a 32-bit integer from a ZX Basic&#39;s FP-value.</p>
 
 <p>Requires: <code>macro_import ::ZXLib::Math</code>.</p>
@@ -1084,10 +920,7 @@
 <p><code>hl</code> will always point to the last byte of the FP-value.</p>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>bc</code>, <code>de</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="read_integer32_value-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 960</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_integer32_value</span>(<span class="ruby-identifier">t3</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">t2</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">t1</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">t0</span>=<span class="ruby-identifier">c</span>)
@@ -1112,28 +945,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-read_integer_value" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">read_integer_value</span><span
             class="method-args">(th=d, tl=e, sgn=c, normal_negative:false, t:a)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Reads a signed integer from a ZX Basic&#39;s FP-value.</p>
 <dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
@@ -1162,10 +986,7 @@
 <p>T-States: 59, normal_negative=true: (t=a&#39;) 91, (t=r) 87.</p>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, <code>th</code>, <code>tl</code> and <code>sgn</code>, optionally: <code>t</code> or <code>af&#39;</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="read_integer_value-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 867</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_integer_value</span>(<span class="ruby-identifier">th</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">sgn</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">normal_negative:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">a</span>)
@@ -1214,28 +1035,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-read_positive_int_value" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">read_positive_int_value</span><span
             class="method-args">(th=d, tl=e)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Reads a positive integer from a ZX Basic&#39;s FP-value.</p>
 <dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
@@ -1253,10 +1065,7 @@
 <p>T-States: 59.</p>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, <code>th</code> and <code>tl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="read_positive_int_value-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 926</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_positive_int_value</span>(<span class="ruby-identifier">th</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">e</span>)
@@ -1274,38 +1083,26 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-report_error" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">report_error</span><span
             class="method-args">(error)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns to ZX <a href="../Basic.html"><code>Basic</code></a> with the error report.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>error
 <dd>
 <p>Error report signature as a number <code>0..9</code> or a letter <code>A..R</code></p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="report_error-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 507</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">report_error</span>(<span class="ruby-identifier">error</span>)
@@ -1317,28 +1114,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-report_error_unless" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">report_error_unless</span><span
             class="method-args">(condition, error)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns to ZX <a href="../Basic.html"><code>Basic</code></a> with the error report if condition is NOT met.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>condition
 <dd>
@@ -1349,10 +1137,7 @@
 <p>Error report signature as a number <code>0..9</code> or a letter <code>A..R</code></p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="report_error_unless-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 492</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">report_error_unless</span>(<span class="ruby-identifier">condition</span>, <span class="ruby-identifier">error</span>)
@@ -1367,28 +1152,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-restore_rom_interrupt_handler" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">restore_rom_interrupt_handler</span><span
             class="method-args">(enable_intr:true)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Restore interrupt handler ZX Spectrum ROM&#39;s standard IM1 mode.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>enable_intr
 <dd>
@@ -1399,10 +1175,7 @@
 <p>T-states: 28/24</p>
 
 <p>Modifies: <code>a</code>, <code>i</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="restore_rom_interrupt_handler-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 572</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">restore_rom_interrupt_handler</span>(<span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>)
@@ -1414,28 +1187,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-return_with_fp" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">return_with_fp</span><span
             class="method-args">(pop_ret_address:true, rom:self.rom, restore_iy:self.vars_iy, restore_hl_alt:rom.end_calc)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that returns to the calling ZX-Basic&#39;s USR function an FP value.</p>
 
 <p>When returning from a user code an integer from the <code>bc</code> register is being used as a <code>USR</code> function return value via STACK-BC routine.</p>
@@ -1462,10 +1226,7 @@
 <p>A value to restore <code>hl&#39;</code> register to. Set to <code>nil</code> to not restore <code>hl&#39;</code>.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="return_with_fp-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1090</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">return_with_fp</span>(<span class="ruby-value">pop_ret_address:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">rom:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">rom</span>, <span class="ruby-value">restore_iy:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">vars_iy</span>, <span class="ruby-value">restore_hl_alt:</span><span class="ruby-identifier">rom</span>.<span class="ruby-identifier">end_calc</span>)
@@ -1484,28 +1245,19 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-setup_custom_interrupt_handler" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">setup_custom_interrupt_handler</span><span
             class="method-args">(handler, enable_intr:true, vector_page:0x3B)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that sets up custom interrupt handler using ZX Spectrum ROM&#39;s unused space as a IM2 mode jump table.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>handler
 <dd>
@@ -1540,10 +1292,7 @@
 </li></ul>
 
 <p>Modifies: <code>a</code>, <code>i</code>, <code>hl</code> if <code>handler</code> is not a register pair.</p>
-          
-          
 
-          
           <div class="method-source-code" id="setup_custom_interrupt_handler-source">
             <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 545</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">setup_custom_interrupt_handler</span>(<span class="ruby-identifier">handler</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">vector_page:</span><span class="ruby-value">0x3B</span>)
@@ -1566,25 +1315,20 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

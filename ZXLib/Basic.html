@@ -21,8 +21,6 @@
 <link href="../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -62,22 +60,17 @@
     
     
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-c-from_program_data">::from_program_data</a>
-    
     <li ><a href="#method-c-from_tap_chunk">::from_tap_chunk</a>
-    
     <li ><a href="#method-c-parse_source">::parse_source</a>
-    
     <li ><a href="#method-c-read_source">::read_source</a>
-    
     <li ><a href="#method-c-read_tap">::read_tap</a>
-    
   </ul>
 </div>
 
@@ -123,145 +116,72 @@
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
     <section class="constants-list">
       <header>
         <h3>Constants</h3>
       </header>
       <dl>
-      
         <dt id="ARROWS">ARROWS
-        
         <dd>
-        
-      
         <dt id="CHAR_CODES">CHAR_CODES
-        
         <dd>
-        
-      
         <dt id="CHAR_TABLE">CHAR_TABLE
-        
         <dd>
-        
-      
         <dt id="COLOR_CTRL">COLOR_CTRL
-        
         <dd>
-        
-      
         <dt id="CTRL_CODES">CTRL_CODES
-        
         <dd>
-        
-      
         <dt id="CURSOR_CTRL">CURSOR_CTRL
-        
         <dd>
-        
-      
         <dt id="DEF_FN_VAR_PLACEHOLDER">DEF_FN_VAR_PLACEHOLDER
-        
         <dd>
-        
-      
         <dt id="ESCAPE_CODES">ESCAPE_CODES
-        
         <dd>
-        
-      
         <dt id="ESCAPE_CODES_ASCII_ONLY">ESCAPE_CODES_ASCII_ONLY
-        
         <dd>
-        
-      
         <dt id="KEYWORDS">KEYWORDS
-        
         <dd>
-        
-      
         <dt id="KEYWORD_CODES">KEYWORD_CODES
-        
         <dd>
-        
-      
         <dt id="KEYWORD_START_CODE">KEYWORD_START_CODE
-        
         <dd>
-        
-      
         <dt id="NON_ASCII_ESCAPE_TOKENS">NON_ASCII_ESCAPE_TOKENS
-        
         <dd>
-        
-      
         <dt id="PRINTABLE_CHARS">PRINTABLE_CHARS
-        
         <dd>
-        
-      
         <dt id="SE_ALIASES">SE_ALIASES
-        
         <dd>
-        
-      
         <dt id="SE_KEYWORDS">SE_KEYWORDS
-        
         <dd>
-        
-      
         <dt id="SE_NEW_KEYWORDS">SE_NEW_KEYWORDS
-        
         <dd>
-        
-      
         <dt id="SE_NEW_KEYWORDS_END">SE_NEW_KEYWORDS_END
-        
         <dd>
-        
-      
         <dt id="STATEMENTS_AS_EXPRESSIONS_CODES">STATEMENTS_AS_EXPRESSIONS_CODES
-        
         <dd>
-        
-      
         <dt id="STATEMENT_START_CODE">STATEMENT_START_CODE
-        
         <dd>
-        
-      
       </dl>
     </section>
-    
 
-    
 
-    
+
      <section id="public-class-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Class Methods</h3>
        </header>
 
-    
       <div id="method-c-from_program_data" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">from_program_data</span><span
             class="method-args">(data, prog_length=nil, start:nil)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a <a href="Basic/Program.html"><code>Basic::Program</code></a> instance from a ZX Spectrum&#39;s raw binary data.</p>
 
 <p>The binary data may be a snapshot of ZX Spectrum&#39;s memory (PROG + VARS) or taken from a TAP chunk.</p>
@@ -269,10 +189,7 @@
 <p>Provide program <code>data</code> as a binary (ASCII-8BIT) string. Provide <code>prog_length</code> argument to indicate the size of the program itself. Any data after <code>prog_length</code> bytes will be interpreted as program variables.</p>
 
 <p>Additionally <code>:start</code> argument may be provided to indicate the starting line of a program. This information will be used when saving program as a TAP file.</p>
-          
-          
 
-          
           <div class="method-source-code" id="from_program_data-source">
             <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 457</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">from_program_data</span>(<span class="ruby-identifier">data</span>, <span class="ruby-identifier">prog_length</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">start:</span><span class="ruby-keyword">nil</span>)
@@ -293,33 +210,21 @@
         <span class="ruby-constant">Program</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">lines</span>, <span class="ruby-identifier">vars</span>, <span class="ruby-identifier">start</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-c-from_tap_chunk" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">from_tap_chunk</span><span
             class="method-args">(chunk)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a <a href="Basic/Program.html"><code>Basic::Program</code></a> or a <a href="Basic/Variable.html"><code>Basic::Variable</code></a> depending on the type of the chunk. The chunk should be a <a href="../Z80/TAP/HeaderBody.html"><code>Z80::TAP::HeaderBody</code></a> instance obtained from e.g. <a href="../Z80/TAP.html#method-c-read_chunk"><code>Z80::TAP.read_chunk</code></a>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="from_tap_chunk-source">
             <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 477</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">from_tap_chunk</span>(<span class="ruby-identifier">chunk</span>)
@@ -333,28 +238,19 @@
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-c-parse_source" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">parse_source</span><span
             class="method-args">(source, start:nil)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a <a href="Basic/Program.html"><code>Basic::Program</code></a> from a BASIC program text.</p>
 
 <p>The <code>source</code> should be an UTF-8 encoded string.</p>
@@ -391,10 +287,7 @@
 </li></ul>
 
 <p>Additionally <code>:start</code> argument may be provided to indicate a starting line of a program. This information will be used when saving program as a TAP file.</p>
-          
-          
 
-          
           <div class="method-source-code" id="parse_source-source">
             <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 534</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">parse_source</span>(<span class="ruby-identifier">source</span>, <span class="ruby-value">start:</span><span class="ruby-keyword">nil</span>)
@@ -412,95 +305,66 @@
         <span class="ruby-constant">Program</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">lines</span>, <span class="ruby-constant">Vars</span>.<span class="ruby-identifier">new</span>, <span class="ruby-identifier">start</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-c-read_source" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">read_source</span><span
             class="method-args">(filename, **opts)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a <a href="Basic/Program.html"><code>Basic::Program</code></a> from a BASIC text file.</p>
 
 <p>See <a href="Basic.html#method-c-parse_source"><code>parse_source</code></a> for details.</p>
-          
-          
 
-          
           <div class="method-source-code" id="read_source-source">
             <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 552</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_source</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-identifier">parse_source</span> <span class="ruby-constant">IO</span>.<span class="ruby-identifier">read</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">encoding:</span> <span class="ruby-constant">Encoding</span><span class="ruby-operator">::</span><span class="ruby-constant">UTF_8</span>), <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-c-read_tap" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">read_tap</span><span
             class="method-args">(filename, **opts)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a <a href="Basic/Program.html"><code>Basic::Program</code></a> or a <a href="Basic/Variable.html"><code>Basic::Variable</code></a> from a TAP file.</p>
 
 <p>See <a href="../Z80/TAP.html#method-c-read_chunk"><code>Z80::TAP.read_chunk</code></a> for arguments description.</p>
-          
-          
 
-          
           <div class="method-source-code" id="read_tap-source">
             <pre><span class="ruby-comment"># File lib/zxlib/basic.rb, line 491</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_tap</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
         <span class="ruby-constant">Z80</span><span class="ruby-operator">::</span><span class="ruby-constant">TAP</span>.<span class="ruby-identifier">read_chunk</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">chunk</span><span class="ruby-operator">|</span> <span class="ruby-identifier">from_tap_chunk</span>(<span class="ruby-identifier">chunk</span>) }
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

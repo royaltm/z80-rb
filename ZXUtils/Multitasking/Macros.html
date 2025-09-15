@@ -21,8 +21,6 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -62,18 +60,15 @@
     
     
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-i-task-3F">#task?</a>
-    
     <li ><a href="#method-i-task_id">#task_id</a>
-    
     <li ><a href="#method-i-task_stack_bytes_free">#task_stack_bytes_free</a>
-    
   </ul>
 </div>
 
@@ -91,36 +86,25 @@
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
 
-    
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-task-3F" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">task?</span><span
             class="method-args">(tt:hl, mtvars:self.mtvars)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Checks if the code is being run as a task. ZF flag will be set (Z) if not a task.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>tt</code>
 <dd>
@@ -142,10 +126,7 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>tt</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="task-3F-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking.rb, line 232</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">task?</span>(<span class="ruby-value">tt:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">mtvars:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">mtvars</span>)
@@ -157,28 +138,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-task_id" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">task_id</span><span
             class="method-args">(oh, ol, tt:hl, check_if_system:false, disable_intr:true, enable_intr:true, mtvars:self.mtvars)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Retrieves current task&#39;s id.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>oh</code>, <code>ol</code>
 <dd>
@@ -207,10 +179,7 @@
 </li></ul>
 
 <p>Modifies: <code>tt</code>, <code>oh</code>, <code>ol</code>, optionally <code>af</code> if <code>oh</code>, <code>ol</code> is one of the <code>tt</code> sub-registers.</p>
-          
-          
 
-          
           <div class="method-source-code" id="task_id-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking.rb, line 254</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">task_id</span>(<span class="ruby-identifier">oh</span>, <span class="ruby-identifier">ol</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">check_if_system:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mtvars:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">mtvars</span>)
@@ -280,28 +249,19 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-task_stack_bytes_free" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">task_stack_bytes_free</span><span
             class="method-args">(tt:hl, positive_size:true, disable_intr:true, enable_intr:true, mtvars:self.mtvars)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Calculates how many bytes are available yet on the task&#39;s stack below SP.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>tt</code>
 <dd>
@@ -343,10 +303,7 @@ ix,iy          false        77     81     85
    hl          false        59     63     67
 ix,iy           true       101    105    109
    hl           true        83     87     91</pre>
-          
-          
 
-          
           <div class="method-source-code" id="task_stack_bytes_free-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking.rb, line 344</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">task_stack_bytes_free</span>(<span class="ruby-value">tt:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">positive_size:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mtvars:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">mtvars</span>)
@@ -380,25 +337,20 @@ ix,iy           true       101    105    109
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

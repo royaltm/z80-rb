@@ -21,8 +21,6 @@
 <link href="../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="class">
 <nav role="navigation">
   <div id="project-navigation">
@@ -59,45 +57,34 @@
 
   <div id="class-metadata">
     
-    <div id="parent-class-section" class="nav-section">
+    
+<div id="parent-class-section" class="nav-section">
   <h3>Parent</h3>
 
-  
   <p class="link"><a href="../Object.html">Object</a>
-  
 </div>
 
-    <div id="includes-section" class="nav-section">
+    
+<div id="includes-section" class="nav-section">
   <h3>Included Modules</h3>
 
   <ul class="link-list">
-  
-  
     <li><a class="include" href="../Z80.html">Z80</a>
-  
-  
-  
     <li><a class="include" href="../Z80/TAP.html">Z80::TAP</a>
-  
-  
   </ul>
 </div>
 
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-i-get_counter">#get_counter</a>
-    
     <li ><a href="#method-i-init_music">#init_music</a>
-    
     <li ><a href="#method-i-play_interval">#play_interval</a>
-    
     <li ><a href="#method-i-play_loop">#play_loop</a>
-    
   </ul>
 </div>
 
@@ -148,41 +135,27 @@
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
 
-    
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-get_counter" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">get_counter</span><span
             class="method-args">()</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns the current value of the music counter.</p>
-          
-          
 
-          
           <div class="method-source-code" id="get_counter-source">
             <pre><span class="ruby-comment"># File lib/zxutils/ay_music_player.rb, line 351</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:get_counter</span> <span class="ruby-keyword">do</span>
@@ -190,28 +163,19 @@
                     <span class="ruby-identifier">ret</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-init_music" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">init_music</span><span
             class="method-args">()</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Initializes music track. Sets up the player.</p>
 
 <p>To setup the player (once):</p>
@@ -224,10 +188,7 @@
 <pre>1 DEF FN m(a)=USR #{player[:init_music]}
 LOAD &quot;&quot;CODE 40000
 PRINT FN m(40000)</pre>
-          
-          
 
-          
           <div class="method-source-code" id="init_music-source">
             <pre><span class="ruby-comment"># File lib/zxutils/ay_music_player.rb, line 297</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:init_music</span> <span class="ruby-keyword">do</span>
@@ -244,35 +205,23 @@ PRINT FN m(40000)</pre>
                     <span class="ruby-identifier">report_error</span> <span class="ruby-string">&#39;A Invalid argument&#39;</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-play_interval" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">play_interval</span><span
             class="method-args">()</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Plays single music track tick. Call repeatedly on equal intervals to play music.</p>
 
 <p>Returns the current value of the music counter.</p>
-          
-          
 
-          
           <div class="method-source-code" id="play_interval-source">
             <pre><span class="ruby-comment"># File lib/zxutils/ay_music_player.rb, line 336</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:play_interval</span> <span class="ruby-keyword">do</span>
@@ -288,33 +237,21 @@ PRINT FN m(40000)</pre>
                     <span class="ruby-identifier">exx</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-play_loop" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">play_loop</span><span
             class="method-args">()</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Plays music track in a loop until any key has been pressed.</p>
-          
-          
 
-          
           <div class="method-source-code" id="play_loop-source">
             <pre><span class="ruby-comment"># File lib/zxutils/ay_music_player.rb, line 313</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:play_loop</span> <span class="ruby-keyword">do</span>
@@ -330,25 +267,20 @@ PRINT FN m(40000)</pre>
                     <span class="ruby-identifier">ret</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

@@ -21,8 +21,6 @@
 <link href="../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="class">
 <nav role="navigation">
   <div id="project-navigation">
@@ -71,72 +69,50 @@
 
   <div id="class-metadata">
     
-    <div id="parent-class-section" class="nav-section">
+    
+<div id="parent-class-section" class="nav-section">
   <h3>Parent</h3>
 
-  
   <p class="link"><a href="../Object.html">Object</a>
-  
 </div>
 
-    <div id="includes-section" class="nav-section">
+    
+<div id="includes-section" class="nav-section">
   <h3>Included Modules</h3>
 
   <ul class="link-list">
-  
-  
     <li><a class="include" href="../Z80.html">Z80</a>
-  
-  
-  
     <li><a class="include" href="../Z80/TAP.html">Z80::TAP</a>
-  
-  
   </ul>
 </div>
 
-    <div id="extends-section" class="nav-section">
+    
+<div id="extends-section" class="nav-section">
   <h3>Extended With Modules</h3>
 
   <ul class="link-list">
-    
-  
     <li><a class="extend" href="MultitaskingIO/Macros.html">ZXUtils::MultitaskingIO::Macros</a>
-  
-  
   </ul>
 </div>
 
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-c-kernel_org">::kernel_org</a>
-    
     <li ><a href="#method-c-new_kernel">::new_kernel</a>
-    
     <li ><a href="#method-i-find_channel">#find_channel</a>
-    
     <li ><a href="#method-i-find_channel_arg">#find_channel_arg</a>
-    
     <li ><a href="#method-i-find_input_handle">#find_input_handle</a>
-    
     <li ><a href="#method-i-find_io_handles">#find_io_handles</a>
-    
     <li ><a href="#method-i-find_output_handle">#find_output_handle</a>
-    
     <li ><a href="#method-i-get_int8_norm_arg">#get_int8_norm_arg</a>
-    
     <li ><a href="#method-i-get_stream_arg">#get_stream_arg</a>
-    
     <li ><a href="#method-i-initialize_io">#initialize_io</a>
-    
     <li ><a href="#method-i-open_io">#open_io</a>
-    
     <li ><a href="#method-i-wait_io">#wait_io</a>
-    
   </ul>
 </div>
 
@@ -334,26 +310,17 @@ hello_world   data &quot;Hello world!&quot;</pre>
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
     <section class="constants-list">
       <header>
         <h3>Constants</h3>
       </header>
       <dl>
-      
         <dt id="MTIO_BUFFER_CHANNELS">MTIO_BUFFER_CHANNELS
-        
         <dd><p>Defines how many I/O buffer channels may be allocated. May be changed to a higher number. More buffers equals less memory but more independent channels. Each channel costs 527 bytes (2 * <a href="MultitaskingIO/BufferIO.html"><code>BufferIO</code></a> + 5 bytes for a channel record).</p>
-        
-      
         <dt id="MTIO_CLEAR_TV_FLAG_ON_INPUT">MTIO_CLEAR_TV_FLAG_ON_INPUT
-        
         <dd><p>When using INPUT # with an I/O channel other than “K” and then the error report is being printed in channel “K”, a cursor is shown after a reported message expecting further user input, e.g.:</p>
 
 <pre class="ruby"><span class="ruby-constant">INPUT</span> <span class="ruby-comment">#2;a</span>
@@ -368,77 +335,49 @@ hello_world   data &quot;Hello world!&quot;</pre>
 <p>This is the default. Set to <code>false</code> to disable this countermeasure.</p>
 
 <p>This happens because INPUT uses WAIT-KEY ($15D4) procedure which in turn sets the bit 3 of TV_FLAG signalling to reprint the edit area. When using channel “K” after each accepted key a procedure ED-COPY ($111D) at $2162 is being called which reprints the edit area and clears the bit 3. However when another channel is in use this part is being skipped at $2168. When the program execution ends, the editor starts reading user input from channel “K” (at KEY-INPUT: $10A8). But the bit 3 of TV_FLAG is still set. This in turn makes the ED-COPY being called immediately and the cursor appears. ED-COPY prevents the error message to be cleared, so the further user input will be echoed after the message.</p>
-        
-      
         <dt id="MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO">MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO
-        
         <dd><p>If the I/O operation blocks program while waiting for data or free buffer space, pressing BREAK will stop the program execution with “8 End of file” error report. Define <a href="MultitaskingIO.html#MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO"><code>MTIO_DETECT_BREAK_KEY_ON_BLOCKING_IO</code></a> = <code>false</code> to disable this.</p>
-        
-      
       </dl>
     </section>
-    
 
-    
 
-    
+
      <section id="public-class-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Class Methods</h3>
        </header>
 
-    
       <div id="method-c-kernel_org" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">kernel_org</span><span
             class="method-args">()</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>The <a href="MultitaskingIO.html"><code>MultitaskingIO</code></a> kernel code start address.</p>
-          
-          
 
-          
           <div class="method-source-code" id="kernel_org-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 259</span>
 <span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">kernel_org</span>
   <span class="ruby-value">0x10000</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-c-new_kernel" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">new_kernel</span><span
             class="method-args">(*args, **opts)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Instantiate <a href="MultitaskingIO.html"><code>MultitaskingIO</code></a> kernel with the proper code address.</p>
-          
-          
 
-          
           <div class="method-source-code" id="new_kernel-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 249</span>
 <span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">new_kernel</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>)
@@ -450,39 +389,27 @@ hello_world   data &quot;Hello world!&quot;</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-find_channel" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             call find_channel
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Looks for a channel name.</p>
 
 <p>Input:</p>
@@ -513,10 +440,7 @@ hello_world   data &quot;Hello world!&quot;</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="find_channel-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1135</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:find_channel</span> <span class="ruby-keyword">do</span>
@@ -539,31 +463,20 @@ hello_world   data &quot;Hello world!&quot;</pre>
                     <span class="ruby-identifier">ret</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-find_channel_arg" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             call find_channel_arg
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Looks for a channel name from a FN string argument.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -584,10 +497,7 @@ hello_world   data &quot;Hello world!&quot;</pre>
 <p>See <a href="MultitaskingIO.html#method-i-find_channel"><code>find_channel</code></a> for more information.</p>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="find_channel_arg-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1088</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:find_channel_arg</span> <span class="ruby-keyword">do</span>
@@ -611,31 +521,20 @@ hello_world   data &quot;Hello world!&quot;</pre>
                     <span class="ruby-identifier">jr</span>   <span class="ruby-constant">Z</span>, <span class="ruby-identifier">error_f</span>.<span class="ruby-identifier">err</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-find_input_handle" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             call find_input_handle
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Looks for an input handle for tasks.</p>
 
 <p>Provide a channel name as an upper-case letter code in accumulator.</p>
@@ -643,10 +542,7 @@ hello_world   data &quot;Hello world!&quot;</pre>
 <p>On success returns I/O buffer handle address in <code>hl</code> and sets the ZF flag (Z). ZF flag is clear (NZ) when a channel with the requested name could not be found.</p>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="find_input_handle-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1196</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:find_input_handle</span> <span class="ruby-keyword">do</span>
@@ -662,31 +558,20 @@ hello_world   data &quot;Hello world!&quot;</pre>
                     <span class="ruby-identifier">ret</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-find_io_handles" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             call find_io_handles
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Looks for I/O handles.</p>
 
 <p>Provide a channel name as an upper-case letter code in accumulator.</p>
@@ -694,10 +579,7 @@ hello_world   data &quot;Hello world!&quot;</pre>
 <p>On success returns I/O buffer handle addresses in <code>hl</code> (task input) and <code>de</code> (task output) and sets the ZF flag (Z). ZF flag is clear (NZ) when a channel with the requested name could not be found.</p>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="find_io_handles-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1167</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:find_io_handles</span> <span class="ruby-keyword">do</span>
@@ -717,31 +599,20 @@ hello_world   data &quot;Hello world!&quot;</pre>
                     <span class="ruby-identifier">ret</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-find_output_handle" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             call find_output_handle
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Looks for an output handle for tasks.</p>
 
 <p>Provide a channel name as an upper-case letter code in accumulator.</p>
@@ -749,10 +620,7 @@ hello_world   data &quot;Hello world!&quot;</pre>
 <p>On success returns I/O buffer handle address in <code>hl</code> and sets the ZF flag (Z). ZF flag is clear (NZ) when a channel with the requested name could not be found.</p>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="find_output_handle-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1221</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:find_output_handle</span> <span class="ruby-keyword">do</span>
@@ -767,31 +635,20 @@ hello_world   data &quot;Hello world!&quot;</pre>
                     <span class="ruby-identifier">ret</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-get_int8_norm_arg" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             call get_int8_norm_arg
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Attempts to read an integer in the range -255..255 from a FN argument.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -808,10 +665,7 @@ hello_world   data &quot;Hello world!&quot;</pre>
 <p>On success register <code>e</code> holds a positive number: 0..255 and register <code>c</code> a sign (0 or -1). <code>hl</code> will be incremented past the last FP-value&#39;s byte. On failure reports either “A Invalid argument” or “B Integer out of range” error.</p>
 
 <p>Modifies: <code>af</code>, <code>de</code>, <code>hl</code>, <code>c</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="get_int8_norm_arg-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 1249</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:get_int8_norm_arg</span> <span class="ruby-keyword">do</span>
@@ -824,31 +678,20 @@ hello_world   data &quot;Hello world!&quot;</pre>
                     <span class="ruby-identifier">ret</span>  <span class="ruby-constant">Z</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-get_stream_arg" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             call get_stream_arg
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Attempts to read a stream number from a FP-value addressed by <code>hl</code>.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -865,10 +708,7 @@ hello_world   data &quot;Hello world!&quot;</pre>
 <p>On success accumulator holds a stream number: 0..15 and <code>hl</code> will be incremented past the last FP-value&#39;s byte. On failure reports “O Invalid stream” error.</p>
 
 <p>Modifies: <code>af</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="get_stream_arg-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 948</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:get_stream_arg</span> <span class="ruby-keyword">do</span>
@@ -881,31 +721,20 @@ hello_world   data &quot;Hello world!&quot;</pre>
                     <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-initialize_io" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             call initialize_io
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Initializes I/O and multitasking.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -913,10 +742,7 @@ hello_world   data &quot;Hello world!&quot;</pre>
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>i</code>, <code>IFF</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="initialize_io-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 842</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:initialize_io</span> <span class="ruby-keyword">do</span>
@@ -939,38 +765,25 @@ hello_world   data &quot;Hello world!&quot;</pre>
                     <span class="ruby-identifier">ret</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-open_io" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             USR open_io
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
         <div class="method-heading">
           <span class="method-callseq">
             DEF FN o(s,c$)=USR open_io
           </span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>ZX Basic API</p>
 
 <p>This endpoint should be invoked from the ZX Basic directly via USR or indirectly via FN.</p>
@@ -985,10 +798,7 @@ LET prevChan=CHR$ FN o(7,&quot;Q&quot;)
 
 REM Closes stream #7. Returns previously assigned channel identifier.
 LET prevChan=CHR$ FN o(7,&quot;&quot;)</pre>
-          
-          
 
-          
           <div class="method-source-code" id="open_io-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 808</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:open_io</span> <span class="ruby-keyword">do</span>
@@ -1008,31 +818,20 @@ LET prevChan=CHR$ FN o(7,&quot;&quot;)</pre>
                     <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">open_stream_stacked</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-wait_io" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             DEF FN w(s,n)=USR wait_io
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>ZX Basic API</p>
 
 <p>This endpoint should be invoked from the ZX Basic indirectly via FN.</p>
@@ -1044,10 +843,7 @@ LET ReadCharsNo=FN w(7,3): REM ReadCharsNo &gt;= 3
 
 REM Blocks an execution of a program until at least 5 characters can be written to an I/O buffer at stream #7.
 LET WriteCharsNo=FN w(7,-5): REM WriteCharsNo &gt;= 5</pre>
-          
-          
 
-          
           <div class="method-source-code" id="wait_io-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 877</span>
 <span class="ruby-identifier">ns</span> <span class="ruby-value">:wait_io</span> <span class="ruby-keyword">do</span>
@@ -1098,25 +894,20 @@ LET WriteCharsNo=FN w(7,-5): REM WriteCharsNo &gt;= 5</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

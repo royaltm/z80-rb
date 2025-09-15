@@ -21,8 +21,6 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -62,48 +60,30 @@
     
     
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-i-ay_expand_notes">#ay_expand_notes</a>
-    
     <li ><a href="#method-i-ay_expand_notes_faster">#ay_expand_notes_faster</a>
-    
     <li ><a href="#method-i-ay_get_register_value">#ay_get_register_value</a>
-    
     <li ><a href="#method-i-ay_get_set_env_shape">#ay_get_set_env_shape</a>
-    
     <li ><a href="#method-i-ay_get_set_mixer">#ay_get_set_mixer</a>
-    
     <li ><a href="#method-i-ay_hz2tp">#ay_hz2tp</a>
-    
     <li ><a href="#method-i-ay_init">#ay_init</a>
-    
     <li ><a href="#method-i-ay_io_load_const_reg_bc">#ay_io_load_const_reg_bc</a>
-    
     <li ><a href="#method-i-ay_io_swap2inp_bc">#ay_io_swap2inp_bc</a>
-    
     <li ><a href="#method-i-ay_io_swap2out_bc">#ay_io_swap2out_bc</a>
-    
     <li ><a href="#method-i-ay_io_swap2sel_bc">#ay_io_swap2sel_bc</a>
-    
     <li ><a href="#method-i-ay_set_envelope_duration">#ay_set_envelope_duration</a>
-    
     <li ><a href="#method-i-ay_set_noise_pitch">#ay_set_noise_pitch</a>
-    
     <li ><a href="#method-i-ay_set_register_value">#ay_set_register_value</a>
-    
     <li ><a href="#method-i-ay_set_tone_period">#ay_set_tone_period</a>
-    
     <li ><a href="#method-i-ay_set_volume">#ay_set_volume</a>
-    
     <li ><a href="#method-i-ay_tone_periods">#ay_tone_periods</a>
-    
     <li ><a href="#method-i-equal_tempered_scale_notes_hz">#equal_tempered_scale_notes_hz</a>
-    
   </ul>
 </div>
 
@@ -215,36 +195,25 @@
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
 
-    
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-ay_expand_notes" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_expand_notes</span><span
             class="method-args">(notes=hl, octaves:8, half_tones:12)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine for expanding the note to AY-3-891x tone period table to a higher number of octaves.</p>
 
 <p>Elements of the table are 2-byte words holding the AY-3-891x tone period values for each consecutive note.</p>
@@ -276,10 +245,7 @@ notes      dw ay_tone_periods(min_octave:0, max_octave:0)
 notes_end  union notes[8*12], 2</pre>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_expand_notes-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 308</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_expand_notes</span>(<span class="ruby-identifier">notes</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-value">octaves:</span><span class="ruby-value">8</span>, <span class="ruby-value">half_tones:</span><span class="ruby-value">12</span>)
@@ -311,28 +277,19 @@ notes_end  union notes[8*12], 2</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_expand_notes_faster" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_expand_notes_faster</span><span
             class="method-args">(notes=hl, octaves:8, half_tones:12, save_sp:true, disable_intr:true, enable_intr:true)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine for expanding the note to AY-3-891x tone period table to a higher number of octaves. This is a faster version of the <a href="Macros.html#method-i-ay_expand_notes"><code>Macros.ay_expand_notes</code></a> that uses a stack pointer register for reading notes, so it requires that the interrupts are disabled while it&#39;s being run.</p>
 
 <p>Elements of the table are 2-byte words holding the AY-3-891x tone period values for each consecutive note.</p>
@@ -380,10 +337,7 @@ notes      dw ay_tone_periods(min_octave:0, max_octave:0)
 notes_end  union notes[8*12], 1</pre>
 
 <p>Modifies: <code>af</code>, <code>b</code>, <code>de</code>, <code>hl</code> and optionally <code>sp</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_expand_notes_faster-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 370</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_expand_notes_faster</span>(<span class="ruby-identifier">notes</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-value">octaves:</span><span class="ruby-value">8</span>, <span class="ruby-value">half_tones:</span><span class="ruby-value">12</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>)
@@ -414,28 +368,19 @@ notes_end  union notes[8*12], 1</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_get_register_value" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_get_register_value</span><span
             class="method-args">(regn=a, regv=e, bc_const_loaded:false, io_ay:self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that reads a specific AY-3-891x register&#39;s value.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>regn</code>
 <dd>
@@ -459,10 +404,7 @@ notes_end  union notes[8*12], 1</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>bc</code> and <code>regv</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_get_register_value-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 517</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_get_register_value</span>(<span class="ruby-identifier">regn</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">regv</span>=<span class="ruby-identifier">e</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -486,28 +428,19 @@ notes_end  union notes[8*12], 1</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_get_set_env_shape" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_get_set_env_shape</span><span
             class="method-args">(sinp=a, sout=sinp, bc_const_loaded:false, io_ay:self.io_ay) { |eoc| ... }</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that gets the AY-3-891x envelope shape&#39;s value applies a block of code and sets the value back. The block of code should not modify <code>bc</code> register pair.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>sinp</code>
 <dd>
@@ -531,10 +464,7 @@ notes_end  union notes[8*12], 1</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>bc</code> and <code>sinp</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_get_set_env_shape-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 772</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_get_set_env_shape</span>(<span class="ruby-identifier">sinp</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">sout</span>=<span class="ruby-identifier">sinp</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -546,28 +476,19 @@ notes_end  union notes[8*12], 1</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_get_set_mixer" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_get_set_mixer</span><span
             class="method-args">(vinp=a, vout=vinp, bc_const_loaded:false, io_ay:self.io_ay) { |eoc| ... }</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that gets the AY-3-891x mixer&#39;s value applies a block of code and sets the mixer value back. The block of code should not modify <code>bc</code> register pair.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>vinp</code>
 <dd>
@@ -601,10 +522,7 @@ notes_end  union notes[8*12], 1</pre>
 </pre>
 
 <p>Modifies: <code>af</code>, <code>bc</code> and <code>vinp</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_get_set_mixer-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 630</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_get_set_mixer</span>(<span class="ruby-identifier">vinp</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">vout</span>=<span class="ruby-identifier">vinp</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -616,28 +534,19 @@ notes_end  union notes[8*12], 1</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_hz2tp" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_hz2tp</span><span
             class="method-args">(hz, clock_hz:AYSound::CLOCK_HZ)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Converts a frequency given in Hz to AY-3-891x tone period value.</p>
 
 <p>Options:</p>
@@ -646,38 +555,26 @@ notes_end  union notes[8*12], 1</pre>
 <p>AY-3-891x clock frequency in Hz.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="ay_hz2tp-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 262</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_hz2tp</span>(<span class="ruby-identifier">hz</span>, <span class="ruby-value">clock_hz:</span><span class="ruby-constant">AYSound</span><span class="ruby-operator">::</span><span class="ruby-constant">CLOCK_HZ</span>)
   (<span class="ruby-identifier">clock_hz</span> <span class="ruby-operator">/</span> (<span class="ruby-value">16.0</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">hz</span>)).<span class="ruby-identifier">round</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_init" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_init</span><span
             class="method-args">(t:e, bc_const_loaded:false, io_ay:self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that sets volume of all AY-3-891x sound channels to 0, disables noise on all channels and enables tone output on all channels.</p>
 
 <p>This effectively mutes all sound.</p>
@@ -698,10 +595,7 @@ notes_end  union notes[8*12], 1</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>t</code>, <code>bc</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_init-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 593</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_init</span>(<span class="ruby-value">t:</span><span class="ruby-identifier">e</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -722,28 +616,19 @@ notes_end  union notes[8*12], 1</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_io_load_const_reg_bc" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_io_load_const_reg_bc</span><span
             class="method-args">(io_ay=self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that loads a constant 8-bit part of the AY-3-891x I/O addresses into <code>b</code> or <code>c</code> register.</p>
 
 <p>Run this routine before running one of:</p>
@@ -763,10 +648,7 @@ notes_end  union notes[8*12], 1</pre>
 </li></ul>
 
 <p>Modifies: <code>b</code> or <code>c</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_io_load_const_reg_bc-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 412</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_io_load_const_reg_bc</span>(<span class="ruby-identifier">io_ay</span>=<span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -782,28 +664,19 @@ notes_end  union notes[8*12], 1</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_io_swap2inp_bc" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_io_swap2inp_bc</span><span
             class="method-args">(io_ay=self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that loads a specific 8-bit part of the AY-3-891x <code>input</code> addresses into <code>b</code> or <code>c</code> register.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>io_ay</code>
 <dd>
@@ -813,19 +686,17 @@ notes_end  union notes[8*12], 1</pre>
 
 <p>Example:</p>
 
-<pre>ay_io_load_const_reg_bc
-...
-ay_io_swap2sel_bc
-ld   a, ZXLib::AYSound::VOLUME_A
-out  (c), a        # select VOLUME_A register
-ay_io_swap2inp_bc
-inp  e, (c)        # get a value from the selected register</pre>
+<pre class="ruby"><span class="ruby-identifier">ay_io_load_const_reg_bc</span>
+<span class="ruby-operator">...</span>
+<span class="ruby-identifier">ay_io_swap2sel_bc</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">AYSound</span><span class="ruby-operator">::</span><span class="ruby-constant">VOLUME_A</span>
+<span class="ruby-identifier">out</span>  (<span class="ruby-identifier">c</span>), <span class="ruby-identifier">a</span>        <span class="ruby-comment"># select VOLUME_A register</span>
+<span class="ruby-identifier">ay_io_swap2inp_bc</span>
+<span class="ruby-identifier">inp</span>  <span class="ruby-identifier">e</span>, (<span class="ruby-identifier">c</span>)        <span class="ruby-comment"># get a value from the selected register</span>
+</pre>
 
 <p>Modifies: <code>b</code> or <code>c</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_io_swap2inp_bc-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 466</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_io_swap2inp_bc</span>(<span class="ruby-identifier">io_ay</span>=<span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -839,28 +710,19 @@ inp  e, (c)        # get a value from the selected register</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_io_swap2out_bc" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_io_swap2out_bc</span><span
             class="method-args">(io_ay=self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that loads a specific 8-bit part of the AY-3-891x <code>output</code> addresses into <code>b</code> or <code>c</code> register.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>io_ay</code>
 <dd>
@@ -870,19 +732,17 @@ inp  e, (c)        # get a value from the selected register</pre>
 
 <p>Example:</p>
 
-<pre>ay_io_load_const_reg_bc
-...
-ay_io_swap2sel_bc
-ld   a, ZXLib::AYSound::VOLUME_A
-out  (c), a        # select VOLUME_A register
-ay_io_swap2out_bc
-out  (c), e        # set a value of the selected register</pre>
+<pre class="ruby"><span class="ruby-identifier">ay_io_load_const_reg_bc</span>
+<span class="ruby-operator">...</span>
+<span class="ruby-identifier">ay_io_swap2sel_bc</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">AYSound</span><span class="ruby-operator">::</span><span class="ruby-constant">VOLUME_A</span>
+<span class="ruby-identifier">out</span>  (<span class="ruby-identifier">c</span>), <span class="ruby-identifier">a</span>        <span class="ruby-comment"># select VOLUME_A register</span>
+<span class="ruby-identifier">ay_io_swap2out_bc</span>
+<span class="ruby-identifier">out</span>  (<span class="ruby-identifier">c</span>), <span class="ruby-identifier">e</span>        <span class="ruby-comment"># set a value of the selected register</span>
+</pre>
 
 <p>Modifies: <code>b</code> or <code>c</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_io_swap2out_bc-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 440</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_io_swap2out_bc</span>(<span class="ruby-identifier">io_ay</span>=<span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -896,28 +756,19 @@ out  (c), e        # set a value of the selected register</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_io_swap2sel_bc" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_io_swap2sel_bc</span><span
             class="method-args">(io_ay=self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that loads a specific 8-bit part of the AY-3-891x <code>select</code> addresses into <code>b</code> or <code>c</code> register.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>io_ay</code>
 <dd>
@@ -927,23 +778,21 @@ out  (c), e        # set a value of the selected register</pre>
 
 <p>Example:</p>
 
-<pre>ay_io_load_const_reg_bc
-...
-ay_io_swap2sel_bc
-ld   a, ZXLib::AYSound::MIXER
-out  (c), a        # select MIXER register
-ay_io_swap2inp_bc
-inp  a, (c)        # get a value from the selected register
-anda 0b11000000
-ora  0b00111000    # apply mask
-ay_io_swap2out_bc
-out  (c), a        # set a value of the selected register</pre>
+<pre class="ruby"><span class="ruby-identifier">ay_io_load_const_reg_bc</span>
+<span class="ruby-operator">...</span>
+<span class="ruby-identifier">ay_io_swap2sel_bc</span>
+<span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-constant">ZXLib</span><span class="ruby-operator">::</span><span class="ruby-constant">AYSound</span><span class="ruby-operator">::</span><span class="ruby-constant">MIXER</span>
+<span class="ruby-identifier">out</span>  (<span class="ruby-identifier">c</span>), <span class="ruby-identifier">a</span>        <span class="ruby-comment"># select MIXER register</span>
+<span class="ruby-identifier">ay_io_swap2inp_bc</span>
+<span class="ruby-identifier">inp</span>  <span class="ruby-identifier">a</span>, (<span class="ruby-identifier">c</span>)        <span class="ruby-comment"># get a value from the selected register</span>
+<span class="ruby-identifier">anda</span> <span class="ruby-value">0b11000000</span>
+<span class="ruby-identifier">ora</span>  <span class="ruby-value">0b00111000</span>    <span class="ruby-comment"># apply mask</span>
+<span class="ruby-identifier">ay_io_swap2out_bc</span>
+<span class="ruby-identifier">out</span>  (<span class="ruby-identifier">c</span>), <span class="ruby-identifier">a</span>        <span class="ruby-comment"># set a value of the selected register</span>
+</pre>
 
 <p>Modifies: <code>b</code> or <code>c</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_io_swap2sel_bc-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 496</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_io_swap2sel_bc</span>(<span class="ruby-identifier">io_ay</span>=<span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -957,28 +806,19 @@ out  (c), a        # set a value of the selected register</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_set_envelope_duration" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_set_envelope_duration</span><span
             class="method-args">(dh=d, dl=e, bc_const_loaded:false, io_ay:self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that sets a AY-3-891x envelope duration.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>dh</code>
 <dd>
@@ -1002,10 +842,7 @@ out  (c), a        # set a value of the selected register</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>bc</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_set_envelope_duration-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 752</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_set_envelope_duration</span>(<span class="ruby-identifier">dh</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">dl</span>=<span class="ruby-identifier">e</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -1017,28 +854,19 @@ out  (c), a        # set a value of the selected register</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_set_noise_pitch" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_set_noise_pitch</span><span
             class="method-args">(pitch=e, pitch_8bit:false, bc_const_loaded:false, io_ay:self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that sets a AY-3-891x noise pitch.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>pitch</code>
 <dd>
@@ -1062,10 +890,7 @@ out  (c), a        # set a value of the selected register</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>bc</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_set_noise_pitch-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 719</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_set_noise_pitch</span>(<span class="ruby-identifier">pitch</span>=<span class="ruby-identifier">e</span>, <span class="ruby-value">pitch_8bit:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -1089,28 +914,19 @@ out  (c), a        # set a value of the selected register</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_set_register_value" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_set_register_value</span><span
             class="method-args">(regn=a, regv=e, bc_const_loaded:false, io_ay:self.io_ay) { |eoc| ... }</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that writes a value to a specific AY-3-891x register.</p>
 
 <p>If the block is given, the code it creates will be evaluated after the AY-3-891x register has been selected and <code>bc</code> registers has been loaded with an “output” AY-3-891x I/O address. The <code>regv</code> value will not be output in this instance and the <code>regv</code> argument will be ignored. Instead the code created by the block should perform writing out the value with <code>out (c), regv</code>.</p>
@@ -1136,10 +952,7 @@ out  (c), a        # set a value of the selected register</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>bc</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_set_register_value-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 554</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_set_register_value</span>(<span class="ruby-identifier">regn</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">regv</span>=<span class="ruby-identifier">e</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -1170,28 +983,19 @@ out  (c), a        # set a value of the selected register</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_set_tone_period" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_set_tone_period</span><span
             class="method-args">(ch=a, tph:d, tpl:e, bc_const_loaded:false, io_ay:self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that sets a AY-3-891x channel&#39;s tone period.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>ch</code>
 <dd>
@@ -1219,10 +1023,7 @@ out  (c), a        # set a value of the selected register</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>bc</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_set_tone_period-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 652</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_set_tone_period</span>(<span class="ruby-identifier">ch</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tph:</span><span class="ruby-identifier">d</span>, <span class="ruby-value">tpl:</span><span class="ruby-identifier">e</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -1243,28 +1044,19 @@ out  (c), a        # set a value of the selected register</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_set_volume" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_set_volume</span><span
             class="method-args">(ch=a, vol=e, vol_8bit:false, bc_const_loaded:false, io_ay:self.io_ay)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Creates a routine that sets a AY-3-891x channel&#39;s volume level.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>ch</code>
 <dd>
@@ -1292,10 +1084,7 @@ out  (c), a        # set a value of the selected register</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>bc</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ay_set_volume-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 681</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_set_volume</span>(<span class="ruby-identifier">ch</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">vol</span>=<span class="ruby-identifier">e</span>, <span class="ruby-value">vol_8bit:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">bc_const_loaded:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">io_ay:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io_ay</span>)
@@ -1326,28 +1115,19 @@ out  (c), a        # set a value of the selected register</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ay_tone_periods" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">ay_tone_periods</span><span
             class="method-args">(min_octave:0, max_octave:7, notes_hz:self.equal_tempered_scale_notes_hz, clock_hz:AYSound::CLOCK_HZ)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns a tone period array for the AY-3-891x chip.</p>
 
 <p>Options:</p>
@@ -1368,10 +1148,7 @@ out  (c), a        # set a value of the selected register</pre>
 <p>The AY-3-891x clock frequency in Hz.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="ay_tone_periods-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 274</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ay_tone_periods</span>(<span class="ruby-value">min_octave:</span><span class="ruby-value">0</span>, <span class="ruby-value">max_octave:</span><span class="ruby-value">7</span>, <span class="ruby-value">notes_hz:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">equal_tempered_scale_notes_hz</span>, <span class="ruby-value">clock_hz:</span><span class="ruby-constant">AYSound</span><span class="ruby-operator">::</span><span class="ruby-constant">CLOCK_HZ</span>)
@@ -1385,28 +1162,19 @@ out  (c), a        # set a value of the selected register</pre>
   <span class="ruby-keyword">end</span>.<span class="ruby-identifier">flatten</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-equal_tempered_scale_notes_hz" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">equal_tempered_scale_notes_hz</span><span
             class="method-args">(hz:440, n0:0, steps:12)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns an array of equal tempered scale frequencies from a given base frequency.</p>
 <dl class="rdoc-list note-list"><dt><em>See</em>
 <dd>
@@ -1427,35 +1195,27 @@ out  (c), a        # set a value of the selected register</pre>
 <p>how many half tones, 12 is the default.</p>
 </dd></dl>
 </li></ul>
-          
-          
 
-          
           <div class="method-source-code" id="equal_tempered_scale_notes_hz-source">
             <pre><span class="ruby-comment"># File lib/zxlib/ay_sound.rb, line 254</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">equal_tempered_scale_notes_hz</span>(<span class="ruby-value">hz:</span><span class="ruby-value">440</span>, <span class="ruby-value">n0:</span><span class="ruby-value">0</span>, <span class="ruby-value">steps:</span><span class="ruby-value">12</span>)
   (<span class="ruby-value">0</span><span class="ruby-operator">...</span><span class="ruby-identifier">steps</span>).<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">n</span><span class="ruby-operator">|</span> <span class="ruby-identifier">hz</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">*</span> <span class="ruby-value">2.0</span><span class="ruby-operator">**</span>((<span class="ruby-identifier">n</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">n0</span>).<span class="ruby-identifier">to_f</span><span class="ruby-operator">/</span><span class="ruby-identifier">steps</span>.<span class="ruby-identifier">to_f</span>) }
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

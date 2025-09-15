@@ -21,8 +21,6 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
-
-
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -60,73 +58,45 @@
   <div id="class-metadata">
     
     
-    <div id="includes-section" class="nav-section">
+    
+<div id="includes-section" class="nav-section">
   <h3>Included Modules</h3>
 
   <ul class="link-list">
-  
-  
     <li><a class="include" href="TrackConfigCommands.html">ZXUtils::MusicBox::TrackConfigCommands</a>
-  
-  
-  
     <li><a class="include" href="Track.html">ZXUtils::MusicBox::Track</a>
-  
-  
   </ul>
 </div>
 
     
-    <!-- Method Quickref -->
+    
+<!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
-    
     <li ><a href="#method-c-channel_name_to_index">::channel_name_to_index</a>
-    
     <li ><a href="#method-i-all_ch">#all_ch</a>
-    
     <li ><a href="#method-i-all_channels">#all_channels</a>
-    
     <li ><a href="#method-i-ch_a">#ch_a</a>
-    
     <li ><a href="#method-i-ch_b">#ch_b</a>
-    
     <li ><a href="#method-i-ch_c">#ch_c</a>
-    
     <li ><a href="#method-i-channel">#channel</a>
-    
     <li ><a href="#method-i-for_ch">#for_ch</a>
-    
     <li ><a href="#method-i-for_channels">#for_channels</a>
-    
     <li ><a href="#method-i-loop_to">#loop_to</a>
-    
     <li ><a href="#method-i-lt">#lt</a>
-    
     <li ><a href="#method-i-m">#m</a>
-    
     <li ><a href="#method-i-mark">#mark</a>
-    
     <li ><a href="#method-i-p">#p</a>
-    
     <li ><a href="#method-i-pause">#pause</a>
-    
     <li ><a href="#method-i-repeat">#repeat</a>
-    
     <li ><a href="#method-i-rpt">#rpt</a>
-    
     <li ><a href="#method-i-sub">#sub</a>
-    
     <li ><a href="#method-i-sub_track">#sub_track</a>
-    
     <li ><a href="#method-i-synchronize_channels">#synchronize_channels</a>
-    
     <li ><a href="#method-i-w">#w</a>
-    
     <li ><a href="#method-i-wait">#wait</a>
-    
   </ul>
 </div>
 
@@ -148,43 +118,29 @@
 
   </section>
 
-  
   <section id="5Buntitled-5D" class="documentation-section">
-    
 
-    
 
-    
 
-    
 
-    
+
      <section id="public-class-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Class Methods</h3>
        </header>
 
-    
       <div id="method-c-channel_name_to_index" class="method-detail ">
-        
         <div class="method-heading">
           <span class="method-name">channel_name_to_index</span><span
             class="method-args">(channel)</span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
 
         <div class="method-description">
-          
           <p>Returns a channel index: 0 to 2 for the given <code>channel</code> name.</p>
 
 <p>A <code>channel</code> can be an integer: 0 to 2 or one of the symbols or strings: <code>:a</code>, <code>:b</code>, <code>:c</code>.</p>
-          
-          
 
-          
           <div class="method-source-code" id="channel_name_to_index-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 30</span>
 <span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">channel_name_to_index</span>(<span class="ruby-identifier">channel</span>)
@@ -197,232 +153,140 @@
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
     </section>
-  
+
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
-    
       <div id="method-i-all_ch" class="method-detail method-alias">
-        
-        <div class="method-heading">
-          <span class="method-name">all_ch</span><span
-            class="method-args">(&amp;block)</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          
-          
-          
-
-          
-        </div>
-
-        
-
-        
-        <div class="aliases">
-          Alias for: <a href="MultitrackCommands.html#method-i-all_channels">all_channels</a>
-        </div>
-        
-      </div>
-
-    
-      <div id="method-i-all_channels" class="method-detail ">
-        
-        
-        <div class="method-heading">
-          <span class="method-callseq">
-            all_channels {|| ... }
-          </span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
         <div class="method-heading">
           <span class="method-callseq">
             all_ch {|| ... }
           </span>
-          
         </div>
-        
-        
 
         <div class="method-description">
           
+
+        </div>
+
+
+        <div class="aliases">
+          Alias for: <a href="MultitrackCommands.html#method-i-all_channels">all_channels</a>
+        </div>
+      </div>
+
+      <div id="method-i-all_channels" class="method-detail ">
+
+        <div class="method-description">
           <p>Creates a track fragments with the same commands for all the channels.</p>
 
 <p>Provide a block with commands suitable for <a href="Track.html"><code>MusicBox::Track</code></a>.</p>
 
 <p>The tracks will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
           <div class="method-source-code" id="all_channels-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 114</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">all_channels</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">2</span>).<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-identifier">channel</span>(<span class="ruby-identifier">ch</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>) }
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
         <div class="aliases">
           Also aliased as: <a href="MultitrackCommands.html#method-i-all_ch">all_ch</a>
         </div>
-        
 
-        
       </div>
 
-    
       <div id="method-i-ch_a" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             ch_a {|| ... }
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Creates a track fragment for the A channel.</p>
 
 <p>Provide a block with commands suitable for <a href="Track.html"><code>MusicBox::Track</code></a>. The track will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ch_a-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 125</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ch_a</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         <span class="ruby-identifier">channel</span> <span class="ruby-value">0</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ch_b" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             ch_b {|| ... }
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Creates a track fragment for the B channel.</p>
 
 <p>Provide a block with commands suitable for <a href="Track.html"><code>MusicBox::Track</code></a>. The track will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ch_b-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 135</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ch_b</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         <span class="ruby-identifier">channel</span> <span class="ruby-value">1</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-ch_c" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             ch_c {|| ... }
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Creates a track fragment for the C channel.</p>
 
 <p>Provide a block with commands suitable for <a href="Track.html"><code>MusicBox::Track</code></a>. The track will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
           <div class="method-source-code" id="ch_c-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 145</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ch_c</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
         <span class="ruby-identifier">channel</span> <span class="ruby-value">2</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-channel" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             channel channel_name {|| ... }
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Creates a track fragment for the given <code>channel_name</code>.</p>
 
 <p>Provide a block with commands suitable for <a href="Track.html"><code>MusicBox::Track</code></a>.</p>
@@ -430,10 +294,7 @@
 <p>A <code>channel_name</code> can be an integer: 0 to 2 or one of the symbols or strings: <code>:a</code>, <code>:b</code>, <code>:c</code>.</p>
 
 <p>The track will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
           <div class="method-source-code" id="channel-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 73</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">channel</span>(<span class="ruby-identifier">ch_name</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -453,66 +314,32 @@
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-for_ch" class="method-detail method-alias">
-        
-        <div class="method-heading">
-          <span class="method-name">for_ch</span><span
-            class="method-args">(*chs, &amp;block)</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          
-          
-          
-
-          
-        </div>
-
-        
-
-        
-        <div class="aliases">
-          Alias for: <a href="MultitrackCommands.html#method-i-for_channels">for_channels</a>
-        </div>
-        
-      </div>
-
-    
-      <div id="method-i-for_channels" class="method-detail ">
-        
-        
-        <div class="method-heading">
-          <span class="method-callseq">
-            for_channels *channel_names {|| ... }
-          </span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
         <div class="method-heading">
           <span class="method-callseq">
             for_ch *channel_names {|| ... }
           </span>
-          
         </div>
-        
-        
 
         <div class="method-description">
           
+
+        </div>
+
+
+        <div class="aliases">
+          Alias for: <a href="MultitrackCommands.html#method-i-for_channels">for_channels</a>
+        </div>
+      </div>
+
+      <div id="method-i-for_channels" class="method-detail ">
+
+        <div class="method-description">
           <p>Creates a track fragments with the same commands for the channels indicated by <code>channel_names</code>.</p>
 
 <p>Provide a block with commands suitable for <a href="Track.html"><code>MusicBox::Track</code></a>.</p>
@@ -520,10 +347,7 @@
 <p>A <code>channel_names</code> can be integers: 0 to 2 or the symbols or strings: <code>:a</code>, <code>:b</code>, <code>:c</code>.</p>
 
 <p>The tracks will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
           <div class="method-source-code" id="for_channels-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 100</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">for_channels</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">chs</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -531,49 +355,27 @@
         <span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">ch</span><span class="ruby-operator">|</span> <span class="ruby-identifier">channel</span>(<span class="ruby-identifier">ch</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>) }
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
         <div class="aliases">
           Also aliased as: <a href="MultitrackCommands.html#method-i-for_ch">for_ch</a>
         </div>
-        
 
-        
       </div>
 
-    
       <div id="method-i-loop_to" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             loop_to name, [repeat=nil]
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        <div class="method-heading">
-          <span class="method-callseq">
-            lt name, [repeat=nil]
-          </span>
-          
-        </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Loops execution from the marked point <code>name</code>. Repeats <code>repeat</code> times. If <code>repeat</code> is <code>nil</code> or missing loops <em>forever</em>.</p>
 
 <p>See also <a href="MultitrackCommands.html#method-i-mark"><code>MultitrackCommands.mark</code></a> and <a href="MultitrackCommands.html#method-i-repeat"><code>MultitrackCommands.repeat</code></a>. The tracks will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
           <div class="method-source-code" id="loop_to-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 216</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">loop_to</span>(<span class="ruby-identifier">mark_name</span>, <span class="ruby-identifier">repeat</span>=<span class="ruby-keyword">nil</span>)
@@ -581,103 +383,55 @@
         <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
         <div class="aliases">
           Also aliased as: <a href="MultitrackCommands.html#method-i-lt">lt</a>
         </div>
-        
 
-        
       </div>
 
-    
       <div id="method-i-lt" class="method-detail method-alias">
-        
         <div class="method-heading">
-          <span class="method-name">lt</span><span
-            class="method-args">(mark_name, repeat=nil)</span>
-          
+          <span class="method-callseq">
+            lt name, [repeat=nil]
+          </span>
         </div>
-        
 
         <div class="method-description">
           
-          
-          
-          
 
-          
         </div>
 
-        
 
-        
         <div class="aliases">
           Alias for: <a href="MultitrackCommands.html#method-i-loop_to">loop_to</a>
         </div>
-        
       </div>
 
-    
       <div id="method-i-m" class="method-detail method-alias">
-        
-        <div class="method-heading">
-          <span class="method-name">m</span><span
-            class="method-args">(name)</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          
-          
-          
-
-          
-        </div>
-
-        
-
-        
-        <div class="aliases">
-          Alias for: <a href="MultitrackCommands.html#method-i-mark">mark</a>
-        </div>
-        
-      </div>
-
-    
-      <div id="method-i-mark" class="method-detail ">
-        
-        
-        <div class="method-heading">
-          <span class="method-callseq">
-            mark name
-          </span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
         <div class="method-heading">
           <span class="method-callseq">
             m name
           </span>
-          
         </div>
-        
-        
 
         <div class="method-description">
           
-          <p>Marks a point in tracks and gives it a <code>name</code> as a symbol or a string. You can later use <a href="MultitrackCommands.html#method-i-loop_to"><code>MultitrackCommands.loop_to</code></a> with a marked point name. The tracks will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
+        </div>
+
+
+        <div class="aliases">
+          Alias for: <a href="MultitrackCommands.html#method-i-mark">mark</a>
+        </div>
+      </div>
+
+      <div id="method-i-mark" class="method-detail ">
+
+        <div class="method-description">
+          <p>Marks a point in tracks and gives it a <code>name</code> as a symbol or a string. You can later use <a href="MultitrackCommands.html#method-i-loop_to"><code>MultitrackCommands.loop_to</code></a> with a marked point name. The tracks will be synchronized accordingly with the other channel&#39;s tracks.</p>
+
           <div class="method-source-code" id="mark-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 202</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mark</span>(<span class="ruby-identifier">name</span>)
@@ -685,70 +439,35 @@
         <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
         <div class="aliases">
           Also aliased as: <a href="MultitrackCommands.html#method-i-m">m</a>
         </div>
-        
 
-        
       </div>
 
-    
       <div id="method-i-p" class="method-detail method-alias">
-        
-        <div class="method-heading">
-          <span class="method-name">p</span><span
-            class="method-args">(length, *length_exts)</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          
-          
-          
-
-          
-        </div>
-
-        
-
-        
-        <div class="aliases">
-          Alias for: <a href="MultitrackCommands.html#method-i-pause">pause</a>
-        </div>
-        
-      </div>
-
-    
-      <div id="method-i-pause" class="method-detail ">
-        
-        
-        <div class="method-heading">
-          <span class="method-callseq">
-            pause length, *additional_lengths
-          </span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
         <div class="method-heading">
           <span class="method-callseq">
             p length, *additional_lengths
           </span>
-          
         </div>
-        
-        
 
         <div class="method-description">
           
+
+        </div>
+
+
+        <div class="aliases">
+          Alias for: <a href="MultitrackCommands.html#method-i-pause">pause</a>
+        </div>
+      </div>
+
+      <div id="method-i-pause" class="method-detail ">
+
+        <div class="method-description">
           <p>Pauses tracks execution for a <code>length</code> period. The <code>length</code> value should be a positive integer.</p>
 
 <p>The number of <code>ticks</code> paused is being calculated based on the <a href="TrackConfigCommands.html#method-i-tempo"><code>TrackConfigCommands.tempo</code></a> value.</p>
@@ -757,10 +476,7 @@
 </pre>
 
 <p>For the tempo unrelated pause see <a href="MultitrackCommands.html#method-i-wait"><code>MultitrackCommands.wait</code></a>. The tracks will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
           <div class="method-source-code" id="pause-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 187</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">pause</span>(<span class="ruby-identifier">length</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">length_exts</span>)
@@ -771,49 +487,27 @@
         <span class="ruby-identifier">wait</span>(<span class="ruby-identifier">ticks</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
         <div class="aliases">
           Also aliased as: <a href="MultitrackCommands.html#method-i-p">p</a>
         </div>
-        
 
-        
       </div>
 
-    
       <div id="method-i-repeat" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             repeat [repeat=nil] {|| ... }
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        <div class="method-heading">
-          <span class="method-callseq">
-            rpt [repeat=nil] {|| ... }
-          </span>
-          
-        </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Repeats the execution of the commands in the given block <code>repeat</code> times. If <code>repeat</code> is <code>nil</code> or missing repeats <em>forever</em>.</p>
 
 <p>See also <a href="MultitrackCommands.html#method-i-mark"><code>MultitrackCommands.mark</code></a> and <a href="MultitrackCommands.html#method-i-loop_to"><code>MultitrackCommands.loop_to</code></a>. The tracks will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
           <div class="method-source-code" id="repeat-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 230</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">repeat</span>(<span class="ruby-identifier">times</span>=<span class="ruby-keyword">nil</span>, <span class="ruby-value">mark:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -828,103 +522,55 @@
         <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
         <div class="aliases">
           Also aliased as: <a href="MultitrackCommands.html#method-i-rpt">rpt</a>
         </div>
-        
 
-        
       </div>
 
-    
       <div id="method-i-rpt" class="method-detail method-alias">
-        
         <div class="method-heading">
-          <span class="method-name">rpt</span><span
-            class="method-args">(times=nil, mark:nil, &amp;block)</span>
-          
+          <span class="method-callseq">
+            rpt [repeat=nil] {|| ... }
+          </span>
         </div>
-        
 
         <div class="method-description">
           
-          
-          
-          
 
-          
         </div>
 
-        
 
-        
         <div class="aliases">
           Alias for: <a href="MultitrackCommands.html#method-i-repeat">repeat</a>
         </div>
-        
       </div>
 
-    
       <div id="method-i-sub" class="method-detail method-alias">
-        
-        <div class="method-heading">
-          <span class="method-name">sub</span><span
-            class="method-args">(multitrack_name)</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          
-          
-          
-
-          
-        </div>
-
-        
-
-        
-        <div class="aliases">
-          Alias for: <a href="MultitrackCommands.html#method-i-sub_track">sub_track</a>
-        </div>
-        
-      </div>
-
-    
-      <div id="method-i-sub_track" class="method-detail ">
-        
-        
-        <div class="method-heading">
-          <span class="method-callseq">
-            sub_track multitrack_name
-          </span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
         <div class="method-heading">
           <span class="method-callseq">
             sub multitrack_name
           </span>
-          
         </div>
-        
-        
 
         <div class="method-description">
           
-          <p>Yields execution of the tracks to another multi-track with the given <code>multitrack_name</code> as a symbol or a string. When the sub-tracks execution is finished, the yielding multi-track will resume execution. The tracks will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
+        </div>
+
+
+        <div class="aliases">
+          Alias for: <a href="MultitrackCommands.html#method-i-sub_track">sub_track</a>
+        </div>
+      </div>
+
+      <div id="method-i-sub_track" class="method-detail ">
+
+        <div class="method-description">
+          <p>Yields execution of the tracks to another multi-track with the given <code>multitrack_name</code> as a symbol or a string. When the sub-tracks execution is finished, the yielding multi-track will resume execution. The tracks will be synchronized accordingly with the other channel&#39;s tracks.</p>
+
           <div class="method-source-code" id="sub_track-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 155</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sub_track</span>(<span class="ruby-identifier">multitrack_name</span>)
@@ -932,35 +578,23 @@
         <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
         <div class="aliases">
           Also aliased as: <a href="MultitrackCommands.html#method-i-sub">sub</a>
         </div>
-        
 
-        
       </div>
 
-    
       <div id="method-i-synchronize_channels" class="method-detail ">
-        
-        
         <div class="method-heading">
           <span class="method-callseq">
             synchronize_channels a:nil, b:nil, c:nil
           </span>
-          
           <span class="method-click-advice">click to toggle source</span>
-          
         </div>
-        
-        
 
         <div class="method-description">
-          
           <p>Specify ranges of allowed ticks for each channel&#39;s track synchronization. If the given track is behind the most advanced track N ticks it will be synchronized only if the N matches the given range. However if the upper bound of the range is given, when exceeded a compilation error will occur.</p>
 
 <p>If the value is <code>nil</code> the previous range, set for the channel is not being changed.</p>
@@ -977,10 +611,7 @@
 </dd></dl>
 
 <p>By default a:0.., b:0.., c:0.. is set.</p>
-          
-          
 
-          
           <div class="method-source-code" id="synchronize_channels-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 59</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">synchronize_channels</span>(<span class="ruby-value">a:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">b:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">c:</span><span class="ruby-keyword">nil</span>)
@@ -988,73 +619,36 @@
         <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
 
-        
       </div>
 
-    
       <div id="method-i-w" class="method-detail method-alias">
-        
-        <div class="method-heading">
-          <span class="method-name">w</span><span
-            class="method-args">(ticks)</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          
-          
-          
-
-          
-        </div>
-
-        
-
-        
-        <div class="aliases">
-          Alias for: <a href="MultitrackCommands.html#method-i-wait">wait</a>
-        </div>
-        
-      </div>
-
-    
-      <div id="method-i-wait" class="method-detail ">
-        
-        
-        <div class="method-heading">
-          <span class="method-callseq">
-            wait ticks
-          </span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
         <div class="method-heading">
           <span class="method-callseq">
             w ticks
           </span>
-          
         </div>
-        
-        
 
         <div class="method-description">
           
+
+        </div>
+
+
+        <div class="aliases">
+          Alias for: <a href="MultitrackCommands.html#method-i-wait">wait</a>
+        </div>
+      </div>
+
+      <div id="method-i-wait" class="method-detail ">
+
+        <div class="method-description">
           <p>Pauses tracks execution for <code>ticks</code> number of ticks. The <code>ticks</code> value should be a positive integer as an Integer or a Rational.</p>
 
 <p>For the <a href="TrackConfigCommands.html#method-i-tempo"><code>TrackConfigCommands.tempo</code></a> related pause see <a href="MultitrackCommands.html#method-i-pause"><code>MultitrackCommands.pause</code></a>. The tracks will be synchronized accordingly with the other channel&#39;s tracks.</p>
-          
-          
 
-          
           <div class="method-source-code" id="wait-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 169</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">wait</span>(<span class="ruby-identifier">ticks</span>)
@@ -1062,29 +656,23 @@
         <span class="ruby-ivar">@channels</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
-          
         </div>
 
-        
         <div class="aliases">
           Also aliased as: <a href="MultitrackCommands.html#method-i-w">w</a>
         </div>
-        
 
-        
       </div>
 
-    
     </section>
-  
-  </section>
 
+  </section>
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 
