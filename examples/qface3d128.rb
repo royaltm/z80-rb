@@ -2092,7 +2092,7 @@ end
 
 include ZXLib
 
-quat3d = QFace3D.new 0x8000
+quat3d = QFace3D.new 0x8100 # keep SP in uncontended RAM
 puts quat3d.debug
 puts "="*68
 solids = %w[cube octahedron boing diamond elite station]
