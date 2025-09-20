@@ -29,7 +29,15 @@ module ZXLib
       #
       #    macro_import MathInt
       #    macro_import Gfx
+      module Constants
+        COMBINE_FX_NOP  = 0x00
+        COMBINE_FX_SET  = 0x7E
+        COMBINE_FX_AND  = 0xA6
+        COMBINE_FX_XOR  = 0xAE
+        COMBINE_FX_OR   = 0xB6
+      end
       module Macros
+        include Bobs::Constants
         ##
         # Creates a routine that copies bitmap pixels to the ink/paper screen as a rectangle object.
         #
@@ -89,7 +97,7 @@ module ZXLib
             if [ixh,ixl,iyh,iyl].include?(cols)
                             ld   c, cols
             else
-              cols_a        ld   c, 0       # self-code modified
+              cols_a        ld   c, 0       # self-modified code
               cols_p        cols_a + 1
             end
                             ldir
@@ -125,6 +133,126 @@ module ZXLib
               check_ooscr   cp   (scraddr >> 8)|0x18
                             ld   a, e
                             jr   C, loop1
+                            ret if subroutine
+            end
+          end
+        end
+        ##
+        # Creates a routine that combines bitmap pixels as a rectangle object with the ink/paper screen.
+        #
+        # * +bitmap+:: An address of a bitmap to be combined with as a label, pointer, an integer or +hl+.
+        # * +lines+:: A number of bitmap pixel lines as an 8-bit register or a label or a pointer.
+        # * +cols+:: A number of 8 pixel bitmap columns as an 8-bit register or a label or a pointer.
+        #
+        # _NOTE_:: Unless +cols+ is one of: +ixh+, +ixl+, +iyh+ or +iyl+ the routine uses self modifying code.
+        #
+        # Options:
+        # * +target+:: An address of a screen memory area to be combined with as a label, pointer, an integer
+        #              or +de+. The starting address of the whole screen area must be a multiple of 0x2000.
+        # * +mode+:: Pixel combination mode, one of: +:or+, +:xor+, +:and+, +:nop+ and +:set+.
+        # * +scraddr+:: An optional screen memory address which must be a multiple of 0x2000 as an integer or a label.
+        #               If provided the routine breaks execution when the bottom of the screen has been reached.
+        #               +CF+ = 0 (NC) if the routine terminates prematurely due to reaching bottom of the screen.
+        #               Otherwise +CF+ = 1 if the whole bitmap has been combined.
+        # * +subroutine+:: Whether to create a subroutine.
+        #
+        # The +mode+ option can be changed at run time in the resulting routine by storing a new operation
+        # under the +fx_a+ sub-label. The following constants can be used for this purpose: +COMBINE_FX_NOP+,
+        # +COMBINE_FX_SET+, +COMBINE_FX_AND+, +COMBINE_FX_XOR+, +COMBINE_FX_OR+.
+        #
+        #                   ld   a, COMBINE_FX_AND
+        #                   ld   [combine_bitmap.fx_a], a
+        #   # ...
+        #   combine_bitmap  bobs_combine_pixels(mode: :xor, subroutine: true)
+        #
+        #
+        # Using +:set+ or +COMBINE_FX_SET+ mode has been included for completeness in this routine, but is
+        # sub-optimal. For copying bitmaps to the screen, using #bobs_copy_pixels is preferable.
+        #
+        # Modifies: +af+, +af'+, +bc+, +bc'+, +de+, +hl+. Swaps registers unless out of screen.
+        def bobs_combine_pixels(bitmap=hl, lines=a, cols=c, target:de, mode: :or, scraddr:nil, subroutine:false)
+          fx = case mode
+            when :or, COMBINE_FX_OR   then ->(tgt) { ora tgt }
+            when :xor, COMBINE_FX_XOR then ->(tgt) { xor tgt }
+            when :and, COMBINE_FX_AND then ->(tgt) { anda tgt }
+            when :nop, COMBINE_FX_NOP then ->(tgt) { nop }
+            when :set, COMBINE_FX_SET then ->(tgt) { ld  a, tgt }
+            else
+              raise ArgumentError, "mode should be one of: :or, :xor, :and, :none, :set"
+          end
+          isolate do |eoc|
+                            ld   a, lines unless lines == a
+                            ex   af, af     # a': lines
+            unless [ixh,ixl,iyh,iyl].include?(cols)
+                            ld   a, cols unless cols == a
+                            ld   [cols_p], a
+            end
+                            ld   hl, bitmap unless bitmap == hl
+                            ld   de, target unless target == de
+                            ld   c, e       # lo
+            if address?(target) and !pointer?(target)
+                            exx
+                            ld   b, 8 - (target>>8) % 8
+            else
+                            ld   a, d       # calculate counter based on screen address modulo 8
+                            anda 0b11111000 # (h & 0b11111000)
+                            sub  d          # (h & 0b11111000) - h % 8
+                            add  8          # 8 - h % 8
+                            exx
+                            ld   b, a       # b: counter: 8 - h % 8
+            end
+                            ex   af, af     # a: lines
+                            ld   c, a       # c: lines
+                            dec  a          # a: lines - 1 (remaining lines)
+                            sub  b          # a: lines - 1 - counter
+                            jr   NC, start
+                            ld   b, c       # b: counter = c: lines
+
+            start           ex   af, af     # a': remaining lines - 1, CF': 1 == last batch
+            rloop           exx
+            loop0           ld   e, c       # lo
+            if [ixh,ixl,iyh,iyl].include?(cols)
+                            ld   b, cols
+            else
+              cols_a        ld   b, 0       # self-modified code
+              cols_p        cols_a + 1
+            end
+            cloop           ld   a, [de]
+            fx_a            fx.call [hl]    # or, xor, and
+                            inc  hl
+                            ld   [de], a
+                            inc  e
+                            djnz cloop
+                            inc  d
+                            exx
+                            djnz rloop
+                            ex   af, af     # a: remaining lines
+            if subroutine
+                            ret  C
+            else
+                            jr   C, eoc
+            end
+                            ld   b, 8
+                            sub  b
+                            jr   NC, loop8  # b: 8, CF: 0
+                            add  b
+                            ld   b, a
+                            inc  b          # b: remaining lines, CF: 1
+
+            loop8           exx
+                            ex   af, af     # a': remaining lines, CF': 1 == last batch
+                            ld   a, c       # lo
+                            add  0x20       # a: lo + 0x20
+                            ld   c, a       # c: lo
+                            jr   C, loop0 unless scraddr
+                            ld   a, d
+                            jr   C, check_ooscr if scraddr
+                            sub  0x08
+                            ld   d, a       # d: adjusted
+                            jp   loop0
+            if scraddr
+              check_ooscr   cp   (scraddr >> 8)|0x18
+                            jr   C, loop0
                             ret if subroutine
             end
           end
@@ -184,7 +312,7 @@ module ZXLib
             if [ixh,ixl,iyh,iyl].include?(cols)
                             ld   c, cols
             else
-              cols_a        ld   c, 0 # self-code modified
+              cols_a        ld   c, 0 # self-modified code
               cols_p        cols_a + 1
             end
                             ldir
@@ -919,7 +1047,7 @@ module ZXLib
         #                  an external jump table created with Macros#bobs_draw_pixels_fast_jump_table. If not
         #                  provided an internal jump table will be created instead. In this instance a +jump_table+
         #                  can be later changed at run time by storing a new jump table address at +jump_table_p+
-        #                  sublabel.
+        #                  sub-label.
         # * +subroutine+:: Whether to create a subroutine.
         #
         # _NOTE_:: Restoring +sp+ register uses self-modifying code.
