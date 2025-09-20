@@ -209,6 +209,8 @@ module Z80
 		#  Returns an alias of a label or an expression.
 		#
 		#  The +address+ must be a label or a label expression.
+		#  The +address+ can also be specified as a +:last+ Symbol. In this instance the address
+		#  will be the previously added label.
 		#
 		#  The returned label will eventually inherit the type from the given +address+.
 		#
@@ -224,6 +226,11 @@ module Z80
 		#    baz as foo[2]
 		#    bak as (baz + 1 / 10), align: 16, offset: -1
 		def alias_label(address, align: 1, offset: 0)
+			if address == :last
+				last_label = @labels.values.last
+                raise Syntax, "There is no label added to the program yet." if last_label.nil?
+				return alias_label(last_label, align:align, offset:offset)
+			end
 			align = align.to_i
 			offset = offset.to_i
 			raise ArgumentError, "align must be >= 1" if align < 1
@@ -245,8 +252,8 @@ module Z80
 		#
 		#  +type+ can be an integer or a data structure (a class derived from Label).
 		#  The +address+ may be a number or another label or an immediate expression.
-		#  It may also be a +:next+ symbol. In this instance the label address
-		#  will be the previously added label address offset by its size.
+		#  The +address+ can also be specified as a +:next+ Symbol. In this instance the address will
+		#  be the previously added label offset by its size.
 		#
 		#  Options:
 		#
