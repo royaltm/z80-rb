@@ -670,7 +670,7 @@ class QFace3D
                         jr   NZ, release_key0 # wait for any key being pressed to be released
     press_key           halt
                         key_pressed?
-                        jr   Z, press_key # wait for any key being pressed to be released
+                        jr   Z, press_key # wait for any key to be pressed
     release_key1        halt
                         key_pressed?
                         jr   NZ, release_key1 # wait for any key being pressed to be released
