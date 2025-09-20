@@ -1,17 +1,19 @@
-v1.2.0.pre-1
+v1.2.0.pre-2
 ============
 
 Z80:
 ---
+* Z80::Program#alias_label accepts :last as an address argument.
+* Added Z80::Program::Macros#rev8 for reversing bits in an octet.
 * Z80#debug method no more prints anything except printable ASCII characters.
 * Optimized Z80::MathInt::Macros#rnd by using #mul_const8_24a (size -10, time -40).
-* Added Z80::MathInt::Macros#mul_const8_24a macro as an alternative to #mul_const8_24.
-* Added Z80::MathInt::Macros#mul_const_ex macro as an alternative to #mul_const.
+* Added Z80::MathInt::Macros#mul_const8_24a as an alternative to #mul_const8_24.
+* Added Z80::MathInt::Macros#mul_const_ex as an alternative to #mul_const.
 * Added options :sl and :zero to Z80::MathInt::Macros#sll8_16 and optimized the routine.
 * Z80::MathInt::Macros#neg16 accepts a constant or nil argument allowing to sign extend 8-bit integers to a negative 16-bit.
 * New helper functions Z80::MathInt::Macros#leading_zeros and #trailing_zeros.
 * New macro Z80::MathInt::Macros#mul8_24a introduce faster multiplication algorithm.
-* Added :mbit9_carry option to Z80::MathInt::Macros#mul8_24.
+* Added an :mbit9_carry option to Z80::MathInt::Macros#mul8_24.
 * New method Condition#not to logically inverse a branching condition.
 * Z80::MathInt::Macros#mul... macros allow some combination of arguments that wasn't possible before.
 * New macros Z80::MathInt::Macros#mul16, #mul16_signed and #mul16_signed9 introduce faster multiplication algorithm
@@ -21,7 +23,7 @@ Z80:
 * Internally reworked and added :time_alt, :unroll, and :unroll_alt optimization options to Z80::MathInt::Macros#divmod, #divmod16_8, #divmod24_8.
 * Optimized internal loop of Z80::MathInt::Macros#mul, #mul8 and #mul8_24 routines.
 * Added options :kbit9_carry, :tl_is_zero and :optimize to Z80::MathInt::Macros#mul.
-* Added :optimize option to Z80::MathInt::Macros#mul_signed.
+* Added :optimize to Z80::MathInt::Macros#mul_signed options.
 * New macro Z80::MathInt::Macros#mul8_signed.
 * New macro Z80::MathInt::Macros#mul_signed9.
 * New macro Z80::MathInt::Macros#mul_signed9_24.
@@ -34,6 +36,7 @@ Z80:
 
 ZXLib:
 -----
+* Added ZXLib::Gfx::Bobs::Macros#bobs_combine_pixels.
 * A new escape sequence `'` (carriage return) and handling of "\r" code added to the BASIC tokenizer.
 * Immediate argument optimization of ZXLib::Gfx::Macros#copy_shadow_screen_region.
 * Slight optimization of ZXLib::Gfx::Macros#clear_screen_region_fast.
