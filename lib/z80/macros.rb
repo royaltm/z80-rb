@@ -169,7 +169,7 @@ module Z80
 				end
 			end
 			##
-			# Loads a content of the 16-bit register +bb+ into the 16-bit register +aa+.
+			# Creates code that loads a content of the 16-bit register +bb+ into the 16-bit register +aa+.
 			#
 			# A sugar for two 8-bit +ld+ instructions.
 			#
@@ -187,7 +187,8 @@ module Z80
 				end
 			end
 			##
-			# Compares a pair of registers +th+|+tl+ with a +value+ as unsigned 16-bit integers.
+			# Creates code that compares a pair of registers +th+|+tl+ with a +value+ as unsigned
+			# 16-bit integers.
 			#
 			# Provide +value+ as an integer or a label.
 			#
@@ -214,21 +215,22 @@ module Z80
 				cp16r(th, tl, value >> 8, value & 0xFF, jr_msb_c:jr_msb_c, jr_msb_nz:jr_msb_nz)
 			end
 			##
-			# Compares a pair of 16-bit registers +tt+ with +ss+ as unsigned integers.
+			# Creates code that compares a pair of 16-bit registers +tt+ with +ss+ as unsigned integers.
 			#
 			# A sugar for:
 			#   cp16r(th,tl, sh,sl, ...)
 			#
 			# See: Macros#cp16r.
 			def cp16rr(tt, ss, jr_msb_c: nil, jr_msb_nz: :eoc)
-				raise ArgumentError, "tt must be a 16-bit register" unless !pointer?(tt) && register?(tt) && !tt.bit8?
-				raise ArgumentError, "ss must be a 16-bit register" unless !pointer?(ss) && register?(ss) && !ss.bit8?
+				raise ArgumentError, "cp16rr: tt must be a 16-bit register" unless !pointer?(tt) && register?(tt) && !tt.bit8?
+				raise ArgumentError, "cp16rr: ss must be a 16-bit register" unless !pointer?(ss) && register?(ss) && !ss.bit8?
 				th, tl = tt.split
 				sh, sl = ss.split
 				cp16r(th, tl, sh, sl, jr_msb_c:jr_msb_c, jr_msb_nz:jr_msb_nz)
 			end
 			##
-			# Compares a pair of registers +th+|+tl+ with another pair +sh+|+sl+ as unsigned 16-bit integers.
+			# Creates code that compares a pair of registers +th+|+tl+ with another pair +sh+|+sl+ as
+			# unsigned 16-bit integers.
 			#
 			#   CF, ZF = (th|tl - +sh+|+sl+)
 			#
@@ -250,7 +252,7 @@ module Z80
 			#
 			# Modifies: +af+.
 			def cp16r(th, tl, sh, sl, jr_msb_c: nil, jr_msb_nz: :eoc)
-				raise ArgumentError, "only th can be the accumulator" if [tl, sh, sl].include?(a)
+				raise ArgumentError, "cp16r: the accumulator can only be used in place of th" if [tl, sh, sl].include?(a)
 				skip_nz = proc do |target|
 					case target
 					when :ret
@@ -263,9 +265,9 @@ module Z80
 					jr_msb_nz = eoc if jr_msb_nz == :eoc
 									ld   a, th unless th == a
 					if sh == 0 && sl == 0
-							  	ora  a
-							  	ora  tl
-							  	skip_nz[jr_msb_nz] unless jr_msb_nz == eoc
+								ora  a
+								ora  tl
+								skip_nz[jr_msb_nz] unless jr_msb_nz == eoc
 					else
 						if sh == 0
 									ora  a
@@ -285,6 +287,49 @@ module Z80
 						else
 									cp   sl
 						end
+					end
+				end
+			end
+			##
+			# Creates code that reverses bits in an octet.
+			#
+			# The result is found in the accumulator register.
+			#
+			# +bits+:: bits to reverse, as an 8-bit register or an argument passed to a load an 8-bit
+			#          register instruction.
+			#
+			# Options:
+			# * +t+:: a temporary register to use if +bits+ is the accumulator or not an 8-bit register.
+			# * +unroll+:: controls whether to unroll a loop.
+			#
+			# if +unroll+ is +false+, the +b+ register is used as a loop counter and cannot be used in
+			# the +t+ option.
+			#
+			# T-states: 202|206|209, unrolled: 96|100|103.
+			#
+			# Code size: 6|7|8 bytes, unrolled: 24|25|26 bytes.
+			#
+			# Modifies: +af+, +b+ if +unroll+ is +false+ and optionally +t+.
+			def rev8(bits, t:c, unroll: false)
+				isolate do
+					if register?(bits) && bits.bit8? && bits != a
+					  t = bits
+					end
+					unless register?(t) && t.bit8? && t != a
+						raise ArgumentError, "rev8: t must be an 8-bit register except the accumulator"
+					end
+					raise ArgumentError, "rev8: b can't be used for t if :unroll is false" unless t != b || unroll
+						ld   t, bits unless t == bits
+					if unroll
+						8.times do
+							rlc  t
+							rra
+						end
+					else
+							ld   b, 8
+					lrev	rlc  t
+							rra
+							djnz lrev
 					end
 				end
 			end

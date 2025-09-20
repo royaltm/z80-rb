@@ -70,10 +70,6 @@ module Z80
             # Clears max 256 bytes of memory at +dest+.
             # Slower (does not use LDIR/LDDR) but involves less registers.
             #
-            # T-states: ~ 26/cleared byte. (~ 45 when +rr+ is +ix+ or +iy+)
-            #
-            # Modifies: +a+, +b+, +rr+.
-            #
             # +dest+::  An address of the memory area to be cleared as an integer, a label, a pointer
             #           or same as +rr+.
             # +size+::  A size of area to be cleared or one of the 8bit registers.
@@ -81,6 +77,10 @@ module Z80
             #
             # Options:
             # +rr+::    16bit address register: +de+, +hl+, +ix+, +iy+.
+            #
+            # T-states: ~ 26/cleared byte. (~ 45 when +rr+ is +ix+ or +iy+)
+            #
+            # Modifies: +a+, +b+, +rr+.
             def clrmem8(dest=hl, size=b, value=0, rr:hl)
                 raise ArgumentError unless (address?(dest) or dest == rr) and
                                            (address?(size) or (register?(size) and size.bit8?)) and
@@ -108,13 +108,13 @@ module Z80
             ##
             # Clears memory at +dest+ using LDIR instruction.
             #
-            # T-states: ~ 21/cleared byte.
-            #
-            # Modifies: +bc+, +de+, +hl+, optionally +a+ if +value+ is an indirect (pointer) address.
-            #
             # +dest+:: An address of the memory area to be cleared as an integer, a label, a pointer or +hl+.
             # +size+:: 16bit size of area to be cleared as an integer, a label, a pointer or +bc+.
             # +value+:: A fill byte value as an integer, a label, a pointer or one of the registers: +a+, +b+, +c+, +d+, +e+.
+            #
+            # T-states: ~ 21/cleared byte.
+            #
+            # Modifies: +bc+, +de+, +hl+, optionally +a+ if +value+ is an indirect (pointer) address.
             def clrmem(dest=hl, size=bc, value=0)
                 raise ArgumentError unless (address?(dest) or dest == hl) and
                                            (address?(size) or size == bc) and
@@ -147,10 +147,6 @@ module Z80
             ##
             # Clears memory at +dest+ in a faster way using unrolled instructions.
             #
-            # T-states: ~ 13/cleared byte.
-            #
-            # Modifies: +a+, +rr+.
-            #
             # +dest+::  An address of the memory area to be cleared as an integer, a label, a pointer or same as +rr+.
             # +size+::  A static size of area to be cleared. It should be a reasonably small positive integer number.
             #           There will be: +size+ * 2 bytes added to the code.
@@ -158,6 +154,10 @@ module Z80
             #
             # Options:
             # +rr+::    16bit address register: +bc+, +de+, +hl+.
+            #
+            # T-states: ~ 13/cleared byte.
+            #
+            # Modifies: +a+, +rr+.
             def clrmem_quick(dest=hl, size=1, value=0, rr:hl)
                 raise ArgumentError unless (address?(dest) or dest == rr) and
                                            (Integer === size) and size > 0 and
@@ -182,8 +182,6 @@ module Z80
             #
             # _NOTE_:: Interrupts should be disabled during execution of this code.
             #
-            # T-states: ~ 5,5/cleared byte in a chunk + 13 between chunks + 8 after the last chunk.
-            #
             # +address+:: An address of the next byte _AFTER_ THE END of the memory area to be cleared.
             #             The address may be an integer, a label, a pointer or one of: +sp+, +hl+, +ix+ or +iy+.
             # +chunks_count+:: The number of the unrolled push chunks. It should be between 1 and 256.
@@ -205,6 +203,8 @@ module Z80
             #               +sp+ will point to the beginning of the memory area being cleared.
             #
             # _NOTE_:: Restoring +sp+ register uses self-modifying code.
+            #
+            # T-states: ~ 5,5/cleared byte in a chunk + 13 between chunks + 8 after the last chunk.
             #
             # Modifies: +tt+, +sp+, optionally +b+ if +chunks_count+ is not 1 and +a+ if +chunks_count+ is a pointer.
             def clrmem_fastest(address=hl, chunks_count=b, chunk_size=2, value=0, tt:hl, disable_intr:true, enable_intr:true, save_sp:true)
