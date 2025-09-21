@@ -21,6 +21,8 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -58,29 +60,39 @@
   <div id="class-metadata">
     
     
-    
-<div id="includes-section" class="nav-section">
+    <div id="includes-section" class="nav-section">
   <h3>Included Modules</h3>
 
   <ul class="link-list">
+  
+  
     <li><a class="include" href="../Multitasking/Macros.html">ZXUtils::Multitasking::Macros</a>
+  
+  
   </ul>
 </div>
 
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-i-mtio_drain">#mtio_drain</a>
+    
     <li ><a href="#method-i-mtio_getc">#mtio_getc</a>
+    
     <li ><a href="#method-i-mtio_gets">#mtio_gets</a>
+    
     <li ><a href="#method-i-mtio_putc">#mtio_putc</a>
+    
     <li ><a href="#method-i-mtio_puts">#mtio_puts</a>
+    
     <li ><a href="#method-i-mtio_ready-3F">#mtio_ready?</a>
+    
     <li ><a href="#method-i-mtio_wait">#mtio_wait</a>
+    
   </ul>
 </div>
 
@@ -107,25 +119,36 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
 
-
+    
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-mtio_drain" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mtio_drain</span><span
             class="method-args">(disable_intr:true, enable_intr:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Drains the I/O buffer.</p>
 
 <p>Options:</p>
@@ -149,7 +172,10 @@
 <p>Removes all the pending data from an I/O buffer.</p>
 
 <p>Modifies: <code>af</code>, preserves: <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mtio_drain-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 438</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mtio_drain</span>(<span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>)
@@ -163,19 +189,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mtio_getc" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mtio_getc</span><span
             class="method-args">(char=e, tt:bc, not_ready: :eoc, subroutine: true, preserve_hl:true, disable_intr:true, enable_intr:true, mtyield: task_yield)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Reads a single character from the I/O buffer. Arguments:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>char</code>
 <dd>
@@ -224,7 +259,10 @@
 <p>On success the CF flag is set and a register <code>char</code> contains a read character.</p>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>, <code>char</code>, optionally preserves: <code>hl</code> on the machine stack.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mtio_getc-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 472</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mtio_getc</span>(<span class="ruby-identifier">char</span>=<span class="ruby-identifier">e</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">not_ready:</span> <span class="ruby-value">:eoc</span>, <span class="ruby-value">subroutine:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">preserve_hl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mtyield:</span> <span class="ruby-identifier">task_yield</span>)
@@ -280,19 +318,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mtio_gets" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mtio_gets</span><span
             class="method-args">(nchars=a, check_nchars_zero:true, subroutine:true, disable_intr:true, enable_intr:true, mtyield: task_yield)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Reads a string of characters from the I/O buffer.</p>
 
 <p>Arguments:</p>
@@ -343,7 +390,10 @@
 <p>On success accumulator contains the number of characters successfully read. If its value is 0 the ZF flag is also set indicating that no characters has been read at all. Preserves <code>hl</code> registers. <code>de</code> will be incremented by the number of characters read.</p>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>de</code>, <code>bc</code> and uses stack to preserve <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mtio_gets-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 625</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mtio_gets</span>(<span class="ruby-identifier">nchars</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">check_nchars_zero:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mtyield:</span> <span class="ruby-identifier">task_yield</span>)
@@ -408,19 +458,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mtio_putc" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mtio_putc</span><span
             class="method-args">(char=e, tt:bc, not_ready: :eoc, subroutine: true, preserve_hl:true, disable_intr:true, enable_intr:true, mtyield: task_yield)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Writes a single character to the I/O buffer.</p>
 
 <p>Arguments:</p>
@@ -471,7 +530,10 @@
 <p>On success the CF flag is set and the ZF flag is clear (NZ).</p>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>, preserves: <code>char</code>, optionally preserves: <code>hl</code> on the machine stack.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mtio_putc-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 549</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mtio_putc</span>(<span class="ruby-identifier">char</span>=<span class="ruby-identifier">e</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">not_ready:</span> <span class="ruby-value">:eoc</span>, <span class="ruby-value">subroutine:</span> <span class="ruby-keyword">true</span>, <span class="ruby-value">preserve_hl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mtyield:</span> <span class="ruby-identifier">task_yield</span>)
@@ -527,19 +589,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mtio_puts" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mtio_puts</span><span
             class="method-args">(nchars=a, check_nchars_zero:true, subroutine:true, disable_intr:true, enable_intr:true, mtyield: task_yield)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Sends a string of characters to the I/O buffer.</p>
 
 <p>Arguments:</p>
@@ -590,7 +661,10 @@
 <p>On success accumulator contains the number of characters successfully sent. If its value is 0 the ZF flag is also set indicating that no characters has been sent at all. Preserves <code>hl</code> registers. <code>de</code> will be incremented by the number of characters sent.</p>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>de</code>, <code>bc</code> and uses stack to preserve <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mtio_puts-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 710</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mtio_puts</span>(<span class="ruby-identifier">nchars</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">check_nchars_zero:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mtyield:</span> <span class="ruby-identifier">task_yield</span>)
@@ -655,19 +729,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mtio_ready-3F" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mtio_ready?</span><span
             class="method-args">(action, nchars:nil, disable_intr:true, enable_intr:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Checks I/O buffer&#39;s data availability.</p>
 
 <p>Arguments:</p>
@@ -711,7 +794,10 @@
 :write    number      ready      CF=0 (NC)  no of characters already written + nchars &lt;= 255</pre>
 
 <p>Modifies: <code>af</code>, preserves: <code>hl</code> and <code>nchars</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mtio_ready-3F-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 369</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mtio_ready?</span>(<span class="ruby-identifier">action</span>, <span class="ruby-value">nchars:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>)
@@ -737,19 +823,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mtio_wait" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mtio_wait</span><span
             class="method-args">(action, nchars=1, disable_intr:true, enable_intr:true, mtyield:task_yield)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Waits for the I/O buffer&#39;s data availability.</p>
 
 <p>Arguments:</p>
@@ -788,7 +883,10 @@
 <p>On return a CF flag always cleared and accumulator contains a number of characters ready to be read or a number of characters already written + nchars.</p>
 
 <p>Modifies: <code>af</code>, preserves: <code>hl</code> and <code>nchars</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mtio_wait-source">
             <pre><span class="ruby-comment"># File lib/zxutils/multitasking_io.rb, line 413</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mtio_wait</span>(<span class="ruby-identifier">action</span>, <span class="ruby-identifier">nchars</span>=<span class="ruby-value">1</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mtyield:</span><span class="ruby-identifier">task_yield</span>)
@@ -802,20 +900,25 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

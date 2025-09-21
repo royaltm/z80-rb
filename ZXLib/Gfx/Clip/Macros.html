@@ -21,6 +21,8 @@
 <link href="../../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -58,27 +60,35 @@
   <div id="class-metadata">
     
     
-    
-<div id="includes-section" class="nav-section">
+    <div id="includes-section" class="nav-section">
   <h3>Included Modules</h3>
 
   <ul class="link-list">
+  
+  
     <li><a class="include" href="../../../Z80/MathInt/Macros.html">Z80::MathInt::Macros</a>
+  
+  
   </ul>
 </div>
 
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-i-gfx_clip_calculate_8bit_dx_dy_exx">#gfx_clip_calculate_8bit_dx_dy_exx</a>
+    
     <li ><a href="#method-i-gfx_clip_compute_outcode">#gfx_clip_compute_outcode</a>
+    
     <li ><a href="#method-i-gfx_clip_coords_to_draw_line_args">#gfx_clip_coords_to_draw_line_args</a>
+    
     <li ><a href="#method-i-gfx_clip_dimension">#gfx_clip_dimension</a>
+    
     <li ><a href="#method-i-gfx_clip_line">#gfx_clip_line</a>
+    
   </ul>
 </div>
 
@@ -101,25 +111,36 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
 
-
+    
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-gfx_clip_calculate_8bit_dx_dy_exx" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">gfx_clip_calculate_8bit_dx_dy_exx</span><span
             class="method-args">(xx=bc, yy=de, full_range_delta:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that calculates <code>dx</code> and <code>dy</code>. Used by: <a href="Macros.html#method-i-gfx_clip_line"><code>Macros.gfx_clip_line</code></a>.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -148,7 +169,10 @@ a&#39; = sgn(x1 - x0) XOR sgn(y1 - y0)</pre>
 <p><code>sgn</code> is a boolean: 0x00 for positive and 0xFF for negative.</p>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code> and 2 levels of the stack, swaps registers: <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="gfx_clip_calculate_8bit_dx_dy_exx-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/clip.rb, line 160</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_clip_calculate_8bit_dx_dy_exx</span>(<span class="ruby-identifier">xx</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">yy</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">full_range_delta:</span><span class="ruby-keyword">true</span>)
@@ -207,23 +231,35 @@ a&#39; = sgn(x1 - x0) XOR sgn(y1 - y0)</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-gfx_clip_compute_outcode" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">gfx_clip_compute_outcode</span><span
             class="method-args">(outcode, xx=bc, yy=de, xmax:ixh, xmin:ixl, ymax:iyh, ymin:iyl, jump_rel:true, subroutine:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that computes the <a href="Outcode.html"><code>Outcode</code></a> bits for the xx, yy point and the clipping region. Stores result in <code>outcode</code>. Used by: <a href="Macros.html#method-i-gfx_clip_line"><code>Macros.gfx_clip_line</code></a>.</p>
 
 <p>Modifies: <code>af</code>, <code>outcode</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="gfx_clip_compute_outcode-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/clip.rb, line 104</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_clip_compute_outcode</span>(<span class="ruby-identifier">outcode</span>, <span class="ruby-identifier">xx</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">yy</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">xmax:</span><span class="ruby-identifier">ixh</span>, <span class="ruby-value">xmin:</span><span class="ruby-identifier">ixl</span>, <span class="ruby-value">ymax:</span><span class="ruby-identifier">iyh</span>, <span class="ruby-value">ymin:</span><span class="ruby-identifier">iyl</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
@@ -262,19 +298,28 @@ a&#39; = sgn(x1 - x0) XOR sgn(y1 - y0)</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-gfx_clip_coords_to_draw_line_args" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">gfx_clip_coords_to_draw_line_args</span><span
             class="method-args">(xx=bc, yy=de, args_type: :zxlib)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Converts clipped 16-bit coordinates to the “draw line” routine arguments.</p>
 
 <p>The line endpoints are 16-bit signed integers: <code>x0</code>, <code>y0</code> and <code>x1</code>, <code>y1</code>.</p>
@@ -311,7 +356,10 @@ d|e: sgn(dy)|sgn(dx) - the directions (-1 or 1) of the distances</pre>
 <p>T-states: 24 + ( <code>zxlib</code>: 60 or <code>rom</code>: ~65 [54/65/65/76] )</p>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, swaps registers: <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="gfx_clip_coords_to_draw_line_args-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/clip.rb, line 53</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_clip_coords_to_draw_line_args</span>(<span class="ruby-identifier">xx</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">yy</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">args_type:</span> <span class="ruby-value">:zxlib</span>)
@@ -361,19 +409,28 @@ d|e: sgn(dy)|sgn(dx) - the directions (-1 or 1) of the distances</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-gfx_clip_dimension" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">gfx_clip_dimension</span><span
             class="method-args">(a0:bc, b0:de, d1:l, d2:h, full_range_delta:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a subroutine that clips a single dimension. Used by: <a href="Macros.html#method-i-gfx_clip_line"><code>Macros.gfx_clip_line</code></a>.</p>
 
 <pre class="ruby"><span class="ruby-identifier">hl</span> = <span class="ruby-identifier">a0</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">sign</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">d1</span> <span class="ruby-operator">*</span> (<span class="ruby-identifier">minmax</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">b0</span>) <span class="ruby-operator">/</span> <span class="ruby-identifier">d2</span>
@@ -387,7 +444,10 @@ d|e: sgn(dy)|sgn(dx) - the directions (-1 or 1) of the distances</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code> and 3 levels of the machine stack.</p>
+          
+          
 
+          
           <div class="method-source-code" id="gfx_clip_dimension-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/clip.rb, line 226</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_clip_dimension</span>(<span class="ruby-value">a0:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">b0:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">d1:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">d2:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">full_range_delta:</span><span class="ruby-keyword">true</span>)
@@ -432,19 +492,28 @@ d|e: sgn(dy)|sgn(dx) - the directions (-1 or 1) of the distances</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-gfx_clip_line" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">gfx_clip_line</span><span
             class="method-args">(xx=bc, yy=de, xmax:ixh, xmin:ixl, ymax:iyh, ymin:iyl, full_range_delta:true, compact:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a subroutine for clipping lines to the rectangle viewport area using Cohen–Sutherland algorithm.</p>
 
 <p>The line endpoints are 16-bit signed integers: <code>x0</code>, <code>y0</code> and <code>x1</code>, <code>y1</code>. The viewport area is determined by four 8-bit unsigned integers: <code>xmax</code>, <code>xmin</code>, <code>ymax</code>, <code>ymin</code>.</p>
@@ -473,7 +542,10 @@ d|e: sgn(dy)|sgn(dx) - the directions (-1 or 1) of the distances</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>hl&#39;</code>, <code>bc</code>, <code>bc&#39;</code>, <code>de</code>, <code>de&#39;</code> and the machine stack.</p>
+          
+          
 
+          
           <div class="method-source-code" id="gfx_clip_line-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/clip.rb, line 295</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_clip_line</span>(<span class="ruby-identifier">xx</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">yy</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">xmax:</span><span class="ruby-identifier">ixh</span>, <span class="ruby-value">xmin:</span><span class="ruby-identifier">ixl</span>, <span class="ruby-value">ymax:</span><span class="ruby-identifier">iyh</span>, <span class="ruby-value">ymin:</span><span class="ruby-identifier">iyl</span>, <span class="ruby-value">full_range_delta:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">compact:</span><span class="ruby-keyword">true</span>)
@@ -630,20 +702,25 @@ d|e: sgn(dy)|sgn(dx) - the directions (-1 or 1) of the distances</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

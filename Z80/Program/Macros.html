@@ -21,6 +21,8 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -60,18 +62,26 @@
     
     
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-i-cp16n">#cp16n</a>
+    
     <li ><a href="#method-i-cp16r">#cp16r</a>
+    
     <li ><a href="#method-i-cp16rr">#cp16rr</a>
+    
     <li ><a href="#method-i-ld16">#ld16</a>
+    
     <li ><a href="#method-i-macro">#macro</a>
+    
+    <li ><a href="#method-i-rev8">#rev8</a>
+    
     <li ><a href="#method-i-with_saved">#with_saved</a>
+    
   </ul>
 </div>
 
@@ -91,26 +101,37 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
 
-
+    
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-cp16n" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">cp16n</span><span
             class="method-args">(th, tl, value, jr_msb_c: nil, jr_msb_nz: :eoc)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
-          <p>Compares a pair of registers <code>th</code>|<code>tl</code> with a <code>value</code> as unsigned 16-bit integers.</p>
+          
+          <p>Creates code that compares a pair of registers <code>th</code>|<code>tl</code> with a <code>value</code> as unsigned 16-bit integers.</p>
 
 <p>Provide <code>value</code> as an integer or a label.</p>
 
@@ -135,27 +156,39 @@ ZF = 1 if th|tl == value</pre>
 </pre>
 
 <p>Modifies: <code>af</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="cp16n-source">
-            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 212</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 213</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cp16n</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">value</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-value">:eoc</span>)
         <span class="ruby-identifier">cp16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">value</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>, <span class="ruby-identifier">value</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF</span>, <span class="ruby-value">jr_msb_c:</span><span class="ruby-identifier">jr_msb_c</span>, <span class="ruby-value">jr_msb_nz:</span><span class="ruby-identifier">jr_msb_nz</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-cp16r" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">cp16r</span><span
             class="method-args">(th, tl, sh, sl, jr_msb_c: nil, jr_msb_nz: :eoc)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
-          <p>Compares a pair of registers <code>th</code>|<code>tl</code> with another pair <code>sh</code>|<code>sl</code> as unsigned 16-bit integers.</p>
+          
+          <p>Creates code that compares a pair of registers <code>th</code>|<code>tl</code> with another pair <code>sh</code>|<code>sl</code> as unsigned 16-bit integers.</p>
 
 <pre>CF, ZF = (th|tl - +sh+|+sl+)
 
@@ -178,11 +211,14 @@ ZF = 1 if th|tl == sh|sl</pre>
 </pre>
 
 <p>Modifies: <code>af</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="cp16r-source">
-            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 251</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 253</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cp16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-value">:eoc</span>)
-        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;only th can be the accumulator&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;cp16r: the accumulator can only be used in place of th&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
         <span class="ruby-identifier">skip_nz</span> = <span class="ruby-identifier">proc</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">target</span><span class="ruby-operator">|</span>
                 <span class="ruby-keyword">case</span> <span class="ruby-identifier">target</span>
                 <span class="ruby-keyword">when</span> <span class="ruby-value">:ret</span>
@@ -195,9 +231,9 @@ ZF = 1 if th|tl == sh|sl</pre>
                 <span class="ruby-identifier">jr_msb_nz</span> = <span class="ruby-identifier">eoc</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">jr_msb_nz</span> <span class="ruby-operator">==</span> <span class="ruby-value">:eoc</span>
                                                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">th</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
                 <span class="ruby-keyword">if</span> <span class="ruby-identifier">sh</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">sl</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
-                                         <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
-                                         <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">tl</span>
-                                         <span class="ruby-identifier">skip_nz</span>[<span class="ruby-identifier">jr_msb_nz</span>] <span class="ruby-keyword">unless</span> <span class="ruby-identifier">jr_msb_nz</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">eoc</span>
+                                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
+                                        <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">tl</span>
+                                        <span class="ruby-identifier">skip_nz</span>[<span class="ruby-identifier">jr_msb_nz</span>] <span class="ruby-keyword">unless</span> <span class="ruby-identifier">jr_msb_nz</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">eoc</span>
                 <span class="ruby-keyword">else</span>
                         <span class="ruby-keyword">if</span> <span class="ruby-identifier">sh</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
                                                 <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">a</span>
@@ -221,51 +257,72 @@ ZF = 1 if th|tl == sh|sl</pre>
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-cp16rr" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">cp16rr</span><span
             class="method-args">(tt, ss, jr_msb_c: nil, jr_msb_nz: :eoc)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
-          <p>Compares a pair of 16-bit registers <code>tt</code> with <code>ss</code> as unsigned integers.</p>
+          
+          <p>Creates code that compares a pair of 16-bit registers <code>tt</code> with <code>ss</code> as unsigned integers.</p>
 
 <p>A sugar for:</p>
 
 <pre>cp16r(th,tl, sh,sl, ...)</pre>
 
 <p>See: <a href="Macros.html#method-i-cp16r"><code>Macros#cp16r</code></a>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="cp16rr-source">
-            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 222</span>
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 223</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cp16rr</span>(<span class="ruby-identifier">tt</span>, <span class="ruby-identifier">ss</span>, <span class="ruby-value">jr_msb_c:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">jr_msb_nz:</span> <span class="ruby-value">:eoc</span>)
-        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;tt must be a 16-bit register&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">tt</span>.<span class="ruby-identifier">bit8?</span>
-        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;ss must be a 16-bit register&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">ss</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">ss</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">ss</span>.<span class="ruby-identifier">bit8?</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;cp16rr: tt must be a 16-bit register&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">tt</span>.<span class="ruby-identifier">bit8?</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;cp16rr: ss must be a 16-bit register&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">ss</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">ss</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">ss</span>.<span class="ruby-identifier">bit8?</span>
         <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
         <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span> = <span class="ruby-identifier">ss</span>.<span class="ruby-identifier">split</span>
         <span class="ruby-identifier">cp16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>, <span class="ruby-value">jr_msb_c:</span><span class="ruby-identifier">jr_msb_c</span>, <span class="ruby-value">jr_msb_nz:</span><span class="ruby-identifier">jr_msb_nz</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-ld16" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">ld16</span><span
             class="method-args">(aa, bb)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
-          <p>Loads a content of the 16-bit register <code>bb</code> into the 16-bit register <code>aa</code>.</p>
+          
+          <p>Creates code that loads a content of the 16-bit register <code>bb</code> into the 16-bit register <code>aa</code>.</p>
 
 <p>A sugar for two 8-bit <code>ld</code> instructions.</p>
 
@@ -273,7 +330,10 @@ ZF = 1 if th|tl == sh|sl</pre>
 
 <pre class="ruby"><span class="ruby-identifier">ld16</span>  <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">hl</span>
 </pre>
+          
+          
 
+          
           <div class="method-source-code" id="ld16-source">
             <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 177</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ld16</span>(<span class="ruby-identifier">aa</span>, <span class="ruby-identifier">bb</span>)
@@ -288,19 +348,28 @@ ZF = 1 if th|tl == sh|sl</pre>
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-macro" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">macro</span><span
             class="method-args">(name, *registers, **nsopts, &amp;mblock)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>A convenient method to create local macros.</p>
 
 <p>Give a <code>name</code> (<a href="../../Symbol.html"><code>Symbol</code></a>) to your macro, an optional list of <code>registers</code> to push before and pop after code and a block of code. See <a href="Macros.html#method-i-with_saved"><code>Macros.with_saved</code></a> for explanation of <code>registers</code> arguments. The block will receive <code>eoc</code> label (see <a href="../Program.html#method-i-ns"><code>Program.ns</code></a>) and any argument you pass when calling a macro.</p>
@@ -330,7 +399,10 @@ ZF = 1 if th|tl == sh|sl</pre>
 <span class="ruby-identifier">cp16</span> <span class="ruby-identifier">bc</span>, <span class="ruby-identifier">hl</span>
 <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">bc_less_than_hl</span>
 </pre>
+          
+          
 
+          
           <div class="method-source-code" id="macro-source">
             <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 38</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">macro</span>(<span class="ruby-identifier">name</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">registers</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">mblock</span>)
@@ -365,19 +437,106 @@ ZF = 1 if th|tl == sh|sl</pre>
         <span class="ruby-identifier">define_singleton_method</span>(<span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_sym</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">m</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
+      <div id="method-i-rev8" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">rev8</span><span
+            class="method-args">(bits, t:c, unroll: false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates code that reverses bits in an octet.</p>
+
+<p>The result is found in the accumulator register.</p>
+<dl class="rdoc-list note-list"><dt><code>bits</code>
+<dd>
+<p>bits to reverse, as an 8-bit register or an argument passed to a load an 8-bit register instruction.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>t</code>
+<dd>
+<p>a temporary register to use if <code>bits</code> is the accumulator or not an 8-bit register.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>unroll</code>
+<dd>
+<p>controls whether to unroll a loop.</p>
+</dd></dl>
+</li></ul>
+
+<p>if <code>unroll</code> is <code>false</code>, the <code>b</code> register is used as a loop counter and cannot be used in the <code>t</code> option.</p>
+
+<p>T-states: 202|206|209, unrolled: 96|100|103.</p>
+
+<p>Code size: 6|7|8 bytes, unrolled: 24|25|26 bytes.</p>
+
+<p>Modifies: <code>af</code>, <code>b</code> if <code>unroll</code> is <code>false</code> and optionally <code>t</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="rev8-source">
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 312</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rev8</span>(<span class="ruby-identifier">bits</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">unroll:</span> <span class="ruby-keyword">false</span>)
+        <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">bits</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">bits</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">bits</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">a</span>
+                  <span class="ruby-identifier">t</span> = <span class="ruby-identifier">bits</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">unless</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">t</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">t</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">a</span>
+                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rev8: t must be an 8-bit register except the accumulator&quot;</span>
+                <span class="ruby-keyword">end</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rev8: b can&#39;t be used for t if :unroll is false&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">b</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">unroll</span>
+                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">bits</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">bits</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll</span>
+                        <span class="ruby-value">8</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                                <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">t</span>
+                                <span class="ruby-identifier">rra</span>
+                        <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">else</span>
+                                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">8</span>
+                <span class="ruby-identifier">lrev</span>       <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">t</span>
+                                <span class="ruby-identifier">rra</span>
+                                <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">lrev</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-i-with_saved" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">with_saved</span><span
             class="method-args">(*registers, **opts, &amp;block)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Adds a code that pushes specified registers on a machine stack, code from <code>block</code> within a namespace and code that pops registers in reverse order. Returns a label pointing to the beginning of the pushes. You may optionally pass a <code>name</code> for the returned label to be named.</p>
 
 <p><code>registers</code> should be one of:</p>
@@ -432,7 +591,10 @@ ZF = 1 if th|tl == sh|sl</pre>
 </pre>
 
 <p><strong>Be carefull with <code>ret</code> instruction in a provided block. Remember to pop registers first or use <code>:ret</code> option instead.</strong></p>
+          
+          
 
+          
           <div class="method-source-code" id="with_saved-source">
             <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 115</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">with_saved</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">registers</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">opts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -491,20 +653,25 @@ ZF = 1 if th|tl == sh|sl</pre>
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

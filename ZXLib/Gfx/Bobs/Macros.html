@@ -21,6 +21,8 @@
 <link href="../../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -58,23 +60,45 @@
   <div id="class-metadata">
     
     
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="Constants.html">ZXLib::Gfx::Bobs::Constants</a>
+  
+  
+  </ul>
+</div>
+
     
-    
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-bobs_combine_pixels">#bobs_combine_pixels</a>
+    
     <li ><a href="#method-i-bobs_copy_attrs">#bobs_copy_attrs</a>
+    
     <li ><a href="#method-i-bobs_copy_attrs_fast">#bobs_copy_attrs_fast</a>
+    
     <li ><a href="#method-i-bobs_copy_pixels">#bobs_copy_pixels</a>
+    
     <li ><a href="#method-i-bobs_copy_pixels_fast">#bobs_copy_pixels_fast</a>
+    
     <li ><a href="#method-i-bobs_draw_pixels_fast">#bobs_draw_pixels_fast</a>
+    
     <li ><a href="#method-i-bobs_draw_pixels_fast_jump_table">#bobs_draw_pixels_fast_jump_table</a>
+    
     <li ><a href="#method-i-bobs_draw_pixels_fast_routines">#bobs_draw_pixels_fast_routines</a>
+    
     <li ><a href="#method-i-bobs_rshift_bitmap_pixels_7times">#bobs_rshift_bitmap_pixels_7times</a>
+    
     <li ><a href="#method-i-bobs_rshift_bitmap_pixels_once">#bobs_rshift_bitmap_pixels_once</a>
+    
   </ul>
 </div>
 
@@ -88,35 +112,203 @@
 
   <section class="description">
     
-<h2 id="module-ZXLib::Gfx::Bobs::Macros-label-ZXLib-3A-3AGfx-3A-3ABobs+macros."><a href="../Bobs.html"><code>ZXLib::Gfx::Bobs</code></a> macros.<span><a href="#module-ZXLib::Gfx::Bobs::Macros-label-ZXLib-3A-3AGfx-3A-3ABobs+macros.">&para;</a> <a href="#top">&uarr;</a></span></h2>
-
-<p><a href="Macros.html"><code>Bobs::Macros</code></a> require:</p>
-
-<pre class="ruby"><span class="ruby-identifier">macro_import</span> <span class="ruby-constant">MathInt</span>
-<span class="ruby-identifier">macro_import</span> <span class="ruby-constant">Gfx</span>
-</pre>
-
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
 
-
+    
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
+      <div id="method-i-bobs_combine_pixels" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">bobs_combine_pixels</span><span
+            class="method-args">(bitmap=hl, lines=a, cols=c, target:de, mode: :or, scraddr:nil, subroutine:false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that combines bitmap pixels as a rectangle object with the ink/paper screen.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>bitmap</code>
+<dd>
+<p>An address of a bitmap to be combined with as a label, pointer, an integer or <code>hl</code>.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>lines</code>
+<dd>
+<p>A number of bitmap pixel lines as an 8-bit register or a label or a pointer.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>cols</code>
+<dd>
+<p>A number of 8 pixel bitmap columns as an 8-bit register or a label or a pointer.</p>
+</dd></dl>
+</li></ul>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>Unless <code>cols</code> is one of: <code>ixh</code>, <code>ixl</code>, <code>iyh</code> or <code>iyl</code> the routine uses self modifying code.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>target</code>
+<dd>
+<p>An address of a screen memory area to be combined with as a label, pointer, an integer or <code>de</code>. The starting address of the whole screen area must be a multiple of 0x2000.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>mode</code>
+<dd>
+<p>Pixel combination mode, one of: <code>:or</code>, <code>:xor</code>, <code>:and</code>, <code>:nop</code> and <code>:set</code>.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
+<dd>
+<p>An optional screen memory address which must be a multiple of 0x2000 as an integer or a label. If provided the routine breaks execution when the bottom of the screen has been reached. <code>CF</code> = 0 (NC) if the routine terminates prematurely due to reaching bottom of the screen. Otherwise <code>CF</code> = 1 if the whole bitmap has been combined.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
+<dd>
+<p>Whether to create a subroutine.</p>
+</dd></dl>
+</li></ul>
+
+<p>The <code>mode</code> option can be changed at run time in the resulting routine by storing a new operation under the <code>fx_a</code> sub-label. The following constants can be used for this purpose: <code>COMBINE_FX_NOP</code>, <code>COMBINE_FX_SET</code>, <code>COMBINE_FX_AND</code>, <code>COMBINE_FX_XOR</code>, <code>COMBINE_FX_OR</code>.</p>
+
+<pre class="ruby">                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-constant">COMBINE_FX_AND</span>
+                <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">combine_bitmap</span>.<span class="ruby-identifier">fx_a</span>], <span class="ruby-identifier">a</span>
+<span class="ruby-comment"># ...</span>
+<span class="ruby-identifier">combine_bitmap</span>  <span class="ruby-identifier">bobs_combine_pixels</span>(<span class="ruby-value">mode:</span> <span class="ruby-value">:xor</span>, <span class="ruby-value">subroutine:</span> <span class="ruby-keyword">true</span>)
+</pre>
+
+<p>Using <code>:set</code> or <code>COMBINE_FX_SET</code> mode has been included for completeness in this routine, but is sub-optimal. For copying bitmaps to the screen, using <a href="Macros.html#method-i-bobs_copy_pixels"><code>bobs_copy_pixels</code></a> is preferable.</p>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>bc&#39;</code>, <code>de</code>, <code>hl</code>. Swaps registers unless out of screen.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="bobs_combine_pixels-source">
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 173</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_combine_pixels</span>(<span class="ruby-identifier">bitmap</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">mode:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
+  <span class="ruby-identifier">fx</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">mode</span>
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:or</span>, <span class="ruby-constant">COMBINE_FX_OR</span>   <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">tgt</span>) { <span class="ruby-identifier">ora</span> <span class="ruby-identifier">tgt</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:xor</span>, <span class="ruby-constant">COMBINE_FX_XOR</span> <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">tgt</span>) { <span class="ruby-identifier">xor</span> <span class="ruby-identifier">tgt</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:and</span>, <span class="ruby-constant">COMBINE_FX_AND</span> <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">tgt</span>) { <span class="ruby-identifier">anda</span> <span class="ruby-identifier">tgt</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:nop</span>, <span class="ruby-constant">COMBINE_FX_NOP</span> <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">tgt</span>) { <span class="ruby-identifier">nop</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:set</span>, <span class="ruby-constant">COMBINE_FX_SET</span> <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">tgt</span>) { <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">tgt</span> }
+    <span class="ruby-keyword">else</span>
+      <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mode should be one of: :or, :xor, :and, :none, :set&quot;</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">lines</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">lines</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a&#39;: lines</span>
+    <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cols</span>)
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">cols</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">cols_p</span>], <span class="ruby-identifier">a</span>
+    <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bitmap</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">bitmap</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">target</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">target</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">e</span>       <span class="ruby-comment"># lo</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">target</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">target</span>)
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">8</span> <span class="ruby-operator">-</span> (<span class="ruby-identifier">target</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>) <span class="ruby-operator">%</span> <span class="ruby-value">8</span>
+    <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>       <span class="ruby-comment"># calculate counter based on screen address modulo 8</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b11111000</span> <span class="ruby-comment"># (h &amp; 0b11111000)</span>
+                    <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">d</span>          <span class="ruby-comment"># (h &amp; 0b11111000) - h % 8</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-value">8</span>          <span class="ruby-comment"># 8 - h % 8</span>
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># b: counter: 8 - h % 8</span>
+    <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a: lines</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># c: lines</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>          <span class="ruby-comment"># a: lines - 1 (remaining lines)</span>
+                    <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">b</span>          <span class="ruby-comment"># a: lines - 1 - counter</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">start</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>       <span class="ruby-comment"># b: counter = c: lines</span>
+
+    <span class="ruby-identifier">start</span>           <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a&#39;: remaining lines - 1, CF&#39;: 1 == last batch</span>
+    <span class="ruby-identifier">rloop</span>           <span class="ruby-identifier">exx</span>
+    <span class="ruby-identifier">loop0</span>           <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">c</span>       <span class="ruby-comment"># lo</span>
+    <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cols</span>)
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">cols</span>
+    <span class="ruby-keyword">else</span>
+      <span class="ruby-identifier">cols_a</span>        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0</span>       <span class="ruby-comment"># self-modified code</span>
+      <span class="ruby-identifier">cols_p</span>        <span class="ruby-identifier">cols_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">cloop</span>           <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]
+    <span class="ruby-identifier">fx_a</span>            <span class="ruby-identifier">fx</span>.<span class="ruby-identifier">call</span> [<span class="ruby-identifier">hl</span>]    <span class="ruby-comment"># or, xor, and</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">de</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">cloop</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">rloop</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a: remaining lines</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">C</span>
+    <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">eoc</span>
+    <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">8</span>
+                    <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">loop8</span>  <span class="ruby-comment"># b: 8, CF: 0</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">b</span>          <span class="ruby-comment"># b: remaining lines, CF: 1</span>
+
+    <span class="ruby-identifier">loop8</span>           <span class="ruby-identifier">exx</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a&#39;: remaining lines, CF&#39;: 1 == last batch</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>       <span class="ruby-comment"># lo</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-value">0x20</span>       <span class="ruby-comment"># a: lo + 0x20</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># c: lo</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">loop0</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scraddr</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">check_ooscr</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">scraddr</span>
+                    <span class="ruby-identifier">sub</span>  <span class="ruby-value">0x08</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">d</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># d: adjusted</span>
+                    <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">loop0</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">scraddr</span>
+      <span class="ruby-identifier">check_ooscr</span>   <span class="ruby-identifier">cp</span>   (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">8</span>)<span class="ruby-operator">|</span><span class="ruby-value">0x18</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">C</span>, <span class="ruby-identifier">loop0</span>
+                    <span class="ruby-identifier">ret</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">subroutine</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-i-bobs_copy_attrs" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bobs_copy_attrs</span><span
             class="method-args">(attrs=hl, rows=a, cols=c, target:de, scraddr:nil, subroutine:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that copies bitmap attributes to the screen as a rectangle object.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>attrs</code>
 <dd>
@@ -152,9 +344,12 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>bc&#39;</code>, <code>de</code>, <code>hl</code>. Swaps registers unless out of screen.</p>
+          
+          
 
+          
           <div class="method-source-code" id="bobs_copy_attrs-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 151</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 279</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_attrs</span>(<span class="ruby-identifier">attrs</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">rows</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">rows</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">rows</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
@@ -191,7 +386,7 @@
     <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cols</span>)
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>
     <span class="ruby-keyword">else</span>
-      <span class="ruby-identifier">cols_a</span>        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-value">0</span> <span class="ruby-comment"># self-code modified</span>
+      <span class="ruby-identifier">cols_a</span>        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-value">0</span> <span class="ruby-comment"># self-modified code</span>
       <span class="ruby-identifier">cols_p</span>        <span class="ruby-identifier">cols_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
     <span class="ruby-keyword">end</span>
                     <span class="ruby-identifier">ldir</span>
@@ -201,19 +396,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-bobs_copy_attrs_fast" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bobs_copy_attrs_fast</span><span
             class="method-args">(attrs, rows=a, cols=32, target:hl, disable_intr:true, enable_intr:true, save_sp:true, check_oos:false, subroutine:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that copies bitmap attributes to the screen as a rectangle object using unrolled POP instructions.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -265,9 +469,12 @@
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, optionally: <code>sp</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="bobs_copy_attrs_fast-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 405</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 533</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_attrs_fast</span>(<span class="ruby-identifier">attrs</span>, <span class="ruby-identifier">rows</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">32</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">check_oos</span>
@@ -369,19 +576,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-bobs_copy_pixels" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bobs_copy_pixels</span><span
             class="method-args">(bitmap=hl, lines=a, cols=c, target:de, scraddr:nil, subroutine:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that copies bitmap pixels to the ink/paper screen as a rectangle object.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>bitmap</code>
 <dd>
@@ -417,9 +633,12 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>bc&#39;</code>, <code>de</code>, <code>hl</code>. Swaps registers unless out of screen.</p>
+          
+          
 
+          
           <div class="method-source-code" id="bobs_copy_pixels-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 52</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 60</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_pixels</span>(<span class="ruby-identifier">bitmap</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">lines</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">lines</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
@@ -460,7 +679,7 @@
     <span class="ruby-keyword">if</span> [<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">cols</span>)
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>
     <span class="ruby-keyword">else</span>
-      <span class="ruby-identifier">cols_a</span>        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-value">0</span>       <span class="ruby-comment"># self-code modified</span>
+      <span class="ruby-identifier">cols_a</span>        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-value">0</span>       <span class="ruby-comment"># self-modified code</span>
       <span class="ruby-identifier">cols_p</span>        <span class="ruby-identifier">cols_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
     <span class="ruby-keyword">end</span>
                     <span class="ruby-identifier">ldir</span>
@@ -501,19 +720,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-bobs_copy_pixels_fast" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bobs_copy_pixels_fast</span><span
             class="method-args">(bitmap, lines=c, cols=32, target:hl, disable_intr:true, enable_intr:true, save_sp:true, scraddr:nil, subroutine:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that copies bitmap pixels to the ink/paper screen as a rectangle object using unrolled POP instructions.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -565,9 +793,12 @@
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, optionally: <code>sp</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="bobs_copy_pixels_fast-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 226</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 354</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_copy_pixels_fast</span>(<span class="ruby-identifier">bitmap</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">32</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">scraddr:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;invalid scraddr argument&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scraddr</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">scraddr</span>) <span class="ruby-keyword">or</span> (<span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">scraddr</span> <span class="ruby-operator">==</span> (<span class="ruby-identifier">scraddr</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xE000</span>))
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;target should be an address or a pointer or hl&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">target</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">target</span>)
@@ -721,19 +952,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-bobs_draw_pixels_fast" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bobs_draw_pixels_fast</span><span
             class="method-args">(bitmap, lines=a, cols=2, target:hl, bshift:b, mode: :set, skip_cols: nil, lclip: false, rclip: false, no0shift: false, tx:ix, disable_intr:true, enable_intr:true, save_sp:true, scraddr:nil, jump_table:nil, subroutine:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that draws bitmap pixels to the ink/paper screen as a rectangle object using unrolled POP instructions, line by line.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -804,7 +1044,7 @@
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>jump_table</code>
 <dd>
-<p>A label, a pointer address or one of <code>de</code>/<code>bc</code>/<code>ix</code>/<code>iy</code> register pairs referencing an external jump table created with <a href="Macros.html#method-i-bobs_draw_pixels_fast_jump_table"><code>Macros#bobs_draw_pixels_fast_jump_table</code></a>. If not provided an internal jump table will be created instead. In this instance a <code>jump_table</code> can be later changed at run time by storing a new jump table address at <code>jump_table_p</code> sublabel.</p>
+<p>A label, a pointer address or one of <code>de</code>/<code>bc</code>/<code>ix</code>/<code>iy</code> register pairs referencing an external jump table created with <a href="Macros.html#method-i-bobs_draw_pixels_fast_jump_table"><code>Macros#bobs_draw_pixels_fast_jump_table</code></a>. If not provided an internal jump table will be created instead. In this instance a <code>jump_table</code> can be later changed at run time by storing a new jump table address at <code>jump_table_p</code> sub-label.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
 <dd>
@@ -829,9 +1069,12 @@
 █░██░██░ ░███░░░█ -&gt;&gt;  ░██░░█░░ ░░░█░░░░ ░░█░░░██  :nand</pre>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>bc&#39;</code>, <code>de</code>, <code>d&#39;</code>, <code>hl</code>, (<code>hl&#39;</code>, <code>e&#39;</code> if skip_cols is given). Swaps registers unless out of screen.</p>
+          
+          
 
+          
           <div class="method-source-code" id="bobs_draw_pixels_fast-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 941</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 1069</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_draw_pixels_fast</span>(<span class="ruby-identifier">bitmap</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-value">2</span>,
                           <span class="ruby-value">target:</span><span class="ruby-identifier">hl</span>,
                           <span class="ruby-value">bshift:</span><span class="ruby-identifier">b</span>,
@@ -1059,19 +1302,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-bobs_draw_pixels_fast_jump_table" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bobs_draw_pixels_fast_jump_table</span><span
             class="method-args">(draw_pixels_fast_label)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a jump table for the <a href="Macros.html#method-i-bobs_draw_pixels_fast"><code>Macros#bobs_draw_pixels_fast</code></a> routine.</p>
 
 <p>Provide a label (or a symbol) referencing a routine created by either <a href="Macros.html#method-i-bobs_draw_pixels_fast"><code>Macros#bobs_draw_pixels_fast</code></a> or <a href="Macros.html#method-i-bobs_draw_pixels_fast_routines"><code>Macros#bobs_draw_pixels_fast_routines</code></a>.</p>
@@ -1087,9 +1339,12 @@
 <p>The jump table occupies 24 bytes of code.</p>
 
 <p>The content is lazy evaluated so the order of creating a table and a routine doesn&#39;t matter.</p>
+          
+          
 
+          
           <div class="method-source-code" id="bobs_draw_pixels_fast_jump_table-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 611</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 739</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_draw_pixels_fast_jump_table</span>(<span class="ruby-identifier">draw_pixels_fast_label</span>)
   <span class="ruby-keyword">unless</span> <span class="ruby-identifier">draw_pixels_fast_label</span>.<span class="ruby-identifier">nil?</span>
     <span class="ruby-identifier">throw</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_pixels_fast_label must be a label&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">draw_pixels_fast_label</span>)
@@ -1112,19 +1367,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-bobs_draw_pixels_fast_routines" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bobs_draw_pixels_fast_routines</span><span
             class="method-args">(next_row, cols, mode: :set, skip_cols: nil, lclip: false, rclip: false, no0shift: nil, merge: false, jump_eoc: true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates specialized routines for <a href="Macros.html#method-i-bobs_draw_pixels_fast"><code>Macros#bobs_draw_pixels_fast</code></a> that can be used externally via jump table.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
@@ -1170,9 +1434,12 @@
 <p>Whether the <code>jp next_row</code> should be appended at the end of the generated code.</p>
 </dd></dl>
 </li></ul>
+          
+          
 
+          
           <div class="method-source-code" id="bobs_draw_pixels_fast_routines-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 659</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 787</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_draw_pixels_fast_routines</span>(<span class="ruby-identifier">next_row</span>, <span class="ruby-identifier">cols</span>,
                                    <span class="ruby-value">mode:</span> <span class="ruby-value">:set</span>,
                                    <span class="ruby-value">skip_cols:</span> <span class="ruby-keyword">nil</span>,
@@ -1392,19 +1659,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-bobs_rshift_bitmap_pixels_7times" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bobs_rshift_bitmap_pixels_7times</span><span
             class="method-args">(bitmap=hl, lines=c, cols=a, target:de)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that renders 7 bitmap textures by shifting 7 times each source bitmap lines by 1 bit to the right.</p>
 
 <p>Rendered bitmaps are extended to the right by 1 column (an octet).</p>
@@ -1430,9 +1706,12 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code> and some stack.</p>
+          
+          
 
+          
           <div class="method-source-code" id="bobs_rshift_bitmap_pixels_7times-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 519</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 647</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_rshift_bitmap_pixels_7times</span>(<span class="ruby-identifier">bitmap</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">lines</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">lines</span>)
@@ -1458,19 +1737,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-bobs_rshift_bitmap_pixels_once" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bobs_rshift_bitmap_pixels_once</span><span
             class="method-args">(bitmap=hl, lines=c, cols=a, target:de)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that renders a bitmap texture by shifting each source bitmap lines by 1 bit to the right.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>Carry Flag
 <dd>
@@ -1498,9 +1786,12 @@
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="bobs_rshift_bitmap_pixels_once-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 560</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/bobs.rb, line 688</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bobs_rshift_bitmap_pixels_once</span>(<span class="ruby-identifier">bitmap</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">lines</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">cols</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">target:</span><span class="ruby-identifier">de</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">lines</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">lines</span>)
@@ -1536,20 +1827,25 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

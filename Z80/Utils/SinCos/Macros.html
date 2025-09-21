@@ -21,6 +21,8 @@
 <link href="../../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -60,16 +62,20 @@
     
     
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-i-create_sincos_from_sintable">#create_sincos_from_sintable</a>
+    
     <li ><a href="#method-i-neg_sintable256_pi_half_no_zero_lo">#neg_sintable256_pi_half_no_zero_lo</a>
+    
     <li ><a href="#method-i-sincos_from_angle">#sincos_from_angle</a>
+    
     <li ><a href="#method-i-sincos_table_descriptors">#sincos_table_descriptors</a>
+    
   </ul>
 </div>
 
@@ -87,25 +93,36 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
 
-
+    
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-create_sincos_from_sintable" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">create_sincos_from_sintable</span><span
             class="method-args">(sincos, sintable:hl)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a subroutine that generates a full <a href="SinCosTable.html"><code>SinCosTable</code></a> from a quarter sines table obtainable from <a href="Macros.html#method-i-neg_sintable256_pi_half_no_zero_lo"><code>neg_sintable256_pi_half_no_zero_lo</code></a>.</p>
 <dl class="rdoc-list note-list"><dt><code>sincos</code>
 <dd>
@@ -121,7 +138,10 @@
 <p>The <a href="SinCosTable.html"><code>SinCosTable</code></a> size is 1024 bytes.</p>
 
 <p>Mofifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, <code>af&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, <code>hl&#39;</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="create_sincos_from_sintable-source">
             <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 181</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">create_sincos_from_sintable</span>(<span class="ruby-identifier">sincos</span>, <span class="ruby-value">sintable:</span><span class="ruby-identifier">hl</span>)
@@ -201,44 +221,65 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-neg_sintable256_pi_half_no_zero_lo" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">neg_sintable256_pi_half_no_zero_lo</span><span
             class="method-args">()</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns an array of 63 bytes containing the first quarter sine table, 256-based angle, negated, and fractional parts only values.</p>
 
 <pre>for a in 1..63 -&gt; (-256 * sin(PI * a / 128)) &amp; 0x00FF</pre>
 
 <p>Suitable for <a href="Macros.html#method-i-create_sincos_from_sintable"><code>create_sincos_from_sintable</code></a> macro.</p>
+          
+          
 
+          
           <div class="method-source-code" id="neg_sintable256_pi_half_no_zero_lo-source">
             <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 92</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">neg_sintable256_pi_half_no_zero_lo</span>
     (<span class="ruby-value">1</span><span class="ruby-operator">..</span><span class="ruby-value">63</span>).<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">a</span><span class="ruby-operator">|</span> (<span class="ruby-operator">-</span><span class="ruby-constant">Math</span>.<span class="ruby-identifier">sin</span>(<span class="ruby-constant">Math</span><span class="ruby-operator">::</span><span class="ruby-constant">PI</span><span class="ruby-operator">*</span><span class="ruby-identifier">a</span>.<span class="ruby-identifier">to_f</span><span class="ruby-operator">/</span><span class="ruby-value">128.0</span>)<span class="ruby-operator">*</span><span class="ruby-value">256.0</span>).<span class="ruby-identifier">truncate</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xff</span> }
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-sincos_from_angle" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">sincos_from_angle</span><span
             class="method-args">(sincos, th=h, tl=l, mask:nil)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that calculates an address of a <a href="SinCos.html"><code>SinCos</code></a> table entry for a given <code>angle</code> in the <code>a</code> register and returns it in the <code>th</code>|<code>tl</code> register pair.</p>
 
 <p>The expected <code>angle</code> [0,256) translates to radians in the following way:</p>
@@ -266,7 +307,10 @@ tl = ABCDEF00, th = 000000GH + INT (sincos / 256)</pre>
 <p>T-states: 30|27|24.</p>
 
 <p>Mofifies: <code>af</code>, <code>th</code>, <code>tl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="sincos_from_angle-source">
             <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 132</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sincos_from_angle</span>(<span class="ruby-identifier">sincos</span>, <span class="ruby-identifier">th</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-value">mask:</span><span class="ruby-keyword">nil</span>)
@@ -305,26 +349,38 @@ tl = ABCDEF00, th = 000000GH + INT (sincos / 256)</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-sincos_table_descriptors" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">sincos_table_descriptors</span><span
             class="method-args">()</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns a <a href="SinCosTable.html"><code>SinCosTable</code></a> descriptors.</p>
 
 <p>Example:</p>
 
 <pre class="ruby"><span class="ruby-identifier">sincos</span> <span class="ruby-identifier">data</span> <span class="ruby-constant">SinCosTable</span>, <span class="ruby-identifier">sincos_table_descriptors</span>
 </pre>
+          
+          
 
+          
           <div class="method-source-code" id="sincos_table_descriptors-source">
             <pre><span class="ruby-comment"># File lib/z80/utils/sincos.rb, line 100</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sincos_table_descriptors</span>
@@ -336,20 +392,25 @@ tl = ABCDEF00, th = 000000GH + INT (sincos / 256)</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

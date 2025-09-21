@@ -21,6 +21,8 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -60,54 +62,96 @@
     
     
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-i-add24_16">#add24_16</a>
+    
     <li ><a href="#method-i-adda_to">#adda_to</a>
+    
     <li ><a href="#method-i-bcdtoa">#bcdtoa</a>
+    
     <li ><a href="#method-i-cmp_i16n">#cmp_i16n</a>
+    
     <li ><a href="#method-i-cmp_i16r">#cmp_i16r</a>
+    
     <li ><a href="#method-i-cmp_i8">#cmp_i8</a>
+    
     <li ><a href="#method-i-divmod">#divmod</a>
+    
     <li ><a href="#method-i-divmod16">#divmod16</a>
+    
     <li ><a href="#method-i-divmod16_8">#divmod16_8</a>
+    
     <li ><a href="#method-i-divmod24_8">#divmod24_8</a>
+    
     <li ><a href="#method-i-divmod32_16">#divmod32_16</a>
+    
     <li ><a href="#method-i-divmod32_8">#divmod32_8</a>
+    
     <li ><a href="#method-i-divmod8">#divmod8</a>
+    
     <li ><a href="#method-i-int">#int</a>
+    
     <li ><a href="#method-i-leading_zeros">#leading_zeros</a>
+    
     <li ><a href="#method-i-mul">#mul</a>
+    
     <li ><a href="#method-i-mul16">#mul16</a>
+    
     <li ><a href="#method-i-mul16_32">#mul16_32</a>
+    
     <li ><a href="#method-i-mul16_signed">#mul16_signed</a>
+    
     <li ><a href="#method-i-mul16_signed9">#mul16_signed9</a>
+    
     <li ><a href="#method-i-mul8">#mul8</a>
+    
     <li ><a href="#method-i-mul8_24">#mul8_24</a>
+    
     <li ><a href="#method-i-mul8_24a">#mul8_24a</a>
+    
     <li ><a href="#method-i-mul8_c">#mul8_c</a>
+    
     <li ><a href="#method-i-mul8_signed">#mul8_signed</a>
+    
     <li ><a href="#method-i-mul_const">#mul_const</a>
+    
     <li ><a href="#method-i-mul_const8_24">#mul_const8_24</a>
+    
     <li ><a href="#method-i-mul_const8_24a">#mul_const8_24a</a>
+    
     <li ><a href="#method-i-mul_const_ex">#mul_const_ex</a>
+    
     <li ><a href="#method-i-mul_signed">#mul_signed</a>
+    
     <li ><a href="#method-i-mul_signed9">#mul_signed9</a>
+    
     <li ><a href="#method-i-mul_signed9_24">#mul_signed9_24</a>
+    
     <li ><a href="#method-i-neg16">#neg16</a>
+    
     <li ><a href="#method-i-neg_int">#neg_int</a>
+    
     <li ><a href="#method-i-rnd">#rnd</a>
+    
     <li ><a href="#method-i-sign_extend">#sign_extend</a>
+    
     <li ><a href="#method-i-sll8_16">#sll8_16</a>
+    
     <li ><a href="#method-i-sub_from">#sub_from</a>
+    
     <li ><a href="#method-i-trailing_zeros">#trailing_zeros</a>
+    
     <li ><a href="#method-i-twos_complement16_by_sgn">#twos_complement16_by_sgn</a>
+    
     <li ><a href="#method-i-utobcd">#utobcd</a>
+    
     <li ><a href="#method-i-utobcd_step">#utobcd_step</a>
+    
   </ul>
 </div>
 
@@ -125,25 +169,36 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
 
-
+    
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-add24_16" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">add24_16</span><span
             class="method-args">(th8=c, tl16=hl, tt=de, signed:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that adds a 16-bit integer in <code>tt</code> to a 24-bit integer in <code>th8</code>|<code>tl16</code>. Returns the result in <code>a</code>|<code>tl16</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>th8</code>
 <dd>
@@ -166,7 +221,10 @@
 <p>Modifies: <code>af</code>, <code>tl16</code>, preserves: <code>th8</code>.</p>
 
 <p>T-states: 27 signed / 19 unsigned</p>
+          
+          
 
+          
           <div class="method-source-code" id="add24_16-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 496</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">add24_16</span>(<span class="ruby-identifier">th8</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">tl16</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">signed:</span><span class="ruby-keyword">true</span>)
@@ -188,19 +246,28 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-adda_to" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">adda_to</span><span
             class="method-args">(th, tl)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that adds an 8-bit accumulator value to a 16-bit <code>th</code>|<code>tl</code> register pair.</p>
 <dl class="rdoc-list note-list"><dt><code>th</code>
 <dd>
@@ -222,7 +289,10 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 <p>Uses: <code>af</code>, <code>th</code>, <code>tl</code>.</p>
 
 <p>T-states: 20</p>
+          
+          
 
+          
           <div class="method-source-code" id="adda_to-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 439</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">adda_to</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>)
@@ -238,19 +308,28 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-bcdtoa" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bcdtoa</span><span
             class="method-args">(buffer=hl, size=b, skip_leading0:false, preserve_in:nil, &amp;block)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that reads BCD digits from the memory buffer, one at a time, into the accumulator.</p>
 
 <p>As a side effect the buffer will be zeroed after execution of this routine unless <code>preserve_in</code> is set.</p>
@@ -295,7 +374,10 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
       <span class="ruby-identifier">rst</span> <span class="ruby-value">0x10</span>     <span class="ruby-comment"># print a character</span>
     <span class="ruby-keyword">end</span>
 </pre>
+          
+          
 
+          
           <div class="method-source-code" id="bcdtoa-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3824</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bcdtoa</span>(<span class="ruby-identifier">buffer</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">size</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">skip_leading0:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">preserve_in:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -333,19 +415,28 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-cmp_i16n" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">cmp_i16n</span><span
             class="method-args">(th, tl, value, lt:nil, gt:nil, eq:nil, jump_rel:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Compares a bitwise concatenated pair of 8-bit values <code>th</code>|<code>tl</code> with a <code>value</code> as twos complement signed 16-bit integers.</p>
 
 <p>Provide <code>value</code> as an integer or a label.</p>
@@ -366,26 +457,38 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 </dd></dl>
 
 <p>Modifies: <code>af</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="cmp_i16n-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 192</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cmp_i16n</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">value</span>, <span class="ruby-value">lt:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">gt:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">eq:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">cmp_i16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">value</span><span class="ruby-operator">&gt;&gt;</span><span class="ruby-value">8</span>, <span class="ruby-identifier">value</span>, <span class="ruby-value">lt:</span><span class="ruby-identifier">lt</span>, <span class="ruby-value">gt:</span><span class="ruby-identifier">gt</span>, <span class="ruby-value">eq:</span><span class="ruby-identifier">eq</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-identifier">jump_rel</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-cmp_i16r" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">cmp_i16r</span><span
             class="method-args">(th, tl, sh, sl, lt:nil, gt:nil, eq:nil, jump_rel:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Compares a bitwise concatenated pair of 8-bit values <code>th</code>|<code>tl</code> with another pair <code>sh</code>|<code>sl</code> as twos complement signed 16-bit integers.</p>
 
 <p>Options:</p>
@@ -404,7 +507,10 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 </dd></dl>
 
 <p>Modifies: <code>af</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="cmp_i16r-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 209</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cmp_i16r</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>, <span class="ruby-value">lt:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">gt:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">eq:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-keyword">false</span>)
@@ -459,19 +565,28 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-cmp_i8" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">cmp_i8</span><span
             class="method-args">(va, vb, lt:nil, gt:nil, eq:nil, jump_rel:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Compares <code>va</code> with <code>vb</code> as twos complement signed 8-bit integers.</p>
 
 <p>Provide <code>va</code> and <code>vb</code> as an 8-bit registers, integers or labels.</p>
@@ -492,7 +607,10 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 </dd></dl>
 
 <p>Modifies: <code>af</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="cmp_i8-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 144</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cmp_i8</span>(<span class="ruby-identifier">va</span>, <span class="ruby-identifier">vb</span>, <span class="ruby-value">lt:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">gt:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">eq:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">jump_rel:</span><span class="ruby-keyword">false</span>)
@@ -528,19 +646,28 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-divmod" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">divmod</span><span
             class="method-args">(k, m, clrrem:true, check0:true, check0_far:false, check1:true, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs an euclidean division of unsigned: <code>k</code> / <code>m</code>. Returns a quotient in <code>k</code> and a remainder in <code>accumulator</code>.</p>
 
 <p>This routine can be chained one after another to divide arbitrary size dividends. Just preserve the <code>a</code> and <code>m</code> registers and pass <code>false</code> to <code>clrrem:</code> on subsequent routines. Start with the most significant byte of the dividend:</p>
@@ -608,7 +735,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 :unroll_alt 164|~161|296 162|~155|298 155|~236|285 149|~230|287 144|~213|269 140|~261|309</pre>
 
 <p>Uses: <code>af</code>, <code>b</code>, <code>k</code>, preserves: <code>m</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="divmod-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2937</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod</span>(<span class="ruby-identifier">k</span>, <span class="ruby-identifier">m</span>, <span class="ruby-value">clrrem:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check0_far:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_leq_m:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ignore_cf:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -862,19 +992,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-divmod16" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">divmod16</span><span
             class="method-args">(x=ixl, check0:true, check1:true, modulo:false, quick8:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs an euclidean division of unsigned 16-bit: <code>hl</code> / <code>de</code>. Returns a quotient in <code>hl</code> and a remainder in <code>bc</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>x</code>
 <dd>
@@ -901,7 +1040,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </li></ul>
 
 <p>Uses: <code>af</code>, <code>bc</code>, <code>hl</code>, <code>x</code>, preserves: <code>de</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="divmod16-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3304</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod16</span>(<span class="ruby-identifier">x</span>=<span class="ruby-identifier">ixl</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">quick8:</span><span class="ruby-keyword">true</span>)
@@ -983,19 +1125,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-divmod16_8" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">divmod16_8</span><span
             class="method-args">(kh, kl, m, check0:true, check0_far:false, check1:true, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs an euclidean division of unsigned 16-bit: <code>kh</code>|<code>kl</code> / 8-bit <code>m</code>. Returns a quotient in <code>kh</code>|<code>kl</code> and a remainder in <code>accumulator</code>.</p>
 
 <p>This routine utilizes a stacked up <a href="Macros.html#method-i-divmod"><code>Macros.divmod</code></a> routines.</p>
@@ -1043,7 +1194,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </dd></dl>
 
 <p>Uses: <code>af</code>, <code>b</code>, <code>kh</code>, <code>kl</code>, preserves: <code>m</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="divmod16_8-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3274</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod16_8</span>(<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">m</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check0_far:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_leq_m:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ignore_cf:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -1060,19 +1214,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-divmod24_8" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">divmod24_8</span><span
             class="method-args">(kh, km, kl, m, check0:true, check0_far:false, check1:true, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs an euclidean division of unsigned 24-bit: <code>kh</code>|<code>km</code>|<code>kl</code> / 8-bit <code>m</code>. Returns a quotient in <code>kh</code>|<code>km</code>|<code>kl</code> and a remainder in <code>accumulator</code>.</p>
 
 <p>This routine utilizes a stacked up <a href="Macros.html#method-i-divmod"><code>Macros.divmod</code></a> routines.</p>
@@ -1116,7 +1279,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </li></ul>
 
 <p>Uses: <code>af</code>, <code>b</code>, <code>kh</code>, <code>km</code>, <code>kl</code>, preserves: <code>m</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="divmod24_8-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3407</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod24_8</span>(<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">km</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">m</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check0_far:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_leq_m:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ignore_cf:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -1134,19 +1300,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-divmod32_16" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">divmod32_16</span><span
             class="method-args">(x:ixl, check0:true, check1:true, modulo:false, quick8:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs an euclidean division of unsigned 32-bit: <code>hl</code>|<code>hl&#39;</code> / <code>de</code>. Returns a quotient in <code>hl</code>|<code>hl&#39;</code> and a remainder in <code>bc</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>x</code>
 <dd>
@@ -1173,7 +1348,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </li></ul>
 
 <p>Uses: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>bc&#39;</code>, <code>hl</code>, <code>hl&#39;</code>, <code>de&#39;</code>, <code>x</code>, preserves: <code>de</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="divmod32_16-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3508</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod32_16</span>(<span class="ruby-value">x:</span><span class="ruby-identifier">ixl</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">quick8:</span><span class="ruby-keyword">true</span>)
@@ -1281,19 +1459,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-divmod32_8" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">divmod32_8</span><span
             class="method-args">(m=c, mt:c, check0:true, check1:true, modulo:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs an euclidean division of unsigned 32-bit: <code>hl</code>|<code>hl&#39;</code> / <code>m</code>. Returns a quotient in <code>hl</code>|<code>hl&#39;</code> and a remainder in <code>a</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>m</code>
 <dd>
@@ -1323,7 +1510,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </dd></dl>
 
 <p>Uses: <code>af</code>, <code>af&#39;</code>, <code>b</code>, <code>b&#39;</code>, <code>hl</code>, <code>hl&#39;</code>, <code>mt&#39;</code>, preserves: <code>m</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="divmod32_8-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3439</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod32_8</span>(<span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">mt:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>)
@@ -1380,19 +1570,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-divmod8" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">divmod8</span><span
             class="method-args">(m=c, check0:true, check1:true, modulo:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs an euclidean division of unsigned: <code>hl</code> / <code>m</code>. Returns a quotient in <code>hl</code> and a remainder in <code>a</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>m</code>
 <dd>
@@ -1419,7 +1618,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </dd></dl>
 
 <p>Uses: <code>af</code>, <code>b</code>, <code>hl</code>, preserves: <code>m</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="divmod8-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3204</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod8</span>(<span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>)
@@ -1465,23 +1667,35 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-int" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">int</span><span
             class="method-args">(bitsize, value, byteorder: :lsb)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Packs an integer of an arbitrary size and adds it to the <a href="../Program.html#attribute-i-code"><code>Program.code</code></a> at <a href="../Program.html#method-i-pc"><code>Program.pc</code></a>. Returns an unnamed relative label. The label&#39;s type is one of the structures created in the <a href="Integers.html"><code>Integers</code></a> module. The type depends on the <code>bitsize</code> provided.</p>
 
 <p>Provided <code>bitsize</code> must be a multiple of 8. Integer data is being packed in the least significant byte first order, unless <code>byteorder:</code> <code>:msb</code> option is given. In this instance it is being packed in the most significant byte first order.</p>
+          
+          
 
+          
           <div class="method-source-code" id="int-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 102</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">int</span>(<span class="ruby-identifier">bitsize</span>, <span class="ruby-identifier">value</span>, <span class="ruby-value">byteorder:</span> <span class="ruby-value">:lsb</span>)
@@ -1512,21 +1726,33 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-identifier">data</span> <span class="ruby-identifier">int_klass</span>, <span class="ruby-identifier">bytes</span>.<span class="ruby-identifier">pack</span>(<span class="ruby-string">&#39;c*&#39;</span>.<span class="ruby-identifier">freeze</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-leading_zeros" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">leading_zeros</span><span
             class="method-args">(m, bitsize:8)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns the number of leading zeros in the binary representation of <code>m</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="leading_zeros-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 71</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">leading_zeros</span>(<span class="ruby-identifier">m</span>, <span class="ruby-value">bitsize:</span><span class="ruby-value">8</span>)
@@ -1541,19 +1767,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-identifier">zshift</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul</span><span
             class="method-args">(k=d, m=a, tt:de, clrhl:true, signed_k:false, kbit9_carry:false, tl_is_zero:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of an 8(9)-bit integer <code>k</code> * 8-bit unsigned <code>m</code>. Returns the result as a 16-bit integer in <code>hl</code>.</p>
 
 <p>Optionally the result can be added to an existing value in <code>hl</code>.</p>
@@ -1595,7 +1830,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </li></ul>
 
 <p>Uses: <code>af</code>, <code>hl</code>, <code>tt</code>, optionally preserves: <code>k</code>, <code>m</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1135</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">kbit9_carry:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">tl_is_zero:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -1652,19 +1890,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul16" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul16</span><span
             class="method-args">(kh=h, kl=l, m=a, tt:de, mbit9_carry:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 16-bit integer <code>kh</code>|<code>kl</code> * 8(9)-bit unsigned <code>m</code>. Returns the result in <code>hl</code>.</p>
 
 <p>This routine is so far the most optimized of the similar routines: <a href="Macros.html#method-i-mul8"><code>Macros.mul8</code></a> or <a href="Macros.html#method-i-mul"><code>Macros.mul</code></a>. However, there is no way to accumulate results using this code.</p>
@@ -1701,7 +1948,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>, optionally <code>b</code> if <code>optimize</code> is <code>:compact</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul16-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 827</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul16</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">mbit9_carry:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -1806,19 +2056,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul16_32" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul16_32</span><span
             class="method-args">(mm=bc, tt:bc, clrhlhl:true, signed_hl:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 16-bit integer (<code>hl</code>) by an unsigned 16-bit integer <code>mm</code> (<code>bc</code> or <code>de</code>). Returns the 32-bit integer result in <code>hl</code>|<code>hl&#39;</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>mm</code>
 <dd>
@@ -1856,7 +2115,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 0xFFFF*1     :   604   1169
      1*0xFFFF:  1346   1674
 0xFFFF*0xAAAA:  1085   1410</pre>
+          
+          
 
+          
           <div class="method-source-code" id="mul16_32-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2735</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul16_32</span>(<span class="ruby-identifier">mm</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">clrhlhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_hl:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -2013,19 +2275,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul16_signed" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul16_signed</span><span
             class="method-args">(kh=h, kl=l, m=b, tt:de, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 16-bit integer <code>kh</code>|<code>kl</code> * 8-bit signed <code>m</code>. Returns the result in <code>hl</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>kh</code>
 <dd>
@@ -2050,7 +2321,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, <code>tt</code>, optionally <code>b</code> if <code>optimize</code> is <code>:compact</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul16_signed-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 786</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul16_signed</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -2073,19 +2347,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul16_signed9" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul16_signed9</span><span
             class="method-args">(kh=h, kl=l, m=c, s:nil, tt:de, m_overflow:nil, m_neg_cond:C, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 16-bit integer <code>kh</code>|<code>kl</code> * 9-bit signed integer <code>f</code>|<code>m</code>. Returns the 16-bit result in <code>hl</code> or 17-bit result in <code>s</code>|<code>hl</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>kh</code>
 <dd>
@@ -2124,7 +2407,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, <code>kh</code>, <code>kl</code>, <code>tt</code>, optionally <code>b</code> if <code>optimize</code> is <code>:compact</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul16_signed9-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 712</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul16_signed9</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">s:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">m_overflow:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">m_neg_cond:</span><span class="ruby-constant">C</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -2189,19 +2475,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul8" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul8</span><span
             class="method-args">(kh=h, kl=l, m=a, tt:de, clrhl:true, double:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 16-bit integer <code>kh</code>|<code>kl</code> * 8bit unsigned <code>m</code>. Returns the result as a 16-bit integer in <code>hl</code>.</p>
 
 <p>Optionally the result can be added to an existing value in <code>hl</code>.</p>
@@ -2240,7 +2535,10 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 </li></ul>
 
 <p>Uses: <code>f</code>, <code>hl</code>, <code>m</code>, <code>kh</code>, <code>kl</code>, <code>tt</code>, optionally preserves: <code>kh</code>, <code>kl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul8-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1923</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">double:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -2286,19 +2584,28 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul8_24" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul8_24</span><span
             class="method-args">(kh=h, kl=l, m=b, t:c, tt:de, clrahl:true, k_int24:false, mbit9_carry:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 16-bit unsigned integer <code>kh</code>|<code>kl</code> or a 24-bit integer <code>t</code>|<code>kh</code>|<code>kl</code> * 8(9)-bit unsigned <code>m</code>. Returns the result as a 24-bit integer in <code>a</code>|<code>hl</code>.</p>
 
 <p>Optionally the result can be added to an existing value in <code>a</code>|<code>hl</code>.</p>
@@ -2353,7 +2660,10 @@ optimize
  :time        33|~385.4|504  32|~381.4|500  34|~441.2|570  33|~437.2|566</pre>
 
 <p>Uses: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul8_24-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2093</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_24</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrahl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_int24:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">mbit9_carry:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -2427,19 +2737,28 @@ optimize
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul8_24a" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul8_24a</span><span
             class="method-args">(kh=h, kl=l, m=b, t:c, tt:de, k_int24:false, mbit9_carry:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 16-bit unsigned integer <code>kh</code>|<code>kl</code> or a 24-bit integer <code>km</code>|<code>kh</code>|<code>kl</code> * 8(9)-bit unsigned <code>m</code>. Returns the result as a 24-bit integer in <code>a</code>|<code>hl</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>kh</code>
 <dd>
@@ -2486,7 +2805,10 @@ mbit9_carry    false          false           true          true</pre>
 :unroll       97|~291.2|351  97|~287.3|347 109|~323.1|388 107|~319.1|384</pre>
 
 <p>Uses: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul8_24a-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2191</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_24a</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">k_int24:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">mbit9_carry:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -2641,19 +2963,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul8_c" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul8_c</span><span
             class="method-args">(kh=h, kl=l, m=a, tt:de, clrhl:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of an unsigned 16-bit integer <code>kh</code>|<code>kl</code> * 8-bit unsigned <code>m</code>. Returns the result as a 16-bit unsigned integer in <code>hl</code>.</p>
 
 <p>Optionally the result can be added to an existing value in <code>hl</code>.</p>
@@ -2684,7 +3015,10 @@ mbit9_carry    false          false           true          true</pre>
 </li></ul>
 
 <p>Uses: <code>f</code>, <code>hl</code>, <code>m</code>, <code>tt</code>, optionally preserves: <code>kh</code>, <code>kl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul8_c-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1827</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_c</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>)
@@ -2712,19 +3046,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul8_signed" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul8_signed</span><span
             class="method-args">(kh=h, kl=l, m=c, tt:de, t:m, clrhl:true, double:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 16-bit signed integer <code>kh</code>|<code>kl</code> * 8bit signed integer <code>m</code>. Returns the result as a 16-bit integer in <code>hl</code>.</p>
 
 <p>Optionally the result can be added to an existing value in <code>hl</code>.</p>
@@ -2767,7 +3110,10 @@ mbit9_carry    false          false           true          true</pre>
 </li></ul>
 
 <p>Uses: <code>af</code>, <code>hl</code>, <code>m</code>, <code>kh</code>, <code>kl</code>, <code>t</code>, <code>tt</code>, optionally preserves: <code>kh</code>, <code>kl</code>, <code>m</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul8_signed-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1875</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_signed</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">m</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">double:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -2796,19 +3142,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul_const" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul_const</span><span
             class="method-args">(k=d, m=0, tt:de, clrhl:true, signed_k:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of an 8-bit integer <code>k</code> * 8-bit unsigned <code>m</code>. Returns the result as a 16-bit integer in <code>hl</code>.</p>
 
 <p>Creates an optimized, unrolled code so <code>m</code> should be a constant value in the range: 0..256.</p>
@@ -2842,7 +3197,10 @@ mbit9_carry    false          false           true          true</pre>
 </li></ul>
 
 <p>Uses: <code>f</code>, <code>hl</code>, <code>tt</code>, optionally preserves: <code>k</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul_const-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1212</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_const</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-value">0</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>)
@@ -2970,19 +3328,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul_const8_24" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul_const8_24</span><span
             class="method-args">(kh=h, kl=l, m=0, t:c, tt:de, clrahl:true, signed_k:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 16-bit integer <code>kh</code>|<code>kl</code> * 8-bit unsigned <code>m</code>. Returns the result as a 24-bit integer in <code>a</code>|<code>hl</code>.</p>
 
 <p>Creates an optimized, unrolled code so <code>m</code> should be a constant value in the range: 0..256.</p>
@@ -3025,7 +3392,10 @@ mbit9_carry    false          false           true          true</pre>
 <p><code>t</code> and <code>tt</code> registers are ignored if <code>clrahl</code> is <code>true</code> and <code>m</code> is a power of two or 0.</p>
 
 <p>Uses: <code>af</code>, <code>t</code>, optionally: <code>tt</code>, <code>hl</code>, optionally preserves: <code>kh</code> or <code>kl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul_const8_24-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2369</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_const8_24</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-value">0</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrahl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>)
@@ -3204,19 +3574,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul_const8_24a" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul_const8_24a</span><span
             class="method-args">(kh=h, kl=l, m=0, t:c, tt:de, k_int24:false, signed_k:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 16-bit integer <code>kh</code>|<code>kl</code> or a 24-bit integer <code>km</code>|<code>kh</code>|<code>kl</code> * 8-bit unsigned <code>m</code>. Returns the result as a 24-bit integer in <code>a</code>|<code>hl</code>.</p>
 
 <p>Creates an optimized, unrolled code so <code>m</code> should be a constant value in the range: 0..256.</p>
@@ -3255,7 +3634,10 @@ mbit9_carry    false          false           true          true</pre>
 <p><code>t</code> and <code>tt</code> registers are ignored <code>m</code> is a power of two or 0.</p>
 
 <p>Uses: <code>af</code>, <code>hl</code>, optionally: <code>t</code>, <code>tt</code>, optionally preserves: <code>kh</code> or <code>kl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul_const8_24a-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2572</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_const8_24a</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-value">0</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">k_int24:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>)
@@ -3395,19 +3777,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul_const_ex" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul_const_ex</span><span
             class="method-args">(k=d, m=0, tt:de, signed_k:false, use_a:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of an 8-bit integer <code>k</code> * 8-bit unsigned <code>m</code>. Returns the result as a 16-bit integer in <code>hl</code>.</p>
 
 <p>Creates an optimized, unrolled code so <code>m</code> should be a constant value in the range: 0..256.</p>
@@ -3462,7 +3853,10 @@ mbit9_carry    false          false           true          true</pre>
 </li></ul>
 
 <p>Uses: <code>f</code>, <code>hl</code>, <code>tt</code>, optionally <code>a</code>, optionally preserves: <code>k</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul_const_ex-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1369</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_const_ex</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-value">0</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">use_a:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -3903,23 +4297,35 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-comment"># end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul_signed" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul_signed</span><span
             class="method-args">(k=d, m=a, tt:de, clrhl:true, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a signed 8-bit <code>k</code> * 8-bit signed <code>m</code>.</p>
 
 <p>See <a href="Macros.html#method-i-mul"><code>Macros.mul</code></a> for details.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul_signed-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 932</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_signed</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -3944,19 +4350,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul_signed9" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul_signed9</span><span
             class="method-args">(kh, kl, m=a, s:kh, tt:de, m_neg_cond:C, k_full_range:true, m_full_range:true, k_overflow:nil, m_is_zero_zf:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a signed 9-bit integer <code>kh</code>|<code>kl</code> * 9-bit signed integer <code>m</code>. Returns the result as a 17-bit integer in <code>s</code>|<code>hl</code>.</p>
 
 <p>The sign of a twos complement multiplicand <code>kl</code> is expected in <code>kh</code> extended to all bits.</p>
@@ -4031,7 +4446,10 @@ mbit9_carry    false          false           true          true</pre>
 <p>For example if your multiplicand or a multiplier is calculated from a subtraction of 2 positive 8-bit values, the resulting value never equals to (-256). Thus it is safe to disable the corresponding <code>x_full_range</code> option.</p>
 
 <p>Uses: <code>af</code>, <code>hl</code>, <code>tt</code>, <code>s</code>, optionally preserves: <code>kh</code>, <code>kl</code> or <code>m</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul_signed9-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1019</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_signed9</span>(<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">s:</span><span class="ruby-identifier">kh</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">m_neg_cond:</span><span class="ruby-constant">C</span>, <span class="ruby-value">k_full_range:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">m_full_range:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_overflow:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">m_is_zero_zf:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -4129,19 +4547,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-mul_signed9_24" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">mul_signed9_24</span><span
             class="method-args">(ks=c, kh=h, kl=l, m=b, tt:de, m_pos_cond:NC, m_full_range:true, optimize: :time, &amp;restore_a)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that performs a multiplication of a 24-bit signed integer <code>ks</code>|<code>kh</code>|<code>kl</code> * 9-bit signed integer <code>m</code>. Returns the result as a 24-bit integer in <code>a</code>|<code>hl</code>.</p>
 
 <p>The sign of a twos complement multiplier <code>m</code> is provided via the flags register.</p>
@@ -4194,7 +4621,10 @@ mbit9_carry    false          false           true          true</pre>
 <p>When <code>m_full_range</code> option is disabled, then passing (-256) to <code>m</code> will resolve in <strong>UNDEFINED BEHAVIOUR</strong>.</p>
 
 <p>Uses: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="mul_signed9_24-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2001</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_signed9_24</span>(<span class="ruby-identifier">ks</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">m_pos_cond:</span><span class="ruby-constant">NC</span>, <span class="ruby-value">m_full_range:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">restore_a</span>)
@@ -4254,19 +4684,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-neg16" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">neg16</span><span
             class="method-args">(sh, sl, th:sh, tl:sl)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that changes the sign of a twos complement 16-bit integer in <code>sh</code>|<code>sl</code> or an 8-bit integer in <code>sl</code> and extends it to a 16-bit integer.</p>
 <dl class="rdoc-list note-list"><dt><code>sh</code>
 <dd>
@@ -4299,7 +4738,10 @@ mbit9_carry    false          false           true          true</pre>
 <p>T-states (sh):</p>
 
 <pre>reg,1,-1: 20|24, 0: 16|20, const: 23|27, nil: 27|28|31|32</pre>
+          
+          
 
+          
           <div class="method-source-code" id="neg16-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 325</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">neg16</span>(<span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>, <span class="ruby-value">th:</span><span class="ruby-identifier">sh</span>, <span class="ruby-value">tl:</span><span class="ruby-identifier">sl</span>)
@@ -4333,19 +4775,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-neg_int" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">neg_int</span><span
             class="method-args">(*regs, t:nil, t_is_zero:false, optimize_last:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that changes the sign of a twos complement integer held in any number of <code>regs</code>.</p>
 
 <p>Pass any number of 8-bit registers, except the <code>accumulator</code>, as function arguments. A register passed as the first argument should hold the most significant byte of the negated integer.</p>
@@ -4376,7 +4827,10 @@ mbit9_carry    false          false           true          true</pre>
 <p>T-states (register count):</p>
 
 <pre>1: 12, 2: 24|27, 3: 36|39|40|42, 4: 48|52|54|57, 5: 60|64|69|72, 6: 84|87.</pre>
+          
+          
 
+          
           <div class="method-source-code" id="neg_int-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 380</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">neg_int</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">regs</span>, <span class="ruby-value">t:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">t_is_zero:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize_last:</span><span class="ruby-keyword">false</span>)
@@ -4403,19 +4857,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-rnd" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">rnd</span><span
             class="method-args">()</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a Lehmer random number generator routine.</p>
 
 <p>See: <a href="https://en.wikipedia.org/wiki/Lehmer_random_number_generator">en.wikipedia.org/wiki/Lehmer_random_number_generator</a></p>
@@ -4430,7 +4893,10 @@ mbit9_carry    false          false           true          true</pre>
 <p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
 
 <p>T-states: ~ 547.7 (46 for seed=65535, 193 for seed&lt;=872, max: 601)</p>
+          
+          
 
+          
           <div class="method-source-code" id="rnd-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3626</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rnd</span>
@@ -4477,19 +4943,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-sign_extend" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">sign_extend</span><span
             class="method-args">(t=a, s=a)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that extends a sign bit from an octet indicated by <code>s</code> into a <code>t</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>t</code>
 <dd>
@@ -4502,7 +4977,10 @@ mbit9_carry    false          false           true          true</pre>
 <p>Uses: <code>af</code>, <code>t</code>, optionally preserves: <code>s</code>.</p>
 
 <p>T-states: 8|12|16.</p>
+          
+          
 
+          
           <div class="method-source-code" id="sign_extend-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 412</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sign_extend</span>(<span class="ruby-identifier">t</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">s</span>=<span class="ruby-identifier">a</span>)
@@ -4514,19 +4992,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-sll8_16" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">sll8_16</span><span
             class="method-args">(bshift, th=h, tl=l, sl:tl, zero:0)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Shift logical left 8-bit register with a result extended to 16-bits.</p>
 <dl class="rdoc-list note-list"><dt><code>bshift</code>
 <dd>
@@ -4557,7 +5044,10 @@ mbit9_carry    false          false           true          true</pre>
 <pre>0-7:  7|11, 18|22|23|27, 29|31|33|35, 35|39, 39|43, 35|39, 31|35, 23|27,
 8-15: 7|11, 15|19,       19|23,       23|27, 27|31, 22|26, 26|30, 30|34,
 &gt;=16: 10|11</pre>
+          
+          
 
+          
           <div class="method-source-code" id="sll8_16-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 534</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sll8_16</span>(<span class="ruby-identifier">bshift</span>, <span class="ruby-identifier">th</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-value">sl:</span><span class="ruby-identifier">tl</span>, <span class="ruby-value">zero:</span><span class="ruby-value">0</span>)
@@ -4710,19 +5200,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-sub_from" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">sub_from</span><span
             class="method-args">(s, th, tl)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that subtracts an 8-bit <code>s</code> register value from a 16-bit <code>th</code>|<code>tl</code> register pair.</p>
 <dl class="rdoc-list note-list"><dt><code>s</code>
 <dd>
@@ -4744,7 +5243,10 @@ mbit9_carry    false          false           true          true</pre>
 <p>Uses: <code>af</code>, <code>th</code>, <code>tl</code>, preserves: <code>s</code>.</p>
 
 <p>T-states: 24</p>
+          
+          
 
+          
           <div class="method-source-code" id="sub_from-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 468</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sub_from</span>(<span class="ruby-identifier">s</span>, <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>)
@@ -4761,21 +5263,33 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-trailing_zeros" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">trailing_zeros</span><span
             class="method-args">(m, bitsize:8)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns the number of trailing zeros in the binary representation of <code>m</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="trailing_zeros-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 83</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">trailing_zeros</span>(<span class="ruby-identifier">m</span>, <span class="ruby-value">bitsize:</span><span class="ruby-value">8</span>)
@@ -4789,19 +5303,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-identifier">zshift</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-twos_complement16_by_sgn" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">twos_complement16_by_sgn</span><span
             class="method-args">(sh, sl, sgn, th:sh, tl:sl, t:sgn)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that changes the sign of a twos complement 16-bit integer depending on the content of the <code>sgn</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>sh</code>
 <dd>
@@ -4838,7 +5361,10 @@ mbit9_carry    false          false           true          true</pre>
 <p>Uses: <code>af</code>, <code>th</code>, <code>tl</code>, preserves: <code>sgn</code> and optionally: <code>sh</code>, <code>sl</code>.</p>
 
 <p>T-states: 32</p>
+          
+          
 
+          
           <div class="method-source-code" id="twos_complement16_by_sgn-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 281</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">twos_complement16_by_sgn</span>(<span class="ruby-identifier">sh</span>, <span class="ruby-identifier">sl</span>, <span class="ruby-identifier">sgn</span>, <span class="ruby-value">th:</span><span class="ruby-identifier">sh</span>, <span class="ruby-value">tl:</span><span class="ruby-identifier">sl</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">sgn</span>)
@@ -4863,19 +5389,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-utobcd" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">utobcd</span><span
             class="method-args">(bufend, input=de, size: 4, r: d, rr: de, byteorder: :lsb, input_end:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that converts an unsigned binary integer of an arbitrary size to a BCD string.</p>
 <dl class="rdoc-list note-list"><dt><code>bufend</code>
 <dd>
@@ -4913,7 +5448,10 @@ mbit9_carry    false          false           true          true</pre>
 </li></ul>
 
 <p>Modifies: <code>af</code>, <code>b</code>, <code>rr</code>, <code>bc&#39;</code>, <code>hl&#39;</code>, <code>r&#39;</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="utobcd-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3730</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">utobcd</span>(<span class="ruby-identifier">bufend</span>, <span class="ruby-identifier">input</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">size:</span> <span class="ruby-value">4</span>, <span class="ruby-value">r:</span> <span class="ruby-identifier">d</span>, <span class="ruby-value">rr:</span> <span class="ruby-identifier">de</span>, <span class="ruby-value">byteorder:</span> <span class="ruby-value">:lsb</span>, <span class="ruby-value">input_end:</span><span class="ruby-keyword">false</span>)
@@ -4973,19 +5511,28 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-utobcd_step" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">utobcd_step</span><span
             class="method-args">(bufend, r, buflen=1, t=c, r_in_a=false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that converts an 8-bit unsigned integer to a BCD string.</p>
 
 <p>Used by <a href="Macros.html#method-i-utobcd"><code>Macros.utobcd</code></a>.</p>
@@ -5007,7 +5554,10 @@ mbit9_carry    false          false           true          true</pre>
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>b</code>, <code>r</code>, <code>t</code>, <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="utobcd_step-source">
             <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3682</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">utobcd_step</span>(<span class="ruby-identifier">bufend</span>, <span class="ruby-identifier">r</span>, <span class="ruby-identifier">buflen</span>=<span class="ruby-value">1</span>, <span class="ruby-identifier">t</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">r_in_a</span>=<span class="ruby-keyword">false</span>)
@@ -5037,20 +5587,25 @@ mbit9_carry    false          false           true          true</pre>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

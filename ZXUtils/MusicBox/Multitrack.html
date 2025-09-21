@@ -21,6 +21,8 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -69,14 +71,16 @@
     
     
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-c-new">::new</a>
+    
     <li ><a href="#method-i-channel_track">#channel_track</a>
+    
   </ul>
 </div>
 
@@ -116,15 +120,21 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
     <section class="attribute-method-details" class="method-section">
       <header>
         <h3>Attributes</h3>
       </header>
 
+      
       <div id="attribute-i-channel_tracks" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">channel_tracks</span><span
@@ -132,9 +142,12 @@
         </div>
 
         <div class="method-description">
+        
         <p>An array containing compiled tracks for each channel.</p>
+        
         </div>
       </div>
+      
       <div id="attribute-i-resolver" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">resolver</span><span
@@ -142,27 +155,40 @@
         </div>
 
         <div class="method-description">
+        
         <p>A resolver used by the compilation process.</p>
+        
         </div>
       </div>
+      
     </section>
+    
 
-
+    
      <section id="public-class-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Class Methods</h3>
        </header>
 
+    
       <div id="method-c-new" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">new</span><span
             class="method-args">(resolver)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Instances of the derived classes are being created internally by the <a href="Song.html"><code>MusicBox::Song</code></a> compilation process.</p>
+          
+          
 
+          
           <div class="method-source-code" id="new-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 279</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">resolver</span>)
@@ -172,28 +198,41 @@
         <span class="ruby-keyword">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">instance_variable_get</span>(<span class="ruby-string">&#39;@channels&#39;</span>.<span class="ruby-identifier">freeze</span>).<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">e</span><span class="ruby-operator">|</span> <span class="ruby-keyword">self</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">e</span> }
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-channel_track" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">channel_track</span><span
             class="method-args">(channel)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns an instance of the compiled track for the given <code>channel</code>. A <code>channel</code> can be an integer: 0 to 2 or one of the symbols or strings: <code>:a</code>, <code>:b</code>, <code>:c</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="channel_track-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/multitrack.rb, line 288</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">channel_track</span>(<span class="ruby-identifier">channel</span>)
@@ -207,20 +246,25 @@
         <span class="ruby-ivar">@channel_tracks</span>[<span class="ruby-identifier">channel</span>]
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

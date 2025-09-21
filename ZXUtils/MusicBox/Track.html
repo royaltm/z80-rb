@@ -21,6 +21,8 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -69,15 +71,18 @@
     
     
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-c-new">::new</a>
+    
     <li ><a href="#method-i-bytesize">#bytesize</a>
+    
     <li ><a href="#method-i-ticks_counter">#ticks_counter</a>
+    
   </ul>
 </div>
 
@@ -113,15 +118,21 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
     <section class="constants-list">
       <header>
         <h3>Constants</h3>
       </header>
       <dl>
+      
         <dt id="Marker">Marker
+        
         <dd><p>Instances of this ruby struct are values of the markers hash. The properties present are:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>name</code>
 <dd>
@@ -132,14 +143,19 @@
 <p>A marker&#39;s position in the <code>code</code>.</p>
 </dd></dl>
 </li></ul>
+        
+      
       </dl>
     </section>
+    
 
+    
     <section class="attribute-method-details" class="method-section">
       <header>
         <h3>Attributes</h3>
       </header>
 
+      
       <div id="attribute-i-code" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">code</span><span
@@ -147,9 +163,12 @@
         </div>
 
         <div class="method-description">
+        
         <p>A compiled track&#39;s body as a binary string.</p>
+        
         </div>
       </div>
+      
       <div id="attribute-i-markers" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">markers</span><span
@@ -157,9 +176,12 @@
         </div>
 
         <div class="method-description">
+        
         <p>A hash containging the <a href="Track.html#Marker"><code>Marker</code></a> instances as values and their names as keys.</p>
+        
         </div>
       </div>
+      
       <div id="attribute-i-max_recursion_depth" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">max_recursion_depth</span><span
@@ -167,9 +189,12 @@
         </div>
 
         <div class="method-description">
+        
         <p>A maximal recursion depth this track reaches at some point. This must not exceed ZXUtils::AYMusic::TRACK_STACK_DEPTH.</p>
+        
         </div>
       </div>
+      
       <div id="attribute-i-resolver" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">resolver</span><span
@@ -177,27 +202,40 @@
         </div>
 
         <div class="method-description">
+        
         <p>A resolver used by the compilation process.</p>
+        
         </div>
       </div>
+      
     </section>
+    
 
-
+    
      <section id="public-class-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Class Methods</h3>
        </header>
 
+    
       <div id="method-c-new" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">new</span><span
             class="method-args">(resolver)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Instances of the derived classes are being created internally by the <a href="Song.html"><code>MusicBox::Song</code></a> compilation process.</p>
+          
+          
 
+          
           <div class="method-source-code" id="new-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 691</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">resolver</span>)
@@ -213,69 +251,99 @@
         <span class="ruby-keyword">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">instance_variable_get</span>(<span class="ruby-string">&#39;@commands&#39;</span>.<span class="ruby-identifier">freeze</span>).<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">c</span><span class="ruby-operator">|</span> <span class="ruby-keyword">self</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">c</span> }
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-bytesize" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">bytesize</span><span
             class="method-args">()</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns the size in bytes of the track&#39;s compiled body.</p>
+          
+          
 
+          
           <div class="method-source-code" id="bytesize-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 710</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bytesize</span>
         <span class="ruby-identifier">code</span>.<span class="ruby-identifier">bytesize</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-ticks_counter" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">ticks_counter</span><span
             class="method-args">(counter=0)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Adds a track&#39;s tick counter value to the given <code>counter</code> and returns it.</p>
+          
+          
 
+          
           <div class="method-source-code" id="ticks_counter-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 705</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">ticks_counter</span>(<span class="ruby-identifier">counter</span>=<span class="ruby-value">0</span>)
         <span class="ruby-ivar">@ticks_counter</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-ivar">@ticks_counter</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">counter</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

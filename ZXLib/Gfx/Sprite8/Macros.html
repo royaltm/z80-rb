@@ -21,6 +21,8 @@
 <link href="../../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -60,16 +62,20 @@
     
     
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-i-gfx_sprite8_calculate_coords">#gfx_sprite8_calculate_coords</a>
+    
     <li ><a href="#method-i-gfx_sprite8_calculate_screen_address">#gfx_sprite8_calculate_screen_address</a>
+    
     <li ><a href="#method-i-gfx_sprite8_draw">#gfx_sprite8_draw</a>
+    
     <li ><a href="#method-i-gfx_sprite8_flip_horizontally">#gfx_sprite8_flip_horizontally</a>
+    
   </ul>
 </div>
 
@@ -93,25 +99,36 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
 
-
+    
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-gfx_sprite8_calculate_coords" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">gfx_sprite8_calculate_coords</span><span
             class="method-args">(outofscreen: :ret, **nsopts) { |eoc| ... }</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that calculates coordinates and prepares registers for <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a>.</p>
 <dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
@@ -162,7 +179,10 @@ how to: ora a  ora a    cp a     cp a
 </dd></dl>
 
 <p>Uses: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, stack: max 4 bytes.</p>
+          
+          
 
+          
           <div class="method-source-code" id="gfx_sprite8_calculate_coords-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/sprite8.rb, line 176</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_sprite8_calculate_coords</span>(<span class="ruby-value">outofscreen:</span> <span class="ruby-value">:ret</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -243,19 +263,28 @@ how to: ora a  ora a    cp a     cp a
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-gfx_sprite8_calculate_screen_address" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">gfx_sprite8_calculate_screen_address</span><span
             class="method-args">(scraddr:SCREEN_ADDRESS, subroutine:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that calculates the screen address for <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a>.</p>
 
 <p>The <code>h</code> and <code>l</code> registers should contain the pixel coordinates as described in <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a>.</p>
@@ -274,7 +303,10 @@ how to: ora a  ora a    cp a     cp a
 <p>Whether to create a subroutine.</p>
 </dd></dl>
 </li></ul>
+          
+          
 
+          
           <div class="method-source-code" id="gfx_sprite8_calculate_screen_address-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/sprite8.rb, line 82</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_sprite8_calculate_screen_address</span>(<span class="ruby-value">scraddr:</span><span class="ruby-constant">SCREEN_ADDRESS</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
@@ -297,19 +329,28 @@ how to: ora a  ora a    cp a     cp a
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-gfx_sprite8_draw" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">gfx_sprite8_draw</span><span
             class="method-args">(draw_sprite8=self.draw_sprite8, scraddr:SCREEN_ADDRESS, calculate:CALCULATE_SCREEN_ADDRESS, **nsopts) { |eoc| ... }</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a subroutine that calculates the screen address before jumping to <a href="../Sprite8.html#method-i-draw_sprite8"><code>Sprite8.draw_sprite8</code></a>.</p>
 
 <p>This subroutine should be used if you want to access the calculated screen address just before executing <code>draw_sprite8</code>.</p>
@@ -335,7 +376,10 @@ how to: ora a  ora a    cp a     cp a
 </li></ul>
 
 <p>Any other option is being passed over to the <code>block</code> namespace.</p>
+          
+          
 
+          
           <div class="method-source-code" id="gfx_sprite8_draw-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/sprite8.rb, line 123</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_sprite8_draw</span>(<span class="ruby-identifier">draw_sprite8</span>=<span class="ruby-keyword">self</span>.<span class="ruby-identifier">draw_sprite8</span>, <span class="ruby-value">scraddr:</span><span class="ruby-constant">SCREEN_ADDRESS</span>, <span class="ruby-value">calculate:</span><span class="ruby-constant">CALCULATE_SCREEN_ADDRESS</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">nsopts</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
@@ -356,19 +400,28 @@ how to: ora a  ora a    cp a     cp a
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-gfx_sprite8_flip_horizontally" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">gfx_sprite8_flip_horizontally</span><span
             class="method-args">(subroutine:false)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that flips sprite pixel data horizontally (mirrors sprites).</p>
 <dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
@@ -415,7 +468,10 @@ how to: ora a  ora a    cp a     cp a
 </dd></dl>
 
 <p>Uses: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>, stack: 4 bytes.</p>
+          
+          
 
+          
           <div class="method-source-code" id="gfx_sprite8_flip_horizontally-source">
             <pre><span class="ruby-comment"># File lib/zxlib/gfx/sprite8.rb, line 278</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">gfx_sprite8_flip_horizontally</span>(<span class="ruby-value">subroutine:</span><span class="ruby-keyword">false</span>)
@@ -441,20 +497,25 @@ how to: ora a  ora a    cp a     cp a
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

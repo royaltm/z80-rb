@@ -21,6 +21,8 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -60,18 +62,24 @@
     
     
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-i-clrmem">#clrmem</a>
+    
     <li ><a href="#method-i-clrmem8">#clrmem8</a>
+    
     <li ><a href="#method-i-clrmem_fastest">#clrmem_fastest</a>
+    
     <li ><a href="#method-i-clrmem_quick">#clrmem_quick</a>
+    
     <li ><a href="#method-i-memcpy">#memcpy</a>
+    
     <li ><a href="#method-i-memcpy_quick">#memcpy_quick</a>
+    
   </ul>
 </div>
 
@@ -89,30 +97,37 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
 
-
+    
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-clrmem" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">clrmem</span><span
             class="method-args">(dest=hl, size=bc, value=0)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Clears memory at <code>dest</code> using LDIR instruction.</p>
-
-<p>T-states: ~ 21/cleared byte.</p>
-
-<p>Modifies: <code>bc</code>, <code>de</code>, <code>hl</code>, optionally <code>a</code> if <code>value</code> is an indirect (pointer) address.</p>
 <dl class="rdoc-list note-list"><dt><code>dest</code>
 <dd>
 <p>An address of the memory area to be cleared as an integer, a label, a pointer or <code>hl</code>.</p>
@@ -124,6 +139,13 @@
 <p>A fill byte value as an integer, a label, a pointer or one of the registers: <code>a</code>, <code>b</code>, <code>c</code>, <code>d</code>, <code>e</code>.</p>
 </dd></dl>
 
+<p>T-states: ~ 21/cleared byte.</p>
+
+<p>Modifies: <code>bc</code>, <code>de</code>, <code>hl</code>, optionally <code>a</code> if <code>value</code> is an indirect (pointer) address.</p>
+          
+          
+
+          
           <div class="method-source-code" id="clrmem-source">
             <pre><span class="ruby-comment"># File lib/z80/stdlib.rb, line 118</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">clrmem</span>(<span class="ruby-identifier">dest</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">size</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">value</span>=<span class="ruby-value">0</span>)
@@ -156,24 +178,29 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-clrmem8" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">clrmem8</span><span
             class="method-args">(dest=hl, size=b, value=0, rr:hl)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Clears max 256 bytes of memory at <code>dest</code>. Slower (does not use LDIR/LDDR) but involves less registers.</p>
-
-<p>T-states: ~ 26/cleared byte. (~ 45 when <code>rr</code> is <code>ix</code> or <code>iy</code>)</p>
-
-<p>Modifies: <code>a</code>, <code>b</code>, <code>rr</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>dest</code>
 <dd>
 <p>An address of the memory area to be cleared as an integer, a label, a pointer or same as <code>rr</code>.</p>
@@ -191,6 +218,13 @@
 <p>16bit address register: <code>de</code>, <code>hl</code>, <code>ix</code>, <code>iy</code>.</p>
 </dd></dl>
 
+<p>T-states: ~ 26/cleared byte. (~ 45 when <code>rr</code> is <code>ix</code> or <code>iy</code>)</p>
+
+<p>Modifies: <code>a</code>, <code>b</code>, <code>rr</code>.</p>
+          
+          
+
+          
           <div class="method-source-code" id="clrmem8-source">
             <pre><span class="ruby-comment"># File lib/z80/stdlib.rb, line 84</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">clrmem8</span>(<span class="ruby-identifier">dest</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">size</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">value</span>=<span class="ruby-value">0</span>, <span class="ruby-value">rr:</span><span class="ruby-identifier">hl</span>)
@@ -218,27 +252,33 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-clrmem_fastest" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">clrmem_fastest</span><span
             class="method-args">(address=hl, chunks_count=b, chunk_size=2, value=0, tt:hl, disable_intr:true, enable_intr:true, save_sp:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Clears a memory area using unrolled PUSH with a tight loop.</p>
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
 <p>Interrupts should be disabled during execution of this code.</p>
-</dd></dl>
-
-<p>T-states: ~ 5,5/cleared byte in a chunk + 13 between chunks + 8 after the last chunk.</p>
-<dl class="rdoc-list note-list"><dt><code>address</code>
+</dd><dt><code>address</code>
 <dd>
 <p>An address of the next byte <em>AFTER</em> THE END of the memory area to be cleared. The address may be an integer, a label, a pointer or one of: <code>sp</code>, <code>hl</code>, <code>ix</code> or <code>iy</code>.</p>
 </dd><dt><code>chunks_count</code>
@@ -277,8 +317,13 @@
 <p>Restoring <code>sp</code> register uses self-modifying code.</p>
 </dd></dl>
 
-<p>Modifies: <code>tt</code>, <code>sp</code>, optionally <code>b</code> if <code>chunks_count</code> is not 1 and <code>a</code> if <code>chunks_count</code> is a pointer.</p>
+<p>T-states: ~ 5,5/cleared byte in a chunk + 13 between chunks + 8 after the last chunk.</p>
 
+<p>Modifies: <code>tt</code>, <code>sp</code>, optionally <code>b</code> if <code>chunks_count</code> is not 1 and <code>a</code> if <code>chunks_count</code> is a pointer.</p>
+          
+          
+
+          
           <div class="method-source-code" id="clrmem_fastest-source">
             <pre><span class="ruby-comment"># File lib/z80/stdlib.rb, line 210</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">clrmem_fastest</span>(<span class="ruby-identifier">address</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">chunks_count</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">chunk_size</span>=<span class="ruby-value">2</span>, <span class="ruby-identifier">value</span>=<span class="ruby-value">0</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>)
@@ -313,24 +358,29 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-clrmem_quick" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">clrmem_quick</span><span
             class="method-args">(dest=hl, size=1, value=0, rr:hl)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Clears memory at <code>dest</code> in a faster way using unrolled instructions.</p>
-
-<p>T-states: ~ 13/cleared byte.</p>
-
-<p>Modifies: <code>a</code>, <code>rr</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>dest</code>
 <dd>
 <p>An address of the memory area to be cleared as an integer, a label, a pointer or same as <code>rr</code>.</p>
@@ -348,6 +398,13 @@
 <p>16bit address register: <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
 </dd></dl>
 
+<p>T-states: ~ 13/cleared byte.</p>
+
+<p>Modifies: <code>a</code>, <code>rr</code>.</p>
+          
+          
+
+          
           <div class="method-source-code" id="clrmem_quick-source">
             <pre><span class="ruby-comment"># File lib/z80/stdlib.rb, line 161</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">clrmem_quick</span>(<span class="ruby-identifier">dest</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">size</span>=<span class="ruby-value">1</span>, <span class="ruby-identifier">value</span>=<span class="ruby-value">0</span>, <span class="ruby-value">rr:</span><span class="ruby-identifier">hl</span>)
@@ -370,19 +427,28 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-memcpy" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">memcpy</span><span
             class="method-args">(dest=de, source=hl, size=bc, reverse: nil)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Copies <code>size</code> bytes from memory area <code>source</code> to memory area <code>dest</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>dest</code>
 <dd>
@@ -407,7 +473,10 @@
 <p>If <code>reverse</code> is <code>nil</code> and <code>dest</code> and <code>source</code> and <code>size</code> are integers or labels (but not pointers) detects if source and destination memory overlaps and applies LDIR or LDDR during code generation.</p>
 
 <p>Modifies: <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="memcpy-source">
             <pre><span class="ruby-comment"># File lib/z80/stdlib.rb, line 258</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">memcpy</span>(<span class="ruby-identifier">dest</span>=<span class="ruby-identifier">de</span>, <span class="ruby-identifier">source</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">size</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-value">reverse:</span> <span class="ruby-keyword">nil</span>)
@@ -440,19 +509,28 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-memcpy_quick" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">memcpy_quick</span><span
             class="method-args">(dest=de, source=hl, size=1, reverse: nil)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Copies <code>size</code> bytes from memory area <code>source</code> to memory area <code>dest</code> using unrolled LDI/LDD.</p>
 <dl class="rdoc-list note-list"><dt><code>dest</code>
 <dd>
@@ -477,7 +555,10 @@
 <p>If <code>reverse</code> is <code>nil</code> and <code>dest</code> and <code>source</code> are integers or labels (but not pointers) detects if source and destination memory overlaps and applies LDI or LDD during code generation.</p>
 
 <p>Modifies: <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="memcpy_quick-source">
             <pre><span class="ruby-comment"># File lib/z80/stdlib.rb, line 304</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">memcpy_quick</span>(<span class="ruby-identifier">dest</span>=<span class="ruby-identifier">de</span>, <span class="ruby-identifier">source</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">size</span>=<span class="ruby-value">1</span>, <span class="ruby-value">reverse:</span> <span class="ruby-keyword">nil</span>)
@@ -508,20 +589,25 @@
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

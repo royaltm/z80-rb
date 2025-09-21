@@ -21,6 +21,8 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -58,32 +60,47 @@
   <div id="class-metadata">
     
     
-    
-<div id="includes-section" class="nav-section">
+    <div id="includes-section" class="nav-section">
   <h3>Included Modules</h3>
 
   <ul class="link-list">
+  
+  
     <li><a class="include" href="TrackConfigCommands.html">ZXUtils::MusicBox::TrackConfigCommands</a>
+  
+  
+  
     <li><a class="include" href="CommonInstrumentCommands.html">ZXUtils::MusicBox::CommonInstrumentCommands</a>
+  
+  
   </ul>
 </div>
 
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-i-ei">#ei</a>
+    
     <li ><a href="#method-i-i">#i</a>
+    
     <li ><a href="#method-i-pch">#pch</a>
+    
     <li ><a href="#method-i-play">#play</a>
+    
     <li ><a href="#method-i-play_chord">#play_chord</a>
+    
     <li ><a href="#method-i-set_empty_instrument">#set_empty_instrument</a>
+    
     <li ><a href="#method-i-set_instrument">#set_instrument</a>
+    
     <li ><a href="#method-i-sub">#sub</a>
+    
     <li ><a href="#method-i-sub_track">#sub_track</a>
+    
   </ul>
 </div>
 
@@ -105,85 +122,130 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
 
-
+    
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-ei" class="method-detail method-alias">
+        
         <div class="method-heading">
-          <span class="method-callseq">
-            ei
-          </span>
+          <span class="method-name">ei</span><span
+            class="method-args">()</span>
+          
         </div>
+        
 
         <div class="method-description">
           
+          
+          
+          
 
+          
         </div>
 
+        
 
+        
         <div class="aliases">
           Alias for: <a href="TrackCommands.html#method-i-set_empty_instrument">set_empty_instrument</a>
         </div>
+        
       </div>
 
+    
       <div id="method-i-i" class="method-detail method-alias">
+        
         <div class="method-heading">
-          <span class="method-callseq">
-            i instrument_name
-          </span>
+          <span class="method-name">i</span><span
+            class="method-args">(instrument_name)</span>
+          
         </div>
+        
 
         <div class="method-description">
           
+          
+          
+          
 
+          
         </div>
 
+        
 
+        
         <div class="aliases">
           Alias for: <a href="TrackCommands.html#method-i-set_instrument">set_instrument</a>
         </div>
+        
       </div>
 
+    
       <div id="method-i-pch" class="method-detail method-alias">
+        
         <div class="method-heading">
-          <span class="method-callseq">
-            pch note_name, octave, ticks=1, ...
-          </span>
+          <span class="method-name">pch</span><span
+            class="method-args">(*args)</span>
+          
         </div>
+        
 
         <div class="method-description">
           
+          
+          
+          
 
+          
         </div>
 
+        
 
+        
         <div class="aliases">
           Alias for: <a href="TrackCommands.html#method-i-play_chord">play_chord</a>
         </div>
+        
       </div>
 
+    
       <div id="method-i-play" class="method-detail ">
+        
+        
         <div class="method-heading">
           <span class="method-callseq">
             play note_name, octave, *pause_lengths
           </span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
         <div class="method-heading">
           <span class="method-callseq">
             note_name octave, *pause_lengths
           </span>
+          
         </div>
+        
+        
 
         <div class="method-description">
+          
           <p>To play notes on the use one of the commands:</p>
 
 <pre class="ruby"><span class="ruby-identifier">note_name</span>  <span class="ruby-identifier">corresponding</span> <span class="ruby-identifier">note</span>
@@ -231,7 +293,10 @@
 
 <pre class="ruby"><span class="ruby-identifier">c!</span> <span class="ruby-value">5</span>, <span class="ruby-value">2</span>
 </pre>
+          
+          
 
+          
           <div class="method-source-code" id="play-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 591</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">play</span>(<span class="ruby-identifier">note_name</span>, <span class="ruby-identifier">octave</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">pause_lengths</span>)
@@ -239,22 +304,43 @@
         <span class="ruby-identifier">pause</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">pause_lengths</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">pause_lengths</span>.<span class="ruby-identifier">empty?</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-play_chord" class="method-detail ">
+        
+        
         <div class="method-heading">
           <span class="method-callseq">
             play_chord note_name, octave, ticks=1, ...
           </span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            pch note_name, octave, ticks=1, ...
+          </span>
+          
+        </div>
+        
+        
 
         <div class="method-description">
+          
           <p>Plays a chord. At least two different notes should be specified.</p>
+          
+          
 
+          
           <div class="method-source-code" id="play_chord-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 605</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">play_chord</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
@@ -262,42 +348,89 @@
         <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
         <div class="aliases">
           Also aliased as: <a href="TrackCommands.html#method-i-pch">pch</a>
         </div>
+        
 
+        
       </div>
 
+    
       <div id="method-i-set_empty_instrument" class="method-detail ">
+        
+        
         <div class="method-heading">
           <span class="method-callseq">
             set_empty_instrument
           </span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            ei
+          </span>
+          
+        </div>
+        
+        
 
         <div class="method-description">
+          
           <p>Turns off any instrument previously set up with <a href="TrackCommands.html#method-i-set_instrument"><code>TrackCommands.set_instrument</code></a> on the current channel. The current instrument won&#39;t be immediately stopped until the next note is being played on this channel.</p>
+          
+          
 
+          
           <div class="method-source-code" id="set_empty_instrument-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 634</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">set_empty_instrument</span>
         <span class="ruby-identifier">set_instrument</span>(<span class="ruby-keyword">nil</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
         <div class="aliases">
           Also aliased as: <a href="TrackCommands.html#method-i-ei">ei</a>
         </div>
+        
 
+        
       </div>
 
+    
       <div id="method-i-set_instrument" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            set_instrument instrument_name
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            i instrument_name
+          </span>
+          
+        </div>
+        
+        
 
         <div class="method-description">
+          
           <p>Sets an instrument for the current channel.</p>
 <dl class="rdoc-list note-list"><dt><code>instrument_name</code>
 <dd>
@@ -305,7 +438,10 @@
 </dd></dl>
 
 <p>To turn off an instrument, set another one or use <a href="TrackCommands.html#method-i-set_empty_instrument"><code>TrackCommands.set_empty_instrument</code></a>. The previous instrument won&#39;t be immediately stopped until the next note is being played on this channel.</p>
+          
+          
 
+          
           <div class="method-source-code" id="set_instrument-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 621</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">set_instrument</span>(<span class="ruby-identifier">instrument_name</span>)
@@ -313,37 +449,75 @@
         <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
         <div class="aliases">
           Also aliased as: <a href="TrackCommands.html#method-i-i">i</a>
         </div>
+        
 
+        
       </div>
 
+    
       <div id="method-i-sub" class="method-detail method-alias">
+        
+        <div class="method-heading">
+          <span class="method-name">sub</span><span
+            class="method-args">(track_name)</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+        </div>
+
+        
+
+        
+        <div class="aliases">
+          Alias for: <a href="TrackCommands.html#method-i-sub_track">sub_track</a>
+        </div>
+        
+      </div>
+
+    
+      <div id="method-i-sub_track" class="method-detail ">
+        
+        
+        <div class="method-heading">
+          <span class="method-callseq">
+            sub_track track_name
+          </span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
         <div class="method-heading">
           <span class="method-callseq">
             sub track_name
           </span>
+          
         </div>
+        
+        
 
         <div class="method-description">
           
-
-        </div>
-
-
-        <div class="aliases">
-          Alias for: <a href="TrackCommands.html#method-i-sub_track">sub_track</a>
-        </div>
-      </div>
-
-      <div id="method-i-sub_track" class="method-detail ">
-
-        <div class="method-description">
           <p>Yields execution of the track to another sub-track with the given <code>track_name</code> as a symbol or string. When the track execution is finished, the yielding track will resume execution.</p>
+          
+          
 
+          
           <div class="method-source-code" id="sub_track-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/track.rb, line 644</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sub_track</span>(<span class="ruby-identifier">track_name</span>)
@@ -351,23 +525,29 @@
         <span class="ruby-ivar">@commands</span>.<span class="ruby-identifier">length</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
         <div class="aliases">
           Also aliased as: <a href="TrackCommands.html#method-i-sub">sub</a>
         </div>
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

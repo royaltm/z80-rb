@@ -21,6 +21,8 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -58,28 +60,37 @@
   <div id="class-metadata">
     
     
-    
-<div id="includes-section" class="nav-section">
+    <div id="includes-section" class="nav-section">
   <h3>Included Modules</h3>
 
   <ul class="link-list">
+  
+  
     <li><a class="include" href="../../Z80/MathInt/Macros.html">Z80::MathInt::Macros</a>
+  
+  
   </ul>
 </div>
 
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li ><a href="#method-i-apply_matrix">#apply_matrix</a>
+    
     <li ><a href="#method-i-apply_matrix_element">#apply_matrix_element</a>
+    
     <li ><a href="#method-i-apply_matrix_row">#apply_matrix_row</a>
+    
     <li ><a href="#method-i-copy_sincos_from_angle">#copy_sincos_from_angle</a>
+    
     <li ><a href="#method-i-course_to_rotation">#course_to_rotation</a>
+    
     <li ><a href="#method-i-rotation_to_matrix">#rotation_to_matrix</a>
+    
   </ul>
 </div>
 
@@ -99,25 +110,36 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
 
-
+    
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-apply_matrix" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">apply_matrix</span><span
             class="method-args">(matrix, vertices:hl, scrx0:128, scry0:128, scrz0:128, persp_dshift:7, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that applies a transformation matrix to vertices and calculates screen coordinates (xp, yp) for each vertex.</p>
 
 <pre class="ruby"><span class="ruby-constant">X</span> = <span class="ruby-constant">M</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">*</span> <span class="ruby-identifier">v</span>.<span class="ruby-identifier">x</span> <span class="ruby-operator">+</span> <span class="ruby-constant">M</span>[<span class="ruby-value">1</span>] <span class="ruby-operator">*</span> <span class="ruby-identifier">v</span>.<span class="ruby-identifier">y</span> <span class="ruby-operator">+</span> <span class="ruby-constant">M</span>[<span class="ruby-value">2</span>] <span class="ruby-operator">*</span> <span class="ruby-identifier">v</span>.<span class="ruby-identifier">z</span>
@@ -192,7 +214,10 @@
 </li></ul>
 
 <p>Modifies: <code>sp</code>, <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>bc</code>, <code>de</code>, <code>hl&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="apply_matrix-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 68</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix</span>(<span class="ruby-identifier">matrix</span>, <span class="ruby-value">vertices:</span><span class="ruby-identifier">hl</span>, <span class="ruby-value">scrx0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scry0:</span><span class="ruby-value">128</span>, <span class="ruby-value">scrz0:</span><span class="ruby-value">128</span>, <span class="ruby-value">persp_dshift:</span><span class="ruby-value">7</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -302,19 +327,28 @@
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-apply_matrix_element" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">apply_matrix_element</span><span
             class="method-args">(x, clrhl:false, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that multiplies a value of an element of the transformation matrix with a scalar.</p>
 
 <p>The matrix element should be a 16-bit, fixed point, twos complement signed number with an 8-bit fractional part.</p>
@@ -351,7 +385,10 @@ end</pre>
 </li></ul>
 
 <p>Modifies: <code>sp</code>, <code>af</code>, <code>hl&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, optionally preserves <code>x</code>, swaps registers.</p>
+          
+          
 
+          
           <div class="method-source-code" id="apply_matrix_element-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 249</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix_element</span>(<span class="ruby-identifier">x</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -373,19 +410,28 @@ end</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-apply_matrix_row" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">apply_matrix_row</span><span
             class="method-args">(x, y, z, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that applies a row (row.x, row.y, row.z) of the transformation matrix to a 3D vector (x, y, z).</p>
 
 <p>Each matrix element should be a 16-bit, fixed point, twos complement signed number with an 8-bit fractional part.</p>
@@ -419,7 +465,10 @@ end</pre>
 </li></ul>
 
 <p>Modifies: <code>sp</code>, <code>af</code>, <code>hl&#39;</code>, <code>bc&#39;</code>, <code>de&#39;</code>, preserves <code>x</code>, <code>y</code>, <code>z</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="apply_matrix_row-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 199</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">apply_matrix_row</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">z</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -439,19 +488,28 @@ end</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-copy_sincos_from_angle" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">copy_sincos_from_angle</span><span
             class="method-args">(target, angle=a, sincos:self.sincos, mask:nil)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that finds and copies the sine and cosine values of an <code>angle</code>, saving them to the <code>target</code> <a href="../../Z80/Utils/SinCos/SinCos.html"><code>Primitives::SinCos</code></a> object.</p>
 <dl class="rdoc-list note-list"><dt><code>target</code>
 <dd>
@@ -477,7 +535,10 @@ end</pre>
 </li></ul>
 
 <p>Modifes <code>sp</code>, <code>af</code>, <code>hl</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="copy_sincos_from_angle-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 328</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">copy_sincos_from_angle</span>(<span class="ruby-identifier">target</span>, <span class="ruby-identifier">angle</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">sincos:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sincos</span>, <span class="ruby-value">mask:</span><span class="ruby-keyword">nil</span>)
@@ -492,19 +553,28 @@ end</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-course_to_rotation" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">course_to_rotation</span><span
             class="method-args">(rotation, yaw=a, pitch=b, roll=c, sincos:self.sincos, save_sp:true)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that converts each of the three angles (yaw, pitch, roll) to a pair of sine and cosine values from these angles, and stores them in a <code>target</code> <a href="../Primitives/Rotation.html"><code>Primitives::Rotation</code></a> object.</p>
 <dl class="rdoc-list note-list"><dt><code>rotation</code>
 <dd>
@@ -536,7 +606,10 @@ end</pre>
 </li></ul>
 
 <p>Modifes <code>sp</code>, <code>af</code>, <code>hl</code>, <code>de</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="course_to_rotation-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 289</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">course_to_rotation</span>(<span class="ruby-identifier">rotation</span>, <span class="ruby-identifier">yaw</span>=<span class="ruby-identifier">a</span>, <span class="ruby-identifier">pitch</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">roll</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">sincos:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sincos</span>, <span class="ruby-value">save_sp:</span><span class="ruby-keyword">true</span>)
@@ -562,19 +635,28 @@ end</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-rotation_to_matrix" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">rotation_to_matrix</span><span
             class="method-args">(matrix, rotation, inline_mul:false, subroutine:true, optimize: :time)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates a routine that calculates a 3D rotation matrix from Rα (yaw), Rβ (pitch) and Rγ (roll) matrices, and stores calculated values in a <a href="../Primitives/Matrix.html"><code>Primitives::Matrix</code></a> object.</p>
 
 <p>The matrices (Rα, Rβ, Rγ) are built from an array of <code>word</code> values:</p>
@@ -613,7 +695,10 @@ end</pre>
 </dd></dl>
 
 <p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>hl</code>, <code>bc</code>, <code>de</code>. Stack depth: 6 bytes, 4 if <code>:inline_mul</code> is <code>true</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="rotation_to_matrix-source">
             <pre><span class="ruby-comment"># File lib/z80lib3d/matrix.rb, line 368</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rotation_to_matrix</span>(<span class="ruby-identifier">matrix</span>, <span class="ruby-identifier">rotation</span>, <span class="ruby-value">inline_mul:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
@@ -802,20 +887,25 @@ end</pre>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 

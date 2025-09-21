@@ -21,6 +21,8 @@
 <link href="../../css/rdoc.css" rel="stylesheet">
 
 
+
+
 <body id="top" role="document" class="module">
 <nav role="navigation">
   <div id="project-navigation">
@@ -67,29 +69,39 @@
   <div id="class-metadata">
     
     
-    
-<div id="includes-section" class="nav-section">
+    <div id="includes-section" class="nav-section">
   <h3>Included Modules</h3>
 
   <ul class="link-list">
+  
+  
     <li><a class="include" href="Multitrack.html">ZXUtils::MusicBox::Multitrack</a>
+  
+  
   </ul>
 </div>
 
     
-    
-<!-- Method Quickref -->
+    <!-- Method Quickref -->
 <div id="method-list-section" class="nav-section">
   <h3>Methods</h3>
 
   <ul class="link-list" role="directory">
+    
     <li class="calls-super" ><a href="#method-c-new">::new</a>
+    
     <li ><a href="#method-i-instruments">#instruments</a>
+    
     <li ><a href="#method-i-to_module">#to_module</a>
+    
     <li ><a href="#method-i-to_player_module">#to_player_module</a>
+    
     <li ><a href="#method-i-to_program">#to_program</a>
+    
     <li ><a href="#method-i-unused_item_names">#unused_item_names</a>
+    
     <li ><a href="#method-i-validate_recursion_depth-21">#validate_recursion_depth!</a>
+    
   </ul>
 </div>
 
@@ -144,15 +156,21 @@
 
   </section>
 
+  
   <section id="5Buntitled-5D" class="documentation-section">
+    
 
+    
 
+    
 
+    
     <section class="attribute-method-details" class="method-section">
       <header>
         <h3>Attributes</h3>
       </header>
 
+      
       <div id="attribute-i-item_table" class="method-detail">
         <div class="method-heading attribute-method-heading">
           <span class="method-name">item_table</span><span
@@ -160,31 +178,45 @@
         </div>
 
         <div class="method-description">
+        
         <p>A hash containing compiled and used items as keys and item descriptors as values.</p>
+        
         </div>
       </div>
+      
     </section>
+    
 
-
+    
      <section id="public-class-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Class Methods</h3>
        </header>
 
+    
       <div id="method-c-new" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">new</span><span
             class="method-args">()</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Creates and instance of the song.</p>
+          
+          
             <div class="method-calls-super">
               Calls superclass method
               <a href="Multitrack.html#method-c-new"><code>ZXUtils::MusicBox::Multitrack::new</code></a>
             </div>
+          
 
+          
           <div class="method-source-code" id="new-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 170</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>
@@ -200,49 +232,74 @@
         <span class="ruby-keyword">super</span>(<span class="ruby-constant">Resolver</span>.<span class="ruby-identifier">new</span> <span class="ruby-ivar">@item_table</span>, <span class="ruby-operator">**</span><span class="ruby-identifier">pargs</span>)
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
      <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
        <header>
          <h3>Public Instance Methods</h3>
        </header>
 
+    
       <div id="method-i-instruments" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">instruments</span><span
             class="method-args">()</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns a hash of instruments used in a song. Keys are instrument names and values are <a href="Instrument.html"><code>Instrument</code></a> instances.</p>
+          
+          
 
+          
           <div class="method-source-code" id="instruments-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 209</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">instruments</span>
         <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">instruments</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-to_module" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">to_module</span><span
             class="method-args">()</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns an instance of the <a href="Song/SongModule.html"><code>SongModule</code></a> from the compiled <a href="Song.html"><code>Song</code></a> instance.</p>
+          
+          
 
+          
           <div class="method-source-code" id="to_module-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 235</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_module</span>
@@ -260,63 +317,99 @@
         <span class="ruby-constant">SongModule</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">track_offsets</span>, <span class="ruby-identifier">index_offsets</span>, <span class="ruby-identifier">item_table</span>.<span class="ruby-identifier">values</span>, <span class="ruby-identifier">body</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-to_player_module" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">to_player_module</span><span
             class="method-args">()</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns an instance of the <a href="Song/PlayerModule.html"><code>PlayerModule</code></a> from the compiled <a href="Song.html"><code>Song</code></a> instance.</p>
+          
+          
 
+          
           <div class="method-source-code" id="to_player_module-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 224</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_player_module</span>
         <span class="ruby-identifier">to_module</span>.<span class="ruby-identifier">to_player_module</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-to_program" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">to_program</span><span
             class="method-args">()</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns an ad-hoc <a href="../../Z80/Program.html"><code>Z80::Program</code></a> class containing the compiled <a href="Song.html"><code>Song</code></a>. See <a href="Song/SongModule.html#method-i-to_program"><code>SongModule.to_program</code></a>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="to_program-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 230</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">to_program</span>
         <span class="ruby-identifier">to_module</span>.<span class="ruby-identifier">to_program</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-unused_item_names" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">unused_item_names</span><span
             class="method-args">()</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Returns a hash with unused item names in each of the item category.</p>
+          
+          
 
+          
           <div class="method-source-code" id="unused_item_names-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 214</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">unused_item_names</span>
@@ -328,25 +421,37 @@
                 <span class="ruby-value">masks:</span> <span class="ruby-identifier">resolver</span>.<span class="ruby-identifier">unused_mask_names</span> }
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
       <div id="method-i-validate_recursion_depth-21" class="method-detail ">
+        
         <div class="method-heading">
           <span class="method-name">validate_recursion_depth!</span><span
             class="method-args">(track_stack_depth=20)</span>
+          
           <span class="method-click-advice">click to toggle source</span>
+          
         </div>
+        
 
         <div class="method-description">
+          
           <p>Checks if maximal recursion depth of tracks and instruments is not exceeding the given threshold.</p>
 
 <p>Provide the maximum allowed <code>track_stack_depth</code>. You may want to use ZXUtils::AYMusic::TRACK_STACK_DEPTH constant.</p>
 
 <p>Raises an error when recursion depth is exceeding <code>track_stack_depth</code>.</p>
+          
+          
 
+          
           <div class="method-source-code" id="validate_recursion_depth-21-source">
             <pre><span class="ruby-comment"># File lib/zxutils/music_box/song.rb, line 188</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">validate_recursion_depth!</span>(<span class="ruby-identifier">track_stack_depth</span>=<span class="ruby-value">20</span>)
@@ -368,20 +473,25 @@
         <span class="ruby-identifier">max_recursion_depth</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
+          
         </div>
 
+        
 
+        
       </div>
 
+    
     </section>
-
+  
   </section>
+
 </main>
 
 
 <footer id="validator-badges" role="contentinfo">
   <p><a href="https://validator.w3.org/check/referer">Validate</a>
-  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.3.1.
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
   <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
 </footer>
 
