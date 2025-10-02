@@ -226,7 +226,7 @@
 
           
           <div class="method-source-code" id="add24_16-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 496</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 504</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">add24_16</span>(<span class="ruby-identifier">th8</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">tl16</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">tt</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">signed:</span><span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">tlh</span>, <span class="ruby-identifier">tll</span> = <span class="ruby-identifier">tl16</span>.<span class="ruby-identifier">split</span>
@@ -259,7 +259,7 @@
         
         <div class="method-heading">
           <span class="method-name">adda_to</span><span
-            class="method-args">(th, tl)</span>
+            class="method-args">(th, tl, oh:th, ol:tl)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -268,16 +268,27 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that adds an 8-bit accumulator value to a 16-bit <code>th</code>|<code>tl</code> register pair.</p>
+          <p>Creates a routine that adds an 8-bit accumulator value to a 16-bit value in a <code>th</code>|<code>tl</code> register pair.</p>
 <dl class="rdoc-list note-list"><dt><code>th</code>
 <dd>
-<p>A target MSB 8-bit register.</p>
+<p>An 8-bit register containing MSB bits of the 16-bit value.</p>
 </dd><dt><code>tl</code>
 <dd>
-<p>A target LSB 8-bit register.</p>
+<p>An 8-bit register containing LSB bits of the 16-bit value.</p>
 </dd></dl>
 
-<p>As a side effect: <code>a</code> equals to <code>th</code> when the routine ends.</p>
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>oh</code>
+<dd>
+<p>An output MSB 8-bit register, <code>th</code> by default.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>ol</code>
+<dd>
+<p>An output LSB 8-bit register, <code>tl</code> by default.</p>
+</dd></dl>
+</li></ul>
+
+<p>As a side effect: <code>a</code> equals <code>oh</code> when the routine ends.</p>
 
 <h4 id="method-i-adda_to-label-Note-3A">Note:<span><a href="#method-i-adda_to-label-Note-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
 
@@ -286,25 +297,25 @@
 <pre>ZF: (tt + a) &amp; 0xFF00 == 0
 CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pre>
 
-<p>Uses: <code>af</code>, <code>th</code>, <code>tl</code>.</p>
+<p>Modifies: <code>af</code>, <code>oh</code>, <code>ol</code>.</p>
 
-<p>T-states: 20</p>
+<p>T-states: 16|20</p>
           
           
 
           
           <div class="method-source-code" id="adda_to-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 439</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">adda_to</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>)
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">tl</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">th</span>,<span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 443</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">adda_to</span>(<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-value">oh:</span><span class="ruby-identifier">th</span>, <span class="ruby-value">ol:</span><span class="ruby-identifier">tl</span>)
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">tl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">oh</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">ol</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">ol</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">th</span> <span class="ruby-keyword">or</span>  [<span class="ruby-identifier">th</span>,<span class="ruby-identifier">tl</span>,<span class="ruby-identifier">ol</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;adda_to: invalid arguments!&quot;</span>
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">ns</span> <span class="ruby-keyword">do</span>
             <span class="ruby-identifier">add</span>  <span class="ruby-identifier">tl</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">a</span>
+            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ol</span>, <span class="ruby-identifier">a</span>
             <span class="ruby-identifier">adc</span>  <span class="ruby-identifier">th</span>
-            <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">tl</span>
-            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">a</span>
+            <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">ol</span>
+            <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, <span class="ruby-identifier">a</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">oh</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -379,7 +390,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
           
           <div class="method-source-code" id="bcdtoa-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3824</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3833</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">bcdtoa</span>(<span class="ruby-identifier">buffer</span>=<span class="ruby-identifier">hl</span>, <span class="ruby-identifier">size</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">skip_leading0:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">preserve_in:</span><span class="ruby-keyword">nil</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">buffer</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">buffer</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>) <span class="ruby-keyword">and</span>
                                (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">size</span>) <span class="ruby-keyword">or</span> (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">size</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">size</span>.<span class="ruby-identifier">bit8?</span>)) <span class="ruby-keyword">and</span>
@@ -668,7 +679,7 @@ CF: (((tt + a) &amp; 0xFF) + (((tt + a) &amp; 0xFF00) &gt;&gt; 8)) &gt; 0xFF</pr
 
         <div class="method-description">
           
-          <p>Creates a routine that performs an euclidean division of unsigned: <code>k</code> / <code>m</code>. Returns a quotient in <code>k</code> and a remainder in <code>accumulator</code>.</p>
+          <p>Creates a routine that performs an euclidean division of unsigned 8-bit: <code>k</code> / <code>m</code>. Returns a quotient in <code>k</code> and a remainder in <code>accumulator</code>.</p>
 
 <p>This routine can be chained one after another to divide arbitrary size dividends. Just preserve the <code>a</code> and <code>m</code> registers and pass <code>false</code> to <code>clrrem:</code> on subsequent routines. Start with the most significant byte of the dividend:</p>
 
@@ -740,7 +751,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="divmod-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2937</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2945</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod</span>(<span class="ruby-identifier">k</span>, <span class="ruby-identifier">m</span>, <span class="ruby-value">clrrem:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check0_far:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_leq_m:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ignore_cf:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-keyword">unless</span> <span class="ruby-identifier">clrrem</span>
         <span class="ruby-identifier">check0</span> = <span class="ruby-keyword">false</span>
@@ -1045,7 +1056,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="divmod16-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3304</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3313</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod16</span>(<span class="ruby-identifier">x</span>=<span class="ruby-identifier">ixl</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">quick8:</span><span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">x</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -1199,7 +1210,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="divmod16_8-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3274</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3283</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod16_8</span>(<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">m</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check0_far:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_leq_m:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ignore_cf:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">m</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">3</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -1284,7 +1295,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="divmod24_8-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3407</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3416</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod24_8</span>(<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">km</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">m</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check0_far:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_leq_m:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">ignore_cf:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">km</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">m</span>].<span class="ruby-identifier">uniq</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">4</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -1353,7 +1364,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="divmod32_16-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3508</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3517</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod32_16</span>(<span class="ruby-value">x:</span><span class="ruby-identifier">ixl</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">quick8:</span><span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">iyh</span>, <span class="ruby-identifier">iyl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">x</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -1515,7 +1526,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="divmod32_8-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3439</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3448</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod32_8</span>(<span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">mt:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">c</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -1592,7 +1603,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
         <div class="method-description">
           
-          <p>Creates a routine that performs an euclidean division of unsigned: <code>hl</code> / <code>m</code>. Returns a quotient in <code>hl</code> and a remainder in <code>a</code>.</p>
+          <p>Creates a routine that performs an euclidean division of an unsigned 16-bit <code>hl</code> / 8-bit <code>m</code>. Returns a quotient in <code>hl</code> and a remainder in <code>a</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>m</code>
 <dd>
 <p>A divisor, one of: <code>c</code>, <code>d</code> or <code>e</code>.</p>
@@ -1623,7 +1634,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="divmod8-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3204</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3213</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">divmod8</span>(<span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">check0:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">check1:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">modulo:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">c</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
@@ -1835,7 +1846,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="mul-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1135</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1143</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">kbit9_carry:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">tl_is_zero:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">k</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul: optimize should be :time or :size&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-value">:size</span>, <span class="ruby-value">:time</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">optimize</span>)
@@ -1953,7 +1964,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="mul16-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 827</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 835</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul16</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">mbit9_carry:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul16: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">kl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
@@ -2120,7 +2131,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="mul16_32-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2735</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2743</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul16_32</span>(<span class="ruby-identifier">mm</span>=<span class="ruby-identifier">bc</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">bc</span>, <span class="ruby-value">clrhlhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_hl:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">mm</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>)
     <span class="ruby-identifier">mh</span>, <span class="ruby-identifier">ml</span> = <span class="ruby-identifier">mm</span>.<span class="ruby-identifier">split</span>
@@ -2326,7 +2337,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="mul16_signed-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 786</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 794</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul16_signed</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul16_signed: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">kl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>)
@@ -2412,7 +2423,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="mul16_signed9-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 712</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 720</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul16_signed9</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">s:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">m_overflow:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">m_neg_cond:</span><span class="ruby-constant">C</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul16_signed9: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">kl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">or</span>
@@ -2540,7 +2551,7 @@ optimize        all       0 &amp; km       0 &amp; 1        0 only         none 
 
           
           <div class="method-source-code" id="mul8-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1923</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1931</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">double:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul8: optimize should be :time or :size&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-value">:size</span>, <span class="ruby-value">:time</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">optimize</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
@@ -2665,7 +2676,7 @@ optimize
 
           
           <div class="method-source-code" id="mul8_24-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2093</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2101</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_24</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrahl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_int24:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">mbit9_carry:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul8_24: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">or</span>
@@ -2810,7 +2821,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="mul8_24a-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2191</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2199</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_24a</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">k_int24:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">mbit9_carry:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul8_24a: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">t</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">or</span>
@@ -3020,7 +3031,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="mul8_c-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1827</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1835</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_c</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul8_c: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">or</span>
@@ -3115,7 +3126,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="mul8_signed-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1875</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1883</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul8_signed</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">m</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">double:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul8_signed: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-operator">!</span><span class="ruby-identifier">register?</span>(<span class="ruby-identifier">t</span>) <span class="ruby-keyword">or</span> <span class="ruby-operator">!</span><span class="ruby-identifier">t</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">or</span>
@@ -3202,7 +3213,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="mul_const-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1212</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1220</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_const</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-value">0</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul_const: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Integer</span>) <span class="ruby-keyword">and</span>
                                                                (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">256</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>)
@@ -3397,7 +3408,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="mul_const8_24-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2369</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2377</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_const8_24</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-value">0</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrahl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">throw</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul_const8_24: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Integer</span>) <span class="ruby-keyword">and</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">256</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">and</span>
@@ -3639,7 +3650,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="mul_const8_24a-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2572</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2580</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_const8_24a</span>(<span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-value">0</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">k_int24:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">throw</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul_const8_24a: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Integer</span>) <span class="ruby-keyword">and</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">256</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">and</span>
@@ -3858,7 +3869,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="mul_const_ex-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1369</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1377</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_const_ex</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-value">0</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">signed_k:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">use_a:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul_const_ex: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Integer</span>) <span class="ruby-keyword">and</span>
                                                                   (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">256</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>)
@@ -4327,7 +4338,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="mul_signed-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 932</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 940</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_signed</span>(<span class="ruby-identifier">k</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">clrhl:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul_signed: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">k</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
@@ -4451,7 +4462,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="mul_signed9-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1019</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 1027</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_signed9</span>(<span class="ruby-identifier">kh</span>, <span class="ruby-identifier">kl</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">s:</span><span class="ruby-identifier">kh</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">m_neg_cond:</span><span class="ruby-constant">C</span>, <span class="ruby-value">k_full_range:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">m_full_range:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">k_overflow:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">m_is_zero_zf:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>)
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">optimize</span> <span class="ruby-operator">==</span> <span class="ruby-value">:size</span>
         <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
@@ -4626,7 +4637,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="mul_signed9_24-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2001</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 2009</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mul_signed9_24</span>(<span class="ruby-identifier">ks</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">kh</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">kl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-identifier">m</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">m_pos_cond:</span><span class="ruby-constant">NC</span>, <span class="ruby-value">m_full_range:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">optimize:</span> <span class="ruby-value">:time</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">restore_a</span>)
     <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span> = <span class="ruby-identifier">tt</span>.<span class="ruby-identifier">split</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mul_signed9_24: invalid arguments&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">ks</span>, <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-keyword">or</span>
@@ -4898,7 +4909,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="rnd-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3626</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3635</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rnd</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                         <span class="ruby-identifier">inc</span> <span class="ruby-identifier">hl</span>          <span class="ruby-comment"># seed + 1</span>
@@ -5049,7 +5060,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="sll8_16-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 534</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 542</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sll8_16</span>(<span class="ruby-identifier">bshift</span>, <span class="ruby-identifier">th</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">l</span>, <span class="ruby-value">sl:</span><span class="ruby-identifier">tl</span>, <span class="ruby-value">zero:</span><span class="ruby-value">0</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;lshift8_16: invalid arguments!&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">bshift</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">bshift</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">0</span> <span class="ruby-keyword">and</span>
                                                              <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">th</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">th</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">a</span> <span class="ruby-keyword">and</span>
@@ -5213,7 +5224,7 @@ mbit9_carry    false          false           true          true</pre>
         
         <div class="method-heading">
           <span class="method-name">sub_from</span><span
-            class="method-args">(s, th, tl)</span>
+            class="method-args">(s, th, tl, oh:th, ol:tl)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -5222,19 +5233,30 @@ mbit9_carry    false          false           true          true</pre>
 
         <div class="method-description">
           
-          <p>Creates a routine that subtracts an 8-bit <code>s</code> register value from a 16-bit <code>th</code>|<code>tl</code> register pair.</p>
+          <p>Creates a routine that subtracts an 8-bit <code>s</code> register value from a 16-bit value in a <code>th</code>|<code>tl</code> register pair.</p>
 <dl class="rdoc-list note-list"><dt><code>s</code>
 <dd>
 <p>A subtractor as an 8-bit register except the accumulator.</p>
 </dd><dt><code>th</code>
 <dd>
-<p>A target MSB 8-bit register.</p>
+<p>An 8-bit register containing MSB bits of the 16-bit value.</p>
 </dd><dt><code>tl</code>
 <dd>
-<p>A target LSB 8-bit register.</p>
+<p>An 8-bit register containing LSB bits of the 16-bit value.</p>
 </dd></dl>
 
-<p>As a side effect: <code>a</code> equals to <code>th</code> when the routine ends.</p>
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>oh</code>
+<dd>
+<p>An output MSB 8-bit register, <code>th</code> by default.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>ol</code>
+<dd>
+<p>An output LSB 8-bit register, <code>tl</code> by default.</p>
+</dd></dl>
+</li></ul>
+
+<p>As a side effect: <code>a</code> equals to <code>oh</code> when the routine ends.</p>
 
 <h4 id="method-i-sub_from-label-Note-3A">Note:<span><a href="#method-i-sub_from-label-Note-3A">&para;</a> <a href="#top">&uarr;</a></span></h4>
 
@@ -5248,18 +5270,18 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="sub_from-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 468</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sub_from</span>(<span class="ruby-identifier">s</span>, <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>)
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">tl</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">s</span>,<span class="ruby-identifier">th</span>,<span class="ruby-identifier">tl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 476</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">sub_from</span>(<span class="ruby-identifier">s</span>, <span class="ruby-identifier">th</span>, <span class="ruby-identifier">tl</span>, <span class="ruby-value">oh:</span><span class="ruby-identifier">th</span>, <span class="ruby-value">ol:</span><span class="ruby-identifier">tl</span>)
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">th</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">tl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">oh</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">ol</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">ol</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">th</span> <span class="ruby-keyword">or</span> [<span class="ruby-identifier">s</span>,<span class="ruby-identifier">th</span>,<span class="ruby-identifier">ol</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">a</span>)
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;sub_from: invalid arguments!&quot;</span>
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">ns</span> <span class="ruby-keyword">do</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">tl</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">tl</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">tl</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
         <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">s</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">tl</span>, <span class="ruby-identifier">a</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">ol</span>, <span class="ruby-identifier">a</span>
         <span class="ruby-identifier">sbc</span>  <span class="ruby-identifier">a</span>
         <span class="ruby-identifier">add</span>  <span class="ruby-identifier">th</span>
-        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">th</span>, <span class="ruby-identifier">a</span>
+        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">oh</span>, <span class="ruby-identifier">a</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">oh</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
     <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -5453,7 +5475,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="utobcd-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3730</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3739</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">utobcd</span>(<span class="ruby-identifier">bufend</span>, <span class="ruby-identifier">input</span>=<span class="ruby-identifier">de</span>, <span class="ruby-value">size:</span> <span class="ruby-value">4</span>, <span class="ruby-value">r:</span> <span class="ruby-identifier">d</span>, <span class="ruby-value">rr:</span> <span class="ruby-identifier">de</span>, <span class="ruby-value">byteorder:</span> <span class="ruby-value">:lsb</span>, <span class="ruby-value">input_end:</span><span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">bufend</span>) <span class="ruby-keyword">and</span>
                                (<span class="ruby-identifier">address?</span>(<span class="ruby-identifier">input</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">input</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">rr</span>) <span class="ruby-keyword">and</span>
@@ -5559,7 +5581,7 @@ mbit9_carry    false          false           true          true</pre>
 
           
           <div class="method-source-code" id="utobcd_step-source">
-            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3682</span>
+            <pre><span class="ruby-comment"># File lib/z80/math_i.rb, line 3691</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">utobcd_step</span>(<span class="ruby-identifier">bufend</span>, <span class="ruby-identifier">r</span>, <span class="ruby-identifier">buflen</span>=<span class="ruby-value">1</span>, <span class="ruby-identifier">t</span>=<span class="ruby-identifier">c</span>, <span class="ruby-identifier">r_in_a</span>=<span class="ruby-keyword">false</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">bufend</span>) <span class="ruby-keyword">and</span>
                                [<span class="ruby-identifier">c</span>,<span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">r</span>) <span class="ruby-keyword">and</span> [<span class="ruby-identifier">c</span>,<span class="ruby-identifier">d</span>,<span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">t</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">r</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">t</span> <span class="ruby-keyword">and</span>
