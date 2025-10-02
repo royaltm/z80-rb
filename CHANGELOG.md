@@ -3,6 +3,7 @@ v1.2.0.pre-2
 
 Z80:
 ---
+* Added output register options to Z80::MathInt::Macros#adda_to and Z80::MathInt::Macros#sub_from.
 * Z80::Program#alias_label accepts :last as an address argument.
 * Added Z80::Program::Macros#rev8 for reversing bits in an octet.
 * Z80#debug method no more prints anything except printable ASCII characters.

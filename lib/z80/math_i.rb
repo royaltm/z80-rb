@@ -419,13 +419,17 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that adds an 8-bit accumulator value to a 16-bit +th+|+tl+
-            # register pair.
+            # Creates a routine that adds an 8-bit accumulator value to a 16-bit value
+            # in a +th+|+tl+ register pair.
             #
-            # +th+:: A target MSB 8-bit register.
-            # +tl+:: A target LSB 8-bit register.
+            # +th+:: An 8-bit register containing MSB bits of the 16-bit value.
+            # +tl+:: An 8-bit register containing LSB bits of the 16-bit value.
             #
-            # As a side effect: +a+ equals to +th+ when the routine ends.
+            # Options:
+            # * +oh+:: An output MSB 8-bit register, +th+ by default.
+            # * +ol+:: An output LSB 8-bit register, +tl+ by default.
+            #
+            # As a side effect: +a+ equals +oh+ when the routine ends.
             #
             # ====Note:
             # Although this method is often a more convenient way to add an 8-bit unsigned
@@ -434,30 +438,34 @@ module Z80
             #   ZF: (tt + a) & 0xFF00 == 0
             #   CF: (((tt + a) & 0xFF) + (((tt + a) & 0xFF00) >> 8)) > 0xFF
             #
-            # Uses: +af+, +th+, +tl+.
+            # Modifies: +af+, +oh+, +ol+.
             #
-            # T-states: 20
-            def adda_to(th, tl)
-                if th == tl or [th,tl].include?(a)
+            # T-states: 16|20
+            def adda_to(th, tl, oh:th, ol:tl)
+                if th == tl or oh == ol or ol == th or  [th,tl,ol].include?(a)
                     raise ArgumentError, "adda_to: invalid arguments!"
                 end
                 ns do
                         add  tl
-                        ld   tl, a
+                        ld   ol, a
                         adc  th
-                        sub  tl
-                        ld   th, a
+                        sub  ol
+                        ld   oh, a unless oh == a
                 end
             end
             ##
-            # Creates a routine that subtracts an 8-bit +s+ register value from a 16-bit +th+|+tl+
-            # register pair.
+            # Creates a routine that subtracts an 8-bit +s+ register value from a 16-bit value
+            # in a +th+|+tl+ register pair.
             #
             # +s+:: A subtractor as an 8-bit register except the accumulator.
-            # +th+:: A target MSB 8-bit register.
-            # +tl+:: A target LSB 8-bit register.
+            # +th+:: An 8-bit register containing MSB bits of the 16-bit value.
+            # +tl+:: An 8-bit register containing LSB bits of the 16-bit value.
             #
-            # As a side effect: +a+ equals to +th+ when the routine ends.
+            # Options:
+            # * +oh+:: An output MSB 8-bit register, +th+ by default.
+            # * +ol+:: An output LSB 8-bit register, +tl+ by default.
+            #
+            # As a side effect: +a+ equals to +oh+ when the routine ends.
             #
             # ====Note:
             # Although this method is often a more convenient way to subtract an 8-bit unsigned
@@ -466,17 +474,17 @@ module Z80
             # Uses: +af+, +th+, +tl+, preserves: +s+.
             #
             # T-states: 24
-            def sub_from(s, th, tl)
-                if th == tl or [s,th,tl].include?(a)
+            def sub_from(s, th, tl, oh:th, ol:tl)
+                if th == tl or oh == ol or ol == th or [s,th,ol].include?(a)
                     raise ArgumentError, "sub_from: invalid arguments!"
                 end
                 ns do
-                    ld   a, tl
+                    ld   a, tl unless tl == a
                     sub  s
-                    ld   tl, a
+                    ld   ol, a
                     sbc  a
                     add  th
-                    ld   th, a
+                    ld   oh, a unless oh == a
                 end
             end
             ##
@@ -2887,7 +2895,7 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that performs an euclidean division of unsigned: +k+ / +m+.
+            # Creates a routine that performs an euclidean division of unsigned 8-bit: +k+ / +m+.
             # Returns a quotient in +k+ and a remainder in +accumulator+.
             #
             # This routine can be chained one after another to divide arbitrary size dividends.
@@ -3186,7 +3194,8 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that performs an euclidean division of unsigned: +hl+ / +m+.
+            # Creates a routine that performs an euclidean division of an unsigned 16-bit
+            # +hl+ / 8-bit +m+.
             # Returns a quotient in +hl+ and a remainder in +a+.
             #
             # +m+:: A divisor, one of: +c+, +d+ or +e+.
