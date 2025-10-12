@@ -426,8 +426,8 @@ module Z80
             # +tl+:: An 8-bit register containing LSB bits of the 16-bit value.
             #
             # Options:
-            # * +oh+:: An output MSB 8-bit register, +th+ by default.
-            # * +ol+:: An output LSB 8-bit register, +tl+ by default.
+            # * +oh+:: An output of an 8-bit MSB part of the result, +th+ by default.
+            # * +ol+:: An output of an 8-bit LSB part of the result, +tl+ by default.
             #
             # As a side effect: +a+ equals +oh+ when the routine ends.
             #
@@ -454,16 +454,41 @@ module Z80
                 end
             end
             ##
+            # Creates a routine that adds an 8-bit accumulator value to a 16-bit
+            # immediate value and places the result in an +oh+|+ol+ register pair.
+            #
+            # +n+:: A 16-bit value as an address, a label, or an integer, and it must
+            #       not be an intermediate pointer.
+            #
+            # Options:
+            # * +oh+:: An output of an 8-bit MSB part of the result, +h+ by default.
+            # * +ol+:: An output of an 8-bit LSB part of the result, +l+ by default.
+            #
+            # As a side effect: +a+ equals +oh+ when the routine ends.
+            #
+            # ====Note:
+            # See Macros#adda_to.
+            #
+            # Modifies: +af+, +oh+, +ol+.
+            #
+            # T-states: 22|26
+            def adda_to_n16(n, oh:h, ol:l)
+                raise ArgumentError, "adda_to_n16: invalid n" unless address?(n) and !pointer?(n)
+                th = n >> 8
+                tl = n & 0xFF
+                adda_to(th, tl, oh:oh, ol:ol)
+            end
+            ##
             # Creates a routine that subtracts an 8-bit +s+ register value from a 16-bit value
             # in a +th+|+tl+ register pair.
             #
-            # +s+:: A subtractor as an 8-bit register except the accumulator.
+            # +s+:: An 8-bit subtractor, except the accumulator.
             # +th+:: An 8-bit register containing MSB bits of the 16-bit value.
             # +tl+:: An 8-bit register containing LSB bits of the 16-bit value.
             #
             # Options:
-            # * +oh+:: An output MSB 8-bit register, +th+ by default.
-            # * +ol+:: An output LSB 8-bit register, +tl+ by default.
+            # * +oh+:: An output of an 8-bit MSB part of the result, +th+ by default.
+            # * +ol+:: An output of an 8-bit LSB part of the result, +tl+ by default.
             #
             # As a side effect: +a+ equals to +oh+ when the routine ends.
             #
@@ -471,11 +496,11 @@ module Z80
             # Although this method is often a more convenient way to subtract an 8-bit unsigned
             # register value from a 16-bit pair of registers, it does not set flags properly.
             #
-            # Uses: +af+, +th+, +tl+, preserves: +s+.
+            # Modifies: +af+, +oh+, +ol+.
             #
-            # T-states: 24
+            # T-states: 20|24
             def sub_from(s, th, tl, oh:th, ol:tl)
-                if th == tl or oh == ol or ol == th or [s,th,ol].include?(a)
+                if th == tl or ol == th or [s,th,ol].include?(a)
                     raise ArgumentError, "sub_from: invalid arguments!"
                 end
                 ns do
@@ -486,6 +511,32 @@ module Z80
                     add  th
                     ld   oh, a unless oh == a
                 end
+            end
+            ##
+            # Creates a routine that subtracts an 8-bit +s+ register value from a 16-bit
+            # immediate value and places the result in an +oh+|+ol+ register pair.
+            #
+            # +s+:: An 8-bit subtractor, except the accumulator.
+            # +n+:: A 16-bit value as an address, a label, or an integer, and it must
+            #       not be an intermediate pointer.
+            #
+            # Options:
+            # * +oh+:: An output of an 8-bit MSB part of the result, +h+ by default.
+            # * +ol+:: An output of an 8-bit LSB part of the result, +l+ by default.
+            #
+            # As a side effect: +a+ equals to +oh+ when the routine ends.
+            #
+            # ====Note:
+            # See Macros#sub_from.
+            #
+            # Modifies: +af+, +oh+, +ol+.
+            #
+            # T-states: 26|30
+            def sub_from_n16(s, n, oh:h, ol:l)
+                raise ArgumentError, "sub_from_n16: invalid n" unless address?(n) and !pointer?(n)
+                th = n >> 8
+                tl = n & 0xFF
+                sub_from(s, th, tl, oh:oh, ol:ol)
             end
             ##
             # Creates a routine that adds a 16-bit integer in +tt+ to a 24-bit integer in +th8+|+tl16+.
