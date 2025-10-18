@@ -293,43 +293,81 @@ module Z80
 			##
 			# Creates code that reverses bits in an octet.
 			#
-			# The result is found in the accumulator register.
+			# The result is found in the accumulator register or +t+ depending on the +t_is_target+
+			# option.
 			#
-			# +bits+:: bits to reverse, as an 8-bit register or an argument passed to a load an 8-bit
+			# The CF flag will contain the last shifted out bit of the previous content of the reverse
+			# operation target.
+			#
+			# The ZF flag will be set if the the reversed bits were all 0, otherwise it will be reset.
+			#
+			# +bits+:: bits to reverse, as an 8-bit register or an argument passed to load an 8-bit
 			#          register instruction.
+			#          +bits+ can also be an intermediate address label if the +t_is_target+ option
+			#          is +true. In this instace the +t+ option needs to be specified as an 8-bit
+			#          register or +[hl]+.
 			#
 			# Options:
-			# * +t+:: a temporary register to use if +bits+ is the accumulator or not an 8-bit register.
-			# * +unroll+:: controls whether to unroll a loop.
+			# * +t+:: a temporary register to use or the target of the reverse operation if the
+			#         +t_is_target+ option is +true+.
+			# * +unroll+:: controls whether to unroll the loop.
+			# * +t_is_target+:: controls whether the reverse operation target is +t+ instead of +a+.
+			# * +shift_target_left+:: controls whether to shift target bits left. Otherwise the
+			#   	  target is shifted right. This influences the content of the CF flag at the end
+			#   	  of the operation.
 			#
-			# if +unroll+ is +false+, the +b+ register is used as a loop counter and cannot be used in
-			# the +t+ option.
+			# if +unroll+ is +false+, the +b+ register is used as a loop counter and cannot be used
+			# as the +t+ option.
 			#
-			# T-states: 202|206|209, unrolled: 96|100|103.
+			# T-states: 202|206|209|215, unrolled: 96|100|103|109.
 			#
-			# Code size: 6|7|8 bytes, unrolled: 24|25|26 bytes.
+			# Code size: 7 +(0-3) bytes, unrolled: 24 +(0-3) bytes.
 			#
 			# Modifies: +af+, +b+ if +unroll+ is +false+ and optionally +t+.
-			def rev8(bits, t:c, unroll: false)
+			def rev8(bits, t:bits, unroll: false, t_is_target:false, shift_target_left:false)
 				isolate do
-					if register?(bits) && bits.bit8? && bits != a
-					  t = bits
+					t = unwrap_pointer(t)
+					unless t == hl[] or (register?(t) && t.bit8? && t != a)
+						raise ArgumentError, "rev8: t must be an 8-bit register or [hl] except the accumulator"
 					end
-					unless register?(t) && t.bit8? && t != a
-						raise ArgumentError, "rev8: t must be an 8-bit register except the accumulator"
+					raise ArgumentError, "rev8: b can't be used for t if :unroll is false" unless unroll || t != b
+					if shift_target_left
+						rxc  = proc {|x| rrc  x }
+						rxca = proc { rrca }
+						rx   = proc {|x| rl   x }
+						rxa  = proc { rla    }
+					else
+						rxc  = proc {|x| rlc  x }
+						rxca = proc { rlca }
+						rx   = proc {|x| rr   x }
+						rxa  = proc { rra    }
 					end
-					raise ArgumentError, "rev8: b can't be used for t if :unroll is false" unless t != b || unroll
-						ld   t, bits unless t == bits
-					if unroll
-						8.times do
-							rlc  t
-							rra
+					if t_is_target
+							ld   a, bits unless bits == a
+						if unroll
+							8.times do
+								rxca.call
+								rx.call t
+							end
+						else
+								ld   b, 8
+						lrev	rxca.call
+								rx.call t
+								djnz lrev
 						end
 					else
-							ld   b, 8
-					lrev	rlc  t
-							rra
-							djnz lrev
+							ld   t, bits unless t == bits
+						if unroll
+							8.times do
+								rxc.call t
+								rxa.call
+							end
+						else
+								ld   b, 8
+						lrev	rxc.call t
+								rxa.call
+								djnz lrev
+						end
 					end
 				end
 			end
