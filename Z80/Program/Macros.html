@@ -450,7 +450,7 @@ ZF = 1 if th|tl == sh|sl</pre>
         
         <div class="method-heading">
           <span class="method-name">rev8</span><span
-            class="method-args">(bits, t:c, unroll: false)</span>
+            class="method-args">(bits, t:bits, unroll: false, t_is_target:false, shift_target_left:false)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -461,28 +461,43 @@ ZF = 1 if th|tl == sh|sl</pre>
           
           <p>Creates code that reverses bits in an octet.</p>
 
-<p>The result is found in the accumulator register.</p>
+<p>The result is found in the accumulator register or <code>t</code> depending on the <code>t_is_target</code> option.</p>
+
+<p>The CF flag will contain the last shifted out bit of the previous content of the reverse operation target.</p>
+
+<p>The ZF flag will be set if the the reversed bits were all 0, otherwise it will be reset.</p>
 <dl class="rdoc-list note-list"><dt><code>bits</code>
 <dd>
-<p>bits to reverse, as an 8-bit register or an argument passed to a load an 8-bit register instruction.</p>
+<p>bits to reverse, as an 8-bit register or an argument passed to load an 8-bit register instruction. <code>bits</code> can also be an intermediate address label if the <code>t_is_target</code> option is <code>true</code>. In this instace the <code>t</code> option needs to be specified as an 8-bit register or [hl].</p>
 </dd></dl>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>t</code>
 <dd>
-<p>a temporary register to use if <code>bits</code> is the accumulator or not an 8-bit register.</p>
+<p>a temporary register to use or the target of the reverse operation if the <code>t_is_target</code> option is <code>true</code>.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>unroll</code>
 <dd>
-<p>controls whether to unroll a loop.</p>
+<p>controls whether to unroll the loop.</p>
 </dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>t_is_target</code>
+<dd>
+<p>controls whether the reverse operation target is <code>t</code> instead of <code>a</code>.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>shift_target_left</code>
+<dd>
+<p>controls whether to shift target bits left. Otherwise the</p>
+</dd></dl>
+
+<pre>target is shifted right. This influences the content of the CF flag at the end
+of the operation.</pre>
 </li></ul>
 
-<p>if <code>unroll</code> is <code>false</code>, the <code>b</code> register is used as a loop counter and cannot be used in the <code>t</code> option.</p>
+<p>if <code>unroll</code> is <code>false</code>, the <code>b</code> register is used as a loop counter and cannot be used as the <code>t</code> option.</p>
 
-<p>T-states: 202|206|209, unrolled: 96|100|103.</p>
+<p>T-states: 202|206|209|215, unrolled: 96|100|103|109.</p>
 
-<p>Code size: 6|7|8 bytes, unrolled: 24|25|26 bytes.</p>
+<p>Code size: 7 +(0-3) bytes, unrolled: 24 +(0-3) bytes.</p>
 
 <p>Modifies: <code>af</code>, <code>b</code> if <code>unroll</code> is <code>false</code> and optionally <code>t</code>.</p>
           
@@ -490,27 +505,51 @@ ZF = 1 if th|tl == sh|sl</pre>
 
           
           <div class="method-source-code" id="rev8-source">
-            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 312</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rev8</span>(<span class="ruby-identifier">bits</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">unroll:</span> <span class="ruby-keyword">false</span>)
+            <pre><span class="ruby-comment"># File lib/z80/macros.rb, line 326</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">rev8</span>(<span class="ruby-identifier">bits</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">bits</span>, <span class="ruby-value">unroll:</span> <span class="ruby-keyword">false</span>, <span class="ruby-value">t_is_target:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">shift_target_left:</span><span class="ruby-keyword">false</span>)
         <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
-                <span class="ruby-keyword">if</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">bits</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">bits</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">bits</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">a</span>
-                  <span class="ruby-identifier">t</span> = <span class="ruby-identifier">bits</span>
+                <span class="ruby-identifier">t</span> = <span class="ruby-identifier">unwrap_pointer</span>(<span class="ruby-identifier">t</span>)
+                <span class="ruby-keyword">unless</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>[] <span class="ruby-keyword">or</span> (<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">t</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">t</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">a</span>)
+                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rev8: t must be an 8-bit register or [hl] except the accumulator&quot;</span>
                 <span class="ruby-keyword">end</span>
-                <span class="ruby-keyword">unless</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">t</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">t</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">a</span>
-                        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rev8: t must be an 8-bit register except the accumulator&quot;</span>
+                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rev8: b can&#39;t be used for t if :unroll is false&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">unroll</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">b</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">shift_target_left</span>
+                        <span class="ruby-identifier">rxc</span>  = <span class="ruby-identifier">proc</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">rrc</span>  <span class="ruby-identifier">x</span> }
+                        <span class="ruby-identifier">rxca</span> = <span class="ruby-identifier">proc</span> { <span class="ruby-identifier">rrca</span> }
+                        <span class="ruby-identifier">rx</span>   = <span class="ruby-identifier">proc</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">rl</span>   <span class="ruby-identifier">x</span> }
+                        <span class="ruby-identifier">rxa</span>  = <span class="ruby-identifier">proc</span> { <span class="ruby-identifier">rla</span>    }
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-identifier">rxc</span>  = <span class="ruby-identifier">proc</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">x</span> }
+                        <span class="ruby-identifier">rxca</span> = <span class="ruby-identifier">proc</span> { <span class="ruby-identifier">rlca</span> }
+                        <span class="ruby-identifier">rx</span>   = <span class="ruby-identifier">proc</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">rr</span>   <span class="ruby-identifier">x</span> }
+                        <span class="ruby-identifier">rxa</span>  = <span class="ruby-identifier">proc</span> { <span class="ruby-identifier">rra</span>    }
                 <span class="ruby-keyword">end</span>
-                <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;rev8: b can&#39;t be used for t if :unroll is false&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">b</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">unroll</span>
-                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">bits</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">bits</span>
-                <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll</span>
-                        <span class="ruby-value">8</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
-                                <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">t</span>
-                                <span class="ruby-identifier">rra</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">t_is_target</span>
+                                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">bits</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">bits</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll</span>
+                                <span class="ruby-value">8</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                                        <span class="ruby-identifier">rxca</span>.<span class="ruby-identifier">call</span>
+                                        <span class="ruby-identifier">rx</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">t</span>
+                                <span class="ruby-keyword">end</span>
+                        <span class="ruby-keyword">else</span>
+                                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">8</span>
+                        <span class="ruby-identifier">lrev</span>      <span class="ruby-identifier">rxca</span>.<span class="ruby-identifier">call</span>
+                                        <span class="ruby-identifier">rx</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">t</span>
+                                        <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">lrev</span>
                         <span class="ruby-keyword">end</span>
                 <span class="ruby-keyword">else</span>
-                                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">8</span>
-                <span class="ruby-identifier">lrev</span>       <span class="ruby-identifier">rlc</span>  <span class="ruby-identifier">t</span>
-                                <span class="ruby-identifier">rra</span>
-                                <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">lrev</span>
+                                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">t</span>, <span class="ruby-identifier">bits</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">bits</span>
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll</span>
+                                <span class="ruby-value">8</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                                        <span class="ruby-identifier">rxc</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">t</span>
+                                        <span class="ruby-identifier">rxa</span>.<span class="ruby-identifier">call</span>
+                                <span class="ruby-keyword">end</span>
+                        <span class="ruby-keyword">else</span>
+                                        <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">8</span>
+                        <span class="ruby-identifier">lrev</span>      <span class="ruby-identifier">rxc</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">t</span>
+                                        <span class="ruby-identifier">rxa</span>.<span class="ruby-identifier">call</span>
+                                        <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">lrev</span>
+                        <span class="ruby-keyword">end</span>
                 <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
