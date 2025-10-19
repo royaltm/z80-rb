@@ -137,7 +137,7 @@ module ZXLib
                   (bcheck and !((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr)))
               raise ArgumentError, "nextline: invalid arguments!"
           end
-          ns do |eoc|
+          isolate do |eoc|
                       inc  ah
                       ld   a, ah
                       anda 0x07
@@ -206,7 +206,7 @@ module ZXLib
                   (bcheck and !((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr)))
               raise ArgumentError, "prevline: invalid arguments!"
           end
-          ns do |eoc|
+          isolate do |eoc|
                       ld   a, ah
                       dec  ah
                       anda 0x07
@@ -240,8 +240,150 @@ module ZXLib
                       ld   ah, a
           end
       end
+      # Creates a routine that advances the screen ink/paper memory address by a constant number of
+      # pixel lines and/or (8-pixel) columns.
+      #
+      # Modifies: +af+, +ah+, +al+.
+      #
+      # +ah+:: A register holding a high byte of a screen address to advance.
+      # +al+:: A register holding a low byte of a screen address to advance.
+      # +lines+:: A constant number of lines between 0 and including 191.
+      # +cols+:: A constant number of columns between 0 and including 31.
+      #
+      # It is considered an error if both lines and cols are 0.
+      #
+      # Note that the routine does not perform any kind of boundary checks.
+      def scrmove_lines_cols(ah, al, lines, cols)
+        raise ArgumentError, "scrmove_lines_cols: invalid lines argument" unless Integer === lines && (0..191) === lines
+        raise ArgumentError, "scrmove_lines_cols: invalid cols argument" unless Integer === cols && (0..31) === cols
+        raise ArgumentError, "scrmove_lines_cols: lines + cols must not be 0" if (lines + cols).zero?
+        if ah == al or [ah, al].include?(a) or ![ah, al].all?{|r| register?(r) && r.bit8? }
+            raise ArgumentError, "scrmove_lines_cols: invalid arguments!"
+        end
+        segm = lines / 64
+        rows = (lines % 64) / 8
+        lines = lines % 8
+        # e e b b l l l  r r r c c c c c
+        isolate do |eoc|
+          # case optimize
+          # when :time
+            if segm.zero? && lines == 1
+                      inc  ah
+                      ld   a, ah
+                      anda 0x07
+                      jr   NZ, no_line_ovf
+            elsif (segm * 8 + lines) != 0
+                      ld   a, ah
+                      add  a, segm * 8 + lines
+                      ld   ah, a
+              unless lines.zero?
+                      anda 0x07
+                      cp   lines
+                      jr   NC, no_line_ovf
+              end
+            end
+            unless lines.zero?
+              if rows == 7
+                if cols == 1
+                      inc  al
+                elsif cols != 0
+                      ld   a, al
+                      add  cols
+                      ld   al, a
+                end
+                      jr   eoc
+              else
+                      ld   a, al
+                      add  (rows + 1) * 0x20 + cols
+                      ld   al, a
+                      jr   C, eoc
+                      ld   a, ah
+                      sub  0x08
+                      ld   ah, a
+                      jr   eoc unless rows.zero? && cols.zero?
+              end
+            end
+          no_line_ovf label
+            unless rows.zero? && cols.zero?
+              if (rows * 0x20 + cols) == 1
+                      inc  al
+              else
+                      ld   a, al
+                      add  rows * 0x20 + cols
+                      ld   al, a
+              end
+            end
+            unless rows.zero?
+                      jr   NC, eoc
+                      ld   a, ah
+                      add  0x08
+                      ld   ah, a
+            end
+          # 32
+          # 4+7+4+7+7+12 +4+7+4+12=68 (no overflow)
+          # 4+7+4+7+7+12 +4+7+4+7 +4+7+4=78 (rows overflow)
+          # 4+7+4+7+7+7  +4+7+4+12=63 (lines + rows overflow)
+          # 4+7+4+7+7+7  +4+7+4+7 +4+7+4+12=85 (lines overflow)
+          ############################
+          # when :size
+          #   unless rows.zero? && cols.zero?
+          #     if (rows * 0x20 + cols) == 1
+          #             inc  al
+          #     else
+          #             ld   a, al
+          #             add  rows * 0x20 + cols
+          #             ld   al, a
+          #     end
+          #   end
+          #             ld   a, ah unless segm.zero? && lines <= 1 && rows.zero?
+          #   unless rows.zero?
+          #             jr   NC, no_row_ovf
+          #             add  0x08
+          #   end
+          # no_row_ovf  label
+          #   unless segm.zero? && lines.zero? && rows.zero?
+          #     if segm.zero? && lines == 1
+          #       if rows.zero?
+          #             inc  ah
+          #             ld   a, ah
+          #       else
+          #             inc  a
+          #             ld   ah, a
+          #       end
+          #     else
+          #             add  a, segm * 8 + lines unless (segm * 8 + lines).zero?
+          #             ld   ah, a
+          #     end
+          #     unless lines.zero?
+          #             anda 0x07
+          #       if segm.zero? && lines == 1
+          #             jr   NZ, eoc
+          #       else
+          #             cp   lines
+          #             jr   NC, eoc
+          #       end
+          #     end
+          #             ld   a, al
+          #             add  0x20
+          #             ld   al, a
+          #             jr   C, eoc
+          #             ld   a, ah
+          #             sub  0x08
+          #             ld   ah, a
+          #   end
+          # 28
+          # 4+7+4+4+12+7+4+7+7+12=68 (no overflow)
+          # 4+7+4+4+12+7+4+7+7+7+4+7+4+12=90 (lines overflow)
+          # 4+7+4+4+12+7+4+7+7+7+4+7+4+7+4+7+4=100 (lines + rows overflow)
+          # 4+7+4+4+7+7+7+4+7+7+12=70 (rows overflow)
+          # 4+7+4+4+7+7+7+4+7+7+7+4+7+4+12=92 (rows + lines overflow)
+          # else
+          #   raise ArgumentError, "scrmove_lines_cols: optimize should be :time or :size"
+          # end
+        end
+      end
       ##
-      # Creates a routine that converts y,x coordinates to a screen byte address and a bits shift.
+      # Creates a routine that converts y,x coordinates to a screen byte address and a bit shift count.
       #
       # Modifies: +af+, +s+, +t+, +ah+, +al+.
       #
@@ -253,9 +395,9 @@ module ZXLib
       # Options:
       # * +ah+:: A register holding a high byte of a resulting address.
       # * +al+:: A register holding a low byte of a resulting address.
-      # * +s+:: A register holding a resulting bits right shift: [0-7].
-      #         This indicates how many bits the most significant bit should be shifted to the right to match the
-      #         input coordinate x.
+      # * +s+:: A register holding a resulting right shift bit count: [0-7].
+      #         This indicates how many bits the most significant bit should be shifted to the right to
+      #         match the input coordinate x.
       # * +t+:: An 8-bit register for temporary operations.
       # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
       #
@@ -557,7 +699,7 @@ module ZXLib
                   !((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
             raise ArgumentError, "nextrow: invalid arguments!"
           end
-          ns do |eoc|
+          isolate do |eoc|
                   ld   a, al
                   add  0x20
                   ld   al, a
@@ -1483,3 +1625,56 @@ end
 
 # DEPRECATED
 ZXGfx = ZXLib::Gfx unless defined?(ZXGfx) # :nodoc:
+
+    # adv_0a              scrmove_lines_cols(h, l, 0, 1, optimize: :time)
+    #                     ret
+    # adv_0b              scrmove_lines_cols(h, l, 0, 31, optimize: :time)
+    #                     ret
+    # adv_1a              scrmove_lines_cols(h, l, 1, 0, optimize: :time)
+    #                     ret
+    # adv_1b              scrmove_lines_cols(h, l, 1, 1, optimize: :time)
+    #                     ret
+    # adv_1c              scrmove_lines_cols(h, l, 1, 31, optimize: :time)
+    #                     ret
+    # adv_7a              scrmove_lines_cols(h, l, 7, 0, optimize: :time)
+    #                     ret
+    # adv_7b              scrmove_lines_cols(h, l, 7, 1, optimize: :time)
+    #                     ret
+    # adv_7c              scrmove_lines_cols(h, l, 7, 31, optimize: :time)
+    #                     ret
+    # adv_8a              scrmove_lines_cols(h, l, 8, 0, optimize: :time)
+    #                     ret
+    # adv_8b              scrmove_lines_cols(h, l, 8, 1, optimize: :time)
+    #                     ret
+    # adv_8c              scrmove_lines_cols(h, l, 8, 31, optimize: :time)
+    #                     ret
+    # adv_9a              scrmove_lines_cols(h, l, 9, 0, optimize: :time)
+    #                     ret
+    # adv_9b              scrmove_lines_cols(h, l, 9, 1, optimize: :time)
+    #                     ret
+    # adv_9c              scrmove_lines_cols(h, l, 9, 31, optimize: :time)
+    #                     ret
+    # adv_63a             scrmove_lines_cols(h, l, 63, 0, optimize: :time)
+    #                     ret
+    # adv_63b             scrmove_lines_cols(h, l, 63, 1, optimize: :time)
+    #                     ret
+    # adv_63c             scrmove_lines_cols(h, l, 63, 31, optimize: :time)
+    #                     ret
+    # adv_128a            scrmove_lines_cols(h, l, 128, 0, optimize: :time)
+    #                     ret
+    # adv_128b            scrmove_lines_cols(h, l, 128, 1, optimize: :time)
+    #                     ret
+    # adv_128c            scrmove_lines_cols(h, l, 128, 31, optimize: :time)
+    #                     ret
+    # adv_129a            scrmove_lines_cols(h, l, 129, 0, optimize: :time)
+    #                     ret
+    # adv_129b            scrmove_lines_cols(h, l, 129, 1, optimize: :time)
+    #                     ret
+    # adv_129c            scrmove_lines_cols(h, l, 129, 31, optimize: :time)
+    #                     ret
+    # adv_191a            scrmove_lines_cols(h, l, 191, 0, optimize: :time)
+    #                     ret
+    # adv_191b            scrmove_lines_cols(h, l, 191, 1, optimize: :time)
+    #                     ret
+    # adv_191c            scrmove_lines_cols(h, l, 191, 31, optimize: :time)
+    #                     ret
