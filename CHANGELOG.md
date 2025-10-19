@@ -39,6 +39,8 @@ Z80:
 
 ZXLib:
 -----
+* Fixed +subroutine+ option in ZXLib::Gfx::Macros and ZXLib::Gfx::Bobs::Macros routines using +sp+ for data transfer.
+* Added +:copy_back+ option to several macros in ZXLib::Gfx::Bobs::Macros allowing copying data back from the screen. +:target+ option renamed to +:screen+ while maintaining backward compatibility.
 * Added ZXLib::Gfx::Bobs::Macros#bobs_combine_pixels.
 * A new escape sequence `'` (carriage return) and handling of "\r" code added to the BASIC tokenizer.
 * Immediate argument optimization of ZXLib::Gfx::Macros#copy_shadow_screen_region.

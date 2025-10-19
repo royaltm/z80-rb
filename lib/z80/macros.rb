@@ -304,8 +304,8 @@ module Z80
 			# +bits+:: bits to reverse, as an 8-bit register or an argument passed to load an 8-bit
 			#          register instruction.
 			#          +bits+ can also be an intermediate address label if the +t_is_target+ option
-			#          is +true. In this instace the +t+ option needs to be specified as an 8-bit
-			#          register or +[hl]+.
+			#          is +true+. In this instace the +t+ option needs to be specified as an 8-bit
+			#          register or [hl].
 			#
 			# Options:
 			# * +t+:: a temporary register to use or the target of the reverse operation if the
