@@ -303,6 +303,7 @@ module ZXLib
 
         if1vars addr 23734, If1Vars
 
+        # Addresses of various ZX Spectrum ROM routines
         isolate :rom do
             start       addr 0x0000 # THE 'START'
             error       addr 0x0008 # THE 'ERROR' RESTART
@@ -486,12 +487,12 @@ module ZXLib
         #
         module Macros
             ##
-            # Returns to ZX Basic with the error report if condition is NOT met.
+            # Creates a routine which returns to ZX Basic with the error report if condition is NOT met.
             #
-            # * condition:: NZ, Z, NC, C, PO, PE, P, M
-            # * error:: Error report signature as a number +0..9+ or a letter +A..R+
+            # * +condition+:: NZ, Z, NC, C, PO, PE, P, M
+            # * +error+:: Error report signature as a number +0..9+ or a letter +A..R+
             def report_error_unless(condition, error)
-                raise ArgumentError unless Condition === condition
+                raise ArgumentError, "report_error_unless: expected a Condition" unless Condition === condition
                 isolate do |eoc|
                     if condition.jr_ok?
                             jr   condition, eoc
@@ -502,12 +503,12 @@ module ZXLib
                 end
             end
             ##
-            # Returns to ZX Basic with the error report.
+            # Creates a routine which returns to ZX Basic with the error report.
             #
             # * error:: Error report signature as a number +0..9+ or a letter +A..R+
             def report_error(error)
                 errno = [*'0'..'9', *'A'..'R'].index(error.to_s.upcase[0])
-                raise ArgumentError unless errno
+                raise ArgumentError, "report_error: expected an error signature as a number 0..9 or a letter: A..R" unless errno
                 isolate do
                     err     rst  0x08
                             db   errno - 1
@@ -515,16 +516,15 @@ module ZXLib
             end
             ##
             # Creates a routine that sets up custom interrupt handler using ZX Spectrum ROM's unused space
-            # as a IM2 mode jump table.
+            # as an IM2 mode jump table.
             #
-            # * handler:: One of the 16bit register pair or an address or a pointer to the address
-            #             of the handler routine.
-            # * enable_intr:: If +true+ invoke +ei+ instruction at the end.
+            # * +handler+:: One of the 16bit register pair or an address or a pointer to the address
+            #               of the handler routine or +nil+.
             #
-            # This routine uses a mode 2 interrupt. In this mode the address
+            # This routine enables Z80 interrupt mode 2. In this mode the address
             # of the interrupt routine is formed in the following way:
             # an 8-bit value found on the BUS (which in most ZX Spectrum models is 255)
-            # is being added to register +i+ x 256, which form a vector table address.
+            # is being added to an +i+ register multiplied by 256. This forms a vector table address.
             # A word (two bytes) is being read from that address, providing the address
             # where the call to the interrupt routine is made to.
             #
@@ -537,24 +537,34 @@ module ZXLib
             # _NOTE_:: The assumptions are true for most ZX Spectrum models and clones including Pentagon
             #          machines and Timex TC2048. However they are not true for Timex TC2068 or TS2068.
             #
+            # _NOTE_:: Interrupts must be disabled prior to running this code.
+            #
+            # If +handler+ is +nil+ no handler will be installed. In this instance, prior to calling
+            # this routine the user is expected to setup a custom handler at the memory address 65524
+            # (0xFFF4) that has exactly 11 bytes and an additional byte 0x18 whose address will be
+            # 65535 (0xFFFF).
+            #
             # Options:
+            # * +enable_intr+:: If +true+ invoke +ei+ instruction at the end.
             # * +vector_page+:: A most significant byte of the interrupt vector table address
-            #                   loaded into +i+ register. The default is 0x3B so the address
-            #                   of the routine is found at 0x3BFF in most ZX Spectrum models.
+            #                   loaded into +i+ register. The default is 0x3B so the address of the 
+            #                   interrupt routine is found at 0x3BFF in most ZX Spectrum models.
             #
             # Modifies: +a+, +i+, +hl+ if +handler+ is not a register pair.
             def setup_custom_interrupt_handler(handler, enable_intr:true, vector_page:0x3B)
                 isolate do
+                    unless handler.nil?
                                 ld  a, 0x18          # 18H is jr
                                 ld  [0xFFFF], a
                                 ld  a, 0xC3          # C3H is jp
                                 ld  [0xFFF4], a
                     set_handler label                # set handler part (may be used to only change the routine address)
-                    if [bc, de, hl, sp, ix, iy].include?(handler)
+                        if [bc, de, hl, sp, ix, iy].include?(handler)
                                 ld  [0xFFF5], handler
-                    else
+                        else
                                 ld  hl, handler
                                 ld  [0xFFF5], hl
+                        end
                     end
                                 ld  a, vector_page   # Supported by ZX Spectrum 128, +2, +2A, +3 and probably most clones.
                                 ld  i, a             # load the accumulator with FF filled page in rom.
@@ -563,9 +573,12 @@ module ZXLib
                 end
             end
             ##
-            # Restore interrupt handler ZX Spectrum ROM's standard IM1 mode.
+            # Creates a routine that restores default ZX Spectrum ROM's interrupt handler in IM1 mode.
             #
+            # Options:
             # * enable_intr:: If +true+ invoke +ei+ instruction at the end.
+            #
+            # _NOTE_:: Interrupts must be disabled prior to running this code.
             #
             # T-states: 28/24
             #
@@ -579,12 +592,12 @@ module ZXLib
                 end
             end
             ##
-            # Test for a key or keys being pressed.
+            # Creates a routine that tests for a key or keys being pressed.
             #
-            # * +line_mask+:: Keyboard half-line mask, may be an 8 bit register.
-            #                 The default is 0 which means all available lines.
-            # * +key_mask+:: Key mask (b0..b4), may be an 8 bit register.
-            #                The default is 0b11111 which means all keys in a half-line.
+            # +line_mask+:: Keyboard half-line mask, may be an 8 bit register.
+            #               The default is 0 which means all available lines.
+            # +key_mask+:: Key mask (b0..b4), may be an 8 bit register.
+            #              The default is 0b11111 which means all keys in a half-line.
             #
             # Options:
             # * +io+:: A label containing +ula+ sub-label addressing ULA I/O bus.
@@ -614,7 +627,7 @@ module ZXLib
                 end
             end
             ##
-            # Test for cursor keys being pressed.
+            # Creates a routine that tests for cursor keys being pressed.
             #
             # Options:
             # * +t+:: A temporary 8-bit register.
@@ -623,7 +636,7 @@ module ZXLib
             # Modifies: +af+, +t+.
             #
             # Output:
-            # * +ZF+=0:: if any of the cursor keys is being pressed.
+            # * +ZF+=0:: (NZ) if any of the cursor keys is being pressed.
             # * +a+:: bits b0..b3=1 if a cursor key is being pressed.
             #
             #      b3  b2  b1  b0
@@ -639,11 +652,14 @@ module ZXLib
                 end
             end
             ##
-            # Calculates the address of the first byte of a character.
+            # Creates a routine that calculates an address of the first byte of a character.
+            #
             # The calculated address will be available in the +hl+ register.
             #
-            # * +chars+:: the address of a code=0 character as a +hl+ register, address,
-            #             label or a label pointer e.g.: [vars.chars].
+            # +chars+:: the address of a code=0 character as a +hl+ register, address,
+            #           label or a label pointer e.g.: [vars.chars].
+            #
+            # Options:
             # * +code+:: an 8-bit register or a code number (addresses and pointers works to).
             # * +tt+:: a 16-bit register except +hl+.
             #
@@ -667,20 +683,25 @@ module ZXLib
               end
             end
             ##
-            # Creates a ZX Spectrum CHAN entry and opens it as a stream #N.
+            # Creates a routine that creates a ZX Spectrum CHAN entry and opens it as a stream #N.
             #
-            # * output:: a routine address or a 16bit register holding that address, except +hl+.
-            # * input:: a routine address or a 16bit register holding that address, except +hl+.
-            # * strm_no:: a stream number (4 - 15) or an 8bit register name; +nil+ if none of the streams should be attached.
-            # * chan_name:: a channel name (immediate value). if +nil+ or +0+ no channel name is being written.
+            # Options:
+            # * +output+:: The routine address or a 16bit register holding that address, except +hl+.
+            # * +input+:: The routine address or a 16bit register holding that address, except +hl+.
+            # * +strm_no+:: A stream number (4 - 15) or an 8bit register name; +nil+ if none of the streams should be attached.
+            # * +chan_name+:: A channel name (immediate value). if +nil+ or +0+ no channel name is being written.
+            # * +rom+:: A namespace label containing ZX Spectrum ROM routine addresses as sub-labels.
+            # * +vars+:: An address of system variables - a label of type Vars.
+            #
+            # If either +output+ or +input+ is +nil+, an address of +rom.error_j+ routine is used instead.
             #
             # Optionally give the returned namespace label a +name+.
             #
             # Modifies: +af+, +hl+, +bc+, +de+.
-            def create_chan_and_open(name = nil, output:, input: nil, strm_no: 4, chan_name: 'U')
+            def create_chan_and_open(name = nil, output:, input: nil, strm_no: 4, chan_name: 'U', rom: self.rom, vars: self.vars)
                 chan_name = String === chan_name ? chan_name.ord : chan_name.to_i
                 raise ArgumentError, "output or input must not be the hl register" if output == hl or input == hl
-                isolate name, use: [:rom, :vars] do
+                isolate name do
                     input  = rom.error_j if input.nil?
                     output = rom.error_j if output.nil?
                     if register?(strm_no) or pointer?(strm_no)
@@ -743,24 +764,30 @@ module ZXLib
                 end
             end
             ##
-            # Looks for a ZX Spectrum CHAN entry determined by +output+, +input+ and a +chan_name+.
+            # Creates a routine that looks for a ZX Spectrum CHAN entry determined by +output+, +input+ and
+            # a +chan_name+.
             #
-            # * output:: output routine address or a 16bit register holding that address except +hl+
-            # * input:: input routine address or a 16bit register holding that address
-            # * strm_no:: stream number (4 - 15) or 8bit register name
-            # * chan_name:: a channel name immediate value or a 8bit register
-            # * buffer:: address of buffer (5 bytes) to use, by default it's a printer buffer at 23296
+            # Options:
+            # * +output+:: The output routine address or a 16bit register holding that address except +hl+.
+            # * +input+:: The input routine address or a 16bit register holding that address.
+            # * +strm_no+:: A stream number (4 - 15) or 8bit register name.
+            # * +chan_name+:: A channel name immediate value or a 8bit register.
+            # * +buffer+:: An address of a buffer (5 bytes) to use, by default it's a printer buffer at 23296.
+            # * +rom+:: A namespace label containing ZX Spectrum ROM routine addresses as sub-labels.
+            # * +vars+:: An address of system variables - a label of type Vars.
+            #
+            # If either +output+ or +input+ is +nil+, an address of +rom.error_j+ routine is used instead.
             #
             # Optionally give namespace label a +name+.
             #
-            # ZF=1 if found, +hl+ points to the record address that matches
-            # ZF=0 if not found, +hl+ points to the memory address immediately after the last record
+            # If an entry is found ZF=1 (Z) and +hl+ points to the record address that matches.
+            # Otherwise ZF=0 (NZ) and +hl+ points to the memory address immediately after the last record.
             #
             # Modifies: +af+, +hl+, +bc+, +de+
-            def chan_exists(name = nil, output: de, input: nil, chan_name: 'U', buffer: 23296)
+            def chan_exists(name = nil, output: de, input: nil, chan_name: 'U', buffer: 23296, rom: self.rom, vars: self.vars)
                 chan_name = chan_name.ord if String === chan_name
                 raise ArgumentError, "output or input must not be hl register pair" if output == hl or input == hl
-                isolate name, use: [:rom, :vars] do |eoc|
+                isolate name do |eoc|
                     input  = rom.error_j if input.nil?
                     output = rom.error_j if output.nil?
                             ld   a, chan_name unless chan_name == a
@@ -847,7 +874,7 @@ module ZXLib
                 end
             end
             ##
-            # Reads a signed integer from a ZX Basic's FP-value.
+            # Creates a routine that reads a signed integer from a ZX Basic's FP-value.
             #
             # +hl+:: must point to the 1st byte of the FP-value.
             # +th+:: most significant byte output register.
@@ -911,7 +938,7 @@ module ZXLib
                 end
             end
             ##
-            # Reads a positive integer from a ZX Basic's FP-value.
+            # Creates a routine that reads a positive integer from a ZX Basic's FP-value.
             #
             # +hl+:: must point to the 1st byte of the FP-value.
             # +th+:: most significant byte output register.
@@ -939,7 +966,7 @@ module ZXLib
                 end
             end
             ##
-            # Reads a 32-bit integer from a ZX Basic's FP-value.
+            # Creates a routine that reads a 32-bit integer from a ZX Basic's FP-value.
             #
             # Requires: <tt>macro_import ::ZXLib::Math</tt>.
             #
@@ -980,7 +1007,8 @@ module ZXLib
                 end
             end
             ##
-            # Reads a string address and its length from a ZX Basic's stringish FP-value.
+            # Creates a routine that reads a string address and its length from a ZX Basic's
+            # stringish FP-value.
             #
             # +hl+:: must point to the 1st byte of the FP-value.
             # +adh+:: most significant byte address output register.
@@ -1007,11 +1035,13 @@ module ZXLib
                 end
             end
             ##
-            # Gets a DEF FN argument value address.
+            # Creates a routine that gets a DEF FN argument value address.
             #
             # Requires: <tt>macro_import MathInt</tt>.
             #
-            # * +argnum+:: 1-based argument index (0 is 256), may be a register or a number.
+            # +argnum+:: 1-based argument index (0 is 256), which can be an 8-bit register or a constant number.
+            #
+            # Options:
             # * +subroutine+:: if +true+ will use +ret+ instruction.
             # * +not_found+:: if +subroutine+ is +false+ and +not_found+ is defined, the routine
             #                 will jump to this address when argument was not found,
@@ -1020,6 +1050,7 @@ module ZXLib
             #                     produced by the block will be run. Make sure the routine doesn't
             #                     fall through though.
             # * +cf_on_direct+:: if +true+ and DEFADD is not defined CF will be set.
+            # * +vars+:: An address of system variables - a label of type Vars.
             #
             # When +subroutine+ is +true+ or +not_found+ is +nil+, the success is signalled with +ZF+:
             #
@@ -1029,8 +1060,8 @@ module ZXLib
             # +hl+ points to the argument value when found.
             #
             # Modifies: +af+, +hl+ and optionally +b+ unless +argnum+ == 1.
-            def find_def_fn_args(argnum=b, subroutine:true, not_found:nil, cf_on_direct:false, &not_found_blk)
-                isolate use: :vars do |eoc|
+            def find_def_fn_args(argnum=b, subroutine:true, not_found:nil, cf_on_direct:false, vars: self.vars, &not_found_blk)
+                isolate do |eoc|
                                 ld    b, argnum unless argnum == b or argnum == 1
                                 ld    hl, [vars.defadd]
                                 ld    a, h
@@ -1104,7 +1135,8 @@ module ZXLib
                 end
             end
             ##
-            # Selects an upper memory bank (0-7) and/or a screen memory page (0-1) to be displayed.
+            # Creates a routine that selects an upper memory bank (0-7) and/or a screen memory
+            # page (0-1) to be displayed.
             # 
             # Options:
             # * +bank+:: Selects a memory bank available at 0xC000-0xFFFF as an integer or
@@ -1163,7 +1195,7 @@ module ZXLib
                 end
             end
             ##
-            # Swap displayed screens.
+            # Creates a routine that swap displayed screens.
             #
             # Options:
             # * +swap_bank+:: A boolean flag indicating that the routine should additionally swap screen memory banks at 0xC000.
@@ -1191,15 +1223,17 @@ module ZXLib
                           out  (c), a
                 end
             end
-
             ##
-            # Moves Basic program and variables above the screen 1 (to 0x7B00).
+            # Creates a routine that moves Basic program and variables above the screen 1 (to 0x7B00).
             #
             # * +check_ensure+:: when +true+ checks if a call to MAKE-ROOM is needed.
+            # * +memT2k+:: A label with +rambot+ sub-label containing the first address above the screen memory.
+            # * +rom+:: A namespace label containing ZX Spectrum ROM routine addresses as sub-labels.
+            # * +vars+:: An address of system variables - a label of type Vars.
             #
             # Modifies: +af+, +bc+, +de+, +hl+.
-            def move_basic_above_scld_screen_memory(check_ensure:false)
-                isolate use: [:memT2k, :vars, :rom] do |eoc|
+            def move_basic_above_scld_screen_memory(check_ensure:false, memT2k:self.memT2k, rom:self.rom, vars:self.vars)
+                isolate do |eoc|
                         ld   hl, memT2k.rambot
                         ld   de, [vars.prog]
                         dec  de
