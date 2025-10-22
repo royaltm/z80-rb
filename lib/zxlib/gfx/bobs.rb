@@ -1581,8 +1581,8 @@ module ZXLib
                             inc  b          # b: lines left (counter)
               not_last      ex   af, af     # a': lines left - 1, CF': last row?
             # calculate next row screen address
-                            ld   a, c       # a: lo
-                            add  0x20       # a: lo + 0x20
+                            ld   a, c       # a: screen.lo
+                            add  0x20       # a: screen.lo + 0x20
                             ld   c, a       # c': next row (screen.lo)
                             exx             # regs
                             ld   l, a       # l: next row (screen.lo)
@@ -1599,9 +1599,7 @@ module ZXLib
                             jp   (tx)
               end
             end
-            unless subroutine && !enable_intr && !save_sp
-              quit          label
-            end
+            quit            label
             if save_sp
               restore_sp    ld  sp, 0
               restore_sp_p  as  restore_sp + 1
