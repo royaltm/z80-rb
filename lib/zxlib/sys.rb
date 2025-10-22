@@ -831,17 +831,17 @@ module ZXLib
                 end
             end
             ##
-            # Search for a record that matches a large block of memory.
+            # Creates a routine that searches for a record matching a large block of memory.
             #
-            # * +th|tl'+:: address of the last byte to search + 1 (preserved)
-            # * +hl+:: target
-            # * +de+:: source (preserved)
-            # * +bc+:: record length (preserved)
+            # * +th|tl'+:: An address of the last byte to search + 1 (preserved)
+            # * +hl+:: An address of the first record to match.
+            # * +de+:: An address of the block to be found (preserved).
+            # * +bc+:: A record length in bytes (preserved).
             #
             # ZF=1 if found, +hl+ points immediately *after* the record that matches, CF=0
             # ZF=0 if not found, +hl+ points to the memory address immediately after the last record
             #
-            # Modifies: +af+, +hl+ and +stack+
+            # Modifies: +af+, +hl+ and +stack+.
             def find_record(th=h, tl=l)
                 isolate do |eoc|
                     seekloop1   push  bc
@@ -850,11 +850,10 @@ module ZXLib
                                 inc   de
                                 cpi
                                 jr    NZ, adjust
-                                ld    a, b
-                                ora   c
-                                jr    NZ, seekloop0
-                                pop   de
+                                jp    PE, seekloop0
+                                pop   de           # match record
                                 pop   bc           # de - preserved, bc - preserved, hl to next record after found
+                                xor   a            # ZF=1, CF=0
                                 jr    eoc          # ZF=1 found
                     adjust      add   hl, bc       # next record
                                 pop   de
