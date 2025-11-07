@@ -883,6 +883,14 @@ module Z80
             #
             # _NOTE_:: Optimization +:compact+ is both a smaller and slightly faster alternative to +:size+,
             #          however it requires the loop register +b+, thus preventing +bc+ to be used as +tt.
+            #
+            # T-states: (+kh+|+kl+ = +tt+)
+            #   optimize   0   1   3   7  15  31  63 127 255  (m)
+            #   :compact 332 338 344 350 356 362 368 374 380  avg: ~356.00  size: 12 bytes
+            #      :size 265 290 315 340 365 390 415 440 465  avg: ~365.00  size: 17 bytes
+            #      :time 174 163 185 212 239 266 293 320 347  avg: ~270.95  size: 31 bytes
+            #    :unroll 114 101 123 145 167 189 211 233 255  avg: ~215.20  size: 66 bytes
+            #
             # Modifies: +af+, +hl+, +tt+, optionally +b+ if +optimize+ is +:compact+.
             def mul16(kh=h, kl=l, m=a, tt:de, mbit9_carry:false, optimize: :time)
                 th, tl = tt.split
@@ -1190,6 +1198,11 @@ module Z80
             # * +kbit9_carry+:: If the multiplicand (+k+) is 9-bit, where MSB (9th) bit is read from CARRY flag.
             # * +tl_is_zero+::  Whether +tl+ (LSB of +tt+) register has been already cleared.
             # * +optimize+:: What is more important: +:time+ or +:size+?
+            #
+            # T-states: (+kh+|+kl+ = +tt+)
+            #   optimize   0   1   3   7  15  31  63 127 255  (m)
+            #      :size  57 371 377 383 389 395 401 407 413  avg: ~345.34  size: 15 bytes
+            #      :time  62 297 313 329 345 361 377 393 399  avg: ~308.29  size: 26 bytes
             #
             # Uses: +af+, +hl+, +tt+, optionally preserves: +k+, +m+.
             def mul(k=d, m=a, tt:de, clrhl:true, signed_k:false, kbit9_carry:false, tl_is_zero:false, optimize: :time)
@@ -1883,6 +1896,10 @@ module Z80
             # * +clrhl+:: +true+ if the result should replace the +hl+ content, +false+ if the result
             #             should be added.
             #
+            # T-states: (+kh+|+kl+ = +tt+)
+            #              0   1   3   7  15  31  63 127 255  (m)
+            #             42  55 121 187 253 319 385 451 517  avg: ~412.41  size: 19 bytes
+            # 
             # Uses: +f+, +hl+, +m+, +tt+, optionally preserves: +kh+, +kl+.
             def mul8_c(kh=h, kl=l, m=a, tt:de, clrhl:true)
                 th, tl = tt.split
@@ -1978,6 +1995,11 @@ module Z80
             #             should be added.
             # * +double+:: +true+ if the result should be multiplied by 2 (+kh+|+kl+ * 2).
             # * +optimize+:: What is more important: +:time+ or +:size+?
+            #
+            # T-states: (+kh+|+kl+ = +tt+)
+            #   optimize   0   1   3   7  15  31  63 127 255  (m)
+            #      :size  49  55 109 163 217 271 325 379 433  avg: ~361.38  size: 16 bytes
+            #      :time  37  51 103 155 207 259 311 363 415  avg: ~313.80  size: 21 bytes
             #
             # Uses: +f+, +hl+, +m+, +kh+, +kl+, +tt+, optionally preserves: +kh+, +kl+.
             def mul8(kh=h, kl=l, m=a, tt:de, clrhl:true, double:false, optimize: :time)
