@@ -152,7 +152,7 @@
         
         <div class="method-heading">
           <span class="method-name">chan_exists</span><span
-            class="method-args">(name = nil, output: de, input: nil, chan_name: &#39;U&#39;, buffer: 23296)</span>
+            class="method-args">(name = nil, output: de, input: nil, chan_name: &#39;U&#39;, buffer: 23296, rom: self.rom, vars: self.vars)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -161,32 +161,44 @@
 
         <div class="method-description">
           
-          <p>Looks for a ZX Spectrum CHAN entry determined by <code>output</code>, <code>input</code> and a <code>chan_name</code>.</p>
-<ul><li><dl class="rdoc-list note-list"><dt>output
+          <p>Creates a routine that looks for a ZX Spectrum CHAN entry determined by <code>output</code>, <code>input</code> and a <code>chan_name</code>.</p>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>output</code>
 <dd>
-<p>output routine address or a 16bit register holding that address except <code>hl</code></p>
+<p>The output routine address or a 16bit register holding that address except <code>hl</code>.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>input
+</li><li><dl class="rdoc-list note-list"><dt><code>input</code>
 <dd>
-<p>input routine address or a 16bit register holding that address</p>
+<p>The input routine address or a 16bit register holding that address.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>strm_no
+</li><li><dl class="rdoc-list note-list"><dt><code>strm_no</code>
 <dd>
-<p>stream number (4 - 15) or 8bit register name</p>
+<p>A stream number (4 - 15) or 8bit register name.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>chan_name
+</li><li><dl class="rdoc-list note-list"><dt><code>chan_name</code>
 <dd>
-<p>a channel name immediate value or a 8bit register</p>
+<p>A channel name immediate value or a 8bit register.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>buffer
+</li><li><dl class="rdoc-list note-list"><dt><code>buffer</code>
 <dd>
-<p>address of buffer (5 bytes) to use, by default it&#39;s a printer buffer at 23296</p>
+<p>An address of a buffer (5 bytes) to use, by default it&#39;s a printer buffer at 23296.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>rom</code>
+<dd>
+<p>A namespace label containing ZX Spectrum ROM routine addresses as sub-labels.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vars</code>
+<dd>
+<p>An address of system variables - a label of type <a href="Vars.html"><code>Vars</code></a>.</p>
 </dd></dl>
 </li></ul>
 
+<p>If either <code>output</code> or <code>input</code> is <code>nil</code>, an address of <code>rom.error_j</code> routine is used instead.</p>
+
 <p>Optionally give namespace label a <code>name</code>.</p>
 
-<p>ZF=1 if found, <code>hl</code> points to the record address that matches ZF=0 if not found, <code>hl</code> points to the memory address immediately after the last record</p>
+<p>If an entry is found ZF=1 (Z) and <code>hl</code> points to the record address that matches. Otherwise ZF=0 (NZ) and <code>hl</code> points to the memory address immediately after the last record.</p>
 
 <p>Modifies: <code>af</code>, <code>hl</code>, <code>bc</code>, <code>de</code></p>
           
@@ -194,11 +206,11 @@
 
           
           <div class="method-source-code" id="chan_exists-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 759</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">chan_exists</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">output:</span> <span class="ruby-identifier">de</span>, <span class="ruby-value">input:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">chan_name:</span> <span class="ruby-string">&#39;U&#39;</span>, <span class="ruby-value">buffer:</span> <span class="ruby-value">23296</span>)
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 786</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">chan_exists</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">output:</span> <span class="ruby-identifier">de</span>, <span class="ruby-value">input:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">chan_name:</span> <span class="ruby-string">&#39;U&#39;</span>, <span class="ruby-value">buffer:</span> <span class="ruby-value">23296</span>, <span class="ruby-value">rom:</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">rom</span>, <span class="ruby-value">vars:</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">vars</span>)
     <span class="ruby-identifier">chan_name</span> = <span class="ruby-identifier">chan_name</span>.<span class="ruby-identifier">ord</span> <span class="ruby-keyword">if</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">chan_name</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;output or input must not be hl register pair&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">output</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">input</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
-    <span class="ruby-identifier">isolate</span> <span class="ruby-identifier">name</span>, <span class="ruby-value">use:</span> [<span class="ruby-value">:rom</span>, <span class="ruby-value">:vars</span>] <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-identifier">name</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
         <span class="ruby-identifier">input</span>  = <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">error_j</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">input</span>.<span class="ruby-identifier">nil?</span>
         <span class="ruby-identifier">output</span> = <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">error_j</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">output</span>.<span class="ruby-identifier">nil?</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">chan_name</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">chan_name</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">a</span>
@@ -264,12 +276,16 @@
 
         <div class="method-description">
           
-          <p>Calculates the address of the first byte of a character. The calculated address will be available in the <code>hl</code> register.</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>chars</code>
+          <p>Creates a routine that calculates an address of the first byte of a character.</p>
+
+<p>The calculated address will be available in the <code>hl</code> register.</p>
+<dl class="rdoc-list note-list"><dt><code>chars</code>
 <dd>
 <p>the address of a code=0 character as a <code>hl</code> register, address, label or a label pointer e.g.: [vars.chars].</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>code</code>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>code</code>
 <dd>
 <p>an 8-bit register or a code number (addresses and pointers works to).</p>
 </dd></dl>
@@ -287,7 +303,7 @@
 
           
           <div class="method-source-code" id="char_ptr_from_code-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 652</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 668</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">char_ptr_from_code</span>(<span class="ruby-identifier">chars</span>, <span class="ruby-identifier">code</span>=<span class="ruby-identifier">a</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> ((<span class="ruby-identifier">register?</span>(<span class="ruby-identifier">chars</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">chars</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">chars</span>)) <span class="ruby-keyword">and</span>
                              <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">tt</span>.<span class="ruby-identifier">bit8?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">tt</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">hl</span>
@@ -318,7 +334,7 @@
         
         <div class="method-heading">
           <span class="method-name">create_chan_and_open</span><span
-            class="method-args">(name = nil, output:, input: nil, strm_no: 4, chan_name: &#39;U&#39;)</span>
+            class="method-args">(name = nil, output:, input: nil, strm_no: 4, chan_name: &#39;U&#39;, rom: self.rom, vars: self.vars)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -327,24 +343,36 @@
 
         <div class="method-description">
           
-          <p>Creates a ZX Spectrum CHAN entry and opens it as a stream #N.</p>
-<ul><li><dl class="rdoc-list note-list"><dt>output
+          <p>Creates a routine that creates a ZX Spectrum CHAN entry and opens it as a stream #N.</p>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>output</code>
 <dd>
-<p>a routine address or a 16bit register holding that address, except <code>hl</code>.</p>
+<p>The routine address or a 16bit register holding that address, except <code>hl</code>.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>input
+</li><li><dl class="rdoc-list note-list"><dt><code>input</code>
 <dd>
-<p>a routine address or a 16bit register holding that address, except <code>hl</code>.</p>
+<p>The routine address or a 16bit register holding that address, except <code>hl</code>.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>strm_no
+</li><li><dl class="rdoc-list note-list"><dt><code>strm_no</code>
 <dd>
-<p>a stream number (4 - 15) or an 8bit register name; <code>nil</code> if none of the streams should be attached.</p>
+<p>A stream number (4 - 15) or an 8bit register name; <code>nil</code> if none of the streams should be attached.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>chan_name
+</li><li><dl class="rdoc-list note-list"><dt><code>chan_name</code>
 <dd>
-<p>a channel name (immediate value). if <code>nil</code> or <code>0</code> no channel name is being written.</p>
+<p>A channel name (immediate value). if <code>nil</code> or <code>0</code> no channel name is being written.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>rom</code>
+<dd>
+<p>A namespace label containing ZX Spectrum ROM routine addresses as sub-labels.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vars</code>
+<dd>
+<p>An address of system variables - a label of type <a href="Vars.html"><code>Vars</code></a>.</p>
 </dd></dl>
 </li></ul>
+
+<p>If either <code>output</code> or <code>input</code> is <code>nil</code>, an address of <code>rom.error_j</code> routine is used instead.</p>
 
 <p>Optionally give the returned namespace label a <code>name</code>.</p>
 
@@ -354,11 +382,11 @@
 
           
           <div class="method-source-code" id="create_chan_and_open-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 679</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">create_chan_and_open</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">output:</span>, <span class="ruby-value">input:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">strm_no:</span> <span class="ruby-value">4</span>, <span class="ruby-value">chan_name:</span> <span class="ruby-string">&#39;U&#39;</span>)
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 700</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">create_chan_and_open</span>(<span class="ruby-identifier">name</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-value">output:</span>, <span class="ruby-value">input:</span> <span class="ruby-keyword">nil</span>, <span class="ruby-value">strm_no:</span> <span class="ruby-value">4</span>, <span class="ruby-value">chan_name:</span> <span class="ruby-string">&#39;U&#39;</span>, <span class="ruby-value">rom:</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">rom</span>, <span class="ruby-value">vars:</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">vars</span>)
     <span class="ruby-identifier">chan_name</span> = <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">chan_name</span> <span class="ruby-operator">?</span> <span class="ruby-identifier">chan_name</span>.<span class="ruby-identifier">ord</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">chan_name</span>.<span class="ruby-identifier">to_i</span>
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;output or input must not be the hl register&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">output</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">input</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
-    <span class="ruby-identifier">isolate</span> <span class="ruby-identifier">name</span>, <span class="ruby-value">use:</span> [<span class="ruby-value">:rom</span>, <span class="ruby-value">:vars</span>] <span class="ruby-keyword">do</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-identifier">name</span> <span class="ruby-keyword">do</span>
         <span class="ruby-identifier">input</span>  = <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">error_j</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">input</span>.<span class="ruby-identifier">nil?</span>
         <span class="ruby-identifier">output</span> = <span class="ruby-identifier">rom</span>.<span class="ruby-identifier">error_j</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">output</span>.<span class="ruby-identifier">nil?</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">strm_no</span>) <span class="ruby-keyword">or</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">strm_no</span>)
@@ -443,7 +471,7 @@
 
         <div class="method-description">
           
-          <p>Test for cursor keys being pressed.</p>
+          <p>Creates a routine that tests for cursor keys being pressed.</p>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>t</code>
@@ -461,7 +489,7 @@
 <p>Output:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>ZF</code>=0
 <dd>
-<p>if any of the cursor keys is being pressed.</p>
+<p>(NZ) if any of the cursor keys is being pressed.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>a</code>
 <dd>
@@ -477,7 +505,7 @@
 
           
           <div class="method-source-code" id="cursor_key_pressed-3F-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 630</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 643</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">cursor_key_pressed?</span>(<span class="ruby-value">t:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">io:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
             <span class="ruby-identifier">key_pressed?</span> <span class="ruby-value">0xf7</span>, <span class="ruby-value">0x10</span>, <span class="ruby-value">io:</span><span class="ruby-identifier">io</span> <span class="ruby-comment"># key [5]</span>
@@ -502,7 +530,7 @@
         
         <div class="method-heading">
           <span class="method-name">find_def_fn_args</span><span
-            class="method-args">(argnum=b, subroutine:true, not_found:nil, cf_on_direct:false, &amp;not_found_blk)</span>
+            class="method-args">(argnum=b, subroutine:true, not_found:nil, cf_on_direct:false, vars: self.vars, &amp;not_found_blk)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -511,14 +539,16 @@
 
         <div class="method-description">
           
-          <p>Gets a DEF FN argument value address.</p>
+          <p>Creates a routine that gets a DEF FN argument value address.</p>
 
 <p>Requires: <code>macro_import MathInt</code>.</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>argnum</code>
+<dl class="rdoc-list note-list"><dt><code>argnum</code>
 <dd>
-<p>1-based argument index (0 is 256), may be a register or a number.</p>
+<p>1-based argument index (0 is 256), which can be an 8-bit register or a constant number.</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>subroutine</code>
 <dd>
 <p>if <code>true</code> will use <code>ret</code> instruction.</p>
 </dd></dl>
@@ -533,6 +563,10 @@
 </li><li><dl class="rdoc-list note-list"><dt><code>cf_on_direct</code>
 <dd>
 <p>if <code>true</code> and DEFADD is not defined CF will be set.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vars</code>
+<dd>
+<p>An address of system variables - a label of type <a href="Vars.html"><code>Vars</code></a>.</p>
 </dd></dl>
 </li></ul>
 
@@ -551,9 +585,9 @@
 
           
           <div class="method-source-code" id="find_def_fn_args-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1031</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">find_def_fn_args</span>(<span class="ruby-identifier">argnum</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">not_found:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">cf_on_direct:</span><span class="ruby-keyword">false</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">not_found_blk</span>)
-    <span class="ruby-identifier">isolate</span> <span class="ruby-value">use:</span> <span class="ruby-value">:vars</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1061</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">find_def_fn_args</span>(<span class="ruby-identifier">argnum</span>=<span class="ruby-identifier">b</span>, <span class="ruby-value">subroutine:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">not_found:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">cf_on_direct:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">vars:</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">vars</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">not_found_blk</span>)
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
                     <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">b</span>, <span class="ruby-identifier">argnum</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">argnum</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">b</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">argnum</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
                     <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">hl</span>, [<span class="ruby-identifier">vars</span>.<span class="ruby-identifier">defadd</span>]
                     <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">h</span>
@@ -618,34 +652,34 @@
 
         <div class="method-description">
           
-          <p>Search for a record that matches a large block of memory.</p>
+          <p>Creates a routine that searches for a record matching a large block of memory.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>+th|tl&#39;+
 <dd>
-<p>address of the last byte to search + 1 (preserved)</p>
+<p>An address of the last byte to search + 1 (preserved)</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
-<p>target</p>
+<p>An address of the first record to match.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>de</code>
 <dd>
-<p>source (preserved)</p>
+<p>An address of the block to be found (preserved).</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>bc</code>
 <dd>
-<p>record length (preserved)</p>
+<p>A record length in bytes (preserved).</p>
 </dd></dl>
 </li></ul>
 
 <p>ZF=1 if found, <code>hl</code> points immediately <strong>after</strong> the record that matches, CF=0 ZF=0 if not found, <code>hl</code> points to the memory address immediately after the last record</p>
 
-<p>Modifies: <code>af</code>, <code>hl</code> and <code>stack</code></p>
+<p>Modifies: <code>af</code>, <code>hl</code> and <code>stack</code>.</p>
           
           
 
           
           <div class="method-source-code" id="find_record-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 817</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 844</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">find_record</span>(<span class="ruby-identifier">th</span>=<span class="ruby-identifier">h</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">l</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
         <span class="ruby-identifier">seekloop1</span>   <span class="ruby-identifier">push</span>  <span class="ruby-identifier">bc</span>
@@ -654,11 +688,10 @@
                     <span class="ruby-identifier">inc</span>   <span class="ruby-identifier">de</span>
                     <span class="ruby-identifier">cpi</span>
                     <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">adjust</span>
-                    <span class="ruby-identifier">ld</span>    <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>
-                    <span class="ruby-identifier">ora</span>   <span class="ruby-identifier">c</span>
-                    <span class="ruby-identifier">jr</span>    <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">seekloop0</span>
-                    <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">de</span>
+                    <span class="ruby-identifier">jp</span>    <span class="ruby-constant">PE</span>, <span class="ruby-identifier">seekloop0</span>
+                    <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">de</span>           <span class="ruby-comment"># match record</span>
                     <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">bc</span>           <span class="ruby-comment"># de - preserved, bc - preserved, hl to next record after found</span>
+                    <span class="ruby-identifier">xor</span>   <span class="ruby-identifier">a</span>            <span class="ruby-comment"># ZF=1, CF=0</span>
                     <span class="ruby-identifier">jr</span>    <span class="ruby-identifier">eoc</span>          <span class="ruby-comment"># ZF=1 found</span>
         <span class="ruby-identifier">adjust</span>      <span class="ruby-identifier">add</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>       <span class="ruby-comment"># next record</span>
                     <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">de</span>
@@ -700,16 +733,14 @@
 
         <div class="method-description">
           
-          <p>Test for a key or keys being pressed.</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>line_mask</code>
+          <p>Creates a routine that tests for a key or keys being pressed.</p>
+<dl class="rdoc-list note-list"><dt><code>line_mask</code>
 <dd>
 <p>Keyboard half-line mask, may be an 8 bit register. The default is 0 which means all available lines.</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt><code>key_mask</code>
+</dd><dt><code>key_mask</code>
 <dd>
 <p>Key mask (b0..b4), may be an 8 bit register. The default is 0b11111 which means all keys in a half-line.</p>
 </dd></dl>
-</li></ul>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>io</code>
@@ -742,7 +773,7 @@
 
           
           <div class="method-source-code" id="key_pressed-3F-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 603</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 616</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">key_pressed?</span>(<span class="ruby-identifier">line_mask</span>=<span class="ruby-value">0</span>, <span class="ruby-identifier">key_mask</span>=<span class="ruby-value">0x1f</span>, <span class="ruby-value">io:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">io</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
       <span class="ruby-keyword">if</span> <span class="ruby-identifier">line_mask</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
@@ -778,7 +809,7 @@
 
         <div class="method-description">
           
-          <p>Selects an upper memory bank (0-7) and/or a screen memory page (0-1) to be displayed.</p>
+          <p>Creates a routine that selects an upper memory bank (0-7) and/or a screen memory page (0-1) to be displayed.</p>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>bank</code>
@@ -824,7 +855,7 @@
 
           
           <div class="method-source-code" id="mmu128_select_bank-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1136</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1167</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mmu128_select_bank</span>(<span class="ruby-value">bank:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">screen:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mmu_port_in_bc:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">sys128:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sys128</span>)
     <span class="ruby-identifier">mask</span> = <span class="ruby-value">0b11111111</span>
     <span class="ruby-identifier">merg</span> = <span class="ruby-value">0b00000000</span>
@@ -876,7 +907,7 @@
 
         <div class="method-description">
           
-          <p>Swap displayed screens.</p>
+          <p>Creates a routine that swap displayed screens.</p>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>swap_bank</code>
@@ -907,7 +938,7 @@
 
           
           <div class="method-source-code" id="mmu128_swap_screens-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1181</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1212</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">mmu128_swap_screens</span>(<span class="ruby-value">swap_bank:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">disable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">mmu_port_in_bc:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">sys128:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">sys128</span>)
     <span class="ruby-identifier">swap_bits</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">swap_bank</span> <span class="ruby-keyword">then</span> <span class="ruby-value">0b00001010</span> <span class="ruby-keyword">else</span> <span class="ruby-value">0b00001000</span> <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -934,7 +965,7 @@
         
         <div class="method-heading">
           <span class="method-name">move_basic_above_scld_screen_memory</span><span
-            class="method-args">(check_ensure:false)</span>
+            class="method-args">(check_ensure:false, memT2k:self.memT2k, rom:self.rom, vars:self.vars)</span>
           
           <span class="method-click-advice">click to toggle source</span>
           
@@ -943,10 +974,22 @@
 
         <div class="method-description">
           
-          <p>Moves <a href="../Basic.html"><code>Basic</code></a> program and variables above the screen 1 (to 0x7B00).</p>
+          <p>Creates a routine that moves <a href="../Basic.html"><code>Basic</code></a> program and variables above the screen 1 (to 0x7B00).</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>check_ensure</code>
 <dd>
 <p>when <code>true</code> checks if a call to MAKE-ROOM is needed.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>memT2k</code>
+<dd>
+<p>A label with <code>rambot</code> sub-label containing the first address above the screen memory.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>rom</code>
+<dd>
+<p>A namespace label containing ZX Spectrum ROM routine addresses as sub-labels.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vars</code>
+<dd>
+<p>An address of system variables - a label of type <a href="Vars.html"><code>Vars</code></a>.</p>
 </dd></dl>
 </li></ul>
 
@@ -956,9 +999,9 @@
 
           
           <div class="method-source-code" id="move_basic_above_scld_screen_memory-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1200</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">move_basic_above_scld_screen_memory</span>(<span class="ruby-value">check_ensure:</span><span class="ruby-keyword">false</span>)
-    <span class="ruby-identifier">isolate</span> <span class="ruby-value">use:</span> [<span class="ruby-value">:memT2k</span>, <span class="ruby-value">:vars</span>, <span class="ruby-value">:rom</span>] <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1233</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">move_basic_above_scld_screen_memory</span>(<span class="ruby-value">check_ensure:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">memT2k:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">memT2k</span>, <span class="ruby-value">rom:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">rom</span>, <span class="ruby-value">vars:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">vars</span>)
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
             <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">memT2k</span>.<span class="ruby-identifier">rambot</span>
             <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, [<span class="ruby-identifier">vars</span>.<span class="ruby-identifier">prog</span>]
             <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">de</span>
@@ -994,7 +1037,7 @@
 
         <div class="method-description">
           
-          <p>Reads a string address and its length from a ZX Basic&#39;s stringish FP-value.</p>
+          <p>Creates a routine that reads a string address and its length from a ZX Basic&#39;s stringish FP-value.</p>
 <dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
 <p>must point to the 1st byte of the FP-value.</p>
@@ -1022,7 +1065,7 @@
 
           
           <div class="method-source-code" id="read_arg_string-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 995</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1022</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_arg_string</span>(<span class="ruby-identifier">adh</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">adl</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">lenh</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">lenl</span>=<span class="ruby-identifier">c</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">adh</span>, <span class="ruby-identifier">adl</span>, <span class="ruby-identifier">lenl</span>].<span class="ruby-identifier">any?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">r</span>) }
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -1059,7 +1102,7 @@
 
         <div class="method-description">
           
-          <p>Reads a 32-bit integer from a ZX Basic&#39;s FP-value.</p>
+          <p>Creates a routine that reads a 32-bit integer from a ZX Basic&#39;s FP-value.</p>
 
 <p>Requires: <code>macro_import ::ZXLib::Math</code>.</p>
 <dl class="rdoc-list note-list"><dt><code>hl</code>
@@ -1089,7 +1132,7 @@
 
           
           <div class="method-source-code" id="read_integer32_value-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 960</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 986</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_integer32_value</span>(<span class="ruby-identifier">t3</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">t2</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">t1</span>=<span class="ruby-identifier">b</span>, <span class="ruby-identifier">t0</span>=<span class="ruby-identifier">c</span>)
     <span class="ruby-comment"># legacy arguments handling (th, tl)</span>
     <span class="ruby-keyword">if</span> [<span class="ruby-identifier">t3</span>, <span class="ruby-identifier">t2</span>].<span class="ruby-identifier">all?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">t</span>)}
@@ -1134,7 +1177,7 @@
 
         <div class="method-description">
           
-          <p>Reads a signed integer from a ZX Basic&#39;s FP-value.</p>
+          <p>Creates a routine that reads a signed integer from a ZX Basic&#39;s FP-value.</p>
 <dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
 <p>must point to the 1st byte of the FP-value.</p>
@@ -1167,7 +1210,7 @@
 
           
           <div class="method-source-code" id="read_integer_value-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 867</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 893</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_integer_value</span>(<span class="ruby-identifier">th</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">e</span>, <span class="ruby-identifier">sgn</span>=<span class="ruby-identifier">c</span>, <span class="ruby-value">normal_negative:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">a</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>,<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>,<span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tl</span>) <span class="ruby-keyword">or</span> <span class="ruby-operator">!</span><span class="ruby-identifier">register?</span>(<span class="ruby-identifier">tl</span>) <span class="ruby-keyword">or</span>
                            [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>,<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>,<span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">th</span>) <span class="ruby-keyword">or</span> <span class="ruby-operator">!</span><span class="ruby-identifier">register?</span>(<span class="ruby-identifier">th</span>) <span class="ruby-keyword">or</span>
@@ -1236,7 +1279,7 @@
 
         <div class="method-description">
           
-          <p>Reads a positive integer from a ZX Basic&#39;s FP-value.</p>
+          <p>Creates a routine that reads a positive integer from a ZX Basic&#39;s FP-value.</p>
 <dl class="rdoc-list note-list"><dt><code>hl</code>
 <dd>
 <p>must point to the 1st byte of the FP-value.</p>
@@ -1258,7 +1301,7 @@
 
           
           <div class="method-source-code" id="read_positive_int_value-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 926</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 952</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">read_positive_int_value</span>(<span class="ruby-identifier">th</span>=<span class="ruby-identifier">d</span>, <span class="ruby-identifier">tl</span>=<span class="ruby-identifier">e</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>,<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>,<span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tl</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">h</span>,<span class="ruby-identifier">l</span>,<span class="ruby-identifier">ixh</span>,<span class="ruby-identifier">ixl</span>,<span class="ruby-identifier">iyh</span>,<span class="ruby-identifier">iyl</span>,<span class="ruby-identifier">a</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">th</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -1296,7 +1339,7 @@
 
         <div class="method-description">
           
-          <p>Returns to ZX <a href="../Basic.html"><code>Basic</code></a> with the error report.</p>
+          <p>Creates a routine which returns to ZX <a href="../Basic.html"><code>Basic</code></a> with the error report.</p>
 <ul><li><dl class="rdoc-list note-list"><dt>error
 <dd>
 <p>Error report signature as a number <code>0..9</code> or a letter <code>A..R</code></p>
@@ -1307,10 +1350,10 @@
 
           
           <div class="method-source-code" id="report_error-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 507</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 508</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">report_error</span>(<span class="ruby-identifier">error</span>)
     <span class="ruby-identifier">errno</span> = [<span class="ruby-operator">*</span><span class="ruby-string">&#39;0&#39;</span><span class="ruby-operator">..</span><span class="ruby-string">&#39;9&#39;</span>, <span class="ruby-operator">*</span><span class="ruby-string">&#39;A&#39;</span><span class="ruby-operator">..</span><span class="ruby-string">&#39;R&#39;</span>].<span class="ruby-identifier">index</span>(<span class="ruby-identifier">error</span>.<span class="ruby-identifier">to_s</span>.<span class="ruby-identifier">upcase</span>[<span class="ruby-value">0</span>])
-    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">errno</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;report_error: expected an error signature as a number 0..9 or a letter: A..R&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">errno</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
         <span class="ruby-identifier">err</span>     <span class="ruby-identifier">rst</span>  <span class="ruby-value">0x08</span>
                 <span class="ruby-identifier">db</span>   <span class="ruby-identifier">errno</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
@@ -1339,12 +1382,12 @@
 
         <div class="method-description">
           
-          <p>Returns to ZX <a href="../Basic.html"><code>Basic</code></a> with the error report if condition is NOT met.</p>
-<ul><li><dl class="rdoc-list note-list"><dt>condition
+          <p>Creates a routine which returns to ZX <a href="../Basic.html"><code>Basic</code></a> with the error report if condition is NOT met.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>condition</code>
 <dd>
 <p>NZ, Z, NC, C, PO, PE, P, M</p>
 </dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>error
+</li><li><dl class="rdoc-list note-list"><dt><code>error</code>
 <dd>
 <p>Error report signature as a number <code>0..9</code> or a letter <code>A..R</code></p>
 </dd></dl>
@@ -1354,9 +1397,9 @@
 
           
           <div class="method-source-code" id="report_error_unless-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 492</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 493</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">report_error_unless</span>(<span class="ruby-identifier">condition</span>, <span class="ruby-identifier">error</span>)
-    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">Condition</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">condition</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;report_error_unless: expected a Condition&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-constant">Condition</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">condition</span>
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">condition</span>.<span class="ruby-identifier">jr_ok?</span>
                 <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">condition</span>, <span class="ruby-identifier">eoc</span>
@@ -1389,12 +1432,18 @@
 
         <div class="method-description">
           
-          <p>Restore interrupt handler ZX Spectrum ROM&#39;s standard IM1 mode.</p>
+          <p>Creates a routine that restores default ZX Spectrum ROM&#39;s interrupt handler in IM1 mode.</p>
+
+<p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt>enable_intr
 <dd>
 <p>If <code>true</code> invoke <code>ei</code> instruction at the end.</p>
 </dd></dl>
 </li></ul>
+<dl class="rdoc-list note-list"><dt><em>NOTE</em>
+<dd>
+<p>Interrupts must be disabled prior to running this code.</p>
+</dd></dl>
 
 <p>T-states: 28/24</p>
 
@@ -1404,7 +1453,7 @@
 
           
           <div class="method-source-code" id="restore_rom_interrupt_handler-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 572</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 585</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">restore_rom_interrupt_handler</span>(<span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
             <span class="ruby-identifier">im1</span>
@@ -1467,7 +1516,7 @@
 
           
           <div class="method-source-code" id="return_with_fp-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1090</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 1120</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">return_with_fp</span>(<span class="ruby-value">pop_ret_address:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">rom:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">rom</span>, <span class="ruby-value">restore_iy:</span><span class="ruby-keyword">self</span>.<span class="ruby-identifier">vars_iy</span>, <span class="ruby-value">restore_hl_alt:</span><span class="ruby-identifier">rom</span>.<span class="ruby-identifier">end_calc</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
                     <span class="ruby-identifier">pop</span>   <span class="ruby-identifier">hl</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">pop_ret_address</span>
@@ -1506,18 +1555,14 @@
 
         <div class="method-description">
           
-          <p>Creates a routine that sets up custom interrupt handler using ZX Spectrum ROM&#39;s unused space as a IM2 mode jump table.</p>
-<ul><li><dl class="rdoc-list note-list"><dt>handler
+          <p>Creates a routine that sets up custom interrupt handler using ZX Spectrum ROM&#39;s unused space as an IM2 mode jump table.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>handler</code>
 <dd>
-<p>One of the 16bit register pair or an address or a pointer to the address of the handler routine.</p>
-</dd></dl>
-</li><li><dl class="rdoc-list note-list"><dt>enable_intr
-<dd>
-<p>If <code>true</code> invoke <code>ei</code> instruction at the end.</p>
+<p>One of the 16bit register pair or an address or a pointer to the address of the handler routine or <code>nil</code>.</p>
 </dd></dl>
 </li></ul>
 
-<p>This routine uses a mode 2 interrupt. In this mode the address of the interrupt routine is formed in the following way: an 8-bit value found on the BUS (which in most ZX Spectrum models is 255) is being added to register <code>i</code> x 256, which form a vector table address. A word (two bytes) is being read from that address, providing the address where the call to the interrupt routine is made to.</p>
+<p>This routine enables <a href="../../Z80.html"><code>Z80</code></a> interrupt mode 2. In this mode the address of the interrupt routine is formed in the following way: an 8-bit value found on the BUS (which in most ZX Spectrum models is 255) is being added to an <code>i</code> register multiplied by 256. This forms a vector table address. A word (two bytes) is being read from that address, providing the address where the call to the interrupt routine is made to.</p>
 
 <p>This routine makes these assumptions about the machine:</p>
 <ul><li>
@@ -1530,12 +1575,21 @@
 <dl class="rdoc-list note-list"><dt><em>NOTE</em>
 <dd>
 <p>The assumptions are true for most ZX Spectrum models and clones including Pentagon machines and Timex TC2048. However they are not true for Timex TC2068 or TS2068.</p>
+</dd><dt><em>NOTE</em>
+<dd>
+<p>Interrupts must be disabled prior to running this code.</p>
 </dd></dl>
 
+<p>If <code>handler</code> is <code>nil</code> no handler will be installed. In this instance, prior to calling this routine the user is expected to setup a custom handler at the memory address 65524 (0xFFF4) that has exactly 11 bytes and an additional byte 0x18 whose address will be 65535 (0xFFFF).</p>
+
 <p>Options:</p>
-<ul><li><dl class="rdoc-list note-list"><dt><code>vector_page</code>
+<ul><li><dl class="rdoc-list note-list"><dt><code>enable_intr</code>
 <dd>
-<p>A most significant byte of the interrupt vector table address loaded into <code>i</code> register. The default is 0x3B so the address of the routine is found at 0x3BFF in most ZX Spectrum models.</p>
+<p>If <code>true</code> invoke <code>ei</code> instruction at the end.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>vector_page</code>
+<dd>
+<p>A most significant byte of the interrupt vector table address loaded into <code>i</code> register. The default is 0x3B so the address of the  interrupt routine is found at 0x3BFF in most ZX Spectrum models.</p>
 </dd></dl>
 </li></ul>
 
@@ -1545,19 +1599,21 @@
 
           
           <div class="method-source-code" id="setup_custom_interrupt_handler-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 545</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/sys.rb, line 553</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">setup_custom_interrupt_handler</span>(<span class="ruby-identifier">handler</span>, <span class="ruby-value">enable_intr:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">vector_page:</span><span class="ruby-value">0x3B</span>)
     <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-identifier">handler</span>.<span class="ruby-identifier">nil?</span>
                     <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">a</span>, <span class="ruby-value">0x18</span>          <span class="ruby-comment"># 18H is jr</span>
                     <span class="ruby-identifier">ld</span>  [<span class="ruby-value">0xFFFF</span>], <span class="ruby-identifier">a</span>
                     <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">a</span>, <span class="ruby-value">0xC3</span>          <span class="ruby-comment"># C3H is jp</span>
                     <span class="ruby-identifier">ld</span>  [<span class="ruby-value">0xFFF4</span>], <span class="ruby-identifier">a</span>
         <span class="ruby-identifier">set_handler</span> <span class="ruby-identifier">label</span>                <span class="ruby-comment"># set handler part (may be used to only change the routine address)</span>
-        <span class="ruby-keyword">if</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">handler</span>)
+            <span class="ruby-keyword">if</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">sp</span>, <span class="ruby-identifier">ix</span>, <span class="ruby-identifier">iy</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">handler</span>)
                     <span class="ruby-identifier">ld</span>  [<span class="ruby-value">0xFFF5</span>], <span class="ruby-identifier">handler</span>
-        <span class="ruby-keyword">else</span>
+            <span class="ruby-keyword">else</span>
                     <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">handler</span>
                     <span class="ruby-identifier">ld</span>  [<span class="ruby-value">0xFFF5</span>], <span class="ruby-identifier">hl</span>
+            <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">end</span>
                     <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">vector_page</span>   <span class="ruby-comment"># Supported by ZX Spectrum 128, +2, +2A, +3 and probably most clones.</span>
                     <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">i</span>, <span class="ruby-identifier">a</span>             <span class="ruby-comment"># load the accumulator with FF filled page in rom.</span>

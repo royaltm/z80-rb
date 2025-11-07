@@ -1633,8 +1633,8 @@ at run time by storing a new jump table address at the +jump_table_p+ sub-label.
                     <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">b</span>          <span class="ruby-comment"># b: lines left (counter)</span>
       <span class="ruby-identifier">not_last</span>      <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>     <span class="ruby-comment"># a&#39;: lines left - 1, CF&#39;: last row?</span>
     <span class="ruby-comment"># calculate next row screen address</span>
-                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>       <span class="ruby-comment"># a: lo</span>
-                    <span class="ruby-identifier">add</span>  <span class="ruby-value">0x20</span>       <span class="ruby-comment"># a: lo + 0x20</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>       <span class="ruby-comment"># a: screen.lo</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-value">0x20</span>       <span class="ruby-comment"># a: screen.lo + 0x20</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># c&#39;: next row (screen.lo)</span>
                     <span class="ruby-identifier">exx</span>             <span class="ruby-comment"># regs</span>
                     <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># l: next row (screen.lo)</span>
@@ -1651,9 +1651,7 @@ at run time by storing a new jump table address at the +jump_table_p+ sub-label.
                     <span class="ruby-identifier">jp</span>   (<span class="ruby-identifier">tx</span>)
       <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">end</span>
-    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">subroutine</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">enable_intr</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">save_sp</span>
-      <span class="ruby-identifier">quit</span>          <span class="ruby-identifier">label</span>
-    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">quit</span>            <span class="ruby-identifier">label</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">save_sp</span>
       <span class="ruby-identifier">restore_sp</span>    <span class="ruby-identifier">ld</span>  <span class="ruby-identifier">sp</span>, <span class="ruby-value">0</span>
       <span class="ruby-identifier">restore_sp_p</span>  <span class="ruby-identifier">as</span>  <span class="ruby-identifier">restore_sp</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
