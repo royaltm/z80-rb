@@ -380,9 +380,9 @@ class QFace3D
       end
                       ld   hl, [vs.scr]
       if tail_call && i == vertices.length - 1
-                      jp   plot
+                      jp   plot_pixel
       else
-                      call plot
+                      call plot_pixel
       end
     end
   end
