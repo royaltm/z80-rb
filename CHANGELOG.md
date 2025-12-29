@@ -3,7 +3,7 @@ v1.2.0.pre-2
 
 Z80:
 ---
-* Z80::Utils::CollisionField module added.
+* Added a new module Z80::Utils::CollisionField.
 * New macros Z80::MathInt::Macros#sub_from_n16 and Z80::MathInt::Macros#adda_to_n16.
 * Added output register options to Z80::MathInt::Macros#adda_to and Z80::MathInt::Macros#sub_from.
 * Added output register options to Z80::MathInt::Macros#adda_to and Z80::MathInt::Macros#sub_from.
@@ -40,7 +40,10 @@ Z80:
 
 ZXLib:
 -----
+* ZXLib::Sys::Macros#find_record macro improved
+* ZXLib::Sys::Macros no longer require ZXLib::Sys labels to be imported
 * Fixed +subroutine+ option in ZXLib::Gfx::Macros and ZXLib::Gfx::Bobs::Macros routines using +sp+ for data transfer.
+* New macro ZXLib::Gfx::Macros::scrmove_lines_cols.
 * Added +:copy_back+ option to several macros in ZXLib::Gfx::Bobs::Macros allowing copying data back from the screen. +:target+ option renamed to +:screen+ while maintaining backward compatibility.
 * Added ZXLib::Gfx::Bobs::Macros#bobs_combine_pixels.
 * A new escape sequence `'` (carriage return) and handling of "\r" code added to the BASIC tokenizer.
