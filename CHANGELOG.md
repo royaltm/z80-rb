@@ -3,6 +3,7 @@ v1.2.0.pre-2
 
 Z80:
 ---
+* Z80::Utils::CollisionField module added.
 * New macros Z80::MathInt::Macros#sub_from_n16 and Z80::MathInt::Macros#adda_to_n16.
 * Added output register options to Z80::MathInt::Macros#adda_to and Z80::MathInt::Macros#sub_from.
 * Added output register options to Z80::MathInt::Macros#adda_to and Z80::MathInt::Macros#sub_from.

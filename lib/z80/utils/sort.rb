@@ -44,6 +44,9 @@ module Z80
             ##
             # =Z80::Utils::Sort macros
             #
+            # Sort macros require:
+            #
+            #    macro_import MathInt
             module Macros
                 ##
                 # Creates a subroutine that sorts an array of bytes using quicksort algorithm.
