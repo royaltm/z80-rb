@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>module Z80::Utils::CollisionField::Macros - ruby-Z80</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../../";
+  var index_rel_prefix = "../../../";
+</script>
+
+<script src="../../../js/navigation.js" defer></script>
+<script src="../../../js/search.js" defer></script>
+<script src="../../../js/search_index.js" defer></script>
+<script src="../../../js/searcher.js" defer></script>
+<script src="../../../js/darkfish.js" defer></script>
+
+<link href="../../../css/fonts.css" rel="stylesheet">
+<link href="../../../css/rdoc.css" rel="stylesheet">
+
+
+
+
+<body id="top" role="document" class="module">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="../../../index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="../../../table_of_contents.html#pages">Pages</a>
+    <a href="../../../table_of_contents.html#classes">Classes</a>
+    <a href="../../../table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-collision_field_bytesize">#collision_field_bytesize</a>
+    
+    <li ><a href="#method-i-collision_field_check_element">#collision_field_check_element</a>
+    
+    <li ><a href="#method-i-collision_field_check_pixel">#collision_field_check_pixel</a>
+    
+    <li ><a href="#method-i-collision_field_check_rectangle">#collision_field_check_rectangle</a>
+    
+    <li ><a href="#method-i-collision_field_modify_rectangle">#collision_field_modify_rectangle</a>
+    
+    <li ><a href="#method-i-collision_field_preshifted_mask_data">#collision_field_preshifted_mask_data</a>
+    
+    <li ><a href="#method-i-collision_field_rect_coords">#collision_field_rect_coords</a>
+    
+    <li ><a href="#method-i-collision_field_rect_pixels">#collision_field_rect_pixels</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="module-Z80::Utils::CollisionField::Macros">
+  <h1 id="module-Z80::Utils::CollisionField::Macros" class="module">
+    module Z80::Utils::CollisionField::Macros
+  </h1>
+
+  <section class="description">
+    
+<h1 id="module-Z80::Utils::CollisionField::Macros-label-Z80-3A-3AUtils-3A-3ACollisionField+Macros"><a href="../CollisionField.html"><code>Z80::Utils::CollisionField</code></a> <a href="Macros.html"><code>Macros</code></a><span><a href="#module-Z80::Utils::CollisionField::Macros-label-Z80-3A-3AUtils-3A-3ACollisionField+Macros">&para;</a> <a href="#top">&uarr;</a></span></h1>
+
+<p><a href="../CollisionField.html"><code>CollisionField</code></a> macros require:</p>
+
+<pre class="ruby"><span class="ruby-identifier">macro_import</span> <span class="ruby-constant">MathInt</span>
+</pre>
+
+  </section>
+
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-collision_field_bytesize" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">collision_field_bytesize</span><span
+            class="method-args">(field_width, field_height)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a size in bytes required for the collision field data storage.</p>
+<dl class="rdoc-list note-list"><dt><code>field_width</code>
+<dd>
+<p>Must be a non-zero, positive integer and be a multiple of 8.</p>
+</dd><dt><code>field_height</code>
+<dd>
+<p>Must be a non-zero, positive integer.</p>
+</dd></dl>
+
+<p>Note that collision field routines can handle only limited sizes of collision fields.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="collision_field_bytesize-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/collision_field.rb, line 29</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">collision_field_bytesize</span>(<span class="ruby-identifier">field_width</span>, <span class="ruby-identifier">field_height</span>)
+    <span class="ruby-keyword">unless</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">field_height</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">field_height</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">1</span> <span class="ruby-keyword">and</span>
+           <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">field_width</span> <span class="ruby-keyword">and</span> (<span class="ruby-identifier">field_width</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">7</span>) <span class="ruby-operator">==</span> <span class="ruby-value">0</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">8</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;collision_field_bytesize: invalid arguments&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">field_width</span> <span class="ruby-operator">/</span> <span class="ruby-value">8</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">field_height</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-collision_field_check_element" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">collision_field_check_element</span><span
+            class="method-args">(collision_field, rowcol, tt:de, bit_preshift:nil, field_width:32, &amp;custom_op)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that checks whether a field element is set, using field coordinates.</p>
+
+<p>The procedure will return the result via the Z flag. The flag will be empty (NZ) if the element causes a collision, or raised (Z) otherwise.</p>
+<dl class="rdoc-list note-list"><dt><code>collision_field</code>
+<dd>
+<p>An address of a field as a label or an intermediate pointer.</p>
+</dd><dt><code>rowcol</code>
+<dd>
+<p>A pair of 16-bit registers, containing the +row|col+ coordinates of a field element.</p>
+</dd></dl>
+
+<p>The range of the <code>col</code> coordinate is [0-MAX] where MAX is <code>field_width</code> - 1. The range of the <code>row</code> coordinate is [0-MAX] where MAX is the field height - 1. Both <code>row</code> and <code>col</code> will have unused bits clipped out.</p>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p><code>bc</code> or <code>de</code>. Registers to be used when <code>rowcol</code> is <code>hl</code> and <code>bit_preshift</code> is <code>nil</code></p>
+
+<pre>or is an address.</pre>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>bit_preshift</code>
+<dd>
+<p>An optional <code>:single_bit</code> preshift table address as a label, an intermediate pointer or one of the 16-bit registers. In each case, the table must fit within a 256-byte page boundary.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>field_width</code>
+<dd>
+<p>The bit width of the collision field as a constant integer. See below.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>custom_op</code>
+<dd>
+<p>If a block of code is given, a custom code is injected in place of a checking routine which can perform other actions on field data.</p>
+</dd></dl>
+</li></ul>
+
+<p>If <code>bit_preshift</code> is <code>nil</code> the sub-routine will be created and a table will be appended to it.</p>
+
+<p>The supported <code>field_width</code> option values and maximum field heights for each value:</p>
+
+<pre>field_width   max field height
+          8   256
+         16   128
+         32    64 (default)
+         64    32
+        128    16
+        256     8</pre>
+
+<p><code>custom_op</code> procedure will be given field data byte address and a bit mask address in 2 pairs of 16-bit registers, depending on the given arguments:</p>
+
+<pre>address given in:   field byte  bit mask
+*                     rowcol       hl
+bit_preshift: de        hl         de
+bit_preshift: bc        hl         bc
+      rowcol: hl        hl         tt</pre>
+
+<p>There&#39;s a special case where both <code>collision_field_check_element</code> and <code>collision_field_check_pixel</code> are required in the same program. In this case, in order to save a few bytes, the following sub-routine combo can be produced this way:</p>
+
+<pre class="ruby"><span class="ruby-identifier">rowcol_collides?</span>  <span class="ruby-identifier">collision_field_check_element</span>(<span class="ruby-identifier">collision_field</span>, <span class="ruby-identifier">bc</span>)
+<span class="ruby-identifier">pixel_collides?</span>   <span class="ruby-identifier">collision_field_check_pixel</span>(<span class="ruby-keyword">nil</span>, <span class="ruby-identifier">bc</span>, <span class="ruby-value">bit_preshift:</span> <span class="ruby-identifier">rowcol_collides?</span>.<span class="ruby-identifier">bit_preshift</span>)
+                  <span class="ruby-identifier">jr</span>   <span class="ruby-identifier">rowcol_collides?</span>.<span class="ruby-identifier">combo_finish</span>
+</pre>
+
+<p>In this instance both the <code>rowcol</code> and the <code>yx</code> arguments must be the same pair of registers provided to both functions. The same applies to <code>tt</code> and <code>bit_preshift</code> options if used and if <code>bit_preshift</code> contains a register pair.</p>
+
+<p>Modifies: <code>af</code>, <code>hl</code>, <code>bc</code> or <code>de</code> depending on the <code>rowcol</code>, <code>bit_preshift</code> or <code>tt</code> selection.</p>
+
+<p>T-states (for <code>field_width</code> = 32):</p>
+
+<pre>     rowcol  bit_preshift   collision_field
+102  *       bc||de||hl     direct address
+112  *       bc||de         intermediate
+112  *       direct         direct address
+122  *       nil (w/ret)    direct address
+116  de||bc  hl             intermediate
+118  de||bc  intermediate   direct address
+122  hl      direct         intermediate
+132  hl      nil (w/ret)    intermediate
+122  hl      intermediate   direct address
+126  de||bc  direct         intermediate
+136  de||bc  nil (w/ret)    intermediate
+132  *       intermediate   intermediate</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="collision_field_check_element-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/collision_field.rb, line 142</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">collision_field_check_element</span>(<span class="ruby-identifier">collision_field</span>, <span class="ruby-identifier">rowcol</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">bit_preshift:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">field_width:</span><span class="ruby-value">32</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">custom_op</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;collision_field_check_element: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span>
+                    [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">rowcol</span>) <span class="ruby-keyword">and</span>
+                    (<span class="ruby-identifier">collision_field</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">collision_field</span>)) <span class="ruby-keyword">and</span>
+                    <span class="ruby-operator">!</span>(<span class="ruby-identifier">collision_field</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">bit_preshift</span>.<span class="ruby-identifier">nil?</span>) <span class="ruby-keyword">and</span>
+                    (<span class="ruby-identifier">bit_preshift</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">bit_preshift</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">bit_preshift</span>)) <span class="ruby-keyword">and</span>
+                    <span class="ruby-identifier">rowcol</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">bit_preshift</span> <span class="ruby-keyword">and</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">field_width</span>
+    <span class="ruby-keyword">unless</span> [<span class="ruby-value">8</span>, <span class="ruby-value">16</span>, <span class="ruby-value">32</span>, <span class="ruby-value">64</span>, <span class="ruby-value">128</span>, <span class="ruby-value">256</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">field_width</span>)
+            <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;collision_field_check_element: unsupported field width: #{field_width}&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">mask</span> = (<span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">3</span>)
+    <span class="ruby-identifier">left_shift</span> = <span class="ruby-value">0</span>
+    <span class="ruby-keyword">while</span> <span class="ruby-identifier">mask</span> <span class="ruby-operator">!=</span> <span class="ruby-value">1</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+        <span class="ruby-identifier">mask</span> <span class="ruby-operator">&gt;&gt;=</span> <span class="ruby-value">1</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">local_preshift</span> = <span class="ruby-identifier">bit_preshift</span>.<span class="ruby-identifier">nil?</span>
+    <span class="ruby-identifier">mask_reg</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">bit_preshift</span>)
+            <span class="ruby-identifier">bit_preshift</span>
+    <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">rowcol</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+            <span class="ruby-identifier">tt</span>
+    <span class="ruby-keyword">else</span>
+            <span class="ruby-identifier">hl</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">field_reg</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">mask_reg</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+            <span class="ruby-identifier">rowcol</span>
+    <span class="ruby-keyword">else</span>
+            <span class="ruby-identifier">hl</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">row</span>, <span class="ruby-identifier">col</span> = <span class="ruby-identifier">rowcol</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">mask_reghi</span>, <span class="ruby-identifier">mask_reglo</span> = <span class="ruby-identifier">mask_reg</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">field_reghi</span>, <span class="ruby-identifier">field_reglo</span> = <span class="ruby-identifier">field_reg</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">bit_preshift</span> = <span class="ruby-identifier">define_label</span>(<span class="ruby-value">:bit_preshift</span>) <span class="ruby-keyword">if</span> <span class="ruby-identifier">local_preshift</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">col</span>           <span class="ruby-comment"># col</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>       <span class="ruby-comment"># field bit (col % 8)</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">mask_reg</span>, <span class="ruby-identifier">bit_preshift</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">bit_preshift</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">mask_reg</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">mask_reglo</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">mask_reglo</span>, <span class="ruby-identifier">a</span>    <span class="ruby-comment"># mask_reg: -&gt; mask</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+            <span class="ruby-identifier">mask</span> = (<span class="ruby-value">1</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">left_shift</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">col</span>           <span class="ruby-comment"># col</span>
+            <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">mask</span>             <span class="ruby-comment"># a: col / 8</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">field_reglo</span>, <span class="ruby-identifier">a</span>   <span class="ruby-comment"># col / 8</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-comment"># 4+7+   4+4+4+7+3*4+4=46 (register bit_preshift)</span>
+        <span class="ruby-comment"># 4+7+10+4+4+4+7+3*4+4=56 (direct bit_preshift or nil)</span>
+        <span class="ruby-comment"># 4+7+16+4+4+4+7+3*4+4=62 (pointer bit_preshift and rowcol != hl)</span>
+        <span class="ruby-comment"># 4+7+20+4+4+4+7+3*4+4=66 (pointer bit_preshift and rowcol == hl)</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">row</span>           <span class="ruby-comment"># a: xxhhhhhh</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">==</span> <span class="ruby-value">5</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
+                    <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }      <span class="ruby-comment"># a: hhh00000 row * 32</span>
+        <span class="ruby-keyword">else</span>
+            <span class="ruby-identifier">left_shift</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">add</span> <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span> } <span class="ruby-comment"># a: hhhhhh00 row * (1, 2, 4, 8, 16)</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-identifier">collision_field</span>.<span class="ruby-identifier">nil?</span>
+    <span class="ruby-identifier">combo_finish</span>    <span class="ruby-identifier">label</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">field_reglo</span>   <span class="ruby-comment"># a: (row * N) + col / 8</span>
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">collision_field</span>)
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">field_reg</span>, <span class="ruby-identifier">collision_field</span>
+                    <span class="ruby-identifier">adda_to</span> <span class="ruby-identifier">field_reghi</span>, <span class="ruby-identifier">field_reglo</span>
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">adda_to_n16</span> <span class="ruby-identifier">collision_field</span>, <span class="ruby-value">oh:</span> <span class="ruby-identifier">field_reghi</span>, <span class="ruby-value">ol:</span> <span class="ruby-identifier">field_reglo</span>
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">block_given?</span>
+                    <span class="ruby-identifier">ns</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">custom_op</span>)
+            <span class="ruby-keyword">else</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">field_reg</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">mask_reg</span>]
+                    <span class="ruby-identifier">anda</span> [<span class="ruby-identifier">field_reg</span>]
+                <span class="ruby-keyword">else</span> <span class="ruby-comment"># mask_reg == hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">field_reg</span>]
+                    <span class="ruby-identifier">anda</span> [<span class="ruby-identifier">mask_reg</span>]
+                <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-comment"># 4+2*4+4+(20+20)+7+7=70 (pointer collision_field and bit_preshift not [bc, de] and row_col != hl)</span>
+        <span class="ruby-comment"># 4+2*4+4+(16+20)+7+7=66 (pointer collision_field and (bit_preshift in [bc, de] or row_col == hl))</span>
+        <span class="ruby-comment"># 4+2*4+4+(26)+7+7=56 (address collision_field)</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">local_preshift</span>
+                    <span class="ruby-identifier">ret</span>
+                    <span class="ruby-comment"># 10000000 01000000 ... 00001000 ... 00000001</span>
+    <span class="ruby-identifier">bit_preshift</span>    <span class="ruby-identifier">collision_field_preshifted_mask_data</span>(<span class="ruby-value">:single_bit</span>)
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">select</span>((<span class="ruby-identifier">bit_preshift</span> <span class="ruby-operator">+</span> <span class="ruby-value">7</span>) <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">7</span> }.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
+            <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;bit_preshift data must reside on a single 256-byte page of memory&quot;</span>
+        <span class="ruby-keyword">end</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">bit_preshift</span>)
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-collision_field_check_pixel" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">collision_field_check_pixel</span><span
+            class="method-args">(collision_field, yx, tt:de, bit_preshift:nil, field_width:32, &amp;custom_op)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that checks whether a pixel coordinate collides with an element in the collision field.</p>
+
+<p>The procedure will return the result via the Z flag. The flag will be empty (NZ) if the element causes a collision, or raised (Z) otherwise.</p>
+<dl class="rdoc-list note-list"><dt><code>collision_field</code>
+<dd>
+<p>An address of a field as a label or an intermediate pointer.</p>
+</dd><dt><code>yx</code>
+<dd>
+<p>A pair of 16-bit registers, containing the +y|x+ coordinates of a pixel.</p>
+</dd></dl>
+
+<p>Each field element is equivalent to an 8 by 8 pixel square.</p>
+
+<p>The range of the <code>x</code> coordinate is [0-MAX], where MAX is the <code>field_width</code> * 8 - 1. The range of the <code>y</code> coordinate is [0-MAX], where MAX is the field height * 8 - 1. <code>x</code> will have unused bits clipped out.</p>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>tt</code>
+<dd>
+<p><code>bc</code> or <code>de</code>. Registers to be used when <code>yx</code> is <code>hl</code> and <code>bit_preshift</code> is <code>nil</code> or is an address.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>bit_preshift</code>
+<dd>
+<p>An optional <code>:single_bit</code> preshift table address as a label, an intermediate pointer or one of the 16-bit registers. In each case, the table must fit within a 256-byte page boundary.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>field_width</code>
+<dd>
+<p>The bit width of the collision field as a constant integer. Supported values are: 8, 16 and 32.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>custom_op</code>
+<dd>
+<p>If a block of code is given, a custom code is injected in place of a checking routine which can perform other actions on field data.</p>
+</dd></dl>
+</li></ul>
+
+<p>If <code>bit_preshift</code> is <code>nil</code> the sub-routine will be created and a table will be appended to it.</p>
+
+<p><code>custom_op</code> procedure will be given field data byte address and a bit mask address in 2 pairs of 16-bit registers, depending on the given arguments:</p>
+
+<pre>address given in:   field byte  bit mask
+*                       yx         hl
+bit_preshift: de        hl         de
+bit_preshift: bc        hl         bc
+          yx: hl        hl         tt</pre>
+
+<p>Modifies: <code>af</code>, <code>hl</code>, <code>bc</code> or <code>de</code> depending on the <code>yx</code>, <code>bit_preshift</code> or <code>tt</code> selection.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="collision_field_check_pixel-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/collision_field.rb, line 276</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">collision_field_check_pixel</span>(<span class="ruby-identifier">collision_field</span>, <span class="ruby-identifier">yx</span>, <span class="ruby-value">tt:</span><span class="ruby-identifier">de</span>, <span class="ruby-value">bit_preshift:</span><span class="ruby-keyword">nil</span>, <span class="ruby-value">field_width:</span><span class="ruby-value">32</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">custom_op</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;collision_field_check_pixel: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">tt</span>) <span class="ruby-keyword">and</span>
+                    [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">yx</span>) <span class="ruby-keyword">and</span>
+                    (<span class="ruby-identifier">collision_field</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">collision_field</span>)) <span class="ruby-keyword">and</span>
+                    <span class="ruby-operator">!</span>(<span class="ruby-identifier">collision_field</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">bit_preshift</span>.<span class="ruby-identifier">nil?</span>) <span class="ruby-keyword">and</span>
+                    (<span class="ruby-identifier">bit_preshift</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-keyword">or</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">bit_preshift</span>) <span class="ruby-keyword">or</span> [<span class="ruby-identifier">bc</span>, <span class="ruby-identifier">de</span>, <span class="ruby-identifier">hl</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">bit_preshift</span>)) <span class="ruby-keyword">and</span>
+                    <span class="ruby-identifier">yx</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">bit_preshift</span> <span class="ruby-keyword">and</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">field_width</span>
+    <span class="ruby-keyword">unless</span> [<span class="ruby-value">8</span>, <span class="ruby-value">16</span>, <span class="ruby-value">32</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">field_width</span>)
+            <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;collision_field_check_pixel: unsupported field width: #{field_width}&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">mask</span> = (<span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">3</span>)
+    <span class="ruby-identifier">left_shift</span> = <span class="ruby-value">0</span>
+    <span class="ruby-keyword">while</span> <span class="ruby-identifier">mask</span> <span class="ruby-operator">!=</span> <span class="ruby-value">1</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+        <span class="ruby-identifier">mask</span> <span class="ruby-operator">&gt;&gt;=</span> <span class="ruby-value">1</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">local_preshift</span> = <span class="ruby-identifier">bit_preshift</span>.<span class="ruby-identifier">nil?</span>
+    <span class="ruby-identifier">mask_reg</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">register?</span>(<span class="ruby-identifier">bit_preshift</span>)
+            <span class="ruby-identifier">bit_preshift</span>
+    <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">yx</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+            <span class="ruby-identifier">tt</span>
+    <span class="ruby-keyword">else</span>
+            <span class="ruby-identifier">hl</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">field_reg</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">mask_reg</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+            <span class="ruby-identifier">yx</span>
+    <span class="ruby-keyword">else</span>
+            <span class="ruby-identifier">hl</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span> = <span class="ruby-identifier">yx</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">mask_reghi</span>, <span class="ruby-identifier">mask_reglo</span> = <span class="ruby-identifier">mask_reg</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">field_reghi</span>, <span class="ruby-identifier">field_reglo</span> = <span class="ruby-identifier">field_reg</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">bit_preshift</span> = <span class="ruby-identifier">define_label</span>(<span class="ruby-value">:bit_preshift</span>) <span class="ruby-keyword">if</span> <span class="ruby-identifier">local_preshift</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span>           <span class="ruby-comment"># a: hhbbbxxx</span>
+            <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }            <span class="ruby-comment"># a: xxxhhbbb</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>     <span class="ruby-comment"># a: 00000bbb (x/8 % 8)</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">mask_reg</span>, <span class="ruby-identifier">bit_preshift</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">bit_preshift</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">mask_reg</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">mask_reglo</span>  <span class="ruby-comment"># a: bit_preshift + (x/8 % 8)</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">mask_reglo</span>, <span class="ruby-identifier">a</span>  <span class="ruby-comment"># mask_reg: -&gt; mask</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+            <span class="ruby-identifier">mask</span> = (<span class="ruby-value">1</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">left_shift</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span>           <span class="ruby-comment"># a: hhbbbxxx</span>
+                <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rlca</span> }        <span class="ruby-comment"># a: bbbxxxhh</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">mask</span>           <span class="ruby-comment"># a: 000000hh</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">field_reglo</span>, <span class="ruby-identifier">a</span> <span class="ruby-comment"># x: 000000hh (x / 64)</span>
+        <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">y</span>           <span class="ruby-comment"># a: hhhhhxxx</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b11111000</span>     <span class="ruby-comment"># a: hhhhh000</span>
+            (<span class="ruby-value">3</span><span class="ruby-operator">-</span><span class="ruby-identifier">left_shift</span>).<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">rrca</span>                <span class="ruby-comment"># a: 0hhhhh00 (y / 8 * (1, 2, 4))</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">unless</span> <span class="ruby-identifier">collision_field</span>.<span class="ruby-identifier">nil?</span>
+    <span class="ruby-identifier">combo_finish</span>    <span class="ruby-identifier">label</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">field_reglo</span> <span class="ruby-comment"># a: 0hhhhhhh (y / 8 * N) + (x / 64)</span>
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">collision_field</span>)
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">field_reg</span>, <span class="ruby-identifier">collision_field</span>
+                    <span class="ruby-identifier">adda_to</span> <span class="ruby-identifier">field_reghi</span>, <span class="ruby-identifier">field_reglo</span>
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">adda_to_n16</span> <span class="ruby-identifier">collision_field</span>, <span class="ruby-value">oh:</span> <span class="ruby-identifier">field_reghi</span>, <span class="ruby-value">ol:</span> <span class="ruby-identifier">field_reglo</span>
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">block_given?</span>
+                    <span class="ruby-identifier">ns</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">custom_op</span>)
+            <span class="ruby-keyword">else</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">field_reg</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">mask_reg</span>]
+                    <span class="ruby-identifier">anda</span> [<span class="ruby-identifier">field_reg</span>]
+                <span class="ruby-keyword">else</span> <span class="ruby-comment"># mask_reg == hl</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">field_reg</span>]
+                    <span class="ruby-identifier">anda</span> [<span class="ruby-identifier">mask_reg</span>]
+                <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span> <span class="ruby-comment"># collision_field.nil?</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">local_preshift</span>
+                    <span class="ruby-identifier">ret</span>
+                    <span class="ruby-comment"># 10000000 01000000 ... 00001000 ... 00000001</span>
+    <span class="ruby-identifier">bit_preshift</span>    <span class="ruby-identifier">collision_field_preshifted_mask_data</span>(<span class="ruby-value">:single_bit</span>)
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">select</span>((<span class="ruby-identifier">bit_preshift</span> <span class="ruby-operator">+</span> <span class="ruby-value">7</span>) <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">7</span> }.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
+          <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;bit_preshift data must reside on a single 256-byte page of memory&quot;</span>
+        <span class="ruby-keyword">end</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">bit_preshift</span>)
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-collision_field_check_rectangle" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">collision_field_check_rectangle</span><span
+            class="method-args">(field_width:32, unroll_max:0, unrolled_only:false, self_modified:true)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that checks whether a rectangle area collides with at least one element in the collision field.</p>
+
+<p>The procedure will return the result via the Z flag. The flag will be empty (NZ) if the element causes a collision, or raised (Z) otherwise.</p>
+
+<p>The preshifted mask data type used with this function should match <code>_insert</code> suffix.</p>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>field_width</code>
+<dd>
+<p>A column width of the collision field. Supported field width values are: 8, 16, 32, 64, 128, 256.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>unroll_max</code>
+<dd>
+<p>Create unrolled code that handles up to the given number of bytes between ending and starting column byte of a single row. Valid values are between 0 and up to <code>field_width</code>/8 - 2.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>unrolled_only</code>
+<dd>
+<p>Do not create code to handle rectangle widths exceeding the largest width for which an unrolled handler was created.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>self_modified</code>
+<dd>
+<p>Whether to allow creating self-modifying code.</p>
+</dd></dl>
+</li></ul>
+
+<p>For example, passing option values:</p>
+<ul><li>
+<p><code>field_width</code>: 32 and <code>unroll_max</code>: 2 creates only unrolled code that handles rectangles of the full field width.</p>
+</li><li>
+<p><code>field_width</code>: 32, <code>unroll_max</code>: 0 and <code>unrolled_only</code> creates unrolled code that handles only rectangles up to the 8 field columns in width in any column starting position.</p>
+</li></ul>
+
+<p>The routine expects arguments in the following registers:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>hl</code>
+<dd>
+<p>A collision field starting address.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>e</code>
+<dd>
+<p>A bit mask covering elements of the starting column byte of each data row.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>d</code>
+<dd>
+<p>A bit mask covering elements of the ending column byte of each data row.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>b</code>
+<dd>
+<p>A rectangle area row count.</p>
+</dd></dl>
+</li></ul>
+
+<p>The following registers are only considered if <code>field_width</code> is larger than 8.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>a</code>
+<dd>
+<p>A difference between the ending and starting column byte addresses multiplied by 8. Possible values: 0, 8, 16, …(field_width - 8).</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>f</code>
+<dd>
+<p><code>Z</code> flag after testing if a == 0.</p>
+</dd></dl>
+</li></ul>
+
+<p>The routines created by <a href="Macros.html#method-i-collision_field_rect_coords"><code>Macros#collision_field_rect_coords</code></a> or <a href="Macros.html#method-i-collision_field_rect_pixels"><code>Macros#collision_field_rect_pixels</code></a> can be used to calculate the input arguments from the rectangle coordinates.</p>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="collision_field_check_rectangle-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/collision_field.rb, line 908</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">collision_field_check_rectangle</span>(<span class="ruby-value">field_width:</span><span class="ruby-value">32</span>, <span class="ruby-value">unroll_max:</span><span class="ruby-value">0</span>, <span class="ruby-value">unrolled_only:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">self_modified:</span><span class="ruby-keyword">true</span>)
+    <span class="ruby-keyword">unless</span> [<span class="ruby-value">8</span>, <span class="ruby-value">16</span>, <span class="ruby-value">32</span>, <span class="ruby-value">64</span>, <span class="ruby-value">128</span>, <span class="ruby-value">256</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">field_width</span>)
+            <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;collision_field_check_rectangle: unsupported field width: #{field_width}&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">unless</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">unroll_max</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">unroll_max</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">0</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;collision_field_check_rectangle: invalid unroll_max option&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">unroll_limit</span> = (<span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-operator">-</span> <span class="ruby-value">2</span>)
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll_max</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">unroll_limit</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;collision_field_check_rectangle: unroll_max exceeds capacity: #{unroll_max} &gt; #{unroll_limit}&quot;</span>
+    <span class="ruby-keyword">end</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll_limit</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">0</span>
+
+    <span class="ruby-identifier">unroll_limit</span> = <span class="ruby-identifier">unroll_max</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">unrolled_only</span>
+
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll_max</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">unroll_limit</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+        <span class="ruby-identifier">unroll_max</span> = <span class="ruby-identifier">unroll_limit</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">unroll</span> = <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">nsname</span>, <span class="ruby-identifier">inner_bytes</span>) <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">isolate</span>(<span class="ruby-identifier">nsname</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">inner_bytes</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">unroll_limit</span>
+                    <span class="ruby-identifier">cp</span>   (<span class="ruby-identifier">inner_bytes</span><span class="ruby-value">+1</span>) <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">3</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">if</span> (<span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">inner_bytes</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>) <span class="ruby-operator">&gt;</span> <span class="ruby-value">4</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, (<span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">inner_bytes</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>)
+            <span class="ruby-identifier">loop0</span>   <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">inner_bytes</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ora</span>  [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">loop0</span>
+            <span class="ruby-keyword">else</span>
+            <span class="ruby-identifier">loop0</span>   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                <span class="ruby-identifier">inner_bytes</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ora</span>  [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                (<span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">inner_bytes</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>).<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">loop0</span>
+            <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ret</span>
+        <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">ns</span> <span class="ruby-value">:cols1</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">8</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">8</span>
+        <span class="ruby-identifier">loop1</span>       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">8</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span> 
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+            <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">loop1</span>
+                    <span class="ruby-identifier">ret</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">8</span>
+            (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-identifier">unroll_max</span>).<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">inner_bytes</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">unroll</span>.<span class="ruby-identifier">call</span>(<span class="ruby-value">:&quot;cols#{inner_bytes+2}&quot;</span>, <span class="ruby-identifier">inner_bytes</span>)
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll_max</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">unroll_limit</span>
+                <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">scan_width_p</span>], <span class="ruby-identifier">a</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">self_modified</span>
+                    <span class="ruby-identifier">cpl</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>     <span class="ruby-comment"># skip cols</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>     <span class="ruby-comment"># scan height</span>
+        <span class="ruby-identifier">looprow</span>     <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>   <span class="ruby-comment"># a&#39;: scan height</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">self_modified</span>
+    <span class="ruby-identifier">scan_width_a</span>    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0</span>     <span class="ruby-comment"># scan width</span>
+    <span class="ruby-identifier">scan_width_p</span>    <span class="ruby-identifier">as</span>   <span class="ruby-identifier">scan_width_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+                <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">c</span>     <span class="ruby-comment"># scan skip</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">loopinner</span>   <span class="ruby-identifier">ora</span>  [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">loopinner</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ret</span>  <span class="ruby-constant">NZ</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>   <span class="ruby-comment"># skip cols</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>   <span class="ruby-comment"># a: scan height</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">looprow</span>
+                    <span class="ruby-identifier">ret</span>
+            <span class="ruby-keyword">end</span> <span class="ruby-comment"># if unroll_max &lt; unroll_limit</span>
+        <span class="ruby-keyword">end</span> <span class="ruby-comment"># if field_width &gt; 8</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-collision_field_modify_rectangle" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">collision_field_modify_rectangle</span><span
+            class="method-args">(op, field_width:32, unroll_max:0, unrolled_only:false, self_modified:true)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine that modifies a rectangle area of the collision field.</p>
+<dl class="rdoc-list note-list"><dt><code>op</code>
+<dd>
+<p>Operation to perform: <code>:insert</code>, <code>:remove</code> or <code>:flip</code>. The operation should match the preshifted mask data type with the corresponding suffixes: either <code>_insert</code> for <code>:insert</code> or <code>:flip</code> operations and <code>_remove</code> for the <code>:remove</code> operation.</p>
+</dd></dl>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>field_width</code>
+<dd>
+<p>A column width of the collision field. Supported field width values are: 8, 16, 32, 64, 128, 256.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>unroll_max</code>
+<dd>
+<p>Create unrolled code that handles up to the given number of bytes between ending and starting column byte of a single row. Valid values are between 0 and up to <code>field_width</code>/8 - 2.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>unrolled_only</code>
+<dd>
+<p>Do not create code to handle rectangle widths exceeding the largest width for which an unrolled handler was created.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>self_modified</code>
+<dd>
+<p>Whether to allow creating self-modifying code.</p>
+</dd></dl>
+</li></ul>
+
+<p>For example, passing option values:</p>
+<ul><li>
+<p><code>field_width</code>: 32 and <code>unroll_max</code>: 2 creates only unrolled code that handles rectangles of the full field width.</p>
+</li><li>
+<p><code>field_width</code>: 32, <code>unroll_max</code>: 0 and <code>unrolled_only</code> creates unrolled code that handles only rectangles up to the 8 field columns in width in any column starting position.</p>
+</li></ul>
+
+<p>The routine expects arguments in the following registers:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>hl</code>
+<dd>
+<p>A collision field starting address.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>e</code>
+<dd>
+<p>A bit mask covering elements of the starting column byte of each data row.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>d</code>
+<dd>
+<p>A bit mask covering elements of the ending column byte of each data row.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>b</code>
+<dd>
+<p>A rectangle area row count.</p>
+</dd></dl>
+</li></ul>
+
+<p>The following registers are only considered if <code>field_width</code> is larger than 8.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>a</code>
+<dd>
+<p>A difference between the ending and starting column byte addresses multiplied by 8. Possible values: 0, 8, 16, …(field_width - 8).</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>f</code>
+<dd>
+<p><code>Z</code> flag after testing if a == 0.</p>
+</dd></dl>
+</li></ul>
+
+<p>The routines created by <a href="Macros.html#method-i-collision_field_rect_coords"><code>Macros#collision_field_rect_coords</code></a> or <a href="Macros.html#method-i-collision_field_rect_pixels"><code>Macros#collision_field_rect_pixels</code></a> can be used to calculate the input arguments from the rectangle coordinates.</p>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="collision_field_modify_rectangle-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/collision_field.rb, line 711</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">collision_field_modify_rectangle</span>(<span class="ruby-identifier">op</span>, <span class="ruby-value">field_width:</span><span class="ruby-value">32</span>, <span class="ruby-value">unroll_max:</span><span class="ruby-value">0</span>, <span class="ruby-value">unrolled_only:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">self_modified:</span><span class="ruby-keyword">true</span>)
+    <span class="ruby-keyword">unless</span> [<span class="ruby-value">8</span>, <span class="ruby-value">16</span>, <span class="ruby-value">32</span>, <span class="ruby-value">64</span>, <span class="ruby-value">128</span>, <span class="ruby-value">256</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">field_width</span>)
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;collision_field_modify_rectangle: unsupported field width: #{field_width}&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">unless</span> <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">unroll_max</span> <span class="ruby-keyword">and</span> <span class="ruby-identifier">unroll_max</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">0</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;collision_field_modify_rectangle: invalid unroll_max option&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">unroll_limit</span> = (<span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-operator">-</span> <span class="ruby-value">2</span>)
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll_max</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">unroll_limit</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;collision_field_modify_rectangle: unroll_max exceeds capacity: #{unroll_max} &gt; #{unroll_limit}&quot;</span>
+    <span class="ruby-keyword">end</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll_limit</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">0</span>
+
+    <span class="ruby-identifier">unroll_limit</span> = <span class="ruby-identifier">unroll_max</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">unrolled_only</span>
+
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll_max</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">unroll_limit</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+        <span class="ruby-identifier">unroll_max</span> = <span class="ruby-identifier">unroll_limit</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">merge_op</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">op</span>
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:insert</span> <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">x</span>) { <span class="ruby-identifier">anda</span> <span class="ruby-identifier">x</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:remove</span> <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">x</span>) { <span class="ruby-identifier">ora</span> <span class="ruby-identifier">x</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:flip</span>   <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">x</span>) { <span class="ruby-identifier">anda</span> <span class="ruby-identifier">x</span> }
+    <span class="ruby-keyword">else</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;collision_field_modify_rectangle: invalid op: #{op}&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">set_val</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">op</span>
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:insert</span> <span class="ruby-keyword">then</span> <span class="ruby-value">0xff</span>
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:remove</span> <span class="ruby-keyword">then</span> <span class="ruby-value">0x00</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">op</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">op</span>
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:insert</span> <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">x</span>) { <span class="ruby-identifier">ora</span> <span class="ruby-identifier">x</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:remove</span> <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">x</span>) { <span class="ruby-identifier">anda</span> <span class="ruby-identifier">x</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:flip</span>   <span class="ruby-keyword">then</span> <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">x</span>) { <span class="ruby-identifier">xor</span> <span class="ruby-identifier">x</span> }
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">unroll</span> = <span class="ruby-operator">-&gt;</span>(<span class="ruby-identifier">nsname</span>, <span class="ruby-identifier">inner_bytes</span>) <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">isolate</span>(<span class="ruby-identifier">nsname</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">inner_bytes</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">unroll_limit</span>
+                    <span class="ruby-identifier">cp</span>   (<span class="ruby-identifier">inner_bytes</span><span class="ruby-value">+1</span>) <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">3</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span>
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">if</span> (<span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">inner_bytes</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>) <span class="ruby-operator">&gt;</span> <span class="ruby-value">4</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">bc</span>, (<span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">inner_bytes</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>)
+            <span class="ruby-identifier">loop0</span>   <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">op</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+            <span class="ruby-identifier">inner_bytes</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">set_val</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">set_val</span>
+                <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">cpl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+            <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">op</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">loop0</span>
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">set_val</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">set_val</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">inner_bytes</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+            <span class="ruby-identifier">loop0</span>   <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">op</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+            <span class="ruby-identifier">inner_bytes</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">set_val</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">c</span>
+                <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">cpl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+            <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">op</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                (<span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">inner_bytes</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>).<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">loop0</span>
+            <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ret</span>
+        <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">ns</span> <span class="ruby-value">:cols1</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">eoc</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">eoc</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">8</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">merge_op</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">8</span>
+        <span class="ruby-identifier">loop1</span>       <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">op</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">c</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">8</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">de</span> 
+            <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+            <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">loop1</span>
+                    <span class="ruby-identifier">ret</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">8</span>
+            (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-identifier">unroll_max</span>).<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">inner_bytes</span><span class="ruby-operator">|</span>
+                    <span class="ruby-identifier">unroll</span>.<span class="ruby-identifier">call</span>(<span class="ruby-value">:&quot;cols#{inner_bytes+2}&quot;</span>, <span class="ruby-identifier">inner_bytes</span>)
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">unroll_max</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">unroll_limit</span>
+                <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">scan_width_p</span>], <span class="ruby-identifier">a</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">self_modified</span>
+                    <span class="ruby-identifier">cpl</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>     <span class="ruby-comment"># skip cols</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>     <span class="ruby-comment"># scan height</span>
+        <span class="ruby-identifier">looprow</span>     <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>   <span class="ruby-comment"># a&#39;: scan height</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">op</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">e</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">self_modified</span>
+    <span class="ruby-identifier">scan_width_a</span>    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-value">0</span>     <span class="ruby-comment"># scan width</span>
+    <span class="ruby-identifier">scan_width_p</span>    <span class="ruby-identifier">as</span>   <span class="ruby-identifier">scan_width_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+                <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">field_width</span><span class="ruby-operator">/</span><span class="ruby-value">8</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">sub</span>  <span class="ruby-identifier">c</span>     <span class="ruby-comment"># scan skip</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">b</span>, <span class="ruby-identifier">a</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-identifier">loopinner</span>   <span class="ruby-identifier">label</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">set_val</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">set_val</span>
+                <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">cpl</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">inc</span>  <span class="ruby-identifier">hl</span>
+                    <span class="ruby-identifier">djnz</span> <span class="ruby-identifier">loopinner</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">op</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">d</span>
+                    <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">bc</span>   <span class="ruby-comment"># skip cols</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>   <span class="ruby-comment"># a: scan height</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NZ</span>, <span class="ruby-identifier">looprow</span>
+                    <span class="ruby-identifier">ret</span>
+            <span class="ruby-keyword">end</span> <span class="ruby-comment"># if unroll_max &lt; unroll_limit</span>
+        <span class="ruby-keyword">end</span> <span class="ruby-comment"># if field_width &gt; 8</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-collision_field_preshifted_mask_data" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">collision_field_preshifted_mask_data</span><span
+            class="method-args">(data_type)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates precalculated mask data to be used with collision field routines.</p>
+
+<p><code>data_type</code>:</p>
+
+<pre>:single_bit            10000000, 01000000 ... 00001000 ... 00000001
+:start_insert          11111111, 01111111 ... 00001111 ... 00000001
+:start_remove          00000000, 10000000 ... 11110000 ... 11111110
+:end_insert            10000000, 11000000 ... 11111000 ... 11111111
+:end_remove            01111111, 00111111 ... 00000111 ... 00000000</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="collision_field_preshifted_mask_data-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/collision_field.rb, line 47</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">collision_field_preshifted_mask_data</span>(<span class="ruby-identifier">data_type</span>)
+    <span class="ruby-keyword">case</span> <span class="ruby-identifier">data_type</span>
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:single_bit</span>
+                <span class="ruby-comment"># 10000000 01000000 ... 00001000 ... 00000001</span>
+                <span class="ruby-identifier">bytes</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">7</span>).<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span>   <span class="ruby-value">0x80</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-identifier">x</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:start_insert</span>
+                <span class="ruby-comment"># 11111111 01111111 ... 00001111 ... 00000001</span>
+                <span class="ruby-identifier">bytes</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">7</span>).<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span>   <span class="ruby-value">0xFF</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-identifier">x</span> }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:start_remove</span>
+                <span class="ruby-comment"># 00000000 10000000 ... 11110000 ... 11111110</span>
+                <span class="ruby-identifier">bytes</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">7</span>).<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-operator">~</span>(<span class="ruby-value">0xFF</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-identifier">x</span>) }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:end_insert</span>
+                <span class="ruby-comment"># 10000000 11000000 ... 11111000 ... 11111111</span>
+                <span class="ruby-identifier">bytes</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">7</span>).<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-operator">~</span>(<span class="ruby-value">0x7F</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-identifier">x</span>) }
+    <span class="ruby-keyword">when</span> <span class="ruby-value">:end_remove</span>
+                <span class="ruby-comment"># 01111111 00111111 ... 00000111 ... 00000000</span>
+                <span class="ruby-identifier">bytes</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-value">7</span>).<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span>   <span class="ruby-value">0x7F</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-identifier">x</span> }
+    <span class="ruby-keyword">else</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;data_type should be one of: :single_bit, :start_insert, :end_insert, :start_remove, :end_remove&quot;</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-collision_field_rect_coords" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">collision_field_rect_coords</span><span
+            class="method-args">(collision_field, mask_preshift_start, mask_preshift_end, field_width:32, clip_col:false)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine to calculate collision field address and parameters required by other routines from field coordinates of the rectangle area.</p>
+<dl class="rdoc-list note-list"><dt><code>collision_field</code>
+<dd>
+<p>A direct or intermediate address or a label of the collision field.</p>
+</dd><dt><code>mask_preshift_start</code>
+<dd>
+<p>A direct or intermediate address or a label of the  <code>:start_insert</code></p>
+</dd></dl>
+
+<pre>or +:start_remove+ preshift table. In each case, the table must fit within
+a 256-byte page boundary.</pre>
+<dl class="rdoc-list note-list"><dt><code>mask_preshift_end</code>
+<dd>
+<p>A direct or intermediate address or a label of the  <code>:end_insert</code></p>
+</dd></dl>
+
+<pre>or +:end_remove+ preshift table. In each case, the table must fit within
+a 256-byte page boundary.</pre>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>field_width</code>
+<dd>
+<p>A column width of the collision field. Supported field width values are: 8, 16, 32, 64, 128, 256.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>clip_col</code>
+<dd>
+<p>Whether to clip unused bits of the <code>column</code> value.</p>
+</dd></dl>
+</li></ul>
+
+<p>The routine arguments are expected in the following registers:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>e</code>
+<dd>
+<p>a rectangle starting <code>column</code> [0 - MAX], where MAX is <code>field_width</code> - 1.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>d</code>
+<dd>
+<p>a rectangle starting <code>row</code> [0 - MAX], where MAX is field height - 1.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>c</code>
+<dd>
+<p>a rectangle column <code>width</code> [1 - MAX], where MAX is (<code>field_width</code> - <code>column</code>).</p>
+</dd></dl>
+</li></ul>
+
+<p>The routine result is found in the following registers:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>hl</code>
+<dd>
+<p>A collision field starting address.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>e</code>
+<dd>
+<p>A bit mask covering elements of the starting column byte of each data row.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>d</code>
+<dd>
+<p>A bit mask covering elements of the ending column byte of each data row.</p>
+</dd></dl>
+</li></ul>
+
+<p>The following registers are only set if <code>field_width</code> is larger than 8.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>a</code>
+<dd>
+<p>A difference between the ending and starting column byte addresses multiplied by 8. Possible values: 0, 8, 16, …(field_width - 8).</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>f</code>
+<dd>
+<p><code>Z</code> flag after testing if a == 0.</p>
+</dd></dl>
+</li></ul>
+
+<p>The exact calculations performed:</p>
+
+<pre class="ruby"><span class="ruby-identifier">hl</span> = <span class="ruby-identifier">collision_field</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">clip8bits</span>(<span class="ruby-identifier">row</span> <span class="ruby-operator">*</span> (<span class="ruby-identifier">field_width</span> <span class="ruby-operator">/</span> <span class="ruby-value">8</span>)) <span class="ruby-operator">+</span> <span class="ruby-identifier">opt_clip_max</span>(<span class="ruby-identifier">column</span> <span class="ruby-operator">/</span> <span class="ruby-value">8</span>)
+ <span class="ruby-identifier">e</span> = <span class="ruby-value">0xFF</span> <span class="ruby-operator">&gt;&gt;</span> (<span class="ruby-identifier">column</span> <span class="ruby-operator">%</span> <span class="ruby-value">8</span>)
+ <span class="ruby-identifier">d</span> = <span class="ruby-operator">~</span>(<span class="ruby-value">0x7F</span> <span class="ruby-operator">&gt;&gt;</span> ((<span class="ruby-identifier">width</span> <span class="ruby-operator">+</span> (<span class="ruby-identifier">column</span> <span class="ruby-operator">%</span> <span class="ruby-value">8</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>)) <span class="ruby-operator">%</span> <span class="ruby-value">8</span>)
+ <span class="ruby-identifier">a</span> = (<span class="ruby-identifier">width</span> <span class="ruby-operator">+</span> (<span class="ruby-identifier">column</span> <span class="ruby-operator">%</span> <span class="ruby-value">8</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>) <span class="ruby-operator">&amp;</span> (<span class="ruby-identifier">field_width</span> <span class="ruby-operator">-</span> <span class="ruby-value">8</span>)
+<span class="ruby-constant">ZF</span> = (<span class="ruby-identifier">a</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>)
+</pre>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>c</code>, <code>de</code>, <code>hl</code> T-states:</p>
+
+<pre>field_width  clip_col   clip_col
+               false      true
+          8     133        133
+         16     177        179
+         32     181        183
+         64     185        187
+        128     189        191
+        256     192        192
++10 for +collision_field+ as an intermediate address.
++ 6 for each +mask_preshift_...+ as an intermediate address.</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="collision_field_rect_coords-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/collision_field.rb, line 413</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">collision_field_rect_coords</span>(<span class="ruby-identifier">collision_field</span>, <span class="ruby-identifier">mask_preshift_start</span>, <span class="ruby-identifier">mask_preshift_end</span>, <span class="ruby-value">field_width:</span><span class="ruby-value">32</span>, <span class="ruby-value">clip_col:</span><span class="ruby-keyword">false</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;collision_field_rect_coords: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">collision_field</span>) <span class="ruby-keyword">and</span>
+                    <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">mask_preshift_start</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">mask_preshift_end</span>) <span class="ruby-keyword">and</span>
+                    <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">field_width</span>
+    <span class="ruby-keyword">unless</span> [<span class="ruby-value">8</span>, <span class="ruby-value">16</span>, <span class="ruby-value">32</span>, <span class="ruby-value">64</span>, <span class="ruby-value">128</span>, <span class="ruby-value">256</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">field_width</span>)
+            <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;collision_field_rect_coords: unsupported field width: #{field_width}&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">mask</span> = (<span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">3</span>)
+    <span class="ruby-identifier">left_shift</span> = <span class="ruby-value">0</span>
+    <span class="ruby-keyword">while</span> <span class="ruby-identifier">mask</span> <span class="ruby-operator">!=</span> <span class="ruby-value">1</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+        <span class="ruby-identifier">mask</span> <span class="ruby-operator">&gt;&gt;=</span> <span class="ruby-value">1</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">row</span>, <span class="ruby-identifier">col</span> = <span class="ruby-identifier">de</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">width</span> = <span class="ruby-identifier">c</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-keyword">if</span> (<span class="ruby-identifier">clip_col</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">left_shift</span>.<span class="ruby-identifier">zero?</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">!=</span> <span class="ruby-value">5</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">col</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>    <span class="ruby-comment"># col % 8</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">mask_preshift_start</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>        <span class="ruby-comment"># a&#39;: left mask</span>
+        <span class="ruby-comment"># 4+7+10+4+4+7+4=40</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">col</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>    <span class="ruby-comment"># col % 8</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">width</span>      <span class="ruby-comment"># column width + (col % 8)</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>             <span class="ruby-comment"># column width + (col % 8) - 1</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">width</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># column width + (col % 8) - 1</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>    <span class="ruby-comment"># field bit: ((width + (col % 8) - 1)) % 8)</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">mask_preshift_end</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>          <span class="ruby-comment"># hl: -&gt; right mask</span>
+        <span class="ruby-comment"># 4+7+4+4+4+7+10+4+4=48</span>
+            <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+            <span class="ruby-identifier">mask</span> = (<span class="ruby-value">1</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">left_shift</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">col</span>        <span class="ruby-comment"># col</span>
+            <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">mask</span>          <span class="ruby-comment"># a: col / 8</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">col</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># col / 8</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-comment"># 4+3*4+7+4=27</span>
+        <span class="ruby-comment"># ( 8): 40+48=88</span>
+        <span class="ruby-comment"># (&gt;8): 40+48+27=115</span>
+        <span class="ruby-keyword">else</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">col</span>        <span class="ruby-comment"># col</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>    <span class="ruby-comment"># field bit</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>          <span class="ruby-comment"># l: col % 8</span>
+                    <span class="ruby-identifier">xor</span>  <span class="ruby-identifier">col</span>           <span class="ruby-comment"># eeeee000</span>
+            <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }           <span class="ruby-comment"># a: col/8</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">col</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># e: col/8</span>
+        <span class="ruby-comment"># 4+7+4+4+3*4+4=35</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">width</span>      <span class="ruby-comment"># column width</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">l</span>             <span class="ruby-comment"># column width + (col % 8)</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">width</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># column width + (col % 8)</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">width</span>         <span class="ruby-comment"># column width + (col % 8) - 1</span>
+        <span class="ruby-comment"># 4*4=16</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>          <span class="ruby-comment"># col % 8</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">mask_preshift_start</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>        <span class="ruby-comment"># a&#39;: left mask</span>
+        <span class="ruby-comment"># 4+10+4+4+7+4=33</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">width</span>      <span class="ruby-comment"># column width + (col % 8) - 1</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>    <span class="ruby-comment"># field bit: ((width + (col % 8) - 1)) % 8)</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">mask_preshift_end</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>          <span class="ruby-comment"># hl: -&gt; right mask</span>
+        <span class="ruby-comment"># 4+7+10+4+4=29</span>
+        <span class="ruby-comment"># 35+16+33+29=113</span>
+        <span class="ruby-keyword">end</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">row</span>        <span class="ruby-comment"># row</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">row</span>, [<span class="ruby-identifier">hl</span>]     <span class="ruby-comment"># right mask</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">==</span> <span class="ruby-value">5</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>
+                    <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }   <span class="ruby-comment"># a: hhh00000 row * 32</span>
+        <span class="ruby-keyword">else</span>                           <span class="ruby-comment"># a: hhhhhh00 row * (1, 2, 4, 8, 16)</span>
+            <span class="ruby-identifier">left_shift</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">add</span> <span class="ruby-identifier">a</span>, <span class="ruby-identifier">a</span> }
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">col</span>        <span class="ruby-comment"># row * N + col/8</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">collision_field</span>)
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">collision_field</span>
+                    <span class="ruby-identifier">adda_to</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>
+        <span class="ruby-keyword">else</span> <span class="ruby-comment"># 16+20=36</span>
+                    <span class="ruby-identifier">adda_to_n16</span> <span class="ruby-identifier">collision_field</span>, <span class="ruby-value">oh:</span> <span class="ruby-identifier">h</span>, <span class="ruby-value">ol:</span> <span class="ruby-identifier">l</span>
+        <span class="ruby-keyword">end</span> <span class="ruby-comment"># 26</span>
+        <span class="ruby-comment"># (8)     : 4+7+26=37</span>
+        <span class="ruby-comment"># (16-128): 4+7+(left_shift*4)+4+26=45,49,53,57(,61)</span>
+        <span class="ruby-comment"># (256)   : 4+7+7+3*4+4+26=60</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>        <span class="ruby-comment"># a: left mask</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">col</span>, <span class="ruby-identifier">a</span>        <span class="ruby-comment"># left mask</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+            <span class="ruby-identifier">mask</span> = ((<span class="ruby-value">1</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">left_shift</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>) <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">3</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">width</span>      <span class="ruby-comment"># width + (col % 8) - 1</span>
+                    <span class="ruby-comment"># anda 0b00011000  # (width + (col % 8) - 1) &amp; 24</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">mask</span>          <span class="ruby-comment"># (width + (col % 8) - 1) &amp; clipmask</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-comment"># ( 8) : 4+4=8</span>
+        <span class="ruby-comment"># (&gt;8) : 4+4+(4+7)=19</span>
+                    <span class="ruby-comment"># 11111111 01111111 ... 00001111 ... 00000001</span>
+                    <span class="ruby-comment"># 00000000 10000000 ... 11110000 ... 11111110</span>
+        <span class="ruby-identifier">select</span>((<span class="ruby-identifier">mask_preshift_start</span> <span class="ruby-operator">+</span> <span class="ruby-value">7</span>) <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">7</span> }.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
+            <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mask_preshift_start data must fit on a single 256-byte page of memory&quot;</span>
+        <span class="ruby-keyword">end</span>
+                    <span class="ruby-comment"># 10000000 11000000 ... 11111000 ... 11111111</span>
+                    <span class="ruby-comment"># 01111111 00111111 ... 00000111 ... 00000000</span>
+        <span class="ruby-identifier">select</span>((<span class="ruby-identifier">mask_preshift_end</span> <span class="ruby-operator">+</span> <span class="ruby-value">7</span>) <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">7</span> }.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
+          <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mask_preshift_end data must fit on a single 256-byte page of memory&quot;</span>
+        <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-collision_field_rect_pixels" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">collision_field_rect_pixels</span><span
+            class="method-args">(collision_field, mask_preshift_start, mask_preshift_end, field_width:32)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a routine to calculate collision field address and parameters required by other routines from pixel coordinates of the rectangle area.</p>
+
+<p>Each field element is equivalent to an 8 by 8 pixel square.</p>
+<dl class="rdoc-list note-list"><dt><code>collision_field</code>
+<dd>
+<p>A direct or intermediate address or a label of the collision field.</p>
+</dd><dt><code>mask_preshift_start</code>
+<dd>
+<p>A direct or intermediate address or a label of the  <code>:start_insert</code></p>
+</dd></dl>
+
+<pre>or +:start_remove+ preshift table. In each case, the table must fit within
+a 256-byte page boundary.</pre>
+<dl class="rdoc-list note-list"><dt><code>mask_preshift_end</code>
+<dd>
+<p>A direct or intermediate address or a label of the  <code>:end_insert</code></p>
+</dd></dl>
+
+<pre>or +:end_remove+ preshift table. In each case, the table must fit within
+a 256-byte page boundary.</pre>
+
+<p>Options:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>field_width</code>
+<dd>
+<p>A column width of the collision field. Supported field width values are: 8, 16, 32.</p>
+</dd></dl>
+</li></ul>
+
+<p>The routine arguments are expected in the following registers:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>e</code>
+<dd>
+<p>a rectangle starting pixel <code>x</code> [0 - MAX], where MAX is <code>field_width</code> * 8 - 1.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>d</code>
+<dd>
+<p>a rectangle starting pixel <code>y</code> [0 - MAX], where MAX is field height * 8 - 1.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>c</code>
+<dd>
+<p>a rectangle pixel <code>width</code> [1 - MAX], where MAX is (<code>field_width</code> * 8 - <code>x</code>).</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>b</code>
+<dd>
+<p>a rectangle pixel <code>height</code> [1 - MAX], where MAX is (field height * 8 - <code>y</code>).</p>
+</dd></dl>
+</li></ul>
+
+<p>The routine result is found in the following registers:</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>hl</code>
+<dd>
+<p>A collision field starting address.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>e</code>
+<dd>
+<p>A bit mask covering elements of the starting column byte of each data row.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>d</code>
+<dd>
+<p>A bit mask covering elements of the ending column byte of each data row.</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>b</code>
+<dd>
+<p>A rectangle area row count.</p>
+</dd></dl>
+</li></ul>
+
+<p>The following registers are only set if <code>field_width</code> is larger than 8.</p>
+<ul><li><dl class="rdoc-list note-list"><dt><code>a</code>
+<dd>
+<p>A difference between the ending and starting column byte addresses multiplied by 8. Possible values: 0, 8, 16, …(field_width - 8).</p>
+</dd></dl>
+</li><li><dl class="rdoc-list note-list"><dt><code>f</code>
+<dd>
+<p><code>Z</code> flag after testing if a == 0.</p>
+</dd></dl>
+</li></ul>
+
+<p>The exact calculations performed:</p>
+
+<pre>hl = collision_field + (y / 8 * (field_width / 8)) + clip_x(x / 64)
+ e = 0xFF &gt;&gt; (x / 8 % 8)
+ d = ~(0x7F &gt;&gt; ((((x % 64) + width - 1) / 8) % 8)
+ b = ((y % 8) + height + 7) / 8
+ a = (((x % 64) + width - 1) / 8) &amp; (field_width - 8)</pre>
+
+<p>Modifies: <code>af</code>, <code>af&#39;</code>, <code>bc</code>, <code>de</code>, <code>hl</code>. T-states:</p>
+
+<pre>field_width
+          8    221
+         16    255
+         32    251
++10 for +collision_field+ as an intermediate address
++ 6 for each +mask_preshift_...+ as an intermediate address</pre>
+          
+          
+
+          
+          <div class="method-source-code" id="collision_field_rect_pixels-source">
+            <pre><span class="ruby-comment"># File lib/z80/utils/collision_field.rb, line 579</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">collision_field_rect_pixels</span>(<span class="ruby-identifier">collision_field</span>, <span class="ruby-identifier">mask_preshift_start</span>, <span class="ruby-identifier">mask_preshift_end</span>, <span class="ruby-value">field_width:</span><span class="ruby-value">32</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;collision_field_rect_pixels: invalid arguments&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">collision_field</span>) <span class="ruby-keyword">and</span>
+                    <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">mask_preshift_start</span>) <span class="ruby-keyword">and</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">mask_preshift_end</span>) <span class="ruby-keyword">and</span>
+                    <span class="ruby-constant">Integer</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">field_width</span>
+    <span class="ruby-keyword">unless</span> [<span class="ruby-value">8</span>, <span class="ruby-value">16</span>, <span class="ruby-value">32</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">field_width</span>)
+            <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;collision_field_rect_pixels: unsupported field width: #{field_width}&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">mask</span> = (<span class="ruby-identifier">field_width</span> <span class="ruby-operator">&gt;&gt;</span> <span class="ruby-value">3</span>)
+    <span class="ruby-identifier">left_shift</span> = <span class="ruby-value">0</span>
+    <span class="ruby-keyword">while</span> <span class="ruby-identifier">mask</span> <span class="ruby-operator">!=</span> <span class="ruby-value">1</span> <span class="ruby-keyword">do</span>
+        <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+        <span class="ruby-identifier">mask</span> <span class="ruby-operator">&gt;&gt;=</span> <span class="ruby-value">1</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span> = <span class="ruby-identifier">de</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">height</span>, <span class="ruby-identifier">width</span> = <span class="ruby-identifier">bc</span>.<span class="ruby-identifier">split</span>
+    <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span>           <span class="ruby-comment"># a: hhbbbxxx</span>
+            <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }            <span class="ruby-comment"># a: xxxhhbbb</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>     <span class="ruby-comment"># a: 00000bbb (x / 8 % 8)</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">mask_preshift_start</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>           <span class="ruby-comment"># a: bit_preshift + (x / 8 % 8)</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>           <span class="ruby-comment"># hl: -&gt; mask</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">hl</span>]
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>         <span class="ruby-comment"># left preshift</span>
+        <span class="ruby-comment"># 4+3*4+7+10+4+4+7+4=52</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span>           <span class="ruby-comment"># a: hhbbbxxx</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00111111</span>     <span class="ruby-comment"># a: 00bbbxxx (x % 64)</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">width</span>       <span class="ruby-comment"># (x % 64) + pixel width</span>
+                    <span class="ruby-identifier">dec</span>  <span class="ruby-identifier">a</span>              <span class="ruby-comment"># (x % 64) + pixel width - 1</span>
+            <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }            <span class="ruby-comment"># a: xxxhhbbb</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">width</span>, <span class="ruby-identifier">a</span>       <span class="ruby-comment"># width: ((x % 64) + width - 1) / 8</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>     <span class="ruby-comment"># field bit: (((x % 64) + width - 1) / 8) % 8</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">hl</span>, <span class="ruby-identifier">mask_preshift_end</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">l</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">l</span>, <span class="ruby-identifier">a</span>
+        <span class="ruby-comment"># 4+7+4+4+3*4+4+7+10+4+4=60</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+            <span class="ruby-identifier">mask</span> = (<span class="ruby-value">1</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">left_shift</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span>           <span class="ruby-comment"># a: hhbbbxxx</span>
+            <span class="ruby-value">2</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rlca</span> }            <span class="ruby-comment"># a: bbbxxxhh</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">mask</span>           <span class="ruby-comment"># a: 000000hh</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">x</span>, <span class="ruby-identifier">a</span>           <span class="ruby-comment"># x: 000000hh (x / 64)</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-comment"># 4+2*4+7+4=23</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">y</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b00000111</span>     <span class="ruby-comment"># a: 00000hhh (y % 8)</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">height</span>      <span class="ruby-comment"># (y % 8) + height</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-value">7</span>              <span class="ruby-comment"># (y % 8) + height + 7</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b11111000</span>     <span class="ruby-comment"># a: hhhhh000</span>
+            <span class="ruby-value">3</span>.<span class="ruby-identifier">times</span> { <span class="ruby-identifier">rrca</span> }            <span class="ruby-comment"># a: 000hhhhh</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">height</span>, <span class="ruby-identifier">a</span>      <span class="ruby-comment"># ((y % 8) + height + 7) / 8</span>
+        <span class="ruby-comment"># 4+7+4+7+7+3*4+4=45</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">y</span>           <span class="ruby-comment"># a: hhhhhxxx</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">y</span>, [<span class="ruby-identifier">hl</span>]        <span class="ruby-comment"># y: right preshift</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-value">0b11111000</span>     <span class="ruby-comment"># a: hhhhh000</span>
+            (<span class="ruby-value">3</span><span class="ruby-operator">-</span><span class="ruby-identifier">left_shift</span>).<span class="ruby-identifier">times</span> <span class="ruby-keyword">do</span>
+                    <span class="ruby-identifier">rrca</span>                <span class="ruby-comment"># a: 0hhhhh00 (y / 8 * (1, 2, 4))</span>
+            <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+                    <span class="ruby-identifier">add</span>  <span class="ruby-identifier">a</span>, <span class="ruby-identifier">x</span>           <span class="ruby-comment"># (y / 8 * (field_width / 8)) + (x / 64)</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">collision_field</span>)
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">field_reg</span>, <span class="ruby-identifier">collision_field</span>
+                    <span class="ruby-identifier">adda_to</span> <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>
+        <span class="ruby-keyword">else</span> <span class="ruby-comment"># 16+20=36</span>
+                    <span class="ruby-identifier">adda_to_n16</span> <span class="ruby-identifier">collision_field</span>, <span class="ruby-value">oh:</span> <span class="ruby-identifier">h</span>, <span class="ruby-value">ol:</span> <span class="ruby-identifier">l</span>
+        <span class="ruby-keyword">end</span> <span class="ruby-comment"># 26</span>
+        <span class="ruby-comment"># ( 8) : 4+7+7+3*4+26=56</span>
+        <span class="ruby-comment"># (16) : 4+7+7+2*4+4+26=56</span>
+        <span class="ruby-comment"># (32) : 4+7+7+1*4+4+26=52</span>
+                    <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>         <span class="ruby-comment"># a: left preshift</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">x</span>, <span class="ruby-identifier">a</span>           <span class="ruby-comment"># left preshift</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">left_shift</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+            <span class="ruby-identifier">mask</span> = ((<span class="ruby-value">1</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">left_shift</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>) <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">3</span>
+                    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">width</span>       <span class="ruby-comment"># a:  (width - (width % 64)) / 8</span>
+                    <span class="ruby-comment"># anda 0b00011000   # a: ((width - (width % 64)) / 8) &amp; 24</span>
+                    <span class="ruby-identifier">anda</span> <span class="ruby-identifier">mask</span>           <span class="ruby-comment"># a: ((width - (width % 64)) / 8) &amp; clipmask</span>
+        <span class="ruby-keyword">end</span>
+        <span class="ruby-comment"># ( 8) : 4+4=8</span>
+        <span class="ruby-comment"># (&gt;8) : 4+4+(4+7)=19</span>
+                    <span class="ruby-comment"># 11111111 01111111 ... 00001111 ... 00000001</span>
+                    <span class="ruby-comment"># 00000000 10000000 ... 11110000 ... 11111110</span>
+        <span class="ruby-identifier">select</span>((<span class="ruby-identifier">mask_preshift_start</span> <span class="ruby-operator">+</span> <span class="ruby-value">7</span>) <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">7</span> }.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
+          <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mask_preshift_start data must fit on a single 256-byte page of memory&quot;</span>
+        <span class="ruby-keyword">end</span>
+                    <span class="ruby-comment"># 10000000 11000000 ... 11111000 ... 11111111</span>
+                    <span class="ruby-comment"># 01111111 00111111 ... 00000111 ... 00000000</span>
+        <span class="ruby-identifier">select</span>((<span class="ruby-identifier">mask_preshift_end</span> <span class="ruby-operator">+</span> <span class="ruby-value">7</span>) <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">7</span> }.<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
+          <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;mask_preshift_end data must fit on a single 256-byte page of memory&quot;</span>
+        <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="https://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://ruby.github.io/rdoc/">RDoc</a> 6.2.1.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

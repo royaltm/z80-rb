@@ -98,6 +98,8 @@
 
 <h2 id="label-Z80-3A">Z80:<span><a href="#label-Z80-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
 <ul><li>
+<p>Added a new module <a href="Z80/Utils/CollisionField.html"><code>Z80::Utils::CollisionField</code></a>.</p>
+</li><li>
 <p>New macros <a href="Z80/MathInt/Macros.html#method-i-sub_from_n16"><code>Z80::MathInt::Macros#sub_from_n16</code></a> and <a href="Z80/MathInt/Macros.html#method-i-adda_to_n16"><code>Z80::MathInt::Macros#adda_to_n16</code></a>.</p>
 </li><li>
 <p>Added output register options to <a href="Z80/MathInt/Macros.html#method-i-adda_to"><code>Z80::MathInt::Macros#adda_to</code></a> and <a href="Z80/MathInt/Macros.html#method-i-sub_from"><code>Z80::MathInt::Macros#sub_from</code></a>.</p>
@@ -165,7 +167,13 @@
 
 <h2 id="label-ZXLib-3A">ZXLib:<span><a href="#label-ZXLib-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
 <ul><li>
+<p><a href="ZXLib/Sys/Macros.html#method-i-find_record"><code>ZXLib::Sys::Macros#find_record</code></a> macro improved</p>
+</li><li>
+<p><a href="ZXLib/Sys/Macros.html"><code>ZXLib::Sys::Macros</code></a> no longer require <a href="ZXLib/Sys.html"><code>ZXLib::Sys</code></a> labels to be imported</p>
+</li><li>
 <p>Fixed <code>subroutine</code> option in <a href="ZXLib/Gfx/Macros.html"><code>ZXLib::Gfx::Macros</code></a> and <a href="ZXLib/Gfx/Bobs/Macros.html"><code>ZXLib::Gfx::Bobs::Macros</code></a> routines using <code>sp</code> for data transfer.</p>
+</li><li>
+<p>New macro ZXLib::Gfx::Macros::scrmove_lines_cols.</p>
 </li><li>
 <p>Added <code>:copy_back</code> option to several macros in <a href="ZXLib/Gfx/Bobs/Macros.html"><code>ZXLib::Gfx::Bobs::Macros</code></a> allowing copying data back from the screen. <code>:target</code> option renamed to <code>:screen</code> while maintaining backward compatibility.</p>
 </li><li>
