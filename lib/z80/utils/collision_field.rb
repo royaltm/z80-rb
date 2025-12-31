@@ -82,7 +82,7 @@ module Z80
                 # Options:
                 #
                 # * +tt+:: +bc+ or +de+. Registers to be used when +rowcol+ is +hl+ and +bit_preshift+ is +nil+
-                #           or is an address.
+                #          or is an address.
                 # * +bit_preshift+:: An optional +:single_bit+ preshift table address as a label, an
                 #                    intermediate pointer or one of the 16-bit registers. In each case,
                 #                    the table must fit within a 256-byte page boundary.
@@ -365,11 +365,11 @@ module Z80
                 #
                 # +collision_field+:: A direct or intermediate address or a label of the collision field.
                 # +mask_preshift_start+:: A direct or intermediate address or a label of the  +:start_insert+
-                #                    or +:start_remove+ preshift table. In each case, the table must fit within
-                #                    a 256-byte page boundary.
+                #                         or +:start_remove+ preshift table. In each case, the table must fit
+                #                         within a 256-byte page boundary.
                 # +mask_preshift_end+:: A direct or intermediate address or a label of the  +:end_insert+
-                #                    or +:end_remove+ preshift table. In each case, the table must fit within
-                #                    a 256-byte page boundary.
+                #                       or +:end_remove+ preshift table. In each case, the table must fit
+                #                       within a 256-byte page boundary.
                 #
                 # Options:
                 # * +field_width+:: A column width of the collision field. Supported field width values are:
@@ -393,7 +393,7 @@ module Z80
                 #
                 # The exact calculations performed:
                 #
-                #   hl = collision_field + clip8bits(row * (field_width / 8)) + opt_clip_max(column / 8)
+                #   hl = collision_field + ((row * (field_width / 8)) & 0xFF) + clip_col(column / 8)
                 #    e = 0xFF >> (column % 8)
                 #    d = ~(0x7F >> ((width + (column % 8) - 1)) % 8)
                 #    a = (width + (column % 8) - 1) & (field_width - 8)
@@ -534,11 +534,11 @@ module Z80
                 #
                 # +collision_field+:: A direct or intermediate address or a label of the collision field.
                 # +mask_preshift_start+:: A direct or intermediate address or a label of the  +:start_insert+
-                #                    or +:start_remove+ preshift table. In each case, the table must fit within
-                #                    a 256-byte page boundary.
+                #                         or +:start_remove+ preshift table. In each case, the table must fit
+                #                         within a 256-byte page boundary.
                 # +mask_preshift_end+:: A direct or intermediate address or a label of the  +:end_insert+
-                #                    or +:end_remove+ preshift table. In each case, the table must fit within
-                #                    a 256-byte page boundary.
+                #                       or +:end_remove+ preshift table. In each case, the table must fit
+                #                       within a 256-byte page boundary.
                 #
                 # Options:
                 # * +field_width+:: A column width of the collision field. Supported field width values are:

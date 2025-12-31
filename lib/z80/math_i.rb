@@ -1430,13 +1430,13 @@ module Z80
             # * +optimize+:: Optimization options: +:size+, +:time+ or a specific algorithm.
             #
             # Algorithm list for +optimize+:
-            # * :k_rshift_sum
-            # * :neg_k_rshift_sum
-            # * :split_hik_lshift_sum
-            # * :neg_split_hik_lshift_sum
-            # * :split_lok_rshift_sum
-            # * :sum_lshift_add_k
-            # * :neg_sum_lshift_add_k
+            # * +:k_rshift_sum+
+            # * +:neg_k_rshift_sum+
+            # * +:split_hik_lshift_sum+
+            # * +:neg_split_hik_lshift_sum+
+            # * +:split_lok_rshift_sum+
+            # * +:sum_lshift_add_k+
+            # * +:neg_sum_lshift_add_k+
             #
             # Uses: +f+, +hl+, +tt+, optionally +a+, optionally preserves: +k+.
             def mul_const_ex(k=d, m=0, tt:de, signed_k:false, use_a:false, optimize: :time)
