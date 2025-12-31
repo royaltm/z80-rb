@@ -198,9 +198,7 @@
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>tt</code>
 <dd>
-<p><code>bc</code> or <code>de</code>. Registers to be used when <code>rowcol</code> is <code>hl</code> and <code>bit_preshift</code> is <code>nil</code></p>
-
-<pre>or is an address.</pre>
+<p><code>bc</code> or <code>de</code>. Registers to be used when <code>rowcol</code> is <code>hl</code> and <code>bit_preshift</code> is <code>nil</code> or is an address.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>bit_preshift</code>
 <dd>
@@ -1075,18 +1073,11 @@ bit_preshift: bc        hl         bc
 <p>A direct or intermediate address or a label of the collision field.</p>
 </dd><dt><code>mask_preshift_start</code>
 <dd>
-<p>A direct or intermediate address or a label of the  <code>:start_insert</code></p>
-</dd></dl>
-
-<pre>or +:start_remove+ preshift table. In each case, the table must fit within
-a 256-byte page boundary.</pre>
-<dl class="rdoc-list note-list"><dt><code>mask_preshift_end</code>
+<p>A direct or intermediate address or a label of the  <code>:start_insert</code> or <code>:start_remove</code> preshift table. In each case, the table must fit within a 256-byte page boundary.</p>
+</dd><dt><code>mask_preshift_end</code>
 <dd>
-<p>A direct or intermediate address or a label of the  <code>:end_insert</code></p>
+<p>A direct or intermediate address or a label of the  <code>:end_insert</code> or <code>:end_remove</code> preshift table. In each case, the table must fit within a 256-byte page boundary.</p>
 </dd></dl>
-
-<pre>or +:end_remove+ preshift table. In each case, the table must fit within
-a 256-byte page boundary.</pre>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>field_width</code>
@@ -1142,7 +1133,7 @@ a 256-byte page boundary.</pre>
 
 <p>The exact calculations performed:</p>
 
-<pre class="ruby"><span class="ruby-identifier">hl</span> = <span class="ruby-identifier">collision_field</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">clip8bits</span>(<span class="ruby-identifier">row</span> <span class="ruby-operator">*</span> (<span class="ruby-identifier">field_width</span> <span class="ruby-operator">/</span> <span class="ruby-value">8</span>)) <span class="ruby-operator">+</span> <span class="ruby-identifier">opt_clip_max</span>(<span class="ruby-identifier">column</span> <span class="ruby-operator">/</span> <span class="ruby-value">8</span>)
+<pre class="ruby"><span class="ruby-identifier">hl</span> = <span class="ruby-identifier">collision_field</span> <span class="ruby-operator">+</span> ((<span class="ruby-identifier">row</span> <span class="ruby-operator">*</span> (<span class="ruby-identifier">field_width</span> <span class="ruby-operator">/</span> <span class="ruby-value">8</span>)) <span class="ruby-operator">&amp;</span> <span class="ruby-value">0xFF</span>) <span class="ruby-operator">+</span> <span class="ruby-identifier">clip_col</span>(<span class="ruby-identifier">column</span> <span class="ruby-operator">/</span> <span class="ruby-value">8</span>)
  <span class="ruby-identifier">e</span> = <span class="ruby-value">0xFF</span> <span class="ruby-operator">&gt;&gt;</span> (<span class="ruby-identifier">column</span> <span class="ruby-operator">%</span> <span class="ruby-value">8</span>)
  <span class="ruby-identifier">d</span> = <span class="ruby-operator">~</span>(<span class="ruby-value">0x7F</span> <span class="ruby-operator">&gt;&gt;</span> ((<span class="ruby-identifier">width</span> <span class="ruby-operator">+</span> (<span class="ruby-identifier">column</span> <span class="ruby-operator">%</span> <span class="ruby-value">8</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>)) <span class="ruby-operator">%</span> <span class="ruby-value">8</span>)
  <span class="ruby-identifier">a</span> = (<span class="ruby-identifier">width</span> <span class="ruby-operator">+</span> (<span class="ruby-identifier">column</span> <span class="ruby-operator">%</span> <span class="ruby-value">8</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>) <span class="ruby-operator">&amp;</span> (<span class="ruby-identifier">field_width</span> <span class="ruby-operator">-</span> <span class="ruby-value">8</span>)
@@ -1313,18 +1304,11 @@ a 256-byte page boundary.</pre>
 <p>A direct or intermediate address or a label of the collision field.</p>
 </dd><dt><code>mask_preshift_start</code>
 <dd>
-<p>A direct or intermediate address or a label of the  <code>:start_insert</code></p>
-</dd></dl>
-
-<pre>or +:start_remove+ preshift table. In each case, the table must fit within
-a 256-byte page boundary.</pre>
-<dl class="rdoc-list note-list"><dt><code>mask_preshift_end</code>
+<p>A direct or intermediate address or a label of the  <code>:start_insert</code> or <code>:start_remove</code> preshift table. In each case, the table must fit within a 256-byte page boundary.</p>
+</dd><dt><code>mask_preshift_end</code>
 <dd>
-<p>A direct or intermediate address or a label of the  <code>:end_insert</code></p>
+<p>A direct or intermediate address or a label of the  <code>:end_insert</code> or <code>:end_remove</code> preshift table. In each case, the table must fit within a 256-byte page boundary.</p>
 </dd></dl>
-
-<pre>or +:end_remove+ preshift table. In each case, the table must fit within
-a 256-byte page boundary.</pre>
 
 <p>Options:</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>field_width</code>
