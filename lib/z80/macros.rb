@@ -313,8 +313,8 @@ module Z80
 			# * +unroll+:: controls whether to unroll the loop.
 			# * +t_is_target+:: controls whether the reverse operation target is +t+ instead of +a+.
 			# * +shift_target_left+:: controls whether to shift target bits left. Otherwise the
-			#   	  target is shifted right. This influences the content of the CF flag at the end
-			#   	  of the operation.
+			#                         target is shifted right. This influences the content of the CF
+			#                         flag at the end of the operation.
 			#
 			# if +unroll+ is +false+, the +b+ register is used as a loop counter and cannot be used
 			# as the +t+ option.

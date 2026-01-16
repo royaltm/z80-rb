@@ -40,8 +40,10 @@ Z80:
 
 ZXLib:
 -----
-* ZXLib::Sys::Macros#find_record macro improved
-* ZXLib::Sys::Macros no longer require ZXLib::Sys labels to be imported
+* ZXLib::Gfx::Macros#rctoscr argument validation fixed.
+* ZXLib::Gfx::Macros#nextrow option +:branch_rel+ added.
+* ZXLib::Sys::Macros#find_record macro improved.
+* ZXLib::Sys::Macros no longer require ZXLib::Sys labels to be imported.
 * Fixed +subroutine+ option in ZXLib::Gfx::Macros and ZXLib::Gfx::Bobs::Macros routines using +sp+ for data transfer.
 * New macro ZXLib::Gfx::Macros::scrmove_lines_cols.
 * Added +:copy_back+ option to several macros in ZXLib::Gfx::Bobs::Macros allowing copying data back from the screen. +:target+ option renamed to +:screen+ while maintaining backward compatibility.

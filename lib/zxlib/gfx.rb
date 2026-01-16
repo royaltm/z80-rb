@@ -597,7 +597,8 @@ module ZXLib
       # h > 0  1  0  5r 4r 0  0  0,   l < 3r 2r 1r 5c 4c 3c 2c 1c
       def rctoscr(row, col=0, ah:h, al:l, scraddr:0x4000)
         unless register?(ah) and ah.bit8? and register?(al) and al.bit8? and ah != al and ![col, ah, al].include?(a) and
-               ((address?(col) and !pointer?(col)) or (register?(col) and col != ah and col != row and (col != al or row != a))) and
+               ((address?(col) and !pointer?(col)) or (register?(col) and col != ah and
+               row != ah and col != row and (col != al or row != a))) and
                ((Integer === scraddr and scraddr == (scraddr & 0xE000)) or direct_label?(scraddr))
           raise ArgumentError, "rctoscr: invalid arguments!"
         end
@@ -682,6 +683,7 @@ module ZXLib
       #              +label+ = jump to label if out of screen,
       #              +hl+|+ix+|+iy+ = jump to an address in a register if out of screen.
       # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
+      # * +branch_rel+:: Branch to +bcheck+ using relative jump (+JR+).
       #
       # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
       #
@@ -689,7 +691,7 @@ module ZXLib
       #
       # * when +bcheck+ is +false+:: 27:87.5% / 37:12.50%
       # * when +bcheck+ is +true+ or +label+::  27:87.5% / (49:2 / 55:1):12.50% / 54:12.50%
-      def nextrow(ah, al, bcheck = true, scraddr:0x4000, **nsopts, &block)
+      def nextrow(ah, al, bcheck = true, scraddr:0x4000, branch_rel:false, **nsopts, &block)
           if ah == al or [ah, al].include?(a) or
                   (register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
                   (bcheck == hl and ([h, l].include?(ah) or [h, l].include?(al))) or
@@ -718,7 +720,11 @@ module ZXLib
                           ret  NC
                       end
                   else
+                    if branch_rel
+                      jr  NC, bcheck
+                    else
                       jp  NC, bcheck
+                    end
                   end
               end
           end
