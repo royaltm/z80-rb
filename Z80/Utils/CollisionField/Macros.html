@@ -568,9 +568,9 @@ bit_preshift: bc        hl         bc
 
 <p>For example, passing option values:</p>
 <ul><li>
-<p><code>field_width</code>: 32 and <code>unroll_max</code>: 2 creates only unrolled code that handles rectangles of the full field width.</p>
+<p><code>field_width</code>: 32 and <code>unroll_max</code>: 2 creates unrolled code that handles rectangles of the full field width.</p>
 </li><li>
-<p><code>field_width</code>: 32, <code>unroll_max</code>: 0 and <code>unrolled_only</code> creates unrolled code that handles only rectangles up to the 8 field columns in width in any column starting position.</p>
+<p><code>field_width</code>: 32, <code>unroll_max</code>: 0 and <code>unrolled_only</code>: <code>true</code> creates unrolled code that handles only rectangles up to the 8 field columns width.</p>
 </li></ul>
 
 <p>The routine expects arguments in the following registers:</p>
@@ -785,9 +785,9 @@ bit_preshift: bc        hl         bc
 
 <p>For example, passing option values:</p>
 <ul><li>
-<p><code>field_width</code>: 32 and <code>unroll_max</code>: 2 creates only unrolled code that handles rectangles of the full field width.</p>
+<p><code>field_width</code>: 32 and <code>unroll_max</code>: 2 creates unrolled code that handles rectangles of the full field width.</p>
 </li><li>
-<p><code>field_width</code>: 32, <code>unroll_max</code>: 0 and <code>unrolled_only</code> creates unrolled code that handles only rectangles up to the 8 field columns in width in any column starting position.</p>
+<p><code>field_width</code>: 32, <code>unroll_max</code>: 0 and <code>unrolled_only</code>: <code>true</code> creates unrolled code that handles only rectangles up to the 8 field columns width.</p>
 </li></ul>
 
 <p>The routine expects arguments in the following registers:</p>

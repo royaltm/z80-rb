@@ -283,7 +283,7 @@
 <p>An address of the next byte <em>AFTER</em> THE END of the memory area to be cleared. The address may be an integer, a label, a pointer or one of: <code>sp</code>, <code>hl</code>, <code>ix</code> or <code>iy</code>.</p>
 </dd><dt><code>chunks_count</code>
 <dd>
-<p>The number of the unrolled push chunks. It should be between 1 and 256. It may be be an integer, a label, a pointer or an 8-bit register.</p>
+<p>The number of the unrolled push chunks between 1 and 256 as an integer, a label, a pointer or an 8-bit register.</p>
 </dd><dt><code>chunk_size</code>
 <dd>
 <p>The size in bytes of the chunk of memory being cleared by unrolled PUSHes. It must be an <em>EVEN</em> integer number. Each 2 of <code>chunk_size</code> adds a 1 byte to the code.</p>
