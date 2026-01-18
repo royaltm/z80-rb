@@ -9,7 +9,7 @@ module Z80
         #
         # Routines to modify and check collision fields in Z80::Utils::CollisionField::Macros.
         #
-        # The collision fields is a binary matrix consisting of columns and rows.
+        # The collision field is a binary matrix consisting of columns and rows.
         # Each field element can have one of two states: set or clear, and is represented by a single
         # data bit.
         class CollisionField
@@ -689,10 +689,10 @@ module Z80
                 #
                 # For example, passing option values:
                 #
-                # * +field_width+: 32 and +unroll_max+: 2 creates only unrolled code that handles rectangles
+                # * +field_width+: 32 and +unroll_max+: 2 creates unrolled code that handles rectangles
                 #   of the full field width.
-                # * +field_width+: 32, +unroll_max+: 0 and +unrolled_only+ creates unrolled code that handles
-                #   only rectangles up to the 8 field columns in width in any column starting position.
+                # * +field_width+: 32, +unroll_max+: 0 and +unrolled_only+: +true+ creates unrolled code
+                #   that handles only rectangles up to the 8 field columns width.
                 #
                 # The routine expects arguments in the following registers:
                 # * +hl+:: A collision field starting address.
@@ -886,10 +886,10 @@ module Z80
                 #
                 # For example, passing option values:
                 #
-                # * +field_width+: 32 and +unroll_max+: 2 creates only unrolled code that handles rectangles
+                # * +field_width+: 32 and +unroll_max+: 2 creates unrolled code that handles rectangles
                 #   of the full field width.
-                # * +field_width+: 32, +unroll_max+: 0 and +unrolled_only+ creates unrolled code that handles
-                #   only rectangles up to the 8 field columns in width in any column starting position.
+                # * +field_width+: 32, +unroll_max+: 0 and +unrolled_only+: +true+ creates unrolled code
+                #   that handles only rectangles up to the 8 field columns width.
                 #
                 # The routine expects arguments in the following registers:
                 # * +hl+:: A collision field starting address.
@@ -1032,5 +1032,452 @@ module Z80
             end
             include Z80
         end
+    end
+end
+
+if __FILE__ == $0
+    require 'zxlib/basic'
+    require 'zxlib/sys'
+    # :stopdoc:
+    class TestCollisions # :nodoc: all
+        include Z80
+        include Z80::TAP
+
+        macro_import Stdlib
+        macro_import Utils::CollisionField
+        macro_import MathInt
+        import ZXLib::Sys, macros:true, code:false
+
+        SELF_MODIFIED = false
+
+        FIELD_WIDTH  = 32 # DO NOT CHANGE!
+        FIELD_HEIGHT = 22 # DO NOT CHANGE!
+
+        ns :insert_field do
+                        call get_field_rectangle_coords
+                        jp   insert_collision_rectangle
+        end
+
+        ns :flip_field do
+                        call get_field_rectangle_coords
+                        jp   flip_collision_rectangle
+        end
+
+        ns :remove_field do
+                        call get_field_rectangle_coords
+                        ld   a, 16
+                        cp   c # 16 < c ?
+                        jr   C, get_field_rectangle_coords.error_b.err
+                        jp   remove_collision_rectangle
+        end
+        # > e: column [0 - 31]
+        # > d: row    [0 - 23]
+        # > c: rectangle width [1 - (32-column)]
+        # > b: rectangle height [1 - 24-row]
+        ns :get_field_rectangle_coords do
+                        call find_args
+              error_q   report_error_unless Z, "Q Parameter error"
+                        call read_uint # 0..31
+            # < e: column [0 - 31]
+                        cp16n(d, e, FIELD_WIDTH)
+              error_b   report_error_unless C, "B Integer out of range"
+                        ld   c, e
+                        call find_args.seek_next
+                        jr   NZ, error_q.err
+                        call read_uint # 0..23
+            # < d: row    [0 - 23]
+                        cp16n(d, e, FIELD_HEIGHT)
+                        jr   NC, error_b.err
+                        ld    b, e
+                        push  bc
+                        call find_args.seek_next
+                        jr   NZ, error_q.err
+                        call read_uint # 1..(32-column)
+            # < c: rectangle width [1 - (32-column)] (UB otherwise)
+                        ld    a, d
+                        ora   d
+                        jr    NZ, error_b.err
+                        ora   e  # >= 1
+                        jr    Z, error_b.err
+                        ld    c, e
+                        pop   de
+                        ld    a, FIELD_WIDTH
+                        sub   e
+                        cp    c  # (32 - col) >= c
+                        jr    C, error_b.err
+                        push  de
+                        call find_args.seek_next
+                        jr   NZ, error_q.err
+                        call read_uint # 1..(24-row)
+            # < b: rectangle height [1 - 24-row]
+                        ld    a, d
+                        ora   d
+                        jr    NZ, error_b.err
+                        ora   e  # >= 1
+                        jr    Z, error_b.err
+                        ld    b, e
+                        pop   de
+                        ld    a, FIELD_HEIGHT
+                        sub   d
+                        cp    b  # (24 - row) >= b
+                        jr    C, error_b.err
+                        ret
+        end
+
+        # RETURN 0 - no collision, 1 = a collision occured
+        ns :check_sprite do
+                        call find_args
+              error_q   report_error_unless Z, "Q Parameter error"
+                        call read_uint # 0..255
+            # < pixel x [0 - 255]
+                        cp16n(d, e, FIELD_WIDTH*8)
+              error_b   report_error_unless C, "B Integer out of range"
+                        ld   c, e
+                        call find_args.seek_next
+                        jr   NZ, error_q.err
+                        call read_uint # 0..191
+            # < pixel y [0 - 191]
+                        cp16n(d, e, FIELD_HEIGHT*8)
+                        jr   NC, error_b.err
+                        ld   b, e
+                        push bc # y|x
+                        call find_args.seek_next
+                        jr   NZ, error_q.err
+                        call read_uint # 1..64
+            # < rectangle width [1 - 64] < (256-x) (UB otherwise)
+                        ld    a, d
+                        ora   d
+                        jr    NZ, error_b.err
+                        ora   e  # >= 1
+                        jr    Z, error_b.err
+                        cp    65 # < 65
+                        jr    NC, error_b.err
+                        ld    c, e
+                        pop   de # y|x
+                        ld    a, FIELD_WIDTH*8
+                        sub   e  # 256 - x
+                        jr    Z, skip_cmp # overflow (256 - 0)
+                        cp    c  # (256 - x) >= c
+                        jr    C, error_b.err
+            skip_cmp    push  de # y|x
+                        call find_args.seek_next
+                        jr   NZ, error_q.err
+                        call read_uint # 0..(192-y)
+            # < rectangle height [1 - (192-y)]
+                        ld    a, d
+                        ora   d
+                        jr    NZ, error_b.err
+                        ora   e  # >= 1
+                        jr    Z, error_b.err
+                        ld    b, e
+                        pop   de # y|x
+                        ld    a, FIELD_HEIGHT*8
+                        sub   d  # 192 - y
+                        cp    b  # (192 - y) >= b
+                        jr    C, error_b.err
+                        call  sprite_collides? # bc: h|w, de: y|x
+                        # > f: ZF=0 (NZ) - a collision occured, ZF=1 (Z) - no collision
+                        ld    bc, 0
+                        ret   Z
+                        inc   bc
+                        ret
+        end
+
+        # RETURN 0 - no collision, 1 = a collision occured
+        ns :check_pixel do
+                        call find_args
+              error_q   report_error_unless Z, "Q Parameter error"
+                        call read_uint # 0..255
+            # < e: pixel x [0 - 255]
+                        cp16n(d, e, FIELD_WIDTH*8)
+              error_b   report_error_unless C, "B Integer out of range"
+                        ld   c, e
+                        call find_args.seek_next
+                        jr   NZ, error_q.err
+                        call read_uint # 0..191
+            # < d: pixel y [0 - 191]
+                        cp16n(d, e, FIELD_HEIGHT*8)
+                        jr   NC, error_b.err
+                        ld    b, e
+                        call  pixel_collides?
+                        # > f: ZF=0 (NZ) - a collision occured, ZF=1 (Z) - no collision
+                        ld    bc, 0
+                        ret   Z
+                        inc   bc
+                        ret
+        end
+
+        # RETURN 0 - no collision, 1 = a collision occured
+        ns :check_element do
+                        call find_args
+              error_q   report_error_unless Z, "Q Parameter error"
+                        call read_uint # 0..31
+            # < e: column [0 - 31]
+                        cp16n(d, e, FIELD_WIDTH)
+              error_b   report_error_unless C, "B Integer out of range"
+                        ld   c, e
+                        call find_args.seek_next
+                        jr   NZ, error_q.err
+                        call read_uint # 0..23
+            # < d: row    [0 - 23]
+                        cp16n(d, e, FIELD_HEIGHT)
+                        jr   NC, error_b.err
+                        ld    b, e
+                        # ld    c, c
+                        call  element_collides?
+                        # > f: ZF=0 (NZ) - a collision occured, ZF=1 (Z) - no collision
+                        ld    bc, 0
+                        ret   Z
+                        inc   bc
+                        ret
+        end
+
+        find_args   find_def_fn_args 1, subroutine:true, vars:self.vars
+
+        isolate :read_uint do
+                    read_positive_int_value d, e
+          error_a   report_error_unless Z, "A Invalid argument"
+                    inc  hl
+                    ret
+        end
+                            dc!
+                            dc!"********************************************"
+                            dc!"***              COLLISIONS              ***"
+                            dc!"********************************************"
+        ns :visualise_collisions do
+                            ld   hl, mem.attrs
+                            ld   de, collision_field
+                            ld   bc, collision_field_bytesize(FIELD_WIDTH, FIELD_HEIGHT)
+            loop1           ld   a, [de]
+                            inc  de
+                            scf
+                            adc  a, a
+            loop2           jr   NC, no_obstacle
+                            ex   af, af
+                            ld   a, [hl]
+                            ora  0b01000010
+                            jr   next_obstacle
+            no_obstacle     ex   af, af
+                            ld   a, [hl]
+                            anda ~0b01000001
+            next_obstacle   ld   [hl], a
+                            ex   af, af
+                            inc  hl
+                            add  a, a
+                            jr   NZ, loop2
+                            dec  bc
+                            ld   a, c
+                            ora  b
+                            jr   NZ, loop1
+                            ret
+        end
+                            dc!
+                            dc!"********************************************"
+                            dc!"***                INSERT                ***"
+                            dc!"********************************************"
+        # < e: column [0 - 31]
+        # < d: row    [0 - 23]
+        # < c: rectangle width [1 - (32-column)] (UB otherwise)
+        # < b: rectangle height [1 - 24-row] (UB otherwise)
+        # Modifies: AF, AF', BC, DE, HL
+        ns :insert_collision_rectangle do
+            call prepare_collision_rectangle_args
+            collision_field_modify_rectangle(:insert, field_width:FIELD_WIDTH, unroll_max:2)
+        end
+
+        ns :prepare_collision_rectangle_args do
+            collision_field_rect_coords(collision_field,
+                                mask_preshift_start,
+                                mask_preshift_end, field_width:FIELD_WIDTH, clip_col:false)
+            ret
+        end
+                            dc!
+                            dc!"********************************************"
+                            dc!"***                 FLIP                 ***"
+                            dc!"********************************************"
+        # < e: column [0 - 31]
+        # < d: row    [0 - 23]
+        # < c: rectangle width [1 - (32-column)] (UB otherwise)
+        # < b: rectangle height [1 - 24-row] (UB otherwise)
+        # Modifies: AF, AF', BC, DE, HL
+        ns :flip_collision_rectangle do
+            call prepare_collision_rectangle_args
+            collision_field_modify_rectangle(:flip, field_width:FIELD_WIDTH, self_modified:SELF_MODIFIED)
+        end
+                            dc!
+                            dc!"********************************************"
+                            dc!"***                REMOVE                ***"
+                            dc!"********************************************"
+        # < e: column [0 - 31]
+        # < d: row    [0 - 23]
+        # < c: rectangle width [1 - 16] <= (32-column) (UB otherwise)
+        # < b: rectangle height [1 - 24-row] (UB otherwise)
+        # Modifies: AF, AF', BC, DE, HL
+        ns :remove_collision_rectangle do
+            collision_field_rect_coords(collision_field,
+                                rmsk_preshift_start,
+                                rmsk_preshift_end, field_width:FIELD_WIDTH, clip_col:true)
+            collision_field_modify_rectangle(:remove, field_width:FIELD_WIDTH, unroll_max:1, unrolled_only:true)
+        end
+                            dc!
+                            dc!"********************************************"
+                            dc!"***                PIXEL?                ***"
+                            dc!"********************************************"
+        # < c: x [0, 255]
+        # < b: y [0, 191]
+        # > f: ZF=0 (NZ) - a collision occured, ZF=1 (Z) - no collision
+        # Modifies: AF, HL, BC
+        ns :pixel_collides? do
+                            collision_field_check_pixel(nil, bc, bit_preshift: element_collides?.bit_preshift)
+                            jr   element_collides?.combo_finish
+        end
+                            dc!
+                            dc!"********************************************"
+                            dc!"***               ELEMENT?               ***"
+                            dc!"********************************************"
+        # < c: column [0, 31]
+        # < b: row    [0, 23]
+        # > f: ZF=0 (NZ) - a collision occured, ZF=1 (Z) - no collision
+        # Modifies: AF, HL, BC
+        element_collides?   collision_field_check_element(collision_field, bc, field_width:FIELD_WIDTH)
+                            dc!
+                            dc!"********************************************"
+                            dc!"***               SPRITE?                ***"
+                            dc!"********************************************"
+        # < e: pixel x [0 - 255]
+        # < d: pixel y [0 - 191]
+        # < c: rectangle width [1 - 64] < (256-x) (UB otherwise)
+        # < b: rectangle height [1 - (192-y)]
+        # > f: ZF=0 (NZ) - a collision occured, ZF=1 (Z) - no collision
+        # Modifies: AF, AF', BC, DE, HL
+        ns :sprite_collides? do
+            collision_field_rect_pixels(collision_field,
+                                mask_preshift_start,
+                                mask_preshift_end)
+            collision_field_check_rectangle(field_width:FIELD_WIDTH, unroll_max:0, unrolled_only:true)
+        end
+
+                            dc!
+                            dc!"********************************************"
+                            dc!"***                CLEAR                 ***"
+                            dc!"********************************************"
+        ns :clear_collisions do
+            clrmem collision_field, collision_field_bytesize(FIELD_WIDTH, FIELD_HEIGHT)
+            ret
+        end
+                            dc!
+                            dc!"********************************************"
+                            dc!"***                 DATA                 ***"
+                            dc!"********************************************"
+        mask_preshift_start collision_field_preshifted_mask_data :start_insert
+        mask_preshift_end   collision_field_preshifted_mask_data :end_insert
+        rmsk_preshift_start collision_field_preshifted_mask_data :start_remove
+        rmsk_preshift_end   collision_field_preshifted_mask_data :end_remove
+
+        collision_field     label
+        endcollision_field  as collision_field, offset: collision_field_bytesize(FIELD_WIDTH, FIELD_HEIGHT)
+    end
+
+    collision = TestCollisions.new 0xF000
+    puts collision.debug
+
+    FIELD_WIDTH = TestCollisions::FIELD_WIDTH
+    FIELD_HEIGHT = TestCollisions::FIELD_HEIGHT
+
+    program = ZXLib::Basic.parse_source <<-END
+       0 DEF FN m(a,b)=a+(b-a AND a>b): DEF FN i(c,r,w,h)=USR #{collision[:insert_field]}: DEF FN f(c,r,w,h)=USR #{collision[:flip_field]}: DEF FN r(c,r,w,h)=USR #{collision[:remove_field]}: DEF FN c(x,y,w,h)=USR #{collision[:check_sprite]}: DEF FN p(x,y)=USR #{collision[:check_pixel]}: DEF FN e(c,r)=USR #{collision[:check_element]}
+      10 REM MENU
+      20 BORDER 0: PAPER 7: INK 1: BRIGHT 0: INVERSE 0: OVER 0: CLS
+         PRINT AT 7,5;"0. Clear all obstacles"
+         PRINT AT 8,5;"1. Insert obstacles"
+         PRINT AT 9,5;"2. Flip obstacles"
+         PRINT AT 10,5;"3. Remove obstacles"
+         PRINT AT 11,5;"4. Element collides?"
+         PRINT AT 12,5;"5. Pixel collides?"
+         PRINT AT 13,5;"6. Sprite collides?"
+      40 INPUT "? ";choice
+         IF choice=0 THEN GO SUB 1000: GO TO 20
+         IF choice<1 OR choice>6 OR choice<>INT choice THEN GO TO 40
+         CLS: GO SUB 2000
+         GO TO choice*100
+      99 STOP
+     100 REM Insert field
+         INPUT AT 0,0;"ins col 0-#{FIELD_WIDTH-1}:=";c;AT 1,4;"row 0-#{FIELD_HEIGHT-1}:=";r
+         INPUT AT 0,0;"ins width  1-";#{FIELD_WIDTH}-c;":=";w;AT 1,4;"height 1-";#{FIELD_HEIGHT}-r;":=";h
+         RANDOMIZE FN i(c,r,w,h)
+         GO SUB 2010
+         PRINT #1;AT 0,0;"inserted ";c;"x";r;" (";w;"x";h;")"
+         PAUSE 0
+         GO TO 100
+     200 REM Flip field
+         INPUT AT 0,0;"flp col 0-#{FIELD_WIDTH-1}:=";c;AT 1,4;"row 0-#{FIELD_HEIGHT-1}:=";r
+         INPUT AT 0,0;"flp width  1-";#{FIELD_WIDTH}-c;":=";w;AT 1,4;"height 1-";#{FIELD_HEIGHT}-r;":=";h
+         RANDOMIZE FN f(c,r,w,h)
+         GO SUB 2010
+         PRINT #1;AT 0,0;"flipped ";c;"x";r;" (";w;"x";h;")"
+         PAUSE 0
+         GO TO 200
+     300 REM Remove field
+         INPUT AT 0,0;"rem col 0-#{FIELD_WIDTH-1}:=";c;AT 1,4;"row 0-#{FIELD_HEIGHT-1}:=";r
+         INPUT AT 0,0;"rem width  1-";FN m(#{FIELD_WIDTH}-c,16);":=";w;AT 1,4;"height 1-";#{FIELD_HEIGHT}-r;":=";h
+         RANDOMIZE FN r(c,r,w,h)
+         GO SUB 2010
+         PRINT #1;AT 0,0;"removed ";c;"x";r;" (";w;"x";h;")"
+         PAUSE 0
+         GO TO 300
+     400 REM Element collides?
+         GO SUB 2010
+         BORDER 0: INPUT AT 0,0;"element col 0-#{FIELD_WIDTH-1}:=";c;AT 1,8;"row 0-#{FIELD_HEIGHT-1}:=";r
+         IF FN e(c,r) THEN BORDER 2
+         PRINT AT r,c; PAPER 8; BRIGHT 8; INK 8;"█"
+         PAUSE 0
+         GO TO 400
+     500 REM Pixel collides?
+         GO SUB 2010
+         BORDER 0: INPUT AT 0,0;"pixel x 0-#{FIELD_WIDTH*8-1}:=";x;AT 1,6;"y 0-#{FIELD_HEIGHT*8-1}:=";y
+         IF FN p(x,y) THEN BORDER 2
+         PLOT INK 8;x,175-y
+         PAUSE 0
+         GO TO 500
+     600 REM Sprite collides?
+         GO SUB 2010
+         BORDER 0
+         INPUT AT 0,0;"sprite x 0-#{FIELD_WIDTH*8-1}:=";x;AT 1,7;"y 0-#{FIELD_HEIGHT*8-1}:=";y
+         INPUT AT 0,0;"sprite width  1-";FN m(#{FIELD_WIDTH*8}-x,64);":=";w;AT 1,7;"height 1-";#{FIELD_HEIGHT*8}-y;":=";h
+         IF FN c(x,y,w,h) THEN BORDER 2
+         INK 8: PLOT x,175-y: DRAW w-1,0: DRAW 0,-h+1: DRAW -w+1,0: DRAW 0,h-1: DRAW w-1,-h+1
+         PAUSE 0
+         GO TO 600
+     999 STOP
+    1000 REM clear collisions
+         RANDOMIZE USR #{collision[:clear_collisions]}: RETURN
+    2000 REM visualise collisions
+         CLS: PRINT "01234567890123456789012345678901"
+         FOR i=1 TO 21: PRINT i: NEXT i
+    2010 RANDOMIZE USR #{collision[:visualise_collisions]}: RETURN
+    9998 RUN
+    9999 CLEAR #{collision.org-1}: LOAD "collision"CODE: RUN
+    END
+    program.start = 9999
+    puts program.to_source
+
+    tap_name = 'test.z80.utils.collision_field.tap'
+
+    puts
+    %w[visualise_collisions
+       insert_collision_rectangle prepare_collision_rectangle_args flip_collision_rectangle remove_collision_rectangle
+       pixel_collides? element_collides? sprite_collides?
+       clear_collisions
+       collision_field endcollision_field].each do |label|
+        size = collision['+'+label]
+        puts "#{label.ljust(33)}: 0x#{collision[label].to_s 16} - #{collision[label]}#{if size then ' size: ' + size.to_s else "" end}"
+    end
+    puts "collision field size             : #{collision[:endcollision_field]-collision[:collision_field]} bytes"
+    puts
+    program.save_tap tap_name, name:'collision'
+    collision.save_tap tap_name, name:'collision', append: true
+    puts "TAP #{tap_name}:"
+    Z80::TAP.parse_file(tap_name) do |hb|
+        puts hb.to_s
     end
 end

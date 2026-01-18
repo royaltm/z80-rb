@@ -184,8 +184,8 @@ module Z80
             #
             # +address+:: An address of the next byte _AFTER_ THE END of the memory area to be cleared.
             #             The address may be an integer, a label, a pointer or one of: +sp+, +hl+, +ix+ or +iy+.
-            # +chunks_count+:: The number of the unrolled push chunks. It should be between 1 and 256.
-            #                  It may be be an integer, a label, a pointer or an 8-bit register.
+            # +chunks_count+:: The number of the unrolled push chunks between 1 and 256 as
+            #                  an integer, a label, a pointer or an 8-bit register.
             # +chunk_size+:: The size in bytes of the chunk of memory being cleared by unrolled PUSHes.
             #                It must be an _EVEN_ integer number. Each 2 of +chunk_size+ adds a 1 byte to the code.
             # +value+:: A 16-bit (a word) fill value as an integer, a label, a pointer or +tt+.

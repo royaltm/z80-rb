@@ -63,6 +63,7 @@ end
 
 UTIL_TESTS = %w[
   z80/stdlib.rb
+  z80/utils/collision_field.rb
   z80/utils/shuffle.rb
   z80/utils/sincos.rb
   z80/utils/sort.rb
