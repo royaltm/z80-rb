@@ -314,9 +314,11 @@ module ZXLib
             bc_spaces   addr 0x0030 # THE 'CREATE BC SPACES' RESTART
             mask_int    addr 0x0038 # THE 'MASKABLE INTERRUPT' ROUTINE
             key_int     addr 0x0048 # KEY-INT part of the interrupt routine
+            beeper      addr 0x03B5 # Routine to control loudspeaker
+            beep        addr 0x03F8 # THE 'BEEP' COMMAND
             keyboard    addr 0x02BF # read KEYBOARD routine called from the system interrupt routine
-            ld_bytes    addr 0x0556 # Load bytes: A - 0x00 header, 0xFF data; IX - address, DE - length, CF - 1=LOAD, 0=VERIFY; output: CF=1 ok
             sa_bytes    addr 0x04C2 # Save bytes: A - 0x00 header, 0xFF data; IX - address, DE - length
+            ld_bytes    addr 0x0556 # Load bytes: A - 0x00 header, 0xFF data; IX - address, DE - length, CF - 1=LOAD, 0=VERIFY; output: CF=1 ok
             po_any      addr 0x0B24 # THE 'PRINT ANY CHARACTER' ROUTINE
             po_gr_1     addr 0x0B38 # The 16 2*2 mosaic characters 128-143 decimal are formed from bits 0-3 of the character
             error_5     addr 0x0C86 # Out of screen
