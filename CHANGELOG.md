@@ -1,5 +1,5 @@
-v1.2.0.pre-3
-============
+v1.2.0
+======
 
 Z80:
 ---
@@ -40,6 +40,7 @@ Z80:
 
 ZXLib:
 -----
+* ZXLib::Sys: missing beeper ROM routines added.
 * ZXLib::Gfx::Macros#rctoscr argument validation fixed.
 * ZXLib::Gfx::Macros#nextrow option +:branch_rel+ added.
 * ZXLib::Sys::Macros#find_record macro improved.
