@@ -51,22 +51,23 @@ module ZXLib
         # * +cols+:: A number of 8 pixel columns to be copied as an 8-bit register or a label or a pointer.
         #            If an accumulator (+a+) is given to +cols+ then the value is expected in +a'+.
         #            The number 0 is treated as 65536 and will lead to UNDEFINED BEHAVIOUR, clobbering
-        #            the whole memory in the process.
+        #            the entire memory in the process.
         #
         # _NOTE_:: Unless +cols+ is one of: +ixh+, +ixl+, +iyh+ or +iyl+ the routine uses self modifying code.
         #
         # Options:
         # * +screen+:: A direct or indirect address of the screen memory where the lines of the bitmap will
-        #    be copied to (or from), as a label, an integer or a 16-bit register +de+ or +hl+ depending on
-        #    the +copy_back+ option. The starting address of the entire screen memory must be a multiple
-        #    of 0x2000. If this option is +nil+, an appropriate 16-bit register pair is chosen based on the
-        #    +copy_back+ option.
+        #              be copied to (or from), as a label, an integer or a 16-bit register +de+ or +hl+
+        #              depending on the +copy_back+ option. The starting address of the entire screen memory
+        #              must be a multiple of 0x2000. If this option is +nil+, an appropriate 16-bit register
+        #              pair is chosen based on the +copy_back+ option.
         # * +copy_back+:: A boolean indicating whether to copy pixel data from the screen (+true+) or to
-        #    the screen (+false+).
-        # * +scraddr+:: An optional entire screen memory address which must be a multiple of 0x2000 as
-        #    an integer or an immediate label. If provided the routine breaks execution when the bottom
-        #    of the screen has been reached. +CF+ = 0 (NC) is signalled if the routine terminates prematurely
-        #    due to reaching the bottom of the screen. Otherwise +CF+ = 1 if the whole bitmap has been copied.
+        #                 the screen (+false+).
+        # * +scraddr+:: An optional screen memory start address which must be a multiple of 0x2000 as an
+        #               integer or an immediate label. If provided the routine breaks execution when the bottom
+        #               of the screen has been reached. +CF+ = 0 (NC) is signalled if the routine terminates
+        #               prematurely due to reaching the bottom of the screen. Otherwise +CF+ = 1 if the bitmap
+        #               has been copied in its entirety.
         # * +subroutine+:: A boolean indicating whether to create a subroutine.
         #
         # The 16-bit registers that can be used for a +bitmap+ argument and a +screen+ option:
@@ -202,18 +203,19 @@ module ZXLib
         # * +cols+:: A number of 8 pixel columns to be copied as an 8-bit register or a label or a pointer.
         #            If an accumulator (+a+) is given to +cols+ then the value is expected in +a'+.
         #            The number 0 is treated as 65536 and will lead to UNDEFINED BEHAVIOUR, clobbering
-        #            the whole memory in the process.
+        #            the entire memory in the process.
         #
         # _NOTE_:: Unless +cols+ is one of: +ixh+, +ixl+, +iyh+ or +iyl+ the routine uses self modifying code.
         #
         # Options:
         # * +target+:: A direct or indirect address of the screen memory to be combined with the lines of the
-        #    bitmap as a label, an integer or +de+. The starting address of the entire screen memory must be
-        #    a multiple of 0x2000.
-        # * +scraddr+:: An optional entire screen memory address which must be a multiple of 0x2000 as
-        #    an integer or an immediate label. If provided, the routine breaks execution when the bottom
-        #    of the screen has been reached. +CF+ = 0 (NC) is signalled if the routine terminates prematurely
-        #    due to reaching the bottom of the screen. Otherwise +CF+ = 1 if the whole bitmap has been copied.
+        #              bitmap as a label, an integer or +de+. The starting address of the entire screen memory
+        #              must be a multiple of 0x2000.
+        # * +scraddr+:: An optional screen memory start address which must be a multiple of 0x2000 as an
+        #               integer or an immediate label. If provided, the routine breaks execution when the bottom
+        #               of the screen has been reached. +CF+ = 0 (NC) is signalled if the routine terminates
+        #               prematurely due to reaching the bottom of the screen. Otherwise +CF+ = 1 if the bitmap
+        #               has been copied in its entirety.
         # * +subroutine+:: A boolean indicating whether to create a subroutine.
         #
         # The +mode+ option can be changed at run time in the resulting routine, by storing a new operation
@@ -343,22 +345,23 @@ module ZXLib
         # * +cols+:: A number of attribute columns to be copied as an 8-bit register or a label or a pointer.
         #            If an accumulator (+a+) is given to +cols+ then the value is expected in +a'+.
         #            The number 0 is treated as 65536 and will lead to UNDEFINED BEHAVIOUR, clobbering
-        #            the whole memory in the process.
+        #            the entire memory in the process.
         #
         # _NOTE_:: Unless +cols+ is one of: +ixh+, +ixl+, +iyh+ or +iyl+ the routine uses self modifying code.
         #
         # Options:
         # * +screen+:: A direct or indirect address of the screen attributes memory where the rows of the
-        #    attributes will be copied to (or from), as a label, an integer or a 16-bit register +de+ or
-        #    +hl+, depending on the +copy_back+ option. The starting address of the entire screen
-        #    memory must be a multiple of 0x2000. If this option is +nil+, an appropriate 16-bit register
-        #    pair is chosen based on the +copy_back+ option.
+        #              attributes will be copied to (or from), as a label, an integer or a 16-bit register
+        #              +de+ or +hl+, depending on the +copy_back+ option. The starting address of the entire
+        #              screen memory must be a multiple of 0x2000. If this option is +nil+, an appropriate
+        #              16-bit register pair is chosen based on the +copy_back+ option.
         # * +copy_back+:: A boolean indicating whether to copy attributes from the screen (+true+) or to
-        #    the screen (+false+).
-        # * +scraddr+:: An optional entire screen memory address which must be a multiple of 0x2000 as
-        #    an integer or an immediate label. If provided, the routine breaks execution when the bottom
-        #    of the screen has been reached. +CF+ = 0 (NC) is signalled if the routine terminates prematurely
-        #    due to reaching the bottom of the screen. Otherwise +CF+ = 1 if all the attributes has been copied.
+        #                 the screen (+false+).
+        # * +scraddr+:: An optional screen memory start address which must be a multiple of 0x2000 as an
+        #               integer or an immediate label. If provided, the routine breaks execution when the bottom
+        #               of the screen has been reached. +CF+ = 0 (NC) is signalled if the routine terminates
+        #               prematurely due to reaching the bottom of the screen. Otherwise +CF+ = 1 if all the
+        #               attributes has been copied.
         # * +subroutine+:: A boolean indicating whether to create a subroutine.
         #
         # Modifies: +af+, +af'+, +bc+, +bc'+, +de+, +hl+. Swaps registers unless out of screen.
@@ -449,8 +452,7 @@ module ZXLib
         # _NOTE_:: Interrupts must be disabled prior to calling this routine or the +disable_intr+
         #          option must be set to +true+.
         #
-        # Copying back bitmap data from screen memory to bitmap memory is performed backwards - from the last
-        # byte of memory to the first one.
+        # Copying back bitmap data from the screen memory is performed in reverse.
         #
         # Note that when copying back bitmap data from the screen while the bitmap byte size is odd
         # (when both +cols+ and +lines+ are odd), and because a single +push+ instruction modifies 2 bytes
@@ -461,32 +463,36 @@ module ZXLib
         # be padded by a single byte in front of it.
         #
         # * +bitmap+:: A direct or indirect address of a bitmap data containing the pixel lines as a label,
-        #    an integer or a 16-bit register pair: +ix+, +iy+ or +sp+.
+        #              an integer or a 16-bit register pair: +ix+, +iy+ or +sp+.
         # * +lines+:: A number of pixel lines to be copied as an 8-bit register, a label, pointer or an integer.
         #             The number 0 is treated as 256 and most likely will lead to UNDEFINED BEHAVIOUR.
         # * +cols+:: A constant number of 8 pixel columns to be copied as an integer.
         #
         # Options:
         # * +screen+:: A direct or indirect address of the screen memory where the lines of the bitmap will
-        #    be copied to (or from), as a label, an integer or +hl+. The starting address of the entire screen
-        #    memory must be a multiple of 0x2000.
-        # * +copy_back+:: A boolean indicating whether to copy pixel data from the screen (+true+) or to the
-        #    screen (+false+). If +copy_back+ is +true+, the +bitmap+ and +screen+ must point to the __last__
-        #    byte of both the bitmap data and the screen area (bottom - rightmost corner).
-        # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
-        #    only if interrupts are disabled prior to entering this routine.
-        # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
-        #    if more uninterrupted actions need to performed after this routine completes execution.
+        #              be copied to (or from), as a label, an integer or +hl+. The starting address of the
+        #              entire screen memory must be a multiple of 0x2000.
+        # * +copy_back+:: A boolean indicating whether to copy pixel data from the screen (+truthy+) or to the
+        #                 screen (+false+). If +copy_back+ is +true+ or +:padded+, the +screen+ must point to
+        #                 the bottom - rightmost corner byte of the pixel memory and +bitmap+ must point past
+        #                 the end of the bitmap memory where pixel data will be copied to in reverse.
+        # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Set to
+        #                    +false+ only if interrupts are disabled prior to entering this routine.
+        # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Set to +false+
+        #                   if more uninterrupted actions need to performed after this routine completes execution.
         # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored. Otherwise
-        #    +sp+ will point behind the end of the last source line (or before the first if +copy_back+ is +true+).
-        # * +scraddr+:: An optional entire screen memory address which must be a multiple of 0x2000 as
-        #    an integer or an immediate label. If provided the routine breaks execution when the bottom
-        #    of the screen has been reached. +CF+ = 0 (NC) is signalled if the routine terminates prematurely
-        #    due to reaching the bottom of the screen. Otherwise +CF+ = 1 if the whole bitmap has been copied.
-        # * +subroutine+:: A boolean indicating whether to create a subroutine.
+        #               when this routine completes execution +sp+ will point behind the last source byte,
+        #               or to the first destination byte if +copy_back+ is +true+.
+        # * +scraddr+:: An optional, screen memory start address which must be a multiple of 0x2000, as an
+        #               integer or an immediate label. If provided, the routine breaks execution when the bottom
+        #               of the screen has been reached. +CF+ = 0 (NC) is signalled if the routine terminates
+        #               prematurely due to reaching the bottom of the screen. Otherwise +CF+ = 1 if the bitmap
+        #               has been copied in its entirety.
+        # * +subroutine+:: A boolean indicating whether to create a subroutine. Enabling this option requires
+        #                  enabling +save_sp+ option.
         #
-        # If +bitmap+ is a direct address, it can be later changed  at run time by storing a new bitmap address
-        # at the +bitmap_p+ sub-label.
+        # If +bitmap+ is a direct address, it can be later changed  at run time by storing a new address at the
+        # +bitmap_p+ sub-label.
         #
         # _NOTE_:: Restoring +sp+ register uses self-modifying code.
         #
@@ -749,27 +755,43 @@ module ZXLib
         # _NOTE_:: Interrupts must be disabled prior to calling this routine or the +disable_intr+
         #          option must be set to +true+.
         #
-        # * +attrs+:: An address of attributes to be copied from as a label, pointer, an integer or one of the
-        #             registers: +ix+, +iy+ or +sp+.
+        # Copying back attributes from the screen memory is performed in reverse.
+        #
+        # Note that when copying back attributes from the screen while the attributes byte size is odd
+        # (when both +cols+ and +rows+ are odd), and because a single +push+ instruction modifies 2 bytes
+        # the first (odd) attribute byte will remain in the +d+ register and has to be transfered to the
+        # beginning of the data outside of this routine, unless +copy_back+ option is +:padded+.
+        # In this instance the last push will be performed modifying an additional pad byte, preceding in
+        # memory the very first address of destination attributes data. In this instance the attributes
+        # data must be padded by a single byte in front of it.
+        #
+        # * +attrs+:: A direct or indirect address of a memory area containing the attributes as a label,
+        #             an integer or a 16-bit register pair: +ix+, +iy+ or +sp+.
         # * +rows+:: A number of attribute rows to be copied as an 8-bit register or a label, pointer or an integer.
         #            The number 0 is treated as 256 and most likely will lead to UNDEFINED BEHAVIOUR.
         # * +cols+:: A constant number of attribute columns to be copied as an integer.
         #
         # Options:
         # * +screen+:: A direct or indirect address of the screen attributes memory where the attribute rows
-        #    will be copied to (or from), as a label, an integer or a 16-bit register +hl+.
-        #    The starting address of the entire screen memory must be a multiple of 0x2000.
-        # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
-        #    only if interrupts are disabled prior to entering this routine.
-        # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
-        #    if more uninterrupted actions need to performed after this routine completes execution.
+        #              will be copied to (or from), as a label, an integer or a 16-bit register +hl+.
+        #              The starting address of the entire screen memory must be a multiple of 0x2000.
+        # * +copy_back+:: A boolean indicating whether to copy attributes from the screen (+truthy+) or to the
+        #                 screen (+false+). If +copy_back+ is +true+ or +:padded+, the +screen+ must point to
+        #                 the bottom - rightmost corner byte of the attributes and +attrs+ must point past
+        #                 the end of the memory where attributes will be copied to in reverse.
+        # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Set to +false+
+        #                    only if interrupts are disabled prior to entering this routine.
+        # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Set to +false+
+        #                   if more uninterrupted actions need to performed after this routine completes execution.
         # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored. Otherwise
-        #               +sp+ will point behind the end of the last source row.
+        #               when this routine completes execution +sp+ will point behind the last source byte,
+        #               or to the first destination byte if +copy_back+ is +true+.
         # * +check_oos+:: If +true+ reduces number of rows if the bottom of the screen would have been exceeded.
-        # * +subroutine+:: A boolean indicating whether to create a subroutine.
+        # * +subroutine+:: A boolean indicating whether to create a subroutine. Enabling this option requires
+        #                  enabling +save_sp+ option.
         #
-        # If +attrs+ is a direct address, it can be later changed  at run time by storing a new bitmap address
-        # at the +attrs_p+ sub-label.
+        # If +attrs+ is a direct address, it can be later changed at run time by storing a new address at the 
+        # +attrs_p+ sub-label.
         #
         # _NOTE_:: Restoring +sp+ register uses self-modifying code.
         #
@@ -1101,10 +1123,10 @@ module ZXLib
         # * +lclip+:: Skips drawing the leftmost screen column for non zero +bshift+ values if enabled.
         # * +rclip+:: Skips drawing the rightmost screen column for non zero +bshift+ values if enabled.
         # * +no0shift+:: If this option is not +nil+ skips creating the drawing routine for +bshift+ equal
-        #   to 0. Provide a label to +draw_pixels_fast_label.quit+ or to an existing implementation, e.g.:
-        #   +draw_pixels_fast_routines.line_rshift0.loop0+. Calling such a routine with +bshift+ register
-        #   holding zero is safe but nothing will be drawn and CF flag will be reset upon return if +quit+
-        #   was provided.
+        #                to 0. Provide a label to +draw_pixels_fast_label.quit+ or to an existing implementation,
+        #                e.g.: +draw_pixels_fast_routines.line_rshift0.loop0+. Calling such a routine with a
+        #                +bshift+ register holding zero is safe but nothing will be drawn and CF flag will be
+        #                reset upon return if +quit+ was provided.
         # * +merge+:: Whether the <tt>line_rshift{0-7}</tt> labels should be merged with the current context.
         # * +jump_eoc+:: Whether the <code>jp next_row</code> should be appended at the end of the generated code.
         def bobs_draw_pixels_fast_routines(next_row, cols,
@@ -1336,7 +1358,7 @@ module ZXLib
         #
         # Options:
         # * +target+:: An address of a screen memory area to be copied to as a label, pointer, an integer or +hl+.
-        #              The starting address of the whole screen area must be a multiple of 0x2000.
+        #              The starting address of the entire screen area must be a multiple of 0x2000.
         # * +bshift+:: One of 8-bit registers: +b+, +c+, +d+, +e+.
         #              The value of the register specifies how many pixels to the right the bitmap must be shifted
         #              before drawing the bitmap on the screen. The actual value must be in the range from 0 up to 7.
@@ -1351,24 +1373,27 @@ module ZXLib
         #                Calling such a routine with +bshift+ register holding zero is safe but nothing
         #                will be drawn and CF flag will be reset upon return.
         # * +tx+:: A temporary jump address register: +ix+ or +iy+.
-        # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Provide +false+
-        #    only if interrupts are disabled prior to entering this routine.
-        # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Provide +false+
-        #    if more uninterrupted actions need to performed after this routine completes execution.
+        # * +disable_intr+:: A boolean flag indicating that the routine should disable interrupts. Set to +false+
+        #                    only if interrupts are disabled prior to entering this routine.
+        # * +enable_intr+:: A boolean flag indicating that the routine should enable interrupts. Set to +false+
+        #                   if more uninterrupted actions need to performed after this routine completes execution.
         # * +save_sp+:: A boolean flag indicating that the +sp+ register should be saved and restored. Otherwise
-        #               +sp+ will point behind the end of the last source line.
+        #               +sp+ will point past the end of the last source line.
         # * +scraddr+:: An optional entire screen memory address which must be a multiple of 0x2000 as
-        #    an integer or an immediate label. If provided the routine breaks execution when the bottom
-        #    of the screen has been reached. +CF+ = 0 (NC) is signalled if the routine terminates prematurely
-        #    due to reaching the bottom of the screen. Otherwise +CF+ = 1 if the whole bitmap has been drawn.
+        #               an integer or an immediate label. If provided the routine breaks execution when the bottom
+        #               of the screen has been reached. +CF+ = 0 (NC) is signalled if the routine terminates
+        #               prematurely due to reaching the bottom of the screen. Otherwise +CF+ = 1 if the bitmap
+        #               has been drawn in its entirety.
         # * +jump_table+:: A label, a pointer address or one of +de+/+bc+/+ix+/+iy+ register pairs referencing
-        #    an external jump table created with Macros#bobs_draw_pixels_fast_jump_table. If not provided an
-        #    internal jump table will be created instead. In this instance a +jump_table+ can be later changed
-        #    at run time by storing a new jump table address at the +jump_table_p+ sub-label.
-        # * +subroutine+:: A boolean indicating whether to create a subroutine.
+        #                  an external jump table created with Macros#bobs_draw_pixels_fast_jump_table. If not
+        #                  provided an internal jump table will be created instead. In this instance a
+        #                  +jump_table+ can be later changed at run time by storing a new jump table address at
+        #                  the +jump_table_p+ sub-label.
+        # * +subroutine+:: A boolean indicating whether to create a subroutine. Enabling this option requires
+        #                  enabling +save_sp+ option.
         #
-        # If +bitmap+ is a direct address, it can be later changed  at run time by storing a new bitmap address
-        # at the +bitmap_p+ sub-label.
+        # If +bitmap+ is a direct address, it can be later changed at run time by storing a new address at the
+        # +bitmap_p+ sub-label.
         #
         # _NOTE_:: Restoring +sp+ register uses self-modifying code.
         #
