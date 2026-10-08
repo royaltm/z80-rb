@@ -379,7 +379,7 @@ module Z80
             # T-states (register count):
             #     1: 12, 2: 24|27, 3: 36|39|40|42, 4: 48|52|54|57, 5: 60|64|69|72, 6: 84|87.
             def neg_int(*regs, t:nil, t_is_zero:false, optimize_last:false)
-                raise ArgumentError, "neg_int invalid arguments!" if regs.empty? or regs.include?(a) or
+                raise ArgumentError, "neg_int: invalid arguments!" if regs.empty? or regs.include?(a) or
                                                                    regs.any?{|r| !register?(r) || !r.bit8? } or
                                                                    regs.uniq.size != regs.size or
                                                                    !(t.nil? or [b,c,d,e,h,l].include?(t))
@@ -2990,11 +2990,11 @@ module Z80
             #              +k_leq_m+ options are being ignored.
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the +accumulator+ is being altered.
-            #              +CF+ should be ignored if +check0+ is +false+. It may also be a label
+            #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
             #              (within the relative jump range) to indicate where to jump if +m+ is 0.
-            # * +check0_far+:: Allow to specify far (outside the relative jump range) +check0+ label.
-            # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. It may also be a label
-            #              to indicate where to jump if +m+ equals 1.
+            # * +check0_far+:: Allow to specify a far (outside the relative jump range) +check0+ label.
+            # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
+            #              be a label to indicate where to jump if +m+ equals 1.
             # * +k_leq_m+:: Short circuits if a dividend is equal to or less than a divisor, a hot path
             #               optimization.
             # * +modulo+:: Calculates a remainder only.
@@ -3275,18 +3275,29 @@ module Z80
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the register +a+ is being altered.
-            #              +CF+ should be ignored if +check0+ is +false+.
-            # * +check1+:: Checks if a divisor is 1, a hot path optimization.
+            #              and nothing except the +accumulator+ is being altered.
+            #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
+            #              (within the relative jump range) to indicate where to jump if +m+ is 0.
+            # * +check0_far+:: Allow to specify a far (outside the relative jump range) +check0+ label.
+            #                  If this is +true+, +check0+ must be specified as a label.
+            # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
+            #              be a label to indicate where to jump if +m+ equals 1.
             # * +modulo+:: Calculates a remainder only.
-            # * +jump_rel+: Use relative jumps only.
+            # * +jump_rel+: Use relative jumps only. If +check0_far+ is +true+ the absolute jump
+            #               will be generated regardless of the +jump_rel+ value.
+            # * +ignore_cf+:: Removes instruction to clear CF if +check0+ is also set. This can be used if
+            #                 +check0+ is provided as a label instead of checking the state of the CF flag.
+            # * +subroutine+: Creates a sub-routine.
             #
             # _NOTE_:: A stacked Macros.divmod presents a faster (up to 12%) but a significantly
             #          larger (x1.5) alternative.
             #
             # Uses: +af+, +b+, +hl+, preserves: +m+.
-            def divmod8(m=c, check0:true, check1:true, modulo:false, jump_rel:false)
-                raise ArgumentError unless [c, d, e].include?(m)
+            def divmod8(m=c, check0:true, check0_far:false, check1:true, modulo:false, jump_rel:false, ignore_cf:false, subroutine:false)
+                raise ArgumentError, "divmod8: invalid m argument!" unless [c, d, e].include?(m)
+                raise ArgumentError, "divmod8: invalid check0 argument!" unless [true, false].include?(check0) || direct_address?(check0)
+                raise ArgumentError, "divmod8: invalid check1 argument!" unless [true, false].include?(check1) || direct_address?(check1)
+                raise ArgumentError, "divmod8: invalid check0_far argument!" if check0_far && !direct_address?(check0)
                 jump = proc do |cond, target|
                     if jump_rel
                             jr   cond, target
@@ -3295,12 +3306,20 @@ module Z80
                     end
                 end
                 isolate do |eoc|
-                    check1 = eoc if check1 == true
                     check0 = eoc if check0 == true
+                    check1 = eoc if check1 == true
                     if check0 or check1
                                     ld  a, m
                                     cp  1
-                                    jr  C, check0 if check0 # division by 0
+                        if check0 # division by 0
+                            if check0_far
+                                    jp  C, check0
+                            elsif subroutine && check0 == eoc
+                                    ret C
+                            else
+                                    jr  C, check0
+                            end
+                        end
                         if check1
                                     jr  Z, divone    # division by m == 1
                         end
@@ -3310,10 +3329,16 @@ module Z80
                     findhi          add hl, hl       # align highest set bit at CF
                                     jr  C, found
                                     djnz findhi
-                                    jump.call nil, eoc # hl == 0
+                                    # hl == 0
+                                    ret if subroutine
+                                    jump.call nil, eoc unless subroutine
                     if check1
                         divone      xor a            # clear rest
+                        if subroutine && check1 == eoc
+                                    ret
+                        else
                                     jump.call nil, check1 # division by 1
+                        end
                     end
                     loopfit         add hl, hl       # carry <- hl <- 0
                     found           adc a            # carry <- a <- carry
@@ -3321,17 +3346,19 @@ module Z80
                                     cp  m            # a - m
                                     jr  NC, fits     # a >= m
                                     djnz loopfit     # loop
-                    if check0
+                    if check0 && !ignore_cf
                                     jump.call nil, quitccf # clear carry only when check0
                     else
-                                    jump.call nil, eoc
+                                    ret if subroutine
+                                    jump.call nil, eoc unless subroutine
                     end
                     fits            sub m            # a = a - m (rest)
                     unless modulo
                                     inc l            # hl <- 1 (quotient)
                     end
                                     djnz loopfit     # loop
-                    quitccf         anda a if check0 # clear carry only when check0
+                    quitccf         anda a if check0 && !ignore_cf # clear carry only when check0
+                                    ret if subroutine
                 end
             end
             ##
@@ -3348,7 +3375,7 @@ module Z80
             #              and nothing except the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. It may also be a label
             #              (within the relative jump range) to indicate where to jump if +m+ equals 0.
-            # * +check0_far+:: Allow to specify far (outside the relative jump range) +check0+ label.
+            # * +check0_far+:: Allow to specify a far (outside the relative jump range) +check0+ label.
             # * +check1+:: Checks if a divisor equals 1, a hot path optimization. It may also be a label
             #              to indicate where to jump if +m+ equals 1.
             # * +k_leq_m+:: Short circuits if +kh+ is equal or less than a divisor, a hot path optimization.
@@ -3383,9 +3410,13 @@ module Z80
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the +accumulator+ is being altered. 
-            #              +CF+ should be ignored if +check0+ is +false+.
-            # * +check1+:: Checks if a divisor is 1, a hot path optimization.
+            #              and nothing except the +accumulator+ is being altered.
+            #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
+            #              (within the relative jump range) to indicate where to jump if +de+ is 0.
+            # * +check0_far+:: Allow to specify a far (outside the relative jump range) +check0+ label.
+            #                  If this is +true+, +check0+ must be specified as a label.
+            # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
+            #              be a label to indicate where to jump if +de+ equals 1.
             # * +modulo+:: Calculates a remainder only.
             # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance uses a different,
             #              optimized for 8-bit division code. +quick8+ can also be set to +:divmod8+ to use
@@ -3393,10 +3424,16 @@ module Z80
             # * +jump_rel+: Use relative jumps only. This argument is passed to Macros.divmod8 if +quick8+
             #               is +:divmod8+ but not to Macros.divmod if +quick8+ is +true+. Thus, absolute jumps
             #               can still be produced.
+            # * +ignore_cf+:: Removes instruction to clear CF if +check0+ is also set. This can be used if
+            #                 +check0+ is provided as a label instead of checking the state of the CF flag.
+            # * +subroutine+: Creates a sub-routine.
             #
             # Uses: +af+, +bc+, +hl+, +x+, preserves: +de+.
-            def divmod16(x=ixl, check0:true, check1:true, modulo:false, quick8:true, jump_rel:false)
-                raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
+            def divmod16(x=ixl, check0:true, check0_far:false, check1:true, modulo:false, quick8:true, jump_rel:false, ignore_cf:false, subroutine:false)
+                raise ArgumentError, "divmod16: invalid x argument!" unless [ixh, ixl, iyh, iyl].include?(x)
+                raise ArgumentError, "divmod16: invalid check0 argument!" unless [true, false].include?(check0) || direct_address?(check0)
+                raise ArgumentError, "divmod16: invalid check1 argument!" unless [true, false].include?(check1) || direct_address?(check1)
+                raise ArgumentError, "divmod16: invalid check0_far argument!" if check0_far && !direct_address?(check0)
                 jump = proc do |cond, target|
                     if jump_rel
                             jr   cond, target
@@ -3413,29 +3450,56 @@ module Z80
                                         jump.call NZ, div16strt
                         if quick8
                             if quick8 == :divmod8
-                                        divmod8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo, jump_rel:jump_rel
+                                        divmod8 e, check0:(check0 && qcheck0),
+                                                   check1:(check1 && qcheck1),
+                                                   modulo:modulo,
+                                                   jump_rel:jump_rel,
+                                                   ignore_cf:true
                             else
-                                        divmod h, e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo, optimize: :time, ignore_cf:true
+                                        divmod h, e, check0:(check0 && qcheck0),
+                                                     check1:(check1 && qcheck1),
+                                                     modulo:modulo,
+                                                     optimize: :time,
+                                                     ignore_cf:true
                                         divmod l, e, clrrem:false, optimize: :time
-                                        anda a if check0
                             end
+                                        anda a if check0 && !ignore_cf
                                         ld  c, a
+
                             if check0 == eoc
                             qcheck0     label
                             end
-                                        jump.call nil, eoc
+                                        ret if subroutine
+                                        jump.call nil, eoc unless subroutine
                             if check1
                             qcheck1     ld  b, a
                                         ld  c, a
-                                        jump.call nil, check1
+                                if subroutine && check1 == eoc
+                                        ret
+                                else
+                                        jump.call nil, check1 # division by 1
+                                end
                             end
                             if check0 && !(check0 == eoc)
-                            qcheck0     jump.call nil, check0
+                            qcheck0     label
+                                if check0_far
+                                        jp  check0
+                                else
+                                        jump nil, check0
+                                end
                             end
                         elsif check0 or check1
                                         ld  a, e
                                         cp  1
-                                        jr  C, check0 if check0 # division by 0
+                            if check0 # division by 0
+                                if check0_far
+                                        jp  C, check0
+                                elsif subroutine && check0 == eoc
+                                        ret C
+                                else
+                                        jr  C, check0
+                                end
+                            end
                             if check1
                                         jr  Z, divone     # division by m == 1
                             end
@@ -3447,18 +3511,24 @@ module Z80
                     findhi              add hl, hl       # align highest set bit at CF
                                         jr  C, found
                                         djnz findhi
-                                        jump.call nil, eoc # hl == 0, bc == 0
+                                        # hl == 0, bc == 0
+                                        ret if subroutine
+                                        jump.call nil, eoc unless subroutine
                     loopfit             add hl, hl       # carry <- hl <- 0
                     found               rl  c            # carry <- c <- carry
                                         adc a            # carry <- a <- carry
                                         cp  d            # a - d
                                         jr  NC, fitshi   # a >= d
                                         djnz loopfit     # loop
-                                        ccf if check0
+                                        ccf if check0 && !ignore_cf
                                         jump.call nil, over
                     if check1 && !quick8
                         divone          ld  bc, 0         # clear rest
+                        if subroutine && check1 == eoc
+                                        ret
+                        else
                                         jump.call nil, check1 # division by 1
+                        end
                     end
                     fitshi              ld  x, a
                                         ld  a, c
@@ -3467,7 +3537,7 @@ module Z80
                                         jr  NC, fitslo   # a >= e
                                         ld  a, x
                                         djnz loopfit     # loop
-                                        ccf if check0
+                                        ccf if check0 && !ignore_cf
                                         jump.call nil, over
                     fitslo              sub e            # a = c - e
                                         ld  c, a         # c = c - e
@@ -3478,6 +3548,7 @@ module Z80
                     end
                                         djnz loopfit     # loop
                     over                ld  b, a         # bc = remainder
+                                        ret if subroutine
                 end
             end
             ##
@@ -3494,7 +3565,7 @@ module Z80
             #              and nothing except the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. It may also be a label
             #              (within the relative jump range) to indicate where to jump if +m+ equals 0.
-            # * +check0_far+:: Allow to specify far (outside the relative jump range) +check0+ label.
+            # * +check0_far+:: Allow to specify a far (outside the relative jump range) +check0+ label.
             # * +check1+:: Checks if a divisor equals 1, a hot path optimization. It may also be a label
             #              to indicate where to jump if +m+ equals 1.
             # * +k_leq_m+:: Short circuits if +kh+ is equal or less than a divisor, a hot path optimization.
