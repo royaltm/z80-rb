@@ -3279,13 +3279,21 @@ module Z80
             #              +CF+ should be ignored if +check0+ is +false+.
             # * +check1+:: Checks if a divisor is 1, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
+            # * +jump_rel+: Use relative jumps only.
             #
             # _NOTE_:: A stacked Macros.divmod presents a faster (up to 12%) but a significantly
             #          larger (x1.5) alternative.
             #
             # Uses: +af+, +b+, +hl+, preserves: +m+.
-            def divmod8(m=c, check0:true, check1:true, modulo:false)
+            def divmod8(m=c, check0:true, check1:true, modulo:false, jump_rel:false)
                 raise ArgumentError unless [c, d, e].include?(m)
+                jump = proc do |cond, target|
+                    if jump_rel
+                            jr   cond, target
+                    else
+                            jp   cond, target
+                    end
+                end
                 isolate do |eoc|
                     check1 = eoc if check1 == true
                     check0 = eoc if check0 == true
@@ -3302,10 +3310,10 @@ module Z80
                     findhi          add hl, hl       # align highest set bit at CF
                                     jr  C, found
                                     djnz findhi
-                                    jp  eoc          # hl == 0
+                                    jump.call nil, eoc # hl == 0
                     if check1
                         divone      xor a            # clear rest
-                                    jp  check1       # division by 1
+                                    jump.call nil, check1 # division by 1
                     end
                     loopfit         add hl, hl       # carry <- hl <- 0
                     found           adc a            # carry <- a <- carry
@@ -3314,9 +3322,9 @@ module Z80
                                     jr  NC, fits     # a >= m
                                     djnz loopfit     # loop
                     if check0
-                                    jp  quitccf      # clear carry only when check0
+                                    jump.call nil, quitccf # clear carry only when check0
                     else
-                                    jp  eoc
+                                    jump.call nil, eoc
                     end
                     fits            sub m            # a = a - m (rest)
                     unless modulo
@@ -3382,20 +3390,30 @@ module Z80
             # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance uses a different,
             #              optimized for 8-bit division code. +quick8+ can also be set to +:divmod8+ to use
             #              Macros.divmod8 (smaller code) instead of stacked Macros.divmod for an 8-bit division.
+            # * +jump_rel+: Use relative jumps only. This argument is passed to Macros.divmod8 if +quick8+
+            #               is +:divmod8+ but not to Macros.divmod if +quick8+ is +true+. Thus, absolute jumps
+            #               can still be produced.
             #
             # Uses: +af+, +bc+, +hl+, +x+, preserves: +de+.
-            def divmod16(x=ixl, check0:true, check1:true, modulo:false, quick8:true)
+            def divmod16(x=ixl, check0:true, check1:true, modulo:false, quick8:true, jump_rel:false)
                 raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
+                jump = proc do |cond, target|
+                    if jump_rel
+                            jr   cond, target
+                    else
+                            jp   cond, target
+                    end
+                end
                 isolate do |eoc|
                     check0 = eoc if check0 == true
                     check1 = eoc if check1 == true
                     if check0 or check1 or quick8
                                         xor a
                                         ora d
-                                        jp  NZ, div16strt
+                                        jump.call NZ, div16strt
                         if quick8
                             if quick8 == :divmod8
-                                        divmod8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo
+                                        divmod8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo, jump_rel:jump_rel
                             else
                                         divmod h, e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo, optimize: :time, ignore_cf:true
                                         divmod l, e, clrrem:false, optimize: :time
@@ -3405,14 +3423,14 @@ module Z80
                             if check0 == eoc
                             qcheck0     label
                             end
-                                        jp  eoc
+                                        jump.call nil, eoc
                             if check1
                             qcheck1     ld  b, a
                                         ld  c, a
-                                        jp  check1
+                                        jump.call nil, check1
                             end
                             if check0 && !(check0 == eoc)
-                            qcheck0     jp  check0
+                            qcheck0     jump.call nil, check0
                             end
                         elsif check0 or check1
                                         ld  a, e
@@ -3429,7 +3447,7 @@ module Z80
                     findhi              add hl, hl       # align highest set bit at CF
                                         jr  C, found
                                         djnz findhi
-                                        jp  eoc          # hl == 0, bc == 0
+                                        jump.call nil, eoc # hl == 0, bc == 0
                     loopfit             add hl, hl       # carry <- hl <- 0
                     found               rl  c            # carry <- c <- carry
                                         adc a            # carry <- a <- carry
@@ -3437,10 +3455,10 @@ module Z80
                                         jr  NC, fitshi   # a >= d
                                         djnz loopfit     # loop
                                         ccf if check0
-                                        jp  over
+                                        jump.call nil, over
                     if check1 && !quick8
                         divone          ld  bc, 0         # clear rest
-                                        jp  check1        # division by 1
+                                        jump.call nil, check1 # division by 1
                     end
                     fitshi              ld  x, a
                                         ld  a, c
@@ -3450,7 +3468,7 @@ module Z80
                                         ld  a, x
                                         djnz loopfit     # loop
                                         ccf if check0
-                                        jp  over
+                                        jump.call nil, over
                     fitslo              sub e            # a = c - e
                                         ld  c, a         # c = c - e
                                         ld  a, x
@@ -3514,13 +3532,21 @@ module Z80
             #              +CF+ should be ignored if +check0+ is +false+.
             # * +check1+:: Checks if a divisor is 1, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
+            # * +jump_rel+: Use relative jumps only.
             #
             # _NOTE_:: A stacked Macros.divmod presents a faster (9-16%) but a significantly
             #          larger (x2) alternative.
             #
             # Uses: +af+, +af'+, +b+, +b'+, +hl+, +hl'+, +mt'+, preserves: +m+.
-            def divmod32_8(m=c, mt:c, check0:true, check1:true, modulo:false)
+            def divmod32_8(m=c, mt:c, check0:true, check1:true, modulo:false, jump_rel:false)
                 raise ArgumentError unless [c, d, e].include?(m)
+                jump = proc do |cond, target|
+                    if jump_rel
+                            jr   cond, target
+                    else
+                            jp   cond, target
+                    end
+                end
                 isolate do |eoc|
                     check0 = eoc if check0 == true
                     check1 = eoc if check1 == true
@@ -3529,9 +3555,9 @@ module Z80
                                         cp  1
                                         jr  C, check0 if check0 # division by 0
                         if check1
-                                        jp  NZ, divstrt  # division by m > 1
+                                        jump.call NZ, divstrt # division by m > 1
                                         xor a            # clear rest
-                                        jp  check1       # division by 1
+                                        jump.call nil, check1 # division by 1
                         end
                     end
                     divstrt             xor a            # a = 0
@@ -3542,7 +3568,7 @@ module Z80
                                         cp  m            # a - m
                                         jr  NC, fits1    # a >= m
                                         djnz loopfit1    # loop
-                                        jp  divlo16
+                                        jump.call nil, divlo16
                     fits1               sub m            # a = a - m (rest)
                     unless modulo
                                         inc l            # hl <- 1 (quotient)
@@ -3562,7 +3588,7 @@ module Z80
                                         jr  NC, fits2    # a >= m
                                         djnz loopfit2    # loop
                                         ccf if check0    # clear carry only when check0
-                                        jp  over
+                                        jump.call nil, over
                     fits2               sub mt           # a = a - m (rest)
                     unless modulo
                                         inc l            # hl <- 1 (quotient)
@@ -3585,41 +3611,50 @@ module Z80
             # * +check1+:: Checks if a divisor is 1, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
             # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance
-            #              uses a different, optimized code.
+            #              uses Macros.divmod32_8.
+            # * +jump_rel+: Use relative jumps only. This argument is passed to Macros.divmod32_8
+            #               if +quick8+ is +true+.
             #
             # Uses: +af+, +af'+, +bc+, +bc'+, +hl+, +hl'+, +de'+, +x+, preserves: +de+.
-            def divmod32_16(x:ixl, check0:true, check1:true, modulo:false, quick8:true)
+            def divmod32_16(x:ixl, check0:true, check1:true, modulo:false, quick8:true, jump_rel:false)
                 raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
+                jump = proc do |cond, target|
+                    if jump_rel
+                            jr   cond, target
+                    else
+                            jp   cond, target
+                    end
+                end
                 isolate do |eoc|
                     check0 = eoc if check0 == true
                     check1 = eoc if check1 == true
                     if check0 or check1 or quick8
                                         xor a
                                         ora d
-                                        jp  NZ, div32strt
+                                        jump.call NZ, div32strt
                         if quick8
-                                        divmod32_8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo
+                                        divmod32_8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo, jump_rel:jump_rel
                                         ld  c, a
                             if check0 == eoc
                             qcheck0     label
                             end
-                                        jp  eoc
+                                        jump.call nil, eoc
                             if check1
                             qcheck1     ld  b, a
                                         ld  c, a
-                                        jp  check1
+                                        jump.call nil, check1
                             end
                             if check0 && !(check0 == eoc)
-                            qcheck0     jp  check0
+                            qcheck0     jump.call nil, check0
                             end
                         elsif check0 or check1
                                         ld  a, e
                                         cp  1
                                         jr  C, check0 if check0 # division by 0
                             if check1
-                                        jp  NZ, div32strt # division by m > 1
+                                        jump.call NZ, div32strt # division by m > 1
                                         ld  bc, 0
-                                        jp  check1        # division by 1
+                                        jump.call nil, check1 # division by 1
                             end
                         end
                     end
@@ -3632,7 +3667,7 @@ module Z80
                                         cp  d            # a - d
                                         jr  NC, fitshi1  # a >= d
                                         djnz loopfit1    # loop
-                                        jp  divlo16
+                                        jump.call nil, divlo16
                     fitshi1             ld  x, a
                                         ld  a, c
                                         jr  NZ, fitslo1  # a > d, ignore e
@@ -3640,7 +3675,7 @@ module Z80
                                         jr  NC, fitslo1  # a >= e
                                         ld  a, x 
                                         djnz loopfit1    # loop
-                                        jp  divlo16
+                                        jump.call nil, divlo16
                     fitslo1             sub e            # a = c - e
                                         ld  c, a         # c = c - e
                                         ld  a, x
@@ -3665,7 +3700,7 @@ module Z80
                                         jr  NC, fitshi2  # a >= d'
                                         djnz loopfit2    # loop
                                         ccf if check0
-                                        jp  over
+                                        jump.call nil, over
                     fitshi2             ld  x, a
                                         ld  a, c
                                         jr  NZ, fitslo2  # a > d, ignore e
@@ -3674,7 +3709,7 @@ module Z80
                                         ld  a, x
                                         djnz loopfit2    # loop
                                         ccf if check0
-                                        jp  over
+                                        jump.call nil, over
                     fitshi2c            ld  x, a
                                         ld  a, c
                     fitslo2             sub e            # a = c' - e'

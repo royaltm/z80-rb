@@ -1,3 +1,11 @@
+next
+====
+
+Z80:
+---
+* Added :jump_rel option to a family of divmod macros in Z80::MathInt::Macros.
+
+
 v1.2.0
 ======
 
