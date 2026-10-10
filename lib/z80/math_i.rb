@@ -133,10 +133,10 @@ module Z80
             # Provide +va+ and +vb+ as an 8-bit registers, integers or labels.
             #
             # Options:
-            # * +lt+: provide a label to jump to or +:ret+ when +va+ < +vb+.
-            # * +gt+: provide a label to jump to or +:ret+ when +va+ > +vb+.
-            # * +eq+: provide a label to jump to or +:ret+ when +va+ = +vb+.
-            # * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
+            # * +lt+:: provide a label to jump to or +:ret+ when +va+ < +vb+.
+            # * +gt+:: provide a label to jump to or +:ret+ when +va+ > +vb+.
+            # * +eq+:: provide a label to jump to or +:ret+ when +va+ = +vb+.
+            # * +jump_rel+:: set to +true+ to use relative jumps wherever applicable.
             #
             # _NOTE_:: At least +lt+ or +gt+ must be provided.
             #          Only two of: +lt+, +gt+ and +eq+ may be specified.
@@ -181,10 +181,10 @@ module Z80
             # Provide +value+ as an integer or a label.
             #
             # Options:
-            # * +lt+: provide a label to jump to or +:ret+ when +th+|+tl+ < +value+.
-            # * +gt+: provide a label to jump to or +:ret+ when +th+|+tl+ > +value+.
-            # * +eq+: provide a label to jump to or +:ret+ when +th+|+tl+ = +value+.
-            # * +jump_rel+: set to +true+ to use relative jumps wherever applicable.
+            # * +lt+:: provide a label to jump to or +:ret+ when +th+|+tl+ < +value+.
+            # * +gt+:: provide a label to jump to or +:ret+ when +th+|+tl+ > +value+.
+            # * +eq+:: provide a label to jump to or +:ret+ when +th+|+tl+ = +value+.
+            # * +jump_rel+:: set to +true+ to use relative jumps wherever applicable.
             #
             # _NOTE_:: At least +lt+ or +gt+ must be provided.
             #          Only two of: +lt+, +gt+ and +eq+ may be specified.
@@ -2969,7 +2969,7 @@ module Z80
             end
             ##
             # Creates a routine that performs an euclidean division of unsigned 8-bit: +k+ / +m+.
-            # Returns a quotient in +k+ and a remainder in +accumulator+.
+            # Returns a quotient in +k+ and a remainder in the +accumulator+.
             #
             # This routine can be chained one after another to divide arbitrary size dividends.
             # Just preserve the +a+ and +m+ registers and pass +false+ to +clrrem:+ on subsequent routines.
@@ -2985,23 +2985,33 @@ module Z80
             # +k+:: A dividend as an 8-bit register except: +a+, +b+.
             # +m+:: A divisor as an 8-bit register except: +a+, +b+, +k+.
             #
+            # +b+ can be selected for +k+ or +m+ if +:optimize+ is +:unroll+ or +:unroll_alt+.
+            #
             # Options:
             # * +clrrem+:: Clears a reminder (+accumulator+). If this is +false+, +check0+, +check1+ and
             #              +k_leq_m+ options are being ignored.
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
-            #              (within the relative jump range) to indicate where to jump if +m+ is 0.
-            # * +check0_far+:: Allow to specify a far (outside the relative jump range) +check0+ label.
+            #              (within a relative jump range) to indicate where to jump if +m+ is 0.
+            # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
+            #                  If this is +true+, +check0+ must be specified as a label.
             # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
-            #              be a label to indicate where to jump if +m+ equals 1.
+            #              be a label (within a relative jump range) to indicate where to jump if +m+
+            #              equals to 1.
+            # * +check1_far+:: Allow to specify a far (outside of a relative jump range) +check1+ label.
+            #                  If this is +true+, +check1+ must be specified as a label.
             # * +k_leq_m+:: Short circuits if a dividend is equal to or less than a divisor, a hot path
-            #               optimization.
+            #               optimization. If +k_leq_m+ is +nil+ this option will auto-set if +optimize+
+            #               is not :size.
             # * +modulo+:: Calculates a remainder only.
-            # * +ignore_cf+:: Removes instruction to clear CF if +check0+ is also set. This can be used if
+            # * +ignore_cf+:: Removes instructions to clear CF if +check0+ is also set. This can be used if
             #                 +check0+ is provided as a label instead of checking the state of the CF flag.
             # * +optimize+:: Optimization options: +:size+, +:time+, +:unroll+, +:time_alt+, +:unroll_alt+.
             #                The +:time_alt+ and +:unroll_alt+ use undocumented +sll+ instruction.
+            # * +subroutine+:: Creates a sub-routine.
+            # * +skip_clra+:: Assume the +accumulator+ is already cleared. This option is ignored if
+            #                 either +check0+, +check1+ or +k_leq_m+ is set or if +clrrem+ is +false+.
             #
             # ====Optimization options:
             # 
@@ -3015,15 +3025,17 @@ module Z80
             #   :unroll     119|~172|301 117|~166|297 110|~256|290 104|~250|286 104|~250|286  80|~282|304
             #   :unroll_alt 164|~161|296 162|~155|298 155|~236|285 149|~230|287 144|~213|269 140|~261|309
             #
-            # Uses: +af+, +b+, +k+, preserves: +m+.
-            def divmod(k, m, clrrem:true, check0:true, check0_far:false, check1:true, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time)
+            # Uses: +af+, +k+, +b+ unless +:optimize+ is +:unroll+ or +:unroll_alt+, preserves: +m+.
+            def divmod(k, m, clrrem:true, check0:true, check0_far:false, check1:true, check1_far:false, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time, subroutine:false, skip_clra:false)
                 unless clrrem
                     check0 = false
                     check1 = false
                     k_leq_m = false
                 end
-                raise ArgumentError, "divmod: invalid arguments" unless [d, e, h, l, c].include?(k) and
-                                                                        [d, e, h, l, c].include?(m) and k != m
+                raise ArgumentError, "divmod: invalid check0 argument!" unless [true, false, :ret].include?(check0) || direct_address?(check0)
+                raise ArgumentError, "divmod: invalid check0_far argument!" if check0_far && !direct_address?(check0)
+                raise ArgumentError, "divmod: invalid check1 argument!" unless [true, false, :ret].include?(check1) || direct_address?(check1)
+                raise ArgumentError, "divmod: invalid check1_far argument!" if check1_far && !direct_address?(check1)
                 opt_alt = case optimize
                 when :time_alt
                     optimize = :time
@@ -3035,69 +3047,94 @@ module Z80
                 else
                     raise ArgumentError, "divmod: optimize should be :size, :time, :time_alt, :unroll or :unroll_alt"
                 end
+                km_registers = [d, e, h, l, c]
+                km_registers.push(b) if optimize == :unroll
+                raise ArgumentError, "divmod: invalid arguments" unless km_registers.include?(k) and
+                                                                        km_registers.include?(m) and k != m
                 if k_leq_m.nil?
                     k_leq_m = (optimize != :size)
                 end
                 isolate do |eoc|
+                    check_tgt = if subroutine then :ret else eoc end
                     if check0 == true
-                        check0 = eoc
-                        check0_far = (optimize == :unroll && opt_alt)
+                        check0 = check_tgt
+                        check0_far = (optimize == :unroll && opt_alt && !subroutine)
                     end
-                    check1 = eoc if check1 == true
+                    if check1 == true
+                        check1 = check_tgt 
+                        check1_far = (optimize == :unroll && opt_alt && !subroutine)
+                    end
                     if check0 or check1 or k_leq_m
                                     ld  a, m
-                                    cp  1 if check0 or check1 
-                        if check0
-                            if check0_far && optimize == :size
-                                    jp  C, check0 # division by 0
+                        if k_leq_m && (check0 || check1)
+                                    cp  1
+                        elsif check0
+                                    sub 1
+                        elsif check1
+                                    dec a
+                        end
+                        if check0 # division by 0
+                            if check0 == :ret
+                                    ret C
+                            elsif check0_far && optimize == :size
+                                    jp  C, check0
                             elsif check0_far
-                                    jr  C, fw_check0 # division by 0
+                                    jr  C, fw_check0
                             else
-                                    jr  C, check0 # division by 0
+                                    jr  C, check0
                             end
                         end
-                        if check1
-                            if optimize == :size && !k_leq_m
-                                    jr  NZ, divstrt  # division by m > 1
-                                    xor a            # clear rest
-                                if check1 == eoc
-                                    jr  eoc          # division by 1
-                                else
-                                    jp  check1
-                                end
+                        if check1 # division by m == 1
+                            if k_leq_m
+                                    jr  Z, divone    # need to clear A
+                            elsif check1 == :ret
+                                    ret Z            # a = 0
+                            elsif check1_far && optimize == :size
+                                    jp  Z, check1    # a = 0
+                            elsif check1_far
+                                    jr  Z, fw_check1 # a = 0
                             else
-                                    jr  Z, divone    # division by m == 1
+                                    jr  Z, check1    # a = 0
                             end
                         end
                         if k_leq_m
                                     cp  k            # m < k ?
                             if optimize == :size
-                                    jr  C, divstrt   # m < k
-                            kislqm  jr  Z, kiseqm    # k == m
-                                    ld  a, k         # k <  m
-                                    ld  k, 0 unless modulo
-                                    jr  eoc
+                                    jr  C, divstart  # m < k
+                            kislqm  ld  a, k         # k <= m
+                                    ld  k, 0 unless modulo # k < m
+                                    ret NZ if subroutine
+                                    jr  NZ, eoc unless subroutine
                             kiseqm  label            # k == m
-                                    ld  k, 1 unless modulo
-                                if check1 && check1 == eoc
+                                    inc k unless modulo
+                                if check1 && (check1 == eoc || (check1 == :ret && subroutine))
                             divone  xor a
-                                    jr  eoc
+                                    ret if subroutine
+                                    jr  eoc unless subroutine
                                 else
-                                    xor a 
-                                    jr  eoc
+                                    xor a
+                                    ret if subroutine
+                                    jr  eoc unless subroutine
                                     if check1
                                 divone  xor a
-                                        jp  check1
+                                        if check1 == :ret
+                                            ret
+                                        elsif check1_far
+                                            jp  check1
+                                        else
+                                            jr  check1
+                                        end
                                     end
                                 end
-                            else
+                            else # optimize != :size
                                     jr  NC, kislqm   # m >= k
                             end
                         end
-                    end
+                    end # check0 or check1 or k_leq_m
+                    divstart        label
                     if optimize == :unroll
                         if clrrem
-                                    xor a
+                                    xor a unless skip_clra && !check0 && !check1 && !k_leq_m
                             7.times do |i|
                                     sla k      # align highest set bit at CF
                                     jr  C, define_label("iter#{i}").found1
@@ -3107,29 +3144,38 @@ module Z80
                             else
                                     sla k
                                     jr  C, iter7.found1
+                                    # k == 0
                         fw_check0   label if check0 && check0_far && check0 == eoc
-                                    jp  eoc    # k == 0
+                                    ret if subroutine
+                                    jp  eoc unless subroutine
                             end
                             if k_leq_m
                             kislqm  jr  Z, kiseqm   # k == m
                                     ld  a, k        # k <  m
                                     ld  k, 0 unless modulo
                         fw_check0   label if check0 && check0_far && check0 == eoc
-                                    jp  eoc
+                                    ret if subroutine
+                                    jp  eoc unless subroutine
                             kiseqm  label           # k == m
                                     ld  k, 1 unless modulo
-                                unless check1 && check1 == eoc
-                                    xor a 
-                                    jp  eoc
+                                # unless check1 && check1 == eoc
+                                unless check1 && (check1 == eoc || (check1 == :ret && subroutine))
+                                    xor a
+                                    ret if subroutine
+                                    jp  eoc unless subroutine
                                 end
-                            end
+                            end # k_leq_m
                             if check1
-                            divone  xor a      # clear rest
+                            divone  xor a if k_leq_m # clear rest
                         fw_check0   label if check0 && check0_far && !(check0 == eoc) && check0 == check1
-                                    jp  check1 # division by 1
-                            end
+                                if k_leq_m && check1 == :ret
+                                    ret
+                                elsif k_leq_m || check1_far
+                        fw_check1   jp  check1 # division by 1
+                                end
+                            end # check1
                         fw_check0   jp  check0 if check0 && check0_far && !(check0 == eoc) && !(check0 == check1)
-                        end
+                        end # clrrem
                         if opt_alt
                             8.times do |i|
                                 ns :"iter#{i}" do
@@ -3142,9 +3188,15 @@ module Z80
                             end
                                         sla k unless modulo # clear carry, shift quotient into position
                             if modulo && check0 && !ignore_cf
+                                if subroutine
+                                        anda a # clear carry
+                                        ret
+                                else
                                         jp  quitccf # clear carry
+                                end
                             else
-                                        jp  eoc
+                                        ret if subroutine
+                                        jp  eoc unless subroutine
                             end
                             (1..7).each do |i|
                                 ns :"fits#{i}" do
@@ -3159,9 +3211,15 @@ module Z80
                                         jr  NC, fits8
                                         sla k unless modulo # clear carry, shift quotient into position
                                         if modulo && check0 && !ignore_cf
-                                            jp  quitccf # clear carry
+                                            if subroutine
+                                                anda a # clear carry
+                                                ret
+                                            else
+                                                jp  quitccf # clear carry
+                                            end
                                         else
-                                            jp  eoc
+                                            ret if subroutine
+                                            jp  eoc unless subroutine
                                         end
                                     end
                                 end
@@ -3169,7 +3227,7 @@ module Z80
                                 fits8   sub m
                                 quitccf anda a if modulo && check0 && !ignore_cf # clear carry
                                         sll k unless modulo # clear carry, shift quotient into position
-                        else
+                        else # !opt_alt
                             8.times do |i|
                                 isolate :"iter#{i}" do |skipadd|
                                         sla k unless clrrem && i.zero?
@@ -3184,43 +3242,52 @@ module Z80
                                         anda a if check0 && !ignore_cf # clear carry
                         end
                     else # optimize != :unroll
-                        divstrt     ld  b, 8
-                        if clrrem
-                                    xor a            # a = 0
-                            if optimize == :time
-                            findhi  sla k            # align highest set bit at CF
-                                    jr  C, found1
-                                    djnz findhi
-                                    jp  eoc unless k_leq_m # k == 0
-                                if k_leq_m
-                            kislqm  jr  Z, kiseqm   # k == m
-                                    ld  a, k        # k <  m
-                                    ld  k, 0 unless modulo
-                                    jp  eoc
-                            kiseqm  label           # k == m
-                                    ld  k, 1 unless modulo
-                                    unless check1 && check1 == eoc
-                                        xor a       # clear rest
-                                        jp  eoc
-                                    end
-                                end
-                                if check1
-                            divone  xor a            # clear rest
-                        fw_check0   label if check0 && check0_far && check0 == check1
-                                    jp  check1       # division by 1
-                                end
-                        fw_check0   jp  check0 if check0 && check0_far && !(check0 == check1)
-                            end
+                        if clrrem  # a = 0
+                                    xor a unless skip_clra && !check0 && !check1 && !k_leq_m
                         end
+                                    ld  b, 8
                         if optimize == :time
-                            unless clrrem
+                            if clrrem
+                                findhi  sla k           # align highest set bit at CF
+                                        jr  C, found1
+                                        djnz findhi
+                                unless k_leq_m # k == 0
+                                        ret if subroutine
+                                        jp  eoc unless subroutine
+                                end
+                                if k_leq_m
+                                kislqm  jr  Z, kiseqm   # k == m
+                                        ld  a, k        # k <  m
+                                        ld  k, 0 unless modulo
+                                        ret if subroutine
+                                        jp  eoc unless subroutine
+                                kiseqm  label           # k == m
+                                        ld  k, 1 unless modulo
+                                    # unless check1 && check1 == eoc
+                                    unless check1 && (check1 == eoc || (check1 == :ret && subroutine))
+                                        xor a       # clear rest
+                                        ret if subroutine
+                                        jp  eoc unless subroutine
+                                    end
+                                end # k_leq_m
+                                if check1
+                                    divone      xor a if k_leq_m # clear rest
+                                    fw_check0   label if check0 && check0_far && check0 == check1
+                                    if k_leq_m && check1 == :ret
+                                                ret
+                                    elsif k_leq_m || check1_far
+                                    fw_check1   jp  check1 # division by 1
+                                    end
+                                end # check1
+                                fw_check0   jp  check0 if check0 && check0_far && !(check0 == check1)
+                            else # !clrrem
                                     sla k            # carry <- k <- 0 (quotient)
                                     adc a            # carry <- a <- carry
-                                    jr  C, fits unless clrrem # a >= 256
+                                    jr  C, fits      # a >= 256
                                     cp  m
-                                    jr  NC, fits     # a >= m
-                                    djnz loopfit     # b = 7
-                            end
+                                    jr  C, loopdec   # a < m
+                                                     # a >= m
+                            end # clrrem
                             fits    sub m            # a = a - m (rest)
                             if opt_alt && !modulo
                                     sll k            # carry <- k <- 1 (quotient)
@@ -3230,16 +3297,23 @@ module Z80
                                     djnz loopfit     # loop
                             end
                             if !(opt_alt && !modulo) && check0 && !ignore_cf
+                                if subroutine
+                                    anda a           # clear carry
+                                    ret
+                                else
                                     jp  quitccf      # quit with clear carry
+                                end
                             else
-                                    jp  eoc
+                                    ret if subroutine
+                                    jp  eoc unless subroutine
                             end
+                            loopdec dec b unless clrrem # b = 7
                             loopfit sla k            # carry <- k <- 0
                             found1  adc a            # carry <- a <- carry
                                     jr  C, fits unless clrrem # a >= 256
                                     cp  m            # a - m
                                     jr  NC, fits     # a >= m
-                            nfits   djnz loopfit     # loop
+                                    djnz loopfit     # loop
                             if opt_alt && !modulo
                                     sla k            # clear carry, shift quotient into position
                             elsif check0 && !ignore_cf
@@ -3263,13 +3337,14 @@ module Z80
                             end
                                     anda a if check0 && !ignore_cf # clear carry
                         end
-                    end
+                    end # optimize
+                                    ret if subroutine
                 end
             end
             ##
             # Creates a routine that performs an euclidean division of an unsigned 16-bit
             # +hl+ / 8-bit +m+.
-            # Returns a quotient in +hl+ and a remainder in +a+.
+            # Returns a quotient in +hl+ and a remainder in the +accumulator+.
             #
             # +m+:: A divisor, one of: +c+, +d+ or +e+.
             #
@@ -3277,69 +3352,79 @@ module Z80
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
-            #              (within the relative jump range) to indicate where to jump if +m+ is 0.
-            # * +check0_far+:: Allow to specify a far (outside the relative jump range) +check0+ label.
+            #              (within a relative jump range) to indicate where to jump if +m+ is 0.
+            # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
             #                  If this is +true+, +check0+ must be specified as a label.
             # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
-            #              be a label to indicate where to jump if +m+ equals 1.
+            #              be a label (within a relative jump range) to indicate where to jump if +m+
+            #              equals to 1.
+            # * +check1_far+:: Allow to specify a far (outside of a relative jump range) +check1+ label.
+            #                  If this is +true+, +check1+ must be specified as a label.
             # * +modulo+:: Calculates a remainder only.
-            # * +jump_rel+: Use relative jumps only. If +check0_far+ is +true+ the absolute jump
-            #               will be generated regardless of the +jump_rel+ value.
-            # * +ignore_cf+:: Removes instruction to clear CF if +check0+ is also set. This can be used if
+            # * +jump_rel+:: Use relative jumps only. If +check0_far+ or +check0_far+ is +true+ the absolute
+            #                jump will be generated regardless of the +jump_rel+ value.
+            # * +ignore_cf+:: Removes instructions to clear CF if +check0+ is also set. This can be used if
             #                 +check0+ is provided as a label instead of checking the state of the CF flag.
-            # * +subroutine+: Creates a sub-routine.
+            # * +subroutine+:: Creates a sub-routine.
+            # * +skip_clra+:: Assume the +accumulator+ is already cleared. This option is ignored if
+            #                 either +check0+ or +check1+ is set.
             #
             # _NOTE_:: A stacked Macros.divmod presents a faster (up to 12%) but a significantly
             #          larger (x1.5) alternative.
             #
             # Uses: +af+, +b+, +hl+, preserves: +m+.
-            def divmod8(m=c, check0:true, check0_far:false, check1:true, modulo:false, jump_rel:false, ignore_cf:false, subroutine:false)
+            def divmod8(m=c, check0:true, check0_far:false, check1:true, check1_far:false, modulo:false, jump_rel:false, ignore_cf:false, subroutine:false, skip_clra:false)
                 raise ArgumentError, "divmod8: invalid m argument!" unless [c, d, e].include?(m)
-                raise ArgumentError, "divmod8: invalid check0 argument!" unless [true, false].include?(check0) || direct_address?(check0)
-                raise ArgumentError, "divmod8: invalid check1 argument!" unless [true, false].include?(check1) || direct_address?(check1)
+                raise ArgumentError, "divmod8: invalid check0 argument!" unless [true, false, :ret].include?(check0) || direct_address?(check0)
                 raise ArgumentError, "divmod8: invalid check0_far argument!" if check0_far && !direct_address?(check0)
-                jump = proc do |cond, target|
+                raise ArgumentError, "divmod8: invalid check1 argument!" unless [true, false, :ret].include?(check1) || direct_address?(check1)
+                raise ArgumentError, "divmod8: invalid check1_far argument!" if check1_far && !direct_address?(check1)
+                jump = proc do |target|
                     if jump_rel
-                            jr   cond, target
+                            jr   target
                     else
-                            jp   cond, target
+                            jp   target
                     end
                 end
                 isolate do |eoc|
-                    check0 = eoc if check0 == true
-                    check1 = eoc if check1 == true
+                    check_tgt = if subroutine then :ret else eoc end
+                    check0 = check_tgt if check0 == true
+                    check1 = check_tgt if check1 == true
                     if check0 or check1
                                     ld  a, m
-                                    cp  1
                         if check0 # division by 0
-                            if check0_far
-                                    jp  C, check0
-                            elsif subroutine && check0 == eoc
+                                    sub 1
+                            if check0 == :ret
                                     ret C
+                            elsif check0_far
+                                    jp  C, check0
                             else
                                     jr  C, check0
                             end
+                        else # check1 only
+                                    dec a
                         end
-                        if check1
-                                    jr  Z, divone    # division by m == 1
+                        if check1 # division by 1, a = 0
+                            if check1 == :ret
+                                    ret Z
+                            elsif check1_far
+                                    jp  Z, check1
+                            else
+                                    jr  Z, check1
+                            end
                         end
                     end
-                    divstrt         xor a            # a = 0
+                    divstart        label
+                    unless skip_clra && !check0 && !check1
+                                    xor a            # a = 0
+                    end
                                     ld  b, 16
                     findhi          add hl, hl       # align highest set bit at CF
                                     jr  C, found
                                     djnz findhi
                                     # hl == 0
                                     ret if subroutine
-                                    jump.call nil, eoc unless subroutine
-                    if check1
-                        divone      xor a            # clear rest
-                        if subroutine && check1 == eoc
-                                    ret
-                        else
-                                    jump.call nil, check1 # division by 1
-                        end
-                    end
+                                    jump.call eoc unless subroutine
                     loopfit         add hl, hl       # carry <- hl <- 0
                     found           adc a            # carry <- a <- carry
                                     jr  C, fits      # a >= 256
@@ -3347,10 +3432,10 @@ module Z80
                                     jr  NC, fits     # a >= m
                                     djnz loopfit     # loop
                     if check0 && !ignore_cf
-                                    jump.call nil, quitccf # clear carry only when check0
+                                    jump.call quitccf # clear carry only when check0
                     else
                                     ret if subroutine
-                                    jump.call nil, eoc unless subroutine
+                                    jump.call eoc unless subroutine
                     end
                     fits            sub m            # a = a - m (rest)
                     unless modulo
@@ -3363,43 +3448,58 @@ module Z80
             end
             ##
             # Creates a routine that performs an euclidean division of unsigned 16-bit: +kh+|+kl+ / 8-bit +m+.
-            # Returns a quotient in +kh+|+kl+ and a remainder in +accumulator+.
+            # Returns a quotient in +kh+|+kl+ and a remainder in the +accumulator+.
             #
-            # This routine utilizes a stacked up Macros.divmod routines.
+            # This routine utilizes stacked up Macros.divmod routines.
             #
             # +kh+, +kl+:: A dividend as two unique 8-bit registers except: +a+, +b+.
             # +m+:: A divisor as an 8-bit register except: +a+, +b+ and none of +kh+, +kl+.
             #
+            # +b+ can be selected for +kh+, +kl+ or +m+ if +:optimize+ is +:unroll+ or +:unroll_alt+.
+            #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the +accumulator+ is being altered.
-            #              +CF+ should be ignored if +check0+ is +false+. It may also be a label
-            #              (within the relative jump range) to indicate where to jump if +m+ equals 0.
-            # * +check0_far+:: Allow to specify a far (outside the relative jump range) +check0+ label.
-            # * +check1+:: Checks if a divisor equals 1, a hot path optimization. It may also be a label
-            #              to indicate where to jump if +m+ equals 1.
-            # * +k_leq_m+:: Short circuits if +kh+ is equal or less than a divisor, a hot path optimization.
+            #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
+            #              (within a relative jump range) to indicate where to jump if +m+ is 0.
+            # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
+            #                  If this is +true+, +check0+ must be specified as a label.
+            # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
+            #              be a label (within a relative jump range) to indicate where to jump if +m+
+            #              equals to 1.
+            # * +check1_far+:: Allow to specify a far (outside of a relative jump range) +check1+ label.
+            #                  If this is +true+, +check1+ must be specified as a label.
+            # * +k_leq_m+:: Short circuits if +kh+ is equal to or less than a divisor, a hot path
+            #               optimization. If +k_leq_m+ is +nil+ this option will auto-set if +optimize+
+            #               is not :size.
             # * +modulo+:: Calculates a remainder only.
-            # * +ignore_cf+:: Removes instruction to clear CF if +check0+ is also set. This can be used if
+            # * +ignore_cf+:: Removes instructions to clear CF if +check0+ is also set. This can be used if
             #                 +check0+ is provided as a label instead of checking the state of the CF flag.
             # * +optimize+:: Optimization options: +:size+, +:time+, +:unroll+, +:time_alt+, +:unroll_alt+.
             #                See Macros.divmod for details.
+            # * +subroutine+:: Creates a sub-routine.
             #
             # _NOTE_:: A Macros.divmod8 presents a slower (up to 12%) but a significantly
             #          smaller (x1.5) alternative.
             #
-            # Uses: +af+, +b+, +kh+, +kl+, preserves: +m+.
-            def divmod16_8(kh, kl, m, check0:true, check0_far:false, check1:true, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time)
-                raise ArgumentError unless [kh, kl, m].uniq.size == 3
+            # Uses: +af+, +kh+, +kl+, +b+ unless +:optimize+ is +:unroll+ or +:unroll_alt+, preserves: +m+.
+            def divmod16_8(kh, kl, m, check0:true, check0_far:false, check1:true, check1_far:false, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time, subroutine:false)
+                raise ArgumentError, "divmod16_8: invalid arguments!" unless [kh, kl, m].uniq.size == 3
                 isolate do |eoc|
+                    check_tgt = if subroutine then :ret else eoc end
                     if check0 == true
-                        check0 = eoc
-                        check0_far = (optimize == :unroll || optimize == :unroll_alt)
+                        check0 = check_tgt
+                        check0_far = (optimize == :unroll || optimize == :unroll_alt) && !subroutine
                     end
-                    check1 = eoc if check1 == true
-                    divmod kh, m, check0:check0, check0_far:check0_far, check1:check1, k_leq_m:k_leq_m, modulo:modulo, optimize:optimize, ignore_cf:true
+                    if check1 == true
+                        check1 = check_tgt 
+                        check1_far = (optimize == :unroll || optimize == :unroll_alt) && !subroutine
+                    end
+                    divmod kh, m, check0:check0, check0_far:check0_far, check1:check1, check1_far:check1_far,
+                                  k_leq_m:k_leq_m, modulo:modulo, optimize:optimize, ignore_cf:true
                     divmod kl, m, clrrem:false, modulo:modulo, optimize:optimize
                     anda a if check0 && !ignore_cf # clear CF unless ignored
+                    ret if subroutine
                 end
             end
             ##
@@ -3412,28 +3512,38 @@ module Z80
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
-            #              (within the relative jump range) to indicate where to jump if +de+ is 0.
-            # * +check0_far+:: Allow to specify a far (outside the relative jump range) +check0+ label.
+            #              (within a relative jump range) to indicate where to jump if +de+ is 0.
+            # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
             #                  If this is +true+, +check0+ must be specified as a label.
             # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
-            #              be a label to indicate where to jump if +de+ equals 1.
+            #              be a label to indicate where to jump if +de+ equals to 1.
             # * +modulo+:: Calculates a remainder only.
-            # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance uses a different,
-            #              optimized for 8-bit division code. +quick8+ can also be set to +:divmod8+ to use
-            #              Macros.divmod8 (smaller code) instead of stacked Macros.divmod for an 8-bit division.
-            # * +jump_rel+: Use relative jumps only. This argument is passed to Macros.divmod8 if +quick8+
-            #               is +:divmod8+ but not to Macros.divmod if +quick8+ is +true+. Thus, absolute jumps
+            # * +quick8+:: Adds a check if a divisor fits in 8 bits and in this instance a different,
+            #              optimized for 8-bit division code is used. +quick8+ can also be set to +:divmod8+
+            #              to use Macros.divmod8 (smaller code) instead of stacked Macros.divmod for an 8-bit
+            #              division. Other values: +:size+, +:time+, +:unroll+, +:time_alt+, +:unroll_alt+
+            #              specify optimization for Macros.divmod routine.
+            # * +jump_rel+:: Use relative jumps only. This argument is passed to Macros.divmod8 if +quick8+
+            #                is +:divmod8+ but not to Macros.divmod if +quick8+ is +true+. Thus, absolute jumps
             #               can still be produced.
-            # * +ignore_cf+:: Removes instruction to clear CF if +check0+ is also set. This can be used if
+            # * +ignore_cf+:: Removes instructions to clear CF if +check0+ is also set. This can be used if
             #                 +check0+ is provided as a label instead of checking the state of the CF flag.
-            # * +subroutine+: Creates a sub-routine.
+            # * +subroutine+:: Creates a sub-routine.
             #
             # Uses: +af+, +bc+, +hl+, +x+, preserves: +de+.
-            def divmod16(x=ixl, check0:true, check0_far:false, check1:true, modulo:false, quick8:true, jump_rel:false, ignore_cf:false, subroutine:false)
+            def divmod16(x=ixl, check0:true, check0_far:false, check1:true, check1_far:false, modulo:false, quick8:true, jump_rel:false, ignore_cf:false, subroutine:false)
                 raise ArgumentError, "divmod16: invalid x argument!" unless [ixh, ixl, iyh, iyl].include?(x)
                 raise ArgumentError, "divmod16: invalid check0 argument!" unless [true, false].include?(check0) || direct_address?(check0)
-                raise ArgumentError, "divmod16: invalid check1 argument!" unless [true, false].include?(check1) || direct_address?(check1)
                 raise ArgumentError, "divmod16: invalid check0_far argument!" if check0_far && !direct_address?(check0)
+                raise ArgumentError, "divmod16: invalid check1 argument!" unless [true, false].include?(check1) || direct_address?(check1)
+                raise ArgumentError, "divmod16: invalid check1_far argument!" if check1_far && !direct_address?(check1)
+                optimize = case quick8
+                when false, :divmod8 then nil
+                when true then :time
+                when :size, :time, :time_alt, :unroll, :unroll_alt then quick8
+                else
+                    raise ArgumentError, "divmod16: invalid quick8 value"
+                end
                 jump = proc do |cond, target|
                     if jump_rel
                             jr   cond, target
@@ -3442,76 +3552,81 @@ module Z80
                     end
                 end
                 isolate do |eoc|
-                    check0 = eoc if check0 == true
-                    check1 = eoc if check1 == true
+                    check_tgt = if subroutine then :ret else eoc end
+                    if check0 == true
+                        check0 = check_tgt
+                        check0_far = (optimize == :unroll || optimize == :unroll_alt) && !subroutine
+                    end
+                    check1 = check_tgt if check1 == true
                     if check0 or check1 or quick8
                                         xor a
                                         ora d
-                                        jump.call NZ, div16strt
+                                        jump.call NZ, div16start
                         if quick8
                             if quick8 == :divmod8
-                                        divmod8 e, check0:(check0 && qcheck0),
-                                                   check1:(check1 && qcheck1),
-                                                   modulo:modulo,
-                                                   jump_rel:jump_rel,
-                                                   ignore_cf:true
+                                        divmod8 e, check0:check0, check0_far:check0_far,
+                                                   check1:(check1 && divone),
+                                                   modulo:modulo, jump_rel:jump_rel,
+                                                   skip_clra:true, ignore_cf:true
                             else
-                                        divmod h, e, check0:(check0 && qcheck0),
-                                                     check1:(check1 && qcheck1),
-                                                     modulo:modulo,
-                                                     optimize: :time,
-                                                     ignore_cf:true
-                                        divmod l, e, clrrem:false, optimize: :time
+                                        divmod h, e, check0:check0, check0_far:check0_far,
+                                                     check1:(check1 && divone),
+                                                     check1_far:(check1 && (optimize == :unroll || optimize == :unroll_alt)),
+                                                     modulo:modulo, optimize:optimize,
+                                                     skip_clra:true, ignore_cf:true
+                                        divmod l, e, clrrem:false, optimize:optimize
                             end
                                         anda a if check0 && !ignore_cf
+                                        ld  b, 0 if (optimize == :unroll || optimize == :unroll_alt)
                                         ld  c, a
 
-                            if check0 == eoc
-                            qcheck0     label
-                            end
+                            # if check0 == eoc
+                            # qcheck0     label
+                            # end
                                         ret if subroutine
                                         jump.call nil, eoc unless subroutine
-                            if check1
-                            qcheck1     ld  b, a
-                                        ld  c, a
-                                if subroutine && check1 == eoc
-                                        ret
-                                else
-                                        jump.call nil, check1 # division by 1
-                                end
-                            end
-                            if check0 && !(check0 == eoc)
-                            qcheck0     label
-                                if check0_far
-                                        jp  check0
-                                else
-                                        jump nil, check0
-                                end
-                            end
-                        elsif check0 or check1
+                            # if check1
+                            # qcheck1     ld  b, a
+                            #             ld  c, a
+                            #     if subroutine && check1 == eoc
+                            #             ret
+                            #     else
+                            #             jump.call nil, check1 # division by 1
+                            #     end
+                            # end
+                            # if check0 && !(check0 == eoc)
+                            # qcheck0     label
+                            #     if check0_far
+                            #             jp  check0
+                            #     else
+                            #             jump nil, check0
+                            #     end
+                            # end
+                        else # check0 or check1
                                         ld  a, e
-                                        cp  1
                             if check0 # division by 0
-                                if check0_far
-                                        jp  C, check0
-                                elsif subroutine && check0 == eoc
+                                        sub 1
+                                if check0 == :ret
                                         ret C
+                                elsif check0_far
+                                        jp  C, check0
                                 else
                                         jr  C, check0
                                 end
+                            else # check1 only
+                                        dec a
                             end
                             if check1
                                         jr  Z, divone     # division by m == 1
                             end
                         end
                     end
-                    div16strt           xor a            # a = 0 hi remainder
-                                        ld  c, a         # c = 0 lo remainder
-                                        ld  b, 16
+                    div16start          xor a            # a = 0 hi remainder
+                                        ld  bc, 16 << 8  # c = 0 lo remainder, b = bit count
                     findhi              add hl, hl       # align highest set bit at CF
                                         jr  C, found
                                         djnz findhi
-                                        # hl == 0, bc == 0
+                                        # hl == 0, bc == 0, CF = 0
                                         ret if subroutine
                                         jump.call nil, eoc unless subroutine
                     loopfit             add hl, hl       # carry <- hl <- 0
@@ -3522,12 +3637,15 @@ module Z80
                                         djnz loopfit     # loop
                                         ccf if check0 && !ignore_cf
                                         jump.call nil, over
-                    if check1 && !quick8
-                        divone          ld  bc, 0         # clear rest
-                        if subroutine && check1 == eoc
+                    if check1
+                        divone          ld  b, a
+                                        ld  c, a         # clear rest
+                        if check1 == :ret
                                         ret
+                        elsif check1_far
+                                        jp  check1 # division by 1
                         else
-                                        jump.call nil, check1 # division by 1
+                                        jr  check1 # division by 1
                         end
                     end
                     fitshi              ld  x, a
@@ -3555,39 +3673,54 @@ module Z80
             # Creates a routine that performs an euclidean division of unsigned 24-bit: +kh+|+km+|+kl+ / 8-bit +m+.
             # Returns a quotient in +kh+|+km+|+kl+ and a remainder in +accumulator+.
             #
-            # This routine utilizes a stacked up Macros.divmod routines.
+            # This routine utilizes stacked up Macros.divmod routines.
             #
             # +kh+, +km+, +kl+:: A dividend as three unique 8-bit registers except: +a+, +b+.
             # +m+:: A divisor as an 8-bit register except: +a+, +b+ and none of +kh+, +km+, +kl+.
             #
+            # +b+ can be selected for +kh+, +km+, +kl+ or +m+ if +:optimize+ is +:unroll+ or +:unroll_alt+.
+            #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
             #              and nothing except the +accumulator+ is being altered.
-            #              +CF+ should be ignored if +check0+ is +false+. It may also be a label
-            #              (within the relative jump range) to indicate where to jump if +m+ equals 0.
-            # * +check0_far+:: Allow to specify a far (outside the relative jump range) +check0+ label.
-            # * +check1+:: Checks if a divisor equals 1, a hot path optimization. It may also be a label
-            #              to indicate where to jump if +m+ equals 1.
-            # * +k_leq_m+:: Short circuits if +kh+ is equal or less than a divisor, a hot path optimization.
+            #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
+            #              (within a relative jump range) to indicate where to jump if +m+ is 0.
+            # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
+            #                  If this is +true+, +check0+ must be specified as a label.
+            # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
+            #              be a label (within a relative jump range) to indicate where to jump if +m+
+            #              equals to 1.
+            # * +check1_far+:: Allow to specify a far (outside of a relative jump range) +check1+ label.
+            #                  If this is +true+, +check1+ must be specified as a label.
+            # * +k_leq_m+:: Short circuits if +kh+ is equal to or less than a divisor, a hot path
+            #               optimization. If +k_leq_m+ is +nil+ this option will auto-set if +optimize+
+            #               is not :size.
             # * +modulo+:: Calculates a remainder only.
-            # * +ignore_cf+:: Removes instruction to clear CF if +check0+ is also set. This can be used if
+            # * +ignore_cf+:: Removes instructions to clear CF if +check0+ is also set. This can be used if
             #                 +check0+ is provided as a label instead of checking the state of the CF flag.
             # * +optimize+:: Optimization options: +:size+, +:time+, +:unroll+, +:time_alt+, +:unroll_alt+.
             #                See Macros.divmod for details.
+            # * +subroutine+:: Creates a sub-routine.
             #
-            # Uses: +af+, +b+, +kh+, +km+, +kl+, preserves: +m+.
-            def divmod24_8(kh, km, kl, m, check0:true, check0_far:false, check1:true, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time)
+            # Uses: +af+, +kh+, +km+, +kl+, +b+ unless +:optimize+ is +:unroll+ or +:unroll_alt+, preserves: +m+.
+            def divmod24_8(kh, km, kl, m, check0:true, check0_far:false, check1:true, check1_far:false, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time, subroutine:false)
                 raise ArgumentError unless [kh, km, kl, m].uniq.size == 4
                 isolate do |eoc|
+                    check_tgt = if subroutine then :ret else eoc end
                     if check0 == true
-                        check0 = eoc
-                        check0_far = (optimize == :unroll || optimize == :unroll_alt)
+                        check0 = check_tgt
+                        check0_far = (optimize == :unroll || optimize == :unroll_alt) && !subroutine
                     end
-                    check1 = eoc if check1 == true
-                    divmod kh, m, check0:check0, check0_far:check0_far, check1:check1, k_leq_m:k_leq_m, modulo:modulo, optimize:optimize, ignore_cf:true
+                    if check1 == true
+                        check1 = check_tgt 
+                        check1_far = (optimize == :unroll || optimize == :unroll_alt) && !subroutine
+                    end
+                    divmod kh, m, check0:check0, check0_far:check0_far, check1:check1, check1_far:check1_far,
+                                  k_leq_m:k_leq_m, modulo:modulo, optimize:optimize, ignore_cf:true
                     divmod km, m, clrrem:false, modulo:modulo, optimize:optimize
                     divmod kl, m, clrrem:false, modulo:modulo, optimize:optimize
                     anda a if check0 && !ignore_cf # clear CF unless ignored
+                    ret if subroutine
                 end
             end
             ##
@@ -3603,7 +3736,7 @@ module Z80
             #              +CF+ should be ignored if +check0+ is +false+.
             # * +check1+:: Checks if a divisor is 1, a hot path optimization.
             # * +modulo+:: Calculates a remainder only.
-            # * +jump_rel+: Use relative jumps only.
+            # * +jump_rel+:: Use relative jumps only.
             #
             # _NOTE_:: A stacked Macros.divmod presents a faster (9-16%) but a significantly
             #          larger (x2) alternative.
@@ -3683,8 +3816,8 @@ module Z80
             # * +modulo+:: Calculates a remainder only.
             # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance
             #              uses Macros.divmod32_8.
-            # * +jump_rel+: Use relative jumps only. This argument is passed to Macros.divmod32_8
-            #               if +quick8+ is +true+.
+            # * +jump_rel+:: Use relative jumps only. This argument is passed to Macros.divmod32_8
+            #                if +quick8+ is +true+.
             #
             # Uses: +af+, +af'+, +bc+, +bc'+, +hl+, +hl'+, +de'+, +x+, preserves: +de+.
             def divmod32_16(x:ixl, check0:true, check1:true, modulo:false, quick8:true, jump_rel:false)
