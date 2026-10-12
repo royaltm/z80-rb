@@ -318,7 +318,7 @@ module ZXUtils
                         jr   C, calc_idle   # (pc > forever)
                         ld   hl, -10         # (pc < forever)
                         jr   no_adjust
-            calc_idle  ex   de, hl          # hl: pc
+            calc_idle   ex   de, hl          # hl: pc
                         ld   de, finale
                         xor  a
                         sbc  hl, de          # pc - finale

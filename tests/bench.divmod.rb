@@ -2,14 +2,17 @@ require 'zxutils/benchmark'
 require 'zxlib/basic'
 
 OPTIONS = {
-  clrrem:true,
-  check0:true,
-  check0_far:false,
-  check1:true,
-  k_leq_m:false,
-  modulo:true,
-  ignore_cf:false,
-  optimize: :unroll_alt
+    clrrem: true,
+    check0: true, #:check0,
+    check0_far: false,
+    check1: true, #:check1,
+    check1_far: false,
+    k_leq_m: true,
+    modulo: false,
+    ignore_cf: false,
+    optimize: :time,
+    subroutine: false,
+    skip_clra: false
 }.freeze
 
 class BenchDivMod
@@ -22,6 +25,24 @@ class BenchDivMod
 
     get_bench_result    calculate_benchmark_tstates(bm.counter, bm.tsframe, bm.frames, bm.idle, bm.adjustment)
     estimate_tsframes   estimate_tstates_per_interrupt(vars.udg, bm.interrup_vec, bm.forward, bm.tsframe, bm.idle)
+
+    def self.create_options(options)
+        options.map do |key, val|
+            case key
+            when :check0, :check1
+                case val
+                when :ret
+                    [key, val]
+                when Symbol
+                    [key, self.define_label(val)]
+                else
+                    [key, val]
+                end
+            else
+                [key, val]
+            end
+        end.to_h
+    end
 
     dc!
     dc!"*********************************************"
@@ -53,19 +74,39 @@ class BenchDivMod
       divargs_a     ld   de, 0 # 10
       divargs_m     as   divargs_a + 1
       divargs_k     as   divargs_a + 2
-      dc!
-      dc!"*********************************************"
-      dc!"***                ROUTINE                ***"
-      dc!"*********************************************"
-      routine       divmod(d, e, **OPTIONS)
-      dc!"*********************************************"
-      dc!
+      if OPTIONS[:subroutine]
+                    call routine # +17
+                    anda a if OPTIONS[:check0] && OPTIONS[:ignore_cf]
+      else
+        dc!
+        dc!"*********************************************"
+        dc!"***                ROUTINE                ***"
+        dc!"*********************************************"
+        routine       divmod(d, e, **self.create_options(OPTIONS))
+                      anda a if OPTIONS[:check0] && OPTIONS[:ignore_cf]
+        check0        label
+        check1        label
+        dc!"*********************************************"
+        dc!
+      end
       routine_over  ld   [remainder], a # 13
                     ld   a, d           # 4
                     ld   [quotient], a  # 13
                     sbc  a, a           # 4
                     ld   [carryover], a # 13
                     ret
+      if OPTIONS[:subroutine]
+        dc!
+        dc!"*********************************************"
+        dc!"***                ROUTINE                ***"
+        dc!"*********************************************"
+        routine       divmod(d, e, **self.create_options(OPTIONS))
+        check0        label
+        check1        label
+                      pop hl # discard return address
+                      jp  routine_over
+        dc!"*********************************************"
+      end
     end
     quotient        db 0
     remainder       db 0
@@ -74,6 +115,7 @@ class BenchDivMod
     arg_k           as test_divmod.divargs_k
 end
 
+ENVELOPE_TS = 64 + (if OPTIONS[:subroutine] then 17 else 0 end)
 ZXINTERFACE1 = false
 
 benchmark = BenchDivMod.new 0x8000 # Note: this must be the 0x8000 address at the moment.
@@ -102,7 +144,7 @@ program = ZXLib::Basic.parse_source <<-EOC
   30 LET sum=0: LET max=0: LET maxi=-1: LET min=1e+38: LET mini=-1: LET v=0
   50 FOR k=0 TO 255: FOR m=#{mstart} TO 255
  100 RANDOMIZE FN z(k,m): LET frames=FN b(#{test_divmod},counter)
-     LET w=FN r()-64: LET sum=sum+w
+     LET w=FN r()-#{ENVELOPE_TS}: LET sum=sum+w
      IF w>max THEN LET max=w: LET maxi=k*256+m
      IF w<min THEN LET min=w: LET mini=k*256+m
      IF v<>w THEN PRINT k;"/";m;":";TAB 8;w: LET v=w
