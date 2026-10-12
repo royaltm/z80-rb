@@ -3146,6 +3146,7 @@ module Z80
                                     jr  C, iter7.found1
                                     # k == 0
                         fw_check0   label if check0 && check0_far && check0 == eoc
+                        fw_check1   label if check1 && check1_far && check1 == eoc
                                     ret if subroutine
                                     jp  eoc unless subroutine
                             end
@@ -3170,7 +3171,7 @@ module Z80
                         fw_check0   label if check0 && check0_far && !(check0 == eoc) && check0 == check1
                                 if k_leq_m && check1 == :ret
                                     ret
-                                elsif k_leq_m || check1_far
+                                elsif k_leq_m || (check1_far && !(check1 == eoc))
                         fw_check1   jp  check1 # division by 1
                                 end
                             end # check1
