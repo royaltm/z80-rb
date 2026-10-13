@@ -3557,7 +3557,7 @@ module Z80
                     check_tgt = if subroutine then :ret else eoc end
                     if check0 == true
                         check0 = check_tgt
-                        check0_far = (optimize == :unroll || optimize == :unroll_alt) && !subroutine
+                        check0_far = [:time, :time_alt, :unroll, :unroll_alt].include?(optimize) && !subroutine
                     end
                     check1 = check_tgt if check1 == true
                     if check0 or check1 or quick8

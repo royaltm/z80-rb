@@ -8,7 +8,7 @@ OPTIONS = {
     # check1:true,
     # check1_far:false,
     # modulo:false,
-    jump_rel:true,
+    jump_rel:false,
     ignore_cf:false,
     # subroutine:false,
     skip_clra:false
@@ -29,7 +29,6 @@ class MTestFactory
             th, tl = tt.split
             kk = if tt == de then bc else de end
             kh, kl = kk.split
-            sgn = tl
 
             # > hl: dividend, kk: divisor, a: 0
             ns :get_args do

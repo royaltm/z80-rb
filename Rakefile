@@ -90,6 +90,7 @@ end
 
 TESTS = %w[
   test.math_i.divmod8.rb
+  test.math_i.divmod16.rb
   test.math_i.mul16_9.rb
   test.math_i.mul8_24.rb
   test.math_i.mul8_24a.rb
