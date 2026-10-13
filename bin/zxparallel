@@ -1,0 +1,104 @@
+#!/usr/bin/env ruby
+# -*- coding: BINARY -*-
+ZXPARALLEL_VERSION = '0.1'
+HELP = <<_EOH_
+ZXPARALLEL #{ZXPARALLEL_VERSION}: Run ZX Spectrum programs in parallel batches.
+Usage:
+#{File.basename($0)} <input_file> [<batch_size>] [-- emulator args, ...]
+
+  input_file: a file containing lines, each line specifying a path to a TAP/TZX file
+              and optionally an output file path after a '>' character,
+  batch_size: how many programs should be run in parallell each batch.
+
+  To read from stdin set input_file to '-'.
+
+  Environment: ZXEMU_PATH=/path/to/emulator
+_EOH_
+
+require 'fileutils'
+require 'etc'
+
+args_start = lambda { |arg| arg != '--' }
+
+input_file, *args = ARGV.take_while(&args_start)
+
+batch_size = args.shift
+if batch_size.nil?
+    batch_size = Etc.nprocessors
+else
+    batch_size = batch_size.to_i
+end
+
+if input_file.nil? || batch_size <= 0 || !args.empty?
+    abort(HELP)
+end
+
+_, *emu_args = ARGV.drop_while(&args_start)
+
+# interrupted = false
+# Signal.trap('INT') { puts "^C"; interrupted = true }
+
+input = if input_file == '-' then $stdin else File.open(input_file, 'r') end
+
+input.each_line.each_slice(batch_size).with_index do |lines, index|
+    tasks_start = batch_size * index + 1
+    puts "Starting batch: ##{index + 1} tasks: #{tasks_start}..#{tasks_start + lines.size - 1}"
+
+    # interrupted = false
+    pids = lines.map do |line|
+        tap_file, output = line.chomp.split(?>, 2)
+        FileUtils.mkdir_p(File.dirname(output)) unless output.nil?
+        tap_file.strip!
+        if output.nil?
+            output = File::NULL
+        else
+            output.strip!
+        end
+        puts "  #{tap_file}"
+        # zxrun bench.${base_name}.tap -- -m 48k -i resources/if1-2.rom -p >"${output}" 2>/dev/null &
+        Process.spawn(
+            'zxrun', tap_file, '--', *emu_args,
+            out: output,
+            err: File::NULL,
+            # new_pgroup: true
+            # pgroup: true
+        )
+    end
+
+    Process.waitall.each do |pid, status|
+        warn "Process #{pid} failed: #{status.exitstatus}" unless status.success?
+    end
+    # until pids.empty?
+    #     if interrupted
+    #         pids.each do |pid|
+    #             begin
+    #                 puts "KILL #{pid}"
+    #                 Process.kill('INT', pid)
+    #             rescue Errno::ESRCH
+    #                 puts "error kill #{pid}"
+    #             end
+    #         end
+
+    #         pids.each do |pid|
+    #             begin
+    #                 puts "WAIT #{pid}"
+    #                 Process.wait(pid, Process::WUNTRACED)
+    #             rescue Errno::ECHILD
+    #                 puts "error wait #{pid}"
+    #             end
+    #         end
+
+    #         break
+    #     end
+
+    #     pids.reject! do |pid|
+    #         begin
+    #             !Process.waitpid(pid, Process::WNOHANG).nil?
+    #         rescue Errno::ECHILD
+    #             true
+    #         end
+    #     end
+
+    #     sleep 0.1
+    # end
+end

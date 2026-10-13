@@ -3552,6 +3552,7 @@ module Z80
                             jp   cond, target
                     end
                 end
+
                 isolate do |eoc|
                     check_tgt = if subroutine then :ret else eoc end
                     if check0 == true
@@ -3564,6 +3565,8 @@ module Z80
                                         ora d
                                         jump.call NZ, div16start
                         if quick8
+                            cf_helper8 = check0 && !ignore_cf &&
+                                    !([:time_alt, :unroll_alt].include?(optimize) && !modulo)
                             if quick8 == :divmod8
                                         divmod8 e, check0:check0, check0_far:check0_far,
                                                    check1:(check1 && divone),
@@ -3577,7 +3580,7 @@ module Z80
                                                      skip_clra:true, ignore_cf:true
                                         divmod l, e, clrrem:false, optimize:optimize
                             end
-                                        anda a if check0 && !ignore_cf
+                                        anda a if cf_helper8
                                         ld  b, 0 if (optimize == :unroll || optimize == :unroll_alt)
                                         ld  c, a
 

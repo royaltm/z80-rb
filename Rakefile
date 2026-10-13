@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_relative 'examples/rakefile.rb'
+require_relative 'tests/rakefile.rb'
 
 desc "Documentation"
 task :doc do
@@ -88,6 +89,7 @@ task :utils do
 end
 
 TESTS = %w[
+  test.math_i.divmod8.rb
   test.math_i.mul16_9.rb
   test.math_i.mul8_24.rb
   test.math_i.mul8_24a.rb
