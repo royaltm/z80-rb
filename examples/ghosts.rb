@@ -1167,13 +1167,15 @@ end
 
   ns :spell9 do
                         ld    a, [nsprites]
+                        ora   a
+                        ret   Z
                         ld    hl, sprites.radius
                         ld    de, +Sprite
                         exx
                         ld    hl, -1
                         ld16  de, hl
                         ld    c, a
-                        divmod8 c, check0:quit, check1:false
+                        divmod8 c, check0:false, check1:false, jump_rel:true
                         ld    b, c
                         ex    de, hl
                         neg16 d, e
@@ -1184,7 +1186,7 @@ end
                         add   hl, de
                         exx
                         djnz  queue
-    quit                ret
+                        ret
   end
 
   # a: a key character
