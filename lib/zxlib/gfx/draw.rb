@@ -1778,7 +1778,7 @@ module ZXLib
                           ex   af, af            # a: acc(dy), a': xcount
                           jp   start_loop
 
-            horizontal    ld   xcount, a         # xcount=0, last sub-line
+            horizontal    ld   xcount, tmp       # xcount=0, last sub-line
             if check_oos
                           ex   af, af            # a: x f: CF
                           jr   NC, fits_horizx
