@@ -51,6 +51,7 @@ benchmark = BenchRnd.new 0x8000 # Note: this must be the 0x8000 address at the m
 tsframe = benchmark['bm.tsframe']
 test_rnd = benchmark['test_rnd']
 seed = benchmark['test_rnd.seed']
+routine_size = benchmark['+test_rnd.routine']
 channel = if ZXINTERFACE1 then "T" else "P" end
 program = ZXLib::Basic.parse_source <<-EOC
    1 DEF FN n(x)=x-(65536 AND x>=32768)
@@ -61,7 +62,8 @@ program = ZXLib::Basic.parse_source <<-EOC
      DEF FN r()=USR #{benchmark[:get_bench_result]}: REM result
      DEF FN z(s)=USR #{benchmark[:set_seed]}
   10 LET counter=50#{if ZXINTERFACE1 then ': FORMAT "T";19200' end}
-  20 PRINT "See results on ZX Printer": OPEN #2,"#{channel}": PRINT "Seed:   T-States"
+  20 PRINT "See results on #{if ZXINTERFACE1 then 'the serial port' else 'ZX Printer' end}"
+     OPEN #2,"#{channel}": PRINT "Seed:   T-States size: #{routine_size}"
   30 LET sum=0: LET max=0: LET maxi=-1: LET min=1e+38: LET mini=-1: LET v=0
   40 INPUT "step 1-128: ";step: IF step<1 OR step>128 OR step<>INT step THEN GO TO 40
   50 FOR i=0 TO 65535 STEP step

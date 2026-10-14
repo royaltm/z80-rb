@@ -171,8 +171,8 @@ program = ZXLib::Basic.parse_source <<-EOC
      INPUT "Is this ok? Y/n", a$: IF a$<>"n" AND a$<>"N" THEN RETURN
      INPUT "Enter value: ",tf: PRINT "T-States/int.:";FN s(tf)
      RETURN
-2000 CLOSE #2: PRINT '"assertion failed:(q)";FN q();"`<>`";INT(k/m): GO TO 10000
-2100 CLOSE #2: PRINT '"assertion failed:(r)";FN m();"`<>`";(k-INT(k/m)*m): GO TO 10000
+2000 CLOSE #2: PRINT '"assertion failed:(Q)";FN q();"`<>`";INT(k/m): GO TO 10000
+2100 CLOSE #2: PRINT '"assertion failed:(R)";FN m();"`<>`";(k-INT(k/m)*m): GO TO 10000
 2200 CLOSE #2: PRINT '"assertion failed:(C)";FN c();"!";m: GO TO 10000
 9998 STOP
 9999 CLEAR #{benchmark.org-1}: LOAD "benchmark"CODE: RUN

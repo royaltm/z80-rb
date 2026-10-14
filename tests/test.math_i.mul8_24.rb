@@ -172,7 +172,9 @@ include ZXLib
 
 [MTest1, MTest2, MTest3, MTest4].each do |mtest_klass|
     mtest = mtest_klass.new 65536 - mtest_klass.code.bytesize
-    # puts mtest.debug
+    File.open("#{mtest.class::NAME}.out", "w") do |out|
+        out.puts mtest.debug
+    end
     source = <<-END
        1 DEF FN m(a,b)=USR #{mtest[:test_mul24_8]}: DEF FN n(a,b)=USR #{mtest[:test_mul24_8a]}: DEF FN a(a,b,c)=USR #{mtest[:test_mul]}
       10 RANDOMIZE

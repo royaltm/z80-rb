@@ -162,7 +162,9 @@ include ZXLib
 
 [MTest1, MTest2].each do |mtest_klass|
     mtest = mtest_klass.new 65536 - mtest_klass.code.bytesize
-    # puts mtest.debug
+    File.open("#{mtest.name}.out", "w") do |out|
+        out.puts mtest.debug
+    end
     program = Basic.parse_source <<-END
        1 DEF FN n(x)=x-(65536 AND x>=32768): DEF FN m(a,b)=USR #{mtest[:test_pos]}: DEF FN s(a,b)=FN n(USR #{mtest[:test_sig]}): DEF FN a(a,b,c)=USR #{mtest[:test_pos]}: DEF FN q(a,b,c)=FN n(USR #{mtest[:test_sig]})
       10 RANDOMIZE

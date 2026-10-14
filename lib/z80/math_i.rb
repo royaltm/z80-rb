@@ -3370,8 +3370,8 @@ module Z80
             # * +skip_clra+:: Assume the +accumulator+ is already cleared. This option is ignored if
             #                 either +check0+ or +check1+ is set.
             #
-            # _NOTE_:: A stacked Macros.divmod presents a faster (up to 12%) but a significantly
-            #          larger (x1.5) alternative.
+            # _NOTE_:: A stacked Macros.divmod routines presents a larger but a faster alternative to this
+            #          routine.
             #
             # Uses: +af+, +b+, +hl+, preserves: +m+.
             def divmod8(m=c, check0:true, check0_far:false, check1:true, check1_far:false, modulo:false, jump_rel:false, ignore_cf:false, subroutine:false, skip_clra:false)
@@ -3480,8 +3480,8 @@ module Z80
             #                See Macros.divmod for details.
             # * +subroutine+:: Creates a sub-routine.
             #
-            # _NOTE_:: A Macros.divmod8 presents a slower (up to 12%) but a significantly
-            #          smaller (x1.5) alternative.
+            # _NOTE_:: A Macros.divmod8 routine presents a smaller but a slower alternative to this
+            #          routine.
             #
             # Uses: +af+, +kh+, +kl+, +b+ unless +:optimize+ is +:unroll+ or +:unroll_alt+, preserves: +m+.
             def divmod16_8(kh, kl, m, check0:true, check0_far:false, check1:true, check1_far:false, k_leq_m:nil, modulo:false, ignore_cf:false, optimize: :time, subroutine:false)
@@ -3496,10 +3496,12 @@ module Z80
                         check1 = check_tgt 
                         check1_far = (optimize == :unroll || optimize == :unroll_alt) && !subroutine
                     end
+                    cf_helper8 = check0 && !ignore_cf &&
+                            !([:time_alt, :unroll_alt].include?(optimize) && !modulo)
                     divmod kh, m, check0:check0, check0_far:check0_far, check1:check1, check1_far:check1_far,
                                   k_leq_m:k_leq_m, modulo:modulo, optimize:optimize, ignore_cf:true
                     divmod kl, m, clrrem:false, modulo:modulo, optimize:optimize
-                    anda a if check0 && !ignore_cf # clear CF unless ignored
+                    anda a if cf_helper8 # clear CF unless ignored
                     ret if subroutine
                 end
             end
@@ -3583,29 +3585,8 @@ module Z80
                                         anda a if cf_helper8
                                         ld  b, 0 if (optimize == :unroll || optimize == :unroll_alt)
                                         ld  c, a
-
-                            # if check0 == eoc
-                            # qcheck0     label
-                            # end
                                         ret if subroutine
                                         jump.call nil, eoc unless subroutine
-                            # if check1
-                            # qcheck1     ld  b, a
-                            #             ld  c, a
-                            #     if subroutine && check1 == eoc
-                            #             ret
-                            #     else
-                            #             jump.call nil, check1 # division by 1
-                            #     end
-                            # end
-                            # if check0 && !(check0 == eoc)
-                            # qcheck0     label
-                            #     if check0_far
-                            #             jp  check0
-                            #     else
-                            #             jump nil, check0
-                            #     end
-                            # end
                         else # check0 or check1
                                         ld  a, e
                             if check0 # division by 0
@@ -3719,11 +3700,13 @@ module Z80
                         check1 = check_tgt 
                         check1_far = (optimize == :unroll || optimize == :unroll_alt) && !subroutine
                     end
+                    cf_helper8 = check0 && !ignore_cf &&
+                            !([:time_alt, :unroll_alt].include?(optimize) && !modulo)
                     divmod kh, m, check0:check0, check0_far:check0_far, check1:check1, check1_far:check1_far,
                                   k_leq_m:k_leq_m, modulo:modulo, optimize:optimize, ignore_cf:true
                     divmod km, m, clrrem:false, modulo:modulo, optimize:optimize
                     divmod kl, m, clrrem:false, modulo:modulo, optimize:optimize
-                    anda a if check0 && !ignore_cf # clear CF unless ignored
+                    anda a if cf_helper8 # clear CF unless ignored
                     ret if subroutine
                 end
             end
@@ -3742,8 +3725,8 @@ module Z80
             # * +modulo+:: Calculates a remainder only.
             # * +jump_rel+:: Use relative jumps only.
             #
-            # _NOTE_:: A stacked Macros.divmod presents a faster (9-16%) but a significantly
-            #          larger (x2) alternative.
+            # _NOTE_:: A stacked Macros.divmod presents a faster but a significantly larger
+            #          alternative.
             #
             # Uses: +af+, +af'+, +b+, +b'+, +hl+, +hl'+, +mt'+, preserves: +m+.
             def divmod32_8(m=c, mt:c, check0:true, check1:true, modulo:false, jump_rel:false)
@@ -3948,6 +3931,7 @@ module Z80
             #
             # Modifies: +af+, +bc+, +de+, +hl+.
             #
+            # Size: 69 bytes
             # T-states: ~ 547.7 (46 for seed=65535, 193 for seed<=872, max: 601)
             def rnd
                 isolate do |eoc|

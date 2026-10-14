@@ -121,6 +121,8 @@ MATRIX = {
   },
 }
 
+# Run prepared benches with:
+# zxparallel bench.#{optimize}.txt -- -m 48k -i resources/if1-2.rom -p --turbo
 namespace :benches do
   desc "Prepare bench divmod all"
   task :divmod do
@@ -149,7 +151,6 @@ namespace :benches do
               txt_dest = File.join(destpath, base_name) + ".txt"
               prog_file = "bench.#{base_name}.tap"
               script.puts "#{prog_file} >#{txt_dest}"
-              # zxrun bench.#{base_name}.tap -- -m 48k -i resources/if1-2.rom -p >>#{txt_dest}
             end
           end
         end

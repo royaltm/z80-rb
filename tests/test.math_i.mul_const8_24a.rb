@@ -269,7 +269,9 @@ include ZXLib
 
 [MTest1, MTest2].each do |mtest_klass|
     mtest = mtest_klass.new 65536 - mtest_klass.code.bytesize
-    # puts mtest.debug
+    File.open("#{mtest.class::NAME}.out", "w") do |out|
+        out.puts mtest.debug
+    end
     source = <<-END
        1 DEF FN m(a,b)=USR #{mtest[:test_mul16u]}: DEF FN s(a,b)=USR #{mtest[:test_mul16s]}
          DEF FN u(a,b)=USR #{mtest[:test_mul24u]}: DEF FN q(a,b)=USR #{mtest[:test_mul24s]}

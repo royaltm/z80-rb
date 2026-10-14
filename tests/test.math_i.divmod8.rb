@@ -14,7 +14,7 @@ OPTIONS = {
     skip_clra:false
 }
 
-class MTestFactory
+class DTestFactory
     include Z80
 
     module Macros
@@ -140,70 +140,70 @@ class MTestFactory
     end
 end
 
-class MTest1
+class DTest1
     include Z80
     include Z80::TAP
 
     NAME = "test.math_i.divmod8.check0_1"
     CHECK0 = true
 
-    macro_import MTestFactory
+    macro_import DTestFactory
     make_tests **OPTIONS.merge({
             check0:true, check0_far:false,
             check1:true, check1_far:false,
     })
 end
 
-class MTest2
+class DTest2
     include Z80
     include Z80::TAP
 
     NAME = "test.math_i.divmod8.check0"
     CHECK0 = true
 
-    macro_import MTestFactory
+    macro_import DTestFactory
     make_tests **OPTIONS.merge({
             check0:true, check0_far:false,
             check1:false, check1_far:false,
     })
 end
 
-class MTest3
+class DTest3
     include Z80
     include Z80::TAP
 
     NAME = "test.math_i.divmod8.check1"
     CHECK0 = false
 
-    macro_import MTestFactory
+    macro_import DTestFactory
     make_tests **OPTIONS.merge({
             check0:false, check0_far:false,
             check1:true, check1_far:false,
     })
 end
 
-class MTest4
+class DTest4
     include Z80
     include Z80::TAP
 
     NAME = "test.math_i.divmod8.nochecks"
     CHECK0 = false
 
-    macro_import MTestFactory
+    macro_import DTestFactory
     make_tests **OPTIONS.merge({
             check0:false, check0_far:false,
             check1:false, check1_far:false,
     })
 end
 
-class MTest5
+class DTest5
     include Z80
     include Z80::TAP
 
     NAME = "test.math_i.divmod8.check0_1_far"
     CHECK0 = true
 
-    macro_import MTestFactory
+    macro_import DTestFactory
     make_tests **OPTIONS.merge({
             check0: :check0, check0_far:true,
             check1: :check1, check1_far:true,
@@ -213,14 +213,14 @@ end
 
 include ZXLib
 
-[MTest1, MTest2, MTest3, MTest4, MTest5].each do |mtest_klass|
-    minm = if mtest_klass::CHECK0 then 0 else 1 end
-    mtest = mtest_klass.new 65536 - mtest_klass.code.bytesize
-    File.open("#{mtest.class::NAME}.out", "w") do |out|
-        out.puts mtest.debug
+[DTest1, DTest2, DTest3, DTest4, DTest5].each do |dtest_klass|
+    minm = if dtest_klass::CHECK0 then 0 else 1 end
+    dtest = dtest_klass.new 65536 - dtest_klass.code.bytesize
+    File.open("#{dtest.class::NAME}.out", "w") do |out|
+        out.puts dtest.debug
     end
     source = <<-END
-       0 DEF FN d(k,m)=USR #{mtest[:test_divmod]}: DEF FN m(k,m)=USR #{mtest[:test_modulo]}: DEF FN s(k,m)=USR #{mtest[:test_divmod_sub]}: DEF FN o(k,m)=USR #{mtest[:test_modulo_sub]}: DEF FN c()=PEEK #{mtest[:carryover]}: DEF FN r()=PEEK #{mtest[:remainder]}
+       0 DEF FN d(k,m)=USR #{dtest[:test_divmod]}: DEF FN m(k,m)=USR #{dtest[:test_modulo]}: DEF FN s(k,m)=USR #{dtest[:test_divmod_sub]}: DEF FN o(k,m)=USR #{dtest[:test_modulo_sub]}: DEF FN c()=PEEK #{dtest[:carryover]}: DEF FN r()=PEEK #{dtest[:remainder]}
       10 RANDOMIZE
       20 FOR k=0 TO 255: FOR m=#{minm} TO 255
          GO SUB 200
@@ -243,33 +243,33 @@ include ZXLib
          PRINT AT 3,0;k;"%";m;"=";: LET r=FN o(k,m)
          PRINT FN r();"        ": GO SUB 550
          RETURN
-     500 #{unless mtest.class::CHECK0 then 'REM ' end}IF FN c()<>0 THEN GO TO 510
-         #{unless mtest.class::CHECK0 then 'REM ' end}IF m=0 THEN GO TO 1200
+     500 #{unless dtest.class::CHECK0 then 'REM ' end}IF FN c()<>0 THEN GO TO 510
+         #{unless dtest.class::CHECK0 then 'REM ' end}IF m=0 THEN GO TO 1200
          IF r<>INT(k/m) THEN GO TO 1000
          GO TO 560
      510 IF m<>0 THEN GO TO 1200
          RETURN
-     550 #{unless mtest.class::CHECK0 then 'REM ' end}IF FN c()<>0 THEN GO TO 510
-         #{unless mtest.class::CHECK0 then 'REM ' end}IF m=0 THEN GO TO 1200
+     550 #{unless dtest.class::CHECK0 then 'REM ' end}IF FN c()<>0 THEN GO TO 510
+         #{unless dtest.class::CHECK0 then 'REM ' end}IF m=0 THEN GO TO 1200
      560 IF FN r()<>(k-INT(k/m)*m) THEN GO TO 1100
          RETURN
     1000 PRINT "        "'"assertion failed:(Q)";r;"`<>`";INT(k/m): GO TO 10000
     1100 PRINT "        "'"assertion failed:(R)";FN r();"`<>`";(k-INT(k/m)*m): GO TO 10000
     1200 PRINT "        "'"assertion failed:(C)";FN c();"!";m: GO TO 10000
     9998 STOP: RUN
-    9999 CLEAR #{mtest.org-1}: LOAD ""CODE: RUN
+    9999 CLEAR #{dtest.org-1}: LOAD ""CODE: RUN
     END
     program = Basic.parse_source source
-    puts "#{mtest.class::NAME} size: #{mtest.code.bytesize}"
+    puts "#{dtest.class::NAME} size: #{dtest.code.bytesize}"
     %w[
         divide
         modulo
         divide_sub
         modulo_sub
     ].each do |label|
-        puts "#{label.ljust(20)}: 0x#{mtest[label].to_s 16} - #{mtest[label]}, size: #{mtest['+'+label]}"
+        puts "#{label.ljust(20)}: 0x#{dtest[label].to_s 16} - #{dtest[label]}, size: #{dtest['+'+label]}"
     end
 
-    program.save_tap "#{mtest.class::NAME}.tap", line:9999
-    mtest.save_tap "#{mtest.class::NAME}.tap", append:true
+    program.save_tap "#{dtest.class::NAME}.tap", line:9999
+    dtest.save_tap "#{dtest.class::NAME}.tap", append:true
 end
