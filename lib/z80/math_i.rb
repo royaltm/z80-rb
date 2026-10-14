@@ -3719,18 +3719,35 @@ module Z80
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the register +a+ is being altered.
-            #              +CF+ should be ignored if +check0+ is +false+.
-            # * +check1+:: Checks if a divisor is 1, a hot path optimization.
+            #              and nothing except the +accumulator+ is being altered.
+            #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
+            #              (within a relative jump range) to indicate where to jump if +m+ is 0.
+            # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
+            #                  If this is +true+, +check0+ must be specified as a label.
+            # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
+            #              be a label (within a relative jump range) to indicate where to jump if +m+
+            #              equals to 1.
+            # * +check1_far+:: Allow to specify a far (outside of a relative jump range) +check1+ label.
+            #                  If this is +true+, +check1+ must be specified as a label.
             # * +modulo+:: Calculates a remainder only.
-            # * +jump_rel+:: Use relative jumps only.
+            # * +jump_rel+:: Use relative jumps only. If +check0_far+ or +check0_far+ is +true+ the absolute
+            #                jump will be generated regardless of the +jump_rel+ value.
+            # * +ignore_cf+:: Removes instructions to clear CF if +check0+ is also set. This can be used if
+            #                 +check0+ is provided as a label instead of checking the state of the CF flag.
+            # * +subroutine+:: Creates a sub-routine.
+            # * +skip_clra+:: Assume the +accumulator+ is already cleared. This option is ignored if
+            #                 either +check0+ or +check1+ is set.
             #
             # _NOTE_:: A stacked Macros.divmod presents a faster but a significantly larger
             #          alternative.
             #
             # Uses: +af+, +af'+, +b+, +b'+, +hl+, +hl'+, +mt'+, preserves: +m+.
-            def divmod32_8(m=c, mt:c, check0:true, check1:true, modulo:false, jump_rel:false)
-                raise ArgumentError unless [c, d, e].include?(m)
+            def divmod32_8(m=c, mt:c, check0:true, check0_far:false, check1:true, check1_far:false, modulo:false, jump_rel:false, ignore_cf:false, subroutine:false, skip_clra:false)
+                raise ArgumentError, "divmod32_8: invalid m argument!" unless [c, d, e].include?(m)
+                raise ArgumentError, "divmod32_8: invalid check0 argument!" unless [true, false, :ret].include?(check0) || direct_address?(check0)
+                raise ArgumentError, "divmod32_8: invalid check0_far argument!" if check0_far && !direct_address?(check0)
+                raise ArgumentError, "divmod32_8: invalid check1 argument!" unless [true, false, :ret].include?(check1) || direct_address?(check1)
+                raise ArgumentError, "divmod32_8: invalid check1_far argument!" if check1_far && !direct_address?(check1)
                 jump = proc do |cond, target|
                     if jump_rel
                             jr   cond, target
@@ -3739,19 +3756,35 @@ module Z80
                     end
                 end
                 isolate do |eoc|
-                    check0 = eoc if check0 == true
-                    check1 = eoc if check1 == true
+                    check_tgt = if subroutine then :ret else eoc end
+                    check0 = check_tgt if check0 == true
+                    check1 = check_tgt if check1 == true
                     if check0 or check1
                                         ld  a, m
-                                        cp  1
-                                        jr  C, check0 if check0 # division by 0
-                        if check1
-                                        jump.call NZ, divstrt # division by m > 1
-                                        xor a            # clear rest
-                                        jump.call nil, check1 # division by 1
+                        if check0 # division by 0
+                                        sub 1
+                            if check0 == :ret
+                                        ret C
+                            elsif check0_far
+                                        jp  C, check0
+                            else
+                                        jr  C, check0
+                            end
+                        else # check1 only
+                                        dec a
+                        end
+                        if check1 # division by 1
+                            if check1 == :ret
+                                        ret Z
+                            elsif check1_far
+                                        jp  Z, check1
+                            else
+                                        jr  Z, check1
+                            end
                         end
                     end
-                    divstrt             xor a            # a = 0
+                    divstart            label            # a = 0
+                                        xor a unless skip_clra && !check0 && !check1
                                         ld  b, 16
                     loopfit1            add hl, hl       # carry <- hl <- 0
                                         adc a            # carry <- a <- carry
@@ -3778,15 +3811,15 @@ module Z80
                                         cp  mt           # a - m
                                         jr  NC, fits2    # a >= m
                                         djnz loopfit2    # loop
-                                        ccf if check0    # clear carry only when check0
                                         jump.call nil, over
                     fits2               sub mt           # a = a - m (rest)
                     unless modulo
                                         inc l            # hl <- 1 (quotient)
                     end
                                         djnz loopfit2    # loop
-                                        ora  a if check0 # clear carry only when check0
                     over                exx
+                                        anda a if check0 && !ignore_cf # clear carry
+                                        ret if subroutine
                 end
             end
             ##
@@ -3797,18 +3830,33 @@ module Z80
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the register +a+ is being altered.
-            #              +CF+ should be ignored if +check0+ is +false+.
-            # * +check1+:: Checks if a divisor is 1, a hot path optimization.
+            #              and nothing except the +accumulator+ is being altered.
+            #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
+            #              (within a relative jump range) to indicate where to jump if +m+ is 0.
+            # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
+            #                  If this is +true+, +check0+ must be specified as a label.
+            # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
+            #              be a label (within a relative jump range) to indicate where to jump if +m+
+            #              equals to 1.
+            # * +check1_far+:: Allow to specify a far (outside of a relative jump range) +check1+ label.
+            #                  If this is +true+, +check1+ must be specified as a label.
             # * +modulo+:: Calculates a remainder only.
             # * +quick8+:: Checks if a divisor fits in 8 bits and in this instance
             #              uses Macros.divmod32_8.
-            # * +jump_rel+:: Use relative jumps only. This argument is passed to Macros.divmod32_8
-            #                if +quick8+ is +true+.
+            # * +jump_rel+:: Use relative jumps only. If +check0_far+ or +check0_far+ is +true+ the absolute
+            #                jump will be generated regardless of the +jump_rel+ value.
+            #                This argument is passed to Macros.divmod32_8 if +quick8+ is +true+.
+            # * +ignore_cf+:: Removes instructions to clear CF if +check0+ is also set. This can be used if
+            #                 +check0+ is provided as a label instead of checking the state of the CF flag.
+            # * +subroutine+:: Creates a sub-routine.
             #
             # Uses: +af+, +af'+, +bc+, +bc'+, +hl+, +hl'+, +de'+, +x+, preserves: +de+.
-            def divmod32_16(x:ixl, check0:true, check1:true, modulo:false, quick8:true, jump_rel:false)
-                raise ArgumentError unless [ixh, ixl, iyh, iyl].include?(x)
+            def divmod32_16(x:ixl, check0:true, check0_far: false, check1:true, check1_far:false, modulo:false, quick8:true, jump_rel:false, ignore_cf:false, subroutine:false)
+                raise ArgumentError, "divmod32_16: invalid x argument!" unless [ixh, ixl, iyh, iyl].include?(x)
+                raise ArgumentError, "divmod32_16: invalid check0 argument!" unless [true, false, :ret].include?(check0) || direct_address?(check0)
+                raise ArgumentError, "divmod32_16: invalid check0_far argument!" if check0_far && !direct_address?(check0)
+                raise ArgumentError, "divmod32_16: invalid check1 argument!" unless [true, false, :ret].include?(check1) || direct_address?(check1)
+                raise ArgumentError, "divmod32_16: invalid check1_far argument!" if check1_far && !direct_address?(check1)
                 jump = proc do |cond, target|
                     if jump_rel
                             jr   cond, target
@@ -3817,39 +3865,46 @@ module Z80
                     end
                 end
                 isolate do |eoc|
-                    check0 = eoc if check0 == true
-                    check1 = eoc if check1 == true
+                    check_tgt = if subroutine then :ret else eoc end
+                    if check0 == true
+                        check0 = check_tgt
+                        check0_far = !subroutine
+                    end
+                    check1 = check_tgt if check1 == true
                     if check0 or check1 or quick8
                                         xor a
                                         ora d
-                                        jump.call NZ, div32strt
+                                        jump.call NZ, div32start
                         if quick8
-                                        divmod32_8 e, check0:(check0 && qcheck0), check1:(check1 && qcheck1), modulo:modulo, jump_rel:jump_rel
-                                        ld  c, a
-                            if check0 == eoc
-                            qcheck0     label
-                            end
-                                        jump.call nil, eoc
-                            if check1
-                            qcheck1     ld  b, a
-                                        ld  c, a
-                                        jump.call nil, check1
-                            end
-                            if check0 && !(check0 == eoc)
-                            qcheck0     jump.call nil, check0
-                            end
-                        elsif check0 or check1
+                                        divmod32_8 e, check0:check0, check0_far:check0_far,
+                                                      check1:(check1 && divone),
+                                                      modulo:modulo,
+                                                      jump_rel:jump_rel,
+                                                      ignore_cf:ignore_cf,
+                                                      skip_clra:true
+                                        ld  c, a # b == 0
+                                        ret if subroutine
+                                        jump.call nil, eoc unless subroutine
+                        else # check0 or check1
                                         ld  a, e
-                                        cp  1
-                                        jr  C, check0 if check0 # division by 0
-                            if check1
-                                        jump.call NZ, div32strt # division by m > 1
-                                        ld  bc, 0
-                                        jump.call nil, check1 # division by 1
+                            if check0 # division by 0
+                                        sub 1
+                                if check0 == :ret
+                                        ret C
+                                elsif check0_far
+                                        jp  C, check0
+                                else
+                                        jr  C, check0
+                                end
+                            else # check1 only
+                                        dec a
+                            end
+                            if check1 # division by 1
+                                        jr  Z, divone
                             end
                         end
                     end
-                    div32strt           xor a            # a = 0 hi remainder
+                    div32start          xor a            # a = 0 hi remainder
                                         ld  c, a         # c = 0 lo remainder
                                         ld  b, 16
                     loopfit1            add hl, hl       # carry <- hl <- 0
@@ -3859,6 +3914,17 @@ module Z80
                                         jr  NC, fitshi1  # a >= d
                                         djnz loopfit1    # loop
                                         jump.call nil, divlo16
+                    if check1
+                        divone          ld  b, a
+                                        ld  c, a         # clear rest
+                        if check1 == :ret
+                                        ret
+                        elsif check1_far
+                                        jp  check1 # division by 1
+                        else
+                                        jr  check1 # division by 1
+                        end
+                    end
                     fitshi1             ld  x, a
                                         ld  a, c
                                         jr  NZ, fitslo1  # a > d, ignore e
@@ -3890,8 +3956,8 @@ module Z80
                                         cp  d            # a - d'
                                         jr  NC, fitshi2  # a >= d'
                                         djnz loopfit2    # loop
-                                        ccf if check0
                                         jump.call nil, over
+
                     fitshi2             ld  x, a
                                         ld  a, c
                                         jr  NZ, fitslo2  # a > d, ignore e
@@ -3899,8 +3965,8 @@ module Z80
                                         jr  NC, fitslo2  # a >= e
                                         ld  a, x
                                         djnz loopfit2    # loop
-                                        ccf if check0
                                         jump.call nil, over
+
                     fitshi2c            ld  x, a
                                         ld  a, c
                     fitslo2             sub e            # a = c' - e'
@@ -3911,11 +3977,12 @@ module Z80
                                         inc l            # hl' <- 1 (quotient)
                     end
                                         djnz loopfit2    # loop
-                                        ora  a if check0 # clear carry only when check0
                     over                ld  x, c
                                         exx
                                         ld  b, a         # bc = remainder
                                         ld  c, x
+                                        anda a if check0 && !ignore_cf # clear carry
+                                        ret if subroutine
                 end
             end
             ##
