@@ -146,25 +146,34 @@ module ZXLib
         # Creates the plot pixel routine.
         #
         # * +x+:: The input register: horizontal-coordinate in the range [0, 255], one of:
-        #         +d+, +e+ or +l+.
+        #         +d+, +e+ or +l+, optionally +b+ or +c+, see below.
         # * +y+:: The input register: vertical-coordinate in the range [0, 191], one of:
-        #         +d+, +e+, +h+, +l+ or +a+.
-        # * +preshift+:: An address returned from the preshifted_pixel_mask_data called with a +:pixel+
-        #   or a +:inversed_pixel+ argument.
-        #   Alternatively specify as +de+ and provide the +preshift+ address in +de+ register pair.
+        #         +d+, +e+, +h+, +l+ or +a+, optionally +b+ or +c+, see below.
+        # * +preshift+:: An address returned from the preshifted_pixel_mask_data called with a
+        #                +:pixel+ or an +:inversed_pixel+ argument.
+        #                Alternatively specify +preshift+ as +de+ and provide the +preshift+
+        #                address in +de+ register pair.
         #
         # Options:
         # * +fx+:: Function determining how to mix pixels with the screen:
         #          +:or+, +:xor+, +:and+, +:nop+, +:none+, +:write+, +:skip+.
         # * +with_attributes+:: Optionally writes to the screen attributes if not +false+.
         #                       Pass +:overwrite+ to ignore the +color_mask+.
-        # * +color_attr+:: A pointer address, an integer or a label or a 8-bit half of +ix+ or +iy+ register.
-        # * +color_mask+:: A pointer address, an integer or a label or a 8-bit half of +ix+ or +iy+ register.
+        # * +color_attr+:: A pointer address, an integer or a label or a 8-bit half of the
+        #                  +ix+ or +iy+ registers, optionally +b+ or +c+, see below.
+        # * +color_mask+:: A pointer address, an integer or a label or a 8-bit half of the
+        #                  +ix+ or +iy+ registers, optionally +b+ or +c+, see below.
         # * +scraddr+:: An address of the screen memory page, must be a multiple of 0x2000.
         #
         # Unless +with_attributes:+ is +:overwrite+: +attr+ = (+attr+ & +color_mask+) | +color_attr+.
         #
-        # Modifies: +af+, +bc+, +de+, +hl+.
+        # +color_attr+ or +color_mask+ can be specified as +b+ or +c+ unless +preshift+ is +de+
+        # or any of +x+ or +y+ arguments are +d+ or +e+.
+        #
+        # +x,y+ can be specified as +b,c+ or +c,b+, but only if +preshift+ is not +de+.
+        #
+        # Modifies: +af+, +de+, +hl+, preserves +bc+ unless +preshift+ is +de+ or any of +x+ or +y+
+        # arguments are +d+ or +e+.
         #
         # T-states::
         #
@@ -186,18 +195,29 @@ module ZXLib
         # Internal labels: +attr_p+, +mask_p+ may be used to modify +color_attr+ or +color_mask+ if
         # the arguments were given as numbers.
         #
-        # If +preshift+ is given as a direct address the internal label +preshift_p+ may be used to modify the +preshift+
-        # address at run time.
+        # If +preshift+ is given as a direct address the internal label +preshift_p+ may be used to modify
+        # the +preshift+ address at run time.
         def plot_pixel(x, y, preshift, fx: :or, with_attributes:false, color_attr:ixl, color_mask:ixh, scraddr:0x4000)
           raise ArgumentError, "plot_pixel: preshift should be an address or de" unless preshift == de || address?(preshift)
-          raise ArgumentError, "plot_pixel: color_attr should be an address or ixl, ixh" unless [ixl, ixh].include?(color_attr) || address?(color_attr)
-          raise ArgumentError, "plot_pixel: color_mask should be an address or ixl, ixh" unless [ixl, ixh].include?(color_mask) || address?(color_mask)
-          if preshift == de
-            raise ArgumentError, "plot_pixel: x and y in conflict with preshift" if [d, e].include?(x) || [d, e].include?(y)
+          if preshift == de && ([d, e].include?(x) || [d, e].include?(y))
+            raise ArgumentError, "plot_pixel: x and y in conflict with preshift" 
           end
-
+          color_regs = [ixl, ixh, iyl, iyh]
+          s, t = if preshift == de || [d, e].include?(x) || [d, e].include?(y)
+            [c, b]
+          else
+            color_regs << c << b
+            [e, d]
+          end
+          unless color_regs.include?(color_attr) || address?(color_attr)
+            raise ArgumentError, "plot_pixel: color_attr should be an address or #{color_regs.join(', ')}"
+          end
+          unless color_regs.include?(color_mask) || address?(color_mask)
+            raise ArgumentError, "plot_pixel: color_mask should be an address or #{color_regs.join(', ')}"
+          end
           isolate do
-                        xytoscr y, x, ah:h, al:l, s:c, t:b, scraddr:scraddr
+                        yxtoscr y, x, ah:h, al:l, s:s, t:t, scraddr:scraddr
+                        ld   a, s
             if direct_address?(preshift)
               select(preshift & 7, &:zero?).else do
                 raise ArgumentError, "preshift must be aligned to 8"
@@ -207,7 +227,6 @@ module ZXLib
             else
                         ld   de, preshift unless preshift == de
             end
-                        ld   a, c
                         add  e
                         ld   e, a
                         ld   a, [de]
@@ -236,13 +255,17 @@ module ZXLib
                 if direct_address?(color_attr)
             attr_a      ld   [hl], color_attr
             attr_p      as   attr_a + 1
+                elsif [b, c].include?(color_attr)
+                        ld   [hl], color_attr
                 else
                         ld   a, color_attr
                         ld   [hl], a
                 end
               else # with_attributes <> :overwrite
             mask_a      ld   a, color_mask
+                if direct_address?(color_mask)
             mask_p      as   mask_a + 1
+                end
                         anda [hl]
                 if pointer?(color_attr)
                         ld   c, a
@@ -250,7 +273,9 @@ module ZXLib
                         ora  c
                 else
             attr_a      ora  color_attr
+                  if direct_address?(color_attr)
             attr_p      as   attr_a + 1
+                  end
                 end
                         ld   [hl], a
 
