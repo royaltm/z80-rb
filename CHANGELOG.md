@@ -1,9 +1,12 @@
 next
 ====
 
+* More benches and tests.
+
 Z80:
 ---
-* Added :jump_rel option to a family of divmod macros in Z80::MathInt::Macros.
+* Added several options to a family of divmod macros in Z80::MathInt::Macros.
+* Slightly optimized pre-checks in divmod macros in Z80::MathInt::Macros.
 
 
 v1.2.0
