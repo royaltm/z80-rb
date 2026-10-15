@@ -3,15 +3,15 @@ require 'zxlib/sys'
 require 'zxlib/basic'
 
 OPTIONS = {
-    # check0:true,
-    # check0_far:false,
-    # check1:true,
-    # check1_far:false,
-    # modulo:false,
+    # check0: true,
+    # check0_far: false,
+    # check1: true,
+    # check1_far: false,
+    # modulo: false,
     quick8: true, # :divmod8, :size, :time, :time_alt, :unroll, :unroll_alt
-    jump_rel:false,
-    ignore_cf:false,
-    # subroutine:false
+    jump_rel: false,
+    ignore_cf: false,
+    # subroutine: false
 }
 
 class DTestFactory

@@ -3398,7 +3398,7 @@ module Z80
                             if check0 == :ret
                                     ret C
                             elsif check0_far
-                                    jp  C, check0
+                                    jr  C, fw_check0
                             else
                                     jr  C, check0
                             end
@@ -3409,7 +3409,7 @@ module Z80
                             if check1 == :ret
                                     ret Z
                             elsif check1_far
-                                    jp  Z, check1
+                                    jr  Z, fw_check1
                             else
                                     jr  Z, check1
                             end
@@ -3426,6 +3426,13 @@ module Z80
                                     # hl == 0
                                     ret if subroutine
                                     jump.call eoc unless subroutine
+                    if check0 && check0_far && (check0 != check1 || !check1_far)
+                        fw_check0   jp  check0
+                    end
+                    if check1 && check1_far
+                        fw_check0   label if check0 && check0_far && check0 == check1
+                        fw_check1   jp  check1
+                    end
                     loopfit         add hl, hl       # carry <- hl <- 0
                     found           adc a            # carry <- a <- carry
                                     jr  C, fits      # a >= 256
@@ -3561,7 +3568,10 @@ module Z80
                         check0 = check_tgt
                         check0_far = [:time, :time_alt, :unroll, :unroll_alt].include?(optimize) && !subroutine
                     end
-                    check1 = check_tgt if check1 == true
+                    if check1 == true
+                        check1 = check_tgt
+                        check1_far = !jump_rel && !subroutine
+                    end
                     if check0 or check1 or quick8
                                         xor a
                                         ora d
@@ -3594,7 +3604,7 @@ module Z80
                                 if check0 == :ret
                                         ret C
                                 elsif check0_far
-                                        jp  C, check0
+                                        jr  C, fw_check0
                                 else
                                         jr  C, check0
                                 end
@@ -3628,10 +3638,14 @@ module Z80
                         if check1 == :ret
                                         ret
                         elsif check1_far
+                            fw_check0   label if !quick8 && check0 && check0_far && check0 == check1
                                         jp  check1 # division by 1
                         else
                                         jr  check1 # division by 1
                         end
+                    end
+                    if !quick8 && check0 && check0_far && (check0 != check1 || !check1_far)
+                        fw_check0       jp  check0
                     end
                     fitshi              ld  x, a
                                         ld  a, c
@@ -3766,7 +3780,7 @@ module Z80
                             if check0 == :ret
                                         ret C
                             elsif check0_far
-                                        jp  C, check0
+                                        jr  C, fw_check0
                             else
                                         jr  C, check0
                             end
@@ -3777,7 +3791,7 @@ module Z80
                             if check1 == :ret
                                         ret Z
                             elsif check1_far
-                                        jp  Z, check1
+                                        jr  Z, fw_check1
                             else
                                         jr  Z, check1
                             end
@@ -3793,6 +3807,13 @@ module Z80
                                         jr  NC, fits1    # a >= m
                                         djnz loopfit1    # loop
                                         jump.call nil, divlo16
+                    if check0 && check0_far && (check0 != check1 || !check1_far)
+                        fw_check0       jp  check0
+                    end
+                    if check1 && check1_far
+                        fw_check0       label if check0 && check0_far && check0 == check1
+                        fw_check1       jp  check1
+                    end
                     fits1               sub m            # a = a - m (rest)
                     unless modulo
                                         inc l            # hl <- 1 (quotient)
@@ -3867,10 +3888,16 @@ module Z80
                 isolate do |eoc|
                     check_tgt = if subroutine then :ret else eoc end
                     if check0 == true
-                        check0 = check_tgt
-                        check0_far = !subroutine
+                        check0 = if quick8 && !subroutine
+                            fw_check0
+                        else
+                            check_tgt
+                        end
                     end
-                    check1 = check_tgt if check1 == true
+                    if check1 == true
+                        check1 = check_tgt
+                        check1_far = !jump_rel && !subroutine
+                    end
                     if check0 or check1 or quick8
                                         xor a
                                         ora d
@@ -3884,6 +3911,7 @@ module Z80
                                                       skip_clra:true
                                         ld  c, a # b == 0
                                         ret if subroutine
+                            fw_check0   label if check0 && !subroutine
                                         jump.call nil, eoc unless subroutine
                         else # check0 or check1
                                         ld  a, e
@@ -3892,7 +3920,7 @@ module Z80
                                 if check0 == :ret
                                         ret C
                                 elsif check0_far
-                                        jp  C, check0
+                                        jr  C, fw_check0
                                 else
                                         jr  C, check0
                                 end
@@ -3920,10 +3948,14 @@ module Z80
                         if check1 == :ret
                                         ret
                         elsif check1_far
+                            fw_check0   label if !quick8 && check0 && check0_far && check0 == check1
                                         jp  check1 # division by 1
                         else
                                         jr  check1 # division by 1
                         end
+                    end
+                    if !quick8 && check0 && check0_far && (check0 != check1 || !check1_far)
+                        fw_check0       jp  check0
                     end
                     fitshi1             ld  x, a
                                         ld  a, c

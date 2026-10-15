@@ -3,9 +3,9 @@ require 'zxlib/sys'
 require 'zxlib/basic'
 
 OPTIONS = {
-    # check0: true, # :check0
+    # check0: true,
     # check0_far: false,
-    # check1: true, # :check1
+    # check1: true,
     # check1_far: false,
     # modulo: false,
     jump_rel: false,
