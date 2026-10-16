@@ -106,6 +106,7 @@ TESTS = %w[
   test.math_i.mul_signed9.rb
   test.math_i.mul_signed9_24.rb
   test.zxlib.basic.se.rb
+  test.zxlib.gfx.scrmove_lines_cols.rb
 ]
 
 desc "Compile external tests"
