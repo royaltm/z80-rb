@@ -1,12 +1,18 @@
-next
-====
+1.2.1.dev-1
+===========
 
+* Docs improvements.
 * More benches and tests.
 
 Z80:
 ---
-* Added several options to a family of divmod macros in Z80::MathInt::Macros.
-* Slightly optimized pre-checks in divmod macros in Z80::MathInt::Macros.
+* Added several new options to a family of divmod macros in Z80::MathInt::Macros.
+* Pre-checks optimized in a family of divmod macros in Z80::MathInt::Macros.
+
+ZXLib:
+-----
+* ZXLib::Gfx::Draw::Macros#plot_pixel was improved to allow BC to be selected for arguments and to preserve BC registers in some configurations.
+* Argument checks fixed for ZXLib::Gfx::Draw::Macros#plot_pixel to allow selecting IY for color options.
 
 
 v1.2.0
