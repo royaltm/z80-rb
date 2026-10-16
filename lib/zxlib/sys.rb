@@ -658,30 +658,65 @@ module ZXLib
             #
             # The calculated address will be available in the +hl+ register.
             #
-            # +chars+:: the address of a code=0 character as a +hl+ register, address,
-            #           label or a label pointer e.g.: [vars.chars].
+            # +chars+:: the address of a code=0 character as a 16-bit register, an address,
+            #           a label or a label pointer e.g.: [vars.chars].
             #
             # Options:
             # * +code+:: an 8-bit register or a code number (addresses and pointers works to).
             # * +tt+:: a 16-bit register except +hl+.
+            # * +optimize:: what is more important :size or :time ?
             #
-            # T-States: 46, +(0|4|7|13) depending on code, +(0|10|16) depending on chars.
+            # When +:time+ optimized:
+            # T-States: 46, +(0|4|7|13) depending on code, +(0|8|10|16) depending on chars.
+            # Size: 10, +(0|1|2|3) depending on code, +(0|2|3) depending on chars.
+            #
+            # When +:size+ optimized:
+            # T-States: 51, +(0|4|7|8|17) depending on code, +(0|8|10|20) depending on chars.
+            # Size: 7, +(0|1|2|4) depending on code, +(0|2|3|4) depending on chars.
             #
             # Modifies: +af+, +tt+, +hl+
-            def char_ptr_from_code(chars, code=a, tt:de)
-              raise ArgumentError unless ((register?(chars) and chars == hl) or address?(chars)) and
-                                         register?(tt) and !tt.bit8? and tt != hl
+            def char_ptr_from_code(chars, code=a, tt:de, optimize: :time)
+              unless ([bc, de, hl].include?(chars) or address?(chars)) and
+                      [bc, de, hl].include?(tt) and tt != hl
+                raise ArgumentError, "char_ptr_from_code: invalid arguments"
+              end
+
               th, tl = tt.split
               isolate do
+                case optimize
+                when :time
                             ld   a, code unless code == a
+                  if register?(chars)
+                            ld16 hl, chars unless chars == hl
+                  else
                             ld   hl, chars unless chars == hl
+                  end
                             3.times { rlca }
                             ld   tl, a
                             anda 0b00000111
                             ld   th, a
                             xor  tl
                             ld   tl, a
-                            add  hl, th|tl
+                            add  hl, tt
+                when :size
+                  if address?(code) && pointer?(code) || [th, tl].include?(code)
+                            ld   a, code
+                    code = a
+                  end
+                  if register?(chars)
+                            ld16 tt, chars unless chars == tt
+                  else
+                            ld   tt, chars unless chars == tt
+                  end
+                            ld   l, code unless code == l
+                            ld   h, 0
+                            add  hl, hl
+                            add  hl, hl
+                            add  hl, hl
+                            add  hl, tt
+                else
+                    raise ArgumentError, "char_ptr_from_code: optimize should be :size or :time"
+                end
               end
             end
             ##
