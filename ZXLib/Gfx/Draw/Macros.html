@@ -264,7 +264,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 424</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 449</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line</span>(<span class="ruby-identifier">preshift_pixel</span>, <span class="ruby-identifier">preshift_cov_lt</span>, <span class="ruby-identifier">preshift_cov_rt</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">pixel_type:</span> <span class="ruby-value">:pixel</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">end_with:</span> <span class="ruby-value">:eoc</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line: preshift_pixel must be a direct address&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">preshift_pixel</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line: preshift_cov_lt must be a direct address&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">preshift_cov_lt</span>)
@@ -436,7 +436,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_dx_gt_4dy-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1684</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1709</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_dx_gt_4dy</span>(<span class="ruby-identifier">preshift_cov_rt</span>, <span class="ruby-value">direction:</span> <span class="ruby-value">:down</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">pixel_type:</span> <span class="ruby-value">:pixel</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">end_with:</span> <span class="ruby-value">:eoc</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_dx_gt_4dy: preshift_cov_rt should be a direct address&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">preshift_cov_rt</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_dx_gt_4dy: end_with should be :eoc, :ret or an address&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-value">:eoc</span>, <span class="ruby-value">:ret</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">end_with</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">end_with</span>)
@@ -534,7 +534,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
                   <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>            <span class="ruby-comment"># a: acc(dy), a&#39;: xcount</span>
                   <span class="ruby-identifier">jp</span>   <span class="ruby-identifier">start_loop</span>
 
-    <span class="ruby-identifier">horizontal</span>    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">xcount</span>, <span class="ruby-identifier">a</span>         <span class="ruby-comment"># xcount=0, last sub-line</span>
+    <span class="ruby-identifier">horizontal</span>    <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">xcount</span>, <span class="ruby-identifier">tmp</span>       <span class="ruby-comment"># xcount=0, last sub-line</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">check_oos</span>
                   <span class="ruby-identifier">ex</span>   <span class="ruby-identifier">af</span>, <span class="ruby-identifier">af</span>            <span class="ruby-comment"># a: x f: CF</span>
                   <span class="ruby-identifier">jr</span>   <span class="ruby-constant">NC</span>, <span class="ruby-identifier">fits_horizx</span>
@@ -812,7 +812,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_dx_gt_dy-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1222</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1247</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_dx_gt_dy</span>(<span class="ruby-identifier">preshift_cov_lt</span>, <span class="ruby-value">direction:</span> <span class="ruby-value">:down</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">pixel_type:</span> <span class="ruby-value">:pixel</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">end_with:</span> <span class="ruby-value">:eoc</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_dx_gt_dy: preshift_cov_lt should be an address, de or nil&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">preshift_cov_lt</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">preshift_cov_lt</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">preshift_cov_lt</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_dx_gt_dy: end_with should be :eoc, :ret or an address&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-value">:eoc</span>, <span class="ruby-value">:ret</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">end_with</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">end_with</span>)
@@ -1210,7 +1210,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_dy_gte_dx-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 879</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 904</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_dy_gte_dx</span>(<span class="ruby-identifier">preshift</span>, <span class="ruby-value">direction:</span> <span class="ruby-value">:down_right</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">pixel_type:</span> <span class="ruby-value">:pixel</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">end_with:</span> <span class="ruby-value">:eoc</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_dy_gte_dx: preshift should be an address, de or nil&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">preshift</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">preshift</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">preshift</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_dy_gte_dx: end_with should be :eoc, :ret or an address&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-value">:eoc</span>, <span class="ruby-value">:ret</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">end_with</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">end_with</span>)
@@ -1450,7 +1450,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_fx_data-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 355</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 380</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_fx_data</span>(<span class="ruby-identifier">preshift_pixel</span>, <span class="ruby-identifier">preshift_cov_lt</span>, <span class="ruby-identifier">preshift_cov_rt</span>, <span class="ruby-value">fx:</span>, <span class="ruby-value">pixel_type:</span>)
   <span class="ruby-identifier">pixel_type_opt</span> = <span class="ruby-keyword">if</span> [<span class="ruby-value">:pixel_fx_only</span>, <span class="ruby-value">:mask_fx_only</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">pixel_type</span>)
     <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_fx_data: preshift_pixel should be nil&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">preshift_pixel</span>.<span class="ruby-identifier">nil?</span>
@@ -1514,7 +1514,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_fx_data_dx_gt_4dy-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1588</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1613</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_fx_data_dx_gt_4dy</span>(<span class="ruby-identifier">preshift_cov_rt</span>, <span class="ruby-value">fx:</span>, <span class="ruby-value">pixel_type:</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_fx_data_dx_gt_4dy: preshift_cov_rt should be an address or nil&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">preshift_cov_rt</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">preshift_cov_rt</span>)
   <span class="ruby-keyword">if</span> [<span class="ruby-value">:pixel_fx_only</span>, <span class="ruby-value">:mask_fx_only</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">pixel_type</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">preshift_cov_rt</span>.<span class="ruby-identifier">nil?</span>
@@ -1622,7 +1622,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_fx_data_dx_gt_dy-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1136</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1161</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_fx_data_dx_gt_dy</span>(<span class="ruby-identifier">preshift_cov_lt</span>, <span class="ruby-value">fx:</span>, <span class="ruby-value">pixel_type:</span><span class="ruby-keyword">nil</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_fx_data_dx_gt_dy: preshift_cov_lt should be an address or nil&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">preshift_cov_lt</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">preshift_cov_lt</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_fx_data_dx_gt_dy: preshift_cov_lt should be nil if pixel_type is nil&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">pixel_type</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">preshift_cov_lt</span>.<span class="ruby-identifier">nil?</span>
@@ -1707,7 +1707,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_fx_data_dy_gte_dx-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 806</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 831</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_fx_data_dy_gte_dx</span>(<span class="ruby-identifier">preshift</span>, <span class="ruby-value">fx:</span>, <span class="ruby-value">pixel_type:</span><span class="ruby-keyword">nil</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_fx_data_dy_gte_dx: preshift should be an address or nil&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">preshift</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">preshift</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_fx_data_dy_gte_dx: preshift should be nil if pixel_type is nil&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">pixel_type</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">preshift</span>.<span class="ruby-identifier">nil?</span>
@@ -1775,7 +1775,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_fx_data_vertical-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 558</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 583</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_fx_data_vertical</span>(<span class="ruby-identifier">preshift</span>, <span class="ruby-value">fx:</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_fx_data_vertical: preshift should be an address or nil&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">preshift</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">preshift</span>)
   <span class="ruby-identifier">fx</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">fx</span>
@@ -1844,7 +1844,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_update-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 310</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 335</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_update</span>(<span class="ruby-identifier">target</span>, <span class="ruby-value">fx_only:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_update: target should be a label&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">target</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -1922,7 +1922,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_update_dx_gt_4dy-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1540</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1565</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_update_dx_gt_4dy</span>(<span class="ruby-identifier">target</span>, <span class="ruby-value">no_preshift:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">fx_only:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_update_dx_gt_4dy: target should be a label&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">target</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -2008,7 +2008,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_update_dx_gt_dy-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1087</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 1112</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_update_dx_gt_dy</span>(<span class="ruby-identifier">target</span>, <span class="ruby-value">no_preshift:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">fx_only:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_update_dx_gt_dy: target should be a label&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">target</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -2098,7 +2098,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_update_dy_gte_dx-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 772</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 797</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_update_dy_gte_dx</span>(<span class="ruby-identifier">target</span>, <span class="ruby-value">no_preshift:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">fx_only:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_update_dy_gte_dx: target should be a label&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">target</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -2169,7 +2169,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_update_vertical-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 534</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 559</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_update_vertical</span>(<span class="ruby-identifier">target</span>, <span class="ruby-value">no_preshift:</span><span class="ruby-keyword">false</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_update_vertical: target should be a label&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">direct_label?</span>(<span class="ruby-identifier">target</span>)
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
@@ -2273,7 +2273,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="draw_line_vertical-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 614</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 639</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">draw_line_vertical</span>(<span class="ruby-identifier">preshift</span>, <span class="ruby-value">direction:</span> <span class="ruby-value">:down</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>, <span class="ruby-value">check_oos:</span><span class="ruby-keyword">true</span>, <span class="ruby-value">end_with:</span> <span class="ruby-value">:eoc</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_vertical: preshift should be an address, de or nil&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">preshift</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">preshift</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">preshift</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;draw_line_vertical: end_with should be :eoc, :ret or an address&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-value">:eoc</span>, <span class="ruby-value">:ret</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">end_with</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">end_with</span>)
@@ -2517,18 +2517,16 @@ dy = 3 must be encoded as d:0, e:3</pre>
           <p>Creates the plot pixel routine.</p>
 <ul><li><dl class="rdoc-list note-list"><dt><code>x</code>
 <dd>
-<p>The input register: horizontal-coordinate in the range [0, 255], one of: <code>d</code>, <code>e</code> or <code>l</code>.</p>
+<p>The input register: horizontal-coordinate in the range [0, 255], one of: <code>d</code>, <code>e</code> or <code>l</code>, optionally <code>b</code> or <code>c</code>, see below.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>y</code>
 <dd>
-<p>The input register: vertical-coordinate in the range [0, 191], one of: <code>d</code>, <code>e</code>, <code>h</code>, <code>l</code> or <code>a</code>.</p>
+<p>The input register: vertical-coordinate in the range [0, 191], one of: <code>d</code>, <code>e</code>, <code>h</code>, <code>l</code> or <code>a</code>, optionally <code>b</code> or <code>c</code>, see below.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>preshift</code>
 <dd>
-<p>An address returned from the <a href="Macros.html#method-i-preshifted_pixel_mask_data"><code>preshifted_pixel_mask_data</code></a> called with a <code>:pixel</code></p>
+<p>An address returned from the <a href="Macros.html#method-i-preshifted_pixel_mask_data"><code>preshifted_pixel_mask_data</code></a> called with a <code>:pixel</code> or an <code>:inversed_pixel</code> argument. Alternatively specify <code>preshift</code> as <code>de</code> and provide the <code>preshift</code> address in <code>de</code> register pair.</p>
 </dd></dl>
-
-<p>or a <code>:inversed_pixel</code> argument. Alternatively specify as <code>de</code> and provide the <code>preshift</code> address in <code>de</code> register pair.</p>
 </li></ul>
 
 <p>Options:</p>
@@ -2542,11 +2540,11 @@ dy = 3 must be encoded as d:0, e:3</pre>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>color_attr</code>
 <dd>
-<p>A pointer address, an integer or a label or a 8-bit half of <code>ix</code> or <code>iy</code> register.</p>
+<p>A pointer address, an integer or a label or a 8-bit half of the <code>ix</code> or <code>iy</code> registers, optionally <code>b</code> or <code>c</code>, see below.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>color_mask</code>
 <dd>
-<p>A pointer address, an integer or a label or a 8-bit half of <code>ix</code> or <code>iy</code> register.</p>
+<p>A pointer address, an integer or a label or a 8-bit half of the <code>ix</code> or <code>iy</code> registers, optionally <code>b</code> or <code>c</code>, see below.</p>
 </dd></dl>
 </li><li><dl class="rdoc-list note-list"><dt><code>scraddr</code>
 <dd>
@@ -2556,7 +2554,11 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
 <p>Unless <code>with_attributes:</code> is <code>:overwrite</code>: <code>attr</code> = (<code>attr</code> &amp; <code>color_mask</code>) | <code>color_attr</code>.</p>
 
-<p>Modifies: <code>af</code>, <code>bc</code>, <code>de</code>, <code>hl</code>.</p>
+<p><code>color_attr</code> or <code>color_mask</code> can be specified as <code>b</code> or <code>c</code> unless <code>preshift</code> is <code>de</code> or any of <code>x</code> or <code>y</code> arguments are <code>d</code> or <code>e</code>.</p>
+
+<p>+x,y+ can be specified as +b,c+ or +c,b+, but only if <code>preshift</code> is not <code>de</code>.</p>
+
+<p>Modifies: <code>af</code>, <code>de</code>, <code>hl</code>, preserves <code>bc</code> unless <code>preshift</code> is <code>de</code> or any of <code>x</code> or <code>y</code> arguments are <code>d</code> or <code>e</code>.</p>
 <dl class="rdoc-list note-list"><dt>T-states
 <dd></dd></dl>
 <ul><li><dl class="rdoc-list note-list"><dt>without attributes
@@ -2590,17 +2592,28 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="plot_pixel-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 191</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 200</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">plot_pixel</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>, <span class="ruby-identifier">preshift</span>, <span class="ruby-value">fx:</span> <span class="ruby-value">:or</span>, <span class="ruby-value">with_attributes:</span><span class="ruby-keyword">false</span>, <span class="ruby-value">color_attr:</span><span class="ruby-identifier">ixl</span>, <span class="ruby-value">color_mask:</span><span class="ruby-identifier">ixh</span>, <span class="ruby-value">scraddr:</span><span class="ruby-value">0x4000</span>)
   <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;plot_pixel: preshift should be an address or de&quot;</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">preshift</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">preshift</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;plot_pixel: color_attr should be an address or ixl, ixh&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">ixh</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">color_attr</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">color_attr</span>)
-  <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;plot_pixel: color_mask should be an address or ixl, ixh&quot;</span> <span class="ruby-keyword">unless</span> [<span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">ixh</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">color_mask</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">color_mask</span>)
-  <span class="ruby-keyword">if</span> <span class="ruby-identifier">preshift</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span>
-    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;plot_pixel: x and y in conflict with preshift&quot;</span> <span class="ruby-keyword">if</span> [<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">x</span>) <span class="ruby-operator">||</span> [<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">y</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">preshift</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span> <span class="ruby-operator">&amp;&amp;</span> ([<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">x</span>) <span class="ruby-operator">||</span> [<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">y</span>))
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;plot_pixel: x and y in conflict with preshift&quot;</span> 
   <span class="ruby-keyword">end</span>
-
+  <span class="ruby-identifier">color_regs</span> = [<span class="ruby-identifier">ixl</span>, <span class="ruby-identifier">ixh</span>, <span class="ruby-identifier">iyl</span>, <span class="ruby-identifier">iyh</span>]
+  <span class="ruby-identifier">s</span>, <span class="ruby-identifier">t</span> = <span class="ruby-keyword">if</span> <span class="ruby-identifier">preshift</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span> <span class="ruby-operator">||</span> [<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">x</span>) <span class="ruby-operator">||</span> [<span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">y</span>)
+    [<span class="ruby-identifier">c</span>, <span class="ruby-identifier">b</span>]
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">color_regs</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">c</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">b</span>
+    [<span class="ruby-identifier">e</span>, <span class="ruby-identifier">d</span>]
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">color_regs</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">color_attr</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">color_attr</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;plot_pixel: color_attr should be an address or #{color_regs.join(&#39;, &#39;)}&quot;</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">color_regs</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">color_mask</span>) <span class="ruby-operator">||</span> <span class="ruby-identifier">address?</span>(<span class="ruby-identifier">color_mask</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;plot_pixel: color_mask should be an address or #{color_regs.join(&#39;, &#39;)}&quot;</span>
+  <span class="ruby-keyword">end</span>
   <span class="ruby-identifier">isolate</span> <span class="ruby-keyword">do</span>
-                <span class="ruby-identifier">xytoscr</span> <span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">s:</span><span class="ruby-identifier">c</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">b</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>
+                <span class="ruby-identifier">yxtoscr</span> <span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span>, <span class="ruby-value">ah:</span><span class="ruby-identifier">h</span>, <span class="ruby-value">al:</span><span class="ruby-identifier">l</span>, <span class="ruby-value">s:</span><span class="ruby-identifier">s</span>, <span class="ruby-value">t:</span><span class="ruby-identifier">t</span>, <span class="ruby-value">scraddr:</span><span class="ruby-identifier">scraddr</span>
+                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">s</span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">preshift</span>)
       <span class="ruby-identifier">select</span>(<span class="ruby-identifier">preshift</span> <span class="ruby-operator">&amp;</span> <span class="ruby-value">7</span>, <span class="ruby-operator">&amp;</span><span class="ruby-value">:zero?</span>).<span class="ruby-identifier">else</span> <span class="ruby-keyword">do</span>
         <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&quot;preshift must be aligned to 8&quot;</span>
@@ -2610,7 +2623,6 @@ dy = 3 must be encoded as d:0, e:3</pre>
     <span class="ruby-keyword">else</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">de</span>, <span class="ruby-identifier">preshift</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">preshift</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">de</span>
     <span class="ruby-keyword">end</span>
-                <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">c</span>
                 <span class="ruby-identifier">add</span>  <span class="ruby-identifier">e</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">e</span>, <span class="ruby-identifier">a</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, [<span class="ruby-identifier">de</span>]
@@ -2639,13 +2651,17 @@ dy = 3 must be encoded as d:0, e:3</pre>
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">color_attr</span>)
     <span class="ruby-identifier">attr_a</span>      <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">color_attr</span>
     <span class="ruby-identifier">attr_p</span>      <span class="ruby-identifier">as</span>   <span class="ruby-identifier">attr_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+        <span class="ruby-keyword">elsif</span> [<span class="ruby-identifier">b</span>, <span class="ruby-identifier">c</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">color_attr</span>)
+                <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">color_attr</span>
         <span class="ruby-keyword">else</span>
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">color_attr</span>
                 <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
         <span class="ruby-keyword">end</span>
       <span class="ruby-keyword">else</span> <span class="ruby-comment"># with_attributes &lt;&gt; :overwrite</span>
     <span class="ruby-identifier">mask_a</span>      <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">a</span>, <span class="ruby-identifier">color_mask</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">color_mask</span>)
     <span class="ruby-identifier">mask_p</span>      <span class="ruby-identifier">as</span>   <span class="ruby-identifier">mask_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+        <span class="ruby-keyword">end</span>
                 <span class="ruby-identifier">anda</span> [<span class="ruby-identifier">hl</span>]
         <span class="ruby-keyword">if</span> <span class="ruby-identifier">pointer?</span>(<span class="ruby-identifier">color_attr</span>)
                 <span class="ruby-identifier">ld</span>   <span class="ruby-identifier">c</span>, <span class="ruby-identifier">a</span>
@@ -2653,7 +2669,9 @@ dy = 3 must be encoded as d:0, e:3</pre>
                 <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">c</span>
         <span class="ruby-keyword">else</span>
     <span class="ruby-identifier">attr_a</span>      <span class="ruby-identifier">ora</span>  <span class="ruby-identifier">color_attr</span>
+          <span class="ruby-keyword">if</span> <span class="ruby-identifier">direct_address?</span>(<span class="ruby-identifier">color_attr</span>)
     <span class="ruby-identifier">attr_p</span>      <span class="ruby-identifier">as</span>   <span class="ruby-identifier">attr_a</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+          <span class="ruby-keyword">end</span>
         <span class="ruby-keyword">end</span>
                 <span class="ruby-identifier">ld</span>   [<span class="ruby-identifier">hl</span>], <span class="ruby-identifier">a</span>
 
@@ -2703,7 +2721,7 @@ dy = 3 must be encoded as d:0, e:3</pre>
 
           
           <div class="method-source-code" id="prepare_args_draw_line_to-source">
-            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 273</span>
+            <pre><span class="ruby-comment"># File lib/zxlib/gfx/draw.rb, line 298</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">prepare_args_draw_line_to</span>
   <span class="ruby-identifier">y0</span>, <span class="ruby-identifier">x0</span> = <span class="ruby-identifier">h</span>, <span class="ruby-identifier">l</span>
   <span class="ruby-identifier">y1</span>, <span class="ruby-identifier">x1</span> = <span class="ruby-identifier">d</span>, <span class="ruby-identifier">e</span>
