@@ -170,7 +170,7 @@ module ZXLib
         # +color_attr+ or +color_mask+ can be specified as +b+ or +c+ unless +preshift+ is +de+
         # or any of +x+ or +y+ arguments are +d+ or +e+.
         #
-        # +x,y+ can be specified as +b,c+ or +c,b+, but only if +preshift+ is not +de+.
+        # +x+,+y+ can be specified as +b+,+c+ or +c+,+b+, but only if +preshift+ is not +de+.
         #
         # Modifies: +af+, +de+, +hl+, preserves +bc+ unless +preshift+ is +de+ or any of +x+ or +y+
         # arguments are +d+ or +e+.

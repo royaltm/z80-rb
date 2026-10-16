@@ -3526,7 +3526,10 @@ module Z80
             # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
             #                  If this is +true+, +check0+ must be specified as a label.
             # * +check1+:: Checks if a divisor equals to 1, a hot path optimization. +check1+ may also
-            #              be a label to indicate where to jump if +de+ equals to 1.
+            #              be a label (within a relative jump range) to indicate where to jump if +m+
+            #              equals to 1.
+            # * +check1_far+:: Allow to specify a far (outside of a relative jump range) +check1+ label.
+            #                  If this is +true+, +check1+ must be specified as a label.
             # * +modulo+:: Calculates a remainder only.
             # * +quick8+:: Adds a check if a divisor fits in 8 bits and in this instance a different,
             #              optimized for 8-bit division code is used. +quick8+ can also be set to +:divmod8+
@@ -3535,7 +3538,7 @@ module Z80
             #              specify optimization for Macros.divmod routine.
             # * +jump_rel+:: Use relative jumps only. This argument is passed to Macros.divmod8 if +quick8+
             #                is +:divmod8+ but not to Macros.divmod if +quick8+ is +true+. Thus, absolute jumps
-            #               can still be produced.
+            #                can still be produced.
             # * +ignore_cf+:: Removes instructions to clear CF if +check0+ is also set. This can be used if
             #                 +check0+ is provided as a label instead of checking the state of the CF flag.
             # * +subroutine+:: Creates a sub-routine.
@@ -4030,8 +4033,8 @@ module Z80
             #
             # Modifies: +af+, +bc+, +de+, +hl+.
             #
-            # Size: 69 bytes
-            # T-states: ~ 547.7 (46 for seed=65535, 193 for seed<=872, max: 601)
+            # T-states: ~ 547.7 (46 for seed=65535, 193 for seed<=872, max: 601).
+            # Size: 69 bytes.
             def rnd
                 isolate do |eoc|
                                     inc hl          # seed + 1
