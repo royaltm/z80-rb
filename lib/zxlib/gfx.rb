@@ -119,6 +119,7 @@ module ZXLib
       #               used only for an out of screen check.
       # * +hires+:: if +true+ the out of screen check will be valid on any of the hi-res screen pages,
       #             in this instance only 2 highest bits of +scraddr+ is important.
+      # * +subroutine+:: Whether to create a sub-routine.
       #
       # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
       # The code in the given block should not fall through and should end with a jump or a +ret+.
@@ -127,9 +128,9 @@ module ZXLib
       #
       # * when +bcheck+ is +false+:: 27:87.5% / 49:1.56% / 59:10.94%
       # * when +bcheck+ is +true+ or +label+::  27:87.5% / (70:2 / 75:1):1.56% / 62:10.94%
-      def nextline(ah, al, bcheck = true, scraddr:0x4000, hires:false, **nsopts, &block)
+      def nextline(ah, al, bcheck = true, scraddr:0x4000, hires:false, subroutine:false, **nsopts, &block)
           if ah == al or [ah, al].include?(a) or
-                  (register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
+                  (register?(bcheck) and ![hl, ix, iy].include?(bcheck)) or
                   (bcheck == hl and ([h, l].include?(ah) or [h, l].include?(al))) or
                   (bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
                   (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
@@ -141,7 +142,8 @@ module ZXLib
                       inc  ah
                       ld   a, ah
                       anda 0x07
-                      jr   NZ, eoc
+                      ret  NZ if subroutine
+                      jr   NZ, eoc unless subroutine
                       ld   a, al
                       add  0x20
                       ld   al, a
@@ -152,7 +154,8 @@ module ZXLib
                       jp   NC, restrh
                       ora  0x20 if hires
                       cp   (scrhiaddr|0x18)
-                      jr   C, eoc
+                      ret  C if subroutine
+                      jr   C, eoc unless subroutine
                   case bcheck
                   when true
                       if block_given?
@@ -164,11 +167,13 @@ module ZXLib
                       jp  bcheck
                   end
               else
-                      jr   C, eoc
+                      ret  C if subroutine
+                      jr   C, eoc unless subroutine
                       ld   a, ah
               end
           restrh      sub  0x08
                       ld   ah, a
+                      ret if subroutine
           end
       end
       ##
@@ -188,6 +193,7 @@ module ZXLib
       #               used only for an out of screen check.
       # * +hires+:: if +true+ the out of screen check will be valid on any of the hi-res screen pages,
       #             in this instance only 2 highest bits of +scraddr+ is important.
+      # * +subroutine+:: Whether to create a sub-routine.
       #
       # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
       # The code in the given block should not fall through and should end with a jump or a +ret+.
@@ -196,9 +202,9 @@ module ZXLib
       #
       # * when +bcheck+ is +false+:: 27:87.5% / 49:1.56% / 59:10.94%
       # * when +bcheck+ is +true+ or +label+::  27:87.5% / (70:2 / 75:1):1.56% / 62:10.94%
-      def prevline(ah, al, bcheck = true, scraddr:0x4000, hires:false, **nsopts, &block)
+      def prevline(ah, al, bcheck = true, scraddr:0x4000, hires:false, subroutine:false, **nsopts, &block)
           if ah == al or [ah, al].include?(a) or
-                  (register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
+                  (register?(bcheck) and ![hl, ix, iy].include?(bcheck)) or
                   (bcheck == hl and ([h, l].include?(ah) or [h, l].include?(al))) or
                   (bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
                   (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
@@ -210,7 +216,8 @@ module ZXLib
                       ld   a, ah
                       dec  ah
                       anda 0x07
-                      jr   NZ, eoc
+                      ret  NZ if subroutine
+                      jr   NZ, eoc unless subroutine
                       ld   a, al
                       sub  0x20
                       ld   al, a
@@ -221,7 +228,8 @@ module ZXLib
                       jp   NC, restrh
                       ora  0x20 if hires
                       cp   scrhiaddr
-                      jr   NC, eoc
+                      ret  NC if subroutine
+                      jr   NC, eoc unless subroutine
                   case bcheck
                   when true
                       if block_given?
@@ -233,11 +241,13 @@ module ZXLib
                       jp  bcheck
                   end
               else
-                      jr   C, eoc
+                      ret  C if subroutine
+                      jr   C, eoc unless subroutine
                       ld   a, ah
               end
           restrh      add  0x08
                       ld   ah, a
+                      ret if subroutine
           end
       end
       # Creates a routine that advances the screen ink/paper memory address by a constant number of
@@ -245,15 +255,16 @@ module ZXLib
       #
       # Modifies: +af+, +ah+, +al+.
       #
-      # +ah+:: A register holding a high byte of a screen address to advance.
-      # +al+:: A register holding a low byte of a screen address to advance.
-      # +lines+:: A constant number of lines between 0 and including 191.
-      # +cols+:: A constant number of columns between 0 and including 31.
+      # * +ah+:: A register holding a high byte of a screen address to advance.
+      # * +al+:: A register holding a low byte of a screen address to advance.
+      # * +lines+:: A constant number of lines between 0 and including 191.
+      # * +cols+:: A constant number of columns between 0 and including 31.
+      # * +subroutine+:: Whether to create a sub-routine.
       #
       # It is considered an error if both lines and cols are 0.
       #
       # Note that the routine does not perform any kind of boundary checks.
-      def scrmove_lines_cols(ah, al, lines, cols)
+      def scrmove_lines_cols(ah, al, lines, cols, subroutine:false)
         raise ArgumentError, "scrmove_lines_cols: invalid lines argument" unless Integer === lines && (0..191) === lines
         raise ArgumentError, "scrmove_lines_cols: invalid cols argument" unless Integer === cols && (0..31) === cols
         raise ArgumentError, "scrmove_lines_cols: lines + cols must not be 0" if (lines + cols).zero?
@@ -271,7 +282,12 @@ module ZXLib
                       inc  ah
                       ld   a, ah
                       anda 0x07
+              if rows.zero? && cols.zero?
+                      ret  NZ if subroutine
+                      jr   NZ, eoc unless subroutine
+              else
                       jr   NZ, no_line_ovf
+              end
             elsif (segm * 8 + lines) != 0
                       ld   a, ah
                       add  a, segm * 8 + lines
@@ -279,7 +295,12 @@ module ZXLib
               unless lines.zero?
                       anda 0x07
                       cp   lines
+                if rows.zero? && cols.zero?
+                      ret  NC if subroutine
+                      jr   NC, eoc unless subroutine
+                else
                       jr   NC, no_line_ovf
+                end
               end
             end
             unless lines.zero?
@@ -291,20 +312,25 @@ module ZXLib
                       add  cols
                       ld   al, a
                 end
-                      jr   eoc
+                      ret if subroutine
+                      jr   eoc unless subroutine
               else
                       ld   a, al
                       add  (rows + 1) * 0x20 + cols
                       ld   al, a
-                      jr   C, eoc
+                      ret  C if subroutine
+                      jr   C, eoc unless subroutine
                       ld   a, ah
                       sub  0x08
                       ld   ah, a
-                      jr   eoc unless rows.zero? && cols.zero?
+                      unless rows.zero? && cols.zero?
+                        ret if subroutine
+                        jr   eoc unless subroutine
+                      end
               end
             end
-          no_line_ovf label
             unless rows.zero? && cols.zero?
+          no_line_ovf label
               if (rows * 0x20 + cols) == 1
                       inc  al
               else
@@ -314,11 +340,13 @@ module ZXLib
               end
             end
             unless rows.zero?
-                      jr   NC, eoc
+                      ret  NC if subroutine
+                      jr   NC, eoc unless subroutine
                       ld   a, ah
                       add  0x08
                       ld   ah, a
             end
+                      ret if subroutine  
           # 32
           # 4+7+4+7+7+12 +4+7+4+12=68 (no overflow)
           # 4+7+4+7+7+12 +4+7+4+7 +4+7+4=78 (rows overflow)
@@ -684,6 +712,7 @@ module ZXLib
       #              +hl+|+ix+|+iy+ = jump to an address in a register if out of screen.
       # * +scraddr+:: A screen memory address which must be a multiple of 0x2000 as an integer or a label.
       # * +branch_rel+:: Branch to +bcheck+ using relative jump (+JR+).
+      # * +subroutine+:: Whether to create a sub-routine.
       #
       # If block is given and +bcheck+ is +true+ evaluates namespaced block instead of +ret+.
       #
@@ -691,9 +720,9 @@ module ZXLib
       #
       # * when +bcheck+ is +false+:: 27:87.5% / 37:12.50%
       # * when +bcheck+ is +true+ or +label+::  27:87.5% / (49:2 / 55:1):12.50% / 54:12.50%
-      def nextrow(ah, al, bcheck = true, scraddr:0x4000, branch_rel:false, **nsopts, &block)
+      def nextrow(ah, al, bcheck = true, scraddr:0x4000, branch_rel:false, subroutine:false, **nsopts, &block)
           if ah == al or [ah, al].include?(a) or
-                  (register?(bcheck) and ![hl_, ix_, iy_].include?(bcheck)) or
+                  (register?(bcheck) and ![hl, ix, iy].include?(bcheck)) or
                   (bcheck == hl and ([h, l].include?(ah) or [h, l].include?(al))) or
                   (bcheck == ix and ([ixh, ixl].include?(ah) or [ixh, ixl].include?(al))) or
                   (bcheck == iy and ([iyh, iyl].include?(ah) or [iyh, iyl].include?(al))) or
@@ -705,28 +734,32 @@ module ZXLib
                   ld   a, al
                   add  0x20
                   ld   al, a
-                  jr   NC, eoc
+                  ret  NC if subroutine
+                  jr   NC, eoc unless subroutine
                   ld   a, ah
                   add  0x08
                   ld   ah, a
               if bcheck
                   cp   (scraddr >> 8)|0x18
-                  case bcheck
-                  when true
+                  if bcheck == true
                       if block_given?
-                          jr   C, eoc
+                          ret  C if subroutine
+                          jr   C, eoc unless subroutine
                           ns(**nsopts, &block)
                       else
                           ret  NC
                       end
-                  else
-                    if branch_rel
+                  elsif [hl, ix, iy].include?(bcheck)
+                      ret  C if subroutine
+                      jr   C, eoc unless subroutine
+                      jp   bcheck
+                  elsif branch_rel
                       jr  NC, bcheck
-                    else
+                  else
                       jp  NC, bcheck
-                    end
                   end
               end
+                  ret if subroutine
           end
       end
       ##

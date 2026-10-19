@@ -7,6 +7,8 @@ class ScrMoveLinesColsTest
     include Z80
     include Z80::TAP
 
+    SUBROUTINE = false
+
     macro_import ::ZXLib::Sys
     macro_import ::ZXLib::Gfx
     macro_import ::Z80::MathInt
@@ -41,22 +43,22 @@ class ScrMoveLinesColsTest
     dc! "****************************************"
     scrmove_0_0         ret
     (1..191).each do |i|
-        define_label :"scrmove_#{i}_0", scrmove_lines_cols(b, c, i, 0)
-        ret
+        define_label :"scrmove_#{i}_0", scrmove_lines_cols(b, c, i, 0, subroutine:SUBROUTINE)
+        ret unless SUBROUTINE
     end
     dc! "****************************************"
     dc! "***          SCRMOVE  COL=1          ***"
     dc! "****************************************"
     (0..191).each do |i|
-        define_label :"scrmove_#{i}_1", scrmove_lines_cols(b, c, i, 1)
-        ret
+        define_label :"scrmove_#{i}_1", scrmove_lines_cols(b, c, i, 1, subroutine:SUBROUTINE)
+        ret unless SUBROUTINE
     end
     dc! "****************************************"
     dc! "***          SCRMOVE COL=32          ***"
     dc! "****************************************"
     (0..191).each do |i|
-        define_label :"scrmove_#{i}_31", scrmove_lines_cols(b, c, i, 31)
-        ret
+        define_label :"scrmove_#{i}_31", scrmove_lines_cols(b, c, i, 31, subroutine:SUBROUTINE)
+        ret unless SUBROUTINE
     end
 
     dc! "****************************************"
