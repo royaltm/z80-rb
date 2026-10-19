@@ -212,6 +212,7 @@ module ZXUtils
       # * +assume_chars_aligned+:: +true+ if every byte of a character resides on the same 256 byte size address page.
       #                            This is true for e.g. an 8 pixels height character addressed at the multiple of 8.
       # * +hires+:: option for rendering on SCLD or ULAplus hi-res screen.
+      # * +subroutine+:: Whether to create a sub-routine.
       #
       # +hires+ option:
       #
@@ -225,7 +226,7 @@ module ZXUtils
       #   Adds at least 59 T-states to each character line.
       #
       # Modifies: +af+, +bc+, +de+, +hl+, +af'+, +bc'+, +de'+, +hl'+
-      def enlarge_char8_16(compact:true, over:false, scraddr:0x4000, assume_chars_aligned:true, hires:nil)
+      def enlarge_char8_16(compact:true, over:false, scraddr:0x4000, assume_chars_aligned:true, hires:nil, subroutine:false)
         combine = case over
         when :xor
           proc {|x| xor x }
@@ -320,7 +321,9 @@ module ZXUtils
                     nextline h, l, bcheck, scraddr:scraddr_right, hires:scraddr_hires
           end
                     dec  c
-                    jr   Z, eoc  # 15th line?
+                    # 15th line?
+                    ret  Z if subroutine
+                    jr   Z, eoc unless subroutine
                     ex   af, af  # restore the input line
                     exx
 
@@ -357,14 +360,16 @@ module ZXUtils
           end
                     exx
                     ld   a, c    # 2nd line
-                    jp   mloop
+                    jr   mloop if compact
+                    jp   mloop unless compact
           if compact
-          next_line label
-                    nextline h, l, bcheck, scraddr:scraddr, hires:hires do
+            ns :next_line do
+                    nextline h, l, bcheck, scraddr:scraddr, hires:hires, subroutine:true do
                       pop af     # discard return address
-                      jr  eoc
+                      ret if subroutine
+                      jr  eoc unless subroutine
                     end
-                    ret
+            end
           end
         end
       end
