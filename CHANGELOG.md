@@ -13,7 +13,10 @@ ZXLib:
 -----
 * ZXLib::Gfx::Draw::Macros#plot_pixel was improved to allow BC to be selected for arguments and to preserve BC registers in some configurations.
 * Argument checks fixed for ZXLib::Gfx::Draw::Macros#plot_pixel to allow selecting IY for color options.
-* Added :optimize to ZXLib::Sys::Macros#char_ptr_from_code and improved arguments checking.
+* Added :optimize option to ZXLib::Sys::Macros#char_ptr_from_code and improved arguments checking.
+* Fixed ZXLib::Gfx::Macros#nextrow bcheck argument as hl, ix or iy.
+* Added :subroutine option to several ZXLib::Gfx::Macros.
+* Added :subroutine option to ZXUtils::BigFont::Macros#enlarge_char8_16.
 
 
 v1.2.0
