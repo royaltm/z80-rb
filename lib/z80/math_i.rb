@@ -442,7 +442,7 @@ module Z80
             #
             # T-states: 16|20
             def adda_to(th, tl, oh:th, ol:tl)
-                if th == tl or oh == ol or ol == th or  [th,tl,ol].include?(a)
+                if oh == ol or ol == th or  [th,tl,ol].include?(a)
                     raise ArgumentError, "adda_to: invalid arguments!"
                 end
                 ns do
@@ -500,16 +500,20 @@ module Z80
             #
             # T-states: 20|24
             def sub_from(s, th, tl, oh:th, ol:tl)
-                if th == tl or ol == th or [s,th,ol].include?(a)
+                if ol == th or [s,th,ol].include?(a)
                     raise ArgumentError, "sub_from: invalid arguments!"
                 end
                 ns do
-                    ld   a, tl unless tl == a
-                    sub  s
-                    ld   ol, a
-                    sbc  a
-                    add  th
-                    ld   oh, a unless oh == a
+                    if tl == 0
+                        xor  a
+                    elsif !(tl == a)
+                        ld   a, tl
+                    end
+                        sub  s
+                        ld   ol, a
+                        sbc  a
+                        add  th unless th == 0
+                        ld   oh, a unless oh == a
                 end
             end
             ##
