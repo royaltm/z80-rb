@@ -60,7 +60,7 @@
   <h3>Table of Contents</h3>
 
   <ul class="link-list" role="directory">
-    <li><a href="#label-1.2.1.dev-1">1.2.1.dev-1</a>
+    <li><a href="#label-1.2.1.dev-2">1.2.1.dev-2</a>
     <li><a href="#label-Z80-3A">Z80:</a>
     <li><a href="#label-ZXLib-3A">ZXLib:</a>
     <li><a href="#label-v1.2.0">v1.2.0</a>
@@ -97,7 +97,7 @@
 
 <main role="main" aria-label="Page CHANGELOG.md">
 
-<h1 id="label-1.2.1.dev-1">1.2.1.dev-1<span><a href="#label-1.2.1.dev-1">&para;</a> <a href="#top">&uarr;</a></span></h1>
+<h1 id="label-1.2.1.dev-2">1.2.1.dev-2<span><a href="#label-1.2.1.dev-2">&para;</a> <a href="#top">&uarr;</a></span></h1>
 <ul><li>
 <p>Docs improvements.</p>
 </li><li>
@@ -109,6 +109,8 @@
 <p>Added several new options to a family of divmod macros in <a href="Z80/MathInt/Macros.html"><code>Z80::MathInt::Macros</code></a>.</p>
 </li><li>
 <p>Pre-checks optimized in a family of divmod macros in <a href="Z80/MathInt/Macros.html"><code>Z80::MathInt::Macros</code></a>.</p>
+</li><li>
+<p>Added <a href="Z80/MathInt/Macros.html#method-i-abs_diff"><code>Z80::MathInt::Macros#abs_diff</code></a> and <a href="Z80/MathInt/Macros.html#method-i-abs_diff_ex"><code>Z80::MathInt::Macros#abs_diff_ex</code></a>.</p>
 </li></ul>
 
 <h2 id="label-ZXLib-3A">ZXLib:<span><a href="#label-ZXLib-3A">&para;</a> <a href="#top">&uarr;</a></span></h2>
@@ -117,7 +119,13 @@
 </li><li>
 <p>Argument checks fixed for <a href="ZXLib/Gfx/Draw/Macros.html#method-i-plot_pixel"><code>ZXLib::Gfx::Draw::Macros#plot_pixel</code></a> to allow selecting IY for color options.</p>
 </li><li>
-<p>Added :optimize to <a href="ZXLib/Sys/Macros.html#method-i-char_ptr_from_code"><code>ZXLib::Sys::Macros#char_ptr_from_code</code></a> and improved arguments checking.</p>
+<p>Added :optimize option to <a href="ZXLib/Sys/Macros.html#method-i-char_ptr_from_code"><code>ZXLib::Sys::Macros#char_ptr_from_code</code></a> and improved arguments checking.</p>
+</li><li>
+<p>Fixed <a href="ZXLib/Gfx/Macros.html#method-i-nextrow"><code>ZXLib::Gfx::Macros#nextrow</code></a> bcheck argument as hl, ix or iy.</p>
+</li><li>
+<p>Added :subroutine option to several <a href="ZXLib/Gfx/Macros.html"><code>ZXLib::Gfx::Macros</code></a>.</p>
+</li><li>
+<p>Added :subroutine option to <a href="ZXUtils/BigFont/Macros.html#method-i-enlarge_char8_16"><code>ZXUtils::BigFont::Macros#enlarge_char8_16</code></a>.</p>
 </li></ul>
 
 <h1 id="label-v1.2.0">v1.2.0<span><a href="#label-v1.2.0">&para;</a> <a href="#top">&uarr;</a></span></h1>
