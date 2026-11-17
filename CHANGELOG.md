@@ -8,6 +8,7 @@ Z80:
 ---
 * Added several new options to a family of divmod macros in Z80::MathInt::Macros.
 * Pre-checks optimized in a family of divmod macros in Z80::MathInt::Macros.
+* Added Z80::MathInt::Macros#abs_diff and Z80::MathInt::Macros#abs_diff_ex.
 
 ZXLib:
 -----
