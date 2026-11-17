@@ -304,14 +304,14 @@ module Z80
             # Creates a routine that changes the sign of a twos complement 16-bit integer in
             # +sh+|+sl+ or an 8-bit integer in +sl+ and extends it to a 16-bit integer.
             #
-            # +sh+:: An 8-bit MSB of the 16-bit integer input, as a register, except +a+,
+            # +sh+:: An 8-bit MSB of the 16-bit integer input, as a register other than +a+,
             #        a constant value or +nil+ to extend 8-bit integer in +sl+.
             # +sl+:: An 8-bit register holding LSB of the 16-bit integer input or an 8-bit
             #        integer input.
             #
             # Options:
             # * +th+:: An 8-bit MSB output register.
-            # * +tl+:: An 8-bit LSB output register, except +a+ or +sh+.
+            # * +tl+:: An 8-bit LSB output register other than +a+ or +sh+.
             #
             # To extend an 8-bit integer in a register +e+ to a negative 16-bit in +hl+:
             #
@@ -356,7 +356,7 @@ module Z80
             ##
             # Creates a routine that changes the sign of a twos complement integer held in any number of +regs+.
             #
-            # Pass any number of 8-bit registers, except the +accumulator+, as function arguments.
+            # Pass any number of 8-bit registers other than the +accumulator+, as function arguments.
             # A register passed as the first argument should hold the most significant byte of the negated integer.
             #
             # Options:
@@ -419,8 +419,9 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that adds an 8-bit accumulator value to a 16-bit value
-            # in a +th+|+tl+ register pair.
+            # Creates a routine that adds an 8-bit accumulator value to a 16-bit integer
+            # in a +th+|+tl+ pair and places the result in an +oh+|+ol+ pair as a 16-bit
+            # integer.
             #
             # +th+:: An 8-bit register containing MSB bits of the 16-bit value.
             # +tl+:: An 8-bit register containing LSB bits of the 16-bit value.
@@ -440,12 +441,12 @@ module Z80
             #
             # Modifies: +af+, +oh+, +ol+.
             #
-            # T-states: 16|20
+            # T-states: 20 (basic register arguments, -4 if oh=a).
             def adda_to(th, tl, oh:th, ol:tl)
                 if oh == ol or ol == th or  [th,tl,ol].include?(a)
                     raise ArgumentError, "adda_to: invalid arguments!"
                 end
-                ns do
+                isolate do
                         add  tl
                         ld   ol, a
                         adc  th
@@ -455,10 +456,11 @@ module Z80
             end
             ##
             # Creates a routine that adds an 8-bit accumulator value to a 16-bit
-            # immediate value and places the result in an +oh+|+ol+ register pair.
+            # immediate integer and places the result in an +oh+|+ol+ pair as a
+            # 16-bit integer.
             #
-            # +n+:: A 16-bit value as an address, a label, or an integer, and it must
-            #       not be an intermediate pointer.
+            # +n+:: A 16-bit value as an address, a label, or an integer, other than
+            #       the intermediate pointer.
             #
             # Options:
             # * +oh+:: An output of an 8-bit MSB part of the result, +h+ by default.
@@ -471,7 +473,7 @@ module Z80
             #
             # Modifies: +af+, +oh+, +ol+.
             #
-            # T-states: 22|26
+            # T-states: 26 (-4 if oh=a).
             def adda_to_n16(n, oh:h, ol:l)
                 raise ArgumentError, "adda_to_n16: invalid n" unless address?(n) and !pointer?(n)
                 th = n >> 8
@@ -479,10 +481,11 @@ module Z80
                 adda_to(th, tl, oh:oh, ol:ol)
             end
             ##
-            # Creates a routine that subtracts an 8-bit +s+ register value from a 16-bit value
-            # in a +th+|+tl+ register pair.
+            # Creates a routine that subtracts an 8-bit unsigned integer +s+ from a 16-bit
+            # integer in a +th+|+tl+ pair and places the result in an +oh+|+ol+ pair as a
+            # 16-bit integer.
             #
-            # +s+:: An 8-bit subtractor, except the accumulator.
+            # +s+:: An 8-bit subtractor register other than the accumulator.
             # +th+:: An 8-bit register containing MSB bits of the 16-bit value.
             # +tl+:: An 8-bit register containing LSB bits of the 16-bit value.
             #
@@ -494,16 +497,17 @@ module Z80
             #
             # ====Note:
             # Although this method is often a more convenient way to subtract an 8-bit unsigned
-            # register value from a 16-bit pair of registers, it does not set flags properly.
+            # register value from a 16-bit pair of registers, it does not set flags as a 16-bit
+            # +sbc+ would.
             #
             # Modifies: +af+, +oh+, +ol+.
             #
-            # T-states: 20|24
+            # T-states: 24 (basic register arguments, -4 if oh=a, -4 if tl=a).
             def sub_from(s, th, tl, oh:th, ol:tl)
                 if ol == th or [s,th,ol].include?(a)
                     raise ArgumentError, "sub_from: invalid arguments!"
                 end
-                ns do
+                isolate do
                     if tl == 0
                         xor  a
                     elsif !(tl == a)
@@ -517,12 +521,13 @@ module Z80
                 end
             end
             ##
-            # Creates a routine that subtracts an 8-bit +s+ register value from a 16-bit
-            # immediate value and places the result in an +oh+|+ol+ register pair.
+            # Creates a routine that subtracts an 8-bit unsigned integer +s+ from a
+            # 16-bit immediate integer value and places the result in an +oh+|+ol+
+            # pair as a 16-bit integer.
             #
-            # +s+:: An 8-bit subtractor, except the accumulator.
-            # +n+:: A 16-bit value as an address, a label, or an integer, and it must
-            #       not be an intermediate pointer.
+            # +s+:: An 8-bit subtractor register other than the accumulator.
+            # +n+:: A 16-bit value as an address, a label, or an integer, and other
+            #       than the intermediate pointer.
             #
             # Options:
             # * +oh+:: An output of an 8-bit MSB part of the result, +h+ by default.
@@ -535,12 +540,64 @@ module Z80
             #
             # Modifies: +af+, +oh+, +ol+.
             #
-            # T-states: 26|30
+            # T-states: 20|23|27|30 (n=0|n<256|n%256=0|n, -4 if oh=a).
             def sub_from_n16(s, n, oh:h, ol:l)
                 raise ArgumentError, "sub_from_n16: invalid n" unless address?(n) and !pointer?(n)
                 th = n >> 8
                 tl = n & 0xFF
                 sub_from(s, th, tl, oh:oh, ol:ol)
+            end
+            ##
+            # Creates a routine that computes the absolute difference between 8-bit unsigned
+            # integers `v0` and `v1` as an 8-bit unsigned integer in the accumulator.
+            #
+            # The carry flag is 1 (C) if `v1` > `v0`, 0 (NC) otherwise.
+            # The zero flag is 1 (Z) if `v1` == `v0`, 0 (NZ) otherwise.
+            #
+            # +v0+:: An 8-bit register, a constant value, a label or a pointer.
+            # +v1+:: An 8-bit register other than the accumulator.
+            #
+            # Modifies: +af+.
+            #
+            # T-states: 20|23 (-4 if v0=a).
+            def abs_diff(v0, v1)
+                raise ArgumentError, "abs_diff: invalid arguments!" if v1 == a
+                isolate do |eoc|
+                        ld    a, v0 unless v0 == a
+                        sub   v1
+                        jr    NC, eoc
+                        neg
+                end
+            end
+            ##
+            # Creates a routine that computes the absolute difference between 8-bit unsigned
+            # integers `v0` and `v1` as an 8-bit unsigned integer in the accumulator.
+            #
+            # As a side effect: +sv+|+dv+ holds a 16-bit twos complement integer result of the
+            # subtraction of `v1` from `v0`.
+            #
+            # The carry flag is 1 (C) if `v1` > `v0`, 0 (NC) otherwise.
+            # The zero flag is 1 (Z) if `v1` == `v0`, 0 (NZ) otherwise.
+            #
+            # +v0+:: An 8-bit register, a constant value, a label or a pointer.
+            # +v1+:: An 8-bit register other than the accumulator.
+            #
+            # Options:
+            # * +dv+:: An 8-bit register for the lower 8-bit result of the subtraction.
+            # * +sv+:: An 8-bit register for the sign of the subtraction.
+            #
+            # Modifies: +af+, +dv+, +sv+.
+            #
+            # T-states: 28 (basic register arguments, -4 if v0=a).
+            def abs_diff_ex(v0, v1, dv:v0, sv:v1)
+                if dv == sv or [v1, dv, sv].include?(a)
+                    raise ArgumentError, "abs_diff_ex: invalid arguments!"
+                end
+                isolate do
+                        sub_from v1, 0, v0, oh:sv, ol:dv
+                        xor   dv
+                        sub   sv
+                end
             end
             ##
             # Creates a routine that adds a 16-bit integer in +tt+ to a 24-bit integer in +th8+|+tl16+.
@@ -579,9 +636,9 @@ module Z80
             # Shift logical left 8-bit register with a result extended to 16-bits.
             #
             # +bshift+:: How many bits to shift the content of the +tl+ register.
-            # +th+:: An 8-bit register, except the +accumulator+ for receiving the highest 8 bits
+            # +th+:: An 8-bit register other than the +accumulator+ for receiving the highest 8 bits
             #        of the result.
-            # +tl+:: An 8-bit register, except the +accumulator+ for receiving the lowest 8 bits
+            # +tl+:: An 8-bit register other than the +accumulator+ for receiving the lowest 8 bits
             #        of the result.
             #
             # Modifies: +af+, +th+, +tl+, optionally preserves +a+, +sl+.
@@ -2149,10 +2206,10 @@ module Z80
             #
             # +kh+::     The MSB part of the multiplicand as an immediate value or an 8-bit register.
             # +kl+::     The LSB part of the multiplicand as an immediate value or an 8-bit register.
-            # +m+::      A multiplier register, except +a+, +t+, +h+, +l+ or a part of +tt+.
+            # +m+::      A multiplier register other than +a+, +t+, +h+, +l+ or a part of +tt+.
             #
             # Options:
-            # * +t+::      An 8-bit temporary register, except +a+, +m+, +h+, +l+ or a part of +tt+.
+            # * +t+::      An 8-bit temporary register other than +a+, +m+, +h+, +l+ or a part of +tt+.
             # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
             # * +clrahl+:: +true+ if the result should replace the +a+|+hl+ content, +false+ if the result 
             #              should be added.
@@ -2253,10 +2310,10 @@ module Z80
             #
             # +kh+::   The MSB part of the multiplicand as an immediate value or an 8-bit register.
             # +kl+::   The LSB part of the multiplicand as an immediate value or an 8-bit register.
-            # +m+::    A multiplier register, except +a+, +t+, +h+, +l+ or a part of +tt+.
+            # +m+::    A multiplier register other than +a+, +t+, +h+, +l+ or a part of +tt+.
             #
             # Options:
-            # * +t+::  An 8-bit temporary register, except +a+, +m+, +h+, +l+ or a part of +tt+.
+            # * +t+::  An 8-bit temporary register other than +a+, +m+, +h+, +l+ or a part of +tt+.
             # * +tt+:: A 16 bit temporary register (+de+ or +bc+).
             # * +k_int24+:: Whether a multiplicand is a 24-bit (possibly signed) integer with its MSB bits
             #               in +t+. Alternatively provide an 8-bit register holding the MSB bits.
@@ -2443,7 +2500,7 @@ module Z80
             # +m+::      A multiplier value as a constant integer.
             #
             # Options:
-            # * +t+::      An 8-bit temporary register, except +a+, +h+, +l+ or a part of +tt+.
+            # * +t+::      An 8-bit temporary register other than +a+, +h+, +l+ or a part of +tt+.
             # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
             # * +clrahl+:: +true+ if the result should replace the register content, +false+ if added.
             # * +signed_k+:: If the multiplicand (+kh+|+kl+) represents a twos complement signed integer
@@ -2644,7 +2701,7 @@ module Z80
             # +m+::      A multiplier value as a constant integer.
             #
             # Options:
-            # * +t+::      An 8-bit temporary register, except +a+, +h+, +l+ or a part of +tt+.
+            # * +t+::      An 8-bit temporary register other than +a+, +h+, +l+ or a part of +tt+.
             # * +tt+::     A 16 bit temporary register (+de+ or +bc+).
             # * +k_int24+:: Whether a multiplicand is a 24-bit (possibly signed) integer with its MSB bits
             #               in +t+. Alternatively provide an 8-bit register holding the MSB bits.
@@ -2986,8 +3043,8 @@ module Z80
             #      anda a # clear CF
             #    end
             #
-            # +k+:: A dividend as an 8-bit register except: +a+, +b+.
-            # +m+:: A divisor as an 8-bit register except: +a+, +b+, +k+.
+            # +k+:: A dividend as an 8-bit register other than: +a+, +b+.
+            # +m+:: A divisor as an 8-bit register other than: +a+, +b+, +k+.
             #
             # +b+ can be selected for +k+ or +m+ if +:optimize+ is +:unroll+ or +:unroll_alt+.
             #
@@ -2995,7 +3052,7 @@ module Z80
             # * +clrrem+:: Clears a reminder (+accumulator+). If this is +false+, +check0+, +check1+ and
             #              +k_leq_m+ options are being ignored.
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the +accumulator+ is being altered.
+            #              and nothing other than the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
             #              (within a relative jump range) to indicate where to jump if +m+ is 0.
             # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
@@ -3355,7 +3412,7 @@ module Z80
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the +accumulator+ is being altered.
+            #              and nothing other than the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
             #              (within a relative jump range) to indicate where to jump if +m+ is 0.
             # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
@@ -3464,14 +3521,14 @@ module Z80
             #
             # This routine utilizes stacked up Macros.divmod routines.
             #
-            # +kh+, +kl+:: A dividend as two unique 8-bit registers except: +a+, +b+.
-            # +m+:: A divisor as an 8-bit register except: +a+, +b+ and none of +kh+, +kl+.
+            # +kh+, +kl+:: A dividend as two unique 8-bit registers other than: +a+, +b+.
+            # +m+:: A divisor as an 8-bit register other than: +a+, +b+ and none of +kh+, +kl+.
             #
             # +b+ can be selected for +kh+, +kl+ or +m+ if +:optimize+ is +:unroll+ or +:unroll_alt+.
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the +accumulator+ is being altered.
+            #              and nothing other than the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
             #              (within a relative jump range) to indicate where to jump if +m+ is 0.
             # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
@@ -3524,7 +3581,7 @@ module Z80
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the +accumulator+ is being altered.
+            #              and nothing other than the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
             #              (within a relative jump range) to indicate where to jump if +de+ is 0.
             # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
@@ -3681,14 +3738,14 @@ module Z80
             #
             # This routine utilizes stacked up Macros.divmod routines.
             #
-            # +kh+, +km+, +kl+:: A dividend as three unique 8-bit registers except: +a+, +b+.
-            # +m+:: A divisor as an 8-bit register except: +a+, +b+ and none of +kh+, +km+, +kl+.
+            # +kh+, +km+, +kl+:: A dividend as three unique 8-bit registers other than: +a+, +b+.
+            # +m+:: A divisor as an 8-bit register other than: +a+, +b+ and none of +kh+, +km+, +kl+.
             #
             # +b+ can be selected for +kh+, +km+, +kl+ or +m+ if +:optimize+ is +:unroll+ or +:unroll_alt+.
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the +accumulator+ is being altered.
+            #              and nothing other than the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
             #              (within a relative jump range) to indicate where to jump if +m+ is 0.
             # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
@@ -3740,7 +3797,7 @@ module Z80
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the +accumulator+ is being altered.
+            #              and nothing other than the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
             #              (within a relative jump range) to indicate where to jump if +m+ is 0.
             # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
@@ -3858,7 +3915,7 @@ module Z80
             #
             # Options:
             # * +check0+:: Checks if a divisor is 0, in this instance CF=1 indicates an error 
-            #              and nothing except the +accumulator+ is being altered.
+            #              and nothing other than the +accumulator+ is being altered.
             #              +CF+ should be ignored if +check0+ is +false+. +check0+ may also be a label
             #              (within a relative jump range) to indicate where to jump if +m+ is 0.
             # * +check0_far+:: Allow to specify a far (outside of a relative jump range) +check0+ label.
